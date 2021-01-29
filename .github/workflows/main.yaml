@@ -1,0 +1,17 @@
+name: ci
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: google/dart:2.9.3
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: pub get
+      - name: Format
+        run: dart format .
+      - name: Analyze
+        run: dart analyze --fatal-infos --fatal-warnings .
