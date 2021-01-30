@@ -11,7 +11,9 @@ Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
 
 A Very Good Command Line Interface for Dart.
 
-## `very_good create`
+## Commands
+
+### `very_good create`
 
 Create a new very good flutter application in seconds.
 
