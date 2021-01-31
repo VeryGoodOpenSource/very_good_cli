@@ -14,11 +14,30 @@ A Very Good Command Line Interface for Dart.
 
 ## Commands
 
-### `very_good create`
+### `$ very_good create`
 
 Create a new very good flutter application in seconds.
 
 ![Very Good CLI][very_good_cli]
+
+### `$ very_good --help`
+
+See the complete list of commands and usage information.
+
+```sh
+🦄 A Very Good Commandline Interface
+
+Usage: very_good <command> [arguments]
+
+Global options:
+-h, --help       Print this usage information.
+    --version    Print the current version.
+
+Available commands:
+  help   Display help information for very_good.
+
+Run "very_good help <command>" for more information about a command.
+```
 
 [ci_badge]: https://github.com/VeryGoodOpenSource/very_good_cli/workflows/ci/badge.svg
 [ci_link]: https://github.com/VeryGoodOpenSource/very_good_cli/actions

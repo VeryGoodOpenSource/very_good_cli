@@ -19,5 +19,11 @@ jobs:
       - name: Analyze
         run: dartanalyzer --fatal-infos --fatal-warnings .
 
-      - name: Ensure Build
+      - name: Verify Build
         run: pub run test --run-skipped -t pull-request-only
+
+      - name: Run Tests
+        run: dart test -x pull-request-only --coverage=coverage && pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+
+      - name: Check Code Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
