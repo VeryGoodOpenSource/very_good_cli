@@ -70,7 +70,7 @@ void main() {
 
       test('handles no command', overridePrint(() async {
         const expectedPrintLogs = [
-          '🦄 A Very Good Commandline Interface\n'
+          '🦄 A Very Good Command Line Interface\n'
               '\n'
               'Usage: very_good <command> [arguments]\n'
               '\n'
@@ -79,7 +79,7 @@ void main() {
               '    --version    Print the current version.\n'
               '\n'
               'Available commands:\n'
-              '  help   Display help information for very_good.\n'
+              '''  create   Creates a new very good flutter application in seconds.\n'''
               '\n'
               '''Run "very_good help <command>" for more information about a command.'''
         ];
@@ -91,7 +91,7 @@ void main() {
       group('--help', () {
         test('outputs usage', overridePrint(() async {
           const expectedPrintLogs = [
-            '🦄 A Very Good Commandline Interface\n'
+            '🦄 A Very Good Command Line Interface\n'
                 '\n'
                 'Usage: very_good <command> [arguments]\n'
                 '\n'
@@ -100,7 +100,7 @@ void main() {
                 '    --version    Print the current version.\n'
                 '\n'
                 'Available commands:\n'
-                '  help   Display help information for very_good.\n'
+                '''  create   Creates a new very good flutter application in seconds.\n'''
                 '\n'
                 '''Run "very_good help <command>" for more information about a command.'''
           ];
