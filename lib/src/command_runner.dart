@@ -2,6 +2,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
+import 'package:very_good_cli/src/commands/commands.dart';
 
 import 'version.dart';
 
@@ -12,12 +13,13 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
   VeryGoodCommandRunner({Logger logger})
       : _logger = logger ?? Logger(),
-        super('very_good', '🦄 A Very Good Commandline Interface') {
+        super('very_good', '🦄 A Very Good Command Line Interface') {
     argParser.addFlag(
       'version',
       negatable: false,
       help: 'Print the current version.',
     );
+    addCommand(CreateCommand());
   }
 
   final Logger _logger;
