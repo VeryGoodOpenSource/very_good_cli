@@ -3,7 +3,7 @@ import 'package:mason/mason.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/commands.dart';
+import 'package:very_good_cli/src/commands/create.dart';
 
 class MockLogger extends Mock implements Logger {}
 
