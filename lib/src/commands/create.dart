@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:args/command_runner.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as path;
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -32,29 +35,59 @@ class CreateCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final projectName = argResults['project-name'];
-    if (projectName == null) {
-      throw UsageException(
-        'Required: --project-name.\n\n'
-        'e.g: very_good create --project-name my_app',
-        usage,
-      );
-    }
-    final isValidProjectName = _isValidPackageName(projectName);
-    if (!isValidProjectName) {
-      throw UsageException(
-        '"$projectName" is not a valid package name.\n\n'
-        'See https://dart.dev/tools/pub/pubspec#name for more information.',
-        usage,
-      );
-    }
+    // ignore: unused_local_variable
+    final outputDirectory = _outputDirectory;
+
+    // ignore: unused_local_variable
+    final projectName = _projectName;
+
     _logger.alert('Created a Very Good App! 🦄');
     return ExitCode.success.code;
   }
 
-  /// Whether [name] is a valid Dart package name.
+  /// Gets the project name.
+  ///
+  /// Uses the current directory path name
+  /// if the `--project-name` option is not explicitly specified.
+  String get _projectName {
+    final projectName =
+        argResults['project-name'] ?? path.basename(_outputDirectory.path);
+    _validateProjectName(projectName);
+    return projectName;
+  }
+
+  void _validateProjectName(String name) {
+    final isValidProjectName = _isValidPackageName(name);
+    if (!isValidProjectName) {
+      throw UsageException(
+        '"$name" is not a valid package name.\n\n'
+        'See https://dart.dev/tools/pub/pubspec#name for more information.',
+        usage,
+      );
+    }
+  }
+
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
+  }
+
+  Directory get _outputDirectory {
+    final rest = argResults.rest;
+    _validateOutputDirectoryArg(rest);
+    return Directory(rest.first);
+  }
+
+  void _validateOutputDirectoryArg(List<String> args) {
+    if (args.isEmpty) {
+      throw UsageException(
+        'No option specified for the output directory.',
+        usage,
+      );
+    }
+
+    if (args.length > 1) {
+      throw UsageException('Multiple output directories specified.', usage);
+    }
   }
 }

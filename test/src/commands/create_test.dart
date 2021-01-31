@@ -22,10 +22,12 @@ void main() {
       expect(command, isNotNull);
     });
 
-    test('throws UsageException when --project-name is missing', () async {
-      const expectedErrorMessage = 'Required: --project-name.\n\n'
-          'e.g: very_good create --project-name my_app';
-      final result = await commandRunner.run(['create']);
+    test(
+        'throws UsageException when --project-name is missing '
+        'and directory base is not a valid package name', () async {
+      const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
+          'See https://dart.dev/tools/pub/pubspec#name for more information.';
+      final result = await commandRunner.run(['create', '.tmp']);
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
@@ -34,15 +36,31 @@ void main() {
       const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
       final result = await commandRunner.run(
-        ['create', '--project-name', 'My App'],
+        ['create', '.', '--project-name', 'My App'],
       );
+      expect(result, equals(ExitCode.usage.code));
+      verify(logger.err(expectedErrorMessage)).called(1);
+    });
+
+    test('throws UsageException when output directory is missing', () async {
+      const expectedErrorMessage =
+          'No option specified for the output directory.';
+      final result = await commandRunner.run(['create']);
+      expect(result, equals(ExitCode.usage.code));
+      verify(logger.err(expectedErrorMessage)).called(1);
+    });
+
+    test('throws UsageException when multiple output directories are provided',
+        () async {
+      const expectedErrorMessage = 'Multiple output directories specified.';
+      final result = await commandRunner.run(['create', './a', './b']);
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
 
     test('completes successfully with correct output', () async {
       final result = await commandRunner.run(
-        ['create', '--project-name', 'my_app'],
+        ['create', '.', '--project-name', 'my_app'],
       );
       expect(result, equals(ExitCode.success.code));
       verify(logger.alert('Created a Very Good App! 🦄')).called(1);
