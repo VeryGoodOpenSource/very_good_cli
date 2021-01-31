@@ -22,12 +22,10 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   final Logger _logger;
 
-  ArgResults _argResults;
-
   @override
   Future<int> run(Iterable<String> args) async {
     try {
-      _argResults = parse(args);
+      final _argResults = parse(args);
       return await runCommand(_argResults) ?? ExitCode.success.code;
     } on FormatException catch (e) {
       _logger
