@@ -5,6 +5,7 @@
 Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
 
 [![ci][ci_badge]][ci_link]
+[![coverage][coverage_badge][ci_link]
 [![License: MIT][license_badge]][license_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 
@@ -41,6 +42,7 @@ Run "very_good help <command>" for more information about a command.
 
 [ci_badge]: https://github.com/VeryGoodOpenSource/very_good_cli/workflows/ci/badge.svg
 [ci_link]: https://github.com/VeryGoodOpenSource/very_good_cli/actions
+[coverage_badge]: coverage_badge.svg
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [logo]: docs/assets/vgv_logo.png
