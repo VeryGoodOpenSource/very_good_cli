@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: google/dart:2.9.3
+      image: google/dart:2.10.0
     steps:
       - uses: actions/checkout@v2
 
@@ -14,10 +14,10 @@ jobs:
         run: pub get
 
       - name: Format
-        run: dartfmt --dry-run --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
 
       - name: Analyze
-        run: dartanalyzer --fatal-infos --fatal-warnings .
+        run: dart analyze --fatal-infos --fatal-warnings .
 
       - name: Verify Build
         run: pub run test --run-skipped -t pull-request-only
