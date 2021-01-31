@@ -26,7 +26,7 @@ Create a new very good flutter application in seconds.
 See the complete list of commands and usage information.
 
 ```sh
-🦄 A Very Good Commandline Interface
+🦄 A Very Good Command Line Interface
 
 Usage: very_good <command> [arguments]
 
@@ -35,7 +35,7 @@ Global options:
     --version    Print the current version.
 
 Available commands:
-  help   Display help information for very_good.
+  create   Creates a new very good flutter application in seconds.
 
 Run "very_good help <command>" for more information about a command.
 ```
