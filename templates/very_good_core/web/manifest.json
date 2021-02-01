@@ -1,6 +1,6 @@
 {
-    "name": "very_good_core",
-    "short_name": "very_good_core",
+    "name": "Very Good Core",
+    "short_name": "Very Good Core",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
