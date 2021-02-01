@@ -1,6 +1,6 @@
 {
-    "name": "{{project_name}}",
-    "short_name": "{{project_name}}",
+    "name": "{{#titleCase}}{{project_name}}{{/titleCase}}",
+    "short_name": "{{#titleCase}}{{project_name}}{{/titleCase}}",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
