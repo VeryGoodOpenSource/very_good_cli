@@ -24,6 +24,12 @@ jobs:
       - name: Verify Build
         run: pub run test --run-skipped -t pull-request-only
 
+      - name: Config Git User
+        run: |
+          # Config Git User
+          git config user.name VGV Bot
+          git config user.email vgvbot@users.noreply.github.com
+
       - name: Run Tests
         run: dart test -x pull-request-only --coverage=coverage && pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
