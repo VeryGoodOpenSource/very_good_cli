@@ -15,19 +15,13 @@ class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 void main() {
   group('Create', () {
-    ArgResults argResults;
     Logger logger;
-    MasonGenerator generator;
-    CreateCommand command;
+    VeryGoodCommandRunner commandRunner;
 
     setUp(() {
-      argResults = MockArgResults();
-      when(argResults.rest).thenReturn([]);
       logger = MockLogger();
       when(logger.progress(any)).thenReturn((_) {});
-      generator = MockMasonGenerator();
-      command = CreateCommand(logger: logger, generate: (_) async => generator)
-        ..argResultOverrides = argResults;
+      commandRunner = VeryGoodCommandRunner(logger: logger);
     });
 
     test('can be instantiated without any explicit dependencies', () {
@@ -40,9 +34,7 @@ void main() {
         'and directory base is not a valid package name', () async {
       const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await VeryGoodCommandRunner(logger: logger).run(
-        ['create', '.tmp'],
-      );
+      final result = await commandRunner.run(['create', '.tmp']);
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
@@ -50,7 +42,7 @@ void main() {
     test('throws UsageException when --project-name is invalid', () async {
       const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await VeryGoodCommandRunner(logger: logger).run(
+      final result = await commandRunner.run(
         ['create', '.', '--project-name', 'My App'],
       );
       expect(result, equals(ExitCode.usage.code));
@@ -60,9 +52,7 @@ void main() {
     test('throws UsageException when output directory is missing', () async {
       const expectedErrorMessage =
           'No option specified for the output directory.';
-      final result = await VeryGoodCommandRunner(logger: logger).run(
-        ['create'],
-      );
+      final result = await commandRunner.run(['create']);
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
@@ -70,14 +60,18 @@ void main() {
     test('throws UsageException when multiple output directories are provided',
         () async {
       const expectedErrorMessage = 'Multiple output directories specified.';
-      final result = await VeryGoodCommandRunner(logger: logger).run(
-        ['create', './a', './b'],
-      );
+      final result = await commandRunner.run(['create', './a', './b']);
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
 
     test('completes successfully with correct output', () async {
+      final argResults = MockArgResults();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        logger: logger,
+        generate: (_) async => generator,
+      )..argResultOverrides = argResults;
       when(argResults['project-name']).thenReturn('my_app');
       when(argResults.rest).thenReturn(['.tmp']);
       when(generator.generate(any, vars: anyNamed('vars')))
