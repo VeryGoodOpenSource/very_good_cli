@@ -1,11 +1,7 @@
 {
     "@@locale": "en",
-    "counterBodyText": "You have pushed the button this many times:",
-    "@counterBodyText": {
-        "description": "Text which describes how many times the button was pushed"
-    },
-    "counterIncrementButtonTooltip": "Increment",
-    "@counterIncrementButtonTooltip": {
-        "description": "Button Text on increment button which updates the count"
+    "counterAppBarTitle": "Counter",
+    "@counterAppBarTitle": {
+        "description": "Text shown in the AppBar of the Counter Page"
     }
 }

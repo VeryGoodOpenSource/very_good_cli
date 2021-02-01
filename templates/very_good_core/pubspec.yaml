@@ -4,19 +4,30 @@ version: 1.0.0+1
 publish_to: none
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0-0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.16.1
+  bloc: ^7.0.0-nullsafety.1
+  flutter_bloc: ^7.0.0-nullsafety.1
+  intl: ^0.17.0-nullsafety.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  very_good_analysis: ^1.0.4
+  bloc_test: ^7.1.0
+  mocktail: 0.0.1-dev.10
+  very_good_analysis: ^2.0.0-nullsafety.0
+
+dependency_overrides:
+  bloc_test:
+    git:
+      url: https://github.com/felangel/bloc.git
+      path: packages/bloc_test
+      ref: null_safety
 
 flutter:
   uses-material-design: true
