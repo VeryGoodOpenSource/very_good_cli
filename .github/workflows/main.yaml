@@ -17,7 +17,9 @@ jobs:
         run: dart format --set-exit-if-changed .
 
       - name: Analyze
-        run: dart analyze --fatal-infos --fatal-warnings .
+        run: |
+          dart analyze --fatal-infos --fatal-warnings lib
+          dart analyze --fatal-infos --fatal-warnings test
 
       - name: Verify Build
         run: pub run test --run-skipped -t pull-request-only
