@@ -1,17 +1,17 @@
-name: very_good_code
+name: very_good_core
 
 on:
   pull_request:
     paths:
-      - "templates/very_good_code/lib/**"
-      - "templates/very_good_code/test/**"
-      - ".github/workflows/very_good_code.yaml"
+      - "templates/very_good_core/lib/**"
+      - "templates/very_good_core/test/**"
+      - ".github/workflows/very_good_core.yaml"
 
 jobs:
   build:
     defaults:
       run:
-        working-directory: templates/very_good_code
+        working-directory: templates/very_good_core
     runs-on: ubuntu-latest
 
     steps:
@@ -36,4 +36,5 @@ jobs:
       - name: Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
         with:
-          path: templates/very_good_code/coverage/lcov.info
+          path: templates/very_good_core/coverage/lcov.info
+          min_coverage: 95
