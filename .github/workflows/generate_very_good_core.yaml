@@ -1,0 +1,42 @@
+name: generate_very_good_core
+
+on:
+  push:
+    paths:
+      - tool/generator/**
+      - templates/very_good_core/**
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: google/dart:2.10.0
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        working-directory: tool/generator
+        run: pub get
+
+      - name: Generate Template
+        run: dart ./tool/generator/main.dart
+
+      - name: Config Git User
+        run: |
+          # Config Git User
+          git config user.name VGV Bot
+          git config user.email vgvbot@users.noreply.github.com
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3.6.0
+        with:
+          base: main
+          branch: chore/generate-very-good-core
+          commit-message: "chore: generate very_good_core template"
+          title: "chore: generate very_good_core template"
+          body: Please squash and merge me!
+          labels: bot
+          committer: VGV Bot <vgvbot@users.noreply.github.com>
