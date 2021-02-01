@@ -1,9 +1,15 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
+
+const _veryGoodCoreGitPath = GitPath(
+  'git@github.com:VeryGoodOpenSource/very_good_cli.git',
+  path: 'bricks/very_good_core',
+);
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -41,7 +47,22 @@ class CreateCommand extends Command<int> {
     // ignore: unused_local_variable
     final projectName = _projectName;
 
-    _logger.alert('Created a Very Good App! 🦄');
+    final generateDone = _logger.progress('Bootstrapping');
+    final generator = await MasonGenerator.fromGitPath(_veryGoodCoreGitPath);
+
+    final target = DirectoryGeneratorTarget(outputDirectory, _logger);
+    final fileCount = await generator.generate(
+      target,
+      vars: {'project_name': projectName},
+    );
+    generateDone('Bootstrapping complete');
+    _logger
+      ..info(
+        '${lightGreen.wrap('✓')} '
+        'Generated $fileCount file(s):',
+      )
+      ..flush(_logger.success)
+      ..alert('Created a Very Good App! 🦄');
     return ExitCode.success.code;
   }
 
@@ -50,8 +71,8 @@ class CreateCommand extends Command<int> {
   /// Uses the current directory path name
   /// if the `--project-name` option is not explicitly specified.
   String get _projectName {
-    final projectName =
-        argResults['project-name'] ?? path.basename(_outputDirectory.path);
+    final projectName = argResults['project-name'] ??
+        path.basename(path.normalize(_outputDirectory.absolute.path));
     _validateProjectName(projectName);
     return projectName;
   }

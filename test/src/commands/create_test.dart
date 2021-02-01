@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mockito/mockito.dart';
@@ -14,6 +17,7 @@ void main() {
 
     setUp(() {
       logger = MockLogger();
+      when(logger.progress(any)).thenReturn((_) {});
       commandRunner = VeryGoodCommandRunner(logger: logger);
     });
 
@@ -60,10 +64,64 @@ void main() {
 
     test('completes successfully with correct output', () async {
       final result = await commandRunner.run(
-        ['create', '.', '--project-name', 'my_app'],
+        ['create', '.tmp', '--project-name', 'my_app'],
       );
       expect(result, equals(ExitCode.success.code));
+      verify(logger.progress('Bootstrapping')).called(1);
+      verify(logger.info(
+        '${lightGreen.wrap('✓')} '
+        'Generated 62 file(s):',
+      ));
       verify(logger.alert('Created a Very Good App! 🦄')).called(1);
+      expect(
+        Future.wait([
+          _Cmd.run('flutter', ['analyze'], processWorkingDir: '.tmp'),
+          _Cmd.run('flutter', ['test'], processWorkingDir: '.tmp')
+        ]),
+        completes,
+      );
     });
   });
+}
+
+class _Cmd {
+  static Future<ProcessResult> run(
+    String cmd,
+    List<String> args, {
+    bool throwOnError = true,
+    String processWorkingDir,
+  }) async {
+    final result = await Process.run(cmd, args,
+        workingDirectory: processWorkingDir, runInShell: true);
+
+    if (throwOnError) {
+      _throwIfProcessFailed(result, cmd, args);
+    }
+    return result;
+  }
+
+  static void _throwIfProcessFailed(
+    ProcessResult pr,
+    String process,
+    List<String> args,
+  ) {
+    assert(pr != null);
+    if (pr.exitCode != 0) {
+      final values = {
+        'Standard out': pr.stdout.toString().trim(),
+        'Standard error': pr.stderr.toString().trim()
+      }..removeWhere((k, v) => v.isEmpty);
+
+      String message;
+      if (values.isEmpty) {
+        message = 'Unknown error';
+      } else if (values.length == 1) {
+        message = values.values.single;
+      } else {
+        message = values.entries.map((e) => '${e.key}\n${e.value}').join('\n');
+      }
+
+      throw ProcessException(process, args, message, pr.exitCode);
+    }
+  }
 }
