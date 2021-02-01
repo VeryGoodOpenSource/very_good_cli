@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1.4.0
         with:
-          flutter-version: 1.22.6
-          channel: "stable"
+          flutter-version: 1.25.0-8.3.pre
+          channel: "beta"
 
       - name: Install Dependencies
         run: flutter packages get
@@ -37,4 +37,3 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
         with:
           path: templates/very_good_core/coverage/lcov.info
-          min_coverage: 95
