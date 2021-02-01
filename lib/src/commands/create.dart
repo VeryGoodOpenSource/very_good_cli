@@ -1,9 +1,17 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
+
+const _veryGoodCoreGitPath = GitPath(
+  'git@github.com:VeryGoodOpenSource/very_good_cli.git',
+  path: 'bricks/very_good_core',
+);
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -15,7 +23,11 @@ final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
 /// {@endtemplate}
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
-  CreateCommand({Logger logger}) : _logger = logger ?? Logger() {
+  CreateCommand({
+    Logger logger,
+    Future<MasonGenerator> Function(GitPath) generate,
+  })  : _logger = logger ?? Logger(),
+        _generate = generate ?? MasonGenerator.fromGitPath {
     argParser.addOption(
       'project-name',
       help: 'The project name for this new Flutter project. '
@@ -25,6 +37,7 @@ class CreateCommand extends Command<int> {
   }
 
   final Logger _logger;
+  final Future<MasonGenerator> Function(GitPath) _generate;
 
   @override
   final String description =
@@ -33,15 +46,32 @@ class CreateCommand extends Command<int> {
   @override
   final String name = 'create';
 
+  /// [ArgResults] which can be overridden for testing.
+  @visibleForTesting
+  ArgResults argResultOverrides;
+
+  ArgResults get _argResults => argResultOverrides ?? argResults;
+
   @override
   Future<int> run() async {
-    // ignore: unused_local_variable
     final outputDirectory = _outputDirectory;
-
-    // ignore: unused_local_variable
     final projectName = _projectName;
+    final generateDone = _logger.progress('Bootstrapping');
+    final generator = await _generate(_veryGoodCoreGitPath);
 
-    _logger.alert('Created a Very Good App! 🦄');
+    final target = DirectoryGeneratorTarget(outputDirectory, _logger);
+    final fileCount = await generator.generate(
+      target,
+      vars: {'project_name': projectName},
+    );
+    generateDone('Bootstrapping complete');
+    _logger
+      ..info(
+        '${lightGreen.wrap('✓')} '
+        'Generated $fileCount file(s):',
+      )
+      ..flush(_logger.success)
+      ..alert('Created a Very Good App! 🦄');
     return ExitCode.success.code;
   }
 
@@ -50,8 +80,8 @@ class CreateCommand extends Command<int> {
   /// Uses the current directory path name
   /// if the `--project-name` option is not explicitly specified.
   String get _projectName {
-    final projectName =
-        argResults['project-name'] ?? path.basename(_outputDirectory.path);
+    final projectName = _argResults['project-name'] ??
+        path.basename(path.normalize(_outputDirectory.absolute.path));
     _validateProjectName(projectName);
     return projectName;
   }
@@ -73,7 +103,7 @@ class CreateCommand extends Command<int> {
   }
 
   Directory get _outputDirectory {
-    final rest = argResults.rest;
+    final rest = _argResults.rest;
     _validateOutputDirectoryArg(rest);
     return Directory(rest.first);
   }
