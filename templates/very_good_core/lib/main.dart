@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(l10n.counter_text),
+            Text(l10n.counterBodyText),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
-        tooltip: l10n.counter_increment_button_text,
+        tooltip: l10n.counterIncrementButtonTooltip,
         child: const Icon(Icons.add),
       ),
     );
