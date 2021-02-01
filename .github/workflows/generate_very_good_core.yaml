@@ -39,4 +39,6 @@ jobs:
           title: "chore: generate very_good_core template"
           body: Please squash and merge me!
           labels: bot
+          author: VGV Bot <vgvbot@users.noreply.github.com>
+          assignees: vgvbot
           committer: VGV Bot <vgvbot@users.noreply.github.com>
