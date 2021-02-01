@@ -1,2 +1,2 @@
-export 'bloc/counter_bloc.dart';
+export 'cubit/counter_cubit.dart';
 export 'view/counter_page.dart';

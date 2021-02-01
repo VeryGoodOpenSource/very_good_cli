@@ -7,7 +7,7 @@ class CounterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CounterBloc(),
+      create: (_) => CounterCubit(),
       child: CounterView(),
     );
   }
@@ -27,17 +27,13 @@ class CounterView extends StatelessWidget {
           FloatingActionButton(
             key: const Key('counterView_increment_floatingActionButton'),
             child: const Icon(Icons.add),
-            onPressed: () {
-              context.read<CounterBloc>().add(CounterEvent.increment);
-            },
+            onPressed: () => context.read<CounterCubit>().increment(),
           ),
           const SizedBox(height: 8),
           FloatingActionButton(
             key: const Key('counterView_decrement_floatingActionButton'),
             child: const Icon(Icons.remove),
-            onPressed: () {
-              context.read<CounterBloc>().add(CounterEvent.decrement);
-            },
+            onPressed: () => context.read<CounterCubit>().decrement(),
           ),
         ],
       ),
@@ -49,7 +45,7 @@ class CounterText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final count = context.select((CounterBloc bloc) => bloc.state);
+    final count = context.select((CounterCubit cubit) => cubit.state);
     return Text('$count', style: theme.textTheme.headline1);
   }
 }

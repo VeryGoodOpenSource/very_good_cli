@@ -7,8 +7,7 @@ import 'package:very_good_core/counter/counter.dart';
 
 import '../../helpers/helpers.dart';
 
-class MockCounterBloc extends MockBloc<CounterEvent, int>
-    implements CounterBloc {}
+class MockCounterCubit extends MockCubit<int> implements CounterCubit {}
 
 void main() {
   group('CounterPage', () {
@@ -26,54 +25,54 @@ void main() {
       'counterView_decrement_floatingActionButton',
     );
 
-    late CounterBloc counterBloc;
+    late CounterCubit counterCubit;
 
     setUp(() {
-      counterBloc = MockCounterBloc();
+      counterCubit = MockCounterCubit();
+    });
+
+    tearDown(() {
+      verifyMocks(counterCubit);
     });
 
     testWidgets('renders current count', (tester) async {
       const state = 42;
-      when(counterBloc).calls(#state).thenReturn(state);
+      when(counterCubit).calls(#state).thenReturn(state);
       await tester.pumpApp(
         BlocProvider.value(
-          value: counterBloc,
+          value: counterCubit,
           child: CounterView(),
         ),
       );
       expect(find.text('$state'), findsOneWidget);
     });
 
-    testWidgets('calls add(CounterEvent.increment) when increment is tapped',
+    testWidgets('calls increment when increment button is tapped',
         (tester) async {
-      when(counterBloc).calls(#state).thenReturn(0);
-      when(counterBloc).calls(#add).thenReturn();
+      when(counterCubit).calls(#state).thenReturn(0);
+      when(counterCubit).calls(#increment).thenReturn();
       await tester.pumpApp(
         BlocProvider.value(
-          value: counterBloc,
+          value: counterCubit,
           child: CounterView(),
         ),
       );
       await tester.tap(find.byKey(incrementButtonKey));
-      verify(counterBloc).called(#add).withArgs(
-        positional: [CounterEvent.increment],
-      ).once();
+      verify(counterCubit).called(#increment).once();
     });
 
-    testWidgets('calls add(CounterEvent.decrement) when decrement is tapped',
+    testWidgets('calls decrement when decrement button is tapped',
         (tester) async {
-      when(counterBloc).calls(#state).thenReturn(0);
-      when(counterBloc).calls(#add).thenReturn();
+      when(counterCubit).calls(#state).thenReturn(0);
+      when(counterCubit).calls(#decrement).thenReturn();
       await tester.pumpApp(
         BlocProvider.value(
-          value: counterBloc,
+          value: counterCubit,
           child: CounterView(),
         ),
       );
       await tester.tap(find.byKey(decrementButtonKey));
-      verify(counterBloc).called(#add).withArgs(
-        positional: [CounterEvent.decrement],
-      ).once();
+      verify(counterCubit).called(#decrement).once();
     });
   });
 }
