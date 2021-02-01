@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:args/args.dart';
 import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
@@ -8,20 +7,30 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
 
+class MockArgResults extends Mock implements ArgResults {}
+
 class MockLogger extends Mock implements Logger {}
+
+class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 void main() {
   group('Create', () {
+    ArgResults argResults;
     Logger logger;
-    VeryGoodCommandRunner commandRunner;
+    MasonGenerator generator;
+    CreateCommand command;
 
     setUp(() {
+      argResults = MockArgResults();
+      when(argResults.rest).thenReturn([]);
       logger = MockLogger();
       when(logger.progress(any)).thenReturn((_) {});
-      commandRunner = VeryGoodCommandRunner(logger: logger);
+      generator = MockMasonGenerator();
+      command = CreateCommand(logger: logger, generate: (_) async => generator)
+        ..argResultOverrides = argResults;
     });
 
-    test('can be instantiated without an explicit Logger instance', () {
+    test('can be instantiated without any explicit dependencies', () {
       final command = CreateCommand();
       expect(command, isNotNull);
     });
@@ -31,7 +40,9 @@ void main() {
         'and directory base is not a valid package name', () async {
       const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await commandRunner.run(['create', '.tmp']);
+      final result = await VeryGoodCommandRunner(logger: logger).run(
+        ['create', '.tmp'],
+      );
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
@@ -39,7 +50,7 @@ void main() {
     test('throws UsageException when --project-name is invalid', () async {
       const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await commandRunner.run(
+      final result = await VeryGoodCommandRunner(logger: logger).run(
         ['create', '.', '--project-name', 'My App'],
       );
       expect(result, equals(ExitCode.usage.code));
@@ -49,7 +60,9 @@ void main() {
     test('throws UsageException when output directory is missing', () async {
       const expectedErrorMessage =
           'No option specified for the output directory.';
-      final result = await commandRunner.run(['create']);
+      final result = await VeryGoodCommandRunner(logger: logger).run(
+        ['create'],
+      );
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
@@ -57,15 +70,19 @@ void main() {
     test('throws UsageException when multiple output directories are provided',
         () async {
       const expectedErrorMessage = 'Multiple output directories specified.';
-      final result = await commandRunner.run(['create', './a', './b']);
+      final result = await VeryGoodCommandRunner(logger: logger).run(
+        ['create', './a', './b'],
+      );
       expect(result, equals(ExitCode.usage.code));
       verify(logger.err(expectedErrorMessage)).called(1);
     });
 
     test('completes successfully with correct output', () async {
-      final result = await commandRunner.run(
-        ['create', '.tmp', '--project-name', 'my_app'],
-      );
+      when(argResults['project-name']).thenReturn('my_app');
+      when(argResults.rest).thenReturn(['.tmp']);
+      when(generator.generate(any, vars: anyNamed('vars')))
+          .thenAnswer((_) async => 62);
+      final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(logger.progress('Bootstrapping')).called(1);
       verify(logger.info(
@@ -73,55 +90,18 @@ void main() {
         'Generated 62 file(s):',
       ));
       verify(logger.alert('Created a Very Good App! 🦄')).called(1);
-      expect(
-        Future.wait([
-          _Cmd.run('flutter', ['analyze'], processWorkingDir: '.tmp'),
-          _Cmd.run('flutter', ['test'], processWorkingDir: '.tmp')
-        ]),
-        completes,
-      );
+      verify(
+        generator.generate(
+          argThat(
+            isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: {'project_name': 'my_app'},
+        ),
+      ).called(1);
     });
   });
-}
-
-class _Cmd {
-  static Future<ProcessResult> run(
-    String cmd,
-    List<String> args, {
-    bool throwOnError = true,
-    String processWorkingDir,
-  }) async {
-    final result = await Process.run(cmd, args,
-        workingDirectory: processWorkingDir, runInShell: true);
-
-    if (throwOnError) {
-      _throwIfProcessFailed(result, cmd, args);
-    }
-    return result;
-  }
-
-  static void _throwIfProcessFailed(
-    ProcessResult pr,
-    String process,
-    List<String> args,
-  ) {
-    assert(pr != null);
-    if (pr.exitCode != 0) {
-      final values = {
-        'Standard out': pr.stdout.toString().trim(),
-        'Standard error': pr.stderr.toString().trim()
-      }..removeWhere((k, v) => v.isEmpty);
-
-      String message;
-      if (values.isEmpty) {
-        message = 'Unknown error';
-      } else if (values.length == 1) {
-        message = values.values.single;
-      } else {
-        message = values.entries.map((e) => '${e.key}\n${e.value}').join('\n');
-      }
-
-      throw ProcessException(process, args, message, pr.exitCode);
-    }
-  }
 }
