@@ -1,0 +1,40 @@
+name: very_good_core
+
+on:
+  pull_request:
+    paths:
+      - "templates/very_good_core/lib/**"
+      - "templates/very_good_core/test/**"
+      - ".github/workflows/very_good_core.yaml"
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: templates/very_good_core
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1.4.0
+        with:
+          flutter-version: 1.22.6
+          channel: "stable"
+
+      - name: Install Dependencies
+        run: flutter packages get
+
+      - name: Format
+        run: flutter format --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze lib test
+
+      - name: Run tests
+        run: flutter test --no-pub --coverage --test-randomize-ordering-seed random
+
+      - name: Check Code Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+        with:
+          path: templates/very_good_core/coverage/lcov.info
+          min_coverage: 95
