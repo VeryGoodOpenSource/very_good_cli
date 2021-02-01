@@ -1,0 +1,4 @@
+name: very_good_core
+description: Core Very Good Flutter App
+vars:
+  - project_name
