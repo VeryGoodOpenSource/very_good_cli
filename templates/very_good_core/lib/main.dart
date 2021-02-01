@@ -7,7 +7,7 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Very Good Core',
       localizationsDelegates: [
         AppLocalizations.delegate,
@@ -20,8 +20,6 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key}) : super(key: key);
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
