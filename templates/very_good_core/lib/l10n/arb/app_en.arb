@@ -1,0 +1,11 @@
+{
+    "@@locale": "en",
+    "counter_text": "You have pushed the button this many times:",
+    "@counter_text": {
+        "description": "Text which describes how many times the button was pushed"
+    },
+    "counter_increment_button_text": "Increment",
+    "@counter_increment_button_text": {
+        "description": "Button Text on increment button which updates the count"
+    }
+}
