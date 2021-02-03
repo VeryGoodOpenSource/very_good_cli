@@ -17,7 +17,7 @@ A Very Good Command Line Interface for Dart.
 
 ### `$ very_good create`
 
-Create a new very good flutter application in seconds. See [Very Good Core][very_good_core_link] for more information.
+Create a new very good flutter starter application in seconds. The generated starter application is based on [Very Good Core][very_good_core_link].
 
 ![Very Good CLI][very_good_cli]
 
