@@ -13,12 +13,10 @@
 *.iml
 *.ipr
 *.iws
-.idea/
+.idea/*
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# VSCode related
+.vscode/*
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -39,3 +37,9 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Exceptions to the above rules.
+!.vscode/launch.json
+!.idea/codeStyles/
+!.idea/dictionaries/
+!.idea/runConfigurations/
