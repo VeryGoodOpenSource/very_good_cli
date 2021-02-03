@@ -4,6 +4,8 @@ import 'package:{{project_name}}/counter/counter.dart';
 import 'package:{{project_name}}/l10n/l10n.dart';
 
 class CounterPage extends StatelessWidget {
+  const CounterPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -19,7 +21,7 @@ class CounterView extends StatelessWidget {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.counterAppBarTitle)),
-      body: Center(child: CounterText()),
+      body: const Center(child: CounterText()),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -42,6 +44,8 @@ class CounterView extends StatelessWidget {
 }
 
 class CounterText extends StatelessWidget {
+  const CounterText({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
