@@ -17,7 +17,7 @@ A Very Good Command Line Interface for Dart.
 
 ### `$ very_good create`
 
-Create a new very good flutter application in seconds.
+Create a new very good flutter application in seconds. See [Very Good Core][very_good_core_link] for more information.
 
 ![Very Good CLI][very_good_cli]
 
@@ -50,3 +50,4 @@ Run "very_good help <command>" for more information about a command.
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_ventures_link]: https://verygood.ventures
 [very_good_cli]: docs/assets/cli.png
+[very_good_core_link]: templates/very_good_core/README.md
