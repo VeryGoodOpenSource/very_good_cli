@@ -7,7 +7,7 @@ Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
 ![coverage][coverage_badge]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 
-A Very Good Flutter Project created by the [Very Good Ventures Team][very_good_ventures_link].
+A Very Good Flutter Starter Project created by the [Very Good Ventures Team][very_good_ventures_link].
 
 ---
 
@@ -34,19 +34,29 @@ $ flutter run --flavor production --target lib/main_production.dart
 
 _\*Very Good Core works on iOS, Android, and Web._
 
+---
+
 ## What's Included? 📦
 
 Out of the box, Very Good Core includes:
 
-- ✅ [Sound Null-Safety][null_safety_link] - No more null-dereference exceptions at runtime. Develop with a sound, static type system.
-- ✅ [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Very Good Ventures][very_good_ventures_link]
-- ✅ [Internationalization Support][internationalization_link] - Internationalization support using synthetic code generation to streamline the development process
-- ✅ [Bloc][bloc_link] - Integrated bloc architecture for scalable, testable code which offers a clear separation between business logic and presentation
-- ✅ [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, and Web (Desktop coming soon!)
-- ✅ [Logging][logging_link] - Built-in, extensible logging to capture uncaught Flutter and Dart Exceptions
-- ✅ [Testing][testing_link] - Unit and Widget Tests with 100% line coverage (Integration Tests coming soon!)
-- ✅ [Flavors][flutter_flavors_link] - Multiple flavor support for development, staging, and production
-- ✅ [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
+✅&nbsp; [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, and Web (Desktop coming soon!)
+
+✅&nbsp; [Build Flavors][flutter_flavors_link] - Multiple flavor support for development, staging, and production
+
+✅&nbsp; [Internationalization Support][internationalization_link] - Internationalization support using synthetic code generation to streamline the development process
+
+✅&nbsp; [Sound Null-Safety][null_safety_link] - No more null-dereference exceptions at runtime. Develop with a sound, static type system.
+
+✅&nbsp; [Bloc][bloc_link] - Integrated bloc architecture for scalable, testable code which offers a clear separation between business logic and presentation
+
+✅&nbsp; [Testing][testing_link] - Unit and Widget Tests with 100% line coverage (Integration Tests coming soon!)
+
+✅&nbsp; [Logging][logging_link] - Built-in, extensible logging to capture uncaught Flutter and Dart Exceptions
+
+✅&nbsp; [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Very Good Ventures][very_good_ventures_link]
+
+✅&nbsp; [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
 
 [bloc_link]: https://bloclibrary.dev
 [coverage_badge]: coverage_badge.svg
