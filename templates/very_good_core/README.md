@@ -1,16 +1,41 @@
-# very_good_core
+# Very Good Core
 
-A new Flutter project.
+[![Very Good Ventures][logo]](very_good_ventures_link)
+
+Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
+
+![coverage][coverage_badge]
+[![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+
+A Very Good Flutter Project created by the [Very Good Ventures Team](very_good_ventures_link).
+
+---
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project contains 3 flavors:
 
-A few resources to get you started if this is your first Flutter project:
+- development
+- staging
+- production
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+To run the desired flavor either use the launch configuration in VSCode/Android Studio or use the following commands:
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+# Development
+$ flutter run --flavor development --target lib/main_development.dart
+
+# Staging
+$ flutter run --flavor staging --target lib/main_staging.dart
+
+# Production
+$ flutter run --flavor production --target lib/main_production.dart
+```
+
+_\*Very Good Core works on iOS, Android, and Web._
+
+[coverage_badge]: coverage_badge.svg
+[logo]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_analysis/main/assets/vgv_logo.png
+[very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
+[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_ventures_link]: https://verygood.ventures
