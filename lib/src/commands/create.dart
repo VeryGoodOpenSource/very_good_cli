@@ -18,6 +18,9 @@ const _veryGoodCoreGitPath = GitPath(
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
 
+/// A method which returns a [Future<MasonGenerator>] given a [GitPath].
+typedef GeneratorBuilder = Future<MasonGenerator> Function(GitPath);
+
 /// {@template create_command}
 /// `very_good create` command creates a new very good flutter app.
 /// {@endtemplate}
@@ -25,9 +28,9 @@ class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
     Logger logger,
-    Future<MasonGenerator> Function(GitPath) generate,
+    GeneratorBuilder generator,
   })  : _logger = logger ?? Logger(),
-        _generate = generate ?? MasonGenerator.fromGitPath {
+        _generator = generator ?? MasonGenerator.fromGitPath {
     argParser.addOption(
       'project-name',
       help: 'The project name for this new Flutter project. '
@@ -37,7 +40,7 @@ class CreateCommand extends Command<int> {
   }
 
   final Logger _logger;
-  final Future<MasonGenerator> Function(GitPath) _generate;
+  final Future<MasonGenerator> Function(GitPath) _generator;
 
   @override
   final String description =
@@ -57,9 +60,8 @@ class CreateCommand extends Command<int> {
     final outputDirectory = _outputDirectory;
     final projectName = _projectName;
     final generateDone = _logger.progress('Bootstrapping');
-    final generator = await _generate(_veryGoodCoreGitPath);
-
     final target = DirectoryGeneratorTarget(outputDirectory, _logger);
+    final generator = await _generator(_veryGoodCoreGitPath);
     final fileCount = await generator.generate(
       target,
       vars: {'project_name': projectName},
