@@ -21,6 +21,30 @@ Create a new very good flutter starter application in seconds based on [Very Goo
 
 ![Very Good Create][very_good_create]
 
+### What's Included? 📦
+
+Out of the box, [Very Good Core][very_good_core_link] includes:
+
+✅&nbsp; [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, and Web (Desktop coming soon!)
+
+✅&nbsp; [Build Flavors][flutter_flavors_link] - Multiple flavor support for development, staging, and production
+
+✅&nbsp; [Internationalization Support][internationalization_link] - Internationalization support using synthetic code generation to streamline the development process
+
+✅&nbsp; [Sound Null-Safety][null_safety_link] - No more null-dereference exceptions at runtime. Develop with a sound, static type system.
+
+✅&nbsp; [Bloc][bloc_link] - Integrated bloc architecture for scalable, testable code which offers a clear separation between business logic and presentation
+
+✅&nbsp; [Testing][testing_link] - Unit and Widget Tests with 100% line coverage (Integration Tests coming soon!)
+
+✅&nbsp; [Logging][logging_link] - Built-in, extensible logging to capture uncaught Flutter and Dart Exceptions
+
+✅&nbsp; [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Very Good Ventures][very_good_ventures_link]
+
+✅&nbsp; [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
+
+---
+
 ### `$ very_good --help`
 
 See the complete list of commands and usage information.
@@ -40,14 +64,22 @@ Available commands:
 Run "very_good help <command>" for more information about a command.
 ```
 
+[bloc_link]: https://bloclibrary.dev
 [ci_badge]: https://github.com/VeryGoodOpenSource/very_good_cli/workflows/ci/badge.svg
 [ci_link]: https://github.com/VeryGoodOpenSource/very_good_cli/actions
 [coverage_badge]: coverage_badge.svg
+[flutter_cross_platform_link]: https://flutter.dev/docs/development/tools/sdk/release-notes/supported-platforms
+[flutter_flavors_link]: https://flutter.dev/docs/deployment/flavors
+[github_actions_link]: https://github.com/features/actions
+[internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
+[logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [logo]: docs/assets/vgv_logo.png
+[null_safety_link]: https://flutter.dev/docs/null-safety
+[testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_core_link]: templates/very_good_core/README.md
 [very_good_create]: docs/assets/very_good_create.png
 [very_good_ventures_link]: https://verygood.ventures
-[very_good_core_link]: templates/very_good_core/README.md
