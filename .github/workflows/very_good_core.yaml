@@ -3,9 +3,20 @@ name: very_good_core
 on:
   pull_request:
     paths:
+      - ".github/workflows/very_good_core.yaml"
       - "templates/very_good_core/lib/**"
       - "templates/very_good_core/test/**"
+      - "templates/very_good_core/pubspec.yaml"
+      - "tool/generator/**"
+  push:
+    branches:
+      - main
+    paths:
       - ".github/workflows/very_good_core.yaml"
+      - "templates/very_good_core/lib/**"
+      - "templates/very_good_core/test/**"
+      - "templates/very_good_core/pubspec.yaml"
+      - "tool/generator/**"
 
 jobs:
   build:
