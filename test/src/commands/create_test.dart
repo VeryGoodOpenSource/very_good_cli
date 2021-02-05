@@ -70,7 +70,7 @@ void main() {
       final generator = MockMasonGenerator();
       final command = CreateCommand(
         logger: logger,
-        generate: (_) async => generator,
+        generator: (_) async => generator,
       )..argResultOverrides = argResults;
       when(argResults['project-name']).thenReturn('my_app');
       when(argResults.rest).thenReturn(['.tmp']);
