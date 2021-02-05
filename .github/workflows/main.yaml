@@ -1,6 +1,20 @@
 name: ci
 
-on: [pull_request, push]
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/main.yaml"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/main.yaml"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
 
 jobs:
   build:
