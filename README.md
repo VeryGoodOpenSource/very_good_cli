@@ -6,8 +6,8 @@ Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
-[![License: MIT][license_badge]][license_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+[![License: MIT][license_badge]][license_link]
 
 ---
 
