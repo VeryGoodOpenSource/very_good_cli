@@ -26,7 +26,6 @@ jobs:
 
       - name: Config Git User
         run: |
-          # Config Git User
           git config user.name VGV Bot
           git config user.email vgvbot@users.noreply.github.com
 
