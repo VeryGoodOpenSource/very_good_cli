@@ -13,6 +13,12 @@ Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
 
 A Very Good Command Line Interface for Dart.
 
+## Installing
+
+```sh
+$ pub global activate very_good_cli
+```
+
 ## Commands
 
 ### `$ very_good create`
