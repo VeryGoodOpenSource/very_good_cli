@@ -65,7 +65,7 @@ Run "very_good help <command>" for more information about a command.
 ```
 
 [bloc_link]: https://bloclibrary.dev
-[ci_badge]: https://github.com/VeryGoodOpenSource/very_good_cli/workflows/ci/badge.svg
+[ci_badge]: https://github.com/VeryGoodOpenSource/very_good_cli/workflows/very_good_cli/badge.svg
 [ci_link]: https://github.com/VeryGoodOpenSource/very_good_cli/actions
 [coverage_badge]: coverage_badge.svg
 [flutter_cross_platform_link]: https://flutter.dev/docs/development/tools/sdk/release-notes/supported-platforms

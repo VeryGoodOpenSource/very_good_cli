@@ -1,4 +1,4 @@
-name: ci
+name: very_good_cli
 
 on:
   pull_request:
