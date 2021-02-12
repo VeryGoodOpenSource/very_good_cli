@@ -61,9 +61,8 @@ class CreateCommand extends Command<int> {
     final projectName = _projectName;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(_veryGoodCoreGitPath);
-    final target = DirectoryGeneratorTarget(outputDirectory, _logger);
     final fileCount = await generator.generate(
-      target,
+      DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
     );
     generateDone('Bootstrapping complete');
