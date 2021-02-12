@@ -67,14 +67,29 @@ class CreateCommand extends Command<int> {
       vars: {'project_name': projectName},
     );
     generateDone('Bootstrapping complete');
+    _logSummary(fileCount);
+    return ExitCode.success.code;
+  }
+
+  void _logSummary(int fileCount) {
     _logger
       ..info(
         '${lightGreen.wrap('✓')} '
         'Generated $fileCount file(s):',
       )
       ..flush(_logger.success)
-      ..alert('Created a Very Good App! 🦄');
-    return ExitCode.success.code;
+      ..info('\n')
+      ..alert('Created a Very Good App! 🦄')
+      ..info('\n')
+      ..info(
+        lightGray.wrap(
+          '''+--------------------------------------------------------------+
+| Looking for more features?                                   |
+| We have an enterprise-grade solution called Very Good Start. |
+| Contact hello@verygood.ventures for info                     |
++--------------------------------------------------------------+''',
+        ),
+      );
   }
 
   /// Gets the project name.
