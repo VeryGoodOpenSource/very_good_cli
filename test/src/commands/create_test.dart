@@ -4,10 +4,13 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
+import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
 
 class MockArgResults extends Mock implements ArgResults {}
+
+class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
@@ -15,17 +18,36 @@ class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 void main() {
   group('Create', () {
+    Analytics analytics;
     Logger logger;
     VeryGoodCommandRunner commandRunner;
 
     setUp(() {
+      analytics = MockAnalytics();
+      when(analytics.firstRun).thenReturn(false);
+      when(analytics.enabled).thenReturn(false);
+      when(analytics.sendEvent(any, any, label: anyNamed('label')))
+          .thenAnswer((_) => Future.value());
+      when(analytics.waitForLastPing(timeout: anyNamed('timeout')))
+          .thenAnswer((_) => Future.value());
+
       logger = MockLogger();
       when(logger.progress(any)).thenReturn(([_]) {});
-      commandRunner = VeryGoodCommandRunner(logger: logger);
+      commandRunner = VeryGoodCommandRunner(
+        analytics: analytics,
+        logger: logger,
+      );
     });
 
-    test('can be instantiated without any explicit dependencies', () {
-      final command = CreateCommand();
+    test('throws AssertionError when analytics is null', () {
+      expect(
+        () => CreateCommand(analytics: null),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('can be instantiated without explicit logger', () {
+      final command = CreateCommand(analytics: analytics);
       expect(command, isNotNull);
     });
 
@@ -69,11 +91,14 @@ void main() {
       final argResults = MockArgResults();
       final generator = MockMasonGenerator();
       final command = CreateCommand(
+        analytics: analytics,
         logger: logger,
         generator: (_) async => generator,
       )..argResultOverrides = argResults;
       when(argResults['project-name']).thenReturn('my_app');
       when(argResults.rest).thenReturn(['.tmp']);
+      when(generator.id).thenReturn('generator_id');
+      when(generator.description).thenReturn('generator description');
       when(generator.generate(any, vars: anyNamed('vars')))
           .thenAnswer((_) async => 62);
       final result = await command.run();
@@ -95,6 +120,16 @@ void main() {
           ),
           vars: {'project_name': 'my_app'},
         ),
+      ).called(1);
+      verify(
+        analytics.sendEvent(
+          'create',
+          'generator_id',
+          label: 'generator description',
+        ),
+      ).called(1);
+      verify(
+        analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
       ).called(1);
     });
   });
