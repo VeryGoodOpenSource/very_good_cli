@@ -7,7 +7,9 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-
+import 'package:usage/usage_io.dart';
+import 'package:very_good_analysis/very_good_analysis.dart';
+import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
@@ -24,9 +26,12 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
+    @required Analytics analytics,
     Logger logger,
     GeneratorBuilder generator,
-  })  : _logger = logger ?? Logger(),
+  })  : assert(analytics != null),
+        _analytics = analytics,
+        _logger = logger ?? Logger(),
         _generator = generator ?? MasonGenerator.fromBundle {
     argParser.addOption(
       'project-name',
@@ -36,6 +41,7 @@ class CreateCommand extends Command<int> {
     );
   }
 
+  final Analytics _analytics;
   final Logger _logger;
   final Future<MasonGenerator> Function(MasonBundle) _generator;
 
@@ -62,8 +68,17 @@ class CreateCommand extends Command<int> {
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
     );
+
     generateDone('Bootstrapping complete');
     _logSummary(fileCount);
+
+    unawaited(_analytics.sendEvent(
+      'create',
+      generator.id,
+      label: generator.description,
+    ));
+    await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
+
     return ExitCode.success.code;
   }
 
