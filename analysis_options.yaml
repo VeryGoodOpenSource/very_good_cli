@@ -3,3 +3,4 @@ analyzer:
   exclude:
     - "**/version.dart"
     - "bricks/**"
+    - lib/src/templates/**

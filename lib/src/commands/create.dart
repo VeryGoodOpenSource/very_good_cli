@@ -8,18 +8,15 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
-const _veryGoodCoreGitPath = GitPath(
-  'git@github.com:VeryGoodOpenSource/very_good_cli.git',
-  path: 'bricks/very_good_core',
-);
+import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
 
-/// A method which returns a [Future<MasonGenerator>] given a [GitPath].
-typedef GeneratorBuilder = Future<MasonGenerator> Function(GitPath);
+/// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
+typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
 /// {@template create_command}
 /// `very_good create` command creates a new very good flutter app.
@@ -30,7 +27,7 @@ class CreateCommand extends Command<int> {
     Logger logger,
     GeneratorBuilder generator,
   })  : _logger = logger ?? Logger(),
-        _generator = generator ?? MasonGenerator.fromGitPath {
+        _generator = generator ?? MasonGenerator.fromBundle {
     argParser.addOption(
       'project-name',
       help: 'The project name for this new Flutter project. '
@@ -40,7 +37,7 @@ class CreateCommand extends Command<int> {
   }
 
   final Logger _logger;
-  final Future<MasonGenerator> Function(GitPath) _generator;
+  final Future<MasonGenerator> Function(MasonBundle) _generator;
 
   @override
   final String description =
@@ -60,7 +57,7 @@ class CreateCommand extends Command<int> {
     final outputDirectory = _outputDirectory;
     final projectName = _projectName;
     final generateDone = _logger.progress('Bootstrapping');
-    final generator = await _generator(_veryGoodCoreGitPath);
+    final generator = await _generator(veryGoodCoreBundle);
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
