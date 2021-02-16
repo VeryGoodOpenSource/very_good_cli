@@ -86,6 +86,6 @@ Run "very_good help <command>" for more information about a command.
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
-[very_good_core_link]: templates/very_good_core/README.md
+[very_good_core_link]: docs/very_good_core.md
 [very_good_create]: docs/assets/very_good_create.png
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI
