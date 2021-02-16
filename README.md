@@ -61,8 +61,9 @@ See the complete list of commands and usage information.
 Usage: very_good <command> [arguments]
 
 Global options:
--h, --help       Print this usage information.
-    --version    Print the current version.
+-h, --help         Print this usage information.
+    --version      Print the current version.
+    --analytics    Opt into or out of anonymous usage statistics.
 
 Available commands:
   create   Creates a new very good flutter application in seconds.
