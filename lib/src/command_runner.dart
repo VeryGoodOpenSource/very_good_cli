@@ -29,15 +29,17 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
     try {
       final _argResults = parse(args);
       return await runCommand(_argResults) ?? ExitCode.success.code;
-    } on FormatException catch (e) {
+    } on FormatException catch (e, stackTrace) {
       _logger
         ..err(e.message)
+        ..err('$stackTrace')
         ..info('')
         ..info(usage);
       return ExitCode.usage.code;
-    } on UsageException catch (e) {
+    } on UsageException catch (e, stackTrace) {
       _logger
         ..err(e.message)
+        ..err('$stackTrace')
         ..info('')
         ..info(usage);
       return ExitCode.usage.code;

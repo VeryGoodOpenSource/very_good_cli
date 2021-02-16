@@ -20,7 +20,7 @@ void main() {
 
     setUp(() {
       logger = MockLogger();
-      when(logger.progress(any)).thenReturn((_) {});
+      when(logger.progress(any)).thenReturn(([_]) {});
       commandRunner = VeryGoodCommandRunner(logger: logger);
     });
 
