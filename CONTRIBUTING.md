@@ -29,5 +29,5 @@ accepted.
 
 [conventional_commits_link]: https://www.conventionalcommits.org/en/v1.0.0
 [bug_report_link]: https://github.com/VeryGoodOpenSource/very_good_cli/issues/new?assignees=&labels=bug&template=bug_report.md&title=fix%3A+
-[very_good_core_link]: docs/very_good_core.md
+[very_good_core_link]: doc/very_good_core.md
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI
