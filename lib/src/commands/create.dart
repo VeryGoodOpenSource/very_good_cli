@@ -58,7 +58,6 @@ class CreateCommand extends Command<int> {
     final projectName = _projectName;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(veryGoodCoreBundle);
-
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
