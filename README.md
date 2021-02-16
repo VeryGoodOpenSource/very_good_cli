@@ -1,8 +1,8 @@
 # Very Good CLI
 
-[![Very Good Ventures][logo]](very_good_ventures_link)
+[![Very Good Ventures][logo]][very_good_ventures_link]
 
-Developed with 💙 by [Very Good Ventures](very_good_ventures_link) 🦄
+Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
