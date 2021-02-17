@@ -2,7 +2,7 @@
 ///
 /// ```sh
 /// # activate very_good_cli
-/// pub global activate very_good_cli
+/// dart pub global activate very_good_cli
 ///
 /// # see usage
 /// very_good --help
