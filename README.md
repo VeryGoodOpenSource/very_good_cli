@@ -6,6 +6,7 @@ Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
+[![pub package][pub_badge]][pub_link]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
 [![License: MIT][license_badge]][license_link]
 
@@ -84,6 +85,8 @@ Run "very_good help <command>" for more information about a command.
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [logo]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo.png
 [null_safety_link]: https://flutter.dev/docs/null-safety
+[pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
+[pub_link]: https://pub.dartlang.org/packages/very_good_cli
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
