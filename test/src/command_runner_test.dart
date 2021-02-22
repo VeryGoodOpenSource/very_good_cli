@@ -22,7 +22,7 @@ const expectedUsage = [
       'Global options:\n'
       '-h, --help           Print this usage information.\n'
       '    --version        Print the current version.\n'
-      '    --analytics      Anonymous usage statistics settings.\n'
+      '    --analytics      Toggle anonymous usage statistics.\n'
       '\n'
       '          [false]    Disable anonymous usage statistics\n'
       '          [true]     Enable anonymous usage statistics\n'

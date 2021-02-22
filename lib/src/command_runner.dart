@@ -32,7 +32,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       )
       ..addOption(
         'analytics',
-        help: 'Anonymous usage statistics settings.',
+        help: 'Toggle anonymous usage statistics.',
         allowed: ['true', 'false'],
         allowedHelp: {
           'true': 'Enable anonymous usage statistics',

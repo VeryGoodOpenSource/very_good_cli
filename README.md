@@ -64,7 +64,7 @@ Usage: very_good <command> [arguments]
 Global options:
 -h, --help           Print this usage information.
     --version        Print the current version.
-    --analytics      Anonymous usage statistics settings.
+    --analytics      Toggle anonymous usage statistics.
 
           [false]    Disable anonymous usage statistics
           [true]     Enable anonymous usage statistics
