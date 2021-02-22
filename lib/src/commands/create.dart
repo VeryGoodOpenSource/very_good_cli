@@ -46,11 +46,17 @@ class CreateCommand extends Command<int> {
   final Future<MasonGenerator> Function(MasonBundle) _generator;
 
   @override
-  final String description =
-      'Creates a new very good flutter application in seconds.';
+  String get description =>
+      'Creates a new very good flutter project in the specified directory.';
 
   @override
-  final String name = 'create';
+  String get summary => '$invocation\n$description';
+
+  @override
+  String get name => 'create';
+
+  @override
+  String get invocation => 'very_good create <output directory>';
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting

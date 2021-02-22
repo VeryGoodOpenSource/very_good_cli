@@ -28,7 +28,8 @@ const expectedUsage = [
       '          [true]     Enable anonymous usage statistics\n'
       '\n'
       'Available commands:\n'
-      '  create   Creates a new very good flutter application in seconds.\n'
+      '  create   very_good create <output directory>\n'
+      '''           Creates a new very good flutter project in the specified directory.\n'''
       '\n'
       'Run "very_good help <command>" for more information about a command.'
 ];

@@ -70,7 +70,8 @@ Global options:
           [true]     Enable anonymous usage statistics
 
 Available commands:
-  create   Creates a new very good flutter application in seconds.
+  create   very_good create <output directory>
+           Creates a new very good flutter project in the specified directory.
 
 Run "very_good help <command>" for more information about a command.
 ```
