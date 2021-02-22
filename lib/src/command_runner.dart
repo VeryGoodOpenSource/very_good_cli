@@ -32,7 +32,12 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       )
       ..addOption(
         'analytics',
-        help: 'Opt into or out of anonymous usage statistics.',
+        help: 'Anonymous usage statistics settings.',
+        allowed: ['true', 'false'],
+        allowedHelp: {
+          'true': 'Enable anonymous usage statistics',
+          'false': 'Disable anonymous usage statistics',
+        },
       );
     addCommand(CreateCommand(analytics: _analytics, logger: logger));
   }
@@ -69,10 +74,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
         ..info('')
         ..info(usage);
       return ExitCode.usage.code;
-    } on UsageException catch (e, stackTrace) {
+    } on UsageException catch (e) {
       _logger
         ..err(e.message)
-        ..err('$stackTrace')
         ..info('')
         ..info(usage);
       return ExitCode.usage.code;

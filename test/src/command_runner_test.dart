@@ -14,6 +14,25 @@ class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
+const expectedUsage = [
+  '🦄 A Very Good Command Line Interface\n'
+      '\n'
+      'Usage: very_good <command> [arguments]\n'
+      '\n'
+      'Global options:\n'
+      '-h, --help           Print this usage information.\n'
+      '    --version        Print the current version.\n'
+      '    --analytics      Anonymous usage statistics settings.\n'
+      '\n'
+      '          [false]    Disable anonymous usage statistics\n'
+      '          [true]     Enable anonymous usage statistics\n'
+      '\n'
+      'Available commands:\n'
+      '  create   Creates a new very good flutter application in seconds.\n'
+      '\n'
+      'Run "very_good help <command>" for more information about a command.'
+];
+
 void main() {
   group('VeryGoodCommandRunner', () {
     List<String> printLogs;
@@ -98,51 +117,21 @@ void main() {
       });
 
       test('handles no command', overridePrint(() async {
-        const expectedPrintLogs = [
-          '🦄 A Very Good Command Line Interface\n'
-              '\n'
-              'Usage: very_good <command> [arguments]\n'
-              '\n'
-              'Global options:\n'
-              '-h, --help         Print this usage information.\n'
-              '    --version      Print the current version.\n'
-              '''    --analytics    Opt into or out of anonymous usage statistics.\n'''
-              '\n'
-              'Available commands:\n'
-              '''  create   Creates a new very good flutter application in seconds.\n'''
-              '\n'
-              '''Run "very_good help <command>" for more information about a command.'''
-        ];
         final result = await commandRunner.run([]);
-        expect(printLogs, equals(expectedPrintLogs));
+        expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
       }));
 
       group('--help', () {
         test('outputs usage', overridePrint(() async {
-          const expectedPrintLogs = [
-            '🦄 A Very Good Command Line Interface\n'
-                '\n'
-                'Usage: very_good <command> [arguments]\n'
-                '\n'
-                'Global options:\n'
-                '-h, --help         Print this usage information.\n'
-                '    --version      Print the current version.\n'
-                '''    --analytics    Opt into or out of anonymous usage statistics.\n'''
-                '\n'
-                'Available commands:\n'
-                '''  create   Creates a new very good flutter application in seconds.\n'''
-                '\n'
-                '''Run "very_good help <command>" for more information about a command.'''
-          ];
           final result = await commandRunner.run(['--help']);
-          expect(printLogs, equals(expectedPrintLogs));
+          expect(printLogs, equals(expectedUsage));
           expect(result, equals(ExitCode.success.code));
 
           printLogs.clear();
 
           final resultAbbr = await commandRunner.run(['-h']);
-          expect(printLogs, equals(expectedPrintLogs));
+          expect(printLogs, equals(expectedUsage));
           expect(resultAbbr, equals(ExitCode.success.code));
         }));
       });
@@ -160,10 +149,13 @@ void main() {
           verify(analytics.enabled = false);
         });
 
-        test('sets analytics.enabled to false (garbage value)', () async {
+        test('does not except erroneous input', () async {
           final result = await commandRunner.run(['--analytics', 'garbage']);
-          expect(result, equals(ExitCode.success.code));
-          verify(analytics.enabled = false);
+          expect(result, equals(ExitCode.usage.code));
+          verifyNever(analytics.enabled);
+          verify(logger.err(
+            '"garbage" is not an allowed value for option "analytics".',
+          )).called(1);
         });
 
         test('exits with bad usage when missing value', () async {
