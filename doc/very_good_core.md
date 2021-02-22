@@ -10,6 +10,13 @@ A Very Good Flutter Starter Project created by the [Very Good Ventures Team][ver
 
 **❗ In order to start using Very Good Core you must have the [Flutter SDK][flutter_install_link] installed on your machine.**
 
+**❗ Very Good Core uses null safety, so be sure to use the beta channel.**
+
+```sh
+$ flutter channel beta
+$ flutter upgrade
+```
+
 ### Installation 💻
 
 For first time users, start by installing the [Very Good CLI from pub.dev][very_good_cli_link].
