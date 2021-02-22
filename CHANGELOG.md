@@ -1,3 +1,10 @@
+# [v0.1.2] (2021-02-22)
+
+### Features
+
+- improve analytics option usage ([#83](https://github.com/VeryGoodOpenSource/very_good_cli/issues/83)) ([c3ca589](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c3ca589df149e2fea98f96dd5b034b14644f74ec))
+- improve create command usage ([#84](https://github.com/VeryGoodOpenSource/very_good_cli/issues/84)) ([b728b21](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b728b21f785db54d1b187aad02f7fad8b743bcd0))
+
 # v0.1.1 (2021-02-16)
 
 ### Bug Fixes
