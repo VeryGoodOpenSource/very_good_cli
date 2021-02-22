@@ -28,7 +28,7 @@ Create a new very good flutter starter application in seconds based on [Very Goo
 
 ![Very Good Create][very_good_create]
 
-**❗ Note: Very Good Core uses null safety, so be sure to use the beta channel.**
+**❗ Note: Very Good Core uses null safety so be sure to use the beta channel.**
 
 ```sh
 $ flutter channel beta
