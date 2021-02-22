@@ -28,6 +28,13 @@ Create a new very good flutter starter application in seconds based on [Very Goo
 
 ![Very Good Create][very_good_create]
 
+**❗ Note: Very Good Core uses null safety so be sure to use the beta channel.**
+
+```sh
+$ flutter channel beta
+$ flutter upgrade
+```
+
 ### What's Included? 📦
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
