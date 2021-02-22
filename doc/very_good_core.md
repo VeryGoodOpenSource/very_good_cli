@@ -56,6 +56,13 @@ This project contains 3 flavors:
 - staging
 - production
 
+Each flavor has dedicated entry point (`main_development.dart`, `main_staging.dart`, `main_production.dart`) which can be used to setup, instantiate, and/or inject flavor-specific dependencies into the application.
+
+For example:
+
+- In `development` we might want to output logs to the console but in `staging` and `production` we might want to upload logs to [sentry.io][sentry_link] or [firebase analytics][firebase_analytics_link].
+- We might want to configure an `ApiClient` or `DatabaseClient` to point to a different endpoint for each flavor.
+
 To run the desired flavor either use the launch configuration in VSCode/Android Studio or use the following commands:
 
 ```sh
@@ -220,12 +227,14 @@ Very Good Core comes with a built-in [GitHub Actions workflow][github_actions_li
 
 Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Very Good Analysis][very_good_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Very Good Coverage GitHub Action][very_good_coverage_link].
 
+[firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://flutter.dev/docs/get-started/install
 [flutter_localizations_link]: https://api.flutter.dev/flutter/flutter_localizations/flutter_localizations-library.html
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [github_actions_link]: https://docs.github.com/en/actions/learn-github-actions
 [logo]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_analysis/main/assets/vgv_logo.png
 [scalable_best_practices_blog_link]: https://verygood.ventures/blog/scalable-best-practices?utm_source=github&utm_medium=banner&utm_campaign=CLI
+[sentry_link]: https://sentry.io
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_core_link]: very_good_core.md
 [very_good_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
