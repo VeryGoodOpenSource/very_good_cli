@@ -149,7 +149,7 @@ void main() {
           verify(analytics.enabled = false);
         });
 
-        test('does not except erroneous input', () async {
+        test('does not accept erroneous input', () async {
           final result = await commandRunner.run(['--analytics', 'garbage']);
           expect(result, equals(ExitCode.usage.code));
           verifyNever(analytics.enabled);
