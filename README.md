@@ -105,5 +105,5 @@ Run "very_good help <command>" for more information about a command.
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_cli_blog_link]: https://verygood.ventures/blog/flutter-starter-app-very-good-core-cli?utm_source=github&utm_medium=banner&utm_campaign=CLIblog
 [very_good_core_link]: doc/very_good_core.md
-[very_good_create]: doc/assets/very_good_create.gif
+[very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI
