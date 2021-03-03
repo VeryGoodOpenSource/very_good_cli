@@ -1,4 +1,14 @@
-# [v0.1.2] (2021-02-22)
+# v0.1.3 (2021-03-03)
+
+### Features
+
+- use stable channel ([#102](https://github.com/VeryGoodOpenSource/very_good_cli/issues/102)) ([be75e83](https://github.com/VeryGoodOpenSource/very_good_cli/commit/be75e83617c03c70b51072edc7caca383632e0be))
+
+### Bug Fixes
+
+- android runConfiguration flavors
+
+# v0.1.2 (2021-02-22)
 
 ### Features
 
