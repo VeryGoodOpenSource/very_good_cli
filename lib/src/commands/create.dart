@@ -100,13 +100,14 @@ class CreateCommand extends Command<int> {
       ..info('\n')
       ..info(
         lightGray.wrap(
-          '''+-----------------------------------------------------+
-| Looking for more features?                          |
-| We have an enterprise-grade solution for companies  |
-| called Very Good Start.                             |
-|                                                     |
-| Contact hello@verygood.ventures for info & pricing. |
-+-----------------------------------------------------+''',
+          '''+----------------------------------------------------+
+| Looking for more features?                         |
+| We have an enterprise-grade solution for companies |
+| called Very Good Start.                            |
+|                                                    |
+| For more info visit:                               |
+| https://verygood.ventures/solution/very-good-start |
++----------------------------------------------------+''',
         ),
       );
   }
