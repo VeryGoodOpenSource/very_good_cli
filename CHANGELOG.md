@@ -1,3 +1,9 @@
+# v0.1.4 (2021-03-09)
+
+### Features
+
+- **create:** add very good start link to cli summary ([#105](https://github.com/VeryGoodOpenSource/very_good_cli/issues/105)) ([aa06236](https://github.com/VeryGoodOpenSource/very_good_cli/commit/aa0623611cc3c1716461f9615c0864f8cd77569b))
+
 # v0.1.3 (2021-03-03)
 
 ### Features
