@@ -1,3 +1,12 @@
+# v0.1.5 (2021-03-12)
+
+### Features
+
+- upgrade dependencies ([#107](https://github.com/VeryGoodOpenSource/very_good_cli/issues/107)) ([ea28ec8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ea28ec8b71548d3a551e0aa3ddbcaa4ec51c3e8e))
+  - `mocktail v0.1.0`
+  - `bloc_test v8.0.0-nullsafety.5`
+  - `flutter_bloc v7.0.0-nullsafety.5`
+
 # v0.1.4 (2021-03-09)
 
 ### Features
