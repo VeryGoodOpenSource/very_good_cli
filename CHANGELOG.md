@@ -1,3 +1,9 @@
+# v0.1.7 (2021-04-01)
+
+### Bug Fixes
+
+- android build ([#114](https://github.com/VeryGoodOpenSource/very_good_cli/issues/114)) ([b6af9d5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b6af9d547c2b52ba62c8fe1cdab2a4e517047902))
+
 # v0.1.6 (2021-03-18)
 
 ### Features
