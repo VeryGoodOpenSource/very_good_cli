@@ -28,13 +28,6 @@ Create a new very good flutter starter application in seconds based on [Very Goo
 
 ![Very Good Create][very_good_create]
 
-**❗ Note: Very Good Core uses null safety so be sure to use the beta channel.**
-
-```sh
-$ flutter channel beta
-$ flutter upgrade
-```
-
 ### What's Included? 📦
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
@@ -56,6 +49,8 @@ Out of the box, [Very Good Core][very_good_core_link] includes:
 ✅&nbsp; [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Very Good Ventures][very_good_ventures_link]
 
 ✅&nbsp; [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
+
+_\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog_link]_
 
 ---
 
@@ -101,6 +96,7 @@ Run "very_good help <command>" for more information about a command.
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_cli_blog_link]: https://verygood.ventures/blog/flutter-starter-app-very-good-core-cli?utm_source=github&utm_medium=banner&utm_campaign=CLIblog
 [very_good_core_link]: doc/very_good_core.md
-[very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.png
+[very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI

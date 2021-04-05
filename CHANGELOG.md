@@ -1,4 +1,41 @@
-# [v0.1.2] (2021-02-22)
+# v0.1.7 (2021-04-01)
+
+### Bug Fixes
+
+- android build ([#114](https://github.com/VeryGoodOpenSource/very_good_cli/issues/114)) ([b6af9d5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b6af9d547c2b52ba62c8fe1cdab2a4e517047902))
+
+# v0.1.6 (2021-03-18)
+
+### Features
+
+- upgrade to bloc v7.0.0 ([#111](https://github.com/VeryGoodOpenSource/very_good_cli/issues/111)) ([508801a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/508801a8f59eda637f4a2af29bd57fef85b06984))
+
+# v0.1.5 (2021-03-12)
+
+### Features
+
+- upgrade dependencies ([#107](https://github.com/VeryGoodOpenSource/very_good_cli/issues/107)) ([ea28ec8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ea28ec8b71548d3a551e0aa3ddbcaa4ec51c3e8e))
+  - `mocktail v0.1.0`
+  - `bloc_test v8.0.0-nullsafety.5`
+  - `flutter_bloc v7.0.0-nullsafety.5`
+
+# v0.1.4 (2021-03-09)
+
+### Features
+
+- **create:** add very good start link to cli summary ([#105](https://github.com/VeryGoodOpenSource/very_good_cli/issues/105)) ([aa06236](https://github.com/VeryGoodOpenSource/very_good_cli/commit/aa0623611cc3c1716461f9615c0864f8cd77569b))
+
+# v0.1.3 (2021-03-03)
+
+### Features
+
+- use stable channel ([#102](https://github.com/VeryGoodOpenSource/very_good_cli/issues/102)) ([be75e83](https://github.com/VeryGoodOpenSource/very_good_cli/commit/be75e83617c03c70b51072edc7caca383632e0be))
+
+### Bug Fixes
+
+- android runConfiguration flavors
+
+# v0.1.2 (2021-02-22)
 
 ### Features
 
