@@ -1,3 +1,9 @@
+# v0.1.8 (2021-05-21)
+
+### Features
+
+- README and dependency updates ([#126](https://github.com/VeryGoodOpenSource/very_good_cli/issues/126)) ([d5ff39c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d5ff39c200b3068004f7d2d5c924c476dab5aacf))
+
 # v0.1.7 (2021-04-01)
 
 ### Bug Fixes
