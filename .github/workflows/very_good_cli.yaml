@@ -19,10 +19,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: google/dart:2.10.0
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
+
+      - uses: dart-lang/setup-dart@v1
 
       - name: Install Dependencies
         run: pub get
@@ -36,7 +36,7 @@ jobs:
           dart analyze --fatal-infos --fatal-warnings test
 
       - name: Verify Build
-        run: pub run test --run-skipped -t pull-request-only
+        run: dart test --run-skipped -t pull-request-only
 
       - name: Run Tests
         run: dart test -x pull-request-only --coverage=coverage && pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
