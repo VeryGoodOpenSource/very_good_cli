@@ -106,7 +106,7 @@ class CreateCommand extends Command<int> {
 | For more info visit:                               |
 | https://verygood.ventures/solution/very-good-start |
 +----------------------------------------------------+''',
-        )!,
+        ),
       );
   }
 

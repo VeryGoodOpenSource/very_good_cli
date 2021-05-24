@@ -60,7 +60,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 | usage statistics in order to improve the tool.    |
 | Would you like to opt-into help us improve? [y/n] |
 +---------------------------------------------------+\n''',
-        )!);
+        ));
         final normalizedResponse = response.toLowerCase().trim();
         _analytics.enabled =
             normalizedResponse == 'y' || normalizedResponse == 'yes';
