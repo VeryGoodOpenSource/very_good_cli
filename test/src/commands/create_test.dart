@@ -2,7 +2,7 @@ import 'package:args/args.dart';
 import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
@@ -16,33 +16,35 @@ class MockLogger extends Mock implements Logger {}
 
 class MockMasonGenerator extends Mock implements MasonGenerator {}
 
+class FakeDirectoryGeneratorTarget extends Fake
+    implements DirectoryGeneratorTarget {}
+
 void main() {
   group('Create', () {
-    Analytics analytics;
-    Logger logger;
-    VeryGoodCommandRunner commandRunner;
+    late Analytics analytics;
+    late Logger logger;
+    late VeryGoodCommandRunner commandRunner;
+
+    setUpAll(() {
+      registerFallbackValue(FakeDirectoryGeneratorTarget());
+    });
 
     setUp(() {
       analytics = MockAnalytics();
-      when(analytics.firstRun).thenReturn(false);
-      when(analytics.enabled).thenReturn(false);
-      when(analytics.sendEvent(any, any, label: anyNamed('label')))
-          .thenAnswer((_) => Future.value());
-      when(analytics.waitForLastPing(timeout: anyNamed('timeout')))
-          .thenAnswer((_) => Future.value());
+      when(() => analytics.firstRun).thenReturn(false);
+      when(() => analytics.enabled).thenReturn(false);
+      when(
+        () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
+      ).thenAnswer((_) => Future.value());
+      when(
+        () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
+      ).thenAnswer((_) => Future.value());
 
       logger = MockLogger();
-      when(logger.progress(any)).thenReturn(([_]) {});
+      when(() => logger.progress(any())).thenReturn(([_]) {});
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
         logger: logger,
-      );
-    });
-
-    test('throws AssertionError when analytics is null', () {
-      expect(
-        () => CreateCommand(analytics: null),
-        throwsA(isA<AssertionError>()),
       );
     });
 
@@ -58,7 +60,7 @@ void main() {
           'See https://dart.dev/tools/pub/pubspec#name for more information.';
       final result = await commandRunner.run(['create', '.tmp']);
       expect(result, equals(ExitCode.usage.code));
-      verify(logger.err(expectedErrorMessage)).called(1);
+      verify(() => logger.err(expectedErrorMessage)).called(1);
     });
 
     test('throws UsageException when --project-name is invalid', () async {
@@ -68,7 +70,7 @@ void main() {
         ['create', '.', '--project-name', 'My App'],
       );
       expect(result, equals(ExitCode.usage.code));
-      verify(logger.err(expectedErrorMessage)).called(1);
+      verify(() => logger.err(expectedErrorMessage)).called(1);
     });
 
     test('throws UsageException when output directory is missing', () async {
@@ -76,7 +78,7 @@ void main() {
           'No option specified for the output directory.';
       final result = await commandRunner.run(['create']);
       expect(result, equals(ExitCode.usage.code));
-      verify(logger.err(expectedErrorMessage)).called(1);
+      verify(() => logger.err(expectedErrorMessage)).called(1);
     });
 
     test('throws UsageException when multiple output directories are provided',
@@ -84,7 +86,7 @@ void main() {
       const expectedErrorMessage = 'Multiple output directories specified.';
       final result = await commandRunner.run(['create', './a', './b']);
       expect(result, equals(ExitCode.usage.code));
-      verify(logger.err(expectedErrorMessage)).called(1);
+      verify(() => logger.err(expectedErrorMessage)).called(1);
     });
 
     test('completes successfully with correct output', () async {
@@ -95,24 +97,25 @@ void main() {
         logger: logger,
         generator: (_) async => generator,
       )..argResultOverrides = argResults;
-      when(argResults['project-name']).thenReturn('my_app');
-      when(argResults.rest).thenReturn(['.tmp']);
-      when(generator.id).thenReturn('generator_id');
-      when(generator.description).thenReturn('generator description');
-      when(generator.generate(any, vars: anyNamed('vars')))
-          .thenAnswer((_) async => 62);
+      when(() => argResults['project-name']).thenReturn('my_app');
+      when(() => argResults.rest).thenReturn(['.tmp']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(
+        () => generator.generate(any(), vars: any(named: 'vars')),
+      ).thenAnswer((_) async => 62);
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
-      verify(logger.progress('Bootstrapping')).called(1);
-      verify(logger.info(
-        '${lightGreen.wrap('✓')} '
-        'Generated 62 file(s):',
-      ));
-      verify(logger.alert('Created a Very Good App! 🦄')).called(1);
+      verify(() => logger.progress('Bootstrapping')).called(1);
+      verify(() => logger.info(
+            '${lightGreen.wrap('✓')} '
+            'Generated 62 file(s):',
+          ));
+      verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
       verify(
-        generator.generate(
-          argThat(
-            isA<DirectoryGeneratorTarget>().having(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
               (g) => g.dir.path,
               'dir',
               '.tmp',
@@ -122,14 +125,14 @@ void main() {
         ),
       ).called(1);
       verify(
-        analytics.sendEvent(
+        () => analytics.sendEvent(
           'create',
           'generator_id',
           label: 'generator description',
         ),
       ).called(1);
       verify(
-        analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
+        () => analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
       ).called(1);
     });
   });

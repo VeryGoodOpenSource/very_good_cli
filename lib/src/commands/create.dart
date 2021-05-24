@@ -26,11 +26,10 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
-    @required Analytics analytics,
-    Logger logger,
-    GeneratorBuilder generator,
-  })  : assert(analytics != null),
-        _analytics = analytics,
+    required Analytics analytics,
+    Logger? logger,
+    GeneratorBuilder? generator,
+  })  : _analytics = analytics,
         _logger = logger ?? Logger(),
         _generator = generator ?? MasonGenerator.fromBundle {
     argParser.addOption(
@@ -60,9 +59,9 @@ class CreateCommand extends Command<int> {
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
-  ArgResults argResultOverrides;
+  ArgResults? argResultOverrides;
 
-  ArgResults get _argResults => argResultOverrides ?? argResults;
+  ArgResults get _argResults => argResultOverrides ?? argResults!;
 
   @override
   Future<int> run() async {
@@ -108,7 +107,7 @@ class CreateCommand extends Command<int> {
 | For more info visit:                               |
 | https://verygood.ventures/solution/very-good-start |
 +----------------------------------------------------+''',
-        ),
+        )!,
       );
   }
 

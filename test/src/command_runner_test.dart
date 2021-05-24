@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:args/command_runner.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
@@ -36,10 +36,10 @@ const expectedUsage = [
 
 void main() {
   group('VeryGoodCommandRunner', () {
-    List<String> printLogs;
-    Analytics analytics;
-    Logger logger;
-    VeryGoodCommandRunner commandRunner;
+    late List<String> printLogs;
+    late Analytics analytics;
+    late Logger logger;
+    late VeryGoodCommandRunner commandRunner;
 
     void Function() overridePrint(void Function() fn) {
       return () {
@@ -54,8 +54,8 @@ void main() {
       printLogs = [];
 
       analytics = MockAnalytics();
-      when(analytics.firstRun).thenReturn(false);
-      when(analytics.enabled).thenReturn(false);
+      when(() => analytics.firstRun).thenReturn(false);
+      when(() => analytics.enabled).thenReturn(false);
 
       logger = MockLogger();
       commandRunner = VeryGoodCommandRunner(
@@ -72,25 +72,25 @@ void main() {
 
     group('run', () {
       test('prompts for analytics collection on first run (y)', () async {
-        when(analytics.firstRun).thenReturn(true);
-        when(logger.prompt(any)).thenReturn('y');
+        when(() => analytics.firstRun).thenReturn(true);
+        when(() => logger.prompt(any())).thenReturn('y');
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(analytics.enabled = true);
+        verify(() => analytics.enabled = true);
       });
 
       test('prompts for analytics collection on first run (n)', () async {
-        when(analytics.firstRun).thenReturn(true);
-        when(logger.prompt(any)).thenReturn('n');
+        when(() => analytics.firstRun).thenReturn(true);
+        when(() => logger.prompt(any())).thenReturn('n');
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(analytics.enabled = false);
+        verify(() => analytics.enabled = false);
       });
 
       test('handles FormatException', () async {
         const exception = FormatException('oops!');
         var isFirstInvocation = true;
-        when(logger.info(any)).thenAnswer((_) {
+        when(() => logger.info(any())).thenAnswer((_) {
           if (isFirstInvocation) {
             isFirstInvocation = false;
             throw exception;
@@ -98,14 +98,14 @@ void main() {
         });
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.usage.code));
-        verify(logger.err(exception.message)).called(1);
-        verify(logger.info(commandRunner.usage)).called(1);
+        verify(() => logger.err(exception.message)).called(1);
+        verify(() => logger.info(commandRunner.usage)).called(1);
       });
 
       test('handles UsageException', () async {
         final exception = UsageException('oops!', commandRunner.usage);
         var isFirstInvocation = true;
-        when(logger.info(any)).thenAnswer((_) {
+        when(() => logger.info(any())).thenAnswer((_) {
           if (isFirstInvocation) {
             isFirstInvocation = false;
             throw exception;
@@ -113,8 +113,8 @@ void main() {
         });
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.usage.code));
-        verify(logger.err(exception.message)).called(1);
-        verify(logger.info(commandRunner.usage)).called(1);
+        verify(() => logger.err(exception.message)).called(1);
+        verify(() => logger.info(commandRunner.usage)).called(1);
       });
 
       test('handles no command', overridePrint(() async {
@@ -141,22 +141,24 @@ void main() {
         test('sets analytics.enabled to true', () async {
           final result = await commandRunner.run(['--analytics', 'true']);
           expect(result, equals(ExitCode.success.code));
-          verify(analytics.enabled = true);
+          verify(() => analytics.enabled = true);
         });
 
         test('sets analytics.enabled to false', () async {
           final result = await commandRunner.run(['--analytics', 'false']);
           expect(result, equals(ExitCode.success.code));
-          verify(analytics.enabled = false);
+          verify(() => analytics.enabled = false);
         });
 
         test('does not accept erroneous input', () async {
           final result = await commandRunner.run(['--analytics', 'garbage']);
           expect(result, equals(ExitCode.usage.code));
-          verifyNever(analytics.enabled);
-          verify(logger.err(
-            '"garbage" is not an allowed value for option "analytics".',
-          )).called(1);
+          verifyNever(() => analytics.enabled);
+          verify(
+            () => logger.err(
+              '"garbage" is not an allowed value for option "analytics".',
+            ),
+          ).called(1);
         });
 
         test('exits with bad usage when missing value', () async {
@@ -169,7 +171,7 @@ void main() {
         test('outputs current version', () async {
           final result = await commandRunner.run(['--version']);
           expect(result, equals(ExitCode.success.code));
-          verify(logger.info('very_good version: $packageVersion'));
+          verify(() => logger.info('very_good version: $packageVersion'));
         });
       });
     });
