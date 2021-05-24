@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
@@ -7,6 +5,7 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
+import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_analysis/very_good_analysis.dart';
 import 'package:very_good_cli/src/command_runner.dart';
@@ -26,11 +25,10 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
-    @required Analytics analytics,
-    Logger logger,
-    GeneratorBuilder generator,
-  })  : assert(analytics != null),
-        _analytics = analytics,
+    required Analytics analytics,
+    Logger? logger,
+    GeneratorBuilder? generator,
+  })  : _analytics = analytics,
         _logger = logger ?? Logger(),
         _generator = generator ?? MasonGenerator.fromBundle {
     argParser.addOption(
@@ -60,9 +58,9 @@ class CreateCommand extends Command<int> {
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
-  ArgResults argResultOverrides;
+  ArgResults? argResultOverrides;
 
-  ArgResults get _argResults => argResultOverrides ?? argResults;
+  ArgResults get _argResults => argResultOverrides ?? argResults!;
 
   @override
   Future<int> run() async {

@@ -19,7 +19,7 @@ const _gaAppName = 'very-good-cli';
 /// {@endtemplate}
 class VeryGoodCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner({Analytics analytics, Logger logger})
+  VeryGoodCommandRunner({Analytics? analytics, Logger? logger})
       : _logger = logger ?? Logger(),
         _analytics =
             analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
@@ -84,7 +84,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   }
 
   @override
-  Future<int> runCommand(ArgResults topLevelResults) async {
+  Future<int?> runCommand(ArgResults topLevelResults) async {
     if (topLevelResults['version'] == true) {
       _logger.info('very_good version: $packageVersion');
       return ExitCode.success.code;
