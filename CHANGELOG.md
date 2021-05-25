@@ -1,3 +1,12 @@
+# v0.2.0 (2021-05-25)
+
+### Features
+
+- android and web upgrades ([#129](https://github.com/VeryGoodOpenSource/very_good_cli/issues/129)) ([c4cc9dd](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c4cc9ddaf31c9a33f5cfd72f5ac76fcf7e99bdcd))
+- improve very good create output ([#131](https://github.com/VeryGoodOpenSource/very_good_cli/issues/131)) ([fc62b08](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fc62b08162fe40a2cf03d62324ec622be6a3cdb3))
+- install packages automatically ([#130](https://github.com/VeryGoodOpenSource/very_good_cli/issues/130)) ([bcff075](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bcff07508457d34d222c297e0da8954cbaf32cb1))
+- migrate to null safety ([#128](https://github.com/VeryGoodOpenSource/very_good_cli/issues/128)) ([3e76061](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3e76061d81ecc5ad7783ac9ec91150edfb278c66))
+
 # v0.1.8 (2021-05-21)
 
 ### Features
