@@ -33,7 +33,7 @@ jobs:
         run: flutter analyze lib test
 
       - name: Verify Build
-        run: flutter test --run-skipped -t pull-request-only
+        run: flutter pub run test --run-skipped -t pull-request-only
 
       - name: Run Tests
         run: flutter test -x pull-request-only --no-pub --coverage --test-randomize-ordering-seed random
