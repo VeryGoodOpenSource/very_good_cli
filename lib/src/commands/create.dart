@@ -78,7 +78,7 @@ class CreateCommand extends Command<int> {
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       final installDependenciesDone = _logger.progress(
-        'Running "flutter pub get" in ${outputDirectory.path}',
+        'Running "flutter packages get" in ${outputDirectory.path}',
       );
       await Flutter.packagesGet(outputDirectory.path);
       installDependenciesDone();
