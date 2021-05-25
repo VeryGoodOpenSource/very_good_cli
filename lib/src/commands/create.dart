@@ -98,6 +98,7 @@ class CreateCommand extends Command<int> {
 
   void _logSummary() {
     _logger
+      ..info('\n')
       ..alert('Created a Very Good App! 🦄')
       ..info('\n')
       ..info(
