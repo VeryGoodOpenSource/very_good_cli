@@ -2,7 +2,6 @@ import 'package:test/test.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/flutter_cli.dart';
 
 void main() {
   final destination = path.join('.tmp', 'my_app');
@@ -22,8 +21,6 @@ void main() {
       final runner = VeryGoodCommandRunner();
       final runExitCode = await runner.run(['create', destination]);
       expect(runExitCode, equals(0));
-
-      await expectLater(Flutter.test(destination), completes);
     });
   });
 }

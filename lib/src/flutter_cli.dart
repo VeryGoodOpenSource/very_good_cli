@@ -7,11 +7,6 @@ class Flutter {
     return _Cmd.run('flutter', ['packages', 'get'], workingDirectory: cwd);
   }
 
-  /// Run flutter tests (`flutter test`).
-  static Future<void> test([String? cwd]) {
-    return _Cmd.run('flutter', ['test'], workingDirectory: cwd);
-  }
-
   /// Determine whether flutter is installed
   static Future<bool> installed() async {
     try {
