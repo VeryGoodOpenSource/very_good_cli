@@ -1,5 +1,4 @@
 import 'package:args/args.dart';
-import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,6 +20,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 void main() {
   group('Create', () {
+    late List<String> progressLogs;
     late Analytics analytics;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
@@ -30,6 +30,7 @@ void main() {
     });
 
     setUp(() {
+      progressLogs = <String>[];
       analytics = MockAnalytics();
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
@@ -41,7 +42,11 @@ void main() {
       ).thenAnswer((_) => Future.value());
 
       logger = MockLogger();
-      when(() => logger.progress(any())).thenReturn(([_]) {});
+      when(() => logger.progress(any())).thenReturn(
+        ([_]) {
+          if (_ != null) progressLogs.add(_);
+        },
+      );
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
         logger: logger,
@@ -107,12 +112,10 @@ void main() {
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(() => logger.progress('Bootstrapping')).called(1);
+      expect(progressLogs, equals(['Generated 62 file(s)']));
       verify(
-        () => logger.info(
-          '${lightGreen.wrap('✓')} '
-          'Generated 62 file(s):',
-        ),
-      );
+        () => logger.progress('Running "flutter packages get" in .tmp'),
+      ).called(1);
       verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
       verify(
         () => generator.generate(

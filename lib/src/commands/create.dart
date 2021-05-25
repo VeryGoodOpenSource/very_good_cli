@@ -73,7 +73,7 @@ class CreateCommand extends Command<int> {
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
     );
-    generateDone('Bootstrapping complete');
+    generateDone('Generated $fileCount file(s)');
 
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
@@ -84,7 +84,7 @@ class CreateCommand extends Command<int> {
       installDependenciesDone();
     }
 
-    _logSummary(fileCount);
+    _logSummary();
 
     unawaited(_analytics.sendEvent(
       'create',
@@ -96,14 +96,8 @@ class CreateCommand extends Command<int> {
     return ExitCode.success.code;
   }
 
-  void _logSummary(int fileCount) {
+  void _logSummary() {
     _logger
-      ..info(
-        '${lightGreen.wrap('✓')} '
-        'Generated $fileCount file(s):',
-      )
-      ..flush(_logger.success)
-      ..info('\n')
       ..alert('Created a Very Good App! 🦄')
       ..info('\n')
       ..info(
