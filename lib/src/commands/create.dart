@@ -9,6 +9,7 @@ import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_analysis/very_good_analysis.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/flutter_cli.dart';
 import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
@@ -72,8 +73,17 @@ class CreateCommand extends Command<int> {
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName},
     );
-
     generateDone('Bootstrapping complete');
+
+    final isFlutterInstalled = await Flutter.installed();
+    if (isFlutterInstalled) {
+      final installDependenciesDone = _logger.progress(
+        'Running "flutter pub get" in ${outputDirectory.path}',
+      );
+      await Flutter.packagesGet(outputDirectory.path);
+      installDependenciesDone();
+    }
+
     _logSummary(fileCount);
 
     unawaited(_analytics.sendEvent(

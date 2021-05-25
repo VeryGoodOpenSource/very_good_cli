@@ -107,10 +107,12 @@ void main() {
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(() => logger.progress('Bootstrapping')).called(1);
-      verify(() => logger.info(
-            '${lightGreen.wrap('✓')} '
-            'Generated 62 file(s):',
-          ));
+      verify(
+        () => logger.info(
+          '${lightGreen.wrap('✓')} '
+          'Generated 62 file(s):',
+        ),
+      );
       verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
       verify(
         () => generator.generate(
