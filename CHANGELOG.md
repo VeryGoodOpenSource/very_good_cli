@@ -1,3 +1,9 @@
+# v0.2.1 (2021-05-26)
+
+### Features
+
+- upgrade to very_good_analysis v2.1.0 ([#133](https://github.com/VeryGoodOpenSource/very_good_cli/issues/133)) ([9e2153c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9e2153c642169eb8581710e49d4e4bc71a9b4bb1))
+
 # v0.2.0 (2021-05-25)
 
 ### Features
