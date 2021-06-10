@@ -1,3 +1,9 @@
+# v0.2.2 (2021-06-10)
+
+### Bug Fixes
+
+- sort imports and add favicon on web ([#140](https://github.com/VeryGoodOpenSource/very_good_cli/issues/140)) ([a0a8f8a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a0a8f8ac2ecabf14a687c3e36d2c27709d62329f))
+
 # v0.2.1 (2021-05-26)
 
 ### Features
