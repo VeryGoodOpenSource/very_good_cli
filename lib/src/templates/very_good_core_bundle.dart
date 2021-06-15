@@ -847,7 +847,7 @@ final veryGoodCoreBundle = MasonBundle.fromJson({
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjogQSBuZXcgRmx1dHRlciBwcm9qZWN0Lgp2ZXJzaW9uOiAxLjAuMApwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTIuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0ZXJfbG9jYWxpemF0aW9uczoKICAgIHNkazogZmx1dHRlcgogIGJsb2M6IF43LjAuMAogIGZsdXR0ZXJfYmxvYzogXjcuMC4wCiAgaW50bDogXjAuMTcuMAoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICBibG9jX3Rlc3Q6IF44LjAuMAogIG1vY2t0YWlsOiBeMC4xLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4yLjEuMAoKZmx1dHRlcjoKICB1c2VzLW1hdGVyaWFsLWRlc2lnbjogdHJ1ZQogIGdlbmVyYXRlOiB0cnVlCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjogQSBuZXcgRmx1dHRlciBwcm9qZWN0Lgp2ZXJzaW9uOiAxLjAuMCsxCnB1Ymxpc2hfdG86IG5vbmUKCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xMi4wIDwzLjAuMCIKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCiAgZmx1dHRlcl9sb2NhbGl6YXRpb25zOgogICAgc2RrOiBmbHV0dGVyCiAgYmxvYzogXjcuMC4wCiAgZmx1dHRlcl9ibG9jOiBeNy4wLjAKICBpbnRsOiBeMC4xNy4wCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIGJsb2NfdGVzdDogXjguMC4wCiAgbW9ja3RhaWw6IF4wLjEuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjIuMS4wCgpmbHV0dGVyOgogIHVzZXMtbWF0ZXJpYWwtZGVzaWduOiB0cnVlCiAgZ2VuZXJhdGU6IHRydWUK",
       "type": "text"
     },
     {
@@ -1355,6 +1355,12 @@ final veryGoodCoreBundle = MasonBundle.fromJson({
       "path": "analysis_options.yaml",
       "data":
           "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy55YW1sCmxpbnRlcjoKICBydWxlczoKICAgIHB1YmxpY19tZW1iZXJfYXBpX2RvY3M6IGZhbHNlCg==",
+      "type": "text"
+    },
+    {
+      "path": ".vscode/extensions.json",
+      "data":
+          "ewogIC8vIFNlZSBodHRwczovL2dvLm1pY3Jvc29mdC5jb20vZndsaW5rLz9MaW5rSWQ9ODI3ODQ2CiAgLy8gZm9yIHRoZSBkb2N1bWVudGF0aW9uIGFib3V0IHRoZSBleHRlbnNpb25zLmpzb24gZm9ybWF0CiAgInJlY29tbWVuZGF0aW9ucyI6IFsKICAgICJkYXJ0LWNvZGUuZGFydC1jb2RlIiwKICAgICJkYXJ0LWNvZGUuZmx1dHRlciIsCiAgICAiZmVsaXhhbmdlbG92LmJsb2MiICAgIAogIF0KfQo=",
       "type": "text"
     },
     {
