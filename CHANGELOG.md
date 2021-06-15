@@ -1,3 +1,11 @@
+# v0.2.3 (2021-06-15)
+
+### Features
+
+- add recommended extensions for vscode ([#144](https://github.com/VeryGoodOpenSource/very_good_cli/issues/144)) ([8f162d1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8f162d131f7d4d1b724605b31638ca051dc5a8b2))
+- add vscode extensions exception to gitignore ([#143](https://github.com/VeryGoodOpenSource/very_good_cli/issues/143)) ([16084f8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/16084f82531782f4a9c82c1ff52ab9607b57bd78))
+- overwrite rules for file conflict resolution ([#142](https://github.com/VeryGoodOpenSource/very_good_cli/issues/142)) ([87be1ca](https://github.com/VeryGoodOpenSource/very_good_cli/commit/87be1cacb702f433e3b6887115993bfc5e84df12))
+
 # v0.2.2 (2021-06-10)
 
 ### Bug Fixes
