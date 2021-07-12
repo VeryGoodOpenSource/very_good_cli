@@ -16,7 +16,7 @@ import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgIdentifierRegExp =
+final RegExp _orgNameRegExp =
     RegExp(r'[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
