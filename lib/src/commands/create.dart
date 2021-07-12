@@ -12,6 +12,8 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
 import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 
+const _defaultOrgName = 'com.example.verygoodcore';
+
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
@@ -136,26 +138,20 @@ class CreateCommand extends Command<int> {
   }
 
   /// Gets the organization name.
-  List<Map<String, String>> get _orgName {
-    final orgName =
-        (_argResults['org-name'] ?? 'com.example.verygoodcore') as String;
+  List<String> get _orgName {
+    if (_argResults['org-name'] == null) return _defaultOrgName.split('.');
+
+    final orgName = _argResults['org-name'] as String;
     _validateOrgName(orgName);
-
-    final orgNameParts = orgName.split('.');
-    final orgNameComponents = [
-      {'value': orgNameParts[0], 'delimiter': '.'},
-      {'value': orgNameParts[1], 'delimiter': '.'},
-      {'value': orgNameParts[2], 'delimiter': ''},
-    ];
-
-    return orgNameComponents;
+    return orgName.split('.');
   }
 
   void _validateOrgName(String name) {
     final isValidOrgName = _isValidOrgName(name);
     if (!isValidOrgName) {
       throw UsageException(
-        '"$name" is not a valid org name.',
+        '"$name" is not a valid org name.\n\n'
+        'A valid org name has 3 parts separated by "." and only includes alphanumeric characters and underscores (ex. very.good.org)',
         usage,
       );
     }
@@ -173,7 +169,7 @@ class CreateCommand extends Command<int> {
   }
 
   bool _isValidOrgName(String name) {
-    final match = _orgIdentifierRegExp.matchAsPrefix(name);
+    final match = _orgNameRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
   }
 
