@@ -103,7 +103,6 @@ void main() {
         generator: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['project-name']).thenReturn('my_app');
-      when(() => argResults['org-name']).thenReturn('com.example.verygoodcore');
       when(() => argResults.rest).thenReturn(['.tmp']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');

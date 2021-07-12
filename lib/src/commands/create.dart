@@ -16,7 +16,8 @@ import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgIdentifierRegExp = RegExp(r'[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+');
+final RegExp _orgIdentifierRegExp =
+    RegExp(r'[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -136,7 +137,8 @@ class CreateCommand extends Command<int> {
 
   /// Gets the organization name.
   List<Map<String, String>> get _orgName {
-    final orgName = _argResults['org-name'] as String;
+    final orgName =
+        (_argResults['org-name'] ?? 'com.example.verygoodcore') as String;
     _validateOrgName(orgName);
 
     final orgNameParts = orgName.split('.');
