@@ -126,7 +126,10 @@ void main() {
               '.tmp',
             ),
           ),
-          vars: {'project_name': 'my_app'},
+          vars: {
+            'project_name': 'my_app',
+            'org_name': ['com', 'example', 'verygoodcore'],
+          },
         ),
       ).called(1);
       verify(
@@ -139,6 +142,102 @@ void main() {
       verify(
         () => analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
       ).called(1);
+    });
+
+    group('org-name', () {
+      group('invalid --org-name', () {
+        test('no delimiters', () async {
+          const expectedErrorMessage = '"My App" is not a valid org name.\n\n'
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
+          final result = await commandRunner.run(
+            ['create', '.', '--org-name', 'My App'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+          verify(() => logger.err(expectedErrorMessage)).called(1);
+        });
+
+        test('more than 3 domains', () async {
+          const expectedErrorMessage =
+              '"very.bad.test.case" is not a valid org name.\n\n'
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
+          final result = await commandRunner.run(
+            ['create', '.', '--org-name', 'very.bad.test.case'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+          verify(() => logger.err(expectedErrorMessage)).called(1);
+        });
+
+        test('invalid characters present', () async {
+          const expectedErrorMessage =
+              '"very%.bad@.#test" is not a valid org name.\n\n'
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
+          final result = await commandRunner.run(
+            ['create', '.', '--org-name', 'very%.bad@.#test'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+          verify(() => logger.err(expectedErrorMessage)).called(1);
+        });
+      });
+
+      group('valid --org-name', () {
+        test('completes successfully with correct output', () async {
+          final argResults = MockArgResults();
+          final generator = MockMasonGenerator();
+          final command = CreateCommand(
+            analytics: analytics,
+            logger: logger,
+            generator: (_) async => generator,
+          )..argResultOverrides = argResults;
+          when(() => argResults['project-name']).thenReturn('my_app');
+          when(() => argResults['org-name']).thenReturn('very.good.ventures');
+          when(() => argResults.rest).thenReturn(['.tmp']);
+          when(() => generator.id).thenReturn('generator_id');
+          when(() => generator.description).thenReturn('generator description');
+          when(
+            () => generator.generate(any(), vars: any(named: 'vars')),
+          ).thenAnswer((_) async => 62);
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(() => logger.progress('Bootstrapping')).called(1);
+          expect(progressLogs, equals(['Generated 62 file(s)']));
+          verify(
+            () => logger.progress('Running "flutter packages get" in .tmp'),
+          ).called(1);
+          verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
+          verify(
+            () => generator.generate(
+              any(
+                that: isA<DirectoryGeneratorTarget>().having(
+                  (g) => g.dir.path,
+                  'dir',
+                  '.tmp',
+                ),
+              ),
+              vars: {
+                'project_name': 'my_app',
+                'org_name': ['very', 'good', 'ventures'],
+              },
+            ),
+          ).called(1);
+          verify(
+            () => analytics.sendEvent(
+              'create',
+              'generator_id',
+              label: 'generator description',
+            ),
+          ).called(1);
+          verify(
+            () => analytics.waitForLastPing(
+                timeout: VeryGoodCommandRunner.timeout),
+          ).called(1);
+        });
+      });
     });
   });
 }
