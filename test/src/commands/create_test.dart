@@ -148,7 +148,9 @@ void main() {
       group('invalid --org-name', () {
         test('no delimiters', () async {
           const expectedErrorMessage = '"My App" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "." and only includes alphanumeric characters and underscores (ex. very.good.org)';
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
           final result = await commandRunner.run(
             ['create', '.', '--org-name', 'My App'],
           );
@@ -159,7 +161,9 @@ void main() {
         test('more than 3 domains', () async {
           const expectedErrorMessage =
               '"very.bad.test.case" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "." and only includes alphanumeric characters and underscores (ex. very.good.org)';
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
           final result = await commandRunner.run(
             ['create', '.', '--org-name', 'very.bad.test.case'],
           );
@@ -170,7 +174,9 @@ void main() {
         test('invalid characters present', () async {
           const expectedErrorMessage =
               '"very%.bad@.#test" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "." and only includes alphanumeric characters and underscores (ex. very.good.org)';
+              'A valid org name has 3 parts separated by "."'
+              'and only includes alphanumeric characters and underscores'
+              '(ex. very.good.org)';
           final result = await commandRunner.run(
             ['create', '.', '--org-name', 'very%.bad@.#test'],
           );
