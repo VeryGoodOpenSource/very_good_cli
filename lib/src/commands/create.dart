@@ -152,7 +152,7 @@ class CreateCommand extends Command<int> {
       throw UsageException(
         '"$name" is not a valid org name.\n\n'
         'A valid org name has 3 parts separated by "."'
-        'and only includes alphanumeric characters and underscores' 
+        'and only includes alphanumeric characters and underscores'
         '(ex. very.good.org)',
         usage,
       );
