@@ -12,10 +12,14 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
 import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 
+const _defaultOrgName = 'com.example.verygoodcore';
+
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
+final RegExp _orgNameRegExp =
+    RegExp(r'[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -32,12 +36,18 @@ class CreateCommand extends Command<int> {
   })  : _analytics = analytics,
         _logger = logger ?? Logger(),
         _generator = generator ?? MasonGenerator.fromBundle {
-    argParser.addOption(
-      'project-name',
-      help: 'The project name for this new Flutter project. '
-          'This must be a valid dart package name.',
-      defaultsTo: null,
-    );
+    argParser
+      ..addOption(
+        'project-name',
+        help: 'The project name for this new Flutter project. '
+            'This must be a valid dart package name.',
+        defaultsTo: null,
+      )
+      ..addOption(
+        'org-name',
+        help: 'The organization for this new Flutter project.',
+        defaultsTo: 'com.example.verygoodcore',
+      );
   }
 
   final Analytics _analytics;
@@ -67,11 +77,12 @@ class CreateCommand extends Command<int> {
   Future<int> run() async {
     final outputDirectory = _outputDirectory;
     final projectName = _projectName;
+    final orgName = _orgName;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(veryGoodCoreBundle);
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
-      vars: {'project_name': projectName},
+      vars: {'project_name': projectName, 'org_name': orgName},
     );
     generateDone('Generated $fileCount file(s)');
 
@@ -126,6 +137,28 @@ class CreateCommand extends Command<int> {
     return projectName;
   }
 
+  /// Gets the organization name.
+  List<String> get _orgName {
+    if (_argResults['org-name'] == null) return _defaultOrgName.split('.');
+
+    final orgName = _argResults['org-name'] as String;
+    _validateOrgName(orgName);
+    return orgName.split('.');
+  }
+
+  void _validateOrgName(String name) {
+    final isValidOrgName = _isValidOrgName(name);
+    if (!isValidOrgName) {
+      throw UsageException(
+        '"$name" is not a valid org name.\n\n'
+        'A valid org name has 3 parts separated by "."'
+        'and only includes alphanumeric characters and underscores'
+        '(ex. very.good.org)',
+        usage,
+      );
+    }
+  }
+
   void _validateProjectName(String name) {
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
@@ -135,6 +168,11 @@ class CreateCommand extends Command<int> {
         usage,
       );
     }
+  }
+
+  bool _isValidOrgName(String name) {
+    final match = _orgNameRegExp.matchAsPrefix(name);
+    return match != null && match.end == name.length;
   }
 
   bool _isValidPackageName(String name) {
