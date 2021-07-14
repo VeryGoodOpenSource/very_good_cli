@@ -28,6 +28,18 @@ Create a new very good flutter starter application in seconds based on [Very Goo
 
 ![Very Good Create][very_good_create]
 
+#### Usage
+
+```sh
+Creates a new very good flutter project in the specified directory.
+
+Usage: very_good create <output directory>
+-h, --help            Print this usage information.
+    --project-name    The project name for this new Flutter project. This must be a valid dart package name.
+    --org-name        The organization for this new Flutter project.
+                      (defaults to "com.example.verygoodcore")
+```
+
 ### What's Included? 📦
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
