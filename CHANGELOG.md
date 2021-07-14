@@ -1,3 +1,10 @@
+# v0.2.4 (2021-07-14)
+
+### Features
+
+- support custom org name ([#148](https://github.com/VeryGoodOpenSource/very_good_cli/issues/148)) ([c0a2970](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c0a2970451b03d749aa6e9845b2dd8993f2650c4))
+- updated very_good_core_bundle.dart ([#149](https://github.com/VeryGoodOpenSource/very_good_cli/issues/149)) ([70507c1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/70507c1b83f25641ad7d1782112e9a84eec1a8d9))
+
 # v0.2.3 (2021-06-15)
 
 ### Features
