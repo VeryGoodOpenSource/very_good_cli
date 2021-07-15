@@ -148,11 +148,9 @@ void main() {
       group('invalid --org-name', () {
         void expectInvalidOrgName(String orgName) async {
           final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
-              'A valid org name has:\n'
-              '  - At least 2 parts separated by "."\n'
-              '  - Each part must start with a letter\n'
-              '  - Only includes alphanumeric characters and underscores'
-              '(ex. very.good.org)';
+        'A valid org name has at least 2 parts separated by "."\n'
+        'Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)\n'
+        '(ex. very.good.org)';
           final result = await commandRunner.run(
             ['create', '.', '--org-name', orgName],
           );
@@ -172,16 +170,12 @@ void main() {
           expectInvalidOrgName('very%.bad@.#test');
         });
 
-        test('hyphen character present', () async {
-          expectInvalidOrgName('very.bad.test-case');
-        });
-
         test('segment starts with a non-letter', () async {
           expectInvalidOrgName('very.bad.1test');
         });
 
         test('valid prefix but invalid suffix', () async {
-          expectInvalidOrgName('very.good.prefix.bad-suffix');
+          expectInvalidOrgName('very.good.prefix.bad@@suffix');
         });
       });
 
@@ -244,6 +238,10 @@ void main() {
 
         test('containing an underscore', () async {
           expectValidOrgName('very.good.test_case');
+        });
+
+        test('containing a hyphen', () async {
+          expectValidOrgName('very.bad.test-case');
         });
 
         test('single character parts', () async {

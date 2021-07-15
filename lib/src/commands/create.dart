@@ -18,7 +18,7 @@ const _defaultOrgName = 'com.example.verygoodcore';
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z]\w*(\.[a-zA-Z]\w*)+$');
+final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -150,10 +150,8 @@ class CreateCommand extends Command<int> {
     if (!isValidOrgName) {
       throw UsageException(
         '"$name" is not a valid org name.\n\n'
-        'A valid org name has:\n'
-        '  - At least 2 parts separated by "."\n'
-        '  - Each part must start with a letter\n'
-        '  - Only includes alphanumeric characters and underscores'
+        'A valid org name has at least 2 parts separated by "."\n'
+        'Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)\n'
         '(ex. very.good.org)',
         usage,
       );
