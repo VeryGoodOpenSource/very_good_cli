@@ -146,47 +146,47 @@ void main() {
 
     group('org-name', () {
       group('invalid --org-name', () {
-        test('no delimiters', () async {
-          const expectedErrorMessage = '"My App" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
+        void expectInvalidOrgName(String orgName) async {
+          final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
+              'A valid org name has:\n'
+              '  - At least 2 parts separated by "."\n'
+              '  - Each part must start with a letter\n'
+              '  - Only includes alphanumeric characters and underscores'
               '(ex. very.good.org)';
           final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'My App'],
+            ['create', '.', '--org-name', orgName],
           );
           expect(result, equals(ExitCode.usage.code));
           verify(() => logger.err(expectedErrorMessage)).called(1);
+        }
+
+        test('no delimiters', () async {
+          expectInvalidOrgName('My App');
         });
 
-        test('more than 3 domains', () async {
-          const expectedErrorMessage =
-              '"very.bad.test.case" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
-              '(ex. very.good.org)';
-          final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'very.bad.test.case'],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
+        test('less than 2 domains', () async {
+          expectInvalidOrgName('verybadtest');
         });
 
         test('invalid characters present', () async {
-          const expectedErrorMessage =
-              '"very%.bad@.#test" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
-              '(ex. very.good.org)';
-          final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'very%.bad@.#test'],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
+          expectInvalidOrgName('very%.bad@.#test');
+        });
+
+        test('hyphen character present', () async {
+          expectInvalidOrgName('very.bad.test-case');
+        });
+
+        test('segment starts with a non-letter', () async {
+          expectInvalidOrgName('very.bad.1test');
+        });
+
+        test('valid prefix but invalid suffix', () async {
+          expectInvalidOrgName('very.good.prefix.bad-suffix');
         });
       });
 
       group('valid --org-name', () {
-        test('completes successfully with correct output', () async {
+        void expectValidOrgName(String orgName) async {
           final argResults = MockArgResults();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
@@ -195,7 +195,7 @@ void main() {
             generator: (_) async => generator,
           )..argResultOverrides = argResults;
           when(() => argResults['project-name']).thenReturn('my_app');
-          when(() => argResults['org-name']).thenReturn('very.good.ventures');
+          when(() => argResults['org-name']).thenReturn(orgName);
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
@@ -221,7 +221,7 @@ void main() {
               ),
               vars: {
                 'project_name': 'my_app',
-                'org_name': ['very', 'good', 'ventures'],
+                'org_name': orgName.split('.'),
               },
             ),
           ).called(1);
@@ -236,6 +236,26 @@ void main() {
             () => analytics.waitForLastPing(
                 timeout: VeryGoodCommandRunner.timeout),
           ).called(1);
+        }
+
+        test('alphanumeric with three parts', () async {
+          expectValidOrgName('very.good.ventures');
+        });
+
+        test('containing an underscore', () async {
+          expectValidOrgName('very.good.test_case');
+        });
+
+        test('single character parts', () async {
+          expectValidOrgName('v.g.v');
+        });
+
+        test('more than three parts', () async {
+          expectValidOrgName('very.good.ventures.app.identifier');
+        });
+
+        test('less than three parts', () async {
+          expectValidOrgName('verygood.ventures');
         });
       });
     });
