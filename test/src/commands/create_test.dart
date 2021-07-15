@@ -148,9 +148,9 @@ void main() {
       group('invalid --org-name', () {
         void expectInvalidOrgName(String orgName) async {
           final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
-        'A valid org name has at least 2 parts separated by "."\n'
-        'Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)\n'
-        '(ex. very.good.org)';
+              'A valid org name has at least 2 parts separated by "."\n'
+              'Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)\n'
+              '(ex. very.good.org)';
           final result = await commandRunner.run(
             ['create', '.', '--org-name', orgName],
           );
