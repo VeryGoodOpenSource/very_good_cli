@@ -1,3 +1,13 @@
+# v0.2.5 (2021-07-16)
+
+### Bug Fixes
+
+- org name validation ([#151](https://github.com/VeryGoodOpenSource/very_good_cli/issues/151)) ([65c5ea6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65c5ea630c3be2169dfd8acdc61d1c29df08aec0))
+
+### Features
+
+- l10n non-nullable getter + variable org name segment length ([#152](https://github.com/VeryGoodOpenSource/very_good_cli/issues/152)) ([3a0cc4a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3a0cc4ac561a8e67ab42115da4bfef88770b2144))
+
 # v0.2.4 (2021-07-14)
 
 ### Features
