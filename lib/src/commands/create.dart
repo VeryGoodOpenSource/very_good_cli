@@ -141,12 +141,14 @@ class CreateCommand extends Command<int> {
     final orgName = _argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
     final segments = orgName.replaceAll(RegExp(r'-|_'), ' ').split('.');
-    return segments.map((segment) {
-      return {
-        'value': segment,
-        'separator': segment == segments.last ? '' : '.'
-      };
-    }).toList();
+    final org = <Map<String, String>>[];
+    for (var i = 0; i < segments.length; i++) {
+      final segment = segments[i];
+      org.add(
+        {'value': segment, 'separator': i == segments.length - 1 ? '' : '.'},
+      );
+    }
+    return org;
   }
 
   void _validateOrgName(String name) {
