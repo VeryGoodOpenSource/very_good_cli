@@ -128,7 +128,11 @@ void main() {
           ),
           vars: {
             'project_name': 'my_app',
-            'org_name': ['com', 'example', 'verygoodcore'],
+            'org_name': [
+              {'value': 'com', 'separator': '.'},
+              {'value': 'example', 'separator': '.'},
+              {'value': 'verygoodcore', 'separator': ''}
+            ],
           },
         ),
       ).called(1);
@@ -146,47 +150,46 @@ void main() {
 
     group('org-name', () {
       group('invalid --org-name', () {
-        test('no delimiters', () async {
-          const expectedErrorMessage = '"My App" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
+        void expectInvalidOrgName(String orgName) async {
+          final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
+              'A valid org name has at least 2 parts separated by "."\n'
+              'Each part must start with a letter and only include '
+              'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
+              'and hyphens (-)\n'
               '(ex. very.good.org)';
           final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'My App'],
+            ['create', '.', '--org-name', orgName],
           );
           expect(result, equals(ExitCode.usage.code));
           verify(() => logger.err(expectedErrorMessage)).called(1);
+        }
+
+        test('no delimiters', () async {
+          expectInvalidOrgName('My App');
         });
 
-        test('more than 3 domains', () async {
-          const expectedErrorMessage =
-              '"very.bad.test.case" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
-              '(ex. very.good.org)';
-          final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'very.bad.test.case'],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
+        test('less than 2 domains', () async {
+          expectInvalidOrgName('verybadtest');
         });
 
         test('invalid characters present', () async {
-          const expectedErrorMessage =
-              '"very%.bad@.#test" is not a valid org name.\n\n'
-              'A valid org name has 3 parts separated by "."'
-              'and only includes alphanumeric characters and underscores'
-              '(ex. very.good.org)';
-          final result = await commandRunner.run(
-            ['create', '.', '--org-name', 'very%.bad@.#test'],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
+          expectInvalidOrgName('very%.bad@.#test');
+        });
+
+        test('segment starts with a non-letter', () async {
+          expectInvalidOrgName('very.bad.1test');
+        });
+
+        test('valid prefix but invalid suffix', () async {
+          expectInvalidOrgName('very.good.prefix.bad@@suffix');
         });
       });
 
       group('valid --org-name', () {
-        test('completes successfully with correct output', () async {
+        Future<void> expectValidOrgName(
+          String orgName,
+          List<Map<String, String>> expected,
+        ) async {
           final argResults = MockArgResults();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
@@ -195,7 +198,7 @@ void main() {
             generator: (_) async => generator,
           )..argResultOverrides = argResults;
           when(() => argResults['project-name']).thenReturn('my_app');
-          when(() => argResults['org-name']).thenReturn('very.good.ventures');
+          when(() => argResults['org-name']).thenReturn(orgName);
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
@@ -204,12 +207,6 @@ void main() {
           ).thenAnswer((_) async => 62);
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
-          verify(() => logger.progress('Bootstrapping')).called(1);
-          expect(progressLogs, equals(['Generated 62 file(s)']));
-          verify(
-            () => logger.progress('Running "flutter packages get" in .tmp'),
-          ).called(1);
-          verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
           verify(
             () => generator.generate(
               any(
@@ -219,23 +216,58 @@ void main() {
                   '.tmp',
                 ),
               ),
-              vars: {
-                'project_name': 'my_app',
-                'org_name': ['very', 'good', 'ventures'],
-              },
+              vars: {'project_name': 'my_app', 'org_name': expected},
             ),
           ).called(1);
-          verify(
-            () => analytics.sendEvent(
-              'create',
-              'generator_id',
-              label: 'generator description',
-            ),
-          ).called(1);
-          verify(
-            () => analytics.waitForLastPing(
-                timeout: VeryGoodCommandRunner.timeout),
-          ).called(1);
+        }
+
+        test('alphanumeric with three parts', () {
+          expectValidOrgName('very.good.ventures', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'ventures', 'separator': ''},
+          ]);
+        });
+
+        test('containing an underscore', () {
+          expectValidOrgName('very.good.test_case', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'test case', 'separator': ''},
+          ]);
+        });
+
+        test('containing a hyphen', () {
+          expectValidOrgName('very.bad.test-case', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'bad', 'separator': '.'},
+            {'value': 'test case', 'separator': ''},
+          ]);
+        });
+
+        test('single character parts', () {
+          expectValidOrgName('v.g.v', [
+            {'value': 'v', 'separator': '.'},
+            {'value': 'g', 'separator': '.'},
+            {'value': 'v', 'separator': ''},
+          ]);
+        });
+
+        test('more than three parts', () {
+          expectValidOrgName('very.good.ventures.app.identifier', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'ventures', 'separator': '.'},
+            {'value': 'app', 'separator': '.'},
+            {'value': 'identifier', 'separator': ''},
+          ]);
+        });
+
+        test('less than three parts', () {
+          expectValidOrgName('verygood.ventures', [
+            {'value': 'verygood', 'separator': '.'},
+            {'value': 'ventures', 'separator': ''},
+          ]);
         });
       });
     });

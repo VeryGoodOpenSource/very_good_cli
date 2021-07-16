@@ -18,8 +18,7 @@ const _defaultOrgName = 'com.example.verygoodcore';
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
 final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgNameRegExp =
-    RegExp(r'[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+');
+final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -138,12 +137,18 @@ class CreateCommand extends Command<int> {
   }
 
   /// Gets the organization name.
-  List<String> get _orgName {
-    if (_argResults['org-name'] == null) return _defaultOrgName.split('.');
-
-    final orgName = _argResults['org-name'] as String;
+  List<Map<String, String>> get _orgName {
+    final orgName = _argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
-    return orgName.split('.');
+    final segments = orgName.replaceAll(RegExp(r'-|_'), ' ').split('.');
+    final org = <Map<String, String>>[];
+    for (var i = 0; i < segments.length; i++) {
+      final segment = segments[i];
+      org.add(
+        {'value': segment, 'separator': i == segments.length - 1 ? '' : '.'},
+      );
+    }
+    return org;
   }
 
   void _validateOrgName(String name) {
@@ -151,8 +156,10 @@ class CreateCommand extends Command<int> {
     if (!isValidOrgName) {
       throw UsageException(
         '"$name" is not a valid org name.\n\n'
-        'A valid org name has 3 parts separated by "."'
-        'and only includes alphanumeric characters and underscores'
+        'A valid org name has at least 2 parts separated by "."\n'
+        'Each part must start with a letter and only include '
+        'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
+        'and hyphens (-)\n'
         '(ex. very.good.org)',
         usage,
       );
@@ -171,8 +178,7 @@ class CreateCommand extends Command<int> {
   }
 
   bool _isValidOrgName(String name) {
-    final match = _orgNameRegExp.matchAsPrefix(name);
-    return match != null && match.end == name.length;
+    return _orgNameRegExp.hasMatch(name);
   }
 
   bool _isValidPackageName(String name) {
