@@ -186,7 +186,7 @@ void main() {
       });
 
       group('valid --org-name', () {
-        void expectValidOrgName(
+        Future<void> expectValidOrgName(
           String orgName,
           List<Map<String, String>> expected,
         ) async {
@@ -207,12 +207,6 @@ void main() {
           ).thenAnswer((_) async => 62);
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
-          verify(() => logger.progress('Bootstrapping')).called(1);
-          expect(progressLogs, equals(['Generated 62 file(s)']));
-          verify(
-            () => logger.progress('Running "flutter packages get" in .tmp'),
-          ).called(1);
-          verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
           verify(
             () => generator.generate(
               any(
@@ -225,20 +219,9 @@ void main() {
               vars: {'project_name': 'my_app', 'org_name': expected},
             ),
           ).called(1);
-          verify(
-            () => analytics.sendEvent(
-              'create',
-              'generator_id',
-              label: 'generator description',
-            ),
-          ).called(1);
-          verify(
-            () => analytics.waitForLastPing(
-                timeout: VeryGoodCommandRunner.timeout),
-          ).called(1);
         }
 
-        test('alphanumeric with three parts', () async {
+        test('alphanumeric with three parts', () {
           expectValidOrgName('very.good.ventures', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
@@ -246,7 +229,7 @@ void main() {
           ]);
         });
 
-        test('containing an underscore', () async {
+        test('containing an underscore', () {
           expectValidOrgName('very.good.test_case', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
@@ -254,7 +237,7 @@ void main() {
           ]);
         });
 
-        test('containing a hyphen', () async {
+        test('containing a hyphen', () {
           expectValidOrgName('very.bad.test-case', [
             {'value': 'very', 'separator': '.'},
             {'value': 'bad', 'separator': '.'},
@@ -262,7 +245,7 @@ void main() {
           ]);
         });
 
-        test('single character parts', () async {
+        test('single character parts', () {
           expectValidOrgName('v.g.v', [
             {'value': 'v', 'separator': '.'},
             {'value': 'g', 'separator': '.'},
@@ -270,7 +253,7 @@ void main() {
           ]);
         });
 
-        test('more than three parts', () async {
+        test('more than three parts', () {
           expectValidOrgName('very.good.ventures.app.identifier', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
@@ -280,7 +263,7 @@ void main() {
           ]);
         });
 
-        test('less than three parts', () async {
+        test('less than three parts', () {
           expectValidOrgName('verygood.ventures', [
             {'value': 'verygood', 'separator': '.'},
             {'value': 'ventures', 'separator': ''},
