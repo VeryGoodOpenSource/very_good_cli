@@ -137,12 +137,16 @@ class CreateCommand extends Command<int> {
   }
 
   /// Gets the organization name.
-  List<String> get _orgName {
-    if (_argResults['org-name'] == null) return _defaultOrgName.split('.');
-
-    final orgName = _argResults['org-name'] as String;
+  List<Map<String, String>> get _orgName {
+    final orgName = _argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
-    return orgName.split('.');
+    final segments = orgName.replaceAll(RegExp(r'-|_'), ' ').split('.');
+    return segments.map((segment) {
+      return {
+        'value': segment,
+        'separator': segment == segments.last ? '' : '.'
+      };
+    }).toList();
   }
 
   void _validateOrgName(String name) {

@@ -128,7 +128,11 @@ void main() {
           ),
           vars: {
             'project_name': 'my_app',
-            'org_name': ['com', 'example', 'verygoodcore'],
+            'org_name': [
+              {'value': 'com', 'separator': '.'},
+              {'value': 'example', 'separator': '.'},
+              {'value': 'verygoodcore', 'separator': ''}
+            ],
           },
         ),
       ).called(1);
@@ -182,7 +186,10 @@ void main() {
       });
 
       group('valid --org-name', () {
-        void expectValidOrgName(String orgName) async {
+        void expectValidOrgName(
+          String orgName,
+          List<Map<String, String>> expected,
+        ) async {
           final argResults = MockArgResults();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
@@ -215,10 +222,7 @@ void main() {
                   '.tmp',
                 ),
               ),
-              vars: {
-                'project_name': 'my_app',
-                'org_name': orgName.split('.'),
-              },
+              vars: {'project_name': 'my_app', 'org_name': expected},
             ),
           ).called(1);
           verify(
@@ -235,27 +239,52 @@ void main() {
         }
 
         test('alphanumeric with three parts', () async {
-          expectValidOrgName('very.good.ventures');
+          expectValidOrgName('very.good.ventures', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'ventures', 'separator': ''},
+          ]);
         });
 
         test('containing an underscore', () async {
-          expectValidOrgName('very.good.test_case');
+          expectValidOrgName('very.good.test_case', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'test case', 'separator': ''},
+          ]);
         });
 
         test('containing a hyphen', () async {
-          expectValidOrgName('very.bad.test-case');
+          expectValidOrgName('very.bad.test-case', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'bad', 'separator': '.'},
+            {'value': 'test case', 'separator': ''},
+          ]);
         });
 
         test('single character parts', () async {
-          expectValidOrgName('v.g.v');
+          expectValidOrgName('v.g.v', [
+            {'value': 'v', 'separator': '.'},
+            {'value': 'g', 'separator': '.'},
+            {'value': 'v', 'separator': ''},
+          ]);
         });
 
         test('more than three parts', () async {
-          expectValidOrgName('very.good.ventures.app.identifier');
+          expectValidOrgName('very.good.ventures.app.identifier', [
+            {'value': 'very', 'separator': '.'},
+            {'value': 'good', 'separator': '.'},
+            {'value': 'ventures', 'separator': '.'},
+            {'value': 'app', 'separator': '.'},
+            {'value': 'identifier', 'separator': ''},
+          ]);
         });
 
         test('less than three parts', () async {
-          expectValidOrgName('verygood.ventures');
+          expectValidOrgName('verygood.ventures', [
+            {'value': 'verygood', 'separator': '.'},
+            {'value': 'ventures', 'separator': ''},
+          ]);
         });
       });
     });
