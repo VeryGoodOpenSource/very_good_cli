@@ -9,10 +9,12 @@ import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_analysis/very_good_analysis.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/flutter_cli.dart';
-import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
+import 'package:very_good_cli/src/templates/templates.dart';
 
 const _defaultOrgName = 'com.example.verygoodcore';
+final _defaultTemplate = CoreTemplate();
+
+final _templates = [_defaultTemplate, DartPkgTemplate(), FlutterPkgTemplate()];
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -24,7 +26,7 @@ final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
 /// {@template create_command}
-/// `very_good create` command creates a new very good flutter app.
+/// `very_good create` command creates a project from a MasonBundle template.
 /// {@endtemplate}
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
@@ -46,6 +48,20 @@ class CreateCommand extends Command<int> {
         'org-name',
         help: 'The organization for this new Flutter project.',
         defaultsTo: 'com.example.verygoodcore',
+      )
+      ..addOption(
+        'template',
+        abbr: 't',
+        help: 'The brick template used to generate this new project.',
+        defaultsTo: _defaultTemplate.name,
+        allowed: _templates.expand((element) => [element.name]).toList(),
+        allowedHelp: _templates.fold<Map<String, String>>(
+          {},
+          (previousValue, element) => {
+            ...previousValue,
+            element.name: element.help,
+          },
+        ),
       );
   }
 
@@ -77,22 +93,16 @@ class CreateCommand extends Command<int> {
     final outputDirectory = _outputDirectory;
     final projectName = _projectName;
     final orgName = _orgName;
+    final template = _template;
     final generateDone = _logger.progress('Bootstrapping');
-    final generator = await _generator(veryGoodCoreBundle);
+    final generator = await _generator(template.bundle);
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: {'project_name': projectName, 'org_name': orgName},
     );
     generateDone('Generated $fileCount file(s)');
 
-    final isFlutterInstalled = await Flutter.installed();
-    if (isFlutterInstalled) {
-      final installDependenciesDone = _logger.progress(
-        'Running "flutter packages get" in ${outputDirectory.path}',
-      );
-      await Flutter.packagesGet(outputDirectory.path);
-      installDependenciesDone();
-    }
+    template.onGenerateComplete(_logger, outputDirectory);
 
     _logSummary();
 
@@ -149,6 +159,15 @@ class CreateCommand extends Command<int> {
       );
     }
     return org;
+  }
+
+  Template get _template {
+    final templateName = _argResults['template'] as String?;
+
+    return _templates.firstWhere(
+      (element) => element.name == templateName,
+      orElse: () => _defaultTemplate,
+    );
   }
 
   void _validateOrgName(String name) {
