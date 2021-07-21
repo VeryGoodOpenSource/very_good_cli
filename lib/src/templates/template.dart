@@ -13,10 +13,13 @@ import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
 /// {@endtemplate}
 abstract class Template {
   /// {@macro template}
-  const Template(
-      {required this.name, required this.bundle, required this.help});
+  const Template({
+    required this.name,
+    required this.bundle,
+    required this.help,
+  });
 
-  /// The name associated with this template
+  /// The name associated with this template.
   final String name;
 
   /// The MasonBundle used to generate this template.
@@ -35,7 +38,11 @@ abstract class Template {
 class DartPkgTemplate extends Template {
   /// {@macro template}
   DartPkgTemplate()
-      : super(name: 'dart_pkg', bundle: dartPackageBundle, help: '');
+      : super(
+          name: 'dart_pkg',
+          bundle: dartPackageBundle,
+          help: 'A template created from the Dart Package MasonBundle.',
+        );
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
@@ -57,7 +64,10 @@ class DartPkgTemplate extends Template {
 class FlutterPkgTemplate extends Template {
   /// {@macro template}
   FlutterPkgTemplate()
-      : super(name: 'flutter_pkg', bundle: flutterPackageBundle, help: '');
+      : super(
+            name: 'flutter_pkg',
+            bundle: flutterPackageBundle,
+            help: 'A template created from the Flutter Package MasonBundle.');
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
@@ -78,7 +88,12 @@ class FlutterPkgTemplate extends Template {
 /// {@endtemplate}
 class CoreTemplate extends Template {
   /// {@macro template}
-  CoreTemplate() : super(name: 'core', bundle: veryGoodCoreBundle, help: '');
+  CoreTemplate()
+      : super(
+          name: 'core',
+          bundle: veryGoodCoreBundle,
+          help: 'A template created from the Very Good Core MasonBundle.',
+        );
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
