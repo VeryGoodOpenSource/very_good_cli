@@ -16,5 +16,18 @@ void main() {
         expectLater(Flutter.packagesGet(), completes);
       });
     });
+
+    group('pub get', () {
+      test('throws when there is no pubspec.yaml', () {
+        expectLater(
+          Flutter.pubGet(Directory.systemTemp.path),
+          throwsException,
+        );
+      });
+
+      test('completes when there is a pubspec.yaml', () {
+        expectLater(Flutter.pubGet(), completes);
+      });
+    });
   });
 }

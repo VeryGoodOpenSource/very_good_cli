@@ -345,6 +345,7 @@ void main() {
           required String getPackagesMsg,
           required String templateName,
           required MasonBundle expectedBundle,
+          required String expectedLogSummary,
         }) async {
           final argResults = MockArgResults();
           final generator = MockMasonGenerator();
@@ -371,7 +372,7 @@ void main() {
           verify(
             () => logger.progress(getPackagesMsg),
           ).called(1);
-          verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
+          verify(() => logger.alert(expectedLogSummary)).called(1);
           verify(
             () => generator.generate(
               any(
@@ -404,27 +405,30 @@ void main() {
           ).called(1);
         }
 
-        test('core template', () {
-          expectValidTemplateName(
+        test('core template', () async {
+          await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'core',
             expectedBundle: veryGoodCoreBundle,
+            expectedLogSummary: 'Created a Very Good App! 🦄',
           );
         });
 
-        test('dart pkg template', () {
-          expectValidTemplateName(
-            getPackagesMsg: 'Running "dart pub get" in .tmp',
+        test('dart pkg template', () async {
+          await expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter pub get" in .tmp',
             templateName: 'dart_pkg',
             expectedBundle: dartPackageBundle,
+            expectedLogSummary: 'Created a Very Good Dart package! 🦄',
           );
         });
 
-        test('flutter pkg template', () {
-          expectValidTemplateName(
+        test('flutter pkg template', () async {
+          await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_pkg',
             expectedBundle: flutterPackageBundle,
+            expectedLogSummary: 'Created a Very Good Flutter package! 🦄',
           );
         });
       });

@@ -104,8 +104,6 @@ class CreateCommand extends Command<int> {
 
     await template.onGenerateComplete(_logger, outputDirectory);
 
-    _logSummary();
-
     unawaited(_analytics.sendEvent(
       'create',
       generator.id,
@@ -114,25 +112,6 @@ class CreateCommand extends Command<int> {
     await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
 
     return ExitCode.success.code;
-  }
-
-  void _logSummary() {
-    _logger
-      ..info('\n')
-      ..alert('Created a Very Good App! 🦄')
-      ..info('\n')
-      ..info(
-        lightGray.wrap(
-          '''+----------------------------------------------------+
-| Looking for more features?                         |
-| We have an enterprise-grade solution for companies |
-| called Very Good Start.                            |
-|                                                    |
-| For more info visit:                               |
-| https://verygood.ventures/solution/very-good-start |
-+----------------------------------------------------+''',
-        ),
-      );
   }
 
   /// Gets the project name.

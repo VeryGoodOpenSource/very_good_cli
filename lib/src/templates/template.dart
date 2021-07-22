@@ -1,7 +1,7 @@
+import 'package:io/ansi.dart';
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
-import 'package:very_good_cli/src/dart_cli.dart';
 import 'package:very_good_cli/src/templates/dart_package_bundle.dart';
 import 'package:very_good_cli/src/templates/flutter_package_bundle.dart';
 import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
@@ -47,14 +47,22 @@ class DartPkgTemplate extends Template {
   /// The tasks to run post generation for the specific MasonBundle.
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    final isDartInstalled = await Dart.installed();
-    if (isDartInstalled) {
+    final isFlutterInstalled = await Flutter.installed();
+    if (isFlutterInstalled) {
       final installDependenciesDone = logger.progress(
-        'Running "dart pub get" in ${outputDir.path}',
+        'Running "flutter pub get" in ${outputDir.path}',
       );
-      await Dart.packagesGet(outputDir.path);
+      await Flutter.pubGet(outputDir.path);
       installDependenciesDone();
     }
+    _logSummary(logger);
+  }
+
+  void _logSummary(Logger logger) {
+    logger
+      ..info('\n')
+      ..alert('Created a Very Good Dart package! 🦄')
+      ..info('\n');
   }
 }
 
@@ -80,6 +88,14 @@ class FlutterPkgTemplate extends Template {
       await Flutter.packagesGet(outputDir.path);
       installDependenciesDone();
     }
+    _logSummary(logger);
+  }
+
+  void _logSummary(Logger logger) {
+    logger
+      ..info('\n')
+      ..alert('Created a Very Good Flutter package! 🦄')
+      ..info('\n');
   }
 }
 
@@ -106,5 +122,25 @@ class CoreTemplate extends Template {
       await Flutter.packagesGet(outputDir.path);
       installDependenciesDone();
     }
+    _logSummary(logger);
+  }
+
+  void _logSummary(Logger logger) {
+    logger
+      ..info('\n')
+      ..alert('Created a Very Good App! 🦄')
+      ..info('\n')
+      ..info(
+        lightGray.wrap(
+          '''+----------------------------------------------------+
+| Looking for more features?                         |
+| We have an enterprise-grade solution for companies |
+| called Very Good Start.                            |
+|                                                    |
+| For more info visit:                               |
+| https://verygood.ventures/solution/very-good-start |
++----------------------------------------------------+''',
+        ),
+      );
   }
 }
