@@ -102,7 +102,7 @@ class CreateCommand extends Command<int> {
     );
     generateDone('Generated $fileCount file(s)');
 
-    template.onGenerateComplete(_logger, outputDirectory);
+    await template.onGenerateComplete(_logger, outputDirectory);
 
     _logSummary();
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:args/args.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
@@ -6,6 +7,33 @@ import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
+import 'package:very_good_cli/src/templates/dart_package_bundle.dart';
+import 'package:very_good_cli/src/templates/flutter_package_bundle.dart';
+import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
+
+const expectedUsage = [
+  // ignore: no_adjacent_strings_in_list
+  'Creates a new very good flutter project in the specified directory.\n'
+      '\n'
+      'Usage: very_good create <output directory>\n'
+      '-h, --help                    '
+      'Print this usage information.\n'
+      '    --project-name            '
+      'The project name for this new Flutter project. '
+      'This must be a valid dart package name.\n'
+      '    --org-name                '
+      'The organization for this new Flutter project.\n'
+      '                              (defaults to "com.example.verygoodcore")\n'
+      '-t, --template                '
+      'The brick template used to generate this new project.\n'
+      '\n'
+      '          [core] (default)    '
+      'Generate a Very Good Flutter application.\n'
+      '          [dart_pkg]          Generate a reusable pure Dart package.\n'
+      '          [flutter_pkg]       Generate a reusable Flutter package.\n'
+      '\n'
+      'Run "very_good help" to see global options.'
+];
 
 class MockArgResults extends Mock implements ArgResults {}
 
@@ -21,15 +49,26 @@ class FakeDirectoryGeneratorTarget extends Fake
 void main() {
   group('Create', () {
     late List<String> progressLogs;
+    late List<String> printLogs;
     late Analytics analytics;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
+
+    void Function() overridePrint(void Function() fn) {
+      return () {
+        final spec = ZoneSpecification(print: (_, __, ___, String msg) {
+          printLogs.add(msg);
+        });
+        return Zone.current.fork(specification: spec).run<void>(fn);
+      };
+    }
 
     setUpAll(() {
       registerFallbackValue(FakeDirectoryGeneratorTarget());
     });
 
     setUp(() {
+      printLogs = [];
       progressLogs = <String>[];
       analytics = MockAnalytics();
       when(() => analytics.firstRun).thenReturn(false);
@@ -52,6 +91,18 @@ void main() {
         logger: logger,
       );
     });
+
+    test('help', overridePrint(() async {
+      final result = await commandRunner.run(['create', '--help']);
+      expect(printLogs, equals(expectedUsage));
+      expect(result, equals(ExitCode.success.code));
+
+      printLogs.clear();
+
+      final resultAbbr = await commandRunner.run(['create', '-h']);
+      expect(printLogs, equals(expectedUsage));
+      expect(resultAbbr, equals(ExitCode.success.code));
+    }));
 
     test('can be instantiated without explicit logger', () {
       final command = CreateCommand(analytics: analytics);
@@ -268,6 +319,113 @@ void main() {
             {'value': 'verygood', 'separator': '.'},
             {'value': 'ventures', 'separator': ''},
           ]);
+        });
+      });
+    });
+
+    group('--template', () {
+      group('invalid template name', () {
+        void expectInvalidTemplateName(String templateName) async {
+          final expectedErrorMessage =
+              '"$templateName" is not an allowed value for option "template".';
+          final result = await commandRunner.run(
+            ['create', '.', '--template', templateName],
+          );
+          expect(result, equals(ExitCode.usage.code));
+          verify(() => logger.err(expectedErrorMessage)).called(1);
+        }
+
+        test('invalid template name', () {
+          expectInvalidTemplateName('badtemplate');
+        });
+      });
+
+      group('valid template names', () {
+        Future<void> expectValidTemplateName({
+          required String getPackagesMsg,
+          required String templateName,
+          required MasonBundle expectedBundle,
+        }) async {
+          final argResults = MockArgResults();
+          final generator = MockMasonGenerator();
+          final command = CreateCommand(
+            analytics: analytics,
+            logger: logger,
+            generator: (bundle) async {
+              expect(bundle, equals(expectedBundle));
+              return generator;
+            },
+          )..argResultOverrides = argResults;
+          when(() => argResults['project-name']).thenReturn('my_app');
+          when(() => argResults['template']).thenReturn(templateName);
+          when(() => argResults.rest).thenReturn(['.tmp']);
+          when(() => generator.id).thenReturn('generator_id');
+          when(() => generator.description).thenReturn('generator description');
+          when(
+            () => generator.generate(any(), vars: any(named: 'vars')),
+          ).thenAnswer((_) async => 62);
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(() => logger.progress('Bootstrapping')).called(1);
+          expect(progressLogs, equals(['Generated 62 file(s)']));
+          verify(
+            () => logger.progress(getPackagesMsg),
+          ).called(1);
+          verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
+          verify(
+            () => generator.generate(
+              any(
+                that: isA<DirectoryGeneratorTarget>().having(
+                  (g) => g.dir.path,
+                  'dir',
+                  '.tmp',
+                ),
+              ),
+              vars: {
+                'project_name': 'my_app',
+                'org_name': [
+                  {'value': 'com', 'separator': '.'},
+                  {'value': 'example', 'separator': '.'},
+                  {'value': 'verygoodcore', 'separator': ''}
+                ],
+              },
+            ),
+          ).called(1);
+          verify(
+            () => analytics.sendEvent(
+              'create',
+              'generator_id',
+              label: 'generator description',
+            ),
+          ).called(1);
+          verify(
+            () => analytics.waitForLastPing(
+                timeout: VeryGoodCommandRunner.timeout),
+          ).called(1);
+        }
+
+        test('core template', () {
+          expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            templateName: 'core',
+            expectedBundle: veryGoodCoreBundle,
+          );
+        });
+
+        test('dart pkg template', () {
+          expectValidTemplateName(
+            getPackagesMsg: 'Running "dart pub get" in .tmp',
+            templateName: 'dart_pkg',
+            expectedBundle: dartPackageBundle,
+          );
+        });
+
+        test('flutter pkg template', () {
+          expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            templateName: 'flutter_pkg',
+            expectedBundle: flutterPackageBundle,
+          );
         });
       });
     });

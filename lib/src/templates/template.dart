@@ -29,7 +29,7 @@ abstract class Template {
   final String help;
 
   /// The tasks to run post generation for the specific MasonBundle.
-  void onGenerateComplete(Logger logger, Directory outputDir);
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir);
 }
 
 /// {@template template}
@@ -41,12 +41,12 @@ class DartPkgTemplate extends Template {
       : super(
           name: 'dart_pkg',
           bundle: dartPackageBundle,
-          help: 'A template created from the Dart Package MasonBundle.',
+          help: 'Generate a reusable pure Dart package.',
         );
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
-  void onGenerateComplete(Logger logger, Directory outputDir) async {
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     final isDartInstalled = await Dart.installed();
     if (isDartInstalled) {
       final installDependenciesDone = logger.progress(
@@ -67,11 +67,11 @@ class FlutterPkgTemplate extends Template {
       : super(
             name: 'flutter_pkg',
             bundle: flutterPackageBundle,
-            help: 'A template created from the Flutter Package MasonBundle.');
+            help: 'Generate a reusable Flutter package.');
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
-  void onGenerateComplete(Logger logger, Directory outputDir) async {
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       final installDependenciesDone = logger.progress(
@@ -92,12 +92,12 @@ class CoreTemplate extends Template {
       : super(
           name: 'core',
           bundle: veryGoodCoreBundle,
-          help: 'A template created from the Very Good Core MasonBundle.',
+          help: 'Generate a Very Good Flutter application.',
         );
 
   /// The tasks to run post generation for the specific MasonBundle.
   @override
-  void onGenerateComplete(Logger logger, Directory outputDir) async {
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       final installDependenciesDone = logger.progress(
