@@ -107,7 +107,6 @@ class CoreTemplate extends Template {
           help: 'Generate a Very Good Flutter application.',
         );
 
-  /// The tasks to run post generation for the specific MasonBundle.
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     final isFlutterInstalled = await Flutter.installed();
