@@ -44,7 +44,6 @@ class DartPkgTemplate extends Template {
           help: 'Generate a reusable pure Dart package.',
         );
 
-  /// The tasks to run post generation for the specific MasonBundle.
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     final isFlutterInstalled = await Flutter.installed();
