@@ -28,7 +28,7 @@ abstract class Template {
   /// The help text shown in the usage information for the CLI.
   final String help;
 
-  /// The tasks to run post generation for the specific MasonBundle.
+  /// Callback invoked after template generation has completed.
   Future<void> onGenerateComplete(Logger logger, Directory outputDir);
 }
 
