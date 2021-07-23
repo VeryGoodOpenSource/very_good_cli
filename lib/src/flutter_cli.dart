@@ -25,7 +25,7 @@ class Flutter {
 
 /// Abstraction for running commands via command-line.
 class _Cmd {
-  /// Runs the specific command
+  /// Runs the specified [cmd] with the provided [args].
   static Future<ProcessResult> run(
     String cmd,
     List<String> args, {
