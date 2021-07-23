@@ -32,7 +32,7 @@ abstract class Template {
   Future<void> onGenerateComplete(Logger logger, Directory outputDir);
 }
 
-/// {@template template}
+/// {@template dart_pkg_template}
 /// Dart class that represents a VeryGoodCLI dart package template.
 /// {@endtemplate}
 class DartPkgTemplate extends Template {
