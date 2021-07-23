@@ -29,7 +29,7 @@ const expectedUsage = [
       '\n'
       'Available commands:\n'
       '  create   very_good create <output directory>\n'
-      '''           Creates a new very good flutter project in the specified directory.\n'''
+      '''           Creates a new very good project in the specified directory.\n'''
       '\n'
       'Run "very_good help <command>" for more information about a command.'
 ];

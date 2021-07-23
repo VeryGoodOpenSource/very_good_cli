@@ -31,7 +31,7 @@ abstract class Template {
 }
 
 /// {@template dart_pkg_template}
-/// Dart class that represents a VeryGoodCLI dart package template.
+/// A Dart package template.
 /// {@endtemplate}
 class DartPkgTemplate extends Template {
   /// {@macro dart_pkg_template}
@@ -64,7 +64,7 @@ class DartPkgTemplate extends Template {
 }
 
 /// {@template flutter_pkg_template}
-/// Dart class that represents a VeryGoodCLI Flutter package template.
+/// A Flutter package template.
 /// {@endtemplate}
 class FlutterPkgTemplate extends Template {
   /// {@macro flutter_pkg_template}
@@ -96,7 +96,7 @@ class FlutterPkgTemplate extends Template {
 }
 
 /// {@template core_template}
-/// Dart class that represents a VeryGoodCLI core flutter app template.
+/// A core Flutter app template.
 /// {@endtemplate}
 class CoreTemplate extends Template {
   /// {@macro core_template}

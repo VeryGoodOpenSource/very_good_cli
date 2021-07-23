@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/templates/templates.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Creates a new very good flutter project in the specified directory.\n'
+  'Creates a new very good project in the specified directory.\n'
       '\n'
       'Usage: very_good create <output directory>\n'
       '-h, --help                    '

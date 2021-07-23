@@ -1,3 +1,9 @@
+# v0.3.0 (2021-07-23)
+
+### Features
+
+- create supports flutter and dart packages ([#154](https://github.com/VeryGoodOpenSource/very_good_cli/issues/154)) ([65605c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65605c6b25d7b39fab4e1e025ec292eac83dc4d4))
+
 # v0.2.5 (2021-07-16)
 
 ### Bug Fixes
