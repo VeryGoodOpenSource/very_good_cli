@@ -22,7 +22,7 @@ abstract class Template {
   /// The name associated with this template.
   final String name;
 
-  /// The MasonBundle used to generate this template.
+  /// The [MasonBundle] used to generate this template.
   final MasonBundle bundle;
 
   /// The help text shown in the usage information for the CLI.
