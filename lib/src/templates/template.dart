@@ -36,7 +36,7 @@ abstract class Template {
 /// Dart class that represents a VeryGoodCLI dart package template.
 /// {@endtemplate}
 class DartPkgTemplate extends Template {
-  /// {@macro template}
+  /// {@macro dart_pkg_template}
   DartPkgTemplate()
       : super(
           name: 'dart_pkg',
