@@ -25,7 +25,7 @@ final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
 /// {@template create_command}
-/// `very_good create` command creates a project from a MasonBundle template.
+/// `very_good create` command creates code from various built-in templates.
 /// {@endtemplate}
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
