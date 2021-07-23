@@ -95,7 +95,7 @@ class FlutterPkgTemplate extends Template {
   }
 }
 
-/// {@template template}
+/// {@template core_template}
 /// Dart class that represents a VeryGoodCLI core flutter app template.
 /// {@endtemplate}
 class CoreTemplate extends Template {
