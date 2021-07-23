@@ -23,7 +23,7 @@ const expectedUsage = [
       'The organization for this new Flutter project.\n'
       '                              (defaults to "com.example.verygoodcore")\n'
       '-t, --template                '
-      'The brick template used to generate this new project.\n'
+      'The template used to generate this new project.\n'
       '\n'
       '          [core] (default)    '
       'Generate a Very Good Flutter application.\n'
