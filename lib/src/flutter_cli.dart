@@ -7,6 +7,11 @@ class Flutter {
     return _Cmd.run('flutter', ['packages', 'get'], workingDirectory: cwd);
   }
 
+  /// Install dart dependencies (`flutter pub get`).
+  static Future<void> pubGet([String? cwd]) {
+    return _Cmd.run('flutter', ['pub', 'get'], workingDirectory: cwd);
+  }
+
   /// Determine whether flutter is installed
   static Future<bool> installed() async {
     try {
@@ -18,7 +23,9 @@ class Flutter {
   }
 }
 
+/// Abstraction for running commands via command-line.
 class _Cmd {
+  /// Runs the specified [cmd] with the provided [args].
   static Future<ProcessResult> run(
     String cmd,
     List<String> args, {
