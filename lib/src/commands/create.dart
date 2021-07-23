@@ -70,7 +70,7 @@ class CreateCommand extends Command<int> {
 
   @override
   String get description =>
-      'Creates a new very good flutter project in the specified directory.';
+      'Creates a new very good project in the specified directory.';
 
   @override
   String get summary => '$invocation\n$description';

@@ -24,24 +24,26 @@ $ dart pub global activate very_good_cli
 
 ### `$ very_good create`
 
-Create a new very good flutter starter application in seconds based on [Very Good Core][very_good_core_link].
+Create a very good project in seconds based on the provided template. The [Very Good Core][very_good_core_link] template is used by default.
 
 ![Very Good Create][very_good_create]
 
-#### Usage
-
 ```sh
-Creates a new very good flutter project in the specified directory.
+Creates a new very good project in the specified directory.
 
 Usage: very_good create <output directory>
--h, --help            Print this usage information.
-    --project-name    The project name for this new project. This must be a valid dart package name.
-    --org-name        The organization for this new project.
-                      (defaults to "com.example.verygoodcore")
--t, --template        The template to use to generate this new project.
+-h, --help                    Print this usage information.
+    --project-name            The project name for this new Flutter project. This must be a valid dart package name.
+    --org-name                The organization for this new Flutter project.
+                              (defaults to "com.example.verygoodcore")
+-t, --template                The template used to generate this new project.
+
+          [core] (default)    Generate a Very Good Flutter application.
+          [dart_pkg]          Generate a reusable pure Dart package.
+          [flutter_pkg]       Generate a reusable Flutter package.
 ```
 
-### What's Included? 📦
+### What's Included in Very Good Core? 📦
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
 
