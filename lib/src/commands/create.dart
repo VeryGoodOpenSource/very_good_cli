@@ -51,7 +51,7 @@ class CreateCommand extends Command<int> {
       ..addOption(
         'template',
         abbr: 't',
-        help: 'The brick template used to generate this new project.',
+        help: 'The template used to generate this new project.',
         defaultsTo: _defaultTemplate.name,
         allowed: _templates.map((element) => element.name).toList(),
         allowedHelp: _templates.fold<Map<String, String>>(
