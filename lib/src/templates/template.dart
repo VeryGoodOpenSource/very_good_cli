@@ -70,7 +70,7 @@ class DartPkgTemplate extends Template {
 /// Dart class that represents a VeryGoodCLI dart package template.
 /// {@endtemplate}
 class FlutterPkgTemplate extends Template {
-  /// {@macro template}
+  /// {@macro flutter_pkg_template}
   FlutterPkgTemplate()
       : super(
             name: 'flutter_pkg',
