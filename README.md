@@ -35,9 +35,10 @@ Creates a new very good flutter project in the specified directory.
 
 Usage: very_good create <output directory>
 -h, --help            Print this usage information.
-    --project-name    The project name for this new Flutter project. This must be a valid dart package name.
-    --org-name        The organization for this new Flutter project.
+    --project-name    The project name for this new project. This must be a valid dart package name.
+    --org-name        The organization for this new project.
                       (defaults to "com.example.verygoodcore")
+-t, --template        The template to use to generate this new project.
 ```
 
 ### What's Included? 📦
