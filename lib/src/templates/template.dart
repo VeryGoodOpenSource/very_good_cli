@@ -99,7 +99,7 @@ class FlutterPkgTemplate extends Template {
 /// Dart class that represents a VeryGoodCLI core flutter app template.
 /// {@endtemplate}
 class CoreTemplate extends Template {
-  /// {@macro template}
+  /// {@macro core_template}
   CoreTemplate()
       : super(
           name: 'core',
