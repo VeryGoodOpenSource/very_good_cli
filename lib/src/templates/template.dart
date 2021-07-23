@@ -6,7 +6,7 @@ import 'package:very_good_cli/src/templates/templates.dart';
 
 /// {@template template}
 /// Dart class that represents a VeryGoodCLI supported template.
-/// Each template consists of a [MasonBundle]
+/// Each template consists of a [MasonBundle], name, 
 /// and help text describing the template.
 /// {@endtemplate}
 abstract class Template {
