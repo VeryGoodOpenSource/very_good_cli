@@ -2,9 +2,7 @@ import 'package:io/ansi.dart';
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
-import 'package:very_good_cli/src/templates/dart_package_bundle.dart';
-import 'package:very_good_cli/src/templates/flutter_package_bundle.dart';
-import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
+import 'package:very_good_cli/src/templates/templates.dart';
 
 /// {@template template}
 /// Dart class that represents a VeryGoodCLI supported template.
