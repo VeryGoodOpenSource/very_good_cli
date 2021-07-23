@@ -23,7 +23,7 @@ class Flutter {
   }
 }
 
-/// Command for Dart and Flutter CLI
+/// Abstraction for running commands via command-line.
 class _Cmd {
   /// Runs the specific command
   static Future<ProcessResult> run(
