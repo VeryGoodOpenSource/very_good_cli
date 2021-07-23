@@ -7,9 +7,7 @@ import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
-import 'package:very_good_cli/src/templates/dart_package_bundle.dart';
-import 'package:very_good_cli/src/templates/flutter_package_bundle.dart';
-import 'package:very_good_cli/src/templates/very_good_core_bundle.dart';
+import 'package:very_good_cli/src/templates/templates.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
