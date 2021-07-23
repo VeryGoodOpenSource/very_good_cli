@@ -66,7 +66,7 @@ class DartPkgTemplate extends Template {
   }
 }
 
-/// {@template template}
+/// {@template flutter_pkg_template}
 /// Dart class that represents a VeryGoodCLI dart package template.
 /// {@endtemplate}
 class FlutterPkgTemplate extends Template {
