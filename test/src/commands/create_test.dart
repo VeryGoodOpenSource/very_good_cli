@@ -19,6 +19,9 @@ const expectedUsage = [
       '    --project-name            '
       'The project name for this new Flutter project. '
       'This must be a valid dart package name.\n'
+      '    --desc                    '
+      'The description for this new project.\n'
+      '                              (defaults to "")\n'
       '    --org-name                '
       'The organization for this new Flutter project.\n'
       '                              (defaults to "com.example.verygoodcore")\n'
@@ -182,6 +185,7 @@ void main() {
               {'value': 'example', 'separator': '.'},
               {'value': 'verygoodcore', 'separator': ''}
             ],
+            'description': '',
           },
         ),
       ).called(1);
@@ -194,6 +198,46 @@ void main() {
       ).called(1);
       verify(
         () => analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
+      ).called(1);
+    });
+
+    test('completes successfully w/ custom description', () async {
+      final argResults = MockArgResults();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generator: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['project-name']).thenReturn('my_app');
+      when(() => argResults['desc']).thenReturn('very good description');
+      when(() => argResults.rest).thenReturn(['.tmp']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(
+        () => generator.generate(any(), vars: any(named: 'vars')),
+      ).thenAnswer((_) async => 62);
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: {
+            'project_name': 'my_app',
+            'org_name': [
+              {'value': 'com', 'separator': '.'},
+              {'value': 'example', 'separator': '.'},
+              {'value': 'verygoodcore', 'separator': ''}
+            ],
+            'description': 'very good description',
+          },
+        ),
       ).called(1);
     });
 
@@ -265,45 +309,49 @@ void main() {
                   '.tmp',
                 ),
               ),
-              vars: {'project_name': 'my_app', 'org_name': expected},
+              vars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': expected
+              },
             ),
           ).called(1);
         }
 
-        test('alphanumeric with three parts', () {
-          expectValidOrgName('very.good.ventures', [
+        test('alphanumeric with three parts', () async {
+          await expectValidOrgName('very.good.ventures', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
             {'value': 'ventures', 'separator': ''},
           ]);
         });
 
-        test('containing an underscore', () {
-          expectValidOrgName('very.good.test_case', [
+        test('containing an underscore', () async {
+          await expectValidOrgName('very.good.test_case', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
             {'value': 'test case', 'separator': ''},
           ]);
         });
 
-        test('containing a hyphen', () {
-          expectValidOrgName('very.bad.test-case', [
+        test('containing a hyphen', () async {
+          await expectValidOrgName('very.bad.test-case', [
             {'value': 'very', 'separator': '.'},
             {'value': 'bad', 'separator': '.'},
             {'value': 'test case', 'separator': ''},
           ]);
         });
 
-        test('single character parts', () {
-          expectValidOrgName('v.g.v', [
+        test('single character parts', () async {
+          await expectValidOrgName('v.g.v', [
             {'value': 'v', 'separator': '.'},
             {'value': 'g', 'separator': '.'},
             {'value': 'v', 'separator': ''},
           ]);
         });
 
-        test('more than three parts', () {
-          expectValidOrgName('very.good.ventures.app.identifier', [
+        test('more than three parts', () async {
+          await expectValidOrgName('very.good.ventures.app.identifier', [
             {'value': 'very', 'separator': '.'},
             {'value': 'good', 'separator': '.'},
             {'value': 'ventures', 'separator': '.'},
@@ -312,8 +360,8 @@ void main() {
           ]);
         });
 
-        test('less than three parts', () {
-          expectValidOrgName('verygood.ventures', [
+        test('less than three parts', () async {
+          await expectValidOrgName('verygood.ventures', [
             {'value': 'verygood', 'separator': '.'},
             {'value': 'ventures', 'separator': ''},
           ]);
@@ -387,6 +435,7 @@ void main() {
                   {'value': 'example', 'separator': '.'},
                   {'value': 'verygoodcore', 'separator': ''}
                 ],
+                'description': '',
               },
             ),
           ).called(1);
