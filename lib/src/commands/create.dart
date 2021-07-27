@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
 const _defaultOrgName = 'com.example.verygoodcore';
-const _defaultDescription = 'A Very Good Project create by Very Good CLI.';
+const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 final _defaultTemplate = CoreTemplate();
 
 final _templates = [_defaultTemplate, DartPkgTemplate(), FlutterPkgTemplate()];

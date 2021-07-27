@@ -35,6 +35,7 @@ Usage: very_good create <output directory>
 -h, --help                    Print this usage information.
     --project-name            The project name for this new project. This must be a valid dart package name.
     --desc                    The description for this new project.
+                              (defaults to "A Very Good Project created by Very Good CLI.")
     --org-name                The organization for this new project.
                               (defaults to "com.example.verygoodcore")
 -t, --template                The template used to generate this new project.
