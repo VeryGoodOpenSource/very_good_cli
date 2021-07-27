@@ -1,3 +1,9 @@
+# v0.3.1 (2021-07-27)
+
+### Features
+
+- **create:** support custom description ([#158](https://github.com/VeryGoodOpenSource/very_good_cli/issues/158)) ([b163c49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b163c49a095aebde22370b37a6872ba54e6c16f1))
+
 # v0.3.0 (2021-07-23)
 
 ### Features
