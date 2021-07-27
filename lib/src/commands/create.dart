@@ -11,6 +11,7 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
 const _defaultOrgName = 'com.example.verygoodcore';
+const _defaultDescription = 'A Very Good Project create by Very Good CLI.';
 final _defaultTemplate = CoreTemplate();
 
 final _templates = [_defaultTemplate, DartPkgTemplate(), FlutterPkgTemplate()];
@@ -39,19 +40,18 @@ class CreateCommand extends Command<int> {
     argParser
       ..addOption(
         'project-name',
-        help: 'The project name for this new Flutter project. '
+        help: 'The project name for this new project. '
             'This must be a valid dart package name.',
-        defaultsTo: null,
       )
       ..addOption(
         'desc',
         help: 'The description for this new project.',
-        defaultsTo: '',
+        defaultsTo: _defaultDescription,
       )
       ..addOption(
         'org-name',
-        help: 'The organization for this new Flutter project.',
-        defaultsTo: 'com.example.verygoodcore',
+        help: 'The organization for this new project.',
+        defaultsTo: _defaultOrgName,
       )
       ..addOption(
         'template',

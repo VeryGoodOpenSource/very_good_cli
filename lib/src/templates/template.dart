@@ -39,7 +39,7 @@ class DartPkgTemplate extends Template {
       : super(
           name: 'dart_pkg',
           bundle: dartPackageBundle,
-          help: 'Generate a reusable pure Dart package.',
+          help: 'Generate a reusable Dart package.',
         );
 
   @override
