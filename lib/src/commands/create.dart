@@ -44,6 +44,11 @@ class CreateCommand extends Command<int> {
         defaultsTo: null,
       )
       ..addOption(
+        'desc',
+        help: 'The description for this new project.',
+        defaultsTo: '',
+      )
+      ..addOption(
         'org-name',
         help: 'The organization for this new Flutter project.',
         defaultsTo: 'com.example.verygoodcore',
@@ -91,13 +96,18 @@ class CreateCommand extends Command<int> {
   Future<int> run() async {
     final outputDirectory = _outputDirectory;
     final projectName = _projectName;
+    final description = _description;
     final orgName = _orgName;
     final template = _template;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
-      vars: {'project_name': projectName, 'org_name': orgName},
+      vars: {
+        'project_name': projectName,
+        'description': description,
+        'org_name': orgName
+      },
     );
     generateDone('Generated $fileCount file(s)');
 
@@ -123,6 +133,9 @@ class CreateCommand extends Command<int> {
     _validateProjectName(projectName);
     return projectName;
   }
+
+  //// Gets the description for the project
+  String get _description => _argResults['desc'] as String? ?? '';
 
   /// Gets the organization name.
   List<Map<String, String>> get _orgName {
