@@ -5,8 +5,7 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
-
-import 'version.dart';
+import 'package:very_good_cli/src/version.dart';
 
 // The Google Analytics tracking ID.
 const _gaTrackingId = 'UA-117465969-4';
