@@ -1,3 +1,9 @@
+# v0.3.2 (2021-08-03)
+
+### Features
+
+- upgrade dependencies ([bf69bb3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bf69bb3348a0039904d78dab2dcff9fbd6b38771))
+
 # v0.3.1 (2021-07-27)
 
 ### Features
