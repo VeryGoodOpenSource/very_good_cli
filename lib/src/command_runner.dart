@@ -52,7 +52,8 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
     try {
       if (_analytics.firstRun) {
         final response = _logger.prompt(lightGray.wrap(
-          '''+---------------------------------------------------+
+          '''
++---------------------------------------------------+
 |           Welcome to the Very Good CLI!           |
 +---------------------------------------------------+
 | We would like to collect anonymous                |
@@ -89,7 +90,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       return ExitCode.success.code;
     }
     if (topLevelResults['analytics'] != null) {
-      final optIn = topLevelResults['analytics'] == 'true' ? true : false;
+      final optIn = topLevelResults['analytics'] == 'true';
       _analytics.enabled = optIn;
       _logger.info('analytics ${_analytics.enabled ? 'enabled' : 'disabled'}.');
       return ExitCode.success.code;

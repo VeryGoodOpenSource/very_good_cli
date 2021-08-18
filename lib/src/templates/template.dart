@@ -127,7 +127,8 @@ class CoreTemplate extends Template {
       ..info('\n')
       ..info(
         lightGray.wrap(
-          '''+----------------------------------------------------+
+          '''
++----------------------------------------------------+
 | Looking for more features?                         |
 | We have an enterprise-grade solution for companies |
 | called Very Good Start.                            |

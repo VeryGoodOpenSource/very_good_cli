@@ -69,10 +69,10 @@ void main() {
       when(() => analytics.enabled).thenReturn(false);
       when(
         () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
-      ).thenAnswer((_) => Future.value());
+      ).thenAnswer((_) async {});
       when(
         () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
-      ).thenAnswer((_) => Future.value());
+      ).thenAnswer((_) async {});
 
       logger = MockLogger();
       when(() => logger.progress(any())).thenReturn(
@@ -147,7 +147,7 @@ void main() {
         logger: logger,
         generator: (_) async => generator,
       )..argResultOverrides = argResults;
-      when(() => argResults['project-name']).thenReturn('my_app');
+      when(() => argResults['project-name'] as String?).thenReturn('my_app');
       when(() => argResults.rest).thenReturn(['.tmp']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
@@ -171,7 +171,7 @@ void main() {
               '.tmp',
             ),
           ),
-          vars: {
+          vars: <String, dynamic>{
             'project_name': 'my_app',
             'org_name': [
               {'value': 'com', 'separator': '.'},
@@ -202,8 +202,10 @@ void main() {
         logger: logger,
         generator: (_) async => generator,
       )..argResultOverrides = argResults;
-      when(() => argResults['project-name']).thenReturn('my_app');
-      when(() => argResults['desc']).thenReturn('very good description');
+      when(() => argResults['project-name'] as String?).thenReturn('my_app');
+      when(
+        () => argResults['desc'] as String?,
+      ).thenReturn('very good description');
       when(() => argResults.rest).thenReturn(['.tmp']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
@@ -221,7 +223,7 @@ void main() {
               '.tmp',
             ),
           ),
-          vars: {
+          vars: <String, dynamic>{
             'project_name': 'my_app',
             'org_name': [
               {'value': 'com', 'separator': '.'},
@@ -236,7 +238,7 @@ void main() {
 
     group('org-name', () {
       group('invalid --org-name', () {
-        void expectInvalidOrgName(String orgName) async {
+        Future<void> expectInvalidOrgName(String orgName) async {
           final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
               'A valid org name has at least 2 parts separated by "."\n'
               'Each part must start with a letter and only include '
@@ -250,23 +252,23 @@ void main() {
           verify(() => logger.err(expectedErrorMessage)).called(1);
         }
 
-        test('no delimiters', () async {
+        test('no delimiters', () {
           expectInvalidOrgName('My App');
         });
 
-        test('less than 2 domains', () async {
+        test('less than 2 domains', () {
           expectInvalidOrgName('verybadtest');
         });
 
-        test('invalid characters present', () async {
+        test('invalid characters present', () {
           expectInvalidOrgName('very%.bad@.#test');
         });
 
-        test('segment starts with a non-letter', () async {
+        test('segment starts with a non-letter', () {
           expectInvalidOrgName('very.bad.1test');
         });
 
-        test('valid prefix but invalid suffix', () async {
+        test('valid prefix but invalid suffix', () {
           expectInvalidOrgName('very.good.prefix.bad@@suffix');
         });
       });
@@ -283,8 +285,10 @@ void main() {
             logger: logger,
             generator: (_) async => generator,
           )..argResultOverrides = argResults;
-          when(() => argResults['project-name']).thenReturn('my_app');
-          when(() => argResults['org-name']).thenReturn(orgName);
+          when(
+            () => argResults['project-name'] as String?,
+          ).thenReturn('my_app');
+          when(() => argResults['org-name'] as String?).thenReturn(orgName);
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
@@ -302,7 +306,7 @@ void main() {
                   '.tmp',
                 ),
               ),
-              vars: {
+              vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'description': '',
                 'org_name': expected
@@ -364,7 +368,7 @@ void main() {
 
     group('--template', () {
       group('invalid template name', () {
-        void expectInvalidTemplateName(String templateName) async {
+        Future<void> expectInvalidTemplateName(String templateName) async {
           final expectedErrorMessage =
               '"$templateName" is not an allowed value for option "template".';
           final result = await commandRunner.run(
@@ -396,8 +400,12 @@ void main() {
               return generator;
             },
           )..argResultOverrides = argResults;
-          when(() => argResults['project-name']).thenReturn('my_app');
-          when(() => argResults['template']).thenReturn(templateName);
+          when(
+            () => argResults['project-name'] as String?,
+          ).thenReturn('my_app');
+          when(
+            () => argResults['template'] as String?,
+          ).thenReturn(templateName);
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
@@ -421,7 +429,7 @@ void main() {
                   '.tmp',
                 ),
               ),
-              vars: {
+              vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'org_name': [
                   {'value': 'com', 'separator': '.'},

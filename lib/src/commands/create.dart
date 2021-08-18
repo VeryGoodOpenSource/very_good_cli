@@ -103,7 +103,7 @@ class CreateCommand extends Command<int> {
     final generator = await _generator(template.bundle);
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
-      vars: {
+      vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
         'org_name': orgName
@@ -128,7 +128,7 @@ class CreateCommand extends Command<int> {
   /// Uses the current directory path name
   /// if the `--project-name` option is not explicitly specified.
   String get _projectName {
-    final projectName = _argResults['project-name'] ??
+    final projectName = _argResults['project-name'] as String? ??
         path.basename(path.normalize(_outputDirectory.absolute.path));
     _validateProjectName(projectName);
     return projectName;
@@ -141,7 +141,7 @@ class CreateCommand extends Command<int> {
   List<Map<String, String>> get _orgName {
     final orgName = _argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
-    final segments = orgName.replaceAll(RegExp(r'-|_'), ' ').split('.');
+    final segments = orgName.replaceAll(RegExp('-|_'), ' ').split('.');
     final org = <Map<String, String>>[];
     for (var i = 0; i < segments.length; i++) {
       final segment = segments[i];
