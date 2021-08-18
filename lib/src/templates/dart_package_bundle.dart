@@ -3,7 +3,7 @@
 
 import 'package:mason/mason.dart';
 
-final dartPackageBundle = MasonBundle.fromJson({
+final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "files": [
     {
       "path": "test/{{project_name}}_test.dart",

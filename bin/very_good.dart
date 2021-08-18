@@ -1,7 +1,7 @@
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 
-void main(List<String> args) async {
+Future<void> main(List<String> args) async {
   await _flushThenExit(await VeryGoodCommandRunner().run(args));
 }
 

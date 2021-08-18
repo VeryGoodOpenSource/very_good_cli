@@ -3,7 +3,7 @@
 
 import 'package:mason/mason.dart';
 
-final veryGoodCoreBundle = MasonBundle.fromJson({
+final veryGoodCoreBundle = MasonBundle.fromJson(<String, dynamic>{
   "files": [
     {
       "path": "LICENSE",
