@@ -20,7 +20,7 @@ final dartPackageBundle = MasonBundle.fromJson({
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3tkZXNjcmlwdGlvbn19CnZlcnNpb246IDEuMC4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEyLjAgPDMuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICB0ZXN0OiBeMS4xNy4wCiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMi4zLjA=",
+          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3tkZXNjcmlwdGlvbn19CnZlcnNpb246IDEuMC4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEzLjAgPDMuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICB0ZXN0OiBeMS4xNy4wCiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMi4zLjA=",
       "type": "text"
     },
     {
