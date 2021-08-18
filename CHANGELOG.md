@@ -1,3 +1,9 @@
+# v0.3.3 (2021-08-18)
+
+### Features
+
+- **deps:** upgrade to bloc v7.1.0 and dart >=2.13.0 ([#166](https://github.com/VeryGoodOpenSource/very_good_cli/issues/166)) ([98f8724](https://github.com/VeryGoodOpenSource/very_good_cli/commit/98f87242f73b6041804d321803b5daf16dc833b1))
+
 # v0.3.2 (2021-08-03)
 
 ### Features
