@@ -7,26 +7,26 @@ void main() {
     group('packages get', () {
       test('throws when there is no pubspec.yaml', () {
         expectLater(
-          Flutter.packagesGet(Directory.systemTemp.path),
+          Flutter.packagesGet(cwd: Directory.systemTemp.path, recursive: false),
           throwsException,
         );
       });
 
       test('completes when there is a pubspec.yaml', () {
-        expectLater(Flutter.packagesGet(), completes);
+        expectLater(Flutter.packagesGet(recursive: false), completes);
       });
     });
 
     group('pub get', () {
       test('throws when there is no pubspec.yaml', () {
         expectLater(
-          Flutter.pubGet(Directory.systemTemp.path),
+          Flutter.pubGet(cwd: Directory.systemTemp.path, recursive: false),
           throwsException,
         );
       });
 
       test('completes when there is a pubspec.yaml', () {
-        expectLater(Flutter.pubGet(), completes);
+        expectLater(Flutter.pubGet(recursive: false), completes);
       });
     });
   });

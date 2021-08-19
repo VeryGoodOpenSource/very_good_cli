@@ -1,15 +1,66 @@
+import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
 
 /// Flutter CLI
 class Flutter {
   /// Install flutter dependencies (`flutter packages get`).
-  static Future<void> packagesGet([String? cwd]) {
-    return _Cmd.run('flutter', ['packages', 'get'], workingDirectory: cwd);
+  static Future<void> packagesGet({String? cwd, bool recursive = true}) async {
+    var foundPubspec = false;
+
+    if (recursive) {
+      final futures =
+          Directory(cwd ?? '').listSync(recursive: true).where((element) {
+        final e = element;
+        if (e is! File) return false;
+
+        return p.basename(e.path) == 'pubspec.yaml';
+      }).map(
+        (element) {
+          foundPubspec = true;
+          return _Cmd.run(
+            'flutter',
+            ['packages', 'get'],
+            workingDirectory: element.parent.path,
+          );
+        },
+      );
+
+      await Future.wait(futures);
+    }
+
+    if (foundPubspec == false) {
+      await _Cmd.run('flutter', ['packages', 'get'], workingDirectory: cwd);
+    }
   }
 
   /// Install dart dependencies (`flutter pub get`).
-  static Future<void> pubGet([String? cwd]) {
-    return _Cmd.run('flutter', ['pub', 'get'], workingDirectory: cwd);
+  static Future<void> pubGet({String? cwd, bool recursive = true}) async {
+    var hasPubspec = false;
+
+    if (recursive) {
+      final futures =
+          Directory(cwd ?? '').listSync(recursive: true).where((element) {
+        final e = element;
+        if (e is! File) return false;
+
+        return p.basename(e.path) == 'pubspec.yaml';
+      }).map(
+        (element) {
+          hasPubspec = true;
+          return _Cmd.run(
+            'flutter',
+            ['pub', 'get'],
+            workingDirectory: element.parent.path,
+          );
+        },
+      );
+
+      await Future.wait(futures);
+    }
+
+    if (hasPubspec == false) {
+      await _Cmd.run('flutter', ['pub', 'get'], workingDirectory: cwd);
+    }
   }
 
   /// Determine whether flutter is installed

@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
+import 'package:very_good_cli/src/templates/flutter_plugin_bundle.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
 const expectedUsage = [
@@ -25,6 +26,7 @@ const expectedUsage = [
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
+      '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -477,6 +479,15 @@ void main() {
             templateName: 'flutter_pkg',
             expectedBundle: flutterPackageBundle,
             expectedLogSummary: 'Created a Very Good Flutter package! 🦄',
+          );
+        });
+
+        test('flutter plugin template', () async {
+          await expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            templateName: 'flutter_plugin',
+            expectedBundle: flutterPluginBundle,
+            expectedLogSummary: 'Created a Very Good Flutter plugin! 🦄',
           );
         });
       });

@@ -1,7 +1,9 @@
 import 'package:io/ansi.dart';
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
+import 'package:very_good_cli/src/templates/flutter_plugin_bundle.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
 /// {@template template}
@@ -49,7 +51,7 @@ class DartPkgTemplate extends Template {
       final installDependenciesDone = logger.progress(
         'Running "flutter pub get" in ${outputDir.path}',
       );
-      await Flutter.pubGet(outputDir.path);
+      await Flutter.pubGet(cwd: outputDir.path);
       installDependenciesDone();
     }
     _logSummary(logger);
@@ -81,7 +83,7 @@ class FlutterPkgTemplate extends Template {
       final installDependenciesDone = logger.progress(
         'Running "flutter packages get" in ${outputDir.path}',
       );
-      await Flutter.packagesGet(outputDir.path);
+      await Flutter.packagesGet(cwd: outputDir.path);
       installDependenciesDone();
     }
     _logSummary(logger);
@@ -91,6 +93,38 @@ class FlutterPkgTemplate extends Template {
     logger
       ..info('\n')
       ..alert('Created a Very Good Flutter package! 🦄')
+      ..info('\n');
+  }
+}
+
+/// {@template flutter_plugin_template}
+/// A Flutter plugin template.
+/// {@endtemplate}
+class FlutterPluginTemplate extends Template {
+  /// {@macro flutter_pkg_template}
+  FlutterPluginTemplate()
+      : super(
+            name: 'flutter_plugin',
+            bundle: flutterPluginBundle,
+            help: 'Generate a reusable Flutter plugin.');
+
+  @override
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
+    final isFlutterInstalled = await Flutter.installed();
+    if (isFlutterInstalled) {
+      final installDependenciesDone = logger.progress(
+        'Running "flutter packages get" in ${outputDir.path}',
+      );
+      await Flutter.packagesGet(cwd: outputDir.path);
+      installDependenciesDone();
+    }
+    _logSummary(logger);
+  }
+
+  void _logSummary(Logger logger) {
+    logger
+      ..info('\n')
+      ..alert('Created a Very Good Flutter plugin! 🦄')
       ..info('\n');
   }
 }
@@ -114,7 +148,7 @@ class CoreTemplate extends Template {
       final installDependenciesDone = logger.progress(
         'Running "flutter packages get" in ${outputDir.path}',
       );
-      await Flutter.packagesGet(outputDir.path);
+      await Flutter.packagesGet(cwd: outputDir.path);
       installDependenciesDone();
     }
     _logSummary(logger);
