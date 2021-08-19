@@ -224,7 +224,10 @@ void main() {
       when(() => generator.description).thenReturn('generator description');
       when(
         () => generator.generate(any(), vars: any(named: 'vars')),
-      ).thenAnswer((_) async => 62);
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+        return 62;
+      });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(
@@ -307,7 +310,10 @@ void main() {
           when(() => generator.description).thenReturn('generator description');
           when(
             () => generator.generate(any(), vars: any(named: 'vars')),
-          ).thenAnswer((_) async => 62);
+          ).thenAnswer((_) async {
+            File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+            return 62;
+          });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
           verify(
