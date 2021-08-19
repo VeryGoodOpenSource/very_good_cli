@@ -1,6 +1,5 @@
 import 'package:io/ansi.dart';
 import 'package:mason/mason.dart';
-import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
 import 'package:very_good_cli/src/templates/flutter_plugin_bundle.dart';
