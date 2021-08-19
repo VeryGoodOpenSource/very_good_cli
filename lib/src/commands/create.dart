@@ -14,7 +14,12 @@ const _defaultOrgName = 'com.example.verygoodcore';
 const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 final _defaultTemplate = CoreTemplate();
 
-final _templates = [_defaultTemplate, DartPkgTemplate(), FlutterPkgTemplate(), FlutterPluginTemplate(),];
+final _templates = [
+  _defaultTemplate,
+  DartPkgTemplate(),
+  FlutterPkgTemplate(),
+  FlutterPluginTemplate(),
+];
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
