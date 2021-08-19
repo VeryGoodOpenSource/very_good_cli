@@ -102,9 +102,10 @@ class FlutterPluginTemplate extends Template {
   /// {@macro flutter_pkg_template}
   FlutterPluginTemplate()
       : super(
-            name: 'flutter_plugin',
-            bundle: flutterPluginBundle,
-            help: 'Generate a reusable Flutter plugin.');
+          name: 'flutter_plugin',
+          bundle: flutterPluginBundle,
+          help: 'Generate a reusable Flutter plugin.',
+        );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
