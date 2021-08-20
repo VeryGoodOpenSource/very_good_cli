@@ -1,3 +1,12 @@
+# [](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.3...v) (2021-08-20)
+
+
+### Features
+
+* support flutter plugin template ([#169](https://github.com/VeryGoodOpenSource/very_good_cli/issues/169)) ([82e2a1d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/82e2a1d0ce1bb7ade6d1e8460d6c9d7c1052f7be))
+
+
+
 # v0.3.3 (2021-08-18)
 
 ### Features
