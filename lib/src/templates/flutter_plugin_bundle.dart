@@ -3,7 +3,7 @@
 
 import 'package:mason/mason.dart';
 
-final flutterPluginBundle = MasonBundle.fromJson({
+final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
   "files": [
     {
       "path": "{{#snakeCase}}{{project_name}}{{/snakeCase}}/LICENSE",
