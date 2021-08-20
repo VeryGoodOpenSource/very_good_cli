@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:args/args.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
+import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
@@ -25,9 +28,16 @@ const expectedUsage = [
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
+      '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
+
+const pubspec = '''
+name: example
+environment:
+  sdk: ">=2.13.0 <3.0.0"
+''';
 
 class MockArgResults extends Mock implements ArgResults {}
 
@@ -153,7 +163,10 @@ void main() {
       when(() => generator.description).thenReturn('generator description');
       when(
         () => generator.generate(any(), vars: any(named: 'vars')),
-      ).thenAnswer((_) async => 62);
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+        return 62;
+      });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(() => logger.progress('Bootstrapping')).called(1);
@@ -211,7 +224,10 @@ void main() {
       when(() => generator.description).thenReturn('generator description');
       when(
         () => generator.generate(any(), vars: any(named: 'vars')),
-      ).thenAnswer((_) async => 62);
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+        return 62;
+      });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(
@@ -294,7 +310,10 @@ void main() {
           when(() => generator.description).thenReturn('generator description');
           when(
             () => generator.generate(any(), vars: any(named: 'vars')),
-          ).thenAnswer((_) async => 62);
+          ).thenAnswer((_) async {
+            File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+            return 62;
+          });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
           verify(
@@ -411,7 +430,10 @@ void main() {
           when(() => generator.description).thenReturn('generator description');
           when(
             () => generator.generate(any(), vars: any(named: 'vars')),
-          ).thenAnswer((_) async => 62);
+          ).thenAnswer((_) async {
+            File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+            return 62;
+          });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
           verify(() => logger.progress('Bootstrapping')).called(1);
@@ -477,6 +499,15 @@ void main() {
             templateName: 'flutter_pkg',
             expectedBundle: flutterPackageBundle,
             expectedLogSummary: 'Created a Very Good Flutter package! 🦄',
+          );
+        });
+
+        test('flutter plugin template', () async {
+          await expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            templateName: 'flutter_plugin',
+            expectedBundle: flutterPluginBundle,
+            expectedLogSummary: 'Created a Very Good Flutter plugin! 🦄',
           );
         });
       });
