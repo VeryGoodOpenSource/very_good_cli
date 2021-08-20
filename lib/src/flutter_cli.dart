@@ -13,13 +13,14 @@ class Flutter {
     bool recursive = false,
   }) async {
     await _installPackages(
-        cmd: (cwd) => _Cmd.run(
-              'flutter',
-              ['packages', 'get'],
-              workingDirectory: cwd,
-            ),
-        cwd: cwd,
-        recursive: recursive);
+      cmd: (cwd) => _Cmd.run(
+        'flutter',
+        ['packages', 'get'],
+        workingDirectory: cwd,
+      ),
+      cwd: cwd,
+      recursive: recursive,
+    );
   }
 
   /// Install dart dependencies (`flutter pub get`).
@@ -28,13 +29,24 @@ class Flutter {
     bool recursive = false,
   }) async {
     await _installPackages(
-        cmd: (cwd) => _Cmd.run(
-              'flutter',
-              ['pub', 'get'],
-              workingDirectory: cwd,
-            ),
-        cwd: cwd,
-        recursive: recursive);
+      cmd: (cwd) => _Cmd.run(
+        'flutter',
+        ['pub', 'get'],
+        workingDirectory: cwd,
+      ),
+      cwd: cwd,
+      recursive: recursive,
+    );
+  }
+
+  /// Determine whether flutter is installed
+  static Future<bool> installed() async {
+    try {
+      await _Cmd.run('flutter', []);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   static Future<void> _installPackages({
@@ -50,15 +62,15 @@ class Flutter {
       return;
     }
 
-    final futures = _process(
+    final processes = _process(
       run: (entity) => cmd(entity.parent.path),
       where: _isPubspec,
       cwd: cwd,
     );
 
-    if (futures.isEmpty) throw PubspecNotFound();
+    if (processes.isEmpty) throw PubspecNotFound();
 
-    await Future.wait(futures);
+    await Future.wait(processes);
   }
 
   static Iterable<Future<ProcessResult>> _process({
@@ -67,16 +79,6 @@ class Flutter {
     String cwd = '.',
   }) {
     return Directory(cwd).listSync(recursive: true).where(where).map(run);
-  }
-
-  /// Determine whether flutter is installed
-  static Future<bool> installed() async {
-    try {
-      await _Cmd.run('flutter', []);
-      return true;
-    } catch (_) {
-      return false;
-    }
   }
 }
 

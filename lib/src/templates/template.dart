@@ -114,7 +114,7 @@ class FlutterPluginTemplate extends Template {
       final installDependenciesDone = logger.progress(
         'Running "flutter packages get" in ${outputDir.path}',
       );
-      await Flutter.packagesGet(cwd: outputDir.path);
+      await Flutter.packagesGet(cwd: outputDir.path, recursive: true);
       installDependenciesDone();
     }
     _logSummary(logger);
