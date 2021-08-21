@@ -43,6 +43,7 @@ Usage: very_good create <output directory>
           [core] (default)    Generate a Very Good Flutter application.
           [dart_pkg]          Generate a reusable Dart package.
           [flutter_pkg]       Generate a reusable Flutter package.
+          [flutter_plugin]    Generate a reusable Flutter federated plugin.
 ```
 
 ### What's Included in Very Good Core? 📦
