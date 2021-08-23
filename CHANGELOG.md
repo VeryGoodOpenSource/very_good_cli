@@ -1,3 +1,9 @@
+# v0.4.1 (2021-08-23)
+
+### Features
+
+- **core:** upgrade to flutter_bloc v7.2.0 ([#172](https://github.com/VeryGoodOpenSource/very_good_cli/issues/172)) ([afb522d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/afb522db2fe71a60d0808bc4b5e91ff2d8e834b8))
+
 # v0.4.0 (2021-08-20)
 
 ### Features
