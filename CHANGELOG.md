@@ -1,8 +1,12 @@
-# v0.4.2 (2021-08-31)
+# v0.4.2 (2021-09-01)
 
 ### Bug Fixes
 
 - **flutter_plugin:** android file path ([#176](https://github.com/VeryGoodOpenSource/very_good_cli/issues/176)) ([d373a6a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d373a6af1450a0fb9709c763af706a4115535620))
+
+### Features
+
+- **core:** upgrade to very_good_coverage v1.2.0 ([#179](https://github.com/VeryGoodOpenSource/very_good_cli/issues/179)) ([d495782](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d4957825b53ba09a27ce950ef7f75d35af8a455d))
 
 # v0.4.1 (2021-08-23)
 
