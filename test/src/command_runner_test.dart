@@ -2,9 +2,11 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
@@ -13,6 +15,8 @@ import 'package:very_good_cli/src/version.dart';
 class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
+
+class MockPubUpdater extends Mock implements PubUpdater {}
 
 const expectedUsage = [
   '🦄 A Very Good Command Line Interface\n'
@@ -34,10 +38,14 @@ const expectedUsage = [
       'Run "very_good help <command>" for more information about a command.'
 ];
 
+const responseBody =
+    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
+
 void main() {
   group('VeryGoodCommandRunner', () {
     late List<String> printLogs;
     late Analytics analytics;
+    late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
 
@@ -54,14 +62,23 @@ void main() {
       printLogs = [];
 
       analytics = MockAnalytics();
+      pubUpdater = MockPubUpdater();
+
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
 
+      when(() => pubUpdater.isUpToDate(
+            packageName: any(named: 'packageName'),
+            currentVersion: any(named: 'currentVersion'),
+          )).thenAnswer((_) => Future.value(true));
+
       logger = MockLogger();
+
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
         logger: logger,
-      );
+        pubUpdater: pubUpdater,
+      )..versionOverride = null;
     });
 
     test('can be instantiated without an explicit analytics/logger instance',
@@ -71,6 +88,22 @@ void main() {
     });
 
     group('run', () {
+      test('prompts for update when newer version exists (n)', () async {
+        when(() => pubUpdater.isUpToDate(
+              packageName: any(named: 'packageName'),
+              currentVersion: any(named: 'currentVersion'),
+            )).thenAnswer((_) => Future.value(false));
+
+        when(() => logger.prompt(any())).thenReturn('n');
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verify(() => logger.prompt(lightGray.wrap('''
+A newer version of VeryGoodCLI is available.
+Would you like to update? 
+[y/n]'''))).called(1);
+      });
+
       test('prompts for analytics collection on first run (y)', () async {
         when(() => analytics.firstRun).thenReturn(true);
         when(() => logger.prompt(any())).thenReturn('y');

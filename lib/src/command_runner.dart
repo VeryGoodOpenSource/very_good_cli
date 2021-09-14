@@ -3,6 +3,8 @@ import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
+import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -18,10 +20,12 @@ const _gaAppName = 'very-good-cli';
 /// {@endtemplate}
 class VeryGoodCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner({Analytics? analytics, Logger? logger})
+  VeryGoodCommandRunner(
+      {Analytics? analytics, Logger? logger, PubUpdater? pubUpdater})
       : _logger = logger ?? Logger(),
         _analytics =
             analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
+        _pubUpdater = pubUpdater ?? PubUpdater(),
         super('very_good', '🦄 A Very Good Command Line Interface') {
     argParser
       ..addFlag(
@@ -46,6 +50,16 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   final Logger _logger;
   final Analytics _analytics;
+  final PubUpdater _pubUpdater;
+
+  /// Should be used for testing purposes only
+  /// to manually override the package version.
+  @visibleForTesting
+  String? versionOverride;
+
+  /// The current package version
+  /// See [versionOverride] to override this for testing.
+  String get version => versionOverride ?? packageVersion;
 
   @override
   Future<int> run(Iterable<String> args) async {
@@ -85,8 +99,29 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
+    final isUpToDate = await _pubUpdater.isUpToDate(
+      packageName: 'very_good_cli',
+      currentVersion: packageVersion,
+    );
+
+    if (!isUpToDate) {
+      final response = _logger.prompt(lightGray.wrap('''
+A newer version of VeryGoodCLI is available.
+Would you like to update? 
+[y/n]'''));
+
+      final normalizedResponse = response.toLowerCase().trim();
+      final shouldUpdate =
+          normalizedResponse == 'y' || normalizedResponse == 'yes';
+
+      if (shouldUpdate) {
+        _logger.info('Updating to the latest version...');
+        await _pubUpdater.update(packageName: 'very_good_cli');
+      }
+    }
+
     if (topLevelResults['version'] == true) {
-      _logger.info('very_good version: $packageVersion');
+      _logger.info('very_good version: $version');
       return ExitCode.success.code;
     }
     if (topLevelResults['analytics'] != null) {

@@ -1,7 +1,11 @@
+import 'package:http/http.dart' show Client, Response;
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/flutter_cli.dart';
+import 'package:very_good_cli/src/pub.dart';
 
 const pubspec = '''
 name: example
@@ -12,6 +16,13 @@ environment:
 const invalidPubspec = '''
 name: example
 ''';
+
+const responseBody =
+    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
+
+class MockClient extends Mock implements Client {}
+
+class FakeResponse extends Fake implements Response {}
 
 void main() {
   group('Flutter CLI', () {
