@@ -8,6 +8,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
+import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -17,6 +18,8 @@ class MockAnalytics extends Mock implements Analytics {}
 class MockLogger extends Mock implements Logger {}
 
 class MockPubUpdater extends Mock implements PubUpdater {}
+
+class FakeProcessResult extends Fake implements ProcessResult {}
 
 const expectedUsage = [
   '🦄 A Very Good Command Line Interface\n'
@@ -72,6 +75,10 @@ void main() {
             currentVersion: any(named: 'currentVersion'),
           )).thenAnswer((_) => Future.value(true));
 
+      when(() => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+          )).thenAnswer((_) => Future.value(FakeProcessResult()));
+
       logger = MockLogger();
 
       commandRunner = VeryGoodCommandRunner(
@@ -88,7 +95,7 @@ void main() {
     });
 
     group('run', () {
-      test('prompts for update when newer version exists (n)', () async {
+      test('prompts for update when newer version exists', () async {
         when(() => pubUpdater.isUpToDate(
               packageName: any(named: 'packageName'),
               currentVersion: any(named: 'currentVersion'),
@@ -102,6 +109,20 @@ void main() {
 A newer version of VeryGoodCLI is available.
 Would you like to update? 
 [y/n]'''))).called(1);
+      });
+
+      test('updates on "y" response when newer version exists', () async {
+        when(() => pubUpdater.isUpToDate(
+              packageName: any(named: 'packageName'),
+              currentVersion: any(named: 'currentVersion'),
+            )).thenAnswer((_) => Future.value(false));
+
+        when(() => logger.prompt(any())).thenReturn('y');
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verify(() => logger.info('Updating to the latest version...'))
+            .called(1);
       });
 
       test('prompts for analytics collection on first run (y)', () async {
