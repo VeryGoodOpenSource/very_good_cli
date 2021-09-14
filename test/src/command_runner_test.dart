@@ -78,7 +78,7 @@ void main() {
         analytics: analytics,
         logger: logger,
         pubUpdater: pubUpdater,
-      )..versionOverride = null;
+      );
     });
 
     test('can be instantiated without an explicit analytics/logger instance',

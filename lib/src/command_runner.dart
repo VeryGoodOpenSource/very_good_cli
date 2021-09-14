@@ -52,14 +52,8 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   final Analytics _analytics;
   final PubUpdater _pubUpdater;
 
-  /// Should be used for testing purposes only
-  /// to manually override the package version.
-  @visibleForTesting
-  String? versionOverride;
-
   /// The current package version
-  /// See [versionOverride] to override this for testing.
-  String get version => versionOverride ?? packageVersion;
+  String get version => packageVersion;
 
   @override
   Future<int> run(Iterable<String> args) async {
