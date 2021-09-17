@@ -190,6 +190,6 @@ void main() {
       expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
-    });
+    }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }
