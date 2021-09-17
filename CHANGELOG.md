@@ -1,3 +1,13 @@
+# v0.4.3 (2021-09-17)
+
+### Bug Fixes
+
+- add trailing newlines to dart_pkg and flutter_pkg ([#183](https://github.com/VeryGoodOpenSource/very_good_cli/issues/183)) ([84c34dc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/84c34dcadaf075d537bb7f89f6cbabbb8deb5a63))
+
+### Features
+
+- **core:** upgrade dependencies ([#185](https://github.com/VeryGoodOpenSource/very_good_cli/issues/185)) ([bdb9585](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bdb9585e6d8c4a1aab1192173b1df0e9ce130fdd))
+
 # v0.4.2 (2021-09-01)
 
 ### Bug Fixes
