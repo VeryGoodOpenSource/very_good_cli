@@ -58,13 +58,12 @@ void main() {
 
       final formatResult = await Process.run(
         'flutter',
-        ['format', '.'],
+        ['format', '--set-exit-if-changed', '.'],
         workingDirectory: directory.path,
         runInShell: true,
       );
       expect(formatResult.exitCode, equals(ExitCode.success.code));
       expect(formatResult.stderr, isEmpty);
-      expect(formatResult.stdout, contains('(0 changed)'));
 
       final analyzeResult = await Process.run(
         'flutter',
@@ -107,13 +106,12 @@ void main() {
 
       final formatResult = await Process.run(
         'flutter',
-        ['format', '.'],
+        ['format', '--set-exit-if-changed', '.'],
         workingDirectory: directory.path,
         runInShell: true,
       );
       expect(formatResult.exitCode, equals(ExitCode.success.code));
       expect(formatResult.stderr, isEmpty);
-      expect(formatResult.stdout, contains('(0 changed)'));
 
       final analyzeResult = await Process.run(
         'flutter',
@@ -156,13 +154,12 @@ void main() {
 
       final formatResult = await Process.run(
         'flutter',
-        ['format', '.'],
+        ['format', '--set-exit-if-changed', '.'],
         workingDirectory: directory.path,
         runInShell: true,
       );
       expect(formatResult.exitCode, equals(ExitCode.success.code));
       expect(formatResult.stderr, isEmpty);
-      expect(formatResult.stdout, contains('(0 changed)'));
 
       final analyzeResult = await Process.run(
         'flutter',
