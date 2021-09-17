@@ -70,14 +70,18 @@ void main() {
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
 
-      when(() => pubUpdater.isUpToDate(
-            packageName: any(named: 'packageName'),
-            currentVersion: any(named: 'currentVersion'),
-          )).thenAnswer((_) => Future.value(true));
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
 
-      when(() => pubUpdater.update(
-            packageName: any(named: 'packageName'),
-          )).thenAnswer((_) => Future.value(FakeProcessResult()));
+      when(
+        () => pubUpdater.update(
+          packageName: any(named: 'packageName'),
+        ),
+      ).thenAnswer((_) => Future.value(FakeProcessResult()));
 
       logger = MockLogger();
 

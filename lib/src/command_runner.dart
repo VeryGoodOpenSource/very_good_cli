@@ -14,6 +14,9 @@ const _gaTrackingId = 'UA-117465969-4';
 // The Google Analytics Application Name.
 const _gaAppName = 'very-good-cli';
 
+/// The package name.
+const packageName = 'very_good_cli';
+
 /// {@template very_good_command_runner}
 /// A [CommandRunner] for the Very Good CLI.
 /// {@endtemplate}
@@ -93,7 +96,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
     final isUpToDate = await _pubUpdater.isUpToDate(
-      packageName: 'very_good_cli',
+      packageName: packageName,
       currentVersion: packageVersion,
     );
 
@@ -108,8 +111,10 @@ Would you like to update?
           normalizedResponse == 'y' || normalizedResponse == 'yes';
 
       if (shouldUpdate) {
-        _logger.info('Updating to the latest version...');
-        await _pubUpdater.update(packageName: 'very_good_cli');
+        final doneUpdating =
+            _logger.progress('Updating to the latest version...');
+        await _pubUpdater.update(packageName: packageName);
+        doneUpdating('Updating to the latest version!');
       }
     }
 

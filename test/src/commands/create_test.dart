@@ -97,10 +97,12 @@ void main() {
 
       pubUpdater = MockPubUpdater();
 
-      when(() => pubUpdater.isUpToDate(
-            packageName: any(named: 'packageName'),
-            currentVersion: any(named: 'currentVersion'),
-          )).thenAnswer((_) => Future.value(true));
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
 
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
