@@ -27,6 +27,9 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Install LCOV
+        run: apt-get install -y lcov
+
       - name: Format
         run: flutter format --set-exit-if-changed .
 
