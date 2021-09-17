@@ -8,7 +8,7 @@ final flutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "test/{{project_name}}_test.dart",
       "data":
-          "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3Rlc3QvZmx1dHRlcl90ZXN0LmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6e3twcm9qZWN0X25hbWV9fS97e3Byb2plY3RfbmFtZX19LmRhcnQnOwoKdm9pZCBtYWluKCkgewogIGdyb3VwKCd7eyMgcGFzY2FsQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7LyBwYXNjYWxDYXNlfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19KCksIGlzTm90TnVsbCk7CiAgICB9KTsKICB9KTsKfQ==",
+          "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3Rlc3QvZmx1dHRlcl90ZXN0LmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6e3twcm9qZWN0X25hbWV9fS97e3Byb2plY3RfbmFtZX19LmRhcnQnOwoKdm9pZCBtYWluKCkgewogIGdyb3VwKCd7eyMgcGFzY2FsQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7LyBwYXNjYWxDYXNlfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19KCksIGlzTm90TnVsbCk7CiAgICB9KTsKICB9KTsKfQo=",
       "type": "text"
     },
     {
@@ -32,13 +32,13 @@ final flutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "lib/{{project_name}}.dart",
       "data":
-          "bGlicmFyeSB7e3Byb2plY3RfbmFtZX19OwoKZXhwb3J0ICdzcmMve3twcm9qZWN0X25hbWV9fS5kYXJ0Jzs=",
+          "bGlicmFyeSB7e3Byb2plY3RfbmFtZX19OwoKZXhwb3J0ICdzcmMve3twcm9qZWN0X25hbWV9fS5kYXJ0JzsK",
       "type": "text"
     },
     {
       "path": "lib/src/{{project_name}}.dart",
       "data":
-          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWV9fX0KLy8vIHt7ZGVzY3JpcHRpb259fQovLy8ge0BlbmR0ZW1wbGF0ZX0KY2xhc3Mge3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19IHsKICAvLy8ge0BtYWNybyB7e3Byb2plY3RfbmFtZX19fQogIGNvbnN0IHt7IyBwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svIHBhc2NhbENhc2V9fSgpOwp9",
+          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWV9fX0KLy8vIHt7ZGVzY3JpcHRpb259fQovLy8ge0BlbmR0ZW1wbGF0ZX0KY2xhc3Mge3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19IHsKICAvLy8ge0BtYWNybyB7e3Byb2plY3RfbmFtZX19fQogIGNvbnN0IHt7IyBwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svIHBhc2NhbENhc2V9fSgpOwp9Cg==",
       "type": "text"
     },
     {
