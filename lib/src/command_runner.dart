@@ -114,7 +114,7 @@ Would you like to update?
         final doneUpdating =
             _logger.progress('Updating to the latest version...');
         await _pubUpdater.update(packageName: packageName);
-        doneUpdating('Updating to the latest version!');
+        doneUpdating('Updated to the latest version!');
       }
     }
 
