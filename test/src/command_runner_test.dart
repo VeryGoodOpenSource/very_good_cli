@@ -122,10 +122,11 @@ Would you like to update?
             )).thenAnswer((_) => Future.value(false));
 
         when(() => logger.prompt(any())).thenReturn('y');
+        when(() => logger.progress(any())).thenReturn(([String? message]) {});
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(() => logger.info('Updating to the latest version...'))
+        verify(() => logger.progress('Updating to the latest version...'))
             .called(1);
       });
 
