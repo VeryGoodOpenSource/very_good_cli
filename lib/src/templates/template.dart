@@ -44,22 +44,8 @@ class DartPkgTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    final isFlutterInstalled = await Flutter.installed();
-    if (isFlutterInstalled) {
-      final installDependenciesDone = logger.progress(
-        'Running "flutter pub get" in ${outputDir.path}',
-      );
-      await Flutter.pubGet(cwd: outputDir.path);
-      installDependenciesDone();
-    }
-    final isDartInstalled = await Dart.installed();
-    if (isDartInstalled) {
-      final applyFixesDone = logger.progress(
-        'Running "dart fix --apply" in ${outputDir.path}',
-      );
-      await Dart.applyFixes();
-      applyFixesDone();
-    }
+    await _installDartPackages(logger, outputDir);
+    await _applyDartFixes(logger, outputDir);
     _logSummary(logger);
   }
 
@@ -84,22 +70,8 @@ class FlutterPkgTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    final isFlutterInstalled = await Flutter.installed();
-    if (isFlutterInstalled) {
-      final installDependenciesDone = logger.progress(
-        'Running "flutter packages get" in ${outputDir.path}',
-      );
-      await Flutter.packagesGet(cwd: outputDir.path);
-      installDependenciesDone();
-    }
-    final isDartInstalled = await Dart.installed();
-    if (isDartInstalled) {
-      final applyFixesDone = logger.progress(
-        'Running "dart fix --apply" in ${outputDir.path}',
-      );
-      await Dart.applyFixes();
-      applyFixesDone();
-    }
+    await _installFlutterPackages(logger, outputDir);
+    await _applyDartFixes(logger, outputDir);
     _logSummary(logger);
   }
 
@@ -125,22 +97,8 @@ class FlutterPluginTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    final isFlutterInstalled = await Flutter.installed();
-    if (isFlutterInstalled) {
-      final installDependenciesDone = logger.progress(
-        'Running "flutter packages get" in ${outputDir.path}',
-      );
-      await Flutter.packagesGet(cwd: outputDir.path, recursive: true);
-      installDependenciesDone();
-    }
-    final isDartInstalled = await Dart.installed();
-    if (isDartInstalled) {
-      final applyFixesDone = logger.progress(
-        'Running "dart fix --apply" in ${outputDir.path}',
-      );
-      await Dart.applyFixes();
-      applyFixesDone();
-    }
+    await _installFlutterPackages(logger, outputDir);
+    await _applyDartFixes(logger, outputDir);
     _logSummary(logger);
   }
 
@@ -166,22 +124,8 @@ class CoreTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    final isFlutterInstalled = await Flutter.installed();
-    if (isFlutterInstalled) {
-      final installDependenciesDone = logger.progress(
-        'Running "flutter packages get" in ${outputDir.path}',
-      );
-      await Flutter.packagesGet(cwd: outputDir.path);
-      installDependenciesDone();
-    }
-    final isDartInstalled = await Dart.installed();
-    if (isDartInstalled) {
-      final applyFixesDone = logger.progress(
-        'Running "dart fix --apply" in ${outputDir.path}',
-      );
-      await Dart.applyFixes();
-      applyFixesDone();
-    }
+    await _installFlutterPackages(logger, outputDir);
+    await _applyDartFixes(logger, outputDir);
     _logSummary(logger);
   }
 
@@ -203,5 +147,44 @@ class CoreTemplate extends Template {
 +----------------------------------------------------+''',
         ),
       );
+  }
+}
+
+Future<void> _installDartPackages(
+  Logger logger,
+  Directory outputDir,
+) async {
+  final isFlutterInstalled = await Flutter.installed();
+  if (isFlutterInstalled) {
+    final installDependenciesDone = logger.progress(
+      'Running "flutter pub get" in ${outputDir.path}',
+    );
+    await Flutter.pubGet(cwd: outputDir.path);
+    installDependenciesDone();
+  }
+}
+
+Future<void> _installFlutterPackages(
+  Logger logger,
+  Directory outputDir,
+) async {
+  final isFlutterInstalled = await Flutter.installed();
+  if (isFlutterInstalled) {
+    final installDependenciesDone = logger.progress(
+      'Running "flutter packages get" in ${outputDir.path}',
+    );
+    await Flutter.packagesGet(cwd: outputDir.path);
+    installDependenciesDone();
+  }
+}
+
+Future<void> _applyDartFixes(Logger logger, Directory outputDir) async {
+  final isDartInstalled = await Dart.installed();
+  if (isDartInstalled) {
+    final applyFixesDone = logger.progress(
+      'Running "dart fix --apply" in ${outputDir.path}',
+    );
+    await Dart.applyFixes();
+    applyFixesDone();
   }
 }
