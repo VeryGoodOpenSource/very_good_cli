@@ -22,7 +22,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: subosito/flutter-action@v1.5.0
+      
+      - uses: subosito/flutter-action@v1.5.3
 
       - name: Install Dependencies
         run: flutter pub get
@@ -45,12 +46,30 @@ jobs:
       - name: Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
 
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - uses: subosito/flutter-action@v1.5.3
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests
+        run: flutter pub run test --run-skipped -t e2e
+
+      - name: Check Code Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+
   pana:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: subosito/flutter-action@v1.5.0
+      
+      - uses: subosito/flutter-action@v1.5.3
 
       - name: Install Dependencies
         run: |

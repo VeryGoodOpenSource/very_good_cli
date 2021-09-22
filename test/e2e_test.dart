@@ -1,3 +1,4 @@
+@Tags(['e2e'])
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
@@ -56,6 +57,10 @@ void main() {
       );
       expect(result, equals(ExitCode.success.code));
 
+      await untilCalled(
+        () => logger.alert('Created a Very Good Dart Package! 🦄'),
+      );
+
       final formatResult = await Process.run(
         'flutter',
         ['format', '--set-exit-if-changed', '.'],
@@ -104,6 +109,10 @@ void main() {
       );
       expect(result, equals(ExitCode.success.code));
 
+      await untilCalled(
+        () => logger.alert('Created a Very Good Flutter Package! 🦄'),
+      );
+
       final formatResult = await Process.run(
         'flutter',
         ['format', '--set-exit-if-changed', '.'],
@@ -151,6 +160,10 @@ void main() {
         ['create', directory.path, '-t', 'core'],
       );
       expect(result, equals(ExitCode.success.code));
+
+      await untilCalled(
+        () => logger.alert('Created a Very Good Flutter App! 🦄'),
+      );
 
       final formatResult = await Process.run(
         'flutter',

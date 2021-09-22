@@ -52,13 +52,21 @@ class DartPkgTemplate extends Template {
       await Flutter.pubGet(cwd: outputDir.path);
       installDependenciesDone();
     }
+    final isDartInstalled = await Dart.installed();
+    if (isDartInstalled) {
+      final applyFixesDone = logger.progress(
+        'Running "dart fix --apply" in ${outputDir.path}',
+      );
+      await Dart.applyFixes();
+      applyFixesDone();
+    }
     _logSummary(logger);
   }
 
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..alert('Created a Very Good Dart package! 🦄')
+      ..alert('Created a Very Good Dart Package! 🦄')
       ..info('\n');
   }
 }
@@ -84,13 +92,21 @@ class FlutterPkgTemplate extends Template {
       await Flutter.packagesGet(cwd: outputDir.path);
       installDependenciesDone();
     }
+    final isDartInstalled = await Dart.installed();
+    if (isDartInstalled) {
+      final applyFixesDone = logger.progress(
+        'Running "dart fix --apply" in ${outputDir.path}',
+      );
+      await Dart.applyFixes();
+      applyFixesDone();
+    }
     _logSummary(logger);
   }
 
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..alert('Created a Very Good Flutter package! 🦄')
+      ..alert('Created a Very Good Flutter Package! 🦄')
       ..info('\n');
   }
 }
@@ -117,13 +133,21 @@ class FlutterPluginTemplate extends Template {
       await Flutter.packagesGet(cwd: outputDir.path, recursive: true);
       installDependenciesDone();
     }
+    final isDartInstalled = await Dart.installed();
+    if (isDartInstalled) {
+      final applyFixesDone = logger.progress(
+        'Running "dart fix --apply" in ${outputDir.path}',
+      );
+      await Dart.applyFixes();
+      applyFixesDone();
+    }
     _logSummary(logger);
   }
 
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..alert('Created a Very Good Flutter plugin! 🦄')
+      ..alert('Created a Very Good Flutter Plugin! 🦄')
       ..info('\n');
   }
 }
@@ -149,6 +173,14 @@ class CoreTemplate extends Template {
       );
       await Flutter.packagesGet(cwd: outputDir.path);
       installDependenciesDone();
+    }
+    final isDartInstalled = await Dart.installed();
+    if (isDartInstalled) {
+      final applyFixesDone = logger.progress(
+        'Running "dart fix --apply" in ${outputDir.path}',
+      );
+      await Dart.applyFixes();
+      applyFixesDone();
     }
     _logSummary(logger);
   }
