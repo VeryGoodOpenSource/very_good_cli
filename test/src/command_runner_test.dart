@@ -109,10 +109,31 @@ void main() {
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(() => logger.prompt(lightGray.wrap('''
-A newer version of VeryGoodCLI is available.
-Would you like to update? 
-[y/n]'''))).called(1);
+        verify(
+          () => logger.info(
+            lightYellow.wrap('A new release of $packageName is available.'),
+          ),
+        ).called(1);
+        verify(
+          () => logger.prompt('Would you like to update? (y/n) '),
+        ).called(1);
+      });
+
+      test('handles pub update errors gracefully', () async {
+        when(
+          () => pubUpdater.isUpToDate(
+            packageName: any(named: 'packageName'),
+            currentVersion: any(named: 'currentVersion'),
+          ),
+        ).thenThrow(Exception('oops'));
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verifyNever(
+          () => logger.info(
+            lightYellow.wrap('A new release of $packageName is available.'),
+          ),
+        );
       });
 
       test('updates on "y" response when newer version exists', () async {
@@ -126,8 +147,7 @@ Would you like to update?
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(() => logger.progress('Updating to the latest version...'))
-            .called(1);
+        verify(() => logger.progress('Updating')).called(1);
       });
 
       test('prompts for analytics collection on first run (y)', () async {

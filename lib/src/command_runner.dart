@@ -54,9 +54,6 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   final Analytics _analytics;
   final PubUpdater _pubUpdater;
 
-  /// The current package version
-  String get version => packageVersion;
-
   @override
   Future<int> run(Iterable<String> args) async {
     try {
@@ -95,31 +92,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
-    final isUpToDate = await _pubUpdater.isUpToDate(
-      packageName: packageName,
-      currentVersion: packageVersion,
-    );
-
-    if (!isUpToDate) {
-      final response = _logger.prompt(lightGray.wrap('''
-A newer version of VeryGoodCLI is available.
-Would you like to update? 
-[y/n]'''));
-
-      final normalizedResponse = response.toLowerCase().trim();
-      final shouldUpdate =
-          normalizedResponse == 'y' || normalizedResponse == 'yes';
-
-      if (shouldUpdate) {
-        final doneUpdating =
-            _logger.progress('Updating to the latest version...');
-        await _pubUpdater.update(packageName: packageName);
-        doneUpdating('Updated to the latest version!');
-      }
-    }
-
+    await _checkForUpdates();
     if (topLevelResults['version'] == true) {
-      _logger.info('very_good version: $version');
+      _logger.info('very_good version: $packageVersion');
       return ExitCode.success.code;
     }
     if (topLevelResults['analytics'] != null) {
@@ -129,5 +104,33 @@ Would you like to update?
       return ExitCode.success.code;
     }
     return super.runCommand(topLevelResults);
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final isUpToDate = await _pubUpdater.isUpToDate(
+        packageName: packageName,
+        currentVersion: packageVersion,
+      );
+
+      if (!isUpToDate) {
+        _logger.info(
+          lightYellow.wrap('A new release of $packageName is available.'),
+        );
+        final response = _logger.prompt('Would you like to update? (y/n) ');
+        if (response.isYes()) {
+          final done = _logger.progress('Updating');
+          await _pubUpdater.update(packageName: packageName);
+          done('Updated!');
+        }
+      }
+    } catch (_) {}
+  }
+}
+
+extension on String {
+  bool isYes() {
+    final normalized = toLowerCase().trim();
+    return normalized == 'y' || normalized == 'yes';
   }
 }
