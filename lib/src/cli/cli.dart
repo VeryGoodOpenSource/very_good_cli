@@ -12,8 +12,12 @@ class _Cmd {
     bool throwOnError = true,
     String? workingDirectory,
   }) async {
-    final result = await Process.run(cmd, args,
-        workingDirectory: workingDirectory, runInShell: true);
+    final result = await Process.run(
+      cmd,
+      args,
+      workingDirectory: workingDirectory,
+      runInShell: true,
+    );
 
     if (throwOnError) {
       _throwIfProcessFailed(result, cmd, args);
