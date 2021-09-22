@@ -1,7 +1,7 @@
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/flutter_cli.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 
 const pubspec = '''
 name: example
