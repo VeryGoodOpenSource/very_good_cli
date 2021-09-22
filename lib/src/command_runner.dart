@@ -3,6 +3,7 @@ import 'package:args/command_runner.dart';
 import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
+import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -13,15 +14,22 @@ const _gaTrackingId = 'UA-117465969-4';
 // The Google Analytics Application Name.
 const _gaAppName = 'very-good-cli';
 
+/// The package name.
+const packageName = 'very_good_cli';
+
 /// {@template very_good_command_runner}
 /// A [CommandRunner] for the Very Good CLI.
 /// {@endtemplate}
 class VeryGoodCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner({Analytics? analytics, Logger? logger})
-      : _logger = logger ?? Logger(),
+  VeryGoodCommandRunner({
+    Analytics? analytics,
+    Logger? logger,
+    PubUpdater? pubUpdater,
+  })  : _logger = logger ?? Logger(),
         _analytics =
             analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
+        _pubUpdater = pubUpdater ?? PubUpdater(),
         super('very_good', '🦄 A Very Good Command Line Interface') {
     argParser
       ..addFlag(
@@ -46,6 +54,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   final Logger _logger;
   final Analytics _analytics;
+  final PubUpdater _pubUpdater;
 
   @override
   Future<int> run(Iterable<String> args) async {
@@ -85,6 +94,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
+    await _checkForUpdates();
     if (topLevelResults['version'] == true) {
       _logger.info('very_good version: $packageVersion');
       return ExitCode.success.code;
@@ -96,5 +106,33 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       return ExitCode.success.code;
     }
     return super.runCommand(topLevelResults);
+  }
+
+  Future<void> _checkForUpdates() async {
+    try {
+      final isUpToDate = await _pubUpdater.isUpToDate(
+        packageName: packageName,
+        currentVersion: packageVersion,
+      );
+
+      if (!isUpToDate) {
+        _logger.info(
+          lightYellow.wrap('A new release of $packageName is available.'),
+        );
+        final response = _logger.prompt('Would you like to update? (y/n) ');
+        if (response.isYes()) {
+          final done = _logger.progress('Updating');
+          await _pubUpdater.update(packageName: packageName);
+          done('Updated!');
+        }
+      }
+    } catch (_) {}
+  }
+}
+
+extension on String {
+  bool isYes() {
+    final normalized = toLowerCase().trim();
+    return normalized == 'y' || normalized == 'yes';
   }
 }
