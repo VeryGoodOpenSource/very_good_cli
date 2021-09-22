@@ -1,7 +1,7 @@
 import 'package:io/ansi.dart';
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/flutter_cli.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
 /// {@template template}
