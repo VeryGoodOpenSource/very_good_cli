@@ -22,9 +22,11 @@ const packageName = 'very_good_cli';
 /// {@endtemplate}
 class VeryGoodCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner(
-      {Analytics? analytics, Logger? logger, PubUpdater? pubUpdater})
-      : _logger = logger ?? Logger(),
+  VeryGoodCommandRunner({
+    Analytics? analytics,
+    Logger? logger,
+    PubUpdater? pubUpdater,
+  })  : _logger = logger ?? Logger(),
         _analytics =
             analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
         _pubUpdater = pubUpdater ?? PubUpdater(),
