@@ -60,9 +60,6 @@ jobs:
       - name: Run Tests
         run: flutter pub run test --run-skipped -t e2e
 
-      - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
-
   pana:
     runs-on: ubuntu-latest
 
