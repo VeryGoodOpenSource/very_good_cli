@@ -45,113 +45,113 @@ void main() {
 
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
-        logger: logger,
+        // logger: logger,
       );
     });
 
-    test('create -t dart_pkg', () async {
-      final directory = Directory(path.join('.tmp', 'very_good_dart'));
+    // test('create -t dart_pkg', () async {
+    //   final directory = Directory(path.join('.tmp', 'very_good_dart'));
 
-      final result = await commandRunner.run(
-        ['create', directory.path, '-t', 'dart_pkg'],
-      );
-      expect(result, equals(ExitCode.success.code));
+    //   final result = await commandRunner.run(
+    //     ['create', directory.path, '-t', 'dart_pkg'],
+    //   );
+    //   expect(result, equals(ExitCode.success.code));
 
-      await untilCalled(
-        () => logger.alert('Created a Very Good Dart Package! 🦄'),
-      );
+    //   await untilCalled(
+    //     () => logger.alert('Created a Very Good Dart Package! 🦄'),
+    //   );
 
-      final formatResult = await Process.run(
-        'flutter',
-        ['format', '--set-exit-if-changed', '.'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(formatResult.exitCode, equals(ExitCode.success.code));
-      expect(formatResult.stderr, isEmpty);
+    //   final formatResult = await Process.run(
+    //     'flutter',
+    //     ['format', '--set-exit-if-changed', '.'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(formatResult.exitCode, equals(ExitCode.success.code));
+    //   expect(formatResult.stderr, isEmpty);
 
-      final analyzeResult = await Process.run(
-        'flutter',
-        ['analyze', '.'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(analyzeResult.exitCode, equals(ExitCode.success.code));
-      expect(analyzeResult.stderr, isEmpty);
-      expect(analyzeResult.stdout, contains('No issues found!'));
+    //   final analyzeResult = await Process.run(
+    //     'flutter',
+    //     ['analyze', '.'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(analyzeResult.exitCode, equals(ExitCode.success.code));
+    //   expect(analyzeResult.stderr, isEmpty);
+    //   expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await Process.run(
-        'flutter',
-        ['test', '--no-pub', '--coverage'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(testResult.exitCode, equals(ExitCode.success.code));
-      expect(testResult.stderr, isEmpty);
-      expect(testResult.stdout, contains('All tests passed!'));
+    //   final testResult = await Process.run(
+    //     'flutter',
+    //     ['test', '--no-pub', '--coverage'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(testResult.exitCode, equals(ExitCode.success.code));
+    //   expect(testResult.stderr, isEmpty);
+    //   expect(testResult.stdout, contains('All tests passed!'));
 
-      final testCoverageResult = await Process.run(
-        'genhtml',
-        ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
-      expect(testCoverageResult.stderr, isEmpty);
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
-    });
+    //   final testCoverageResult = await Process.run(
+    //     'genhtml',
+    //     ['coverage/lcov.info', '-o', 'coverage'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
+    //   expect(testCoverageResult.stderr, isEmpty);
+    //   expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+    // });
 
-    test('create -t flutter_pkg', () async {
-      final directory = Directory(path.join('.tmp', 'very_good_flutter'));
+    // test('create -t flutter_pkg', () async {
+    //   final directory = Directory(path.join('.tmp', 'very_good_flutter'));
 
-      final result = await commandRunner.run(
-        ['create', directory.path, '-t', 'flutter_pkg'],
-      );
-      expect(result, equals(ExitCode.success.code));
+    //   final result = await commandRunner.run(
+    //     ['create', directory.path, '-t', 'flutter_pkg'],
+    //   );
+    //   expect(result, equals(ExitCode.success.code));
 
-      await untilCalled(
-        () => logger.alert('Created a Very Good Flutter Package! 🦄'),
-      );
+    //   await untilCalled(
+    //     () => logger.alert('Created a Very Good Flutter Package! 🦄'),
+    //   );
 
-      final formatResult = await Process.run(
-        'flutter',
-        ['format', '--set-exit-if-changed', '.'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(formatResult.exitCode, equals(ExitCode.success.code));
-      expect(formatResult.stderr, isEmpty);
+    //   final formatResult = await Process.run(
+    //     'flutter',
+    //     ['format', '--set-exit-if-changed', '.'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(formatResult.exitCode, equals(ExitCode.success.code));
+    //   expect(formatResult.stderr, isEmpty);
 
-      final analyzeResult = await Process.run(
-        'flutter',
-        ['analyze', '.'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(analyzeResult.exitCode, equals(ExitCode.success.code));
-      expect(analyzeResult.stderr, isEmpty);
-      expect(analyzeResult.stdout, contains('No issues found!'));
+    //   final analyzeResult = await Process.run(
+    //     'flutter',
+    //     ['analyze', '.'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(analyzeResult.exitCode, equals(ExitCode.success.code));
+    //   expect(analyzeResult.stderr, isEmpty);
+    //   expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await Process.run(
-        'flutter',
-        ['test', '--no-pub', '--coverage'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(testResult.exitCode, equals(ExitCode.success.code));
-      expect(testResult.stderr, isEmpty);
-      expect(testResult.stdout, contains('All tests passed!'));
+    //   final testResult = await Process.run(
+    //     'flutter',
+    //     ['test', '--no-pub', '--coverage'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(testResult.exitCode, equals(ExitCode.success.code));
+    //   expect(testResult.stderr, isEmpty);
+    //   expect(testResult.stdout, contains('All tests passed!'));
 
-      final testCoverageResult = await Process.run(
-        'genhtml',
-        ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: directory.path,
-        runInShell: true,
-      );
-      expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
-      expect(testCoverageResult.stderr, isEmpty);
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
-    });
+    //   final testCoverageResult = await Process.run(
+    //     'genhtml',
+    //     ['coverage/lcov.info', '-o', 'coverage'],
+    //     workingDirectory: directory.path,
+    //     runInShell: true,
+    //   );
+    //   expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
+    //   expect(testCoverageResult.stderr, isEmpty);
+    //   expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+    // });
 
     test('create -t core', () async {
       final directory = Directory(path.join('.tmp', 'very_good_core'));
@@ -161,10 +161,7 @@ void main() {
       );
       expect(result, equals(ExitCode.success.code));
 
-      await untilCalled(
-        () => logger.alert('Created a Very Good Flutter App! 🦄'),
-      );
-
+      print('checking format');
       final formatResult = await Process.run(
         'flutter',
         ['format', '--set-exit-if-changed', '.'],
@@ -174,6 +171,7 @@ void main() {
       expect(formatResult.exitCode, equals(ExitCode.success.code));
       expect(formatResult.stderr, isEmpty);
 
+      print('analyzing');
       final analyzeResult = await Process.run(
         'flutter',
         ['analyze', '.'],
@@ -184,6 +182,7 @@ void main() {
       expect(analyzeResult.stderr, isEmpty);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
+      print('running tests');
       final testResult = await Process.run(
         'flutter',
         ['test', '--no-pub', '--coverage'],
@@ -194,6 +193,7 @@ void main() {
       expect(testResult.stderr, isEmpty);
       expect(testResult.stdout, contains('All tests passed!'));
 
+      print('checking test coverage');
       final testCoverageResult = await Process.run(
         'genhtml',
         ['coverage/lcov.info', '-o', 'coverage'],
@@ -204,5 +204,5 @@ void main() {
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
     });
-  }, timeout: const Timeout(Duration(minutes: 5)));
+  }, timeout: const Timeout(Duration(minutes: 1)));
 }
