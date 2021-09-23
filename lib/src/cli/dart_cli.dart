@@ -5,7 +5,7 @@ class Dart {
   /// Determine whether dart is installed
   static Future<bool> installed() async {
     try {
-      await _Cmd.run('dart', []);
+      await _Cmd.run('dart', ['--version']);
       return true;
     } catch (_) {
       return false;
