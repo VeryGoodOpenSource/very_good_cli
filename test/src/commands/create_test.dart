@@ -504,7 +504,7 @@ void main() {
             getPackagesMsg: 'Running "flutter pub get" in .tmp',
             templateName: 'dart_pkg',
             expectedBundle: dartPackageBundle,
-            expectedLogSummary: 'Created a Very Good Dart package! 🦄',
+            expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
           );
         });
 
@@ -513,7 +513,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_pkg',
             expectedBundle: flutterPackageBundle,
-            expectedLogSummary: 'Created a Very Good Flutter package! 🦄',
+            expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
           );
         });
 
@@ -522,7 +522,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_plugin',
             expectedBundle: flutterPluginBundle,
-            expectedLogSummary: 'Created a Very Good Flutter plugin! 🦄',
+            expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
           );
         });
       });

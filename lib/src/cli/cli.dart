@@ -1,6 +1,7 @@
 import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
 
+part 'dart_cli.dart';
 part 'flutter_cli.dart';
 
 /// Abstraction for running commands via command-line.
