@@ -41,7 +41,7 @@ class Flutter {
   /// Determine whether flutter is installed
   static Future<bool> installed() async {
     try {
-      await _Cmd.run('flutter', []);
+      await _Cmd.run('flutter', ['--version']);
       return true;
     } catch (_) {
       return false;

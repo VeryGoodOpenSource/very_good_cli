@@ -1,3 +1,4 @@
+@Tags(['e2e'])
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
@@ -190,6 +191,6 @@ void main() {
       expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
-    }, timeout: const Timeout(Duration(minutes: 1)));
-  });
+    });
+  }, timeout: const Timeout(Duration(minutes: 1)));
 }

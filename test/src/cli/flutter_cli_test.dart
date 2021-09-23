@@ -14,8 +14,8 @@ name: example
 ''';
 
 void main() {
-  group('Flutter CLI', () {
-    group('packages get', () {
+  group('Flutter', () {
+    group('.packagesGet', () {
       test('throws when there is no pubspec.yaml', () {
         expectLater(
           Flutter.packagesGet(cwd: Directory.systemTemp.path),
@@ -59,7 +59,7 @@ void main() {
       });
     });
 
-    group('pub get', () {
+    group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () {
         expectLater(
           Flutter.pubGet(cwd: Directory.systemTemp.path),
