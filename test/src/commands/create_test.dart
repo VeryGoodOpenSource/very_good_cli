@@ -31,8 +31,7 @@ const expectedUsage = [
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
-      // ignore: lines_longer_than_80_chars
-      '    --android                 The plugin supports the Android platform.\n'
+      '''    --android                 The plugin supports the Android platform.\n'''
       '                              (defaults to "true")\n'
       '    --ios                     The plugin supports the iOS platform.\n'
       '                              (defaults to "true")\n'
@@ -42,8 +41,7 @@ const expectedUsage = [
       '                              (defaults to "true")\n'
       '    --macos                   The plugin supports the macOS platform.\n'
       '                              (defaults to "true")\n'
-      // ignore: lines_longer_than_80_chars
-      '    --windows                 The plugin supports the Windows platform.\n'
+      '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
       '\n'
       'Run "very_good help" to see global options.'
@@ -222,6 +220,12 @@ void main() {
               {'value': 'verygoodcore', 'separator': ''}
             ],
             'description': '',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
           },
         ),
       ).called(1);
@@ -277,6 +281,12 @@ void main() {
               {'value': 'verygoodcore', 'separator': ''}
             ],
             'description': 'very good description',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
           },
         ),
       ).called(1);
@@ -358,7 +368,13 @@ void main() {
               vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'description': '',
-                'org_name': expected
+                'org_name': expected,
+                'android': true,
+                'ios': true,
+                'web': true,
+                'linux': true,
+                'macos': true,
+                'windows': true,
               },
             ),
           ).called(1);
@@ -489,6 +505,12 @@ void main() {
                   {'value': 'verygoodcore', 'separator': ''}
                 ],
                 'description': '',
+                'android': true,
+                'ios': true,
+                'web': true,
+                'linux': true,
+                'macos': true,
+                'windows': true,
               },
             ),
           ).called(1);

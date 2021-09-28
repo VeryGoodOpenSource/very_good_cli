@@ -134,6 +134,12 @@ class CreateCommand extends Command<int> {
     final description = _description;
     final orgName = _orgName;
     final template = _template;
+    final supportsAndroid = _argResults['android'] as bool? ?? true;
+    final supportsIos = _argResults['ios'] as bool? ?? true;
+    final supportsWeb = _argResults['web'] as bool? ?? true;
+    final supportsLinux = _argResults['linux'] as bool? ?? true;
+    final supportsMacOS = _argResults['macos'] as bool? ?? true;
+    final supportsWindows = _argResults['windows'] as bool? ?? true;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
     final fileCount = await generator.generate(
@@ -141,7 +147,13 @@ class CreateCommand extends Command<int> {
       vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
-        'org_name': orgName
+        'org_name': orgName,
+        'android': supportsAndroid,
+        'ios': supportsIos,
+        'web': supportsWeb,
+        'linux': supportsLinux,
+        'macos': supportsMacOS,
+        'windows': supportsWindows,
       },
     );
     generateDone('Generated $fileCount file(s)');
