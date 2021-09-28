@@ -71,6 +71,36 @@ class CreateCommand extends Command<int> {
             element.name: element.help,
           },
         ),
+      )
+      ..addOption(
+        'android',
+        help: 'The plugin supports the Android platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'ios',
+        help: 'The plugin supports the iOS platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'web',
+        help: 'The plugin supports the Web platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'linux',
+        help: 'The plugin supports the Linux platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'macos',
+        help: 'The plugin supports the macOS platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'windows',
+        help: 'The plugin supports the Windows platform.',
+        defaultsTo: 'true',
       );
   }
 
@@ -139,7 +169,7 @@ class CreateCommand extends Command<int> {
     return projectName;
   }
 
-  //// Gets the description for the project
+  /// Gets the description for the project.
   String get _description => _argResults['desc'] as String? ?? '';
 
   /// Gets the organization name.

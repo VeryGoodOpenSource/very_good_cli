@@ -30,6 +30,21 @@ const expectedUsage = [
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
+      // ignore: lines_longer_than_80_chars
+      '    --android                 The plugin supports the Android platform.\n'
+      '                              (defaults to "true")\n'
+      '    --ios                     The plugin supports the iOS platform.\n'
+      '                              (defaults to "true")\n'
+      '    --web                     The plugin supports the Web platform.\n'
+      '                              (defaults to "true")\n'
+      '    --linux                   The plugin supports the Linux platform.\n'
+      '                              (defaults to "true")\n'
+      '    --macos                   The plugin supports the macOS platform.\n'
+      '                              (defaults to "true")\n'
+      // ignore: lines_longer_than_80_chars
+      '    --windows                 The plugin supports the Windows platform.\n'
+      '                              (defaults to "true")\n'
+      '\n'
       'Run "very_good help" to see global options.'
 ];
 
