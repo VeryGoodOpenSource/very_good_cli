@@ -1,3 +1,12 @@
+# v0.4.4 (2021-09-23)
+
+### Features
+
+- **core:** template improvements ([#191](https://github.com/VeryGoodOpenSource/very_good_cli/issues/191)) ([4a405ff](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4a405ffdbfd0e79238b89ca489fb54e08db91ff9))
+- add auto update ([#181](https://github.com/VeryGoodOpenSource/very_good_cli/issues/181)) ([b8b490b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b8b490b288113b504e0943ed52d24138f99153a7))
+- bloc v7.2.0 and internal platform updates ([#187](https://github.com/VeryGoodOpenSource/very_good_cli/issues/187)) ([193eb30](https://github.com/VeryGoodOpenSource/very_good_cli/commit/193eb304823291a5bb71a348be203bc32a1e7d77))
+- run dart fix --apply as post generation step ([#189](https://github.com/VeryGoodOpenSource/very_good_cli/issues/189)) ([ce02422](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ce02422d5c7e91f0bf1ef94ac3a0584fa4c06eaa))
+
 # v0.4.3 (2021-09-17)
 
 ### Bug Fixes

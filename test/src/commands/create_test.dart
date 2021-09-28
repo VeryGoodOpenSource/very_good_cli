@@ -5,6 +5,7 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
@@ -45,6 +46,8 @@ class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
+class MockPubUpdater extends Mock implements PubUpdater {}
+
 class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 class FakeDirectoryGeneratorTarget extends Fake
@@ -56,6 +59,7 @@ void main() {
     late List<String> printLogs;
     late Analytics analytics;
     late Logger logger;
+    late PubUpdater pubUpdater;
     late VeryGoodCommandRunner commandRunner;
 
     void Function() overridePrint(void Function() fn) {
@@ -90,9 +94,20 @@ void main() {
           if (_ != null) progressLogs.add(_);
         },
       );
+
+      pubUpdater = MockPubUpdater();
+
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
+
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
         logger: logger,
+        pubUpdater: pubUpdater,
       );
     });
 
@@ -489,7 +504,7 @@ void main() {
             getPackagesMsg: 'Running "flutter pub get" in .tmp',
             templateName: 'dart_pkg',
             expectedBundle: dartPackageBundle,
-            expectedLogSummary: 'Created a Very Good Dart package! 🦄',
+            expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
           );
         });
 
@@ -498,7 +513,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_pkg',
             expectedBundle: flutterPackageBundle,
-            expectedLogSummary: 'Created a Very Good Flutter package! 🦄',
+            expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
           );
         });
 
@@ -507,7 +522,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_plugin',
             expectedBundle: flutterPluginBundle,
-            expectedLogSummary: 'Created a Very Good Flutter plugin! 🦄',
+            expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
           );
         });
       });
