@@ -134,26 +134,26 @@ class CreateCommand extends Command<int> {
     final description = _description;
     final orgName = _orgName;
     final template = _template;
-    final supportsAndroid = _argResults['android'] as bool? ?? true;
-    final supportsIos = _argResults['ios'] as bool? ?? true;
-    final supportsWeb = _argResults['web'] as bool? ?? true;
-    final supportsLinux = _argResults['linux'] as bool? ?? true;
-    final supportsMacOS = _argResults['macos'] as bool? ?? true;
-    final supportsWindows = _argResults['windows'] as bool? ?? true;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
+    final android = _argResults['android'] as String? ?? 'true';
+    final ios = _argResults['ios'] as String? ?? 'true';
+    final web = _argResults['web'] as String? ?? 'true';
+    final linux = _argResults['linux'] as String? ?? 'true';
+    final macos = _argResults['macos'] as String? ?? 'true';
+    final windows = _argResults['windows'] as String? ?? 'true';
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
         'org_name': orgName,
-        'android': supportsAndroid,
-        'ios': supportsIos,
-        'web': supportsWeb,
-        'linux': supportsLinux,
-        'macos': supportsMacOS,
-        'windows': supportsWindows,
+        'android': android.parseBool(),
+        'ios': ios.parseBool(),
+        'web': web.parseBool(),
+        'linux': linux.parseBool(),
+        'macos': macos.parseBool(),
+        'windows': windows.parseBool(),
       },
     );
     generateDone('Generated $fileCount file(s)');
@@ -261,4 +261,10 @@ class CreateCommand extends Command<int> {
       throw UsageException('Multiple output directories specified.', usage);
     }
   }
+}
+
+/// Extension on String to parse booleans.
+extension StringToBoolX on String {
+  /// Returns if `String` is equal to `true`.
+  bool parseBool() => toLowerCase() == 'true';
 }
