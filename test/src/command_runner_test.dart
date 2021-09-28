@@ -2,10 +2,13 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
+import 'package:io/ansi.dart';
 import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
+import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -13,6 +16,10 @@ import 'package:very_good_cli/src/version.dart';
 class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
+
+class MockPubUpdater extends Mock implements PubUpdater {}
+
+class FakeProcessResult extends Fake implements ProcessResult {}
 
 const expectedUsage = [
   '🦄 A Very Good Command Line Interface\n'
@@ -34,10 +41,14 @@ const expectedUsage = [
       'Run "very_good help <command>" for more information about a command.'
 ];
 
+const responseBody =
+    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
+
 void main() {
   group('VeryGoodCommandRunner', () {
     late List<String> printLogs;
     late Analytics analytics;
+    late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
 
@@ -54,13 +65,30 @@ void main() {
       printLogs = [];
 
       analytics = MockAnalytics();
+      pubUpdater = MockPubUpdater();
+
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
 
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
+
+      when(
+        () => pubUpdater.update(
+          packageName: any(named: 'packageName'),
+        ),
+      ).thenAnswer((_) => Future.value(FakeProcessResult()));
+
       logger = MockLogger();
+
       commandRunner = VeryGoodCommandRunner(
         analytics: analytics,
         logger: logger,
+        pubUpdater: pubUpdater,
       );
     });
 
@@ -71,6 +99,57 @@ void main() {
     });
 
     group('run', () {
+      test('prompts for update when newer version exists', () async {
+        when(() => pubUpdater.isUpToDate(
+              packageName: any(named: 'packageName'),
+              currentVersion: any(named: 'currentVersion'),
+            )).thenAnswer((_) => Future.value(false));
+
+        when(() => logger.prompt(any())).thenReturn('n');
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => logger.info(
+            lightYellow.wrap('A new release of $packageName is available.'),
+          ),
+        ).called(1);
+        verify(
+          () => logger.prompt('Would you like to update? (y/n) '),
+        ).called(1);
+      });
+
+      test('handles pub update errors gracefully', () async {
+        when(
+          () => pubUpdater.isUpToDate(
+            packageName: any(named: 'packageName'),
+            currentVersion: any(named: 'currentVersion'),
+          ),
+        ).thenThrow(Exception('oops'));
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verifyNever(
+          () => logger.info(
+            lightYellow.wrap('A new release of $packageName is available.'),
+          ),
+        );
+      });
+
+      test('updates on "y" response when newer version exists', () async {
+        when(() => pubUpdater.isUpToDate(
+              packageName: any(named: 'packageName'),
+              currentVersion: any(named: 'currentVersion'),
+            )).thenAnswer((_) => Future.value(false));
+
+        when(() => logger.prompt(any())).thenReturn('y');
+        when(() => logger.progress(any())).thenReturn(([String? message]) {});
+
+        final result = await commandRunner.run(['--version']);
+        expect(result, equals(ExitCode.success.code));
+        verify(() => logger.progress('Updating')).called(1);
+      });
+
       test('prompts for analytics collection on first run (y)', () async {
         when(() => analytics.firstRun).thenReturn(true);
         when(() => logger.prompt(any())).thenReturn('y');
