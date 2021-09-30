@@ -185,18 +185,10 @@ class CreateCommand extends Command<int> {
   String get _description => _argResults['desc'] as String? ?? '';
 
   /// Gets the organization name.
-  List<Map<String, String>> get _orgName {
+  String get _orgName {
     final orgName = _argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
-    final segments = orgName.replaceAll(RegExp('-|_'), ' ').split('.');
-    final org = <Map<String, String>>[];
-    for (var i = 0; i < segments.length; i++) {
-      final segment = segments[i];
-      org.add(
-        {'value': segment, 'separator': i == segments.length - 1 ? '' : '.'},
-      );
-    }
-    return org;
+    return orgName;
   }
 
   Template get _template {

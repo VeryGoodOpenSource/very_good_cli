@@ -214,11 +214,7 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': [
-              {'value': 'com', 'separator': '.'},
-              {'value': 'example', 'separator': '.'},
-              {'value': 'verygoodcore', 'separator': ''}
-            ],
+            'org_name': 'com.example.verygoodcore',
             'description': '',
             'android': true,
             'ios': true,
@@ -275,11 +271,7 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': [
-              {'value': 'com', 'separator': '.'},
-              {'value': 'example', 'separator': '.'},
-              {'value': 'verygoodcore', 'separator': ''}
-            ],
+            'org_name': 'com.example.verygoodcore',
             'description': 'very good description',
             'android': true,
             'ios': true,
@@ -330,10 +322,7 @@ void main() {
       });
 
       group('valid --org-name', () {
-        Future<void> expectValidOrgName(
-          String orgName,
-          List<Map<String, String>> expected,
-        ) async {
+        Future<void> expectValidOrgName(String orgName) async {
           final argResults = MockArgResults();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
@@ -368,7 +357,7 @@ void main() {
               vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'description': '',
-                'org_name': expected,
+                'org_name': orgName,
                 'android': true,
                 'ios': true,
                 'web': true,
@@ -381,52 +370,27 @@ void main() {
         }
 
         test('alphanumeric with three parts', () async {
-          await expectValidOrgName('very.good.ventures', [
-            {'value': 'very', 'separator': '.'},
-            {'value': 'good', 'separator': '.'},
-            {'value': 'ventures', 'separator': ''},
-          ]);
+          await expectValidOrgName('very.good.ventures');
         });
 
         test('containing an underscore', () async {
-          await expectValidOrgName('very.good.test_case', [
-            {'value': 'very', 'separator': '.'},
-            {'value': 'good', 'separator': '.'},
-            {'value': 'test case', 'separator': ''},
-          ]);
+          await expectValidOrgName('very.good.test_case');
         });
 
         test('containing a hyphen', () async {
-          await expectValidOrgName('very.bad.test-case', [
-            {'value': 'very', 'separator': '.'},
-            {'value': 'bad', 'separator': '.'},
-            {'value': 'test case', 'separator': ''},
-          ]);
+          await expectValidOrgName('very.bad.test-case');
         });
 
         test('single character parts', () async {
-          await expectValidOrgName('v.g.v', [
-            {'value': 'v', 'separator': '.'},
-            {'value': 'g', 'separator': '.'},
-            {'value': 'v', 'separator': ''},
-          ]);
+          await expectValidOrgName('v.g.v');
         });
 
         test('more than three parts', () async {
-          await expectValidOrgName('very.good.ventures.app.identifier', [
-            {'value': 'very', 'separator': '.'},
-            {'value': 'good', 'separator': '.'},
-            {'value': 'ventures', 'separator': '.'},
-            {'value': 'app', 'separator': '.'},
-            {'value': 'identifier', 'separator': ''},
-          ]);
+          await expectValidOrgName('very.good.ventures.app.identifier');
         });
 
         test('less than three parts', () async {
-          await expectValidOrgName('verygood.ventures', [
-            {'value': 'verygood', 'separator': '.'},
-            {'value': 'ventures', 'separator': ''},
-          ]);
+          await expectValidOrgName('verygood.ventures');
         });
       });
     });
@@ -499,11 +463,7 @@ void main() {
               ),
               vars: <String, dynamic>{
                 'project_name': 'my_app',
-                'org_name': [
-                  {'value': 'com', 'separator': '.'},
-                  {'value': 'example', 'separator': '.'},
-                  {'value': 'verygoodcore', 'separator': ''}
-                ],
+                'org_name': 'com.example.verygoodcore',
                 'description': '',
                 'android': true,
                 'ios': true,
