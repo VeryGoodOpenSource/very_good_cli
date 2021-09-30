@@ -1,3 +1,13 @@
+# v0.4.5 (2021-09-30)
+
+### Bug Fixes
+
+- **core:** MainActivity.kt not found ([#197](https://github.com/VeryGoodOpenSource/very_good_cli/issues/197)) ([b450049](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b450049b68dc296d3d0687694c279711baf9efa0))
+
+### Features
+
+- **flutter_plugin:** conditional platform support ([#195](https://github.com/VeryGoodOpenSource/very_good_cli/issues/195)) ([ea878c3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ea878c3a8794b5f97bac956c7468464faf6712c0))
+
 # v0.4.4 (2021-09-23)
 
 ### Features
