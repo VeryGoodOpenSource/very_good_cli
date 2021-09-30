@@ -6,7 +6,7 @@ import 'package:mason/mason.dart';
 final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "files": [
     {
-      "path": "test/{{project_name}}_test.dart",
+      "path": "test/src/{{project_name}}_test.dart",
       "data":
           "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTp0ZXN0L3Rlc3QuZGFydCc7CmltcG9ydCAncGFja2FnZTp7e3Byb2plY3RfbmFtZX19L3t7cHJvamVjdF9uYW1lfX0uZGFydCc7Cgp2b2lkIG1haW4oKSB7CiAgZ3JvdXAoJ3t7IyBwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svIHBhc2NhbENhc2V9fScsICgpIHsKICAgIHRlc3QoJ2NhbiBiZSBpbnN0YW50aWF0ZWQnLCAoKSB7CiAgICAgIGV4cGVjdCh7eyMgcGFzY2FsQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7LyBwYXNjYWxDYXNlfX0oKSwgaXNOb3ROdWxsKTsKICAgIH0pOwogIH0pOwp9Cg==",
       "type": "text"
@@ -20,7 +20,7 @@ final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3tkZXNjcmlwdGlvbn19CnZlcnNpb246IDEuMC4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEzLjAgPDMuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICB0ZXN0OiBeMS4xNy4wCiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMi4zLjA=",
+          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3tkZXNjcmlwdGlvbn19CnZlcnNpb246IDEuMC4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjEzLjAgPDMuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICB0ZXN0OiAiPj0xLjE3LjAgPDEuMTguMCIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4yLjMuMAo=",
       "type": "text"
     },
     {

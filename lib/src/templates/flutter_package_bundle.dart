@@ -6,7 +6,7 @@ import 'package:mason/mason.dart';
 final flutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "files": [
     {
-      "path": "test/{{project_name}}_test.dart",
+      "path": "test/src/{{project_name}}_test.dart",
       "data":
           "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3Rlc3QvZmx1dHRlcl90ZXN0LmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6e3twcm9qZWN0X25hbWV9fS97e3Byb2plY3RfbmFtZX19LmRhcnQnOwoKdm9pZCBtYWluKCkgewogIGdyb3VwKCd7eyMgcGFzY2FsQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7LyBwYXNjYWxDYXNlfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19KCksIGlzTm90TnVsbCk7CiAgICB9KTsKICB9KTsKfQo=",
       "type": "text"
