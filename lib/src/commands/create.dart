@@ -136,12 +136,12 @@ class CreateCommand extends Command<int> {
     final template = _template;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
-    final android = _argResults['android'] as String? ?? 'true';
-    final ios = _argResults['ios'] as String? ?? 'true';
-    final web = _argResults['web'] as String? ?? 'true';
-    final linux = _argResults['linux'] as String? ?? 'true';
-    final macos = _argResults['macos'] as String? ?? 'true';
-    final windows = _argResults['windows'] as String? ?? 'true';
+    final android = _argResults['android'] as bool? ?? true;
+    final ios = _argResults['ios'] as bool? ?? true;
+    final web = _argResults['web'] as bool? ?? true;
+    final linux = _argResults['linux'] as bool? ?? true;
+    final macos = _argResults['macos'] as bool? ?? true;
+    final windows = _argResults['windows'] as bool? ?? true;
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: <String, dynamic>{
