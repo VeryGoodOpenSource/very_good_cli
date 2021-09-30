@@ -71,6 +71,36 @@ class CreateCommand extends Command<int> {
             element.name: element.help,
           },
         ),
+      )
+      ..addOption(
+        'android',
+        help: 'The plugin supports the Android platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'ios',
+        help: 'The plugin supports the iOS platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'web',
+        help: 'The plugin supports the Web platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'linux',
+        help: 'The plugin supports the Linux platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'macos',
+        help: 'The plugin supports the macOS platform.',
+        defaultsTo: 'true',
+      )
+      ..addOption(
+        'windows',
+        help: 'The plugin supports the Windows platform.',
+        defaultsTo: 'true',
       );
   }
 
@@ -106,12 +136,24 @@ class CreateCommand extends Command<int> {
     final template = _template;
     final generateDone = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
+    final android = _argResults['android'] as String? ?? 'true';
+    final ios = _argResults['ios'] as String? ?? 'true';
+    final web = _argResults['web'] as String? ?? 'true';
+    final linux = _argResults['linux'] as String? ?? 'true';
+    final macos = _argResults['macos'] as String? ?? 'true';
+    final windows = _argResults['windows'] as String? ?? 'true';
     final fileCount = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory, _logger),
       vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
-        'org_name': orgName
+        'org_name': orgName,
+        'android': android.parseBool(),
+        'ios': ios.parseBool(),
+        'web': web.parseBool(),
+        'linux': linux.parseBool(),
+        'macos': macos.parseBool(),
+        'windows': windows.parseBool(),
       },
     );
     generateDone('Generated $fileCount file(s)');
@@ -139,7 +181,7 @@ class CreateCommand extends Command<int> {
     return projectName;
   }
 
-  //// Gets the description for the project
+  /// Gets the description for the project.
   String get _description => _argResults['desc'] as String? ?? '';
 
   /// Gets the organization name.
@@ -211,4 +253,10 @@ class CreateCommand extends Command<int> {
       throw UsageException('Multiple output directories specified.', usage);
     }
   }
+}
+
+/// Extension on String to parse booleans.
+extension StringToBoolX on String {
+  /// Returns if `String` is equal to `true`.
+  bool parseBool() => toLowerCase() == 'true';
 }

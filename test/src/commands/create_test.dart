@@ -31,6 +31,19 @@ const expectedUsage = [
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
+      '''    --android                 The plugin supports the Android platform.\n'''
+      '                              (defaults to "true")\n'
+      '    --ios                     The plugin supports the iOS platform.\n'
+      '                              (defaults to "true")\n'
+      '    --web                     The plugin supports the Web platform.\n'
+      '                              (defaults to "true")\n'
+      '    --linux                   The plugin supports the Linux platform.\n'
+      '                              (defaults to "true")\n'
+      '    --macos                   The plugin supports the macOS platform.\n'
+      '                              (defaults to "true")\n'
+      '''    --windows                 The plugin supports the Windows platform.\n'''
+      '                              (defaults to "true")\n'
+      '\n'
       'Run "very_good help" to see global options.'
 ];
 
@@ -203,6 +216,12 @@ void main() {
             'project_name': 'my_app',
             'org_name': 'com.example.verygoodcore',
             'description': '',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
           },
         ),
       ).called(1);
@@ -254,6 +273,12 @@ void main() {
             'project_name': 'my_app',
             'org_name': 'com.example.verygoodcore',
             'description': 'very good description',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
           },
         ),
       ).called(1);
@@ -332,7 +357,13 @@ void main() {
               vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'description': '',
-                'org_name': orgName
+                'org_name': orgName,
+                'android': true,
+                'ios': true,
+                'web': true,
+                'linux': true,
+                'macos': true,
+                'windows': true,
               },
             ),
           ).called(1);
@@ -434,6 +465,12 @@ void main() {
                 'project_name': 'my_app',
                 'org_name': 'com.example.verygoodcore',
                 'description': '',
+                'android': true,
+                'ios': true,
+                'web': true,
+                'linux': true,
+                'macos': true,
+                'windows': true,
               },
             ),
           ).called(1);
