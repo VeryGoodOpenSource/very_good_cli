@@ -262,9 +262,3 @@ class CreateCommand extends Command<int> {
     }
   }
 }
-
-/// Extension on String to parse booleans.
-extension StringToBoolX on String {
-  /// Returns if `String` is equal to `true`.
-  bool parseBool() => toLowerCase() == 'true';
-}
