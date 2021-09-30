@@ -38,7 +38,7 @@ jobs:
         run: flutter pub run test --run-skipped -t pull-request-only
 
       - name: Run Tests
-        run: flutter test -x pull-request-only --no-pub --coverage --test-randomize-ordering-seed random
+        run: flutter test -x pull-request-only -x e2e --no-pub --coverage --test-randomize-ordering-seed random
 
       - name: Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
