@@ -148,12 +148,12 @@ class CreateCommand extends Command<int> {
         'project_name': projectName,
         'description': description,
         'org_name': orgName,
-        'android': android.parseBool(),
-        'ios': ios.parseBool(),
-        'web': web.parseBool(),
-        'linux': linux.parseBool(),
-        'macos': macos.parseBool(),
-        'windows': windows.parseBool(),
+        'android': android,
+        'ios': ios,
+        'web': web,
+        'linux': linux,
+        'macos': macos,
+        'windows': windows,
       },
     );
     generateDone('Generated $fileCount file(s)');
