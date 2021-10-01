@@ -97,8 +97,13 @@ class FlutterPluginTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    await _installFlutterPackages(logger, outputDir);
-    await _applyDartFixes(logger, outputDir);
+    final fileEntities = outputDir.listSync();
+    for (final fileEntity in fileEntities) {
+      final subDir = Directory.fromUri(fileEntity.uri);
+      await _installFlutterPackages(logger, subDir);
+      await _applyDartFixes(logger, subDir);
+    }
+
     _logSummary(logger);
   }
 
