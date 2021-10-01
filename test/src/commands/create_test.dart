@@ -487,6 +487,75 @@ void main() {
           ).called(1);
         }
 
+        Future<void> expectValidPluginTemplateName({
+          required String getPackagesMsg,
+          required String templateName,
+          required MasonBundle expectedBundle,
+          required String expectedLogSummary,
+        }) async {
+          final argResults = MockArgResults();
+          final generator = MockMasonGenerator();
+          final command = CreateCommand(
+            analytics: analytics,
+            logger: logger,
+            generator: (bundle) async {
+              expect(bundle, equals(expectedBundle));
+              return generator;
+            },
+          )..argResultOverrides = argResults;
+          when(
+            () => argResults['project-name'] as String?,
+          ).thenReturn('my_plugin');
+          when(
+            () => argResults['template'] as String?,
+          ).thenReturn(templateName);
+          when(() => argResults.rest).thenReturn(['.tmp']);
+          when(() => generator.id).thenReturn('generator_id');
+          when(() => generator.description).thenReturn('generator description');
+          when(
+            () => generator.generate(any(), vars: any(named: 'vars')),
+          ).thenAnswer((_) async => 109);
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(() => logger.progress('Bootstrapping')).called(1);
+          expect(progressLogs, equals(['Generated 109 file(s)']));
+          expect(logger.progress(any()), contains(getPackagesMsg));
+          verify(() => logger.alert(expectedLogSummary)).called(1);
+          verify(
+            () => generator.generate(
+              any(
+                that: isA<DirectoryGeneratorTarget>().having(
+                  (g) => g.dir.path,
+                  'dir',
+                  '.tmp',
+                ),
+              ),
+              vars: <String, dynamic>{
+                'project_name': 'my_plugin',
+                'org_name': 'com.example.verygoodcore',
+                'description': '',
+                'android': true,
+                'ios': true,
+                'web': true,
+                'linux': true,
+                'macos': true,
+                'windows': true,
+              },
+            ),
+          ).called(1);
+          verify(
+            () => analytics.sendEvent(
+              'create',
+              'generator_id',
+              label: 'generator description',
+            ),
+          ).called(1);
+          verify(
+            () => analytics.waitForLastPing(
+                timeout: VeryGoodCommandRunner.timeout),
+          ).called(1);
+        }
+
         test('core template', () async {
           await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
@@ -515,7 +584,7 @@ void main() {
         });
 
         test('flutter plugin template', () async {
-          await expectValidTemplateName(
+          await expectValidPluginTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_plugin',
             expectedBundle: flutterPluginBundle,
