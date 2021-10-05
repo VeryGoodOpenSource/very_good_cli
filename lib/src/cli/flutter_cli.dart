@@ -1,7 +1,7 @@
 part of 'cli.dart';
 
 /// Thrown when `flutter packages get` or `flutter pub get`
-/// is exectuted without a pubspec.yaml
+/// is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
 /// Flutter CLI
