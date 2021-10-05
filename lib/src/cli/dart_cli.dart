@@ -17,33 +17,20 @@ class Dart {
     String cwd = '.',
     bool recursive = false,
   }) async {
-    await installPackages(
-      cmd: (cwd) => _Cmd.run(
-        'dart',
-        ['fix', '--apply'],
-        workingDirectory: cwd,
-      ),
-      cwd: cwd,
-      recursive: recursive,
-    );
-  }
-
-  /// Install dependencies in directories with a `pubspec.yaml`.
-  static Future<void> installPackages({
-    required Future<ProcessResult> Function(String cwd) cmd,
-    required String cwd,
-    required bool recursive,
-  }) async {
     if (!recursive) {
       final pubspec = File(p.join(cwd, 'pubspec.yaml'));
       if (!pubspec.existsSync()) throw PubspecNotFound();
 
-      await cmd(cwd);
+      await _Cmd.run('dart', ['fix', '--apply'], workingDirectory: cwd);
       return;
     }
 
     final processes = _process(
-      run: (entity) => cmd(entity.parent.path),
+      run: (entity) => _Cmd.run(
+        'dart',
+        ['fix', '--apply'],
+        workingDirectory: entity.parent.path,
+      ),
       where: _isPubspec,
       cwd: cwd,
     );
@@ -52,17 +39,17 @@ class Dart {
 
     await Future.wait(processes);
   }
-
-  static Iterable<Future<ProcessResult>> _process({
-    required Future<ProcessResult> Function(FileSystemEntity) run,
-    required bool Function(FileSystemEntity) where,
-    String cwd = '.',
-  }) {
-    return Directory(cwd).listSync(recursive: true).where(where).map(run);
-  }
 }
 
 bool _isPubspec(FileSystemEntity entity) {
   if (entity is! File) return false;
   return p.basename(entity.path) == 'pubspec.yaml';
+}
+
+Iterable<Future<ProcessResult>> _process({
+  required Future<ProcessResult> Function(FileSystemEntity) run,
+  required bool Function(FileSystemEntity) where,
+  String cwd = '.',
+}) {
+  return Directory(cwd).listSync(recursive: true).where(where).map(run);
 }
