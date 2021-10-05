@@ -48,7 +48,6 @@ class Flutter {
     );
   }
 
-  /// Install dependencies in directories with a `pubspec.yaml`.
   static Future<void> _installPackages({
     required Future<ProcessResult> Function(String cwd) cmd,
     required String cwd,
