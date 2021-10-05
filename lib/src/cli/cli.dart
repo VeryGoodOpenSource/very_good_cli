@@ -46,3 +46,16 @@ class _Cmd {
     }
   }
 }
+
+bool _isPubspec(FileSystemEntity entity) {
+  if (entity is! File) return false;
+  return p.basename(entity.path) == 'pubspec.yaml';
+}
+
+Iterable<Future<ProcessResult>> _process({
+  required Future<ProcessResult> Function(FileSystemEntity) run,
+  required bool Function(FileSystemEntity) where,
+  String cwd = '.',
+}) {
+  return Directory(cwd).listSync(recursive: true).where(where).map(run);
+}
