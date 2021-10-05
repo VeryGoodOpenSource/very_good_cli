@@ -25,7 +25,7 @@ class Dart {
       return;
     }
 
-    final processes = _process(
+    final processes = _Cmd.runWhere(
       run: (entity) => _Cmd.run(
         'dart',
         ['fix', '--apply'],

@@ -62,7 +62,7 @@ class Flutter {
       return;
     }
 
-    final processes = _process(
+    final processes = _Cmd.runWhere(
       run: (entity) => cmd(entity.parent.path),
       where: _isPubspec,
       cwd: cwd,
