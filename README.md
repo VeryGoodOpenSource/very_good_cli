@@ -44,6 +44,12 @@ Usage: very_good create <output directory>
           [dart_pkg]          Generate a reusable Dart package.
           [flutter_pkg]       Generate a reusable Flutter package.
           [flutter_plugin]    Generate a reusable Flutter federated plugin.
+              --android       The plugin supports the Android platform.
+              --ios           The plugin supports the iOS platform.
+              --web           The plugin supports the Web platform.
+              --linux         The plugin supports the Linux platform.
+              --macos         The plugin supports the macOS platform.
+              --windows       The plugin supports the Windows platform.
 ```
 
 ### What's Included in Very Good Core? 📦
