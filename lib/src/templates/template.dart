@@ -189,7 +189,7 @@ Future<void> _applyDartFixes(
     final applyFixesDone = logger.progress(
       'Running "dart fix --apply" in ${outputDir.path}',
     );
-    await Dart.applyFixes(recursive: recursive);
+    await Dart.applyFixes(cwd: outputDir.path, recursive: recursive);
     applyFixesDone();
   }
 }
