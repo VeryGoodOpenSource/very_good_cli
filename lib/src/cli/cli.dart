@@ -26,8 +26,6 @@ class _Cmd {
     return result;
   }
 
-  /// Executes [run] function recursively in
-  /// the specified [cwd] when [where] is true.
   static Iterable<Future<ProcessResult>> runWhere({
     required Future<ProcessResult> Function(FileSystemEntity) run,
     required bool Function(FileSystemEntity) where,

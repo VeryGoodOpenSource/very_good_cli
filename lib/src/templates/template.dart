@@ -182,7 +182,6 @@ Future<void> _installFlutterPackages(
 Future<void> _applyDartFixes(
   Logger logger,
   Directory outputDir, {
-  String cwd = '.',
   bool recursive = false,
 }) async {
   final isDartInstalled = await Dart.installed();
@@ -190,7 +189,7 @@ Future<void> _applyDartFixes(
     final applyFixesDone = logger.progress(
       'Running "dart fix --apply" in ${outputDir.path}',
     );
-    await Dart.applyFixes(cwd: cwd, recursive: recursive);
+    await Dart.applyFixes(recursive: recursive);
     applyFixesDone();
   }
 }
