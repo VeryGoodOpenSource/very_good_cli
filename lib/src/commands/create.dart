@@ -14,7 +14,7 @@ const _defaultOrgName = 'com.example.verygoodcore';
 const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 
 final _templates = [
-  CoreTemplate(),
+  VeryGoodCoreTemplate(),
   DartPkgTemplate(),
   FlutterPkgTemplate(),
   FlutterPluginTemplate(),

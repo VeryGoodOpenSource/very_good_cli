@@ -3,12 +3,12 @@ import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
-/// {@template core_template}
+/// {@template very_good_core_template}
 /// A core Flutter app template.
 /// {@endtemplate}
-class CoreTemplate extends Template {
-  /// {@macro core_template}
-  CoreTemplate()
+class VeryGoodCoreTemplate extends Template {
+  /// {@macro very_good_core_template}
+  VeryGoodCoreTemplate()
       : super(
           name: 'core',
           bundle: veryGoodCoreBundle,
