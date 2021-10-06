@@ -26,6 +26,14 @@ class _Cmd {
     return result;
   }
 
+  static Iterable<Future<ProcessResult>> runWhere({
+    required Future<ProcessResult> Function(FileSystemEntity) run,
+    required bool Function(FileSystemEntity) where,
+    String cwd = '.',
+  }) {
+    return Directory(cwd).listSync(recursive: true).where(where).map(run);
+  }
+
   static void _throwIfProcessFailed(
     ProcessResult pr,
     String process,
@@ -45,4 +53,9 @@ class _Cmd {
       throw ProcessException(process, args, message, pr.exitCode);
     }
   }
+}
+
+bool _isPubspec(FileSystemEntity entity) {
+  if (entity is! File) return false;
+  return p.basename(entity.path) == 'pubspec.yaml';
 }

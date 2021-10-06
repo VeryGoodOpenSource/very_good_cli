@@ -97,8 +97,8 @@ class FlutterPluginTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    await _installFlutterPackages(logger, outputDir);
-    await _applyDartFixes(logger, outputDir);
+    await _installFlutterPackages(logger, outputDir, recursive: true);
+    await _applyDartFixes(logger, outputDir, recursive: true);
     _logSummary(logger);
   }
 
@@ -166,25 +166,30 @@ Future<void> _installDartPackages(
 
 Future<void> _installFlutterPackages(
   Logger logger,
-  Directory outputDir,
-) async {
+  Directory outputDir, {
+  bool recursive = false,
+}) async {
   final isFlutterInstalled = await Flutter.installed();
   if (isFlutterInstalled) {
     final installDependenciesDone = logger.progress(
       'Running "flutter packages get" in ${outputDir.path}',
     );
-    await Flutter.packagesGet(cwd: outputDir.path);
+    await Flutter.packagesGet(cwd: outputDir.path, recursive: recursive);
     installDependenciesDone();
   }
 }
 
-Future<void> _applyDartFixes(Logger logger, Directory outputDir) async {
+Future<void> _applyDartFixes(
+  Logger logger,
+  Directory outputDir, {
+  bool recursive = false,
+}) async {
   final isDartInstalled = await Dart.installed();
   if (isDartInstalled) {
     final applyFixesDone = logger.progress(
       'Running "dart fix --apply" in ${outputDir.path}',
     );
-    await Dart.applyFixes();
+    await Dart.applyFixes(cwd: outputDir.path, recursive: recursive);
     applyFixesDone();
   }
 }

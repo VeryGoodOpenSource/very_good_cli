@@ -1,11 +1,21 @@
 part of 'cli.dart';
 
 /// Thrown when `flutter packages get` or `flutter pub get`
-/// is exectuted without a pubspec.yaml
+/// is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
 /// Flutter CLI
 class Flutter {
+  /// Determine whether flutter is installed.
+  static Future<bool> installed() async {
+    try {
+      await _Cmd.run('flutter', ['--version']);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Install flutter dependencies (`flutter packages get`).
   static Future<void> packagesGet({
     String cwd = '.',
@@ -38,16 +48,7 @@ class Flutter {
     );
   }
 
-  /// Determine whether flutter is installed
-  static Future<bool> installed() async {
-    try {
-      await _Cmd.run('flutter', ['--version']);
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
+  /// Install dependencies in directories with a `pubspec.yaml`.
   static Future<void> _installPackages({
     required Future<ProcessResult> Function(String cwd) cmd,
     required String cwd,
@@ -61,7 +62,7 @@ class Flutter {
       return;
     }
 
-    final processes = _process(
+    final processes = _Cmd.runWhere(
       run: (entity) => cmd(entity.parent.path),
       where: _isPubspec,
       cwd: cwd,
@@ -71,17 +72,4 @@ class Flutter {
 
     await Future.wait(processes);
   }
-
-  static Iterable<Future<ProcessResult>> _process({
-    required Future<ProcessResult> Function(FileSystemEntity) run,
-    required bool Function(FileSystemEntity) where,
-    String cwd = '.',
-  }) {
-    return Directory(cwd).listSync(recursive: true).where(where).map(run);
-  }
-}
-
-bool _isPubspec(FileSystemEntity entity) {
-  if (entity is! File) return false;
-  return p.basename(entity.path) == 'pubspec.yaml';
 }
