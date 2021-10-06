@@ -12,14 +12,15 @@ import 'package:very_good_cli/src/templates/templates.dart';
 
 const _defaultOrgName = 'com.example.verygoodcore';
 const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
-final _defaultTemplate = CoreTemplate();
 
 final _templates = [
-  _defaultTemplate,
+  VeryGoodCoreTemplate(),
   DartPkgTemplate(),
   FlutterPkgTemplate(),
   FlutterPluginTemplate(),
 ];
+
+final _defaultTemplate = _templates.first;
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -148,12 +149,12 @@ class CreateCommand extends Command<int> {
         'project_name': projectName,
         'description': description,
         'org_name': orgName,
-        'android': android.parseBool(),
-        'ios': ios.parseBool(),
-        'web': web.parseBool(),
-        'linux': linux.parseBool(),
-        'macos': macos.parseBool(),
-        'windows': windows.parseBool(),
+        'android': android.toBool(),
+        'ios': ios.toBool(),
+        'web': web.toBool(),
+        'linux': linux.toBool(),
+        'macos': macos.toBool(),
+        'windows': windows.toBool(),
       },
     );
     generateDone('Generated $fileCount file(s)');
@@ -256,5 +257,5 @@ class CreateCommand extends Command<int> {
 }
 
 extension on String {
-  bool parseBool() => toLowerCase() == 'true';
+  bool toBool() => toLowerCase() == 'true';
 }

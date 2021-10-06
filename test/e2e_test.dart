@@ -192,5 +192,5 @@ void main() {
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
     });
-  }, timeout: const Timeout(Duration(minutes: 1)));
+  }, timeout: const Timeout(Duration(seconds: 90)));
 }

@@ -1,5 +1,6 @@
-export 'dart_package_bundle.dart';
-export 'flutter_package_bundle.dart';
-export 'flutter_plugin_bundle.dart';
+export 'dart_package/dart_package.dart';
+export 'flutter_package/flutter_package.dart';
+export 'flutter_plugin/flutter_plugin.dart';
+export 'post_generate_actions.dart';
 export 'template.dart';
-export 'very_good_core_bundle.dart';
+export 'very_good_core/very_good_core.dart';
