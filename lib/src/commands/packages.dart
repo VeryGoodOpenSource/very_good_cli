@@ -59,15 +59,14 @@ class PackagesGetCommand extends Command<int> {
 
     final recursive = _argResults['recursive'] as bool;
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
-    final targetDir = Directory(target);
-    final targetPath = path.normalize(targetDir.absolute.path);
+    final targetPath = path.normalize(Directory(target).absolute.path);
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       final installDependenciesDone = _logger.progress(
         'Running "flutter packages get" in $targetPath',
       );
       try {
-        await Flutter.packagesGet(cwd: targetDir.path, recursive: recursive);
+        await Flutter.packagesGet(cwd: targetPath, recursive: recursive);
         installDependenciesDone();
       } on PubspecNotFound catch (_) {
         installDependenciesDone();
