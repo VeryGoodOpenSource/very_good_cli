@@ -83,7 +83,7 @@ _\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog
 See the complete list of commands and usage information.
 
 ```sh
- A Very Good Command Line Interface
+🦄 A Very Good Command Line Interface
 
 Usage: very_good <command> [arguments]
 
