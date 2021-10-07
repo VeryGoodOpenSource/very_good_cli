@@ -64,7 +64,11 @@ void main() {
       pubUpdater = MockPubUpdater();
       printLogs = [];
       progressLogs = [];
-      commandRunner = VeryGoodCommandRunner(logger: logger);
+      commandRunner = VeryGoodCommandRunner(
+        analytics: analytics,
+        logger: logger,
+        pubUpdater: pubUpdater,
+      );
 
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
