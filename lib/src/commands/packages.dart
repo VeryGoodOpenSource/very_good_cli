@@ -24,7 +24,7 @@ class PackagesCommand extends Command<int> {
 }
 
 /// {@template packages_get_command}
-/// `very_good packages` command for installing packages.
+/// `very_good packages get` command for installing packages.
 /// {@endtemplate}
 class PackagesGetCommand extends Command<int> {
   /// {@macro packages_get_command}
