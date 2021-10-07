@@ -34,8 +34,8 @@ const expectedPackagesGetUsage = [
   'Get packages in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages get [arguments]\n'
-      '-h, --help              Print this usage information.\n'
-      '''-r, --[no-]recursive    Install dependencies recursively for all nested packages.\n'''
+      '-h, --help         Print this usage information.\n'
+      '''-r, --recursive    Install dependencies recursively for all nested packages.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];

@@ -33,6 +33,7 @@ class PackagesGetCommand extends Command<int> {
       'recursive',
       abbr: 'r',
       help: 'Install dependencies recursively for all nested packages.',
+      negatable: false,
     );
   }
 

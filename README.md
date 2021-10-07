@@ -78,6 +78,36 @@ _\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog
 
 ---
 
+### `$ very_good packages get`
+
+Get packages in a Dart or Flutter project.
+
+```sh
+# Install packages in the current directory
+$ very_good packages get
+
+# Install packages in ./some/other/directory
+$ very_good packages get ./some/other/directory
+
+# Install packages recursively
+$ very_good packages get --recursive
+
+# Install packages recursively (shorthand)
+$ very_good packages get -r
+```
+
+#### Complete Usage
+
+```sh
+Get packages in a Dart or Flutter project.
+
+Usage: very_good packages get [arguments]
+-h, --help         Print this usage information.
+-r, --recursive    Install dependencies recursively for all nested packages.
+
+Run "very_good help" to see global options.
+```
+
 ### `$ very_good --help`
 
 See the complete list of commands and usage information.
