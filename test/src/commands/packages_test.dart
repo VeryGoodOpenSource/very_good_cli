@@ -4,11 +4,17 @@ import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
+import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
+import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 
+class MockAnalytics extends Mock implements Analytics {}
+
 class MockLogger extends Mock implements Logger {}
+
+class MockPubUpdater extends Mock implements PubUpdater {}
 
 const expectedPackagesUsage = [
   // ignore: no_adjacent_strings_in_list
@@ -36,7 +42,9 @@ const expectedPackagesGetUsage = [
 
 void main() {
   group('packages', () {
+    late Analytics analytics;
     late Logger logger;
+    late PubUpdater pubUpdater;
     late List<String> printLogs;
     late List<String> progressLogs;
     late VeryGoodCommandRunner commandRunner;
@@ -51,16 +59,34 @@ void main() {
     }
 
     setUp(() {
+      analytics = MockAnalytics();
       logger = MockLogger();
+      pubUpdater = MockPubUpdater();
       printLogs = [];
       progressLogs = [];
       commandRunner = VeryGoodCommandRunner(logger: logger);
+
+      when(() => analytics.firstRun).thenReturn(false);
+      when(() => analytics.enabled).thenReturn(false);
+      when(
+        () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
+      ).thenAnswer((_) async {});
+      when(
+        () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
+      ).thenAnswer((_) async {});
 
       when(() => logger.progress(any())).thenReturn(
         ([_]) {
           if (_ != null) progressLogs.add(_);
         },
       );
+
+      when(
+        () => pubUpdater.isUpToDate(
+          packageName: any(named: 'packageName'),
+          currentVersion: any(named: 'currentVersion'),
+        ),
+      ).thenAnswer((_) => Future.value(true));
     });
 
     test('help', overridePrint(() async {
