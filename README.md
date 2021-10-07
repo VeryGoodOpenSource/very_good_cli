@@ -83,7 +83,7 @@ _\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog
 See the complete list of commands and usage information.
 
 ```sh
-🦄 A Very Good Command Line Interface
+ A Very Good Command Line Interface
 
 Usage: very_good <command> [arguments]
 
@@ -96,8 +96,9 @@ Global options:
           [true]     Enable anonymous usage statistics
 
 Available commands:
-  create   very_good create <output directory>
-           Creates a new very good flutter project in the specified directory.
+  create     very_good create <output directory>
+             Creates a new very good project in the specified directory.
+  packages   Command for managing packages.
 
 Run "very_good help <command>" for more information about a command.
 ```
