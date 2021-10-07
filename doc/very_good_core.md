@@ -220,6 +220,31 @@ Very Good Core comes with a built-in [GitHub Actions workflow][github_actions_li
 
 Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Very Good Analysis][very_good_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Very Good Coverage GitHub Action][very_good_coverage_link].
 
+---
+
+## Updating app icons 📱
+
+When you create a new project, it has a default launcher icon. To customize this icon, you can do it by using the following steps for each platform.
+
+### Android
+
+1. Review the [Material Design product icons][material_design_product_icons] guidelines for icon design.
+
+2. In the `[project]/android/app/src/main/res/` directory, place your icon files in folders named using [configuration qualifiers][android_configuration_qualifiers]. The default `mipmap-` folders demonstrate the correct naming convention.
+
+3. In `AndroidManifest.xml`, update the [`application`][android_application_element] tag’s `android:icon` attribute to reference icons from the previous step (for example, `<application android:icon="@mipmap/ic_launcher" ...`).
+
+4. To verify that the icon has been replaced, run your app and inspect the app icon in the Launcher.
+
+### iOS
+
+1. Review the [iOS App Icon guidelines][ios_app_icon_guidelines].
+
+2. In the Xcode project navigator, select `Assets.xcassets` in the `Runner` folder. Update the placeholder icons with your own app icons.
+
+3. Verify the icon has been replaced by running your app using `flutter run`.
+
+
 [firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://flutter.dev/docs/get-started/install
 [flutter_localizations_link]: https://api.flutter.dev/flutter/flutter_localizations/flutter_localizations-library.html
@@ -235,3 +260,7 @@ Out of the box, on each pull request and push, the CI `formats`, `lints`, and `t
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.png
 [very_good_testing_blog_link]: https://verygood.ventures/blog/guide-to-flutter-testing?utm_source=github&utm_medium=banner&utm_campaign=CLI
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core
+[material_design_product_icons]: https://material.io/design/iconography/
+[android_application_element]: https://developer.android.com/guide/topics/manifest/application-element
+[android_configuration_qualifiers]: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
+[ios_app_icon_guidelines]: https://developer.apple.com/design/human-interface-guidelines/ios/icons-and-images/app-icon/
