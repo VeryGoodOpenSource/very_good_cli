@@ -244,7 +244,6 @@ When you create a new project, it has a default launcher icon. To customize this
 
 3. Verify the icon has been replaced by running your app using `flutter run`.
 
-
 [firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://flutter.dev/docs/get-started/install
 [flutter_localizations_link]: https://api.flutter.dev/flutter/flutter_localizations/flutter_localizations-library.html
