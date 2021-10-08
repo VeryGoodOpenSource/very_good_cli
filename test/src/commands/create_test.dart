@@ -67,7 +67,7 @@ class FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 void main() {
-  group('Create', () {
+  group('create', () {
     late List<String> progressLogs;
     late List<String> printLogs;
     late Analytics analytics;

@@ -1,3 +1,13 @@
+# v0.4.6 (2021-10-07)
+
+### Bug Fixes
+
+- **flutter_plugin:** throws PubspecNotFound exception ([#199](https://github.com/VeryGoodOpenSource/very_good_cli/issues/199)) ([8d040cc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8d040ccee5ccd90bf374ad08febb0bf4f3bb13de))
+
+### Features
+
+- very_good packages get --recursive ([#201](https://github.com/VeryGoodOpenSource/very_good_cli/issues/201)) ([5ad3fbf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5ad3fbff1d2a7e1f65f66404940dbf689b67a758))
+
 # v0.4.5 (2021-09-30)
 
 ### Bug Fixes
