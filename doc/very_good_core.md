@@ -222,7 +222,7 @@ Out of the box, on each pull request and push, the CI `formats`, `lints`, and `t
 
 ---
 
-## Updating app icons 📱
+## Updating App Icons 📱
 
 When you create a new project, it has a default launcher icon. To customize this icon, you can do it by using the following steps for each platform.
 
