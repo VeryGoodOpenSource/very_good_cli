@@ -111,20 +111,17 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   Future<void> _checkForUpdates() async {
     try {
-      final isUpToDate = await _pubUpdater.isUpToDate(
-        packageName: packageName,
-        currentVersion: packageVersion,
-      );
-
+      final latestVersion = await _pubUpdater.getLatestVersion(packageName);
+      final isUpToDate = packageVersion == latestVersion;
       if (!isUpToDate) {
         _logger.info(
-          lightYellow.wrap('A new release of $packageName is available.'),
+          '''${lightYellow.wrap('A new version of $packageName is available:')} ${lightCyan.wrap(packageVersion)} -> ${lightCyan.wrap(latestVersion)}''',
         );
         final response = _logger.prompt('Would you like to update? (y/n) ');
         if (response.isYes()) {
-          final done = _logger.progress('Updating');
+          final done = _logger.progress('Updating to $latestVersion');
           await _pubUpdater.update(packageName: packageName);
-          done('Updated!');
+          done('Updated to $latestVersion');
         }
       }
     } catch (_) {}
