@@ -97,7 +97,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   Future<int?> runCommand(ArgResults topLevelResults) async {
     int? exitCode = ExitCode.unavailable.code;
     if (topLevelResults['version'] == true) {
-      _logger.info('very_good version: $packageVersion');
+      _logger.info(packageVersion);
       exitCode = ExitCode.success.code;
     } else if (topLevelResults['analytics'] != null) {
       final optIn = topLevelResults['analytics'] == 'true';
@@ -121,7 +121,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           ..info('''
 +------------------------------------------------------------------------------------+
 |                                                                                    |
-|                     ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                                |
+|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                           |
 | ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
 |                                                                                    |
 +------------------------------------------------------------------------------------+

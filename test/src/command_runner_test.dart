@@ -45,7 +45,16 @@ const expectedUsage = [
 const responseBody =
     '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
 
-const latestVersion = '9999.0.0';
+const latestVersion = '0.0.0';
+
+final updatePrompt = '''
++------------------------------------------------------------------------------------+
+|                                                                                    |
+|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                           |
+| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
+|                                                                                    |
++------------------------------------------------------------------------------------+
+''';
 
 void main() {
   group('VeryGoodCommandRunner', () {
@@ -106,18 +115,7 @@ void main() {
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(
-          () => logger.info(
-            '''
-+------------------------------------------------------------------------------------+
-|                                                                                    |
-|                     ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                                |
-| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
-|                                                                                    |
-+------------------------------------------------------------------------------------+
-''',
-          ),
-        ).called(1);
+        verify(() => logger.info(updatePrompt)).called(1);
         verify(
           () => logger.prompt('Would you like to update? (y/n) '),
         ).called(1);
@@ -130,11 +128,7 @@ void main() {
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verifyNever(
-          () => logger.info(
-            lightYellow.wrap('A new release of $packageName is available.'),
-          ),
-        );
+        verifyNever(() => logger.info(updatePrompt));
       });
 
       test('updates on "y" response when newer version exists', () async {
@@ -250,7 +244,7 @@ void main() {
         test('outputs current version', () async {
           final result = await commandRunner.run(['--version']);
           expect(result, equals(ExitCode.success.code));
-          verify(() => logger.info('very_good version: $packageVersion'));
+          verify(() => logger.info(packageVersion)).called(1);
         });
       });
     });
