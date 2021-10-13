@@ -95,18 +95,20 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
-    await _checkForUpdates();
+    int? exitCode = ExitCode.unavailable.code;
     if (topLevelResults['version'] == true) {
       _logger.info('very_good version: $packageVersion');
-      return ExitCode.success.code;
-    }
-    if (topLevelResults['analytics'] != null) {
+      exitCode = ExitCode.success.code;
+    } else if (topLevelResults['analytics'] != null) {
       final optIn = topLevelResults['analytics'] == 'true';
       _analytics.enabled = optIn;
       _logger.info('analytics ${_analytics.enabled ? 'enabled' : 'disabled'}.');
-      return ExitCode.success.code;
+      exitCode = ExitCode.success.code;
+    } else {
+      exitCode = await super.runCommand(topLevelResults);
     }
-    return super.runCommand(topLevelResults);
+    await _checkForUpdates();
+    return exitCode;
   }
 
   Future<void> _checkForUpdates() async {
@@ -114,9 +116,16 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       final latestVersion = await _pubUpdater.getLatestVersion(packageName);
       final isUpToDate = packageVersion == latestVersion;
       if (!isUpToDate) {
-        _logger.info(
-          '''${lightYellow.wrap('A new version of $packageName is available:')} ${lightCyan.wrap(packageVersion)} -> ${lightCyan.wrap(latestVersion)}''',
-        );
+        _logger
+          ..info('')
+          ..info('''
++------------------------------------------------------------------------------------+
+|                                                                                    |
+|                     ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                                |
+| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
+|                                                                                    |
++------------------------------------------------------------------------------------+
+''');
         final response = _logger.prompt('Would you like to update? (y/n) ');
         if (response.isYes()) {
           final done = _logger.progress('Updating to $latestVersion');
