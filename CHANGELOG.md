@@ -1,3 +1,13 @@
+# v0.4.7 (2021-10-13)
+
+### Features
+
+- check for updates last and improve update prompt styling ([#207](https://github.com/VeryGoodOpenSource/very_good_cli/issues/207)) ([4510785](https://github.com/VeryGoodOpenSource/very_good_cli/commit/451078571a8e57e7c2c88684452f5f86c1e2304d))
+- improve new update prompt ([#206](https://github.com/VeryGoodOpenSource/very_good_cli/issues/206)) ([4ecfc8a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4ecfc8a28c0869fc63f2d0a1d82e079af9d101f6))
+- improve update prompt style ([#208](https://github.com/VeryGoodOpenSource/very_good_cli/issues/208)) ([5f9010d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5f9010d49ec31e443c77f37e704ed4b0a1b369a9))
+- **core:** add flavor to iOS app name ([#205](https://github.com/VeryGoodOpenSource/very_good_cli/issues/205)) ([52d7243](https://github.com/VeryGoodOpenSource/very_good_cli/commit/52d7243c8c4afea734e583a4d8986551b072c1de))
+- **core:** update to bloc_test v8.3.0 and add flavor to app name on android ([#204](https://github.com/VeryGoodOpenSource/very_good_cli/issues/204)) ([b0e262f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b0e262fbd3f29bc467af3a0469cfefd3aef32466))
+
 # v0.4.6 (2021-10-07)
 
 ### Bug Fixes
