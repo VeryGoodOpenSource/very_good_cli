@@ -108,7 +108,14 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(
           () => logger.info(
-            '''${lightYellow.wrap('A new version of $packageName is available:')} ${lightCyan.wrap(packageVersion)} -> ${lightCyan.wrap(latestVersion)}''',
+            '''
++------------------------------------------------------------------------------------+
+|                                                                                    |
+|                     ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                                |
+| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
+|                                                                                    |
++------------------------------------------------------------------------------------+
+''',
           ),
         ).called(1);
         verify(
