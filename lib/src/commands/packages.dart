@@ -62,18 +62,16 @@ class PackagesGetCommand extends Command<int> {
     final targetPath = path.normalize(Directory(target).absolute.path);
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
-      final installDependenciesDone = _logger.progress(
-        'Running "flutter packages get" in $targetPath',
-      );
       try {
-        await Flutter.packagesGet(cwd: targetPath, recursive: recursive);
-        installDependenciesDone();
+        await Flutter.packagesGet(
+          cwd: targetPath,
+          recursive: recursive,
+          progress: _logger.progress,
+        );
       } on PubspecNotFound catch (_) {
-        installDependenciesDone();
         _logger.err('Could not find a pubspec.yaml in $targetPath');
         return ExitCode.noInput.code;
       } catch (error) {
-        installDependenciesDone();
         _logger.err('$error');
         return ExitCode.unavailable.code;
       }
