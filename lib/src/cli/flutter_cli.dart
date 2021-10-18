@@ -27,13 +27,18 @@ class Flutter {
         final installDone = progress?.call(
           'Running "flutter packages get" in $cwd',
         );
-        final result = await _Cmd.run(
-          'flutter',
-          ['packages', 'get'],
-          workingDirectory: cwd,
-        );
-        installDone?.call();
-        return result;
+        try {
+          final result = await _Cmd.run(
+            'flutter',
+            ['packages', 'get'],
+            workingDirectory: cwd,
+          );
+          return result;
+        } catch (_) {
+          rethrow;
+        } finally {
+          installDone?.call();
+        }
       },
       cwd: cwd,
       recursive: recursive,
