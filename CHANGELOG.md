@@ -1,3 +1,9 @@
+# v0.4.8 (2021-10-18)
+
+### Bug Fixes
+
+- packages get --recursive run sequentially ([#211](https://github.com/VeryGoodOpenSource/very_good_cli/issues/211)) ([7ad2196](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7ad21965fa0a1c1580162091bb3f7fdfcd7600f2))
+
 # v0.4.7 (2021-10-13)
 
 ### Features
