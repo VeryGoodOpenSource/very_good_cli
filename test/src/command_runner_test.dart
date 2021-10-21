@@ -45,6 +45,17 @@ const expectedUsage = [
 const responseBody =
     '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
 
+const latestVersion = '0.0.0';
+
+final updatePrompt = '''
++------------------------------------------------------------------------------------+
+|                                                                                    |
+|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                           |
+| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
+|                                                                                    |
++------------------------------------------------------------------------------------+
+''';
+
 void main() {
   group('VeryGoodCommandRunner', () {
     late List<String> printLogs;
@@ -70,14 +81,9 @@ void main() {
 
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
-
       when(
-        () => pubUpdater.isUpToDate(
-          packageName: any(named: 'packageName'),
-          currentVersion: any(named: 'currentVersion'),
-        ),
-      ).thenAnswer((_) => Future.value(true));
-
+        () => pubUpdater.getLatestVersion(any()),
+      ).thenAnswer((_) async => packageVersion);
       when(
         () => pubUpdater.update(
           packageName: any(named: 'packageName'),
@@ -101,20 +107,15 @@ void main() {
 
     group('run', () {
       test('prompts for update when newer version exists', () async {
-        when(() => pubUpdater.isUpToDate(
-              packageName: any(named: 'packageName'),
-              currentVersion: any(named: 'currentVersion'),
-            )).thenAnswer((_) => Future.value(false));
+        when(
+          () => pubUpdater.getLatestVersion(any()),
+        ).thenAnswer((_) async => latestVersion);
 
         when(() => logger.prompt(any())).thenReturn('n');
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(
-          () => logger.info(
-            lightYellow.wrap('A new release of $packageName is available.'),
-          ),
-        ).called(1);
+        verify(() => logger.info(updatePrompt)).called(1);
         verify(
           () => logger.prompt('Would you like to update? (y/n) '),
         ).called(1);
@@ -122,33 +123,25 @@ void main() {
 
       test('handles pub update errors gracefully', () async {
         when(
-          () => pubUpdater.isUpToDate(
-            packageName: any(named: 'packageName'),
-            currentVersion: any(named: 'currentVersion'),
-          ),
+          () => pubUpdater.getLatestVersion(any()),
         ).thenThrow(Exception('oops'));
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verifyNever(
-          () => logger.info(
-            lightYellow.wrap('A new release of $packageName is available.'),
-          ),
-        );
+        verifyNever(() => logger.info(updatePrompt));
       });
 
       test('updates on "y" response when newer version exists', () async {
-        when(() => pubUpdater.isUpToDate(
-              packageName: any(named: 'packageName'),
-              currentVersion: any(named: 'currentVersion'),
-            )).thenAnswer((_) => Future.value(false));
+        when(
+          () => pubUpdater.getLatestVersion(any()),
+        ).thenAnswer((_) async => latestVersion);
 
         when(() => logger.prompt(any())).thenReturn('y');
         when(() => logger.progress(any())).thenReturn(([String? message]) {});
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
-        verify(() => logger.progress('Updating')).called(1);
+        verify(() => logger.progress('Updating to $latestVersion')).called(1);
       });
 
       test('prompts for analytics collection on first run (y)', () async {
@@ -251,7 +244,7 @@ void main() {
         test('outputs current version', () async {
           final result = await commandRunner.run(['--version']);
           expect(result, equals(ExitCode.success.code));
-          verify(() => logger.info('very_good version: $packageVersion'));
+          verify(() => logger.info(packageVersion)).called(1);
         });
       });
     });
