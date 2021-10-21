@@ -20,13 +20,26 @@ class Flutter {
   static Future<void> packagesGet({
     String cwd = '.',
     bool recursive = false,
+    void Function([String?]) Function(String message)? progress,
   }) async {
     await _installPackages(
-      cmd: (cwd) => _Cmd.run(
-        'flutter',
-        ['packages', 'get'],
-        workingDirectory: cwd,
-      ),
+      cmd: (cwd) async {
+        final installDone = progress?.call(
+          'Running "flutter packages get" in $cwd',
+        );
+        try {
+          final result = await _Cmd.run(
+            'flutter',
+            ['packages', 'get'],
+            workingDirectory: cwd,
+          );
+          return result;
+        } catch (_) {
+          rethrow;
+        } finally {
+          installDone?.call();
+        }
+      },
       cwd: cwd,
       recursive: recursive,
     );
@@ -70,6 +83,8 @@ class Flutter {
 
     if (processes.isEmpty) throw PubspecNotFound();
 
-    await Future.wait(processes);
+    for (final process in processes) {
+      await process;
+    }
   }
 }

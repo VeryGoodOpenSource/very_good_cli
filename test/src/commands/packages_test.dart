@@ -181,7 +181,7 @@ void main() {
           logger.progress(
             any(that: contains('Running "flutter packages get" in')),
           );
-        }).called(1);
+        }).called(2);
       });
     });
   });
