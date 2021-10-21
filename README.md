@@ -17,7 +17,7 @@ A Very Good Command Line Interface for Dart.
 ## Installing
 
 ```sh
-$ dart pub global activate very_good_cli
+dart pub global activate very_good_cli
 ```
 
 ## Commands
