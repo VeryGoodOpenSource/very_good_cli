@@ -15,7 +15,7 @@ A Very Good Flutter Starter Project created by the [Very Good Ventures Team][ver
 For first time users, start by installing the [Very Good CLI from pub.dev][very_good_cli_link].
 
 ```sh
-$ dart pub global activate very_good_cli
+dart pub global activate very_good_cli
 ```
 
 ### Create a new Flutter Project 🆕
@@ -39,8 +39,8 @@ very_good --analytics false
 Once you have finished running `very_good create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies
 
 ```sh
-$ cd my_app
-$ flutter packages get
+cd my_app
+flutter packages get
 ```
 
 This project contains 3 flavors:
@@ -60,13 +60,13 @@ To run the desired flavor either use the launch configuration in VSCode/Android 
 
 ```sh
 # Development
-$ flutter run --flavor development --target lib/main_development.dart
+flutter run --flavor development --target lib/main_development.dart
 
 # Staging
-$ flutter run --flavor staging --target lib/main_staging.dart
+flutter run --flavor staging --target lib/main_staging.dart
 
 # Production
-$ flutter run --flavor production --target lib/main_production.dart
+flutter run --flavor production --target lib/main_production.dart
 ```
 
 _\*Very Good Core works on iOS, Android, and Web._
@@ -98,17 +98,17 @@ Very Good Core ships with 100% code coverage. To learn more about why we believe
 To run all unit and widget tests use the following command:
 
 ```sh
-$ flutter test --coverage --test-randomize-ordering-seed random
+flutter test --coverage --test-randomize-ordering-seed random
 ```
 
 To view the generated coverage report you can use [lcov](https://github.com/linux-test-project/lcov).
 
 ```sh
 # Generate Coverage Report
-$ genhtml coverage/lcov.info -o coverage/
+genhtml coverage/lcov.info -o coverage/
 
 # Open Coverage Report
-$ open coverage/index.html
+open coverage/index.html
 ```
 
 ---
