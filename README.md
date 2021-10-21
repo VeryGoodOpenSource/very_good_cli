@@ -22,7 +22,7 @@ dart pub global activate very_good_cli
 
 ## Commands
 
-### `$ very_good create`
+### `very_good create`
 
 Create a very good project in seconds based on the provided template. The [Very Good Core][very_good_core_link] template is used by default.
 
@@ -78,22 +78,22 @@ _\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog
 
 ---
 
-### `$ very_good packages get`
+### `very_good packages get`
 
 Get packages in a Dart or Flutter project.
 
 ```sh
 # Install packages in the current directory
-$ very_good packages get
+very_good packages get
 
 # Install packages in ./some/other/directory
-$ very_good packages get ./some/other/directory
+very_good packages get ./some/other/directory
 
 # Install packages recursively
-$ very_good packages get --recursive
+very_good packages get --recursive
 
 # Install packages recursively (shorthand)
-$ very_good packages get -r
+very_good packages get -r
 ```
 
 #### Complete Usage
@@ -108,7 +108,7 @@ Usage: very_good packages get [arguments]
 Run "very_good help" to see global options.
 ```
 
-### `$ very_good --help`
+### `very_good --help`
 
 See the complete list of commands and usage information.
 
