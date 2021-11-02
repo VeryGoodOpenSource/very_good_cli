@@ -1,3 +1,17 @@
+# v0.4.9 (2021-11-02)
+
+### Bug Fixes
+
+- **very_good_core:** update ic_launcher_background ([#218](https://github.com/VeryGoodOpenSource/very_good_cli/issues/218)) ([4d7a6b1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4d7a6b1a3145b1b109fb5d1dac26d03a42e13722))
+
+### Features
+
+- **core:** upgrade dependencies ([#222](https://github.com/VeryGoodOpenSource/very_good_cli/issues/222)) ([a0e0a13](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a0e0a13a3b59312fe91c28b8e68fc872083a1c7e))
+- **core:** upgrade to dart >= 2.14.0 ([#227](https://github.com/VeryGoodOpenSource/very_good_cli/issues/227)) ([10be297](https://github.com/VeryGoodOpenSource/very_good_cli/commit/10be297752b62d4ff25b8f058303ac61ba1b2d14))
+- **dart_pkg:** update dependencies ([#223](https://github.com/VeryGoodOpenSource/very_good_cli/issues/223)) ([24ebc05](https://github.com/VeryGoodOpenSource/very_good_cli/commit/24ebc05f3e0a1b419a1e369515d637419a1b6b7e))
+- **flutter_pkg:** update dependencies ([#224](https://github.com/VeryGoodOpenSource/very_good_cli/issues/224)) ([0b899f1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0b899f1e6eb6d8b189e54d2bca9a00147fa60b62))
+- **flutter_plugin:** update dependencies ([#225](https://github.com/VeryGoodOpenSource/very_good_cli/issues/225)) ([59f208e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/59f208e8282def29f8bd94f8684b6c8f24fd2169))
+
 # v0.4.8 (2021-10-18)
 
 ### Bug Fixes
