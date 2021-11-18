@@ -9,9 +9,10 @@ class FlutterPkgTemplate extends Template {
   /// {@macro flutter_pkg_template}
   FlutterPkgTemplate()
       : super(
-            name: 'flutter_pkg',
-            bundle: flutterPackageBundle,
-            help: 'Generate a reusable Flutter package.');
+          name: 'flutter_pkg',
+          bundle: flutterPackageBundle,
+          help: 'Generate a reusable Flutter package.',
+        );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {

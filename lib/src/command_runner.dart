@@ -61,8 +61,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   Future<int> run(Iterable<String> args) async {
     try {
       if (_analytics.firstRun) {
-        final response = _logger.prompt(lightGray.wrap(
-          '''
+        final response = _logger.prompt(
+          lightGray.wrap(
+            '''
 +---------------------------------------------------+
 |           Welcome to the Very Good CLI!           |
 +---------------------------------------------------+
@@ -70,7 +71,8 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 | usage statistics in order to improve the tool.    |
 | Would you like to opt-into help us improve? [y/n] |
 +---------------------------------------------------+\n''',
-        ));
+          ),
+        );
         final normalizedResponse = response.toLowerCase().trim();
         _analytics.enabled =
             normalizedResponse == 'y' || normalizedResponse == 'yes';
@@ -118,14 +120,16 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       if (!isUpToDate) {
         _logger
           ..info('')
-          ..info('''
+          ..info(
+            '''
 +------------------------------------------------------------------------------------+
 |                                                                                    |
 |                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                           |
 | ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
 |                                                                                    |
 +------------------------------------------------------------------------------------+
-''');
+''',
+          );
         final response = _logger.prompt('Would you like to update? (y/n) ');
         if (response.isYes()) {
           final done = _logger.progress('Updating to $latestVersion');
