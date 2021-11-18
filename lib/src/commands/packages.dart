@@ -68,10 +68,18 @@ class PackagesGetCommand extends Command<int> {
           recursive: recursive,
           progress: _logger.progress,
         );
-      } on PubspecNotFound catch (_) {
+      } on PubspecNotFound catch (error, stackTrace) {
+        // ignore: avoid_print
+        print('$error');
+        // ignore: avoid_print
+        print('$stackTrace');
         _logger.err('Could not find a pubspec.yaml in $targetPath');
         return ExitCode.noInput.code;
-      } catch (error) {
+      } catch (error, stackTrace) {
+        // ignore: avoid_print
+        print('$error');
+        // ignore: avoid_print
+        print('$stackTrace');
         _logger.err('$error');
         return ExitCode.unavailable.code;
       }
