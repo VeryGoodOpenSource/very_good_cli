@@ -161,11 +161,13 @@ class CreateCommand extends Command<int> {
 
     await template.onGenerateComplete(_logger, outputDirectory);
 
-    unawaited(_analytics.sendEvent(
-      'create',
-      generator.id,
-      label: generator.description,
-    ));
+    unawaited(
+      _analytics.sendEvent(
+        'create',
+        generator.id,
+        label: generator.description,
+      ),
+    );
     await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
 
     return ExitCode.success.code;

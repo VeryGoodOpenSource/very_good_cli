@@ -77,9 +77,11 @@ void main() {
 
     void Function() overridePrint(void Function() fn) {
       return () {
-        final spec = ZoneSpecification(print: (_, __, ___, String msg) {
-          printLogs.add(msg);
-        });
+        final spec = ZoneSpecification(
+          print: (_, __, ___, String msg) {
+            printLogs.add(msg);
+          },
+        );
         return Zone.current.fork(specification: spec).run<void>(fn);
       };
     }
@@ -124,17 +126,20 @@ void main() {
       );
     });
 
-    test('help', overridePrint(() async {
-      final result = await commandRunner.run(['create', '--help']);
-      expect(printLogs, equals(expectedUsage));
-      expect(result, equals(ExitCode.success.code));
+    test(
+      'help',
+      overridePrint(() async {
+        final result = await commandRunner.run(['create', '--help']);
+        expect(printLogs, equals(expectedUsage));
+        expect(result, equals(ExitCode.success.code));
 
-      printLogs.clear();
+        printLogs.clear();
 
-      final resultAbbr = await commandRunner.run(['create', '-h']);
-      expect(printLogs, equals(expectedUsage));
-      expect(resultAbbr, equals(ExitCode.success.code));
-    }));
+        final resultAbbr = await commandRunner.run(['create', '-h']);
+        expect(printLogs, equals(expectedUsage));
+        expect(resultAbbr, equals(ExitCode.success.code));
+      }),
+    );
 
     test('can be instantiated without explicit logger', () {
       final command = CreateCommand(analytics: analytics);
@@ -483,7 +488,8 @@ void main() {
           ).called(1);
           verify(
             () => analytics.waitForLastPing(
-                timeout: VeryGoodCommandRunner.timeout),
+              timeout: VeryGoodCommandRunner.timeout,
+            ),
           ).called(1);
         }
 

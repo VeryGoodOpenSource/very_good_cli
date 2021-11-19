@@ -51,9 +51,11 @@ void main() {
 
     void Function() overridePrint(void Function() fn) {
       return () {
-        final spec = ZoneSpecification(print: (_, __, ___, String msg) {
-          printLogs.add(msg);
-        });
+        final spec = ZoneSpecification(
+          print: (_, __, ___, String msg) {
+            printLogs.add(msg);
+          },
+        );
         return Zone.current.fork(specification: spec).run<void>(fn);
       };
     }
@@ -93,30 +95,36 @@ void main() {
       ).thenAnswer((_) => Future.value(true));
     });
 
-    test('help', overridePrint(() async {
-      final result = await commandRunner.run(['packages', '--help']);
-      expect(printLogs, equals(expectedPackagesUsage));
-      expect(result, equals(ExitCode.success.code));
-
-      printLogs.clear();
-
-      final resultAbbr = await commandRunner.run(['packages', '-h']);
-      expect(printLogs, equals(expectedPackagesUsage));
-      expect(resultAbbr, equals(ExitCode.success.code));
-    }));
-
-    group('get', () {
-      test('help', overridePrint(() async {
-        final result = await commandRunner.run(['packages', 'get', '--help']);
-        expect(printLogs, equals(expectedPackagesGetUsage));
+    test(
+      'help',
+      overridePrint(() async {
+        final result = await commandRunner.run(['packages', '--help']);
+        expect(printLogs, equals(expectedPackagesUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr = await commandRunner.run(['packages', 'get', '-h']);
-        expect(printLogs, equals(expectedPackagesGetUsage));
+        final resultAbbr = await commandRunner.run(['packages', '-h']);
+        expect(printLogs, equals(expectedPackagesUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
-      }));
+      }),
+    );
+
+    group('get', () {
+      test(
+        'help',
+        overridePrint(() async {
+          final result = await commandRunner.run(['packages', 'get', '--help']);
+          expect(printLogs, equals(expectedPackagesGetUsage));
+          expect(result, equals(ExitCode.success.code));
+
+          printLogs.clear();
+
+          final resultAbbr = await commandRunner.run(['packages', 'get', '-h']);
+          expect(printLogs, equals(expectedPackagesGetUsage));
+          expect(resultAbbr, equals(ExitCode.success.code));
+        }),
+      );
 
       test(
           'throws usage exception '
@@ -161,7 +169,19 @@ void main() {
       test(
           'completes normally '
           'when pubspec.yaml exists', () async {
-        final result = await commandRunner.run(['packages', 'get']);
+        final directory = Directory.systemTemp.createTempSync();
+        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
+          '''
+          name: example
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+        );
+        final result = await commandRunner.run(
+          ['packages', 'get', directory.path],
+        );
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
@@ -173,8 +193,38 @@ void main() {
       test(
           'completes normally '
           'when pubspec.yaml exists (recursive)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final pubspecA = File(
+          path.join(directory.path, 'example_a', 'pubspec.yaml'),
+        );
+        final pubspecB = File(
+          path.join(directory.path, 'example_b', 'pubspec.yaml'),
+        );
+        pubspecA
+          ..createSync(recursive: true)
+          ..writeAsStringSync(
+            '''
+          name: example_a
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+          );
+        pubspecB
+          ..createSync(recursive: true)
+          ..writeAsStringSync(
+            '''
+          name: example_b
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+          );
+
         final result = await commandRunner.run(
-          ['packages', 'get', '--recursive'],
+          ['packages', 'get', '--recursive', directory.path],
         );
         expect(result, equals(ExitCode.success.code));
         verify(() {
