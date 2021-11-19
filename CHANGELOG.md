@@ -1,3 +1,9 @@
+# v0.4.10 (2021-11-19)
+
+### Features
+
+- **core:** upgrade to bloc v8.0.0 ([#229](https://github.com/VeryGoodOpenSource/very_good_cli/issues/229)) ([0db25a5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0db25a52a5638c337aca633e43068ad2ee6cbad3))
+
 # v0.4.9 (2021-11-02)
 
 ### Bug Fixes
