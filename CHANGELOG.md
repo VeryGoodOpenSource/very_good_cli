@@ -1,3 +1,9 @@
+# v0.4.11 (2021-12-02)
+
+### Bug Fixes
+
+- **build:** iOS production schema run build configuration ([#232](https://github.com/VeryGoodOpenSource/very_good_cli/issues/232)) ([509d544](https://github.com/VeryGoodOpenSource/very_good_cli/commit/509d54463afe795bab94cacb4b463fca24a29243))
+
 # v0.4.10 (2021-11-19)
 
 ### Features
