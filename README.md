@@ -52,6 +52,25 @@ Usage: very_good create <output directory>
               --windows       The plugin supports the Windows platform.
 ```
 
+#### Usage
+
+```sh
+# Create a new Flutter app named my_app
+very_good create my_app --desc "My new Flutter app"
+
+# Create a new Flutter package named my_flutter_package
+very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
+
+# Create a new Dart package named my_dart_package
+very_good create my_dart_package -t dart_pkg --desc "My new Dart package"
+
+# Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
+very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin"
+
+# Create a new Flutter plugin named my_flutter_plugin (some platforms disabled)
+very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
+```
+
 ### What's Included in Very Good Core? 📦
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
