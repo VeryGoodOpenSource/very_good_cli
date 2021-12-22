@@ -1,6 +1,6 @@
 # Very Good CLI
 
-[![Very Good Ventures][logo]][very_good_ventures_link]
+![GitHub-Mark-Light](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_white.png#gh-dark-mode-only)![GitHub-Mark-Dark](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_black.png#gh-light-mode-only)
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
@@ -163,7 +163,6 @@ Run "very_good help <command>" for more information about a command.
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
-[logo]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo.png
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
 [pub_link]: https://pub.dartlang.org/packages/very_good_cli
