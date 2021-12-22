@@ -1,6 +1,6 @@
 # Very Good CLI
 
-![GitHub-Mark-Light](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_white.png#gh-dark-mode-only)![GitHub-Mark-Dark](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_black.png#gh-light-mode-only)
+[![GitHub-Mark-Light](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_white.png#gh-dark-mode-only)![GitHub-Mark-Dark](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_black.png#gh-light-mode-only)][very_good_ventures_link]
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
