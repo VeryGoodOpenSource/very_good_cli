@@ -1,6 +1,7 @@
 # Very Good CLI
 
-![GitHub-Mark-Light](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_white.png#gh-dark-mode-only)![GitHub-Mark-Dark](https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_black.png#gh-light-mode-only)
+[![Very Good Ventures][logo_white]][very_good_ventures_link_dark]
+[![Very Good Ventures][logo_black]][very_good_ventures_link_light]
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
@@ -162,6 +163,8 @@ Run "very_good help <command>" for more information about a command.
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
+[logo_black]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_black.png#gh-light-mode-only
+[logo_white]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/vgv_logo_white.png#gh-dark-mode-only
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
@@ -173,3 +176,5 @@ Run "very_good help <command>" for more information about a command.
 [very_good_core_link]: doc/very_good_core.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI
+[very_good_ventures_link_dark]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI#gh-dark-mode-only
+[very_good_ventures_link_light]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI#gh-light-mode-only
