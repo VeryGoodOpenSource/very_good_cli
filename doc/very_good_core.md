@@ -1,6 +1,7 @@
 # Very Good Core 🦄
 
-[![Very Good Ventures][logo]][very_good_ventures_link]
+[![Very Good Ventures][logo_white]][very_good_ventures_link_dark]
+[![Very Good Ventures][logo_black]][very_good_ventures_link_light]
 
 Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
@@ -244,12 +245,17 @@ When you create a new project, it has a default launcher icon. To customize this
 
 3. Verify the icon has been replaced by running your app using `flutter run`.
 
+[android_application_element]: https://developer.android.com/guide/topics/manifest/application-element
+[android_configuration_qualifiers]: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
 [firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://flutter.dev/docs/get-started/install
 [flutter_localizations_link]: https://api.flutter.dev/flutter/flutter_localizations/flutter_localizations-library.html
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [github_actions_link]: https://docs.github.com/en/actions/learn-github-actions
-[logo]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_analysis/main/assets/vgv_logo.png
+[ios_app_icon_guidelines]: https://developer.apple.com/design/human-interface-guidelines/ios/icons-and-images/app-icon/
+[logo_black]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_black.png#gh-light-mode-only
+[logo_white]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_white.png#gh-dark-mode-only
+[material_design_product_icons]: https://material.io/design/iconography/
 [scalable_best_practices_blog_link]: https://verygood.ventures/blog/scalable-best-practices?utm_source=github&utm_medium=banner&utm_campaign=CLI
 [sentry_link]: https://sentry.io
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
@@ -259,7 +265,5 @@ When you create a new project, it has a default launcher icon. To customize this
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.png
 [very_good_testing_blog_link]: https://verygood.ventures/blog/guide-to-flutter-testing?utm_source=github&utm_medium=banner&utm_campaign=CLI
 [very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core
-[material_design_product_icons]: https://material.io/design/iconography/
-[android_application_element]: https://developer.android.com/guide/topics/manifest/application-element
-[android_configuration_qualifiers]: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
-[ios_app_icon_guidelines]: https://developer.apple.com/design/human-interface-guidelines/ios/icons-and-images/app-icon/
+[very_good_ventures_link_dark]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core#gh-dark-mode-only
+[very_good_ventures_link_light]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core#gh-light-mode-only
