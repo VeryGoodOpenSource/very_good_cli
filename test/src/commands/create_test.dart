@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:args/args.dart';
-import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
