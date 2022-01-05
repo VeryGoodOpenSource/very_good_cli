@@ -1,3 +1,10 @@
+# v0.4.12 (2022-01-05)
+
+### Features
+
+- **core:** assets and bloc version updates ([#249](https://github.com/VeryGoodOpenSource/very_good_cli/issues/249)) ([a6827c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a6827c6ad4cd2b536d855a188a07e19c245d6d79))
+- **create_command:** add --org alias ([#246](https://github.com/VeryGoodOpenSource/very_good_cli/issues/246)) ([3afb420](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3afb42024ada6859bc7f919da616927573412809))
+
 # v0.4.11 (2021-12-02)
 
 ### Bug Fixes
