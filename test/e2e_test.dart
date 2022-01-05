@@ -1,5 +1,4 @@
 @Tags(['e2e'])
-import 'package:io/io.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
