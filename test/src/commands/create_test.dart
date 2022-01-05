@@ -289,6 +289,18 @@ void main() {
     });
 
     group('org-name', () {
+      group('--org', () {
+        test('is a valid alias', () async {
+          const orgName = 'com.my.org';
+          final tempDir = Directory.systemTemp.createTempSync();
+          final result = await commandRunner.run(
+            ['create', p.join(tempDir.path, 'example'), '--org', orgName],
+          );
+          expect(result, equals(ExitCode.success.code));
+          tempDir.deleteSync(recursive: true);
+        });
+      });
+
       group('invalid --org-name', () {
         Future<void> expectInvalidOrgName(String orgName) async {
           final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'

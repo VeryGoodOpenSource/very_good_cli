@@ -57,6 +57,7 @@ class CreateCommand extends Command<int> {
         'org-name',
         help: 'The organization for this new project.',
         defaultsTo: _defaultOrgName,
+        aliases: ['org'],
       )
       ..addOption(
         'template',
