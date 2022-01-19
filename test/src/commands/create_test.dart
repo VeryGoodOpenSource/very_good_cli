@@ -65,6 +65,8 @@ class MockMasonGenerator extends Mock implements MasonGenerator {}
 class FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
+class FakeLogger extends Fake implements Logger {}
+
 void main() {
   group('create', () {
     late List<String> progressLogs;
@@ -87,6 +89,7 @@ void main() {
 
     setUpAll(() {
       registerFallbackValue(FakeDirectoryGeneratorTarget());
+      registerFallbackValue(FakeLogger());
     });
 
     setUp(() {
@@ -194,7 +197,11 @@ void main() {
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
       when(
-        () => generator.generate(any(), vars: any(named: 'vars')),
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
         return 62;
@@ -227,6 +234,7 @@ void main() {
             'macos': true,
             'windows': true,
           },
+          logger: logger,
         ),
       ).called(1);
       verify(
@@ -257,7 +265,11 @@ void main() {
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
       when(
-        () => generator.generate(any(), vars: any(named: 'vars')),
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
         return 62;
@@ -284,6 +296,7 @@ void main() {
             'macos': true,
             'windows': true,
           },
+          logger: logger,
         ),
       ).called(1);
     });
@@ -358,7 +371,11 @@ void main() {
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
           when(
-            () => generator.generate(any(), vars: any(named: 'vars')),
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
             return 62;
@@ -385,6 +402,7 @@ void main() {
                 'macos': true,
                 'windows': true,
               },
+              logger: logger,
             ),
           ).called(1);
         }
@@ -459,7 +477,11 @@ void main() {
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
           when(
-            () => generator.generate(any(), vars: any(named: 'vars')),
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
             return 62;
@@ -492,6 +514,7 @@ void main() {
                 'macos': true,
                 'windows': true,
               },
+              logger: logger,
             ),
           ).called(1);
           verify(
