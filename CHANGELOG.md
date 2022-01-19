@@ -1,29 +1,35 @@
-# v0.4.13 (2022-01-19)
+# [0.4.14](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.13...v0.4.14) (2022-01-19)
+
+### Features
+
+- mason v0.1.0 dev.4 ([#259](https://github.com/VeryGoodOpenSource/very_good_cli/issues/259)) ([485b14c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/485b14c5b4b915db50c1fca1c84385291d0d1209))
+
+## [0.4.13](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.12...v0.4.13) (2022-01-19)
 
 ### Bug Fixes
 
 - restrict mason to >=0.1.0-dev.2 <0.1.0-dev.3 ([#257](https://github.com/VeryGoodOpenSource/very_good_cli/issues/257)) ([837d01d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/837d01d5f0c969d8a67ea01a46b746df537dc509))
 
-# v0.4.12 (2022-01-05)
+## [0.4.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.11...v0.4.12) (2022-01-05)
 
 ### Features
 
 - **core:** assets and bloc version updates ([#249](https://github.com/VeryGoodOpenSource/very_good_cli/issues/249)) ([a6827c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a6827c6ad4cd2b536d855a188a07e19c245d6d79))
 - **create_command:** add --org alias ([#246](https://github.com/VeryGoodOpenSource/very_good_cli/issues/246)) ([3afb420](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3afb42024ada6859bc7f919da616927573412809))
 
-# v0.4.11 (2021-12-02)
+## [0.4.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.10...v0.4.11) (2021-12-02)
 
 ### Bug Fixes
 
 - **build:** iOS production schema run build configuration ([#232](https://github.com/VeryGoodOpenSource/very_good_cli/issues/232)) ([509d544](https://github.com/VeryGoodOpenSource/very_good_cli/commit/509d54463afe795bab94cacb4b463fca24a29243))
 
-# v0.4.10 (2021-11-19)
+## [0.4.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.9...v0.4.10) (2021-11-19)
 
 ### Features
 
 - **core:** upgrade to bloc v8.0.0 ([#229](https://github.com/VeryGoodOpenSource/very_good_cli/issues/229)) ([0db25a5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0db25a52a5638c337aca633e43068ad2ee6cbad3))
 
-# v0.4.9 (2021-11-02)
+## [0.4.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.8...v0.4.9) (2021-11-02)
 
 ### Bug Fixes
 
@@ -37,13 +43,13 @@
 - **flutter_pkg:** update dependencies ([#224](https://github.com/VeryGoodOpenSource/very_good_cli/issues/224)) ([0b899f1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0b899f1e6eb6d8b189e54d2bca9a00147fa60b62))
 - **flutter_plugin:** update dependencies ([#225](https://github.com/VeryGoodOpenSource/very_good_cli/issues/225)) ([59f208e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/59f208e8282def29f8bd94f8684b6c8f24fd2169))
 
-# v0.4.8 (2021-10-18)
+## [0.4.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.7...v0.4.8) (2021-10-18)
 
 ### Bug Fixes
 
 - packages get --recursive run sequentially ([#211](https://github.com/VeryGoodOpenSource/very_good_cli/issues/211)) ([7ad2196](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7ad21965fa0a1c1580162091bb3f7fdfcd7600f2))
 
-# v0.4.7 (2021-10-13)
+## [0.4.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.6...v0.4.7) (2021-10-13)
 
 ### Features
 
@@ -53,7 +59,7 @@
 - **core:** add flavor to iOS app name ([#205](https://github.com/VeryGoodOpenSource/very_good_cli/issues/205)) ([52d7243](https://github.com/VeryGoodOpenSource/very_good_cli/commit/52d7243c8c4afea734e583a4d8986551b072c1de))
 - **core:** update to bloc_test v8.3.0 and add flavor to app name on android ([#204](https://github.com/VeryGoodOpenSource/very_good_cli/issues/204)) ([b0e262f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b0e262fbd3f29bc467af3a0469cfefd3aef32466))
 
-# v0.4.6 (2021-10-07)
+## [0.4.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.5...v0.4.6) (2021-10-07)
 
 ### Bug Fixes
 
@@ -63,7 +69,7 @@
 
 - very_good packages get --recursive ([#201](https://github.com/VeryGoodOpenSource/very_good_cli/issues/201)) ([5ad3fbf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5ad3fbff1d2a7e1f65f66404940dbf689b67a758))
 
-# v0.4.5 (2021-09-30)
+## [0.4.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.4...v0.4.5) (2021-09-30)
 
 ### Bug Fixes
 
@@ -73,7 +79,7 @@
 
 - **flutter_plugin:** conditional platform support ([#195](https://github.com/VeryGoodOpenSource/very_good_cli/issues/195)) ([ea878c3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ea878c3a8794b5f97bac956c7468464faf6712c0))
 
-# v0.4.4 (2021-09-23)
+## [0.4.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.3...v0.4.4) (2021-09-23)
 
 ### Features
 
@@ -82,7 +88,7 @@
 - bloc v7.2.0 and internal platform updates ([#187](https://github.com/VeryGoodOpenSource/very_good_cli/issues/187)) ([193eb30](https://github.com/VeryGoodOpenSource/very_good_cli/commit/193eb304823291a5bb71a348be203bc32a1e7d77))
 - run dart fix --apply as post generation step ([#189](https://github.com/VeryGoodOpenSource/very_good_cli/issues/189)) ([ce02422](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ce02422d5c7e91f0bf1ef94ac3a0584fa4c06eaa))
 
-# v0.4.3 (2021-09-17)
+## [0.4.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.2...v0.4.3) (2021-09-17)
 
 ### Bug Fixes
 
@@ -92,7 +98,7 @@
 
 - **core:** upgrade dependencies ([#185](https://github.com/VeryGoodOpenSource/very_good_cli/issues/185)) ([bdb9585](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bdb9585e6d8c4a1aab1192173b1df0e9ce130fdd))
 
-# v0.4.2 (2021-09-01)
+## [0.4.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.1...v0.4.2) (2021-09-01)
 
 ### Bug Fixes
 
@@ -102,43 +108,43 @@
 
 - **core:** upgrade to very_good_coverage v1.2.0 ([#179](https://github.com/VeryGoodOpenSource/very_good_cli/issues/179)) ([d495782](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d4957825b53ba09a27ce950ef7f75d35af8a455d))
 
-# v0.4.1 (2021-08-23)
+## [0.4.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.0...v0.4.1) (2021-08-23)
 
 ### Features
 
 - **core:** upgrade to flutter_bloc v7.2.0 ([#172](https://github.com/VeryGoodOpenSource/very_good_cli/issues/172)) ([afb522d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/afb522db2fe71a60d0808bc4b5e91ff2d8e834b8))
 
-# v0.4.0 (2021-08-20)
+# [0.4.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.3...v0.4.0) (2021-08-20)
 
 ### Features
 
 - support flutter plugin template ([#169](https://github.com/VeryGoodOpenSource/very_good_cli/issues/169)) ([82e2a1d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/82e2a1d0ce1bb7ade6d1e8460d6c9d7c1052f7be))
 
-# v0.3.3 (2021-08-18)
+## [0.3.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.2...v0.3.3) (2021-08-18)
 
 ### Features
 
 - **deps:** upgrade to bloc v7.1.0 and dart >=2.13.0 ([#166](https://github.com/VeryGoodOpenSource/very_good_cli/issues/166)) ([98f8724](https://github.com/VeryGoodOpenSource/very_good_cli/commit/98f87242f73b6041804d321803b5daf16dc833b1))
 
-# v0.3.2 (2021-08-03)
+## [0.3.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.1...v0.3.2) (2021-08-03)
 
 ### Features
 
 - upgrade dependencies ([bf69bb3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bf69bb3348a0039904d78dab2dcff9fbd6b38771))
 
-# v0.3.1 (2021-07-27)
+## [0.3.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.0...v0.3.1) (2021-07-27)
 
 ### Features
 
 - **create:** support custom description ([#158](https://github.com/VeryGoodOpenSource/very_good_cli/issues/158)) ([b163c49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b163c49a095aebde22370b37a6872ba54e6c16f1))
 
-# v0.3.0 (2021-07-23)
+# [0.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.5...v0.3.0) (2021-07-23)
 
 ### Features
 
 - create supports flutter and dart packages ([#154](https://github.com/VeryGoodOpenSource/very_good_cli/issues/154)) ([65605c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65605c6b25d7b39fab4e1e025ec292eac83dc4d4))
 
-# v0.2.5 (2021-07-16)
+## [0.2.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.4...v0.2.5) (2021-07-16)
 
 ### Bug Fixes
 
@@ -148,14 +154,14 @@
 
 - l10n non-nullable getter + variable org name segment length ([#152](https://github.com/VeryGoodOpenSource/very_good_cli/issues/152)) ([3a0cc4a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3a0cc4ac561a8e67ab42115da4bfef88770b2144))
 
-# v0.2.4 (2021-07-14)
+## [0.2.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.3...v0.2.4) (2021-07-14)
 
 ### Features
 
 - support custom org name ([#148](https://github.com/VeryGoodOpenSource/very_good_cli/issues/148)) ([c0a2970](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c0a2970451b03d749aa6e9845b2dd8993f2650c4))
 - updated very_good_core_bundle.dart ([#149](https://github.com/VeryGoodOpenSource/very_good_cli/issues/149)) ([70507c1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/70507c1b83f25641ad7d1782112e9a84eec1a8d9))
 
-# v0.2.3 (2021-06-15)
+## [0.2.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.2...v0.2.3) (2021-06-15)
 
 ### Features
 
@@ -163,19 +169,19 @@
 - add vscode extensions exception to gitignore ([#143](https://github.com/VeryGoodOpenSource/very_good_cli/issues/143)) ([16084f8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/16084f82531782f4a9c82c1ff52ab9607b57bd78))
 - overwrite rules for file conflict resolution ([#142](https://github.com/VeryGoodOpenSource/very_good_cli/issues/142)) ([87be1ca](https://github.com/VeryGoodOpenSource/very_good_cli/commit/87be1cacb702f433e3b6887115993bfc5e84df12))
 
-# v0.2.2 (2021-06-10)
+## [0.2.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.1...v0.2.2) (2021-06-10)
 
 ### Bug Fixes
 
 - sort imports and add favicon on web ([#140](https://github.com/VeryGoodOpenSource/very_good_cli/issues/140)) ([a0a8f8a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a0a8f8ac2ecabf14a687c3e36d2c27709d62329f))
 
-# v0.2.1 (2021-05-26)
+## [0.2.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.0...v0.2.1) (2021-05-26)
 
 ### Features
 
 - upgrade to very_good_analysis v2.1.0 ([#133](https://github.com/VeryGoodOpenSource/very_good_cli/issues/133)) ([9e2153c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9e2153c642169eb8581710e49d4e4bc71a9b4bb1))
 
-# v0.2.0 (2021-05-25)
+# [0.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.8...v0.2.0) (2021-05-25)
 
 ### Features
 
@@ -184,63 +190,52 @@
 - install packages automatically ([#130](https://github.com/VeryGoodOpenSource/very_good_cli/issues/130)) ([bcff075](https://github.com/VeryGoodOpenSource/very_good_cli/commit/bcff07508457d34d222c297e0da8954cbaf32cb1))
 - migrate to null safety ([#128](https://github.com/VeryGoodOpenSource/very_good_cli/issues/128)) ([3e76061](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3e76061d81ecc5ad7783ac9ec91150edfb278c66))
 
-# v0.1.8 (2021-05-21)
+## [0.1.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.7...v0.1.8) (2021-05-21)
 
 ### Features
 
 - README and dependency updates ([#126](https://github.com/VeryGoodOpenSource/very_good_cli/issues/126)) ([d5ff39c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d5ff39c200b3068004f7d2d5c924c476dab5aacf))
 
-# v0.1.7 (2021-04-01)
+## [0.1.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.6...v0.1.7) (2021-04-01)
 
 ### Bug Fixes
 
 - android build ([#114](https://github.com/VeryGoodOpenSource/very_good_cli/issues/114)) ([b6af9d5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b6af9d547c2b52ba62c8fe1cdab2a4e517047902))
 
-# v0.1.6 (2021-03-18)
+## [0.1.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.5...v0.1.6) (2021-03-18)
 
 ### Features
 
 - upgrade to bloc v7.0.0 ([#111](https://github.com/VeryGoodOpenSource/very_good_cli/issues/111)) ([508801a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/508801a8f59eda637f4a2af29bd57fef85b06984))
 
-# v0.1.5 (2021-03-12)
+## [0.1.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.4...v0.1.5) (2021-03-12)
 
 ### Features
 
 - upgrade dependencies ([#107](https://github.com/VeryGoodOpenSource/very_good_cli/issues/107)) ([ea28ec8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ea28ec8b71548d3a551e0aa3ddbcaa4ec51c3e8e))
-  - `mocktail v0.1.0`
-  - `bloc_test v8.0.0-nullsafety.5`
-  - `flutter_bloc v7.0.0-nullsafety.5`
 
-# v0.1.4 (2021-03-09)
+## [0.1.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.3...v0.1.4) (2021-03-09)
 
 ### Features
 
 - **create:** add very good start link to cli summary ([#105](https://github.com/VeryGoodOpenSource/very_good_cli/issues/105)) ([aa06236](https://github.com/VeryGoodOpenSource/very_good_cli/commit/aa0623611cc3c1716461f9615c0864f8cd77569b))
 
-# v0.1.3 (2021-03-03)
+## [0.1.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.2...v0.1.3) (2021-03-03)
 
 ### Features
 
 - use stable channel ([#102](https://github.com/VeryGoodOpenSource/very_good_cli/issues/102)) ([be75e83](https://github.com/VeryGoodOpenSource/very_good_cli/commit/be75e83617c03c70b51072edc7caca383632e0be))
 
-### Bug Fixes
-
-- android runConfiguration flavors
-
-# v0.1.2 (2021-02-22)
+## [0.1.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.1...v0.1.2) (2021-02-22)
 
 ### Features
 
 - improve analytics option usage ([#83](https://github.com/VeryGoodOpenSource/very_good_cli/issues/83)) ([c3ca589](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c3ca589df149e2fea98f96dd5b034b14644f74ec))
 - improve create command usage ([#84](https://github.com/VeryGoodOpenSource/very_good_cli/issues/84)) ([b728b21](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b728b21f785db54d1b187aad02f7fad8b743bcd0))
 
-# v0.1.1 (2021-02-16)
+## [0.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.0...v0.1.1) (2021-02-16)
 
-### Bug Fixes
-
-- update inline documentation links and assets to be absolute
-
-# v0.1.0 (2021-02-16)
+# [0.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/335ce42ba34880eb74fc4d4636e6399932f1e49f...v0.1.0) (2021-02-16)
 
 ### Bug Fixes
 
