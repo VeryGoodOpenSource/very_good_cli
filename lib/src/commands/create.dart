@@ -144,7 +144,8 @@ class CreateCommand extends Command<int> {
     final macos = _argResults['macos'] as String? ?? 'true';
     final windows = _argResults['windows'] as String? ?? 'true';
     final fileCount = await generator.generate(
-      DirectoryGeneratorTarget(outputDirectory, _logger),
+      DirectoryGeneratorTarget(outputDirectory),
+      logger: _logger,
       vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
