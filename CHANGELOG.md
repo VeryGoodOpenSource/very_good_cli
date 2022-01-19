@@ -1,3 +1,9 @@
+# v0.4.13 (2022-01-19)
+
+### Bug Fixes
+
+- restrict mason to >=0.1.0-dev.2 <0.1.0-dev.3 ([#257](https://github.com/VeryGoodOpenSource/very_good_cli/issues/257)) ([837d01d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/837d01d5f0c969d8a67ea01a46b746df537dc509))
+
 # v0.4.12 (2022-01-05)
 
 ### Features
