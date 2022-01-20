@@ -120,12 +120,12 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           ..info('')
           ..info(
             '''
-+------------------------------------------------------------------------------------+
-|                                                                                    |
-|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                           |
++-------------------------------------------------------------------------------------+
+|                                                                                     |
+|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                          |
 | ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
-|                                                                                    |
-+------------------------------------------------------------------------------------+
+|                                                                                     |
++-------------------------------------------------------------------------------------+
 ''',
           );
         final response = _logger.prompt('Would you like to update? (y/n) ');
