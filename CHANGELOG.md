@@ -1,4 +1,10 @@
-# [0.4.14](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.13...v0.4.14) (2022-01-19)
+# [0.4.15](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.14...v0.4.15) (2022-01-20)
+
+### Features
+
+- **core:** use very_good_workflows@v1 ([#262](https://github.com/VeryGoodOpenSource/very_good_cli/issues/262)) ([215ffc4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/215ffc422015d81d660dc1e59fb96a3b7dc2f4a8))
+
+## [0.4.14](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.13...v0.4.14) (2022-01-19)
 
 ### Features
 
