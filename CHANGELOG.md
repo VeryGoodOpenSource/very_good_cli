@@ -1,4 +1,10 @@
-# [0.4.15](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.14...v0.4.15) (2022-01-20)
+# [0.4.16](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.15...v0.4.16) (2022-01-27)
+
+### Bug Fixes
+
+- update prompt formatting ([#264](https://github.com/VeryGoodOpenSource/very_good_cli/issues/264)) ([f8461de](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f8461dede70a318a521529a0d92a1798fea7b2c2))
+
+## [0.4.15](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.14...v0.4.15) (2022-01-20)
 
 ### Features
 
