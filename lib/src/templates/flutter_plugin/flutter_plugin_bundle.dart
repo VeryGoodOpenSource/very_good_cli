@@ -499,34 +499,6 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     },
     {
       "path":
-          "{{#snakeCase}}{{project_name}}{{/snakeCase}}/{{#android}}{{#snakeCase}}{{project_name}}{{/snakeCase}}_android{{/android}}/android/build.gradle",
-      "data":
-          "Z3JvdXAgJ3t7I2RvdENhc2V9fXt7b3JnX25hbWV9fXt7L2RvdENhc2V9fS57eyNzbmFrZUNhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9zbmFrZUNhc2V9fScKdmVyc2lvbiAnMS4wLVNOQVBTSE9UJwoKYnVpbGRzY3JpcHQgewogICAgZXh0LmtvdGxpbl92ZXJzaW9uID0gJzEuMy41MCcKICAgIHJlcG9zaXRvcmllcyB7CiAgICAgICAgZ29vZ2xlKCkKICAgICAgICBqY2VudGVyKCkKICAgIH0KCiAgICBkZXBlbmRlbmNpZXMgewogICAgICAgIGNsYXNzcGF0aCAnY29tLmFuZHJvaWQudG9vbHMuYnVpbGQ6Z3JhZGxlOjQuMS4wJwogICAgICAgIGNsYXNzcGF0aCAib3JnLmpldGJyYWlucy5rb3RsaW46a290bGluLWdyYWRsZS1wbHVnaW46JGtvdGxpbl92ZXJzaW9uIgogICAgfQp9Cgpyb290UHJvamVjdC5hbGxwcm9qZWN0cyB7CiAgICByZXBvc2l0b3JpZXMgewogICAgICAgIGdvb2dsZSgpCiAgICAgICAgamNlbnRlcigpCiAgICB9Cn0KCmFwcGx5IHBsdWdpbjogJ2NvbS5hbmRyb2lkLmxpYnJhcnknCmFwcGx5IHBsdWdpbjogJ2tvdGxpbi1hbmRyb2lkJwoKYW5kcm9pZCB7CiAgICBjb21waWxlU2RrVmVyc2lvbiAzMAoKICAgIHNvdXJjZVNldHMgewogICAgICAgIG1haW4uamF2YS5zcmNEaXJzICs9ICdzcmMvbWFpbi9rb3RsaW4nCiAgICB9CiAgICBkZWZhdWx0Q29uZmlnIHsKICAgICAgICBtaW5TZGtWZXJzaW9uIDE2CiAgICB9Cn0KCmRlcGVuZGVuY2llcyB7CiAgICBpbXBsZW1lbnRhdGlvbiAib3JnLmpldGJyYWlucy5rb3RsaW46a290bGluLXN0ZGxpYi1qZGs3OiRrb3RsaW5fdmVyc2lvbiIKfQo=",
-      "type": "text"
-    },
-    {
-      "path":
-          "{{#snakeCase}}{{project_name}}{{/snakeCase}}/{{#android}}{{#snakeCase}}{{project_name}}{{/snakeCase}}_android{{/android}}/android/src/main/AndroidManifest.xml",
-      "data":
-          "PG1hbmlmZXN0IHhtbG5zOmFuZHJvaWQ9Imh0dHA6Ly9zY2hlbWFzLmFuZHJvaWQuY29tL2Fway9yZXMvYW5kcm9pZCIKICBwYWNrYWdlPSJ7eyNkb3RDYXNlfX17e29yZ19uYW1lfX17ey9kb3RDYXNlfX0ue3sjc25ha2VDYXNlfX17e3Byb2plY3RfbmFtZX19e3svc25ha2VDYXNlfX0iPgo8L21hbmlmZXN0Pgo=",
-      "type": "text"
-    },
-    {
-      "path":
-          "{{#snakeCase}}{{project_name}}{{/snakeCase}}/{{#android}}{{#snakeCase}}{{project_name}}{{/snakeCase}}_android{{/android}}/android/src/main/kotlin/{{#pathCase}}{{org_name}}{{/pathCase}}/{{#pascalCase}}{{project_name}}{{/pascalCase}}Plugin.kt",
-      "data":
-          "cGFja2FnZSB7eyNkb3RDYXNlfX17e29yZ19uYW1lfX17ey9kb3RDYXNlfX0ue3sjc25ha2VDYXNlfX17e3Byb2plY3RfbmFtZX19e3svc25ha2VDYXNlfX0KCmltcG9ydCBhbmRyb2lkeC5hbm5vdGF0aW9uLk5vbk51bGwKCmltcG9ydCBpby5mbHV0dGVyLmVtYmVkZGluZy5lbmdpbmUucGx1Z2lucy5GbHV0dGVyUGx1Z2luCmltcG9ydCBpby5mbHV0dGVyLnBsdWdpbi5jb21tb24uTWV0aG9kQ2FsbAppbXBvcnQgaW8uZmx1dHRlci5wbHVnaW4uY29tbW9uLk1ldGhvZENoYW5uZWwKaW1wb3J0IGlvLmZsdXR0ZXIucGx1Z2luLmNvbW1vbi5NZXRob2RDaGFubmVsLk1ldGhvZENhbGxIYW5kbGVyCmltcG9ydCBpby5mbHV0dGVyLnBsdWdpbi5jb21tb24uTWV0aG9kQ2hhbm5lbC5SZXN1bHQKCi8qKiB7eyNwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svcGFzY2FsQ2FzZX19UGx1Z2luICovCmNsYXNzIHt7I3Bhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9wYXNjYWxDYXNlfX1QbHVnaW46IEZsdXR0ZXJQbHVnaW4sIE1ldGhvZENhbGxIYW5kbGVyIHsKICAvLy8gVGhlIE1ldGhvZENoYW5uZWwgdGhhdCB3aWxsIHRoZSBjb21tdW5pY2F0aW9uIGJldHdlZW4gRmx1dHRlciBhbmQgbmF0aXZlIEFuZHJvaWQKICAvLy8KICAvLy8gVGhpcyBsb2NhbCByZWZlcmVuY2Ugc2VydmVzIHRvIHJlZ2lzdGVyIHRoZSBwbHVnaW4gd2l0aCB0aGUgRmx1dHRlciBFbmdpbmUgYW5kIHVucmVnaXN0ZXIgaXQKICAvLy8gd2hlbiB0aGUgRmx1dHRlciBFbmdpbmUgaXMgZGV0YWNoZWQgZnJvbSB0aGUgQWN0aXZpdHkKICBwcml2YXRlIGxhdGVpbml0IHZhciBjaGFubmVsIDogTWV0aG9kQ2hhbm5lbAoKICBvdmVycmlkZSBmdW4gb25BdHRhY2hlZFRvRW5naW5lKEBOb25OdWxsIGZsdXR0ZXJQbHVnaW5CaW5kaW5nOiBGbHV0dGVyUGx1Z2luLkZsdXR0ZXJQbHVnaW5CaW5kaW5nKSB7CiAgICBjaGFubmVsID0gTWV0aG9kQ2hhbm5lbChmbHV0dGVyUGx1Z2luQmluZGluZy5iaW5hcnlNZXNzZW5nZXIsICJ7eyNzbmFrZUNhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9zbmFrZUNhc2V9fSIpCiAgICBjaGFubmVsLnNldE1ldGhvZENhbGxIYW5kbGVyKHRoaXMpCiAgfQoKICBvdmVycmlkZSBmdW4gb25NZXRob2RDYWxsKEBOb25OdWxsIGNhbGw6IE1ldGhvZENhbGwsIEBOb25OdWxsIHJlc3VsdDogUmVzdWx0KSB7CiAgICBpZiAoY2FsbC5tZXRob2QgPT0gImdldFBsYXRmb3JtVmVyc2lvbiIpIHsKICAgICAgcmVzdWx0LnN1Y2Nlc3MoIkFuZHJvaWQgJHthbmRyb2lkLm9zLkJ1aWxkLlZFUlNJT04uUkVMRUFTRX0iKQogICAgfSBlbHNlIHsKICAgICAgcmVzdWx0Lm5vdEltcGxlbWVudGVkKCkKICAgIH0KICB9CgogIG92ZXJyaWRlIGZ1biBvbkRldGFjaGVkRnJvbUVuZ2luZShATm9uTnVsbCBiaW5kaW5nOiBGbHV0dGVyUGx1Z2luLkZsdXR0ZXJQbHVnaW5CaW5kaW5nKSB7CiAgICBjaGFubmVsLnNldE1ldGhvZENhbGxIYW5kbGVyKG51bGwpCiAgfQp9Cg==",
-      "type": "text"
-    },
-    {
-      "path":
-          "{{#snakeCase}}{{project_name}}{{/snakeCase}}/{{#android}}{{#snakeCase}}{{project_name}}{{/snakeCase}}_android{{/android}}/pubspec.yaml",
-      "data":
-          "bmFtZToge3sjc25ha2VDYXNlfX17e3Byb2plY3RfbmFtZX19e3svc25ha2VDYXNlfX1fYW5kcm9pZApkZXNjcmlwdGlvbjogQW4gaW1wbGVtZW50YXRpb24gZm9yIHRoZSBBbmRyb2lkIHBsYXRmb3JtIG9mIHRoZSBGbHV0dGVyIHt7I3NuYWtlQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7L3NuYWtlQ2FzZX19IHBsdWdpbi4KdmVyc2lvbjogMC4wLjEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE0LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTIuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7eyNzbmFrZUNhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9zbmFrZUNhc2V9fV9wbGF0Zm9ybV9pbnRlcmZhY2U6CiAgICBwYXRoOiAuLi97eyNzbmFrZUNhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9zbmFrZUNhc2V9fV9wbGF0Zm9ybV9pbnRlcmZhY2UKCmRldl9kZXBlbmRlbmNpZXM6CiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMi4zLjAKCmZsdXR0ZXI6CiAgcGx1Z2luOgogICAgcGxhdGZvcm1zOgogICAgICBhbmRyb2lkOgogICAgICAgIHBhY2thZ2U6IHt7I2RvdENhc2V9fXt7b3JnX25hbWV9fXt7L2RvdENhc2V9fS57eyNzbmFrZUNhc2V9fXt7cHJvamVjdF9uYW1lfX17ey9zbmFrZUNhc2V9fQogICAgICAgIHBsdWdpbkNsYXNzOiB7eyNwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svcGFzY2FsQ2FzZX19QW5kcm9pZFBsYXRmb3JtCiAgICAgIAo=",
-      "type": "text"
-    },
-    {
-      "path":
           "{{#web}}{{#snakeCase}}{{project_name}}{{/snakeCase}}_web{{/web}}/.gitignore",
       "data":
           "IyBTZWUgaHR0cHM6Ly9kYXJ0LmRldi9ndWlkZXMvbGlicmFyaWVzL3ByaXZhdGUtZmlsZXMKCiMgTWlzY2VsbGFuZW91cwoqLmNsYXNzCioubG9nCioucHljCiouc3dwCi5EU19TdG9yZQouYXRvbS8KLmJ1aWxkbG9nLwouaGlzdG9yeQouc3ZuLwoKIyBJbnRlbGxpSiByZWxhdGVkCiouaW1sCiouaXByCiouaXdzCi5pZGVhLwoKIyBUaGUgLnZzY29kZSBmb2xkZXIgY29udGFpbnMgbGF1bmNoIGNvbmZpZ3VyYXRpb24gYW5kIHRhc2tzIHlvdSBjb25maWd1cmUgaW4KIyBWUyBDb2RlIHdoaWNoIHlvdSBtYXkgd2lzaCB0byBiZSBpbmNsdWRlZCBpbiB2ZXJzaW9uIGNvbnRyb2wsIHNvIHRoaXMgbGluZQojIGlzIGNvbW1lbnRlZCBvdXQgYnkgZGVmYXVsdC4KIy52c2NvZGUvCgojIEZsdXR0ZXIvRGFydC9QdWIgcmVsYXRlZAoqKi9kb2MvYXBpLwouZGFydF90b29sLwouZmx1dHRlci1wbHVnaW5zCi5mbHV0dGVyLXBsdWdpbnMtZGVwZW5kZW5jaWVzCi5wYWNrYWdlcwoucHViLWNhY2hlLwoucHViLwpidWlsZC8KCiMgQ29kZSBjb3ZlcmFnZQpjb3ZlcmFnZS8K",
