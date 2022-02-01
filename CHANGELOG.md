@@ -1,4 +1,10 @@
-# [0.4.16](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.15...v0.4.16) (2022-01-27)
+# [0.4.17](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.16...v0..17) (2022-02-01)
+
+### Bug Fixes
+
+- **flutter_plugin:** remove duplicate android directory ([#268](https://github.com/VeryGoodOpenSource/very_good_cli/issues/268)) ([fb61149](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fb61149e0b4dfbf7c4c5b5edfb81194d82dcfde0))
+
+## [0.4.16](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.15...v0.4.16) (2022-01-27)
 
 ### Bug Fixes
 
