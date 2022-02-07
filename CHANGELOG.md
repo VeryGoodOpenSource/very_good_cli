@@ -1,4 +1,10 @@
-# [0.4.17](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.16...v0..17) (2022-02-01)
+# [0.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.17...v0.5.0) (2022-02-07)
+
+### Features
+
+- **core:** upgrade to Flutter v2.10.0 ([#274](https://github.com/VeryGoodOpenSource/very_good_cli/issues/274)) ([de534e6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/de534e63d934990e4e677b20e4366fe79dcd9771))
+
+## [0.4.17](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.16...v0.4.17) (2022-02-01)
 
 ### Bug Fixes
 
