@@ -232,6 +232,54 @@ void main() {
           );
         }).called(2);
       });
+
+      test(
+          'completes normally '
+          'when pubspec.yaml exists and directory is not ignored (recursive)',
+          () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        final directory = Directory(
+          path.join(tempDirectory.path, 'macos_plugin'),
+        );
+        final pubspecA = File(
+          path.join(directory.path, 'example_a', 'pubspec.yaml'),
+        );
+        final pubspecB = File(
+          path.join(directory.path, 'example_b', 'pubspec.yaml'),
+        );
+        pubspecA
+          ..createSync(recursive: true)
+          ..writeAsStringSync(
+            '''
+          name: example_a
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+          );
+        pubspecB
+          ..createSync(recursive: true)
+          ..writeAsStringSync(
+            '''
+          name: example_b
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+          );
+
+        final result = await commandRunner.run(
+          ['packages', 'get', '--recursive', directory.path],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.progress(
+            any(that: contains('Running "flutter packages get" in')),
+          );
+        }).called(2);
+      });
     });
   });
 }

@@ -55,12 +55,21 @@ class _Cmd {
   }
 }
 
-final _ignoredDirectories = RegExp(
-  'ios|android|windows|linux|macos|.symlinks|.plugin_symlinks|.dart_tool|build',
-);
+const _ignoredDirectories = {
+  'ios',
+  'android',
+  'windows',
+  'linux',
+  'macos',
+  '.symlinks',
+  '.plugin_symlinks',
+  '.dart_tool',
+  'build',
+};
 
 bool _isPubspec(FileSystemEntity entity) {
-  if (entity.path.contains(_ignoredDirectories)) return false;
+  final segments = p.split(entity.path).toSet();
+  if (segments.intersection(_ignoredDirectories).isNotEmpty) return false;
   if (entity is! File) return false;
   return p.basename(entity.path) == 'pubspec.yaml';
 }
