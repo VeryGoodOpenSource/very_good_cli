@@ -1,3 +1,14 @@
+# [0.5.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.0...v0.5.1) (2022-02-14)
+
+### Bug Fixes
+
+- **packages_get:** recursive installation ignored directories fixes ([#283](https://github.com/VeryGoodOpenSource/very_good_cli/issues/283)) ([cf9f46c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cf9f46ceb6bcceb6f159ccb47698651b01fe9396))
+
+### Features
+
+- **dart_package:** upgrade to Dart 2.16 ([#276](https://github.com/VeryGoodOpenSource/very_good_cli/issues/276)) ([9a880c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9a880c69ea703072e4e3f5a5fb63c8fa2097b3d6))
+- **flutter_package:** upgrade to Dart 2.16 ([#277](https://github.com/VeryGoodOpenSource/very_good_cli/issues/277)) ([f1d14c8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f1d14c80995bf8d5de6def4a12cbd640d47036bc))
+
 # [0.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.17...v0.5.0) (2022-02-07)
 
 ### Features
