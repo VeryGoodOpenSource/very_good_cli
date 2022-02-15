@@ -1,4 +1,10 @@
-# [0.5.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.0...v0.5.1) (2022-02-14)
+# [0.5.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.1...v0.5.2) (2022-02-15)
+
+### Features
+
+- **core:** windows support ([#287](https://github.com/VeryGoodOpenSource/very_good_cli/issues/287)) ([dabb160](https://github.com/VeryGoodOpenSource/very_good_cli/commit/dabb160687d836d424e851d0d2c90487f6f41942))
+
+## [0.5.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.0...v0.5.1) (2022-02-14)
 
 ### Bug Fixes
 
