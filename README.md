@@ -79,7 +79,7 @@ very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plug
 
 Out of the box, [Very Good Core][very_good_core_link] includes:
 
-✅&nbsp; [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, and Web (Desktop coming soon!)
+✅&nbsp; [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, Web, and Windows (MacOS/Linux coming soon!)
 
 ✅&nbsp; [Build Flavors][flutter_flavors_link] - Multiple flavor support for development, staging, and production
 
