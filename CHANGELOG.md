@@ -1,4 +1,10 @@
-# [0.5.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.1...v0.5.2) (2022-02-15)
+# [v0.5.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.2...v0.5.3) (2022-02-17)
+
+### Bug Fixes
+
+- **core:** android 12 builds ([#291](https://github.com/VeryGoodOpenSource/very_good_cli/issues/291)) ([ffb5946](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ffb59465db428369c6259327e9d8e303a3169a58))
+
+## [0.5.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.1...v0.5.2) (2022-02-15)
 
 ### Features
 
