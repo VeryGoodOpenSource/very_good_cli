@@ -76,6 +76,11 @@ void main() {
     late PubUpdater pubUpdater;
     late VeryGoodCommandRunner commandRunner;
 
+    final generatedFiles = List.filled(
+      62,
+      const GeneratedFile.created(path: ''),
+    );
+
     void Function() overridePrint(void Function() fn) {
       return () {
         final spec = ZoneSpecification(
@@ -204,12 +209,15 @@ void main() {
         ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-        return 62;
+        return generatedFiles;
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
       verify(() => logger.progress('Bootstrapping')).called(1);
-      expect(progressLogs, equals(['Generated 62 file(s)']));
+      expect(
+        progressLogs,
+        equals(['Generated ${generatedFiles.length} file(s)']),
+      );
       verify(
         () => logger.progress('Running "flutter packages get" in .tmp'),
       ).called(1);
@@ -272,7 +280,7 @@ void main() {
         ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-        return 62;
+        return generatedFiles;
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
@@ -378,7 +386,7 @@ void main() {
             ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-            return 62;
+            return generatedFiles;
           });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
@@ -484,12 +492,15 @@ void main() {
             ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-            return 62;
+            return generatedFiles;
           });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
           verify(() => logger.progress('Bootstrapping')).called(1);
-          expect(progressLogs, equals(['Generated 62 file(s)']));
+          expect(
+            progressLogs,
+            equals(['Generated ${generatedFiles.length} file(s)']),
+          );
           verify(
             () => logger.progress(getPackagesMsg),
           ).called(1);
