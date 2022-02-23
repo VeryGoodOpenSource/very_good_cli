@@ -143,7 +143,7 @@ class CreateCommand extends Command<int> {
     final linux = _argResults['linux'] as String? ?? 'true';
     final macos = _argResults['macos'] as String? ?? 'true';
     final windows = _argResults['windows'] as String? ?? 'true';
-    final fileCount = await generator.generate(
+    final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
       vars: <String, dynamic>{
         'project_name': projectName,
@@ -158,7 +158,7 @@ class CreateCommand extends Command<int> {
       },
       logger: _logger,
     );
-    generateDone('Generated $fileCount file(s)');
+    generateDone('Generated ${files.length} file(s)');
 
     await template.onGenerateComplete(_logger, outputDirectory);
 

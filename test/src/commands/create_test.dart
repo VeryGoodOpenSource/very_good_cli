@@ -204,7 +204,7 @@ void main() {
         ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-        return 62;
+        return List.filled(62, const GeneratedFile.created(path: ''));
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
@@ -272,7 +272,7 @@ void main() {
         ),
       ).thenAnswer((_) async {
         File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-        return 62;
+        return List.filled(62, const GeneratedFile.created(path: ''));
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
@@ -378,7 +378,7 @@ void main() {
             ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-            return 62;
+            return List.filled(62, const GeneratedFile.created(path: ''));
           });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
@@ -484,7 +484,7 @@ void main() {
             ),
           ).thenAnswer((_) async {
             File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
-            return 62;
+            return List.filled(62, const GeneratedFile.created(path: ''));
           });
           final result = await command.run();
           expect(result, equals(ExitCode.success.code));
