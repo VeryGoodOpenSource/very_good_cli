@@ -1,4 +1,10 @@
-# [v0.5.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.2...v0.5.3) (2022-02-17)
+# [0.5.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.3...v0.5.4) (2022-02-28)
+
+### Bug Fixes
+
+- add description variable to index.html [#297](https://github.com/VeryGoodOpenSource/very_good_cli/issues/297) ([#298](https://github.com/VeryGoodOpenSource/very_good_cli/issues/298)) ([ce88c94](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ce88c94f3f3fbfbf5d618618959969634d0143be))
+
+## [0.5.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.2...v0.5.3) (2022-02-17)
 
 ### Bug Fixes
 
