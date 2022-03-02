@@ -22,7 +22,7 @@ class Flutter {
     bool recursive = false,
     void Function([String?]) Function(String message)? progress,
   }) async {
-    await _installPackages(
+    await _runCommand(
       cmd: (cwd) async {
         final installDone = progress?.call(
           'Running "flutter packages get" in $cwd',
@@ -50,7 +50,7 @@ class Flutter {
     String cwd = '.',
     bool recursive = false,
   }) async {
-    await _installPackages(
+    await _runCommand(
       cmd: (cwd) => _Cmd.run(
         'flutter',
         ['pub', 'get'],
@@ -61,8 +61,37 @@ class Flutter {
     );
   }
 
-  /// Install dependencies in directories with a `pubspec.yaml`.
-  static Future<void> _installPackages({
+  /// Run tests (`flutter test`).
+  static Future<void> test({
+    String cwd = '.',
+    bool recursive = false,
+    void Function([String?]) Function(String message)? progress,
+  }) async {
+    await _runCommand(
+      cmd: (cwd) async {
+        final installDone = progress?.call(
+          'Running "flutter test" in $cwd',
+        );
+        try {
+          final result = await _Cmd.run(
+            'flutter',
+            ['test'],
+            workingDirectory: cwd,
+          );
+          return result;
+        } catch (_) {
+          rethrow;
+        } finally {
+          installDone?.call();
+        }
+      },
+      cwd: cwd,
+      recursive: recursive,
+    );
+  }
+
+  /// Run a command on directories with a `pubspec.yaml`.
+  static Future<void> _runCommand({
     required Future<ProcessResult> Function(String cwd) cmd,
     required String cwd,
     required bool recursive,

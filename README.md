@@ -131,6 +131,36 @@ Usage: very_good packages get [arguments]
 Run "very_good help" to see global options.
 ```
 
+### `very_good test`
+
+Run tests in a Dart or Flutter project.
+
+```sh
+# Run tests in the current directory
+very_good test
+
+# Run tests in ./some/other/directory
+very_good test ./some/other/directory
+
+# Run tests recursively
+very_good test --recursive
+
+# Run tests recursively (shorthand)
+very_good test -r
+```
+
+#### Complete Usage
+
+```sh
+Run tests in a Dart or Flutter project.
+
+Usage: very_good packages get [arguments]
+-h, --help         Print this usage information.
+-r, --recursive    Run tests recursively for all nested packages.
+
+Run "very_good help" to see global options.
+```
+
 ### `very_good --help`
 
 See the complete list of commands and usage information.
