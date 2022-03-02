@@ -7,6 +7,14 @@ import 'package:test/test.dart';
 
 import 'command_helper.dart';
 
+const testContent = '''
+import 'package:test/test.dart';
+void main() {
+  test('example', () {
+    expect(true, isTrue);
+  });
+}''';
+
 const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
@@ -17,6 +25,18 @@ const expectedTestUsage = [
       '\n'
       'Run "very_good help" to see global options.',
 ];
+
+String pubspecContent([String name = 'example']) {
+  return '''
+name: $name
+version: 0.1.0
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dev_dependencies:
+  test: any''';
+}
 
 void main() {
   group('test', () {
@@ -50,7 +70,8 @@ void main() {
       'throws pubspec not found exception '
       'when no pubspec.yaml exists',
       withRunner((commandRunner, logger, printLogs) async {
-        final result = await commandRunner.run(['packages', 'get', 'test']);
+        final directory = Directory.systemTemp.createTempSync();
+        final result = await commandRunner.run(['test', directory.path]);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -62,9 +83,8 @@ void main() {
       'throws pubspec not found exception '
       'when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, printLogs) async {
-        final result = await commandRunner.run(
-          ['packages', 'get', '-r', 'test'],
-        );
+        final directory = Directory.systemTemp.createTempSync();
+        final result = await commandRunner.run(['test', '-r', directory.path]);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -77,9 +97,7 @@ void main() {
         (commandRunner, logger, printLogs) async {
           final directory = Directory.systemTemp.createTempSync();
           File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
-          final result = await commandRunner.run(
-            ['test', directory.path],
-          );
+          final result = await commandRunner.run(['test', directory.path]);
           expect(result, equals(ExitCode.unavailable.code));
         },
       ),
@@ -87,21 +105,18 @@ void main() {
 
     test(
       'completes normally '
-      'when pubspec.yaml exists',
+      'when pubspec.yaml and tests exist',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
-        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
-          name: example
-          version: 0.1.0
-          
-          environment:
-            sdk: ">=2.12.0 <3.0.0"
-          ''',
-        );
-        final result = await commandRunner.run(
-          ['test', directory.path],
-        );
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(['test', directory.path]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
@@ -113,86 +128,27 @@ void main() {
 
     test(
       'completes normally '
-      'when pubspec.yaml exists (recursive)',
+      'when pubspec.yaml and tests exist (recursive)',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
-        final pubspecA = File(
+        final testDirectoryA = Directory(
+          path.join(directory.path, 'example_a', 'test'),
+        )..createSync(recursive: true);
+        final testDirectoryB = Directory(
+          path.join(directory.path, 'example_b', 'test'),
+        )..createSync(recursive: true);
+        File(
+          path.join(testDirectoryA.path, 'example_a_test.dart'),
+        ).writeAsStringSync(testContent);
+        File(
+          path.join(testDirectoryB.path, 'example_b_test.dart'),
+        ).writeAsStringSync(testContent);
+        File(
           path.join(directory.path, 'example_a', 'pubspec.yaml'),
-        );
-        final pubspecB = File(
+        ).writeAsStringSync(pubspecContent('example_a'));
+        File(
           path.join(directory.path, 'example_b', 'pubspec.yaml'),
-        );
-        pubspecA
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
-          name: example_a
-          version: 0.1.0
-          
-          environment:
-            sdk: ">=2.12.0 <3.0.0"
-          ''',
-          );
-        pubspecB
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
-          name: example_b
-          version: 0.1.0
-          
-          environment:
-            sdk: ">=2.12.0 <3.0.0"
-          ''',
-          );
-
-        final result = await commandRunner.run(
-          ['test', '--recursive', directory.path],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(2);
-      }),
-    );
-
-    test(
-      'completes normally '
-      'when pubspec.yaml exists and directory is not ignored (recursive)',
-      withRunner((commandRunner, logger, printLogs) async {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        final directory = Directory(
-          path.join(tempDirectory.path, 'macos_plugin'),
-        );
-        final pubspecA = File(
-          path.join(directory.path, 'example_a', 'pubspec.yaml'),
-        );
-        final pubspecB = File(
-          path.join(directory.path, 'example_b', 'pubspec.yaml'),
-        );
-        pubspecA
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
-          name: example_a
-          version: 0.1.0
-          
-          environment:
-            sdk: ">=2.12.0 <3.0.0"
-          ''',
-          );
-        pubspecB
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
-          name: example_b
-          version: 0.1.0
-          
-          environment:
-            sdk: ">=2.12.0 <3.0.0"
-          ''',
-          );
+        ).writeAsStringSync(pubspecContent('example_b'));
 
         final result = await commandRunner.run(
           ['test', '--recursive', directory.path],

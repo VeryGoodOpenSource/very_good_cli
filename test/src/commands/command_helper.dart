@@ -21,23 +21,21 @@ void Function() _overridePrint(void Function(List<String>) fn) {
       },
     );
 
-    return Zone.current.fork(specification: spec).run<void>(
-          () => fn(
-            printLogs,
-          ),
-        );
+    return Zone.current
+        .fork(specification: spec)
+        .run<void>(() => fn(printLogs));
   };
 }
 
-void Function() withRunner(
-  void Function(
+Function() withRunner(
+  FutureOr<void> Function(
     VeryGoodCommandRunner commandRunner,
     Logger logger,
     List<String> printLogs,
   )
       runnerFn,
 ) {
-  return _overridePrint((printLogs) {
+  return _overridePrint((printLogs) async {
     final analytics = MockAnalytics();
     final logger = MockLogger();
     final pubUpdater = MockPubUpdater();
@@ -70,6 +68,6 @@ void Function() withRunner(
       ),
     ).thenAnswer((_) => Future.value(true));
 
-    runnerFn(commandRunner, logger, printLogs);
+    await runnerFn(commandRunner, logger, printLogs);
   });
 }
