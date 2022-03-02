@@ -27,7 +27,7 @@ void Function() _overridePrint(void Function(List<String>) fn) {
   };
 }
 
-Function() withRunner(
+void Function() withRunner(
   FutureOr<void> Function(
     VeryGoodCommandRunner commandRunner,
     Logger logger,
