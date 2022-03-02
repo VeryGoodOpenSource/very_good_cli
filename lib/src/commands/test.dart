@@ -7,7 +7,7 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
 /// {@template test_command}
-/// `very_good test` command for installing test.
+/// `very_good test` command for running tests.
 /// {@endtemplate}
 class TestCommand extends Command<int> {
   /// {@macro test_command}
