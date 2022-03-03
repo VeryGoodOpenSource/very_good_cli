@@ -5,7 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
-import 'command_helper.dart';
+import '../../helpers/helpers.dart';
 
 const testContent = '''
 import 'package:test/test.dart';

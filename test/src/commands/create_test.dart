@@ -12,6 +12,8 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create.dart';
 import 'package:very_good_cli/src/templates/templates.dart';
 
+import '../../helpers/helpers.dart';
+
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Creates a new very good project in the specified directory.\n'
@@ -70,27 +72,13 @@ class FakeLogger extends Fake implements Logger {}
 void main() {
   group('create', () {
     late List<String> progressLogs;
-    late List<String> printLogs;
     late Analytics analytics;
     late Logger logger;
-    late PubUpdater pubUpdater;
-    late VeryGoodCommandRunner commandRunner;
 
     final generatedFiles = List.filled(
       62,
       const GeneratedFile.created(path: ''),
     );
-
-    void Function() overridePrint(void Function() fn) {
-      return () {
-        final spec = ZoneSpecification(
-          print: (_, __, ___, String msg) {
-            printLogs.add(msg);
-          },
-        );
-        return Zone.current.fork(specification: spec).run<void>(fn);
-      };
-    }
 
     setUpAll(() {
       registerFallbackValue(FakeDirectoryGeneratorTarget());
@@ -98,7 +86,6 @@ void main() {
     });
 
     setUp(() {
-      printLogs = [];
       progressLogs = <String>[];
       analytics = MockAnalytics();
       when(() => analytics.firstRun).thenReturn(false);
@@ -116,26 +103,11 @@ void main() {
           if (_ != null) progressLogs.add(_);
         },
       );
-
-      pubUpdater = MockPubUpdater();
-
-      when(
-        () => pubUpdater.isUpToDate(
-          packageName: any(named: 'packageName'),
-          currentVersion: any(named: 'currentVersion'),
-        ),
-      ).thenAnswer((_) => Future.value(true));
-
-      commandRunner = VeryGoodCommandRunner(
-        analytics: analytics,
-        logger: logger,
-        pubUpdater: pubUpdater,
-      );
     });
 
     test(
       'help',
-      overridePrint(() async {
+      withRunner((commandRunner, logger, printLogs) async {
         final result = await commandRunner.run(['create', '--help']);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
@@ -154,40 +126,50 @@ void main() {
     });
 
     test(
-        'throws UsageException when --project-name is missing '
-        'and directory base is not a valid package name', () async {
-      const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
-          'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await commandRunner.run(['create', '.tmp']);
-      expect(result, equals(ExitCode.usage.code));
-      verify(() => logger.err(expectedErrorMessage)).called(1);
-    });
+      'throws UsageException when --project-name is missing '
+      'and directory base is not a valid package name',
+      withRunner((commandRunner, logger, printLogs) async {
+        const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
+            'See https://dart.dev/tools/pub/pubspec#name for more information.';
+        final result = await commandRunner.run(['create', '.tmp']);
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(expectedErrorMessage)).called(1);
+      }),
+    );
 
-    test('throws UsageException when --project-name is invalid', () async {
-      const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
-          'See https://dart.dev/tools/pub/pubspec#name for more information.';
-      final result = await commandRunner.run(
-        ['create', '.', '--project-name', 'My App'],
-      );
-      expect(result, equals(ExitCode.usage.code));
-      verify(() => logger.err(expectedErrorMessage)).called(1);
-    });
+    test(
+      'throws UsageException when --project-name is invalid',
+      withRunner((commandRunner, logger, printLogs) async {
+        const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
+            'See https://dart.dev/tools/pub/pubspec#name for more information.';
+        final result = await commandRunner.run(
+          ['create', '.', '--project-name', 'My App'],
+        );
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(expectedErrorMessage)).called(1);
+      }),
+    );
 
-    test('throws UsageException when output directory is missing', () async {
-      const expectedErrorMessage =
-          'No option specified for the output directory.';
-      final result = await commandRunner.run(['create']);
-      expect(result, equals(ExitCode.usage.code));
-      verify(() => logger.err(expectedErrorMessage)).called(1);
-    });
+    test(
+      'throws UsageException when output directory is missing',
+      withRunner((commandRunner, logger, printLogs) async {
+        const expectedErrorMessage =
+            'No option specified for the output directory.';
+        final result = await commandRunner.run(['create']);
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(expectedErrorMessage)).called(1);
+      }),
+    );
 
-    test('throws UsageException when multiple output directories are provided',
-        () async {
-      const expectedErrorMessage = 'Multiple output directories specified.';
-      final result = await commandRunner.run(['create', './a', './b']);
-      expect(result, equals(ExitCode.usage.code));
-      verify(() => logger.err(expectedErrorMessage)).called(1);
-    });
+    test(
+      'throws UsageException when multiple output directories are provided',
+      withRunner((commandRunner, logger, printLogs) async {
+        const expectedErrorMessage = 'Multiple output directories specified.';
+        final result = await commandRunner.run(['create', './a', './b']);
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(expectedErrorMessage)).called(1);
+      }),
+    );
 
     test('completes successfully with correct output', () async {
       final argResults = MockArgResults();
@@ -313,53 +295,89 @@ void main() {
       group('--org', () {
         test(
           'is a valid alias',
-          () async {
-            const orgName = 'com.my.org';
-            final tempDir = Directory.systemTemp.createTempSync();
-            final result = await commandRunner.run(
-              ['create', p.join(tempDir.path, 'example'), '--org', orgName],
-            );
-            expect(result, equals(ExitCode.success.code));
-            tempDir.deleteSync(recursive: true);
-          },
+          withRunner(
+            (commandRunner, logger, printLogs) async {
+              const orgName = 'com.my.org';
+              final tempDir = Directory.systemTemp.createTempSync();
+              final result = await commandRunner.run(
+                ['create', p.join(tempDir.path, 'example'), '--org', orgName],
+              );
+              expect(result, equals(ExitCode.success.code));
+              tempDir.deleteSync(recursive: true);
+            },
+          ),
           timeout: const Timeout(Duration(seconds: 60)),
         );
       });
 
       group('invalid --org-name', () {
-        Future<void> expectInvalidOrgName(String orgName) async {
-          final expectedErrorMessage = '"$orgName" is not a valid org name.\n\n'
-              'A valid org name has at least 2 parts separated by "."\n'
-              'Each part must start with a letter and only include '
-              'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
-              'and hyphens (-)\n'
-              '(ex. very.good.org)';
-          final result = await commandRunner.run(
-            ['create', '.', '--org-name', orgName],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
-        }
+        String expectedErrorMessage(String orgName) =>
+            '"$orgName" is not a valid org name.\n\n'
+            'A valid org name has at least 2 parts separated by "."\n'
+            'Each part must start with a letter and only include '
+            'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
+            'and hyphens (-)\n'
+            '(ex. very.good.org)';
 
-        test('no delimiters', () {
-          expectInvalidOrgName('My App');
-        });
+        test(
+          'no delimiters',
+          withRunner((commandRunner, logger, printLogs) async {
+            const orgName = 'My App';
+            final result = await commandRunner.run(
+              ['create', '.', '--org-name', orgName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
+          }),
+        );
 
-        test('less than 2 domains', () {
-          expectInvalidOrgName('verybadtest');
-        });
+        test(
+          'less than 2 domains',
+          withRunner((commandRunner, logger, printLogs) async {
+            const orgName = 'verybadtest';
+            final result = await commandRunner.run(
+              ['create', '.', '--org-name', orgName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
+          }),
+        );
 
-        test('invalid characters present', () {
-          expectInvalidOrgName('very%.bad@.#test');
-        });
+        test(
+          'invalid characters present',
+          withRunner((commandRunner, logger, printLogs) async {
+            const orgName = 'very%.bad@.#test';
+            final result = await commandRunner.run(
+              ['create', '.', '--org-name', orgName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
+          }),
+        );
 
-        test('segment starts with a non-letter', () {
-          expectInvalidOrgName('very.bad.1test');
-        });
+        test(
+          'segment starts with a non-letter',
+          withRunner((commandRunner, logger, printLogs) async {
+            const orgName = 'very.bad.1test';
+            final result = await commandRunner.run(
+              ['create', '.', '--org-name', orgName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
+          }),
+        );
 
-        test('valid prefix but invalid suffix', () {
-          expectInvalidOrgName('very.good.prefix.bad@@suffix');
-        });
+        test(
+          'valid prefix but invalid suffix',
+          withRunner((commandRunner, logger, printLogs) async {
+            const orgName = 'very.good.prefix.bad@@suffix';
+            final result = await commandRunner.run(
+              ['create', '.', '--org-name', orgName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
+          }),
+        );
       });
 
       group('valid --org-name', () {
@@ -443,19 +461,19 @@ void main() {
 
     group('--template', () {
       group('invalid template name', () {
-        Future<void> expectInvalidTemplateName(String templateName) async {
-          final expectedErrorMessage =
-              '"$templateName" is not an allowed value for option "template".';
-          final result = await commandRunner.run(
-            ['create', '.', '--template', templateName],
-          );
-          expect(result, equals(ExitCode.usage.code));
-          verify(() => logger.err(expectedErrorMessage)).called(1);
-        }
-
-        test('invalid template name', () {
-          expectInvalidTemplateName('badtemplate');
-        });
+        test(
+          'invalid template name',
+          withRunner((commandRunner, logger, printLogs) async {
+            const templateName = 'badtemplate';
+            const expectedErrorMessage =
+                '''"$templateName" is not an allowed value for option "template".''';
+            final result = await commandRunner.run(
+              ['create', '.', '--template', templateName],
+            );
+            expect(result, equals(ExitCode.usage.code));
+            verify(() => logger.err(expectedErrorMessage)).called(1);
+          }),
+        );
       });
 
       group('valid template names', () {
