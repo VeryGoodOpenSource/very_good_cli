@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
@@ -7,7 +5,8 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage.dart';
-import 'package:very_good_cli/src/command_runner.dart';
+
+import '../../helpers/helpers.dart';
 
 class MockAnalytics extends Mock implements Analytics {}
 
@@ -41,62 +40,9 @@ const expectedPackagesGetUsage = [
 
 void main() {
   group('packages', () {
-    late Analytics analytics;
-    late Logger logger;
-    late PubUpdater pubUpdater;
-    late List<String> printLogs;
-    late List<String> progressLogs;
-    late VeryGoodCommandRunner commandRunner;
-
-    void Function() overridePrint(void Function() fn) {
-      return () {
-        final spec = ZoneSpecification(
-          print: (_, __, ___, String msg) {
-            printLogs.add(msg);
-          },
-        );
-        return Zone.current.fork(specification: spec).run<void>(fn);
-      };
-    }
-
-    setUp(() {
-      analytics = MockAnalytics();
-      logger = MockLogger();
-      pubUpdater = MockPubUpdater();
-      printLogs = [];
-      progressLogs = [];
-      commandRunner = VeryGoodCommandRunner(
-        analytics: analytics,
-        logger: logger,
-        pubUpdater: pubUpdater,
-      );
-
-      when(() => analytics.firstRun).thenReturn(false);
-      when(() => analytics.enabled).thenReturn(false);
-      when(
-        () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
-      ).thenAnswer((_) async {});
-      when(
-        () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
-      ).thenAnswer((_) async {});
-
-      when(() => logger.progress(any())).thenReturn(
-        ([_]) {
-          if (_ != null) progressLogs.add(_);
-        },
-      );
-
-      when(
-        () => pubUpdater.isUpToDate(
-          packageName: any(named: 'packageName'),
-          currentVersion: any(named: 'currentVersion'),
-        ),
-      ).thenAnswer((_) => Future.value(true));
-    });
-
     test(
       'help',
-      overridePrint(() async {
+      withRunner((commandRunner, logger, printLogs) async {
         final result = await commandRunner.run(['packages', '--help']);
         expect(printLogs, equals(expectedPackagesUsage));
         expect(result, equals(ExitCode.success.code));
@@ -112,7 +58,7 @@ void main() {
     group('get', () {
       test(
         'help',
-        overridePrint(() async {
+        withRunner((commandRunner, logger, printLogs) async {
           final result = await commandRunner.run(['packages', 'get', '--help']);
           expect(printLogs, equals(expectedPackagesGetUsage));
           expect(result, equals(ExitCode.success.code));
@@ -126,160 +72,174 @@ void main() {
       );
 
       test(
-          'throws usage exception '
-          'when too many arguments are provided', () async {
-        final result = await commandRunner.run(
-          ['packages', 'get', 'arg1', 'arg2'],
-        );
-        expect(result, equals(ExitCode.usage.code));
-      });
+        'throws usage exception '
+        'when too many arguments are provided',
+        withRunner((commandRunner, logger, printLogs) async {
+          final result = await commandRunner.run(
+            ['packages', 'get', 'arg1', 'arg2'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
 
       test(
-          'throws pubspec not found exception '
-          'when no pubspec.yaml exists', () async {
-        final result = await commandRunner.run(['packages', 'get', 'test']);
-        expect(result, equals(ExitCode.noInput.code));
-        verify(() {
-          logger.err(any(that: contains('Could not find a pubspec.yaml in')));
-        }).called(1);
-      });
+        'throws pubspec not found exception '
+        'when no pubspec.yaml exists',
+        withRunner((commandRunner, logger, printLogs) async {
+          final result = await commandRunner.run(['packages', 'get', 'test']);
+          expect(result, equals(ExitCode.noInput.code));
+          verify(() {
+            logger.err(any(that: contains('Could not find a pubspec.yaml in')));
+          }).called(1);
+        }),
+      );
 
       test(
-          'throws pubspec not found exception '
-          'when no pubspec.yaml exists (recursive)', () async {
-        final result = await commandRunner.run(
-          ['packages', 'get', '-r', 'test'],
-        );
-        expect(result, equals(ExitCode.noInput.code));
-        verify(() {
-          logger.err(any(that: contains('Could not find a pubspec.yaml in')));
-        }).called(1);
-      });
-
-      test('throws when installation fails', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
-        final result = await commandRunner.run(
-          ['packages', 'get', directory.path],
-        );
-        expect(result, equals(ExitCode.unavailable.code));
-      });
+        'throws pubspec not found exception '
+        'when no pubspec.yaml exists (recursive)',
+        withRunner((commandRunner, logger, printLogs) async {
+          final result = await commandRunner.run(
+            ['packages', 'get', '-r', 'test'],
+          );
+          expect(result, equals(ExitCode.noInput.code));
+          verify(() {
+            logger.err(any(that: contains('Could not find a pubspec.yaml in')));
+          }).called(1);
+        }),
+      );
 
       test(
-          'completes normally '
-          'when pubspec.yaml exists', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
+        'throws when installation fails',
+        withRunner((commandRunner, logger, printLogs) async {
+          final directory = Directory.systemTemp.createTempSync();
+          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
+          final result = await commandRunner.run(
+            ['packages', 'get', directory.path],
+          );
+          expect(result, equals(ExitCode.unavailable.code));
+        }),
+      );
+
+      test(
+        'completes normally '
+        'when pubspec.yaml exists',
+        withRunner((commandRunner, logger, printLogs) async {
+          final directory = Directory.systemTemp.createTempSync();
+          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
+            '''
           name: example
           version: 0.1.0
           
           environment:
             sdk: ">=2.12.0 <3.0.0"
           ''',
-        );
-        final result = await commandRunner.run(
-          ['packages', 'get', directory.path],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
           );
-        }).called(1);
-      });
+          final result = await commandRunner.run(
+            ['packages', 'get', directory.path],
+          );
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(that: contains('Running "flutter packages get" in')),
+            );
+          }).called(1);
+        }),
+      );
 
       test(
-          'completes normally '
-          'when pubspec.yaml exists (recursive)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final pubspecA = File(
-          path.join(directory.path, 'example_a', 'pubspec.yaml'),
-        );
-        final pubspecB = File(
-          path.join(directory.path, 'example_b', 'pubspec.yaml'),
-        );
-        pubspecA
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+        'completes normally '
+        'when pubspec.yaml exists (recursive)',
+        withRunner((commandRunner, logger, printLogs) async {
+          final directory = Directory.systemTemp.createTempSync();
+          final pubspecA = File(
+            path.join(directory.path, 'example_a', 'pubspec.yaml'),
+          );
+          final pubspecB = File(
+            path.join(directory.path, 'example_b', 'pubspec.yaml'),
+          );
+          pubspecA
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
           name: example_a
           version: 0.1.0
           
           environment:
             sdk: ">=2.12.0 <3.0.0"
           ''',
-          );
-        pubspecB
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+            );
+          pubspecB
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
           name: example_b
           version: 0.1.0
           
           environment:
             sdk: ">=2.12.0 <3.0.0"
           ''',
-          );
+            );
 
-        final result = await commandRunner.run(
-          ['packages', 'get', '--recursive', directory.path],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+          final result = await commandRunner.run(
+            ['packages', 'get', '--recursive', directory.path],
           );
-        }).called(2);
-      });
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(that: contains('Running "flutter packages get" in')),
+            );
+          }).called(2);
+        }),
+      );
 
       test(
-          'completes normally '
-          'when pubspec.yaml exists and directory is not ignored (recursive)',
-          () async {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        final directory = Directory(
-          path.join(tempDirectory.path, 'macos_plugin'),
-        );
-        final pubspecA = File(
-          path.join(directory.path, 'example_a', 'pubspec.yaml'),
-        );
-        final pubspecB = File(
-          path.join(directory.path, 'example_b', 'pubspec.yaml'),
-        );
-        pubspecA
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+        'completes normally '
+        'when pubspec.yaml exists and directory is not ignored (recursive)',
+        withRunner((commandRunner, logger, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          final directory = Directory(
+            path.join(tempDirectory.path, 'macos_plugin'),
+          );
+          final pubspecA = File(
+            path.join(directory.path, 'example_a', 'pubspec.yaml'),
+          );
+          final pubspecB = File(
+            path.join(directory.path, 'example_b', 'pubspec.yaml'),
+          );
+          pubspecA
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
           name: example_a
           version: 0.1.0
           
           environment:
             sdk: ">=2.12.0 <3.0.0"
           ''',
-          );
-        pubspecB
-          ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+            );
+          pubspecB
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
           name: example_b
           version: 0.1.0
           
           environment:
             sdk: ">=2.12.0 <3.0.0"
           ''',
-          );
+            );
 
-        final result = await commandRunner.run(
-          ['packages', 'get', '--recursive', directory.path],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+          final result = await commandRunner.run(
+            ['packages', 'get', '--recursive', directory.path],
           );
-        }).called(2);
-      });
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(that: contains('Running "flutter packages get" in')),
+            );
+          }).called(2);
+        }),
+      );
     });
   });
 }
