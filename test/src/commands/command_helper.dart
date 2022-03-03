@@ -54,13 +54,11 @@ void Function() withRunner(
     when(
       () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
     ).thenAnswer((_) async {});
-
     when(() => logger.progress(any())).thenReturn(
       ([_]) {
         if (_ != null) progressLogs.add(_);
       },
     );
-
     when(
       () => pubUpdater.isUpToDate(
         packageName: any(named: 'packageName'),
