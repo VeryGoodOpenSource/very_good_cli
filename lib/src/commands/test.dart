@@ -12,12 +12,22 @@ import 'package:very_good_cli/src/cli/cli.dart';
 class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({Logger? logger}) : _logger = logger ?? Logger() {
-    argParser.addFlag(
-      'recursive',
-      abbr: 'r',
-      help: 'Run tests recursively for all nested packages.',
-      negatable: false,
-    );
+    argParser
+      ..addFlag(
+        'recursive',
+        abbr: 'r',
+        help: 'Run tests recursively for all nested packages.',
+        negatable: false,
+      )
+      ..addFlag(
+        'coverage',
+        help: 'Collects the code coverage during the test.',
+        negatable: false,
+      )
+      ..addOption(
+        'min-coverage',
+        help: 'Sets the minimum acceptable coverage.',
+      );
   }
 
   final Logger _logger;
@@ -43,6 +53,10 @@ class TestCommand extends Command<int> {
     final recursive = _argResults['recursive'] as bool;
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
+    final collectCoverage = _argResults['coverage'] as bool;
+    final minCoverage = double.tryParse(
+      _argResults['min-coverage'] as String? ?? '',
+    );
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       try {
@@ -51,10 +65,18 @@ class TestCommand extends Command<int> {
           recursive: recursive,
           stdout: _logger.write,
           stderr: _logger.err,
+          minCoverage: minCoverage,
+          progress: _logger.progress,
         );
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');
         return ExitCode.noInput.code;
+      } on CoverageNotMet catch (e) {
+        _logger.err(
+          'Minimum coverage of $minCoverage not met, '
+          'current coverage: ${e.currentCoverage}',
+        );
+        return ExitCode.unavailable.code;
       } catch (error) {
         _logger.err('$error');
         return ExitCode.unavailable.code;

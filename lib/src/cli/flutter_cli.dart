@@ -4,6 +4,19 @@ part of 'cli.dart';
 /// is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
+
+/// {@template coverage_not_met}
+/// Thrown when `flutter test ---coverage --min-coverage value`
+/// don't met the informed minimum coverage
+/// {@endtemplate}
+class CoverageNotMet implements Exception {
+  /// {@macro coverage_not_met}
+  CoverageNotMet(this.currentCoverage);
+
+  /// The current coverage value when this exception was thrown
+  double currentCoverage;
+}
+
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.

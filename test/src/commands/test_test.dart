@@ -20,8 +20,10 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help         Print this usage information.\n'
-      '-r, --recursive    Run tests recursively for all nested packages.\n'
+      '-h, --help            Print this usage information.\n'
+      '-r, --recursive       Run tests recursively for all nested packages.\n'
+      '    --coverage        Collects the code coverage during the test.\n'
+      '    --min-coverage    Sets the minimum acceptable coverage.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
