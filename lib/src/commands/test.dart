@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
@@ -49,7 +51,8 @@ class TestCommand extends Command<int> {
         await Flutter.test(
           cwd: targetPath,
           recursive: recursive,
-          progress: _logger.progress,
+          stdout: _logger.info,
+          stderr: _logger.err,
         );
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');
