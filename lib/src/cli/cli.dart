@@ -65,6 +65,7 @@ const _ignoredDirectories = {
   '.plugin_symlinks',
   '.dart_tool',
   'build',
+  '.fvm',
 };
 
 bool _isPubspec(FileSystemEntity entity) {
