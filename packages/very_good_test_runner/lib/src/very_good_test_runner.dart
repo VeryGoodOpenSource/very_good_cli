@@ -13,41 +13,30 @@ Stream<TestEvent> flutterTest({
 }) {
   final controller = StreamController<TestEvent>();
   late StreamSubscription testEventSubscription;
+  late StreamSubscription errorSubscription;
   late Future<Process> processFuture;
 
   Future<void> _onListen() async {
-    final stopwatch = Stopwatch()..start();
     processFuture = Process.start(
       'flutter',
       ['test', ...?arguments, '--reporter=json', '--no-pub'],
       workingDirectory: workingDirectory,
     );
     final process = await processFuture;
+    final errors = process.stderr.map((e) => utf8.decode(e).trim());
     final testEvents = process.stdout.asTestEvents();
-
+    errorSubscription = errors.listen(controller.addError);
     testEventSubscription = testEvents.listen(
       controller.add,
       onError: controller.addError,
-      onDone: () async {
-        final exitCode = await process.exitCode;
-        stopwatch.stop();
-        final result = ProcessResult(
-          process.pid,
-          exitCode,
-          process.stdout,
-          process.stderr,
-        );
-        controller.add(
-          TestProcessDone(result: result, time: stopwatch.elapsedMilliseconds),
-        );
-        await controller.close();
-      },
+      onDone: controller.close,
     );
   }
 
   Future<void> _onCancel() async {
     await controller.close();
     (await processFuture).kill();
+    await errorSubscription.cancel();
     await testEventSubscription.cancel();
   }
 
