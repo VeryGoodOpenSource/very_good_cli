@@ -121,6 +121,31 @@ void main() {
       );
 
       test(
+        'ignores .fvm directory',
+        withRunner((commandRunner, logger, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          final directory = Directory(path.join(tempDirectory.path, '.fvm'))
+            ..createSync();
+          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
+            '''
+          name: example
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+          );
+          final result = await commandRunner.run(
+            ['packages', 'get', '-r', tempDirectory.path],
+          );
+          expect(result, equals(ExitCode.noInput.code));
+          verify(() {
+            logger.err(any(that: contains('Could not find a pubspec.yaml in')));
+          }).called(1);
+        }),
+      );
+
+      test(
         'completes normally '
         'when pubspec.yaml exists',
         withRunner((commandRunner, logger, printLogs) async {
