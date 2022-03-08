@@ -65,20 +65,29 @@ class Flutter {
   static Future<void> test({
     String cwd = '.',
     bool recursive = false,
-    void Function(String message)? stdout,
-    void Function(String message)? stderr,
-  }) {
-    final stream = _parseTestJson(
-      () => Process.start(
-        'flutter',
-        ['test', '--reporter=json', '--no-pub'],
-        workingDirectory: cwd,
-        runInShell: true,
-      ),
+    void Function(String)? stdout,
+    void Function(String)? stderr,
+  }) async {
+    await _runCommand(
+      cmd: (cwd) {
+        stdout?.call('\nRunning "flutter test" in $cwd...\n');
+        return _flutterTest(cwd: cwd, stdout: stdout, stderr: stderr);
+      },
+      cwd: cwd,
+      recursive: recursive,
     );
-    const clearPreviousLine = '\x1b[A\u001B[2K';
+  }
 
-    final completer = Completer<void>();
+  static Future<ProcessResult> _flutterTest({
+    String cwd = '.',
+    void Function(String)? stdout,
+    void Function(String)? stderr,
+  }) {
+    final _stdout = stdout ?? (String _) {};
+    final _stderr = stderr ?? (String _) {};
+    const clearLine = '\u001B[2K\r';
+
+    final completer = Completer<ProcessResult>();
     final groups = <int, TestGroup>{};
     final tests = <int, Test>{};
     final stopwatch = Stopwatch()..start();
@@ -87,82 +96,96 @@ class Flutter {
     var skipCount = 0;
     var failureCount = 0;
 
-    stream.listen((event) {
-      if (event is GroupTestEvent) groups[event.group.id] = event.group;
-      if (event is TestStartEvent) tests[event.test.id] = event.test;
-      if (event is MessageTestEvent) {
-        stderr?.call('$clearPreviousLine${event.message}');
-      }
-      if (event is ErrorTestEvent) {
-        stderr?.call(event.error);
-        if (event.stackTrace.trim().isNotEmpty) {
-          stderr?.call(event.stackTrace);
-        }
-      }
-      if (event is TestDoneEvent) {
-        if (event.hidden) return;
-        final test = tests[event.testID]!;
-        var skipped = false;
-        var failed = false;
-        if (event.skipped) {
-          skipCount++;
-          skipped = true;
-        } else if (event.result == TestResult.success) {
-          successCount++;
-        } else {
-          failureCount++;
-          failed = true;
+    final timerSubscription =
+        Stream.periodic(const Duration(seconds: 1), (_) => _).listen(
+      (tick) {
+        final timeElapsed = Duration(seconds: tick).formatted();
+        _stdout('$clearLine${darkGray.wrap(timeElapsed)}');
+      },
+    );
+
+    flutterTest(workingDirectory: cwd).listen(
+      (event) {
+        if (event is GroupTestEvent) groups[event.group.id] = event.group;
+        if (event is TestStartEvent) tests[event.test.id] = event.test;
+        if (event is MessageTestEvent) {
+          _stderr('$clearLine  ${event.message}');
         }
 
-        if (skipped) {
-          stdout?.call('  ${lightYellow.wrap('${test.name} (SKIPPED)')}');
-          stdout?.call('');
+        if (event is ErrorTestEvent) {
+          timerSubscription.cancel();
+          _stderr(event.error);
+          if (event.stackTrace.trim().isNotEmpty) {
+            _stderr(event.stackTrace);
+          }
         }
 
-        if (failed) {
-          stderr?.call('  ${test.name} (FAILED)');
-          stderr?.call('');
-        }
+        if (event is TestDoneEvent) {
+          if (event.hidden) return;
+          timerSubscription.cancel();
+          final test = tests[event.testID]!;
+          var skipped = false;
+          var failed = false;
+          if (event.skipped) {
+            skipCount++;
+            skipped = true;
+          } else if (event.result == TestResult.success) {
+            successCount++;
+          } else {
+            failureCount++;
+            failed = true;
+          }
 
-        final passingTests =
-            successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
-        final failingTests =
-            failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
-        final skippedTests =
-            skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
-        final result = [passingTests, failingTests, skippedTests]
-          ..removeWhere((element) => element.isEmpty);
-        final timeElapsed = Duration(milliseconds: event.time).formatted();
+          if (skipped) {
+            _stdout('  ${lightYellow.wrap('${test.name} (SKIPPED)')}\n');
+          }
 
-        stdout?.call(
-          '''$clearPreviousLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${test.name}''',
-        );
-      }
-      if (event is DoneTestEvent) {
-        stopwatch.stop();
-        final timeElapsed = Duration(
-          milliseconds: stopwatch.elapsedMilliseconds,
-        ).formatted();
-        if (event.success == true) {
-          return stdout?.call(
-            '''$clearPreviousLine${darkGray.wrap(timeElapsed)} ${lightGreen.wrap('+$successCount')}: ${lightGreen.wrap('All tests passed!')}''',
+          if (failed) _stderr('  ${test.name} (FAILED)\n');
+
+          final passingTests =
+              successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
+          final failingTests =
+              failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
+          final skippedTests =
+              skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
+          final result = [passingTests, failingTests, skippedTests]
+            ..removeWhere((element) => element.isEmpty);
+          final timeElapsed = Duration(milliseconds: event.time).formatted();
+
+          _stdout(
+            '''$clearLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${test.name}''',
           );
         }
 
-        final passingTests =
-            successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
-        final failingTests =
-            failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
-        final skippedTests =
-            skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
-        final result = [passingTests, failingTests, skippedTests]
-          ..removeWhere((element) => element.isEmpty);
-        stdout?.call(
-          '''$clearPreviousLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${lightRed.wrap('Some tests failed.')}''',
-        );
-      }
-      if (event is DoneTestEvent) completer.complete();
-    });
+        if (event is DoneTestEvent) {
+          stopwatch.stop();
+          final timeElapsed = Duration(
+            milliseconds: stopwatch.elapsedMilliseconds,
+          ).formatted();
+          stopwatch.reset();
+          if (event.success == true) {
+            return _stdout(
+              '''$clearLine${darkGray.wrap(timeElapsed)} ${lightGreen.wrap('+$successCount')}: ${lightGreen.wrap('All tests passed!')}\n''',
+            );
+          }
+
+          final passingTests =
+              successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
+          final failingTests =
+              failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
+          final skippedTests =
+              skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
+          final result = [passingTests, failingTests, skippedTests]
+            ..removeWhere((element) => element.isEmpty);
+          _stdout(
+            '''$clearLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${lightRed.wrap('Some tests failed.')}\n''',
+          );
+        }
+
+        if (event is TestProcessDone) completer.complete(event.result);
+      },
+      onError: completer.completeError,
+    );
     return completer.future;
   }
 
@@ -192,53 +215,6 @@ class Flutter {
       await process;
     }
   }
-}
-
-Stream<TestEvent> _parseTestJson(
-  Future<Process> Function() processCallback,
-) {
-  final controller = StreamController<TestEvent>();
-  late StreamSubscription eventSub;
-  late Future<Process> processFuture;
-
-  controller
-    ..onListen = () async {
-      processFuture = processCallback();
-      final process = await processFuture;
-
-      final events = process.stdout
-          .map(utf8.decode)
-          .expand<String>((msg) sync* {
-            for (final value in msg.split('\n')) {
-              final trimmedValue = value.trim();
-              if (trimmedValue.isNotEmpty) yield trimmedValue;
-            }
-          })
-          .expand<Object?>((j) {
-            try {
-              return [json.decode(j)];
-            } on FormatException {
-              return [];
-            }
-          })
-          .cast<Map<Object?, Object?>>()
-          .map((json) => TestEvent.fromJson(Map<String, dynamic>.from(json)));
-
-      eventSub = events.listen(
-        controller.add,
-        onError: controller.addError,
-        onDone: () async {
-          await controller.close();
-        },
-      );
-    }
-    ..onCancel = () async {
-      await controller.close();
-      (await processFuture).kill();
-      await eventSub.cancel();
-    };
-
-  return controller.stream;
 }
 
 extension on Duration {

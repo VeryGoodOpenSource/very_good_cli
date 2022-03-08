@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/test_event.dart';
+import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
@@ -17,36 +16,13 @@ class _Cmd {
     List<String> args, {
     bool throwOnError = true,
     String? workingDirectory,
-    void Function(String message)? stdout,
-    void Function(String message)? stderr,
   }) async {
-    final stdoutLogs = <String>[];
-    final stderrLogs = <String>[];
-    final process = await Process.start(
+    final result = await Process.run(
       cmd,
       args,
       workingDirectory: workingDirectory,
       runInShell: true,
     );
-    final stdoutSubscription = process.stdout.transform(utf8.decoder).listen(
-      (message) {
-        stdout?.call(message);
-        stdoutLogs.add(message);
-      },
-    );
-    final stderrSubscription = process.stderr.transform(utf8.decoder).listen(
-      (message) {
-        stderr?.call(message);
-        stderrLogs.add(message);
-      },
-    );
-    final exitCode = await process.exitCode;
-    await Future.wait([
-      stdoutSubscription.cancel(),
-      stderrSubscription.cancel(),
-    ]);
-
-    final result = ProcessResult(process.pid, exitCode, stdoutLogs, stderrLogs);
 
     if (throwOnError) {
       _throwIfProcessFailed(result, cmd, args);

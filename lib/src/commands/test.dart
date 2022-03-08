@@ -51,7 +51,7 @@ class TestCommand extends Command<int> {
         await Flutter.test(
           cwd: targetPath,
           recursive: recursive,
-          stdout: _logger.info,
+          stdout: stdout.write,
           stderr: _logger.err,
         );
       } on PubspecNotFound catch (_) {
