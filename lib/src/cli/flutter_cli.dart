@@ -70,7 +70,7 @@ class Flutter {
   }) {
     return _runCommand(
       cmd: (cwd) {
-        stdout?.call('\nRunning "flutter test" in $cwd...\n');
+        stdout?.call('Running "flutter test" in $cwd...\n');
         return _flutterTest(cwd: cwd, stdout: stdout, stderr: stderr);
       },
       cwd: cwd,
@@ -130,7 +130,7 @@ Future<void> _flutterTest({
     (tick) {
       if (completer.isCompleted) return;
       final timeElapsed = Duration(seconds: tick).formatted();
-      _stdout('$clearLine${darkGray.wrap(timeElapsed)} Scanning...');
+      _stdout('$clearLine$timeElapsed ...');
     },
   );
 
@@ -139,87 +139,71 @@ Future<void> _flutterTest({
       if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
       if (event is GroupTestEvent) groups[event.group.id] = event.group;
       if (event is TestStartEvent) tests[event.test.id] = event.test;
+
       if (event is MessageTestEvent) {
+        timerSubscription.cancel();
         if (event.message.startsWith('Skip:')) {
-          _stdout('$clearLine  ${lightYellow.wrap(event.message)}\n');
+          _stdout('$clearLine${lightYellow.wrap(event.message)}\n');
+        } else if (event.message.contains('EXCEPTION')) {
+          _stderr('$clearLine${event.message}');
         } else {
-          _stderr('$clearLine  ${event.message}');
+          _stdout('$clearLine${event.message}\n');
         }
       }
 
       if (event is ErrorTestEvent) {
         timerSubscription.cancel();
         _stderr(event.error);
-        if (event.stackTrace.trim().isNotEmpty) {
-          _stderr(event.stackTrace);
-        }
+        if (event.stackTrace.trim().isNotEmpty) _stderr(event.stackTrace);
       }
 
       if (event is TestDoneEvent) {
         if (event.hidden) return;
         timerSubscription.cancel();
+
         final test = tests[event.testID]!;
         final suite = suites[test.suiteID]!;
-        var skipped = false;
-        var failed = false;
+
         if (event.skipped) {
+          _stdout(
+            '''$clearLine${lightYellow.wrap('${test.name} ${suite.path} (SKIPPED)')}\n''',
+          );
           skipCount++;
-          skipped = true;
         } else if (event.result == TestResult.success) {
           successCount++;
         } else {
+          _stderr('$clearLine${test.name} ${suite.path} (FAILED)');
           failureCount++;
-          failed = true;
         }
 
-        if (skipped) {
-          _stdout(
-            '  ${lightYellow.wrap('${test.name} ${suite.path} (SKIPPED)')}\n',
-          );
-        }
-
-        if (failed) _stderr('  ${test.name} (FAILED)\n');
-
-        final passingTests =
-            successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
-        final failingTests =
-            failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
-        final skippedTests =
-            skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
+        final timeElapsed = Duration(milliseconds: event.time).formatted();
+        final passingTests = successCount.formatSuccess();
+        final failingTests = failureCount.formatFailure();
+        final skippedTests = skipCount.formatSkipped();
         final result = [passingTests, failingTests, skippedTests]
           ..removeWhere((element) => element.isEmpty);
-        final timeElapsed = Duration(milliseconds: event.time).formatted();
+        final stats = result.join(' ');
 
-        _stdout(
-          '''$clearLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${test.name}''',
-        );
+        _stdout('$clearLine$timeElapsed $stats: ${test.name}');
       }
 
       if (event is DoneTestEvent) {
-        stopwatch.stop();
         timerSubscription.cancel();
-        final passingTests =
-            successCount > 0 ? lightGreen.wrap('+$successCount')! : '';
-        final failingTests =
-            failureCount > 0 ? lightRed.wrap('-$failureCount')! : '';
-        final skippedTests =
-            skipCount > 0 ? lightYellow.wrap('~$skipCount')! : '';
-        final result = [passingTests, failingTests, skippedTests]
-          ..removeWhere((element) => element.isEmpty);
+        stopwatch.stop();
         final timeElapsed = Duration(
           milliseconds: stopwatch.elapsedMilliseconds,
         ).formatted();
+        final passingTests = successCount.formatSuccess();
+        final failingTests = failureCount.formatFailure();
+        final skippedTests = skipCount.formatSkipped();
+        final result = [passingTests, failingTests, skippedTests]
+          ..removeWhere((element) => element.isEmpty);
+        final stats = result.join(' ');
+        final summary = event.success == true
+            ? lightGreen.wrap('All tests passed!')!
+            : lightRed.wrap('Some tests failed.')!;
 
-        if (event.success == true) {
-          _stdout(
-            '''$clearLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${lightGreen.wrap('All tests passed!')}\n''',
-          );
-        } else {
-          _stdout(
-            '''$clearLine${darkGray.wrap(timeElapsed)} ${result.join(' ')}: ${lightRed.wrap('Some tests failed.')}\n''',
-          );
-        }
-
+        _stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
         completer.complete();
       }
     },
@@ -234,6 +218,20 @@ extension on Duration {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final twoDigitMinutes = twoDigits(inMinutes.remainder(60));
     final twoDigitSeconds = twoDigits(inSeconds.remainder(60));
-    return '$twoDigitMinutes:$twoDigitSeconds';
+    return darkGray.wrap('$twoDigitMinutes:$twoDigitSeconds')!;
+  }
+}
+
+extension on int {
+  String formatSuccess() {
+    return this > 0 ? lightGreen.wrap('+$this')! : '';
+  }
+
+  String formatFailure() {
+    return this > 0 ? lightRed.wrap('-$this')! : '';
+  }
+
+  String formatSkipped() {
+    return this > 0 ? lightYellow.wrap('~$this')! : '';
   }
 }
