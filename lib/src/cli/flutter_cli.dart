@@ -119,7 +119,6 @@ Future<void> _flutterTest({
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
-  final stopwatch = Stopwatch()..start();
 
   var successCount = 0;
   var skipCount = 0;
@@ -189,10 +188,7 @@ Future<void> _flutterTest({
       }
 
       if (event is DoneTestEvent) {
-        stopwatch.stop();
-        final timeElapsed = Duration(
-          milliseconds: stopwatch.elapsedMilliseconds,
-        ).formatted();
+        final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
         final summary = event.success == true
             ? lightGreen.wrap('All tests passed!')!
