@@ -37,6 +37,6 @@ class Dart {
 
     if (processes.isEmpty) throw PubspecNotFound();
 
-    await Future.wait(processes);
+    await Future.wait<void>(processes);
   }
 }

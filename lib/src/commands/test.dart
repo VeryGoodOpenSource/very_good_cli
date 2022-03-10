@@ -49,7 +49,8 @@ class TestCommand extends Command<int> {
         await Flutter.test(
           cwd: targetPath,
           recursive: recursive,
-          progress: _logger.progress,
+          stdout: _logger.write,
+          stderr: _logger.err,
         );
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');

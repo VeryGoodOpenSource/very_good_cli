@@ -91,6 +91,7 @@ void main() {
         }).called(1);
       }),
     );
+
     test(
       'throws when installation fails',
       withRunner(
@@ -119,9 +120,12 @@ void main() {
         final result = await commandRunner.run(['test', directory.path]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
+          logger.write(
             any(that: contains('Running "flutter test" in')),
           );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
         }).called(1);
       }),
     );
@@ -155,9 +159,12 @@ void main() {
         );
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
+          logger.write(
             any(that: contains('Running "flutter test" in')),
           );
+        }).called(2);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
         }).called(2);
       }),
     );
