@@ -28,14 +28,11 @@ class Flutter {
           'Running "flutter packages get" in $cwd',
         );
         try {
-          final result = await _Cmd.run(
+          await _Cmd.run(
             'flutter',
             ['packages', 'get'],
             workingDirectory: cwd,
           );
-          return result;
-        } catch (_) {
-          rethrow;
         } finally {
           installDone?.call();
         }
@@ -70,8 +67,13 @@ class Flutter {
   }) {
     return _runCommand(
       cmd: (cwd) {
+        void noop(String? _) {}
         stdout?.call('Running "flutter test" in $cwd...\n');
-        return _flutterTest(cwd: cwd, stdout: stdout, stderr: stderr);
+        return _flutterTest(
+          cwd: cwd,
+          stdout: stdout ?? noop,
+          stderr: stderr ?? noop,
+        );
       },
       cwd: cwd,
       recursive: recursive,
@@ -108,11 +110,9 @@ Future<void> _runCommand<T>({
 
 Future<void> _flutterTest({
   String cwd = '.',
-  void Function(String)? stdout,
-  void Function(String)? stderr,
+  required void Function(String) stdout,
+  required void Function(String) stderr,
 }) {
-  final _stdout = stdout ?? (String _) {};
-  final _stderr = stderr ?? (String _) {};
   const clearLine = '\u001B[2K\r';
 
   final completer = Completer<void>();
@@ -125,85 +125,80 @@ Future<void> _flutterTest({
   var skipCount = 0;
   var failureCount = 0;
 
+  String computeStats() {
+    final passingTests = successCount.formatSuccess();
+    final failingTests = failureCount.formatFailure();
+    final skippedTests = skipCount.formatSkipped();
+    final result = [passingTests, failingTests, skippedTests]
+      ..removeWhere((element) => element.isEmpty);
+    return result.join(' ');
+  }
+
   final timerSubscription =
       Stream.periodic(const Duration(seconds: 1), (_) => _).listen(
     (tick) {
       if (completer.isCompleted) return;
       final timeElapsed = Duration(seconds: tick).formatted();
-      _stdout('$clearLine$timeElapsed ...');
+      stdout('$clearLine$timeElapsed ...');
     },
   );
 
   flutterTest(workingDirectory: cwd).listen(
     (event) {
+      if (event.shouldCancelTimer()) timerSubscription.cancel();
       if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
       if (event is GroupTestEvent) groups[event.group.id] = event.group;
       if (event is TestStartEvent) tests[event.test.id] = event.test;
 
       if (event is MessageTestEvent) {
-        timerSubscription.cancel();
         if (event.message.startsWith('Skip:')) {
-          _stdout('$clearLine${lightYellow.wrap(event.message)}\n');
+          stdout('$clearLine${lightYellow.wrap(event.message)}\n');
         } else if (event.message.contains('EXCEPTION')) {
-          _stderr('$clearLine${event.message}');
+          stderr('$clearLine${event.message}');
         } else {
-          _stdout('$clearLine${event.message}\n');
+          stdout('$clearLine${event.message}\n');
         }
       }
 
       if (event is ErrorTestEvent) {
-        timerSubscription.cancel();
-        _stderr(event.error);
-        if (event.stackTrace.trim().isNotEmpty) _stderr(event.stackTrace);
+        stderr(event.error);
+        if (event.stackTrace.trim().isNotEmpty) stderr(event.stackTrace);
       }
 
       if (event is TestDoneEvent) {
         if (event.hidden) return;
-        timerSubscription.cancel();
 
         final test = tests[event.testID]!;
         final suite = suites[test.suiteID]!;
 
         if (event.skipped) {
-          _stdout(
+          stdout(
             '''$clearLine${lightYellow.wrap('${test.name} ${suite.path} (SKIPPED)')}\n''',
           );
           skipCount++;
         } else if (event.result == TestResult.success) {
           successCount++;
         } else {
-          _stderr('$clearLine${test.name} ${suite.path} (FAILED)');
+          stderr('$clearLine${test.name} ${suite.path} (FAILED)');
           failureCount++;
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
-        final passingTests = successCount.formatSuccess();
-        final failingTests = failureCount.formatFailure();
-        final skippedTests = skipCount.formatSkipped();
-        final result = [passingTests, failingTests, skippedTests]
-          ..removeWhere((element) => element.isEmpty);
-        final stats = result.join(' ');
-
-        _stdout('$clearLine$timeElapsed $stats: ${test.name}');
+        final stats = computeStats();
+        stdout('$clearLine$timeElapsed $stats: ${test.name}');
       }
 
       if (event is DoneTestEvent) {
-        timerSubscription.cancel();
         stopwatch.stop();
         final timeElapsed = Duration(
           milliseconds: stopwatch.elapsedMilliseconds,
         ).formatted();
-        final passingTests = successCount.formatSuccess();
-        final failingTests = failureCount.formatFailure();
-        final skippedTests = skipCount.formatSkipped();
-        final result = [passingTests, failingTests, skippedTests]
-          ..removeWhere((element) => element.isEmpty);
-        final stats = result.join(' ');
+        final stats = computeStats();
         final summary = event.success == true
             ? lightGreen.wrap('All tests passed!')!
             : lightRed.wrap('Some tests failed.')!;
 
-        _stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
+        stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
         completer.complete();
       }
     },
@@ -211,6 +206,17 @@ Future<void> _flutterTest({
   );
 
   return completer.future;
+}
+
+extension on TestEvent {
+  bool shouldCancelTimer() {
+    final event = this;
+    if (event is MessageTestEvent) return true;
+    if (event is ErrorTestEvent) return true;
+    if (event is DoneTestEvent) return true;
+    if (event is TestDoneEvent) return !event.hidden;
+    return false;
+  }
 }
 
 extension on Duration {
