@@ -160,8 +160,10 @@ Future<void> _flutterTest({
       }
 
       if (event is ErrorTestEvent) {
-        stderr(event.error);
-        if (event.stackTrace.trim().isNotEmpty) stderr(event.stackTrace);
+        stderr('$clearLine${event.error}');
+        if (event.stackTrace.trim().isNotEmpty) {
+          stderr('$clearLine${event.stackTrace}');
+        }
       }
 
       if (event is TestDoneEvent) {
@@ -184,7 +186,9 @@ Future<void> _flutterTest({
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        final testName = test.name.truncated(_lineLength - 15);
+        final testName = test.name.truncated(
+          _lineLength - (timeElapsed.length + stats.length + 3),
+        );
         stdout('''$clearLine$timeElapsed $stats: $testName''');
       }
 
