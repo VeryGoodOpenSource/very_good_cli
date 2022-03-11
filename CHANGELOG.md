@@ -1,3 +1,15 @@
+# [0.6.0-dev.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0-dev.1) (2022-03-11)
+
+### Bug Fixes
+
+- ignore .fvm directory ([#307](https://github.com/VeryGoodOpenSource/very_good_cli/issues/307)) ([4865a91](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4865a91466a8cc62a32727fa0d1e2442cb1fb4b5))
+- **test:** truncate output to fit line ([#309](https://github.com/VeryGoodOpenSource/very_good_cli/issues/309)) ([5487fcf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5487fcfd3f866d5a4af008fe2276f7f2534be344))
+
+### Features
+
+- add very_good test command ([#303](https://github.com/VeryGoodOpenSource/very_good_cli/issues/303)) ([39678f8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/39678f814ed604b35027bc1bf2da7f74dbf9f8f8))
+- use very_good_test_runner to improve test output ([#308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/308)) ([c6e4ae4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c6e4ae4c9ee7be3de1bbc0b2753d2b7f68d24d83))
+
 # [0.5.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.4...v0.5.5) (2022-03-01)
 
 ### Features
