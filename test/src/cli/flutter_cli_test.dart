@@ -243,6 +243,9 @@ void main() {
           () => logger.err(any(that: contains('${testFile.path} (FAILED)'))),
         ).called(1);
         verify(
+          () => logger.write(any(that: contains('-1: example'))),
+        ).called(1);
+        verify(
           () => logger.write(any(that: contains('Some tests failed.'))),
         ).called(1);
       });
@@ -272,7 +275,10 @@ void main() {
           () => logger.write(any(that: contains('${testFile.path} (SKIPPED)'))),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('All tests passed!'))),
+          () => logger.write(any(that: contains('+1 ~1: example'))),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1 ~1: All tests passed!'))),
         ).called(1);
       });
 
@@ -309,7 +315,10 @@ void main() {
           () => logger.write(any(that: contains('${testFile.path} (SKIPPED)'))),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('All tests passed!'))),
+          () => logger.write(any(that: contains('+1 ~1: example'))),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1 ~1: All tests passed!'))),
         ).called(1);
       });
 
@@ -338,7 +347,10 @@ void main() {
           () => logger.write(any(that: contains('Hello World'))),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('All tests passed!'))),
+          () => logger.write(any(that: contains('+1: example'))),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
       });
 
@@ -368,7 +380,10 @@ void main() {
           () => logger.err(any(that: contains('Exception: oops'))),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('Some tests failed.'))),
+          () => logger.write(any(that: contains('-1: example'))),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('-1: Some tests failed.'))),
         ).called(1);
       });
 
@@ -405,7 +420,7 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('All tests passed!'))),
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
       });
 
@@ -440,7 +455,7 @@ void main() {
           ),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('All tests passed!'))),
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
       });
     });

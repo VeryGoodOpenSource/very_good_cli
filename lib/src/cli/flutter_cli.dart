@@ -142,7 +142,7 @@ Future<void> _flutterTest({
     },
   );
 
-  flutterTest(workingDirectory: cwd).listen(
+  flutterTest(workingDirectory: cwd, runInShell: true).listen(
     (event) {
       if (event.shouldCancelTimer()) timerSubscription.cancel();
       if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
@@ -184,7 +184,8 @@ Future<void> _flutterTest({
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        stdout('$clearLine$timeElapsed $stats: ${test.name}');
+        final testName = test.name.truncated(_lineLength - 15);
+        stdout('''$clearLine$timeElapsed $stats: $testName''');
       }
 
       if (event is DoneTestEvent) {
@@ -203,6 +204,14 @@ Future<void> _flutterTest({
 
   return completer.future;
 }
+
+final int _lineLength = () {
+  try {
+    return stdout.terminalColumns;
+  } on StdoutException {
+    return 80;
+  }
+}();
 
 extension on TestEvent {
   bool shouldCancelTimer() {
@@ -235,5 +244,13 @@ extension on int {
 
   String formatSkipped() {
     return this > 0 ? lightYellow.wrap('~$this')! : '';
+  }
+}
+
+extension on String {
+  String truncated(int maxLength) {
+    if (length <= maxLength) return this;
+    final truncated = trim().substring(length - maxLength, length);
+    return '...$truncated';
   }
 }
