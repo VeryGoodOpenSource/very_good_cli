@@ -16,6 +16,10 @@ class CoverageNotMet implements Exception {
   double currentCoverage;
 }
 
+/// Thrown when `flutter test ---coverage --min-coverage value`
+/// don't generate the coverage file for some reason
+class CoverageFileNotFound implements Exception {}
+
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
@@ -74,15 +78,25 @@ class Flutter {
   static Future<void> test({
     String cwd = '.',
     bool recursive = false,
+    bool collectCoverage = false,
+    double? minCoverage,
     void Function(String)? stdout,
     void Function(String)? stderr,
-  }) {
-    return _runCommand(
+  }) async {
+    final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
+    final lcovFile = File(lcovPath);
+
+    if (collectCoverage && lcovFile.existsSync()) {
+      await lcovFile.delete();
+    }
+
+    await _runCommand(
       cmd: (cwd) {
         void noop(String? _) {}
         stdout?.call('Running "flutter test" in $cwd...\n');
         return _flutterTest(
           cwd: cwd,
+          collectCoverage: collectCoverage,
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         );
@@ -90,6 +104,30 @@ class Flutter {
       cwd: cwd,
       recursive: recursive,
     );
+
+    if (collectCoverage && minCoverage != null) {
+      var breakCounter = 0;
+      while (!lcovFile.existsSync()) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        if (breakCounter++ > 10) {
+          throw CoverageFileNotFound();
+        }
+      }
+
+      final records = await Parser.parse(lcovPath);
+
+      var totalHits = 0;
+      var totalFinds = 0;
+      for (final rec in records) {
+        totalFinds += rec.lines?.found ?? 0;
+        totalHits += rec.lines?.hit ?? 0;
+      }
+
+      final coverage = (totalHits / totalFinds) * 100;
+      if (coverage < minCoverage) {
+        throw CoverageNotMet(coverage);
+      }
+    }
   }
 }
 
@@ -122,6 +160,7 @@ Future<void> _runCommand<T>({
 
 Future<void> _flutterTest({
   String cwd = '.',
+  bool collectCoverage = false,
   required void Function(String) stdout,
   required void Function(String) stderr,
 }) {
@@ -154,7 +193,13 @@ Future<void> _flutterTest({
     },
   );
 
-  flutterTest(workingDirectory: cwd, runInShell: true).listen(
+  flutterTest(
+    workingDirectory: cwd,
+    arguments: [
+      if (collectCoverage) '--coverage',
+    ],
+    runInShell: true,
+  ).listen(
     (event) {
       if (event.shouldCancelTimer()) timerSubscription.cancel();
       if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;

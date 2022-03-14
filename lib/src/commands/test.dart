@@ -65,8 +65,8 @@ class TestCommand extends Command<int> {
           recursive: recursive,
           stdout: _logger.write,
           stderr: _logger.err,
+          collectCoverage: collectCoverage,
           minCoverage: minCoverage,
-          progress: _logger.progress,
         );
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');
@@ -75,6 +75,12 @@ class TestCommand extends Command<int> {
         _logger.err(
           'Minimum coverage of $minCoverage not met, '
           'current coverage: ${e.currentCoverage}',
+        );
+        return ExitCode.unavailable.code;
+      } on CoverageFileNotFound catch (_) {
+        _logger.err(
+          "flutter coverage didn't generated the coverage file for "
+          'some reason',
         );
         return ExitCode.unavailable.code;
       } catch (error) {
