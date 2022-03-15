@@ -22,8 +22,8 @@ const expectedTestUsage = [
       'Usage: very_good test [arguments]\n'
       '-h, --help            Print this usage information.\n'
       '-r, --recursive       Run tests recursively for all nested packages.\n'
-      '    --coverage        Collects the code coverage during the test.\n'
-      '    --min-coverage    Sets the minimum acceptable coverage.\n'
+      '    --coverage        Whether to collect coverage information.\n'
+      '''    --min-coverage    Whether to enforce a minimum coverage percentage.\n'''
       '\n'
       'Run "very_good help" to see global options.',
 ];

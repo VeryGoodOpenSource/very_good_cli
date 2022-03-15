@@ -21,12 +21,12 @@ class TestCommand extends Command<int> {
       )
       ..addFlag(
         'coverage',
-        help: 'Collects the code coverage during the test.',
+        help: 'Whether to collect coverage information.',
         negatable: false,
       )
       ..addOption(
         'min-coverage',
-        help: 'Sets the minimum acceptable coverage.',
+        help: 'Whether to enforce a minimum coverage percentage.',
       );
   }
 
