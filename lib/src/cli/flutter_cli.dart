@@ -5,14 +5,14 @@ part of 'cli.dart';
 class PubspecNotFound implements Exception {}
 
 /// {@template coverage_not_met}
-/// Thrown when `flutter test ---coverage --min-coverage value`
-/// don't met the informed minimum coverage
+/// Thrown when `flutter test ---coverage --min-coverage`
+/// does not meet the provided minimum coverage threshold.
 /// {@endtemplate}
 class MinCoverageNotMet implements Exception {
   /// {@macro coverage_not_met}
   const MinCoverageNotMet(this.coverage);
 
-  /// The current coverage value when this exception was thrown
+  /// The measured coverage percentage (total hits / total found * 100).
   final double coverage;
 }
 
