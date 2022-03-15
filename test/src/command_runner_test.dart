@@ -47,13 +47,9 @@ const responseBody =
 const latestVersion = '0.0.0';
 
 final updatePrompt = '''
-+-------------------------------------------------------------------------------------+
-|                                                                                     |
-|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                          |
-| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
-|                                                                                     |
-+-------------------------------------------------------------------------------------+
-''';
+${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
+${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
+Run ${cyan.wrap('dart pub global activate very_good_cli')} to update''';
 
 void main() {
   group('VeryGoodCommandRunner', () {
