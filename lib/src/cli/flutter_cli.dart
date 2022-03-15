@@ -18,7 +18,10 @@ class MinCoverageNotMet implements Exception {
 
 /// Thrown when `flutter test ---coverage --min-coverage value`
 /// does not generate the coverage file within the timeout threshold.
-class GenerateCoverageTimeout implements Exception {}
+class GenerateCoverageTimeout implements Exception {
+  @override
+  String toString() => 'Timed out waiting for coverage to be generated.';
+}
 
 class _CoverageMetrics {
   const _CoverageMetrics._({this.totalHits = 0, this.totalFound = 0});

@@ -73,12 +73,8 @@ class TestCommand extends Command<int> {
         return ExitCode.noInput.code;
       } on MinCoverageNotMet catch (e) {
         _logger.err(
-          'Minimum coverage of $minCoverage not met, '
-          'current coverage: ${e.coverage}',
+          'Expected coverage >= "$minCoverage" but received "${e.coverage}".',
         );
-        return ExitCode.unavailable.code;
-      } on GenerateCoverageTimeout catch (_) {
-        _logger.err('Coverage could not be generated.');
         return ExitCode.unavailable.code;
       } catch (error) {
         _logger.err('$error');

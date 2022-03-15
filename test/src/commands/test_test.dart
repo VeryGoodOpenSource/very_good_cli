@@ -133,6 +133,90 @@ void main() {
     );
 
     test(
+      'completes normally --coverage',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', directory.path],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+      }),
+    );
+
+    test(
+      'completes normally --coverage --min-coverage 0',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', '--min-coverage', '0', directory.path],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+      }),
+    );
+
+    test(
+      'fails when coverage not met --coverage --min-coverage 100',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', '--min-coverage', '100', directory.path],
+        );
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+        verify(
+          () => logger.err('Expected coverage >= "100.0" but received "0.0".'),
+        ).called(1);
+      }),
+    );
+
+    test(
       'completes normally '
       'when pubspec.yaml and tests exist (recursive)',
       withRunner((commandRunner, logger, printLogs) async {
