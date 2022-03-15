@@ -20,8 +20,10 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help         Print this usage information.\n'
-      '-r, --recursive    Run tests recursively for all nested packages.\n'
+      '-h, --help            Print this usage information.\n'
+      '-r, --recursive       Run tests recursively for all nested packages.\n'
+      '    --coverage        Whether to collect coverage information.\n'
+      '''    --min-coverage    Whether to enforce a minimum coverage percentage.\n'''
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -127,6 +129,90 @@ void main() {
         verify(() {
           logger.write(any(that: contains('All tests passed')));
         }).called(1);
+      }),
+    );
+
+    test(
+      'completes normally --coverage',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', directory.path],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+      }),
+    );
+
+    test(
+      'completes normally --coverage --min-coverage 0',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', '--min-coverage', '0', directory.path],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+      }),
+    );
+
+    test(
+      'fails when coverage not met --coverage --min-coverage 100',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContent);
+        final result = await commandRunner.run(
+          ['test', '--coverage', '--min-coverage', '100', directory.path],
+        );
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+        verify(
+          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
+        ).called(1);
       }),
     );
 

@@ -4,6 +4,49 @@ part of 'cli.dart';
 /// is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
+/// {@template coverage_not_met}
+/// Thrown when `flutter test ---coverage --min-coverage`
+/// does not meet the provided minimum coverage threshold.
+/// {@endtemplate}
+class MinCoverageNotMet implements Exception {
+  /// {@macro coverage_not_met}
+  const MinCoverageNotMet(this.coverage);
+
+  /// The measured coverage percentage (total hits / total found * 100).
+  final double coverage;
+}
+
+/// Thrown when `flutter test ---coverage --min-coverage value`
+/// does not generate the coverage file within the timeout threshold.
+class GenerateCoverageTimeout implements Exception {
+  @override
+  String toString() => 'Timed out waiting for coverage to be generated.';
+}
+
+class _CoverageMetrics {
+  const _CoverageMetrics._({this.totalHits = 0, this.totalFound = 0});
+
+  /// Generate coverage metrics from a list of lcov records.
+  factory _CoverageMetrics.fromLcovRecords(List<Record> records) {
+    return records.fold<_CoverageMetrics>(
+      const _CoverageMetrics._(),
+      (current, record) {
+        final found = record.lines?.found ?? 0;
+        final hit = record.lines?.hit ?? 0;
+        return _CoverageMetrics._(
+          totalFound: current.totalFound + found,
+          totalHits: current.totalHits + hit,
+        );
+      },
+    );
+  }
+
+  final int totalHits;
+  final int totalFound;
+
+  double get percentage => totalFound < 1 ? 0 : (totalHits / totalFound * 100);
+}
+
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
@@ -62,15 +105,25 @@ class Flutter {
   static Future<void> test({
     String cwd = '.',
     bool recursive = false,
+    bool collectCoverage = false,
+    double? minCoverage,
     void Function(String)? stdout,
     void Function(String)? stderr,
-  }) {
-    return _runCommand(
+  }) async {
+    final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
+    final lcovFile = File(lcovPath);
+
+    if (collectCoverage && lcovFile.existsSync()) {
+      await lcovFile.delete();
+    }
+
+    await _runCommand(
       cmd: (cwd) {
         void noop(String? _) {}
         stdout?.call('Running "flutter test" in $cwd...\n');
         return _flutterTest(
           cwd: cwd,
+          collectCoverage: collectCoverage,
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         );
@@ -78,6 +131,14 @@ class Flutter {
       cwd: cwd,
       recursive: recursive,
     );
+
+    if (collectCoverage) await lcovFile.ensureCreated();
+    if (minCoverage != null) {
+      final records = await Parser.parse(lcovPath);
+      final coverageMetrics = _CoverageMetrics.fromLcovRecords(records);
+      final coverage = coverageMetrics.percentage;
+      if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
+    }
   }
 }
 
@@ -110,6 +171,7 @@ Future<void> _runCommand<T>({
 
 Future<void> _flutterTest({
   String cwd = '.',
+  bool collectCoverage = false,
   required void Function(String) stdout,
   required void Function(String) stderr,
 }) {
@@ -142,7 +204,13 @@ Future<void> _flutterTest({
     },
   );
 
-  flutterTest(workingDirectory: cwd, runInShell: true).listen(
+  flutterTest(
+    workingDirectory: cwd,
+    arguments: [
+      if (collectCoverage) '--coverage',
+    ],
+    runInShell: true,
+  ).listen(
     (event) {
       if (event.shouldCancelTimer()) timerSubscription.cancel();
       if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
@@ -216,6 +284,20 @@ final int _lineLength = () {
     return 80;
   }
 }();
+
+extension on File {
+  Future<void> ensureCreated({
+    Duration timeout = const Duration(seconds: 1),
+    Duration interval = const Duration(milliseconds: 50),
+  }) async {
+    var elapsedTime = Duration.zero;
+    while (!existsSync()) {
+      await Future<void>.delayed(interval);
+      elapsedTime += interval;
+      if (elapsedTime >= timeout) throw GenerateCoverageTimeout();
+    }
+  }
+}
 
 extension on TestEvent {
   bool shouldCancelTimer() {
