@@ -211,7 +211,7 @@ void main() {
           logger.write(any(that: contains('All tests passed')));
         }).called(1);
         verify(
-          () => logger.err('Expected coverage >= "100.0" but received "0.0".'),
+          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
         ).called(1);
       }),
     );

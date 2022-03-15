@@ -73,7 +73,7 @@ class TestCommand extends Command<int> {
         return ExitCode.noInput.code;
       } on MinCoverageNotMet catch (e) {
         _logger.err(
-          'Expected coverage >= "$minCoverage" but received "${e.coverage}".',
+          '''Expected coverage >= ${minCoverage!.toStringAsFixed(2)}% but actual is ${e.coverage.toStringAsFixed(2)}%.''',
         );
         return ExitCode.unavailable.code;
       } catch (error) {
