@@ -154,7 +154,7 @@ very_good test -r
 ```sh
 Run tests in a Dart or Flutter project.
 
-Usage: very_good packages get [arguments]
+Usage: very_good test [arguments]
 -h, --help         Print this usage information.
 -r, --recursive    Run tests recursively for all nested packages.
 
