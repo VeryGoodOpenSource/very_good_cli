@@ -121,28 +121,11 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           ..info('')
           ..info(
             '''
-+-------------------------------------------------------------------------------------+
-|                                                                                     |
-|                          ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}                          |
-| ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')} |
-|                                                                                     |
-+-------------------------------------------------------------------------------------+
-''',
+${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
+${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
+Run ${lightCyan.wrap('dart pub global activate very_good_cli')} to update''',
           );
-        final response = _logger.prompt('Would you like to update? (y/n) ');
-        if (response.isYes()) {
-          final done = _logger.progress('Updating to $latestVersion');
-          await _pubUpdater.update(packageName: packageName);
-          done('Updated to $latestVersion');
-        }
       }
     } catch (_) {}
-  }
-}
-
-extension on String {
-  bool isYes() {
-    final normalized = toLowerCase().trim();
-    return normalized == 'y' || normalized == 'yes';
   }
 }
