@@ -136,10 +136,10 @@ Run "very_good help" to see global options.
 Run tests in a Dart or Flutter project.
 
 ```sh
-# Run tests in the current directory
+# Run all tests
 very_good test
 
-# Run tests in ./some/other/directory
+# Run only tests in ./some/other/directory
 very_good test ./some/other/directory
 
 # Run tests recursively
