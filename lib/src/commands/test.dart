@@ -71,17 +71,14 @@ class TestCommand extends Command<int> {
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');
         return ExitCode.noInput.code;
-      } on CoverageNotMet catch (e) {
+      } on MinCoverageNotMet catch (e) {
         _logger.err(
           'Minimum coverage of $minCoverage not met, '
-          'current coverage: ${e.currentCoverage}',
+          'current coverage: ${e.coverage}',
         );
         return ExitCode.unavailable.code;
-      } on CoverageFileNotFound catch (_) {
-        _logger.err(
-          "flutter coverage didn't generated the coverage file for "
-          'some reason',
-        );
+      } on GenerateCoverageTimeout catch (_) {
+        _logger.err('Coverage could not be generated.');
         return ExitCode.unavailable.code;
       } catch (error) {
         _logger.err('$error');

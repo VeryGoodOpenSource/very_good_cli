@@ -8,17 +8,41 @@ class PubspecNotFound implements Exception {}
 /// Thrown when `flutter test ---coverage --min-coverage value`
 /// don't met the informed minimum coverage
 /// {@endtemplate}
-class CoverageNotMet implements Exception {
+class MinCoverageNotMet implements Exception {
   /// {@macro coverage_not_met}
-  CoverageNotMet(this.currentCoverage);
+  const MinCoverageNotMet(this.coverage);
 
   /// The current coverage value when this exception was thrown
-  double currentCoverage;
+  final double coverage;
 }
 
 /// Thrown when `flutter test ---coverage --min-coverage value`
-/// don't generate the coverage file for some reason
-class CoverageFileNotFound implements Exception {}
+/// does not generate the coverage file within the timeout threshold.
+class GenerateCoverageTimeout implements Exception {}
+
+class _CoverageMetrics {
+  const _CoverageMetrics._({this.totalHits = 0, this.totalFound = 0});
+
+  /// Generate coverage metrics from a list of lcov records.
+  factory _CoverageMetrics.fromLcovRecords(List<Record> records) {
+    return records.fold<_CoverageMetrics>(
+      const _CoverageMetrics._(),
+      (current, record) {
+        final found = record.lines?.found ?? 0;
+        final hit = record.lines?.hit ?? 0;
+        return _CoverageMetrics._(
+          totalFound: current.totalFound + found,
+          totalHits: current.totalHits + hit,
+        );
+      },
+    );
+  }
+
+  final int totalHits;
+  final int totalFound;
+
+  double get percentage => totalFound < 1 ? 0 : (totalHits / totalFound * 100);
+}
 
 /// Flutter CLI
 class Flutter {
@@ -105,28 +129,12 @@ class Flutter {
       recursive: recursive,
     );
 
-    if (collectCoverage && minCoverage != null) {
-      var breakCounter = 0;
-      while (!lcovFile.existsSync()) {
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-        if (breakCounter++ > 10) {
-          throw CoverageFileNotFound();
-        }
-      }
-
+    if (collectCoverage) await lcovFile.ensureCreated();
+    if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);
-
-      var totalHits = 0;
-      var totalFinds = 0;
-      for (final rec in records) {
-        totalFinds += rec.lines?.found ?? 0;
-        totalHits += rec.lines?.hit ?? 0;
-      }
-
-      final coverage = (totalHits / totalFinds) * 100;
-      if (coverage < minCoverage) {
-        throw CoverageNotMet(coverage);
-      }
+      final coverageMetrics = _CoverageMetrics.fromLcovRecords(records);
+      final coverage = coverageMetrics.percentage;
+      if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
     }
   }
 }
@@ -273,6 +281,20 @@ final int _lineLength = () {
     return 80;
   }
 }();
+
+extension on File {
+  Future<void> ensureCreated({
+    Duration timeout = const Duration(seconds: 1),
+    Duration interval = const Duration(milliseconds: 50),
+  }) async {
+    var elapsedTime = Duration.zero;
+    while (!existsSync()) {
+      await Future<void>.delayed(interval);
+      elapsedTime += interval;
+      if (elapsedTime >= timeout) throw GenerateCoverageTimeout();
+    }
+  }
+}
 
 extension on TestEvent {
   bool shouldCancelTimer() {

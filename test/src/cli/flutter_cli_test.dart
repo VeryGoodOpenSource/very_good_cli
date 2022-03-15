@@ -5,6 +5,33 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
+const calculatorContents = '''
+class Calculator {
+  int add(int x, int y) => x + y;
+  int subtract(int x, int y) => x - y;
+}''';
+
+const calculatorTestContents = '''
+import 'package:test/test.dart';
+import 'package:example/calculator.dart';
+
+void main() {
+  test('...', () {
+    expect(Calculator().add(1, 2), equals(3));
+    expect(Calculator().subtract(43, 1), equals(42));
+  });
+}''';
+
+const calculatorTestContentsMissingCoverage = '''
+import 'package:test/test.dart';
+import 'package:example/calculator.dart';
+
+void main() {
+  test('...', () {
+    expect(Calculator().add(1, 2), equals(3));
+  });
+}''';
+
 const testContents = '''
 import 'package:test/test.dart';
 
@@ -495,6 +522,234 @@ void main() {
         verify(
           () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
+      });
+
+      test('completes w/coverage', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
+      });
+
+      test('overwrites previous coverage file', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final coverageDirectory = Directory(p.join(directory.path, 'coverage'))
+          ..createSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(coverageDirectory.path, 'lcov.info'))
+            .writeAsStringSync('HI');
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(
+            p.join(directory.path, 'coverage', 'lcov.info'),
+          ).readAsStringSync(),
+          isNot(equals('HI')),
+        );
+      });
+
+      test('completes w/coverage and --min-coverage 100', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+            minCoverage: 100,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
+      });
+
+      test('throws when --min-coverage 100 not met (50%)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+            minCoverage: 100,
+          ),
+          throwsA(
+            isA<MinCoverageNotMet>().having((e) => e.coverage, 'coverage', 50),
+          ),
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
+      });
+
+      test('passes when --min-coverage 50 met (50%)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+            minCoverage: 50,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
+      });
+
+      test('passes when --min-coverage 49 met (50%)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+            minCoverage: 49,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(that: contains('Running "flutter test" in ${directory.path}')),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
       });
     });
   });
