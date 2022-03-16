@@ -15,6 +15,18 @@ void main() {
   });
 }''';
 
+const testTagsContent = '''
+import 'package:test/test.dart';
+void main() {
+  test('example', () {
+    expect(true, isTrue);
+  });
+
+  test('...', () {
+    expect(true, isTrue);
+  }, tags: 'test-tag');
+}''';
+
 const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
@@ -24,6 +36,7 @@ const expectedTestUsage = [
       '-r, --recursive       Run tests recursively for all nested packages.\n'
       '    --coverage        Whether to collect coverage information.\n'
       '''    --min-coverage    Whether to enforce a minimum coverage percentage.\n'''
+      '''-x, --exclude-tags    Run only tests that do not have the specified tags.\n'''
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -153,6 +166,32 @@ void main() {
         }).called(1);
         verify(() {
           logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+      }),
+    );
+
+    test(
+      'completes normally -x test-tag',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testTagsContent);
+        final result = await commandRunner.run(['test', '-x', 'test-tag']);
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('+1: All tests passed!')));
         }).called(1);
       }),
     );
