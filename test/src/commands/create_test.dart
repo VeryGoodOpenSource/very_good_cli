@@ -9,8 +9,8 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/create.dart';
-import 'package:very_good_cli/src/templates/templates.dart';
+import 'package:very_good_cli/src/commands/create/create.dart';
+import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 import '../../helpers/helpers.dart';
 
