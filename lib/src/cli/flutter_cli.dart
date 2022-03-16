@@ -107,6 +107,7 @@ class Flutter {
     bool recursive = false,
     bool collectCoverage = false,
     double? minCoverage,
+    List<String>? arguments,
     void Function(String)? stdout,
     void Function(String)? stderr,
   }) async {
@@ -120,10 +121,11 @@ class Flutter {
     await _runCommand(
       cmd: (cwd) {
         void noop(String? _) {}
-        stdout?.call('Running "flutter test" in $cwd...\n');
+        stdout?.call('Running "flutter test" in ${p.canonicalize(cwd)}...\n');
         return _flutterTest(
           cwd: cwd,
           collectCoverage: collectCoverage,
+          arguments: arguments,
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         );
@@ -172,6 +174,7 @@ Future<void> _runCommand<T>({
 Future<void> _flutterTest({
   String cwd = '.',
   bool collectCoverage = false,
+  List<String>? arguments,
   required void Function(String) stdout,
   required void Function(String) stderr,
 }) {
@@ -208,6 +211,7 @@ Future<void> _flutterTest({
     workingDirectory: cwd,
     arguments: [
       if (collectCoverage) '--coverage',
+      ...?arguments,
     ],
     runInShell: true,
   ).listen(

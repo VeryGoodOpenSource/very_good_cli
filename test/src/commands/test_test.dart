@@ -42,6 +42,12 @@ dev_dependencies:
 
 void main() {
   group('test', () {
+    final cwd = Directory.current;
+
+    setUp(() {
+      Directory.current = cwd;
+    });
+
     test(
       'help',
       withRunner((commandRunner, logger, printLogs) async {
@@ -58,22 +64,12 @@ void main() {
     );
 
     test(
-      'throws usage exception '
-      'when too many arguments are provided',
-      withRunner((commandRunner, logger, printLogs) async {
-        final result = await commandRunner.run(
-          ['test', 'arg1', 'arg2'],
-        );
-        expect(result, equals(ExitCode.usage.code));
-      }),
-    );
-
-    test(
       'throws pubspec not found exception '
       'when no pubspec.yaml exists',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
-        final result = await commandRunner.run(['test', directory.path]);
+        Directory.current = directory.path;
+        final result = await commandRunner.run(['test']);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -86,7 +82,8 @@ void main() {
       'when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
-        final result = await commandRunner.run(['test', '-r', directory.path]);
+        Directory.current = directory.path;
+        final result = await commandRunner.run(['test', '-r']);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -99,8 +96,9 @@ void main() {
       withRunner(
         (commandRunner, logger, printLogs) async {
           final directory = Directory.systemTemp.createTempSync();
+          Directory.current = directory.path;
           File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
-          final result = await commandRunner.run(['test', directory.path]);
+          final result = await commandRunner.run(['test']);
           expect(result, equals(ExitCode.unavailable.code));
         },
       ),
@@ -111,6 +109,7 @@ void main() {
       'when pubspec.yaml and tests exist',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
         final testDirectory = Directory(path.join(directory.path, 'test'))
           ..createSync();
         File(
@@ -119,7 +118,7 @@ void main() {
         File(
           path.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(['test', directory.path]);
+        final result = await commandRunner.run(['test']);
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.write(
@@ -136,6 +135,7 @@ void main() {
       'completes normally --coverage',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
         final testDirectory = Directory(path.join(directory.path, 'test'))
           ..createSync();
         File(
@@ -144,9 +144,7 @@ void main() {
         File(
           path.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(
-          ['test', '--coverage', directory.path],
-        );
+        final result = await commandRunner.run(['test', '--coverage']);
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.write(
@@ -163,6 +161,7 @@ void main() {
       'completes normally --coverage --min-coverage 0',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
         final testDirectory = Directory(path.join(directory.path, 'test'))
           ..createSync();
         File(
@@ -172,7 +171,7 @@ void main() {
           path.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContent);
         final result = await commandRunner.run(
-          ['test', '--coverage', '--min-coverage', '0', directory.path],
+          ['test', '--coverage', '--min-coverage', '0'],
         );
         expect(result, equals(ExitCode.success.code));
         verify(() {
@@ -190,6 +189,7 @@ void main() {
       'fails when coverage not met --coverage --min-coverage 100',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
         final testDirectory = Directory(path.join(directory.path, 'test'))
           ..createSync();
         File(
@@ -199,7 +199,7 @@ void main() {
           path.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContent);
         final result = await commandRunner.run(
-          ['test', '--coverage', '--min-coverage', '100', directory.path],
+          ['test', '--coverage', '--min-coverage', '100'],
         );
         expect(result, equals(ExitCode.unavailable.code));
         verify(() {
@@ -221,6 +221,7 @@ void main() {
       'when pubspec.yaml and tests exist (recursive)',
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
         final testDirectoryA = Directory(
           path.join(directory.path, 'example_a', 'test'),
         )..createSync(recursive: true);
@@ -240,9 +241,7 @@ void main() {
           path.join(directory.path, 'example_b', 'pubspec.yaml'),
         ).writeAsStringSync(pubspecContent('example_b'));
 
-        final result = await commandRunner.run(
-          ['test', '--recursive', directory.path],
-        );
+        final result = await commandRunner.run(['test', '--recursive']);
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.write(

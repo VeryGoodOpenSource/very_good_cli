@@ -46,13 +46,8 @@ class TestCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    if (_argResults.rest.length > 1) {
-      throw UsageException('Too many arguments', usage);
-    }
-
     final recursive = _argResults['recursive'] as bool;
-    final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
-    final targetPath = path.normalize(Directory(target).absolute.path);
+    final targetPath = path.normalize(Directory.current.absolute.path);
     final collectCoverage = _argResults['coverage'] as bool;
     final minCoverage = double.tryParse(
       _argResults['min-coverage'] as String? ?? '',
@@ -61,15 +56,19 @@ class TestCommand extends Command<int> {
     if (isFlutterInstalled) {
       try {
         await Flutter.test(
-          cwd: targetPath,
           recursive: recursive,
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage: collectCoverage,
           minCoverage: minCoverage,
+          arguments: argResults?.rest,
         );
       } on PubspecNotFound catch (_) {
-        _logger.err('Could not find a pubspec.yaml in $targetPath');
+        _logger.err(
+          '''
+Could not find a pubspec.yaml in $targetPath.
+This command should be run from the root of your Flutter project.''',
+        );
         return ExitCode.noInput.code;
       } on MinCoverageNotMet catch (e) {
         _logger.err(
