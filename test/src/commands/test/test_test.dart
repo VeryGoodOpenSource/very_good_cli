@@ -5,7 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
-import '../../helpers/helpers.dart';
+import '../../../helpers/helpers.dart';
 
 const fooContent = '''
 class Foo {
@@ -90,6 +90,10 @@ void main() {
       Directory.current = cwd;
     });
 
+    tearDown(() {
+      Directory.current = cwd;
+    });
+
     test(
       'help',
       withRunner((commandRunner, logger, printLogs) async {
@@ -138,6 +142,7 @@ void main() {
       withRunner(
         (commandRunner, logger, printLogs) async {
           final directory = Directory.systemTemp.createTempSync();
+          Directory(path.join(directory.path, 'test')).createSync();
           Directory.current = directory.path;
           File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
           final result = await commandRunner.run(['test']);
@@ -340,23 +345,23 @@ void main() {
       withRunner((commandRunner, logger, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
         Directory.current = directory.path;
-        final testDirectoryA = Directory(
-          path.join(directory.path, 'example_a', 'test'),
+        final testDirectory = Directory(
+          path.join(directory.path, 'test'),
         )..createSync(recursive: true);
-        final testDirectoryB = Directory(
-          path.join(directory.path, 'example_b', 'test'),
+        final testDirectoryNested = Directory(
+          path.join(directory.path, 'packages', 'example_b', 'test'),
         )..createSync(recursive: true);
         File(
-          path.join(testDirectoryA.path, 'example_a_test.dart'),
+          path.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContent);
         File(
-          path.join(testDirectoryB.path, 'example_b_test.dart'),
+          path.join(testDirectoryNested.path, 'example_b_test.dart'),
         ).writeAsStringSync(testContent);
         File(
-          path.join(directory.path, 'example_a', 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent('example_a'));
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
         File(
-          path.join(directory.path, 'example_b', 'pubspec.yaml'),
+          path.join(directory.path, 'packages', 'example_b', 'pubspec.yaml'),
         ).writeAsStringSync(pubspecContent('example_b'));
 
         final result = await commandRunner.run(['test', '--recursive']);

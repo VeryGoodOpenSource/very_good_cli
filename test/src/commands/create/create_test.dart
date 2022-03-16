@@ -12,7 +12,7 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create/create.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
-import '../../helpers/helpers.dart';
+import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list

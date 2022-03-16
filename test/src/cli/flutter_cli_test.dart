@@ -279,7 +279,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -311,7 +315,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -346,7 +354,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -383,7 +395,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -415,7 +431,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
@@ -448,7 +468,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -488,7 +512,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -521,7 +549,7 @@ void main() {
           () => logger.write(
             any(
               that: contains(
-                'Running "flutter test" in ${nestedDirectory.path}',
+                'Running "flutter test" in ${p.dirname(nestedDirectory.path)}',
               ),
             ),
           ),
@@ -555,7 +583,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -595,7 +627,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -634,7 +670,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -673,7 +713,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -710,7 +754,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -747,7 +795,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
