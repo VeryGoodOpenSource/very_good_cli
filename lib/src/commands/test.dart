@@ -27,6 +27,11 @@ class TestCommand extends Command<int> {
       ..addOption(
         'min-coverage',
         help: 'Whether to enforce a minimum coverage percentage.',
+      )
+      ..addOption(
+        'exclude-tags',
+        abbr: 'x',
+        help: 'Run only tests that do not have the specified tags.',
       );
   }
 
@@ -52,6 +57,7 @@ class TestCommand extends Command<int> {
     final minCoverage = double.tryParse(
       _argResults['min-coverage'] as String? ?? '',
     );
+    final excludeTags = _argResults['exclude-tags'] as String?;
     final isFlutterInstalled = await Flutter.installed();
     if (isFlutterInstalled) {
       try {
@@ -61,7 +67,10 @@ class TestCommand extends Command<int> {
           stderr: _logger.err,
           collectCoverage: collectCoverage,
           minCoverage: minCoverage,
-          arguments: argResults?.rest,
+          arguments: [
+            if (excludeTags != null) ...['-x', excludeTags],
+            ..._argResults.rest,
+          ],
         );
       } on PubspecNotFound catch (_) {
         _logger.err(

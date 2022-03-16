@@ -139,6 +139,12 @@ Run tests in a Dart or Flutter project.
 # Run all tests
 very_good test
 
+# Run all tests and collect coverage
+very_good test --coverage
+
+# Run all tests and enforce 100% coverage
+very_good test --coverage --min-coverage 100
+
 # Run only tests in ./some/other/directory
 very_good test ./some/other/directory
 
@@ -159,6 +165,7 @@ Usage: very_good test [arguments]
 -r, --recursive       Run tests recursively for all nested packages.
     --coverage        Whether to collect coverage information.
     --min-coverage    Whether to enforce a minimum coverage percentage.
+-x, --exclude-tags    Run only tests that do not have the specified tags.
 
 Run "very_good help" to see global options.
 ```
@@ -184,6 +191,7 @@ Available commands:
   create     very_good create <output directory>
              Creates a new very good project in the specified directory.
   packages   Command for managing packages.
+  test       Run tests in a Dart or Flutter project.
 
 Run "very_good help <command>" for more information about a command.
 ```
