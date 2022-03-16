@@ -1,6 +1,6 @@
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/templates/templates.dart';
+import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 /// {@template flutter_pkg_template}
 /// A Flutter package template.
