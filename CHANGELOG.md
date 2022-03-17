@@ -1,16 +1,22 @@
-# [0.6.0-dev.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0-dev.1) (2022-03-11)
+# [0.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0) (2022-03-17)
 
 ### Bug Fixes
 
-- ignore .fvm directory ([#307](https://github.com/VeryGoodOpenSource/very_good_cli/issues/307)) ([4865a91](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4865a91466a8cc62a32727fa0d1e2442cb1fb4b5))
 - **test:** truncate output to fit line ([#309](https://github.com/VeryGoodOpenSource/very_good_cli/issues/309)) ([5487fcf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5487fcfd3f866d5a4af008fe2276f7f2534be344))
+- ignore .fvm directory ([#307](https://github.com/VeryGoodOpenSource/very_good_cli/issues/307)) ([4865a91](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4865a91466a8cc62a32727fa0d1e2442cb1fb4b5))
 
 ### Features
 
+- **test:** add --exclude-coverage flag ([#317](https://github.com/VeryGoodOpenSource/very_good_cli/issues/317)) ([8e5add0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8e5add007d116feb9c35424f2c6070452ae17462))
+- **test:** add --exclude-tags option ([#314](https://github.com/VeryGoodOpenSource/very_good_cli/issues/314)) ([386ca6c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/386ca6cdccc6ff0e3cc7e93bd32afe822ef9f5a0))
+- **test:** add `--coverage` and `--min coverage` options ([#305](https://github.com/VeryGoodOpenSource/very_good_cli/issues/305)) ([e542532](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e5425321df3ddfc40d1bddf3ff8251714b8d98f4))
+- **test:** performance optimizations ([#318](https://github.com/VeryGoodOpenSource/very_good_cli/issues/318)) ([8decea0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8decea0fb1c86ea7dd77e33aaa425e9799352272))
+- **test:** support specific test execution ([#313](https://github.com/VeryGoodOpenSource/very_good_cli/issues/313)) ([65428ae](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65428ae143bcfb4bd2689b37a21a45384758b0a2))
 - add very_good test command ([#303](https://github.com/VeryGoodOpenSource/very_good_cli/issues/303)) ([39678f8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/39678f814ed604b35027bc1bf2da7f74dbf9f8f8))
+- improve update prompt ([#312](https://github.com/VeryGoodOpenSource/very_good_cli/issues/312)) ([97045bb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/97045bb9f0b2722cba588102c9aeb99c15ec584a))
 - use very_good_test_runner to improve test output ([#308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/308)) ([c6e4ae4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c6e4ae4c9ee7be3de1bbc0b2753d2b7f68d24d83))
 
-# [0.5.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.4...v0.5.5) (2022-03-01)
+## [0.5.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.4...v0.5.5) (2022-03-01)
 
 ### Features
 
