@@ -107,7 +107,7 @@ class CreateCommand extends Command<int> {
 
   final Analytics _analytics;
   final Logger _logger;
-  final Future<MasonGenerator> Function(MasonBundle) _generator;
+  final GeneratorBuilder _generator;
 
   @override
   String get description =>

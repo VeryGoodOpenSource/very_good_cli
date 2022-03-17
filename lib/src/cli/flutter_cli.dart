@@ -115,9 +115,11 @@ class Flutter {
     String cwd = '.',
     bool recursive = false,
     bool collectCoverage = false,
+    bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
     List<String>? arguments,
+    void Function([String?]) Function(String message)? progress,
     void Function(String)? stdout,
     void Function(String)? stderr,
   }) async {
@@ -129,13 +131,41 @@ class Flutter {
     }
 
     await _runCommand(
-      cmd: (cwd) {
+      cmd: (cwd) async {
         void noop(String? _) {}
-        stdout?.call('Running "flutter test" in ${p.canonicalize(cwd)}...\n');
+        final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
+        final workingDirectory = target.dir.absolute.path;
+        stdout?.call(
+          'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
+        );
+
+        if (optimizePerformance) {
+          final optimizationDone = progress?.call('Optimizing tests');
+          try {
+            final generator = await MasonGenerator.fromBundle(testRunnerBundle);
+            var vars = <String, dynamic>{'package-root': workingDirectory};
+            await generator.hooks.preGen(
+              vars: vars,
+              onVarsChanged: (v) => vars = v,
+              workingDirectory: workingDirectory,
+            );
+            await generator.generate(
+              target,
+              vars: vars,
+              fileConflictResolution: FileConflictResolution.overwrite,
+            );
+          } finally {
+            optimizationDone?.call();
+          }
+        }
+
         return _flutterTest(
           cwd: cwd,
           collectCoverage: collectCoverage,
-          arguments: arguments,
+          arguments: [
+            ...?arguments,
+            if (optimizePerformance) p.join('test', '.test_runner.dart')
+          ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         );

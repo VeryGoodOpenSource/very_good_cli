@@ -5,6 +5,13 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
+const otherContents = '''
+class Other {
+  void foo() {
+    print('hello world');
+  }
+}''';
+
 const calculatorContents = '''
 class Calculator {
   int add(int x, int y) => x + y;
@@ -29,6 +36,18 @@ import 'package:example/calculator.dart';
 void main() {
   test('...', () {
     expect(Calculator().add(1, 2), equals(3));
+  });
+}''';
+
+const calculatorTestContentsWithOtherImport = '''
+import 'package:test/test.dart';
+import 'package:example/calculator.dart';
+import 'package:example/other.dart';
+
+void main() {
+  test('...', () {
+    expect(Calculator().add(1, 2), equals(3));
+    expect(Calculator().subtract(43, 1), equals(42));
   });
 }''';
 
@@ -216,6 +235,7 @@ void main() {
 
       setUp(() {
         logger = MockLogger();
+        when(() => logger.progress(any())).thenReturn(([_]) {});
       });
 
       test('GenerateCoverageTimeout toString()', () {
@@ -279,7 +299,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -311,7 +335,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -346,7 +374,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -383,7 +415,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -415,7 +451,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
@@ -448,7 +488,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -488,12 +532,54 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
           () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
+      });
+
+      test('completes when there is a test directory w/optimizations (passing)',
+          () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(testContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            optimizePerformance: true,
+            stdout: logger.write,
+            stderr: logger.err,
+            progress: logger.progress,
+          ),
+          completes,
+        );
+        verify(() => logger.progress('Optimizing tests')).called(1);
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(testDirectory.path, '.test_runner.dart')).existsSync(),
+          isTrue,
+        );
       });
 
       test('completes when there is a test directory (recursive)', () async {
@@ -521,7 +607,46 @@ void main() {
           () => logger.write(
             any(
               that: contains(
-                'Running "flutter test" in ${nestedDirectory.path}',
+                'Running "flutter test" in ${p.dirname(nestedDirectory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+      });
+
+      test('completes w specific test target', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        final otherTest = File(
+          p.join(testDirectory.path, 'other_test.dart'),
+        )..writeAsStringSync(testContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            arguments: [otherTest.path],
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
               ),
             ),
           ),
@@ -555,7 +680,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -595,7 +724,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -634,7 +767,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -673,7 +810,56 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+        expect(
+          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
+          isTrue,
+        );
+      });
+
+      test('passes when --min-coverage 100 w/exclude coverage', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(libDirectory.path, 'other.dart'),
+        ).writeAsStringSync(otherContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContentsWithOtherImport);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            excludeFromCoverage: 'lib/other.dart',
+            stdout: logger.write,
+            stderr: logger.err,
+            collectCoverage: true,
+            minCoverage: 100,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -710,7 +896,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
@@ -747,7 +937,11 @@ void main() {
         );
         verify(
           () => logger.write(
-            any(that: contains('Running "flutter test" in ${directory.path}')),
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
           ),
         ).called(1);
         verify(
