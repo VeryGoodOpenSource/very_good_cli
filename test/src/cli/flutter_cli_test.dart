@@ -617,6 +617,45 @@ void main() {
         ).called(1);
       });
 
+      test('completes w specific test target', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        final otherTest = File(
+          p.join(testDirectory.path, 'other_test.dart'),
+        )..writeAsStringSync(testContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+            arguments: [otherTest.path],
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+      });
+
       test('completes w/coverage', () async {
         final directory = Directory.systemTemp.createTempSync();
         final libDirectory = Directory(p.join(directory.path, 'lib'))
