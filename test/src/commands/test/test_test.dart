@@ -138,20 +138,6 @@ void main() {
     );
 
     test(
-      'throws when installation fails',
-      withRunner(
-        (commandRunner, logger, printLogs) async {
-          final directory = Directory.systemTemp.createTempSync();
-          Directory(path.join(directory.path, 'test')).createSync();
-          Directory.current = directory.path;
-          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
-          final result = await commandRunner.run(['test']);
-          expect(result, equals(ExitCode.unavailable.code));
-        },
-      ),
-    );
-
-    test(
       'completes normally '
       'when pubspec.yaml and tests exist',
       withRunner((commandRunner, logger, printLogs) async {
@@ -225,7 +211,7 @@ void main() {
           );
         }).called(1);
         verify(() {
-          logger.write(any(that: contains('+1: All tests passed!')));
+          logger.write(any(that: contains('All tests passed!')));
         }).called(1);
       }),
     );

@@ -77,7 +77,6 @@ This command should be run from the root of your Flutter project.''',
     );
     final excludeTags = _argResults['exclude-tags'] as String?;
     final isFlutterInstalled = await Flutter.installed();
-
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
 
     if (isFlutterInstalled) {
