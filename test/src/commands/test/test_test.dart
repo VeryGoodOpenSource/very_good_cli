@@ -1,56 +1,13 @@
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/test/test.dart';
 
 import '../../../helpers/helpers.dart';
-
-const fooContent = '''
-class Foo {
-  bool value() => true;
-}
-''';
-
-const barContent = '''
-class Bar {
-  bool value() => true;
-}
-''';
-const barrelContent = '''
-export 'bar.dart';
-export 'foo.dart';
-''';
-
-const testFooContent = '''
-import 'package:test/test.dart';
-import 'package:example/example.dart';
-void main() {
-  test('Foo', () {
-    expect(Foo().value(), isTrue);
-  });
-}''';
-
-const testContent = '''
-import 'package:test/test.dart';
-void main() {
-  test('example', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const testTagsContent = '''
-import 'package:test/test.dart';
-void main() {
-  test('example', () {
-    expect(true, isTrue);
-  });
-
-  test('...', () {
-    expect(true, isTrue);
-  }, tags: 'test-tag');
-}''';
 
 const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
@@ -70,28 +27,66 @@ const expectedTestUsage = [
       'Run "very_good help" to see global options.',
 ];
 
-String pubspecContent([String name = 'example']) {
-  return '''
-name: $name
-version: 0.1.0
-
-environment:
-  sdk: ">=2.12.0 <3.0.0"
-
-dev_dependencies:
-  test: any''';
+// ignore: one_member_abstracts
+abstract class FlutterTestCommand {
+  Future<void> call({
+    String cwd = '.',
+    bool recursive = false,
+    bool collectCoverage = false,
+    bool optimizePerformance = false,
+    double? minCoverage,
+    String? excludeFromCoverage,
+    List<String>? arguments,
+    void Function([String?]) Function(String message)? progress,
+    void Function(String)? stdout,
+    void Function(String)? stderr,
+  });
 }
+
+class MockLogger extends Mock implements Logger {}
+
+class MockArgResults extends Mock implements ArgResults {}
+
+class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 
 void main() {
   group('test', () {
     final cwd = Directory.current;
 
+    late Logger logger;
+    late bool isFlutterInstalled;
+    late ArgResults argResults;
+    late FlutterTestCommand flutterTest;
+    late TestCommand testCommand;
+
     setUp(() {
       Directory.current = cwd;
-    });
-
-    tearDown(() {
-      Directory.current = cwd;
+      logger = MockLogger();
+      isFlutterInstalled = true;
+      argResults = MockArgResults();
+      flutterTest = MockFlutterTestCommand();
+      testCommand = TestCommand(
+        logger: logger,
+        flutterInstalled: () async => isFlutterInstalled,
+        flutterTest: flutterTest.call,
+      )..argResultOverrides = argResults;
+      when(
+        () => flutterTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          progress: any(named: 'progress'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+        ),
+      ).thenAnswer((_) async {});
+      when<dynamic>(() => argResults['recursive']).thenReturn(false);
+      when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when(() => argResults.rest).thenReturn([]);
     });
 
     test(
@@ -137,230 +132,170 @@ void main() {
       }),
     );
 
-    test(
-      'completes normally '
-      'when pubspec.yaml and tests exist',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(['test']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(1);
-      }),
-    );
+    test('completes normally', () async {
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: [],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'completes normally --coverage',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(['test', '--coverage']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(1);
-      }),
-    );
+    test('completes normally --recursive', () async {
+      when<dynamic>(() => argResults['recursive']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          recursive: true,
+          optimizePerformance: true,
+          arguments: [],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'completes normally -x test-tag',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testTagsContent);
-        final result = await commandRunner.run(['test', '-x', 'test-tag']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed!')));
-        }).called(1);
-      }),
-    );
+    test('completes normally --coverage', () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          collectCoverage: true,
+          optimizePerformance: true,
+          arguments: [],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'completes normally --coverage --min-coverage 0',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(
-          ['test', '--coverage', '--min-coverage', '0'],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(1);
-      }),
-    );
+    test('completes normally -x test-tag', () async {
+      when<dynamic>(() => argResults['exclude-tags']).thenReturn('test-tag');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['-x', 'test-tag'],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'fails when coverage not met --coverage --min-coverage 100',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContent);
-        final result = await commandRunner.run(
-          ['test', '--coverage', '--min-coverage', '100'],
-        );
-        expect(result, equals(ExitCode.unavailable.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(1);
-        verify(
-          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
-        ).called(1);
-      }),
-    );
+    test('completes normally --coverage --min-coverage 0', () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          collectCoverage: true,
+          arguments: [],
+          minCoverage: 0,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'exclude files from coverage when --exclude-coverage is used',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(path.join(directory.path, 'test'))
-          ..createSync();
-        final sourceDirectory = Directory(path.join(directory.path, 'lib'))
-          ..createSync();
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(sourceDirectory.path, 'foo.dart'),
-        ).writeAsStringSync(fooContent);
-        File(
-          path.join(sourceDirectory.path, 'bar.dart'),
-        ).writeAsStringSync(barContent);
-        File(
-          path.join(sourceDirectory.path, 'example.dart'),
-        ).writeAsStringSync(barrelContent);
-        File(
-          path.join(testDirectory.path, 'foo_test.dart'),
-        ).writeAsStringSync(testFooContent);
+    test('fails when coverage not met', () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+      const exception = MinCoverageNotMet(0);
+      when(
+        () => flutterTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          progress: any(named: 'progress'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+        ),
+      ).thenThrow(exception);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.unavailable.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          collectCoverage: true,
+          arguments: [],
+          minCoverage: 100,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+      verify(
+        () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
+      ).called(1);
+    });
 
-        final result = await commandRunner.run(
-          [
-            'test',
-            '--coverage',
-            '--min-coverage',
-            '100',
-            '--exclude-coverage',
-            '**/bar.dart',
-          ],
-        );
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(1);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(1);
-        verifyNever(
-          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
-        );
-      }),
-    );
+    test('exclude files from coverage when --exclude-coverage is used',
+        () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      when<dynamic>(
+        () => argResults['exclude-coverage'],
+      ).thenReturn('*.g.dart');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          collectCoverage: true,
+          excludeFromCoverage: '*.g.dart',
+          arguments: [],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
-    test(
-      'completes normally '
-      'when pubspec.yaml and tests exist (recursive)',
-      withRunner((commandRunner, logger, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
-        final testDirectory = Directory(
-          path.join(directory.path, 'test'),
-        )..createSync(recursive: true);
-        final testDirectoryNested = Directory(
-          path.join(directory.path, 'packages', 'example_b', 'test'),
-        )..createSync(recursive: true);
-        File(
-          path.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContent);
-        File(
-          path.join(testDirectoryNested.path, 'example_b_test.dart'),
-        ).writeAsStringSync(testContent);
-        File(
-          path.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent());
-        File(
-          path.join(directory.path, 'packages', 'example_b', 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecContent('example_b'));
-
-        final result = await commandRunner.run(['test', '--recursive']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() {
-          logger.write(
-            any(that: contains('Running "flutter test" in')),
-          );
-        }).called(2);
-        verify(() {
-          logger.write(any(that: contains('All tests passed')));
-        }).called(2);
-      }),
-    );
+    test('throws when exception occurs', () async {
+      final exception = Exception('oops');
+      when(
+        () => flutterTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          progress: any(named: 'progress'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+        ),
+      ).thenThrow(exception);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.unavailable.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: [],
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+      verify(() => logger.err('$exception')).called(1);
+    });
   });
 }

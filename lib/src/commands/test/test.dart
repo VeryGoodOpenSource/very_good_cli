@@ -6,6 +6,23 @@ import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
+/// Signature for the [Flutter.installed] method.
+typedef FlutterInstalledCommand = Future<bool> Function();
+
+/// Signature for the [Flutter.test] method.
+typedef FlutterTestCommand = Future<void> Function({
+  String cwd,
+  bool recursive,
+  bool collectCoverage,
+  bool optimizePerformance,
+  double? minCoverage,
+  String? excludeFromCoverage,
+  List<String>? arguments,
+  void Function([String?]) Function(String message)? progress,
+  void Function(String)? stdout,
+  void Function(String)? stderr,
+});
+
 /// {@template test_command}
 /// `very_good test` command for running tests.
 /// {@endtemplate}
@@ -13,7 +30,11 @@ class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
     Logger? logger,
-  }) : _logger = logger ?? Logger() {
+    FlutterInstalledCommand? flutterInstalled,
+    FlutterTestCommand? flutterTest,
+  })  : _logger = logger ?? Logger(),
+        _flutterInstalled = flutterInstalled ?? Flutter.installed,
+        _flutterTest = flutterTest ?? Flutter.test {
     argParser
       ..addFlag(
         'recursive',
@@ -43,6 +64,8 @@ class TestCommand extends Command<int> {
   }
 
   final Logger _logger;
+  final FlutterInstalledCommand _flutterInstalled;
+  final FlutterTestCommand _flutterTest;
 
   @override
   String get description => 'Run tests in a Dart or Flutter project.';
@@ -76,12 +99,12 @@ This command should be run from the root of your Flutter project.''',
       _argResults['min-coverage'] as String? ?? '',
     );
     final excludeTags = _argResults['exclude-tags'] as String?;
-    final isFlutterInstalled = await Flutter.installed();
+    final isFlutterInstalled = await _flutterInstalled();
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
 
     if (isFlutterInstalled) {
       try {
-        await Flutter.test(
+        await _flutterTest(
           optimizePerformance: _argResults.rest.isEmpty,
           recursive: recursive,
           progress: _logger.progress,
