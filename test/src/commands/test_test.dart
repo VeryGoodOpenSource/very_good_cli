@@ -7,6 +7,31 @@ import 'package:test/test.dart';
 
 import '../../helpers/helpers.dart';
 
+const fooContent = '''
+class Foo {
+  bool value() => true;
+}
+''';
+
+const barContent = '''
+class Bar {
+  bool value() => true;
+}
+''';
+const barrelContent = '''
+export 'bar.dart';
+export 'foo.dart';
+''';
+
+const testFooContent = '''
+import 'package:test/test.dart';
+import 'package:example/example.dart';
+void main() {
+  test('Foo', () {
+    expect(Foo().value(), isTrue);
+  });
+}''';
+
 const testContent = '''
 import 'package:test/test.dart';
 void main() {
@@ -32,11 +57,15 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help            Print this usage information.\n'
-      '-r, --recursive       Run tests recursively for all nested packages.\n'
-      '    --coverage        Whether to collect coverage information.\n'
-      '''    --min-coverage    Whether to enforce a minimum coverage percentage.\n'''
-      '''-x, --exclude-tags    Run only tests that do not have the specified tags.\n'''
+      '-h, --help                Print this usage information.\n'
+      '-r, --recursive           Run tests recursively for all nested '
+      'packages.\n'
+      '    --coverage            Whether to collect coverage information.\n'
+      '    --min-coverage        Whether to enforce a minimum coverage '
+      'percentage.\n'
+      '    --exclude-coverage    A glob which will be used to exclude files '
+      'that match from the coverage.\n'
+      '''-x, --exclude-tags        Run only tests that do not have the specified tags.\n'''
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -252,6 +281,56 @@ void main() {
         verify(
           () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
         ).called(1);
+      }),
+    );
+
+    test(
+      'exclude files from coverage when --exclude-coverage is used',
+      withRunner((commandRunner, logger, printLogs) async {
+        final directory = Directory.systemTemp.createTempSync();
+        Directory.current = directory.path;
+        final testDirectory = Directory(path.join(directory.path, 'test'))
+          ..createSync();
+        final sourceDirectory = Directory(path.join(directory.path, 'lib'))
+          ..createSync();
+        File(
+          path.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecContent());
+        File(
+          path.join(sourceDirectory.path, 'foo.dart'),
+        ).writeAsStringSync(fooContent);
+        File(
+          path.join(sourceDirectory.path, 'bar.dart'),
+        ).writeAsStringSync(barContent);
+        File(
+          path.join(sourceDirectory.path, 'example.dart'),
+        ).writeAsStringSync(barrelContent);
+        File(
+          path.join(testDirectory.path, 'foo_test.dart'),
+        ).writeAsStringSync(testFooContent);
+
+        final result = await commandRunner.run(
+          [
+            'test',
+            '--coverage',
+            '--min-coverage',
+            '100',
+            '--exclude-coverage',
+            '**/bar.dart',
+          ],
+        );
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.write(
+            any(that: contains('Running "flutter test" in')),
+          );
+        }).called(1);
+        verify(() {
+          logger.write(any(that: contains('All tests passed')));
+        }).called(1);
+        verifyNever(
+          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
+        );
       }),
     );
 

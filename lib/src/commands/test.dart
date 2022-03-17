@@ -29,6 +29,11 @@ class TestCommand extends Command<int> {
         help: 'Whether to enforce a minimum coverage percentage.',
       )
       ..addOption(
+        'exclude-coverage',
+        help: 'A glob which will be used to exclude files that match from the '
+            'coverage.',
+      )
+      ..addOption(
         'exclude-tags',
         abbr: 'x',
         help: 'Run only tests that do not have the specified tags.',
@@ -59,6 +64,9 @@ class TestCommand extends Command<int> {
     );
     final excludeTags = _argResults['exclude-tags'] as String?;
     final isFlutterInstalled = await Flutter.installed();
+
+    final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
+
     if (isFlutterInstalled) {
       try {
         await Flutter.test(
@@ -67,6 +75,7 @@ class TestCommand extends Command<int> {
           stderr: _logger.err,
           collectCoverage: collectCoverage,
           minCoverage: minCoverage,
+          excludeFromCoverage: excludeFromCoverage,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
             ..._argResults.rest,

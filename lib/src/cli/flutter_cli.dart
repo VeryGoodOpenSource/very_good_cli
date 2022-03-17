@@ -27,12 +27,21 @@ class _CoverageMetrics {
   const _CoverageMetrics._({this.totalHits = 0, this.totalFound = 0});
 
   /// Generate coverage metrics from a list of lcov records.
-  factory _CoverageMetrics.fromLcovRecords(List<Record> records) {
+  factory _CoverageMetrics.fromLcovRecords(
+    List<Record> records,
+    String? excludeFromCoverage,
+  ) {
+    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
     return records.fold<_CoverageMetrics>(
       const _CoverageMetrics._(),
       (current, record) {
         final found = record.lines?.found ?? 0;
         final hit = record.lines?.hit ?? 0;
+        if (glob != null && record.file != null) {
+          if (glob.matches(record.file!)) {
+            return current;
+          }
+        }
         return _CoverageMetrics._(
           totalFound: current.totalFound + found,
           totalHits: current.totalHits + hit,
@@ -107,6 +116,7 @@ class Flutter {
     bool recursive = false,
     bool collectCoverage = false,
     double? minCoverage,
+    String? excludeFromCoverage,
     List<String>? arguments,
     void Function(String)? stdout,
     void Function(String)? stderr,
@@ -137,7 +147,10 @@ class Flutter {
     if (collectCoverage) await lcovFile.ensureCreated();
     if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);
-      final coverageMetrics = _CoverageMetrics.fromLcovRecords(records);
+      final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+        records,
+        excludeFromCoverage,
+      );
       final coverage = coverageMetrics.percentage;
       if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
     }
