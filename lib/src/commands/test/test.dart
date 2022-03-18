@@ -115,6 +115,7 @@ This command should be run from the root of your Flutter project.''',
           excludeFromCoverage: excludeFromCoverage,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
+            '--no-pub',
             ..._argResults.rest,
           ],
         );
