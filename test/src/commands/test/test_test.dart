@@ -14,17 +14,16 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help                Print this usage information.\n'
-      '-r, --recursive           Run tests recursively for all nested '
-      'packages.\n'
-      '    --coverage            Whether to collect coverage information.\n'
-      '    --min-coverage        Whether to enforce a minimum coverage '
-      'percentage.\n'
-      '    --exclude-coverage    A glob which will be used to exclude files '
-      'that match from the coverage.\n'
-      '''-x, --exclude-tags        Run only tests that do not have the specified tags.\n'''
+      '-h, --help                 Print this usage information.\n'
+      '    --coverage             Whether to collect coverage information.\n'
+      '''-r, --recursive            Run tests recursively for all nested packages.\n'''
+      '''    --[no-]optimization    Whether to apply optimizations for test performance.\n'''
+      '                           (defaults to on)\n'
+      '''    --exclude-coverage     A glob which will be used to exclude files that match from the coverage.\n'''
+      '''-x, --exclude-tags         Run only tests that do not have the specified tags.\n'''
+      '''    --min-coverage         Whether to enforce a minimum coverage percentage.\n'''
       '\n'
-      'Run "very_good help" to see global options.',
+      'Run "very_good help" to see global options.'
 ];
 
 // ignore: one_member_abstracts
@@ -87,6 +86,7 @@ void main() {
       ).thenAnswer((_) async {});
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -155,6 +155,20 @@ void main() {
         () => flutterTest(
           recursive: true,
           optimizePerformance: true,
+          arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --no-optimization', () async {
+      when<dynamic>(() => argResults['optimization']).thenReturn(false);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
           arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,

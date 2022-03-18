@@ -37,19 +37,20 @@ class TestCommand extends Command<int> {
         _flutterTest = flutterTest ?? Flutter.test {
     argParser
       ..addFlag(
+        'coverage',
+        help: 'Whether to collect coverage information.',
+        negatable: false,
+      )
+      ..addFlag(
         'recursive',
         abbr: 'r',
         help: 'Run tests recursively for all nested packages.',
         negatable: false,
       )
       ..addFlag(
-        'coverage',
-        help: 'Whether to collect coverage information.',
-        negatable: false,
-      )
-      ..addOption(
-        'min-coverage',
-        help: 'Whether to enforce a minimum coverage percentage.',
+        'optimization',
+        defaultsTo: true,
+        help: 'Whether to apply optimizations for test performance.',
       )
       ..addOption(
         'exclude-coverage',
@@ -60,6 +61,10 @@ class TestCommand extends Command<int> {
         'exclude-tags',
         abbr: 'x',
         help: 'Run only tests that do not have the specified tags.',
+      )
+      ..addOption(
+        'min-coverage',
+        help: 'Whether to enforce a minimum coverage percentage.',
       );
   }
 
@@ -101,11 +106,12 @@ This command should be run from the root of your Flutter project.''',
     final excludeTags = _argResults['exclude-tags'] as String?;
     final isFlutterInstalled = await _flutterInstalled();
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
+    final optimizePerformance = _argResults['optimization'] as bool;
 
     if (isFlutterInstalled) {
       try {
         await _flutterTest(
-          optimizePerformance: _argResults.rest.isEmpty,
+          optimizePerformance: optimizePerformance && _argResults.rest.isEmpty,
           recursive: recursive,
           progress: _logger.progress,
           stdout: _logger.write,
