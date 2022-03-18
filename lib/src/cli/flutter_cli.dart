@@ -174,6 +174,9 @@ class Flutter {
       recursive: recursive,
     );
 
+    if (optimizePerformance) {
+      File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
+    }
     if (collectCoverage) await lcovFile.ensureCreated();
     if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);

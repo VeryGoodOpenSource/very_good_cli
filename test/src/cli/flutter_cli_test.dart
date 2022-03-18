@@ -578,7 +578,7 @@ void main() {
         ).called(1);
         expect(
           File(p.join(testDirectory.path, '.test_runner.dart')).existsSync(),
-          isTrue,
+          isFalse,
         );
       });
 
