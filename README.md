@@ -161,12 +161,14 @@ very_good test -r
 Run tests in a Dart or Flutter project.
 
 Usage: very_good test [arguments]
--h, --help                Print this usage information.
--r, --recursive           Run tests recursively for all nested packages.
-    --coverage            Whether to collect coverage information.
-    --min-coverage        Whether to enforce a minimum coverage percentage.
-    --exclude-coverage    A glob which will be used to exclude files that match from the coverage.
--x, --exclude-tags        Run only tests that do not have the specified tags.
+-h, --help                 Print this usage information.
+    --coverage             Whether to collect coverage information.
+-r, --recursive            Run tests recursively for all nested packages.
+    --[no-]optimization    Whether to apply optimizations for test performance.
+                           (defaults to on)
+    --exclude-coverage     A glob which will be used to exclude files that match from the coverage.
+-x, --exclude-tags         Run only tests that do not have the specified tags.
+    --min-coverage         Whether to enforce a minimum coverage percentage.
 
 Run "very_good help" to see global options.
 ```
