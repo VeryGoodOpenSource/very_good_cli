@@ -14,14 +14,15 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help                 Print this usage information.\n'
-      '    --coverage             Whether to collect coverage information.\n'
-      '''-r, --recursive            Run tests recursively for all nested packages.\n'''
-      '''    --[no-]optimization    Whether to apply optimizations for test performance.\n'''
-      '                           (defaults to on)\n'
-      '''    --exclude-coverage     A glob which will be used to exclude files that match from the coverage.\n'''
-      '''-x, --exclude-tags         Run only tests that do not have the specified tags.\n'''
-      '''    --min-coverage         Whether to enforce a minimum coverage percentage.\n'''
+      '-h, --help                            Print this usage information.\n'
+      '''    --coverage                        Whether to collect coverage information.\n'''
+      '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
+      '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
+      '                                      (defaults to on)\n'
+      '''    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.\n'''
+      '''-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'''
+      '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
+      '''    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -170,6 +171,27 @@ void main() {
       verify(
         () => flutterTest(
           arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --test-randomize-ordering-seed random', () async {
+      when<dynamic>(
+        () => argResults['test-randomize-ordering-seed'],
+      ).thenReturn('random');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            '--test-randomize-ordering-seed',
+            'random',
+            ...defaultArguments
+          ],
+          optimizePerformance: true,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
