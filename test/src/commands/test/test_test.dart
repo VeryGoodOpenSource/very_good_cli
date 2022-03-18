@@ -199,6 +199,28 @@ void main() {
       ).called(1);
     });
 
+    test('completes normally --test-randomize-ordering-seed 2305182648',
+        () async {
+      when<dynamic>(
+        () => argResults['test-randomize-ordering-seed'],
+      ).thenReturn('2305182648');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            '--test-randomize-ordering-seed',
+            '2305182648',
+            ...defaultArguments
+          ],
+          optimizePerformance: true,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
     test('completes normally --coverage', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       final result = await testCommand.run();
