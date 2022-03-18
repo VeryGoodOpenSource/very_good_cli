@@ -52,6 +52,7 @@ class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 void main() {
   group('test', () {
     final cwd = Directory.current;
+    const defaultArguments = ['--no-pub'];
 
     late Logger logger;
     late bool isFlutterInstalled;
@@ -138,7 +139,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -154,7 +155,7 @@ void main() {
         () => flutterTest(
           recursive: true,
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -170,7 +171,7 @@ void main() {
         () => flutterTest(
           collectCoverage: true,
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -185,7 +186,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: ['-x', 'test-tag'],
+          arguments: ['-x', 'test-tag', ...defaultArguments],
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -202,7 +203,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           collectCoverage: true,
-          arguments: [],
+          arguments: defaultArguments,
           minCoverage: 0,
           progress: logger.progress,
           stdout: logger.write,
@@ -235,7 +236,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           collectCoverage: true,
-          arguments: [],
+          arguments: defaultArguments,
           minCoverage: 100,
           progress: logger.progress,
           stdout: logger.write,
@@ -260,7 +261,7 @@ void main() {
           optimizePerformance: true,
           collectCoverage: true,
           excludeFromCoverage: '*.g.dart',
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -289,7 +290,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
