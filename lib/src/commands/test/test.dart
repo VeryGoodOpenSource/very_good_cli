@@ -65,6 +65,11 @@ class TestCommand extends Command<int> {
       ..addOption(
         'min-coverage',
         help: 'Whether to enforce a minimum coverage percentage.',
+      )
+      ..addOption(
+        'test-randomize-ordering-seed',
+        help: 'The seed to randomize the execution order of test cases '
+            'within test files.',
       );
   }
 
@@ -106,6 +111,8 @@ This command should be run from the root of your Flutter project.''',
     final excludeTags = _argResults['exclude-tags'] as String?;
     final isFlutterInstalled = await _flutterInstalled();
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
+    final randomOrderingSeed =
+        _argResults['test-randomize-ordering-seed'] as String?;
     final optimizePerformance = _argResults['optimization'] as bool;
 
     if (isFlutterInstalled) {
@@ -121,6 +128,10 @@ This command should be run from the root of your Flutter project.''',
           excludeFromCoverage: excludeFromCoverage,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
+            if (randomOrderingSeed != null) ...[
+              '--test-randomize-ordering-seed',
+              randomOrderingSeed
+            ],
             '--no-pub',
             ..._argResults.rest,
           ],
