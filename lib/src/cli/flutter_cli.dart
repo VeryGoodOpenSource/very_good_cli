@@ -305,7 +305,7 @@ Future<void> _flutterTest({
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
         final testName = test.name.truncated(
-          _lineLength - (timeElapsed.length + stats.length + 3),
+          _lineLength - (timeElapsed.length + stats.length + 2),
         );
         stdout('''$clearLine$timeElapsed $stats: $testName''');
       }

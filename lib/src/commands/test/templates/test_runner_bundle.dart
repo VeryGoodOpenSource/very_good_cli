@@ -8,7 +8,7 @@ final testRunnerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "test/.test_runner.dart",
       "data":
-          "Ly8gR0VORVJBVEVEIENPREUgLSBETyBOT1QgTU9ESUZZIEJZIEhBTkQKLy8gQ29uc2lkZXIgYWRkaW5nIHRoaXMgZmlsZSB0byB5b3VyIC5naXRpZ25vcmUuCgp7eyN0ZXN0c319aW1wb3J0ICd7e3sufX19JyBhcyB7eyNzbmFrZUNhc2V9fXt7ey59fX17ey9zbmFrZUNhc2V9fTsKe3svdGVzdHN9fQp2b2lkIG1haW4oKSB7Cnt7I3Rlc3RzfX0gIHt7I3NuYWtlQ2FzZX19e3t7Ln19fXt7L3NuYWtlQ2FzZX19Lm1haW4oKTsKe3svdGVzdHN9fX0K",
+          "Ly8gR0VORVJBVEVEIENPREUgLSBETyBOT1QgTU9ESUZZIEJZIEhBTkQKLy8gQ29uc2lkZXIgYWRkaW5nIHRoaXMgZmlsZSB0byB5b3VyIC5naXRpZ25vcmUuCgppbXBvcnQgJ3BhY2thZ2U6dGVzdC90ZXN0LmRhcnQnOwoKe3sjdGVzdHN9fWltcG9ydCAne3t7Ln19fScgYXMge3sjc25ha2VDYXNlfX17e3sufX19e3svc25ha2VDYXNlfX07Cnt7L3Rlc3RzfX0Kdm9pZCBtYWluKCkgewp7eyN0ZXN0c319ICBncm91cCgne3sjc25ha2VDYXNlfX17e3sufX19e3svc25ha2VDYXNlfX0nLCB7eyNzbmFrZUNhc2V9fXt7ey59fX17ey9zbmFrZUNhc2V9fS5tYWluKTsKe3svdGVzdHN9fX0K",
       "type": "text"
     }
   ],
