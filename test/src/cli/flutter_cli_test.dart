@@ -69,6 +69,23 @@ void main() {
   });
 }''';
 
+const extraLongTestNameContents = '''
+import 'package:test/test.dart';
+
+void main() {
+  test('reeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
+    expect(true, isTrue);
+  });
+
+  test('extraaaaaareeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
+    expect(true, isFalse);
+  });
+
+  test('superrrrrrrextraaaaaareeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
+    expect(true, isFalse);
+  }, skip: true);
+}''';
+
 const loggingTestContents = '''
 import 'package:test/test.dart';
 
@@ -500,6 +517,41 @@ void main() {
         ).called(1);
         verify(
           () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+      });
+
+      test('completes and truncates extra long test name', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(extraLongTestNameContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+          completes,
+        );
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: ...'))),
+        ).called(1);
+        verify(
+          () => logger.write(
+            any(that: contains('+1 -1 ~1: Some tests failed.')),
+          ),
         ).called(1);
       });
 
