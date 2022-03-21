@@ -576,10 +576,6 @@ void main() {
         verify(
           () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
-        expect(
-          File(p.join(testDirectory.path, '.test_runner.dart')).existsSync(),
-          isTrue,
-        );
       });
 
       test('completes when there is a test directory (recursive)', () async {

@@ -14,17 +14,17 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help                Print this usage information.\n'
-      '-r, --recursive           Run tests recursively for all nested '
-      'packages.\n'
-      '    --coverage            Whether to collect coverage information.\n'
-      '    --min-coverage        Whether to enforce a minimum coverage '
-      'percentage.\n'
-      '    --exclude-coverage    A glob which will be used to exclude files '
-      'that match from the coverage.\n'
-      '''-x, --exclude-tags        Run only tests that do not have the specified tags.\n'''
+      '-h, --help                            Print this usage information.\n'
+      '''    --coverage                        Whether to collect coverage information.\n'''
+      '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
+      '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
+      '                                      (defaults to on)\n'
+      '''    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.\n'''
+      '''-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'''
+      '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
+      '''    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'''
       '\n'
-      'Run "very_good help" to see global options.',
+      'Run "very_good help" to see global options.'
 ];
 
 // ignore: one_member_abstracts
@@ -52,6 +52,7 @@ class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 void main() {
   group('test', () {
     final cwd = Directory.current;
+    const defaultArguments = ['--no-pub'];
 
     late Logger logger;
     late bool isFlutterInstalled;
@@ -86,6 +87,7 @@ void main() {
       ).thenAnswer((_) async {});
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -138,7 +140,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -154,7 +156,64 @@ void main() {
         () => flutterTest(
           recursive: true,
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --no-optimization', () async {
+      when<dynamic>(() => argResults['optimization']).thenReturn(false);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --test-randomize-ordering-seed random', () async {
+      when<dynamic>(
+        () => argResults['test-randomize-ordering-seed'],
+      ).thenReturn('random');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            '--test-randomize-ordering-seed',
+            'random',
+            ...defaultArguments
+          ],
+          optimizePerformance: true,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --test-randomize-ordering-seed 2305182648',
+        () async {
+      when<dynamic>(
+        () => argResults['test-randomize-ordering-seed'],
+      ).thenReturn('2305182648');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            '--test-randomize-ordering-seed',
+            '2305182648',
+            ...defaultArguments
+          ],
+          optimizePerformance: true,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -170,7 +229,7 @@ void main() {
         () => flutterTest(
           collectCoverage: true,
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -185,7 +244,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: ['-x', 'test-tag'],
+          arguments: ['-x', 'test-tag', ...defaultArguments],
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -202,7 +261,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           collectCoverage: true,
-          arguments: [],
+          arguments: defaultArguments,
           minCoverage: 0,
           progress: logger.progress,
           stdout: logger.write,
@@ -235,7 +294,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           collectCoverage: true,
-          arguments: [],
+          arguments: defaultArguments,
           minCoverage: 100,
           progress: logger.progress,
           stdout: logger.write,
@@ -260,7 +319,7 @@ void main() {
           optimizePerformance: true,
           collectCoverage: true,
           excludeFromCoverage: '*.g.dart',
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -289,7 +348,7 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: [],
+          arguments: defaultArguments,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
