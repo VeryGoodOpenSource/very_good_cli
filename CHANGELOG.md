@@ -1,3 +1,16 @@
+# [0.6.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.0...v0.6.1) (2022-03-21)
+
+### Bug Fixes
+
+- **test:** run tests with --no-pub ([#322](https://github.com/VeryGoodOpenSource/very_good_cli/issues/322)) ([005c2aa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/005c2aa1ad6537ce2c6ac215fd1e4d97b3f1e68c))
+- **test:** test_runner runs tests in isolated groups ([#329](https://github.com/VeryGoodOpenSource/very_good_cli/issues/329)) ([5d01936](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5d0193693266adcf4cc3fdd90251e2c7a7b62c67))
+
+### Features
+
+- **test:** add --no-optimization flag ([#325](https://github.com/VeryGoodOpenSource/very_good_cli/issues/325)) ([fae2a6d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fae2a6d012f955924611fba0d8b24f28c966ad31))
+- **test:** add --test-randomize-ordering-seed ([#326](https://github.com/VeryGoodOpenSource/very_good_cli/issues/326)) ([7487f21](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7487f21415c35d0b6044963b3f5ea3c6d9666ed0))
+- **test:** remove .test_runner.dart after run ([#323](https://github.com/VeryGoodOpenSource/very_good_cli/issues/323)) ([cc9f727](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc9f7273a6359ea3dd212dc556b6b21df088fc4c))
+
 # [0.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0) (2022-03-17)
 
 ### Bug Fixes
