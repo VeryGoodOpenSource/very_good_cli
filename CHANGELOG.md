@@ -1,4 +1,10 @@
-# [0.6.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.0...v0.6.1) (2022-03-21)
+# [0.6.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.1...v0.6.2) (2022-03-22)
+
+### Bug Fixes
+
+- **test:** resolve range error when truncating due to whitespace ([#333](https://github.com/VeryGoodOpenSource/very_good_cli/issues/333)) ([d194b6c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d194b6c5532d8fe8f10adef42076e989ff2fe5c1))
+
+## [0.6.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.0...v0.6.1) (2022-03-21)
 
 ### Bug Fixes
 
