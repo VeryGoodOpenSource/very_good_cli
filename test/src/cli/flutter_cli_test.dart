@@ -81,7 +81,7 @@ void main() {
     expect(true, isFalse);
   });
 
-  test('superrrrrrrextraaaaaareeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
+  test('superrrrrrr  extraaaaaa  reeeeeaaaaalllllllllyyyyyyyyyyy   loooonnnnnnnggggggggg    testtttttttttttttt  nameeeeeeeeeeeeeeeee', () {
     expect(true, isFalse);
   }, skip: true);
 }''';

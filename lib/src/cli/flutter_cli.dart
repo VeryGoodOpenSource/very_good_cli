@@ -386,7 +386,7 @@ extension on int {
 extension on String {
   String truncated(int maxLength) {
     if (length <= maxLength) return this;
-    final truncated = trim().substring(length - maxLength, length);
+    final truncated = substring(length - maxLength, length).trim();
     return '...$truncated';
   }
 }
