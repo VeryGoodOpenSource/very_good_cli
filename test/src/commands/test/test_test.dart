@@ -90,6 +90,7 @@ void main() {
       ).thenAnswer((_) async {});
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when(() => argResults.rest).thenReturn([]);
     });
