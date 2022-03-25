@@ -73,6 +73,12 @@ class TestCommand extends Command<int> {
         'test-randomize-ordering-seed',
         help: 'The seed to randomize the execution order of test cases '
             'within test files.',
+      )
+      ..addFlag(
+        'update-goldens',
+        help: 'Whether "matchesGoldenFile()" calls within your test methods '
+            'should update the golden files.',
+        negatable: false,
       );
   }
 
@@ -120,11 +126,13 @@ This command should be run from the root of your Flutter project.''',
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
+    final updateGoldens = _argResults['update-goldens'] as bool;
 
     if (isFlutterInstalled) {
       try {
         await _flutterTest(
-          optimizePerformance: optimizePerformance && _argResults.rest.isEmpty,
+          optimizePerformance:
+              optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
           recursive: recursive,
           progress: _logger.progress,
           stdout: _logger.write,
@@ -135,6 +143,7 @@ This command should be run from the root of your Flutter project.''',
           randomSeed: randomSeed,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
+            if (updateGoldens) '--update-goldens',
             '--no-pub',
             ..._argResults.rest,
           ],

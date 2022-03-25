@@ -23,6 +23,7 @@ const expectedTestUsage = [
       '''-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'''
       '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
       '''    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'''
+      '''    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -173,6 +174,20 @@ void main() {
       verify(
         () => flutterTest(
           arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --update-goldens', () async {
+      when<dynamic>(() => argResults['update-goldens']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: ['--update-goldens', ...defaultArguments],
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,

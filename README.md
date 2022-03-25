@@ -170,6 +170,7 @@ Usage: very_good test [arguments]
 -x, --exclude-tags                    Run only tests that do not have the specified tags.
     --min-coverage                    Whether to enforce a minimum coverage percentage.
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
+    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.
 
 Run "very_good help" to see global options.
 ```
