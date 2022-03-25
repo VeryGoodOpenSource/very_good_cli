@@ -1,4 +1,14 @@
-# [0.6.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.2...v0.6.3) (2022-03-25)
+# [0.6.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.3...v0.6.4) (2022-03-25)
+
+### Bug Fixes
+
+- **test:** output random seed when specified ([#340](https://github.com/VeryGoodOpenSource/very_good_cli/issues/340)) ([edcd171](https://github.com/VeryGoodOpenSource/very_good_cli/commit/edcd17127771f325d3b14bbdfdf207985daf1859))
+
+### Features
+
+- **test:** add --update-goldens ([#341](https://github.com/VeryGoodOpenSource/very_good_cli/issues/341)) ([6483d0a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6483d0aba2bd338f95c6e8d9335f9886e4aaf767))
+
+## [0.6.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.2...v0.6.3) (2022-03-25)
 
 ### Bug Fixes
 
