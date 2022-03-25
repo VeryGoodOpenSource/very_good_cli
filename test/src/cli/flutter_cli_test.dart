@@ -60,6 +60,15 @@ void main() {
   });
 }''';
 
+const flutterTestContents = '''
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('example', () {
+    expect(true, isTrue);
+  });
+}''';
+
 const longTestNameContents = '''
 import 'package:test/test.dart';
 
@@ -150,6 +159,15 @@ environment:
 
 dev_dependencies:
   test: any''';
+
+const pubspecFlutter = '''
+name: example
+environment:
+  sdk: ">=2.13.0 <3.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter''';
 
 const invalidPubspec = 'name: example';
 
@@ -596,7 +614,8 @@ void main() {
         ).called(1);
       });
 
-      test('completes when there is a test directory w/optimizations (passing)',
+      test(
+          'completes when there is a test directory w/optimizations Dart (passing)',
           () async {
         final directory = Directory.systemTemp.createTempSync();
         final testDirectory = Directory(p.join(directory.path, 'test'))
@@ -605,6 +624,43 @@ void main() {
         File(
           p.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            optimizePerformance: true,
+            stdout: logger.write,
+            stderr: logger.err,
+            progress: logger.progress,
+          ),
+          completes,
+        );
+        verify(() => logger.progress('Optimizing tests')).called(1);
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+      });
+
+      test(
+          'completes when there is a test directory w/optimizations Flutter (passing)',
+          () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(
+          p.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecFlutter);
+        File(
+          p.join(testDirectory.path, 'example_test.dart'),
+        ).writeAsStringSync(flutterTestContents);
         await expectLater(
           Flutter.test(
             cwd: directory.path,
