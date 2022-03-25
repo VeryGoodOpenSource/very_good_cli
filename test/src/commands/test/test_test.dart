@@ -36,6 +36,7 @@ abstract class FlutterTestCommand {
     bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
+    String? randomSeed,
     List<String>? arguments,
     void Function([String?]) Function(String message)? progress,
     void Function(String)? stdout,
@@ -79,6 +80,7 @@ void main() {
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          randomSeed: any(named: 'randomSeed'),
           arguments: any(named: 'arguments'),
           progress: any(named: 'progress'),
           stdout: any(named: 'stdout'),
@@ -186,12 +188,9 @@ void main() {
       expect(result, equals(ExitCode.success.code));
       verify(
         () => flutterTest(
-          arguments: [
-            '--test-randomize-ordering-seed',
-            'random',
-            ...defaultArguments
-          ],
+          arguments: defaultArguments,
           optimizePerformance: true,
+          randomSeed: any(named: 'randomSeed', that: isNotEmpty),
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
@@ -201,18 +200,16 @@ void main() {
 
     test('completes normally --test-randomize-ordering-seed 2305182648',
         () async {
+      const randomSeed = '2305182648';
       when<dynamic>(
         () => argResults['test-randomize-ordering-seed'],
-      ).thenReturn('2305182648');
+      ).thenReturn(randomSeed);
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
         () => flutterTest(
-          arguments: [
-            '--test-randomize-ordering-seed',
-            '2305182648',
-            ...defaultArguments
-          ],
+          arguments: defaultArguments,
+          randomSeed: randomSeed,
           optimizePerformance: true,
           progress: logger.progress,
           stdout: logger.write,

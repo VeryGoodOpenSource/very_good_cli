@@ -118,6 +118,7 @@ class Flutter {
     bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
+    String? randomSeed,
     List<String>? arguments,
     void Function([String?]) Function(String message)? progress,
     void Function(String)? stdout,
@@ -135,9 +136,16 @@ class Flutter {
         void noop(String? _) {}
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
+
         stdout?.call(
           'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
         );
+
+        if (randomSeed != null) {
+          stdout?.call(
+            '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
+          );
+        }
 
         if (optimizePerformance) {
           final optimizationDone = progress?.call('Optimizing tests');
@@ -164,6 +172,10 @@ class Flutter {
           collectCoverage: collectCoverage,
           arguments: [
             ...?arguments,
+            if (randomSeed != null) ...[
+              '--test-randomize-ordering-seed',
+              randomSeed
+            ],
             if (optimizePerformance) p.join('test', '.test_runner.dart')
           ],
           stdout: stdout ?? noop,

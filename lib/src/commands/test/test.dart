@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
@@ -17,6 +19,7 @@ typedef FlutterTestCommand = Future<void> Function({
   bool optimizePerformance,
   double? minCoverage,
   String? excludeFromCoverage,
+  String? randomSeed,
   List<String>? arguments,
   void Function([String?]) Function(String message)? progress,
   void Function(String)? stdout,
@@ -113,6 +116,9 @@ This command should be run from the root of your Flutter project.''',
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
     final randomOrderingSeed =
         _argResults['test-randomize-ordering-seed'] as String?;
+    final randomSeed = randomOrderingSeed == 'random'
+        ? Random().nextInt(4294967295).toString()
+        : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
 
     if (isFlutterInstalled) {
@@ -126,12 +132,9 @@ This command should be run from the root of your Flutter project.''',
           collectCoverage: collectCoverage,
           minCoverage: minCoverage,
           excludeFromCoverage: excludeFromCoverage,
+          randomSeed: randomSeed,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
-            if (randomOrderingSeed != null) ...[
-              '--test-randomize-ordering-seed',
-              randomOrderingSeed
-            ],
             '--no-pub',
             ..._argResults.rest,
           ],
