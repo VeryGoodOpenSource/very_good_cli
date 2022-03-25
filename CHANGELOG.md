@@ -1,4 +1,10 @@
-# [0.6.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.1...v0.6.2) (2022-03-22)
+# [0.6.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.2...v0.6.3) (2022-03-25)
+
+### Bug Fixes
+
+- **test:** flutter_test compatibility ([#337](https://github.com/VeryGoodOpenSource/very_good_cli/issues/337)) ([844a599](https://github.com/VeryGoodOpenSource/very_good_cli/commit/844a5993a509ef5a4404d0e52b1f4e88c7a75701))
+
+## [0.6.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.1...v0.6.2) (2022-03-22)
 
 ### Bug Fixes
 
