@@ -111,7 +111,8 @@ class Flutter {
   }
 
   /// Run tests (`flutter test`).
-  static Future<void> test({
+  /// Returns a list of exit codes for each test process.
+  static Future<List<int>> test({
     String cwd = '.',
     bool recursive = false,
     bool collectCoverage = false,
@@ -131,7 +132,7 @@ class Flutter {
       await lcovFile.delete();
     }
 
-    await _runCommand(
+    final results = await _runCommand<int>(
       cmd: (cwd) async {
         void noop(String? _) {}
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
@@ -199,11 +200,12 @@ class Flutter {
       final coverage = coverageMetrics.percentage;
       if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
     }
+    return results;
   }
 }
 
 /// Run a command on directories with a `pubspec.yaml`.
-Future<void> _runCommand<T>({
+Future<List<T>> _runCommand<T>({
   required Future<T> Function(String cwd) cmd,
   required String cwd,
   required bool recursive,
@@ -212,11 +214,10 @@ Future<void> _runCommand<T>({
     final pubspec = File(p.join(cwd, 'pubspec.yaml'));
     if (!pubspec.existsSync()) throw PubspecNotFound();
 
-    await cmd(cwd);
-    return;
+    return [await cmd(cwd)];
   }
 
-  final processes = _Cmd.runWhere(
+  final processes = _Cmd.runWhere<T>(
     run: (entity) => cmd(entity.parent.path),
     where: _isPubspec,
     cwd: cwd,
@@ -224,12 +225,14 @@ Future<void> _runCommand<T>({
 
   if (processes.isEmpty) throw PubspecNotFound();
 
+  final results = <T>[];
   for (final process in processes) {
-    await process;
+    results.add(await process);
   }
+  return results;
 }
 
-Future<void> _flutterTest({
+Future<int> _flutterTest({
   String cwd = '.',
   bool collectCoverage = false,
   List<String>? arguments,
@@ -238,7 +241,7 @@ Future<void> _flutterTest({
 }) {
   const clearLine = '\u001B[2K\r';
 
-  final completer = Completer<void>();
+  final completer = Completer<int>();
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
@@ -330,7 +333,11 @@ Future<void> _flutterTest({
             : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
-        completer.complete();
+        completer.complete(
+          event.success == true
+              ? ExitCode.success.code
+              : ExitCode.software.code,
+        );
       }
     },
     onError: completer.completeError,
