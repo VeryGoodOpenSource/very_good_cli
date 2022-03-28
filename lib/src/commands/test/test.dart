@@ -149,7 +149,7 @@ This command should be run from the root of your Flutter project.''',
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
-          return ExitCode.software.code;
+          return ExitCode.unavailable.code;
         }
       } on MinCoverageNotMet catch (e) {
         _logger.err(

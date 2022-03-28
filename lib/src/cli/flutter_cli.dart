@@ -336,7 +336,7 @@ Future<int> _flutterTest({
         completer.complete(
           event.success == true
               ? ExitCode.success.code
-              : ExitCode.software.code,
+              : ExitCode.unavailable.code,
         );
       }
     },

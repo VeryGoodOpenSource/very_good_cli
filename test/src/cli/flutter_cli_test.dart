@@ -330,7 +330,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completion(equals([ExitCode.software.code])),
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(
@@ -482,7 +482,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completion(equals([ExitCode.software.code])),
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(
@@ -552,7 +552,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completion(equals([ExitCode.software.code])),
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(

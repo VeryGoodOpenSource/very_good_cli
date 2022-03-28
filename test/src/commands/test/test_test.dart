@@ -167,10 +167,10 @@ void main() {
           stderr: any(named: 'stderr'),
         ),
       ).thenAnswer(
-        (_) async => [ExitCode.success.code, ExitCode.software.code],
+        (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
       );
       final result = await testCommand.run();
-      expect(result, equals(ExitCode.software.code));
+      expect(result, equals(ExitCode.unavailable.code));
     });
 
     test('completes normally --recursive', () async {
