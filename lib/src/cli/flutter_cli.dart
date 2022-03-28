@@ -214,7 +214,7 @@ Future<List<T>> _runCommand<T>({
     final pubspec = File(p.join(cwd, 'pubspec.yaml'));
     if (!pubspec.existsSync()) throw PubspecNotFound();
 
-    return [cmd(cwd)];
+    return [await cmd(cwd)];
   }
 
   final processes = _Cmd.runWhere<T>(
