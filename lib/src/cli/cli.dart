@@ -33,7 +33,7 @@ class _Cmd {
     return result;
   }
 
-  static Iterable<Future> runWhere<T>({
+  static Iterable<Future<T>> runWhere<T>({
     required Future<T> Function(FileSystemEntity) run,
     required bool Function(FileSystemEntity) where,
     String cwd = '.',

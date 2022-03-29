@@ -30,7 +30,7 @@ const expectedTestUsage = [
 
 // ignore: one_member_abstracts
 abstract class FlutterTestCommand {
-  Future<void> call({
+  Future<List<int>> call({
     String cwd = '.',
     bool recursive = false,
     bool collectCoverage = false,
@@ -87,7 +87,7 @@ void main() {
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
@@ -150,6 +150,27 @@ void main() {
           stderr: logger.err,
         ),
       ).called(1);
+    });
+
+    test('exits with 70 when tests do not pass', () async {
+      when(
+        () => flutterTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          progress: any(named: 'progress'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+        ),
+      ).thenAnswer(
+        (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
+      );
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.unavailable.code));
     });
 
     test('completes normally --recursive', () async {

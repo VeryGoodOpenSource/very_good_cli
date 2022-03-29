@@ -12,7 +12,7 @@ import 'package:very_good_cli/src/cli/cli.dart';
 typedef FlutterInstalledCommand = Future<bool> Function();
 
 /// Signature for the [Flutter.test] method.
-typedef FlutterTestCommand = Future<void> Function({
+typedef FlutterTestCommand = Future<List<int>> Function({
   String cwd,
   bool recursive,
   bool collectCoverage,
@@ -130,7 +130,7 @@ This command should be run from the root of your Flutter project.''',
 
     if (isFlutterInstalled) {
       try {
-        await _flutterTest(
+        final results = await _flutterTest(
           optimizePerformance:
               optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
           recursive: recursive,
@@ -148,6 +148,9 @@ This command should be run from the root of your Flutter project.''',
             ..._argResults.rest,
           ],
         );
+        if (results.any((code) => code != ExitCode.success.code)) {
+          return ExitCode.unavailable.code;
+        }
       } on MinCoverageNotMet catch (e) {
         _logger.err(
           '''Expected coverage >= ${minCoverage!.toStringAsFixed(2)}% but actual is ${e.coverage.toStringAsFixed(2)}%.''',

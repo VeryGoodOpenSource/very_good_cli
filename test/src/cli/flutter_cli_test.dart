@@ -330,7 +330,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(
@@ -366,7 +366,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -405,7 +405,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -446,7 +446,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -482,7 +482,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(
@@ -519,7 +519,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -552,7 +552,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.unavailable.code])),
         );
         verify(
           () => logger.write(
@@ -581,7 +581,10 @@ void main() {
         File(
           p.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(testContents);
-        expectLater(Flutter.test(cwd: directory.path), completes);
+        expectLater(
+          Flutter.test(cwd: directory.path),
+          completion(equals([ExitCode.success.code])),
+        );
       });
 
       test('completes when there is a test directory (passing)', () async {
@@ -598,7 +601,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -632,7 +635,7 @@ void main() {
             stderr: logger.err,
             progress: logger.progress,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(() => logger.progress('Optimizing tests')).called(1);
         verify(
@@ -669,7 +672,7 @@ void main() {
             stderr: logger.err,
             progress: logger.progress,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(() => logger.progress('Optimizing tests')).called(1);
         verify(
@@ -705,7 +708,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -744,7 +747,7 @@ void main() {
             stderr: logger.err,
             arguments: [otherTest.path],
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -781,7 +784,7 @@ void main() {
             stderr: logger.err,
             randomSeed: randomSeed,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -826,7 +829,7 @@ void main() {
             stderr: logger.err,
             collectCoverage: true,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -870,7 +873,7 @@ void main() {
             stderr: logger.err,
             collectCoverage: true,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -913,7 +916,7 @@ void main() {
             collectCoverage: true,
             minCoverage: 100,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -1001,7 +1004,7 @@ void main() {
             collectCoverage: true,
             minCoverage: 100,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -1042,7 +1045,7 @@ void main() {
             collectCoverage: true,
             minCoverage: 50,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
@@ -1083,7 +1086,7 @@ void main() {
             collectCoverage: true,
             minCoverage: 49,
           ),
-          completes,
+          completion(equals([ExitCode.success.code])),
         );
         verify(
           () => logger.write(
