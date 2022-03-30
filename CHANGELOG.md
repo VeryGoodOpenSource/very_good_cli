@@ -1,4 +1,11 @@
-# [0.6.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.3...v0.6.4) (2022-03-25)
+# [0.6.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.4...v0.6.5) (2022-03-30)
+
+### Bug Fixes
+
+- **test:** cleanup .test_runner.dart on failure ([#348](https://github.com/VeryGoodOpenSource/very_good_cli/issues/348)) ([548e872](https://github.com/VeryGoodOpenSource/very_good_cli/commit/548e8724e1490e7ceac846053cde562b9dfc50c8))
+- **test:** exit (non-zero) on test failure ([#344](https://github.com/VeryGoodOpenSource/very_good_cli/issues/344)) ([828fb51](https://github.com/VeryGoodOpenSource/very_good_cli/commit/828fb51cffeab917f156bdf8cf119912eb60fdf1))
+
+## [0.6.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.3...v0.6.4) (2022-03-25)
 
 ### Bug Fixes
 

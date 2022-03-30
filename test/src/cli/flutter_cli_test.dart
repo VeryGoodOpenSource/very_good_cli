@@ -301,10 +301,9 @@ void main() {
             '''Error: Couldn't resolve the package 'test' in 'package:test/test.dart'.''',
           ),
         );
-        expect(
-          File(p.join(testDirectory.path, '.test_runner.dart')).existsSync(),
-          isFalse,
-        );
+        await File(
+          p.join(testDirectory.path, '.test_runner.dart'),
+        ).ensureDeleted();
       });
 
       test('throws when there is no test directory', () {
@@ -1116,4 +1115,18 @@ void main() {
       });
     });
   });
+}
+
+extension on File {
+  Future<void> ensureDeleted({
+    Duration timeout = const Duration(seconds: 1),
+    Duration interval = const Duration(milliseconds: 50),
+  }) async {
+    var elapsedTime = Duration.zero;
+    while (existsSync()) {
+      await Future<void>.delayed(interval);
+      elapsedTime += interval;
+      if (elapsedTime >= timeout) throw Exception('timed out');
+    }
+  }
 }
