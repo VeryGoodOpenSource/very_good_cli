@@ -287,14 +287,23 @@ void main() {
         );
       });
 
-      test('throws when process fails', () {
+      test('throws when process fails (with cleanup)', () async {
         final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
         File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(invalidPubspec);
-
-        expectLater(
-          Flutter.test(cwd: directory.path),
-          throwsA('Test directory "test" not found.'),
+            .writeAsStringSync(pubspecFlutter);
+        File(p.join(testDirectory.path, 'example_test.dart'))
+            .writeAsStringSync(testContents);
+        await expectLater(
+          Flutter.test(cwd: directory.path, optimizePerformance: true),
+          throwsA(
+            '''Error: Couldn't resolve the package 'test' in 'package:test/test.dart'.''',
+          ),
+        );
+        expect(
+          File(p.join(testDirectory.path, '.test_runner.dart')).existsSync(),
+          isFalse,
         );
       });
 
