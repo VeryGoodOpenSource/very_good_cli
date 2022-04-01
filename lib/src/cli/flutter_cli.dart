@@ -181,15 +181,16 @@ class Flutter {
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
-        );
+        ).whenComplete(() {
+          if (optimizePerformance) {
+            File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
+          }
+        });
       },
       cwd: cwd,
       recursive: recursive,
     );
 
-    if (optimizePerformance) {
-      File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
-    }
     if (collectCoverage) await lcovFile.ensureCreated();
     if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);
@@ -268,7 +269,8 @@ Future<int> _flutterTest({
     },
   );
 
-  flutterTest(
+  final StreamSubscription<TestEvent> subscription;
+  subscription = flutterTest(
     workingDirectory: cwd,
     arguments: [
       if (collectCoverage) '--coverage',
@@ -333,6 +335,7 @@ Future<int> _flutterTest({
             : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
+        if (completer.isCompleted) return;
         completer.complete(
           event.success == true
               ? ExitCode.success.code
@@ -343,7 +346,7 @@ Future<int> _flutterTest({
     onError: completer.completeError,
   );
 
-  return completer.future;
+  return completer.future.whenComplete(subscription.cancel);
 }
 
 final int _lineLength = () {
