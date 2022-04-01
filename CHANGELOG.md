@@ -1,4 +1,10 @@
-# [0.6.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.4...v0.6.5) (2022-03-30)
+# [0.6.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.5...v0.6.6) (2022-04-01)
+
+### Bug Fixes
+
+- **test:** `.test_runner.dart` has invalid import path on windows ([#349](https://github.com/VeryGoodOpenSource/very_good_cli/issues/349)) ([6be8220](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6be822016e5bb105272fa6e144647f90de80087d))
+
+## [0.6.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.4...v0.6.5) (2022-03-30)
 
 ### Bug Fixes
 
