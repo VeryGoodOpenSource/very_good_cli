@@ -158,15 +158,6 @@ class Flutter {
               onVarsChanged: (v) => vars = v,
               workingDirectory: workingDirectory,
             );
-
-            if (Platform.isWindows) {
-              // Windows file system uses a different path separator than the
-              // one used by Dart import statements.
-              vars['tests'] = (vars['tests'] as List? ?? <dynamic>[])
-                  .cast<String>()
-                  .map<String>((f) => f.replaceAll(r'\', '/'));
-            }
-
             await generator.generate(
               target,
               vars: vars,
