@@ -20,7 +20,7 @@ final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "lib/src/{{project_name}}.dart",
       "data":
-          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWV9fX0KLy8vIHt7ZGVzY3JpcHRpb259fQovLy8ge0BlbmR0ZW1wbGF0ZX0KY2xhc3Mge3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19IHsKICAvLy8ge0BtYWNybyB7e3Byb2plY3RfbmFtZX19fQogIGNvbnN0IHt7IyBwYXNjYWxDYXNlfX17e3Byb2plY3RfbmFtZX19e3svIHBhc2NhbENhc2V9fSgpOwp9Cg==",
+          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWV9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7eyMgcGFzY2FsQ2FzZX19e3twcm9qZWN0X25hbWV9fXt7LyBwYXNjYWxDYXNlfX0gewogIC8vLyB7QG1hY3JvIHt7cHJvamVjdF9uYW1lfX19CiAgY29uc3Qge3sjIHBhc2NhbENhc2V9fXt7cHJvamVjdF9uYW1lfX17ey8gcGFzY2FsQ2FzZX19KCk7Cn0K",
       "type": "text"
     },
     {
@@ -32,13 +32,13 @@ final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3tkZXNjcmlwdGlvbn19CnZlcnNpb246IDEuMC4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE2LjAgPDMuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICBjb3ZlcmFnZTogXjEuMS4wCiAgbW9ja3RhaWw6IF4wLjIuMAogIHRlc3Q6IF4xLjE5LjIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4yLjQuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWV9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMS4wLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTYuMCA8My4wLjAiCgpkZXZfZGVwZW5kZW5jaWVzOgogIGNvdmVyYWdlOiBeMS4xLjAKICBtb2NrdGFpbDogXjAuMi4wCiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjIuNC4wCg==",
       "type": "text"
     },
     {
       "path": "README.md",
       "data":
-          "IyB7e3Byb2plY3RfbmFtZX19CgpbIVtzdHlsZTogdmVyeSBnb29kIGFuYWx5c2lzXVt2ZXJ5X2dvb2RfYW5hbHlzaXNfYmFkZ2VdXVt2ZXJ5X2dvb2RfYW5hbHlzaXNfbGlua10KWyFbTGljZW5zZTogTUlUXVtsaWNlbnNlX2JhZGdlXV1bbGljZW5zZV9saW5rXQoKe3tkZXNjcmlwdGlvbn19CgpbbGljZW5zZV9iYWRnZV06IGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8vYmFkZ2UvbGljZW5zZS1NSVQtYmx1ZS5zdmcKW2xpY2Vuc2VfbGlua106IGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlUClt2ZXJ5X2dvb2RfYW5hbHlzaXNfYmFkZ2VdOiBodHRwczovL2ltZy5zaGllbGRzLmlvL2JhZGdlL3N0eWxlLXZlcnlfZ29vZF9hbmFseXNpcy1CMjJDODkuc3ZnClt2ZXJ5X2dvb2RfYW5hbHlzaXNfbGlua106IGh0dHBzOi8vcHViLmRldi9wYWNrYWdlcy92ZXJ5X2dvb2RfYW5hbHlzaXM=",
+          "IyB7e3Byb2plY3RfbmFtZX19CgpbIVtzdHlsZTogdmVyeSBnb29kIGFuYWx5c2lzXVt2ZXJ5X2dvb2RfYW5hbHlzaXNfYmFkZ2VdXVt2ZXJ5X2dvb2RfYW5hbHlzaXNfbGlua10KWyFbTGljZW5zZTogTUlUXVtsaWNlbnNlX2JhZGdlXV1bbGljZW5zZV9saW5rXQoKe3t7ZGVzY3JpcHRpb259fX0KCltsaWNlbnNlX2JhZGdlXTogaHR0cHM6Ly9pbWcuc2hpZWxkcy5pby9iYWRnZS9saWNlbnNlLU1JVC1ibHVlLnN2ZwpbbGljZW5zZV9saW5rXTogaHR0cHM6Ly9vcGVuc291cmNlLm9yZy9saWNlbnNlcy9NSVQKW3ZlcnlfZ29vZF9hbmFseXNpc19iYWRnZV06IGh0dHBzOi8vaW1nLnNoaWVsZHMuaW8vYmFkZ2Uvc3R5bGUtdmVyeV9nb29kX2FuYWx5c2lzLUIyMkM4OS5zdmcKW3ZlcnlfZ29vZF9hbmFseXNpc19saW5rXTogaHR0cHM6Ly9wdWIuZGV2L3BhY2thZ2VzL3ZlcnlfZ29vZF9hbmFseXNpcw==",
       "type": "text"
     },
     {
@@ -52,6 +52,7 @@ final dartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "name": "dart_package",
   "description": "A new Dart Package",
   "version": "0.0.1+1",
+  "environment": {"mason": "any"},
   "vars": {
     "project_name": {
       "type": "string",
