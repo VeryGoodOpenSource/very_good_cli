@@ -359,7 +359,7 @@ final int _lineLength = () {
 
 extension on File {
   Future<void> ensureCreated({
-    Duration timeout = const Duration(seconds: 1),
+    Duration timeout = const Duration(seconds: 10),
     Duration interval = const Duration(milliseconds: 50),
   }) async {
     var elapsedTime = Duration.zero;
