@@ -1,4 +1,11 @@
-# [0.6.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.5...v0.6.6) (2022-04-01)
+# [0.6.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.6...v0.6.7) (2022-04-06)
+
+### Bug Fixes
+
+- **test:** bump lcov file creation timeout ([#358](https://github.com/VeryGoodOpenSource/very_good_cli/issues/358)) ([78bc4f5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/78bc4f5de6a73beb3f3537896e48bd148863d6fe))
+- description is being escaped ([#357](https://github.com/VeryGoodOpenSource/very_good_cli/issues/357)) ([9c5293b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9c5293b545f8b911a37ff5cb95c33b302b1bf356))
+
+## [0.6.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.5...v0.6.6) (2022-04-01)
 
 ### Bug Fixes
 
