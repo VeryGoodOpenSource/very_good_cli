@@ -1,4 +1,10 @@
-# [0.6.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.6...v0.6.7) (2022-04-06)
+# [0.6.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.7...v0.6.8) (2022-04-12)
+
+### Features
+
+- **flutter_plugin:** revamped plugin bundle ([#361](https://github.com/VeryGoodOpenSource/very_good_cli/issues/361)) ([515d94b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/515d94bf473aff00c013b3278afc7a84e0ab10e1))
+
+## [0.6.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.6...v0.6.7) (2022-04-06)
 
 ### Bug Fixes
 
