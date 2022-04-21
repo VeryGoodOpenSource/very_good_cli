@@ -1,4 +1,10 @@
-# [0.6.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.7...v0.6.8) (2022-04-12)
+# [0.6.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.8...v0.6.9) (2022-04-21)
+
+### Features
+
+- **core:** upgrade to gradle 7.1.2 ([#365](https://github.com/VeryGoodOpenSource/very_good_cli/issues/365)) ([ecef487](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ecef48798ea758b64bfef9e52bd041de001be14e))
+
+## [0.6.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.7...v0.6.8) (2022-04-12)
 
 ### Features
 
