@@ -304,7 +304,7 @@ void main() {
       ).called(1);
     });
 
-    test('completes normally --min-coverage 0', () async {
+    test('enables coverage collection when --min-coverage is supplied', () async {
       when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
