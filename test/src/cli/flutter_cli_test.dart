@@ -173,6 +173,8 @@ const invalidPubspec = 'name: example';
 
 class MockLogger extends Mock implements Logger {}
 
+class MockStdout extends Mock implements Stdout {}
+
 void main() {
   group('Flutter', () {
     group('.packagesGet', () {
@@ -815,6 +817,39 @@ void main() {
         verify(
           () => logger.write(any(that: contains('+1: All tests passed!'))),
         ).called(1);
+      });
+
+      test('flushes stdout when collecting coverage', () async {
+        final stdout = MockStdout();
+        when(() => stdout.supportsAnsiEscapes).thenReturn(false);
+        when(() => stdout.terminalColumns).thenReturn(80);
+        when(stdout.flush).thenAnswer((_) async {});
+        final directory = Directory.systemTemp.createTempSync();
+        final libDirectory = Directory(p.join(directory.path, 'lib'))
+          ..createSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(
+          p.join(libDirectory.path, 'calculator.dart'),
+        ).writeAsStringSync(calculatorContents);
+        File(
+          p.join(testDirectory.path, 'calculator_test.dart'),
+        ).writeAsStringSync(calculatorTestContents);
+        await IOOverrides.runZoned(
+          () async {
+            try {
+              await Flutter.test(
+                cwd: directory.path,
+                stdout: logger.write,
+                stderr: logger.err,
+                collectCoverage: true,
+              );
+            } catch (_) {}
+          },
+          stdout: () => stdout,
+        );
+        verify(stdout.flush).called(1);
       });
 
       test('completes w/coverage', () async {

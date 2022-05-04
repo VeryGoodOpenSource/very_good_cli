@@ -191,7 +191,7 @@ class Flutter {
       recursive: recursive,
     );
 
-    if (collectCoverage) await lcovFile.ensureCreated();
+    if (collectCoverage) await io.stdout.flush();
     if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);
       final coverageMetrics = _CoverageMetrics.fromLcovRecords(
@@ -356,20 +356,6 @@ final int _lineLength = () {
     return 80;
   }
 }();
-
-extension on File {
-  Future<void> ensureCreated({
-    Duration timeout = const Duration(seconds: 10),
-    Duration interval = const Duration(milliseconds: 50),
-  }) async {
-    var elapsedTime = Duration.zero;
-    while (!existsSync()) {
-      await Future<void>.delayed(interval);
-      elapsedTime += interval;
-      if (elapsedTime >= timeout) throw GenerateCoverageTimeout();
-    }
-  }
-}
 
 extension on TestEvent {
   bool shouldCancelTimer() {

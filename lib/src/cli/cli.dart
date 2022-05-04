@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' as io;
 
 import 'package:glob/glob.dart';
 import 'package:lcov_parser/lcov_parser.dart';
