@@ -2,6 +2,7 @@ name: very_good_cli
 description: A Very Good Command Line Interface for Dart created by Very Good Ventures.
 version: 0.6.9
 homepage: https://github.com/VeryGoodOpenSource/very_good_cli
+publish_to: none
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -18,7 +19,10 @@ dependencies:
   universal_io: ^2.0.4
   usage: ^4.0.2
   very_good_analysis: ^2.4.0
-  very_good_test_runner: ^0.1.1
+  very_good_test_runner:
+    git:
+      url: https://github.com/VeryGoodOpenSource/very_good_test_runner
+      ref: 201b57f7f8154cc52bc60e85c854a0350b8e0fc2
 
 dev_dependencies:
   build_runner: ^2.0.0
