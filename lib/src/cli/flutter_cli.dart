@@ -16,13 +16,6 @@ class MinCoverageNotMet implements Exception {
   final double coverage;
 }
 
-/// Thrown when `flutter test ---coverage --min-coverage value`
-/// does not generate the coverage file within the timeout threshold.
-class GenerateCoverageTimeout implements Exception {
-  @override
-  String toString() => 'Timed out waiting for coverage to be generated.';
-}
-
 class _CoverageMetrics {
   const _CoverageMetrics._({this.totalHits = 0, this.totalFound = 0});
 
@@ -191,7 +184,9 @@ class Flutter {
       recursive: recursive,
     );
 
-    if (collectCoverage) await lcovFile.ensureCreated();
+    if (collectCoverage) {
+      assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
+    }
     if (minCoverage != null) {
       final records = await Parser.parse(lcovPath);
       final coverageMetrics = _CoverageMetrics.fromLcovRecords(
@@ -269,7 +264,7 @@ Future<int> _flutterTest({
     },
   );
 
-  final StreamSubscription<TestEvent> subscription;
+  late final StreamSubscription<TestEvent> subscription;
   subscription = flutterTest(
     workingDirectory: cwd,
     arguments: [
@@ -335,18 +330,25 @@ Future<int> _flutterTest({
             : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
+      }
+
+      if (event is ExitTestEvent) {
         if (completer.isCompleted) return;
+        subscription.cancel();
         completer.complete(
-          event.success == true
+          event.exitCode == ExitCode.success.code
               ? ExitCode.success.code
               : ExitCode.unavailable.code,
         );
       }
     },
-    onError: completer.completeError,
+    onError: (Object error, StackTrace stackTrace) {
+      subscription.cancel();
+      completer.completeError(error, stackTrace);
+    },
   );
 
-  return completer.future.whenComplete(subscription.cancel);
+  return completer.future;
 }
 
 final int _lineLength = () {
@@ -356,20 +358,6 @@ final int _lineLength = () {
     return 80;
   }
 }();
-
-extension on File {
-  Future<void> ensureCreated({
-    Duration timeout = const Duration(seconds: 10),
-    Duration interval = const Duration(milliseconds: 50),
-  }) async {
-    var elapsedTime = Duration.zero;
-    while (!existsSync()) {
-      await Future<void>.delayed(interval);
-      elapsedTime += interval;
-      if (elapsedTime >= timeout) throw GenerateCoverageTimeout();
-    }
-  }
-}
 
 extension on TestEvent {
   bool shouldCancelTimer() {
