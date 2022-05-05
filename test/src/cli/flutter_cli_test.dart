@@ -273,13 +273,6 @@ void main() {
         when(() => logger.progress(any())).thenReturn(([_]) {});
       });
 
-      test('GenerateCoverageTimeout toString()', () {
-        expect(
-          GenerateCoverageTimeout().toString(),
-          equals('Timed out waiting for coverage to be generated.'),
-        );
-      });
-
       test('throws when there is no pubspec.yaml', () {
         expectLater(
           Flutter.test(cwd: Directory.systemTemp.path),
