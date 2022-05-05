@@ -304,6 +304,24 @@ void main() {
       ).called(1);
     });
 
+    test('enables coverage collection when --min-coverage is supplied',
+        () async {
+      when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          collectCoverage: true,
+          arguments: defaultArguments,
+          minCoverage: 0,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
     test('fails when coverage not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
