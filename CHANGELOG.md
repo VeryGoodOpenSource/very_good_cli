@@ -1,4 +1,10 @@
-# [0.6.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.8...v0.6.9) (2022-04-21)
+# [0.6.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.9...v0.6.10) (2022-05-05)
+
+### Bug Fixes
+
+- **test:** coverage timeout ([#375](https://github.com/VeryGoodOpenSource/very_good_cli/issues/375)) ([78d549e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/78d549ebb34064ffda1620d243223b0b2340c1c5))
+
+## [0.6.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.8...v0.6.9) (2022-04-21)
 
 ### Features
 
