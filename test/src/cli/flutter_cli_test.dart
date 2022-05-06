@@ -171,6 +171,16 @@ dev_dependencies:
 
 const invalidPubspec = 'name: example';
 
+const unreachableGitUrlPubspec = '''
+name: example
+environment:
+  sdk: ">=2.13.0 <3.0.0"
+
+dev_dependencies:
+  very_good_analysis:
+    git:
+      url: https://github.com/verygoodopensource/_very_good_analysis''';
+
 class MockLogger extends Mock implements Logger {}
 
 void main() {
@@ -191,6 +201,17 @@ void main() {
         expectLater(
           Flutter.packagesGet(cwd: directory.path),
           throwsException,
+        );
+      });
+
+      test('throws when there is an unreachable git url', () {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml'))
+            .writeAsStringSync(unreachableGitUrlPubspec);
+
+        expectLater(
+          Flutter.packagesGet(cwd: directory.path),
+          throwsA(isA<UnreachableGitDependency>()),
         );
       });
 
@@ -235,6 +256,17 @@ void main() {
         expectLater(
           Flutter.pubGet(cwd: directory.path),
           throwsException,
+        );
+      });
+
+      test('throws when there is an unreachable git url', () {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml'))
+            .writeAsStringSync(unreachableGitUrlPubspec);
+
+        expectLater(
+          Flutter.packagesGet(cwd: directory.path),
+          throwsA(isA<UnreachableGitDependency>()),
         );
       });
 

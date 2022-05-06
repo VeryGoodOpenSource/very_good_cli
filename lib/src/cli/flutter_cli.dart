@@ -72,6 +72,14 @@ class Flutter {
         final installDone = progress?.call(
           'Running "flutter packages get" in $cwd',
         );
+
+        try {
+          await _verifyGitDependencies(cwd);
+        } catch (_) {
+          installDone?.call();
+          rethrow;
+        }
+
         try {
           await _Cmd.run(
             'flutter',
@@ -198,6 +206,34 @@ class Flutter {
     }
     return results;
   }
+}
+
+/// Ensures all git dependencies are reachable for the pubspec
+/// located in the [cwd].
+///
+/// If any git dependencies are unreachable,
+/// an [UnreachableGitDependency] is thrown.
+Future<void> _verifyGitDependencies(String cwd) async {
+  final pubspec = Pubspec.parse(
+    await File(p.join(cwd, 'pubspec.yaml')).readAsString(),
+  );
+
+  final dependencies = pubspec.dependencies;
+  final devDependencies = pubspec.devDependencies;
+  final dependencyOverrides = pubspec.dependencyOverrides;
+  final gitDependencies = [
+    ...dependencies.entries,
+    ...devDependencies.entries,
+    ...dependencyOverrides.entries
+  ]
+      .where((entry) => entry.value is GitDependency)
+      .map((entry) => entry.value)
+      .cast<GitDependency>()
+      .toList();
+
+  await Future.wait(
+    gitDependencies.map((dependency) => Git.reachable(dependency.url)),
+  );
 }
 
 /// Run a command on directories with a `pubspec.yaml`.
