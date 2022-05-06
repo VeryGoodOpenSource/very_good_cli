@@ -1,4 +1,11 @@
-# [0.6.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.9...v0.6.10) (2022-05-05)
+# [0.6.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.10...v0.6.11) (2022-05-06)
+
+### Features
+
+- **packages:** ensure git dependencies are reachable ([#379](https://github.com/VeryGoodOpenSource/very_good_cli/issues/379)) ([886bb85](https://github.com/VeryGoodOpenSource/very_good_cli/commit/886bb8561a3865845613a19e54b5e342c9866384))
+- **test:** imply --coverage when --min-coverage is supplied ([#367](https://github.com/VeryGoodOpenSource/very_good_cli/issues/367)) ([666b513](https://github.com/VeryGoodOpenSource/very_good_cli/commit/666b5130968ab3816809682047502e1422a03225))
+
+## [0.6.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.9...v0.6.10) (2022-05-05)
 
 ### Bug Fixes
 
