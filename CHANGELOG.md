@@ -1,4 +1,11 @@
-# [0.6.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.10...v0.6.11) (2022-05-06)
+# [0.6.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.11...v0.6.12) (2022-05-10)
+
+### Features
+
+- update to mocktail ^0.3.0 ([#384](https://github.com/VeryGoodOpenSource/very_good_cli/issues/384)) ([3c3a45b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3c3a45b0c1ffcd73fa2359456ba81d62c3e440c2))
+- **core:** upgrade to Flutter 2.10.5 ([#382](https://github.com/VeryGoodOpenSource/very_good_cli/issues/382)) ([1d7576e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1d7576e059b18782e12609dd83d9b548ade55aa2))
+
+## [0.6.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.10...v0.6.11) (2022-05-06)
 
 ### Features
 
