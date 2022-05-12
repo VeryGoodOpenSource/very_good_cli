@@ -1,4 +1,10 @@
-# [0.6.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.11...v0.6.12) (2022-05-10)
+# [0.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.12...v0.7.0) (2022-05-11)
+
+### Features
+
+- upgrade to Flutter 3.0.0 and Dart 2.17.0 ([#390](https://github.com/VeryGoodOpenSource/very_good_cli/issues/390)) ([b092c7f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b092c7f18ceeeae78a1fd5c65045fe36a637df7c))
+
+## [0.6.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.11...v0.6.12) (2022-05-10)
 
 ### Features
 
