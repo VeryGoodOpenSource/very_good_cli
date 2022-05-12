@@ -1,3 +1,9 @@
+# [0.7.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.0...v0.7.1) (2022-05-12)
+
+### Bug Fixes
+
+- **test:** report errors without throwing ([#393](https://github.com/VeryGoodOpenSource/very_good_cli/issues/393)) ([9c1e583](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9c1e58395f6857d61231bbe72c87cf3404291e98))
+
 # [0.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.12...v0.7.0) (2022-05-11)
 
 ### Features
