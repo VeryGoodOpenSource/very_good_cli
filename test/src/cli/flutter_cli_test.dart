@@ -312,7 +312,7 @@ void main() {
         );
       });
 
-      test('throws when process fails (with cleanup)', () async {
+      test('exits with code 69 when process fails (with cleanup)', () async {
         final directory = Directory.systemTemp.createTempSync();
         final testDirectory = Directory(p.join(directory.path, 'test'))
           ..createSync();
@@ -322,22 +322,20 @@ void main() {
             .writeAsStringSync(testContents);
         await expectLater(
           Flutter.test(cwd: directory.path, optimizePerformance: true),
-          throwsA(
-            '''Error: Couldn't resolve the package 'test' in 'package:test/test.dart'.''',
-          ),
+          completion(equals([69])),
         );
         await File(
           p.join(testDirectory.path, '.test_runner.dart'),
         ).ensureDeleted();
       });
 
-      test('throws when there is no test directory', () {
+      test('exits with code 69 when there is no test directory', () {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
 
         expectLater(
           Flutter.test(cwd: directory.path),
-          throwsA('Test directory "test" not found.'),
+          completion(equals([69])),
         );
       });
 
