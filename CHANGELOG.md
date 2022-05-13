@@ -1,4 +1,10 @@
-# [0.7.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.0...v0.7.1) (2022-05-12)
+# [0.7.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.1...v0.7.2) (2022-05-13)
+
+### Features
+
+- upgrade templates to very_good_analysis ^3.0.0 ([#398](https://github.com/VeryGoodOpenSource/very_good_cli/issues/398)) ([4a4fb8d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4a4fb8dca65a12c6639f59f4c16f9e48c8815be9))
+
+## [0.7.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.0...v0.7.1) (2022-05-12)
 
 ### Bug Fixes
 
