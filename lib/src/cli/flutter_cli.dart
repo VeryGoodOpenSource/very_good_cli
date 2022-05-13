@@ -280,11 +280,11 @@ Future<int> _flutterTest({
 
   var successCount = 0;
   var skipCount = 0;
-  var failureCount = 0;
+  final failedTests = <String>[];
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
-    final failingTests = failureCount.formatFailure();
+    final failingTests = failedTests.length.formatFailure();
     final skippedTests = skipCount.formatSkipped();
     final result = [passingTests, failingTests, skippedTests]
       ..removeWhere((element) => element.isEmpty);
@@ -347,7 +347,7 @@ Future<int> _flutterTest({
           successCount++;
         } else {
           stderr('$clearLine${test.name} ${suite.path} (FAILED)');
-          failureCount++;
+          failedTests.add(test.name);
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
@@ -366,6 +366,22 @@ Future<int> _flutterTest({
             : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
+
+        if (event.success != true) {
+          assert(
+            failedTests.isNotEmpty,
+            'Invalid state: test event report as faield but no failed tests were gathered',
+          );
+          final title = styleBold.wrap('Failing Tests:');
+          final lines = failedTests.fold<StringBuffer>(
+            StringBuffer('$clearLine$title\n'),
+            (previousValue, testName) {
+              previousValue.writeln('$clearLine - $testName');
+              return previousValue;
+            },
+          );
+          stdout(lines.toString());
+        }
       }
 
       if (event is ExitTestEvent) {
