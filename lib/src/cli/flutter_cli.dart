@@ -379,8 +379,8 @@ Future<int> _flutterTest({
       }
     },
     onError: (Object error, StackTrace stackTrace) {
-      subscription.cancel();
-      completer.completeError(error, stackTrace);
+      stderr('$clearLine$error');
+      stderr('$clearLine$stackTrace');
     },
   );
 
