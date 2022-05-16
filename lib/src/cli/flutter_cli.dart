@@ -182,6 +182,7 @@ class Flutter {
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
+          optimizePerformance: optimizePerformance,
         ).whenComplete(() {
           if (optimizePerformance) {
             File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
@@ -270,6 +271,7 @@ Future<int> _flutterTest({
   List<String>? arguments,
   required void Function(String) stdout,
   required void Function(String) stderr,
+  required bool optimizePerformance,
 }) {
   const clearLine = '\u001B[2K\r';
 
@@ -277,10 +279,10 @@ Future<int> _flutterTest({
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
+  final failedTests = <int>[];
 
   var successCount = 0;
   var skipCount = 0;
-  final failedTests = <String>[];
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
@@ -347,7 +349,7 @@ Future<int> _flutterTest({
           successCount++;
         } else {
           stderr('$clearLine${test.name} ${suite.path} (FAILED)');
-          failedTests.add(test.name);
+          failedTests.add(test.id);
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
@@ -370,17 +372,24 @@ Future<int> _flutterTest({
         if (event.success != true) {
           assert(
             failedTests.isNotEmpty,
-            'Invalid state: test event report as faield but no failed tests were gathered',
+            'Invalid state: test event report as faield but no failed tests '
+            'were gathered',
           );
           final title = styleBold.wrap('Failing Tests:');
           final lines = failedTests.fold<StringBuffer>(
             StringBuffer('$clearLine$title\n'),
-            (previousValue, testName) {
-              previousValue.writeln('$clearLine - $testName');
+            (previousValue, testId) {
+              final test = tests[testId];
+              if (test != null) {
+                final suitePath = suites[test.suiteID]?.path ?? '';
+                previousValue.writeln(
+                  '$clearLine - $suitePath:${test.line}:${test.column}',
+                );
+              }
               return previousValue;
             },
           );
-          stdout(lines.toString());
+          stderr(lines.toString());
         }
       }
 
