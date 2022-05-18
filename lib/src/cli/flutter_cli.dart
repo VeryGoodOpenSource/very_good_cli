@@ -182,7 +182,6 @@ class Flutter {
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
-          optimizePerformance: optimizePerformance,
         ).whenComplete(() {
           if (optimizePerformance) {
             File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
@@ -271,7 +270,6 @@ Future<int> _flutterTest({
   List<String>? arguments,
   required void Function(String) stdout,
   required void Function(String) stderr,
-  required bool optimizePerformance,
 }) {
   const clearLine = '\u001B[2K\r';
 
