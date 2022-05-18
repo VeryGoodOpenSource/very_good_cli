@@ -277,14 +277,14 @@ Future<int> _flutterTest({
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
-  final failedTests = <int>[];
+  final failedTestErrorMessages = <int, String>{};
 
   var successCount = 0;
   var skipCount = 0;
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
-    final failingTests = failedTests.length.formatFailure();
+    final failingTests = failedTestErrorMessages.length.formatFailure();
     final skippedTests = skipCount.formatSkipped();
     final result = [passingTests, failingTests, skippedTests]
       ..removeWhere((element) => element.isEmpty);
@@ -327,9 +327,17 @@ Future<int> _flutterTest({
 
       if (event is ErrorTestEvent) {
         stderr('$clearLine${event.error}');
+
         if (event.stackTrace.trim().isNotEmpty) {
           stderr('$clearLine${event.stackTrace}');
         }
+
+        final pathFromStackTrace = getPathFromStackTrace(event.stackTrace);
+
+        final testErrorDescription =
+            pathFromStackTrace ?? event.error.replaceAll('\n', ' ');
+
+        failedTestErrorMessages[event.testID] = testErrorDescription;
       }
 
       if (event is TestDoneEvent) {
@@ -347,7 +355,6 @@ Future<int> _flutterTest({
           successCount++;
         } else {
           stderr('$clearLine${test.name} ${suite.path} (FAILED)');
-          failedTests.add(test.id);
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
@@ -369,24 +376,19 @@ Future<int> _flutterTest({
 
         if (event.success != true) {
           assert(
-            failedTests.isNotEmpty,
-            'Invalid state: test event report as faield but no failed tests '
+            failedTestErrorMessages.isNotEmpty,
+            'Invalid state: test event report as failed but no failed tests '
             'were gathered',
           );
           final title = styleBold.wrap('Failing Tests:');
-          final lines = failedTests.fold<StringBuffer>(
-            StringBuffer('$clearLine$title\n'),
-            (previousValue, testId) {
-              final test = tests[testId];
-              if (test != null) {
-                final suitePath = suites[test.suiteID]?.path ?? '';
-                previousValue.writeln(
-                  '$clearLine - $suitePath:${test.line}:${test.column}',
-                );
-              }
-              return previousValue;
-            },
-          );
+
+          final lines = StringBuffer('$clearLine$title\n');
+          for (final errorMessage in failedTestErrorMessages.values) {
+            lines.writeln(
+              '$clearLine - $errorMessage',
+            );
+          }
+
           stderr(lines.toString());
         }
       }
@@ -458,4 +460,41 @@ extension on String {
     final truncated = substring(length - maxLength, length).trim();
     return '...$truncated';
   }
+}
+
+String? getPathFromStackTrace(String stackTrace) {
+  final trimmedStackTrace = stackTrace.trim();
+
+  if (trimmedStackTrace.isEmpty) {
+    return null;
+  }
+
+  final splittedStackTrace =
+      trimmedStackTrace.split('\n').where((element) => element.isNotEmpty);
+
+  if (splittedStackTrace.isEmpty) {
+    return null;
+  }
+
+  final lastLine = splittedStackTrace.last.trim();
+
+  if (lastLine.isEmpty) {
+    return null;
+  }
+
+  final lastLineIterator = lastLine.split(' ').iterator;
+
+  if (!lastLineIterator.moveNext()) {
+    return null;
+  }
+
+  final path = p.normalize(lastLineIterator.current);
+  if (!File(path).existsSync()) {
+    return null;
+  }
+  if (!lastLineIterator.moveNext()) {
+    return path;
+  }
+
+  return '$path:${lastLineIterator.current}';
 }
