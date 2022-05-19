@@ -467,10 +467,20 @@ String? _getTraceLocation({
 }) {
   try {
     final trace = Trace.parse(stackTrace);
+
     if (trace.frames.isEmpty) {
       return null;
     }
-    return trace.frames.last.location;
+
+    final lastFrame = trace.frames.last;
+
+    final library = lastFrame.library;
+    final line = lastFrame.line;
+    final column = lastFrame.column;
+
+    if (line == null) return library;
+    if (column == null) return '$library:$line';
+    return '$library:$line:$column';
   } on FormatException {
     return null;
   }

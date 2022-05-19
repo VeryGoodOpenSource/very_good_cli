@@ -383,7 +383,7 @@ void main() {
         ).called(1);
         verify(
           () => logger.err(
-            any(that: contains('- [FAILED] test/example_test.dart 4:5')),
+            any(that: contains('- [FAILED] test/example_test.dart:4:5')),
           ),
         ).called(1);
       });
@@ -541,7 +541,7 @@ void main() {
         ).called(1);
         verify(
           () => logger
-              .err(any(that: contains('- [ERROR] test/example_test.dart 5:5'))),
+              .err(any(that: contains('- [ERROR] test/example_test.dart:5:5'))),
         ).called(1);
       });
 
