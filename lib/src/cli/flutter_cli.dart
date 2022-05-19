@@ -332,12 +332,15 @@ Future<int> _flutterTest({
           stderr('$clearLine${event.stackTrace}');
         }
 
-        final pathFromStackTrace = getPathFromStackTrace(event.stackTrace);
+        final traceLocation = _getTraceLocation(stackTrace: event.stackTrace);
 
-        final testErrorDescription =
-            pathFromStackTrace ?? event.error.replaceAll('\n', ' ');
+        // When failing to recover the location from the stack trace,
+        // save a short description of the error
+        final testErrorDescription = traceLocation ??
+            event.error.replaceAll('\n', ' ').truncated(_lineLength);
 
-        failedTestErrorMessages[event.testID] = testErrorDescription;
+        final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
+        failedTestErrorMessages[event.testID] = '$prefix $testErrorDescription';
       }
 
       if (event is TestDoneEvent) {
@@ -384,11 +387,8 @@ Future<int> _flutterTest({
 
           final lines = StringBuffer('$clearLine$title\n');
           for (final errorMessage in failedTestErrorMessages.values) {
-            lines.writeln(
-              '$clearLine - $errorMessage',
-            );
+            lines.writeln('$clearLine - $errorMessage');
           }
-
           stderr(lines.toString());
         }
       }
@@ -462,39 +462,16 @@ extension on String {
   }
 }
 
-String? getPathFromStackTrace(String stackTrace) {
-  final trimmedStackTrace = stackTrace.trim();
-
-  if (trimmedStackTrace.isEmpty) {
+String? _getTraceLocation({
+  required String stackTrace,
+}) {
+  try {
+    final trace = Trace.parse(stackTrace);
+    if (trace.frames.isEmpty) {
+      return null;
+    }
+    return trace.frames.last.location;
+  } on FormatException {
     return null;
   }
-
-  final splittedStackTrace =
-      trimmedStackTrace.split('\n').where((element) => element.isNotEmpty);
-
-  if (splittedStackTrace.isEmpty) {
-    return null;
-  }
-
-  final lastLine = splittedStackTrace.last.trim();
-
-  if (lastLine.isEmpty) {
-    return null;
-  }
-
-  final lastLineIterator = lastLine.split(' ').iterator;
-
-  if (!lastLineIterator.moveNext()) {
-    return null;
-  }
-
-  final path = p.normalize(lastLineIterator.current);
-  if (!File(path).existsSync()) {
-    return null;
-  }
-  if (!lastLineIterator.moveNext()) {
-    return path;
-  }
-
-  return '$path:${lastLineIterator.current}';
 }

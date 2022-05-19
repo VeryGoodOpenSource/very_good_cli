@@ -381,6 +381,11 @@ void main() {
         verify(
           () => logger.write(any(that: contains('Some tests failed.'))),
         ).called(1);
+        verify(
+          () => logger.err(
+            any(that: contains('- [FAILED] test/example_test.dart 4:5')),
+          ),
+        ).called(1);
       });
 
       test('completes when there is a test directory (skipping)', () async {
@@ -533,6 +538,10 @@ void main() {
         ).called(1);
         verify(
           () => logger.write(any(that: contains('-1: Some tests failed.'))),
+        ).called(1);
+        verify(
+          () => logger
+              .err(any(that: contains('- [ERROR] test/example_test.dart 5:5'))),
         ).called(1);
       });
 
