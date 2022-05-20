@@ -1,4 +1,15 @@
-# [0.7.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.1...v0.7.2) (2022-05-13)
+# [0.7.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.2...v0.7.3) (2022-05-20)
+
+### Bug Fixes
+
+- **test:** add trailing newline when no test folder found ([#405](https://github.com/VeryGoodOpenSource/very_good_cli/issues/405)) ([ca37274](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ca3727472b27ceef724798ba33af015718577897))
+- **test:** allow packages without a test directory ([#404](https://github.com/VeryGoodOpenSource/very_good_cli/issues/404)) ([3ece759](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3ece759eb07e442b7bd02c20275c9cf1a19ee8de))
+
+### Features
+
+- **test:** list failing tests ([#397](https://github.com/VeryGoodOpenSource/very_good_cli/issues/397)) ([d229c5e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d229c5eb60a26d3a64e633eac471f86dfcdbe594))
+
+## [0.7.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.1...v0.7.2) (2022-05-13)
 
 ### Features
 
