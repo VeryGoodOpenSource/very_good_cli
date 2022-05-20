@@ -465,23 +465,18 @@ extension on String {
 String? _getTraceLocation({
   required String stackTrace,
 }) {
-  try {
-    final trace = Trace.parse(stackTrace);
-
-    if (trace.frames.isEmpty) {
-      return null;
-    }
-
-    final lastFrame = trace.frames.last;
-
-    final library = lastFrame.library;
-    final line = lastFrame.line;
-    final column = lastFrame.column;
-
-    if (line == null) return library;
-    if (column == null) return '$library:$line';
-    return '$library:$line:$column';
-  } on FormatException {
+  final trace = Trace.parse(stackTrace);
+  if (trace.frames.isEmpty) {
     return null;
   }
+
+  final lastFrame = trace.frames.last;
+
+  final library = lastFrame.library;
+  final line = lastFrame.line;
+  final column = lastFrame.column;
+
+  if (line == null) return library;
+  if (column == null) return '$library:$line';
+  return '$library:$line:$column';
 }
