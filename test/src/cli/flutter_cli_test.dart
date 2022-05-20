@@ -355,14 +355,24 @@ void main() {
         ).ensureDeleted();
       });
 
-      test('exits with code 69 when there is no test directory', () {
+      test('exits with code 0 when there is no test directory', () {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
 
         expectLater(
-          Flutter.test(cwd: directory.path),
-          completion(equals([69])),
+          Flutter.test(cwd: directory.path, stdout: logger.write),
+          completion(equals([ExitCode.success.code])),
         );
+
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'No test folder found in ${directory.path}',
+              ),
+            ),
+          ),
+        ).called(1);
       });
 
       test('throws when there is no pubspec.yaml (recursive)', () {

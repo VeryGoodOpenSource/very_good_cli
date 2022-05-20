@@ -143,6 +143,13 @@ class Flutter {
           'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
         );
 
+        if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
+          stdout?.call(
+            'No test folder found in ${target.dir.absolute.path}',
+          );
+          return ExitCode.success.code;
+        }
+
         if (randomSeed != null) {
           stdout?.call(
             '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
