@@ -368,7 +368,7 @@ void main() {
           () => logger.write(
             any(
               that: contains(
-                'No test folder found in ${directory.path}',
+                'No test folder found in ${directory.path}\n',
               ),
             ),
           ),

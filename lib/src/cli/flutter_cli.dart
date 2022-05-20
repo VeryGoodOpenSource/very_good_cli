@@ -145,7 +145,7 @@ class Flutter {
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
           stdout?.call(
-            'No test folder found in ${target.dir.absolute.path}',
+            'No test folder found in ${target.dir.absolute.path}\n',
           );
           return ExitCode.success.code;
         }
