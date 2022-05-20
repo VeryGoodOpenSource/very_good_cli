@@ -16,7 +16,7 @@ dependencies:
   path: ^1.8.0
   pub_updater: ^0.2.1
   pubspec_parse: ^1.2.0
-  stack_trace: 1.10.0
+  stack_trace: ^1.10.0
   universal_io: ^2.0.4
   usage: ^4.0.2
   very_good_analysis: ^2.4.0
