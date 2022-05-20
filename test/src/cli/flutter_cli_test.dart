@@ -329,7 +329,7 @@ void main() {
         ).ensureDeleted();
       });
 
-      test('exits with code success when there is no test directory', () {
+      test('exits with code 0 when there is no test directory', () {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
 

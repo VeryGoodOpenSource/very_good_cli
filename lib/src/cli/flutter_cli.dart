@@ -147,7 +147,7 @@ class Flutter {
           stdout?.call(
             'No test folder found in ${target.dir.absolute.path}',
           );
-          return Future.value(ExitCode.success.code);
+          return ExitCode.success.code;
         }
 
         if (randomSeed != null) {
