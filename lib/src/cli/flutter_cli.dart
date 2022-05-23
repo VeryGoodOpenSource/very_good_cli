@@ -143,6 +143,13 @@ class Flutter {
           'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
         );
 
+        if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
+          stdout?.call(
+            'No test folder found in ${target.dir.absolute.path}\n',
+          );
+          return ExitCode.success.code;
+        }
+
         if (randomSeed != null) {
           stdout?.call(
             '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
@@ -277,14 +284,14 @@ Future<int> _flutterTest({
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
+  final failedTestErrorMessages = <int, String>{};
 
   var successCount = 0;
   var skipCount = 0;
-  var failureCount = 0;
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
-    final failingTests = failureCount.formatFailure();
+    final failingTests = failedTestErrorMessages.length.formatFailure();
     final skippedTests = skipCount.formatSkipped();
     final result = [passingTests, failingTests, skippedTests]
       ..removeWhere((element) => element.isEmpty);
@@ -327,9 +334,20 @@ Future<int> _flutterTest({
 
       if (event is ErrorTestEvent) {
         stderr('$clearLine${event.error}');
+
         if (event.stackTrace.trim().isNotEmpty) {
           stderr('$clearLine${event.stackTrace}');
         }
+
+        final traceLocation = _getTraceLocation(stackTrace: event.stackTrace);
+
+        // When failing to recover the location from the stack trace,
+        // save a short description of the error
+        final testErrorDescription = traceLocation ??
+            event.error.replaceAll('\n', ' ').truncated(_lineLength);
+
+        final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
+        failedTestErrorMessages[event.testID] = '$prefix $testErrorDescription';
       }
 
       if (event is TestDoneEvent) {
@@ -347,7 +365,6 @@ Future<int> _flutterTest({
           successCount++;
         } else {
           stderr('$clearLine${test.name} ${suite.path} (FAILED)');
-          failureCount++;
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
@@ -366,6 +383,21 @@ Future<int> _flutterTest({
             : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
+
+        if (event.success != true) {
+          assert(
+            failedTestErrorMessages.isNotEmpty,
+            'Invalid state: test event report as failed but no failed tests '
+            'were gathered',
+          );
+          final title = styleBold.wrap('Failing Tests:');
+
+          final lines = StringBuffer('$clearLine$title\n');
+          for (final errorMessage in failedTestErrorMessages.values) {
+            lines.writeln('$clearLine - $errorMessage');
+          }
+          stderr(lines.toString());
+        }
       }
 
       if (event is ExitTestEvent) {
@@ -435,4 +467,23 @@ extension on String {
     final truncated = substring(length - maxLength, length).trim();
     return '...$truncated';
   }
+}
+
+String? _getTraceLocation({
+  required String stackTrace,
+}) {
+  final trace = Trace.parse(stackTrace);
+  if (trace.frames.isEmpty) {
+    return null;
+  }
+
+  final lastFrame = trace.frames.last;
+
+  final library = lastFrame.library;
+  final line = lastFrame.line;
+  final column = lastFrame.column;
+
+  if (line == null) return library;
+  if (column == null) return '$library:$line';
+  return '$library:$line:$column';
 }

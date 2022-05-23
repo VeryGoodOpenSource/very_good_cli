@@ -122,6 +122,32 @@ void main() {
   });
 }''';
 
+const registerExceptionNoStackTraceContents = '''
+import 'package:test/test.dart';
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
+void main() {
+  test('example', () {
+    print('EXCEPTION');
+    registerException(
+      'fake error',
+      stack_trace.Chain(<stack_trace.Trace>[]),
+    );
+  });
+}''';
+
+String registerExceptionCustomStackTraceContents(String stackTrace) => '''
+import 'package:test/test.dart';
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
+void main() {
+  test('example', () {
+    print('EXCEPTION');
+    registerException(
+      'fake error',
+      stack_trace.Trace.parse('$stackTrace'),
+    );
+  });
+}''';
+
 const skippedTestContents = '''
 import 'package:test/test.dart';
 void main() {
@@ -329,14 +355,24 @@ void main() {
         ).ensureDeleted();
       });
 
-      test('exits with code 69 when there is no test directory', () {
+      test('exits with code 0 when there is no test directory', () {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
 
         expectLater(
-          Flutter.test(cwd: directory.path),
-          completion(equals([69])),
+          Flutter.test(cwd: directory.path, stdout: logger.write),
+          completion(equals([ExitCode.success.code])),
         );
+
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'No test folder found in ${directory.path}\n',
+              ),
+            ),
+          ),
+        ).called(1);
       });
 
       test('throws when there is no pubspec.yaml (recursive)', () {
@@ -380,6 +416,11 @@ void main() {
         ).called(1);
         verify(
           () => logger.write(any(that: contains('Some tests failed.'))),
+        ).called(1);
+        verify(
+          () => logger.err(
+            any(that: contains('- [FAILED] test/example_test.dart:4:5')),
+          ),
         ).called(1);
       });
 
@@ -534,7 +575,93 @@ void main() {
         verify(
           () => logger.write(any(that: contains('-1: Some tests failed.'))),
         ).called(1);
+        verify(
+          () => logger
+              .err(any(that: contains('- [ERROR] test/example_test.dart:5:5'))),
+        ).called(1);
       });
+
+      test(
+        'completes when there is a test directory (exception w/o trace)',
+        () async {
+          final directory = Directory.systemTemp.createTempSync();
+          final testDirectory = Directory(p.join(directory.path, 'test'))
+            ..createSync();
+          File(p.join(directory.path, 'pubspec.yaml'))
+              .writeAsStringSync(pubspec);
+          File(
+            p.join(testDirectory.path, 'example_test.dart'),
+          ).writeAsStringSync(registerExceptionNoStackTraceContents);
+          await expectLater(
+            Flutter.test(
+              cwd: directory.path,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+          verify(
+            () => logger.write(
+              any(
+                that: contains(
+                  'Running "flutter test" in ${p.dirname(directory.path)}',
+                ),
+              ),
+            ),
+          ).called(1);
+          verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
+          verify(
+            () => logger.write(any(that: contains('-1: Some tests failed.'))),
+          ).called(1);
+          verify(
+            () => logger.err(any(that: contains('- [ERROR] fake error'))),
+          ).called(1);
+        },
+      );
+
+      test(
+        'completes when there is a test directory (exception w/ custom trace)',
+        () async {
+          final directory = Directory.systemTemp.createTempSync();
+          final testDirectory = Directory(p.join(directory.path, 'test'))
+            ..createSync();
+          File(p.join(directory.path, 'pubspec.yaml'))
+              .writeAsStringSync(pubspec);
+          File(
+            p.join(testDirectory.path, 'example_test.dart'),
+          ).writeAsStringSync(
+            registerExceptionCustomStackTraceContents(
+              'test/example_test.dart 4 main',
+            ),
+          );
+          await expectLater(
+            Flutter.test(
+              cwd: directory.path,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+          verify(
+            () => logger.write(
+              any(
+                that: contains(
+                  'Running "flutter test" in ${p.dirname(directory.path)}',
+                ),
+              ),
+            ),
+          ).called(1);
+          verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
+          verify(
+            () => logger.write(any(that: contains('-1: Some tests failed.'))),
+          ).called(1);
+          verify(
+            () => logger.err(
+              any(that: contains('- [ERROR] test/example_test.dart:4')),
+            ),
+          ).called(1);
+        },
+      );
 
       test('completes and truncates really long test name', () async {
         final directory = Directory.systemTemp.createTempSync();
