@@ -12,6 +12,8 @@ class MockLogger extends Mock implements Logger {}
 
 class MockPubUpdater extends Mock implements PubUpdater {}
 
+class MockProgress extends Mock implements Progress {}
+
 void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
     final printLogs = <String>[];
@@ -54,11 +56,11 @@ void Function() withRunner(
     when(
       () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
     ).thenAnswer((_) async {});
-    when(() => logger.progress(any())).thenReturn(
-      ([_]) {
-        if (_ != null) progressLogs.add(_);
-      },
-    );
+    when(() => logger.progress(any())).thenAnswer((invocation) {
+      final _ = invocation.positionalArguments[0] as String?;
+      if (_ != null) progressLogs.add(_);
+      return MockProgress();
+    });
     when(
       () => pubUpdater.isUpToDate(
         packageName: any(named: 'packageName'),

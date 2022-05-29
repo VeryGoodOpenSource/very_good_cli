@@ -64,6 +64,8 @@ class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockMasonGenerator extends Mock implements MasonGenerator {}
 
+class MockProgress extends Mock implements Progress {}
+
 class FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
@@ -98,11 +100,11 @@ void main() {
       ).thenAnswer((_) async {});
 
       logger = MockLogger();
-      when(() => logger.progress(any())).thenReturn(
-        ([_]) {
-          if (_ != null) progressLogs.add(_);
-        },
-      );
+      when(() => logger.progress(any())).thenAnswer((invocation) {
+        final _ = invocation.positionalArguments[0] as String?;
+        if (_ != null) progressLogs.add(_);
+        return MockProgress();
+      });
     });
 
     test(
