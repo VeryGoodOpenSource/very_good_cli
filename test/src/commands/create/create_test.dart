@@ -60,6 +60,8 @@ class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
+class MockProgress extends Mock implements Progress {}
+
 class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockMasonGenerator extends Mock implements MasonGenerator {}
@@ -74,6 +76,7 @@ void main() {
     late List<String> progressLogs;
     late Analytics analytics;
     late Logger logger;
+    late Progress progress;
 
     final generatedFiles = List.filled(
       62,
@@ -98,11 +101,13 @@ void main() {
       ).thenAnswer((_) async {});
 
       logger = MockLogger();
-      when(() => logger.progress(any())).thenReturn(
-        ([_]) {
-          if (_ != null) progressLogs.add(_);
-        },
-      );
+      progress = MockProgress();
+
+      when(() => progress.complete(any())).thenAnswer((invocation) {
+        final _ = invocation.positionalArguments[0] as String?;
+        if (_ != null) progressLogs.add(_);
+      });
+      when(() => logger.progress(any())).thenReturn(progress);
     });
 
     test(

@@ -135,7 +135,7 @@ class CreateCommand extends Command<int> {
     final description = _description;
     final orgName = _orgName;
     final template = _template;
-    final generateDone = _logger.progress('Bootstrapping');
+    final generateDone = _logger.progress('Bootstrapping').complete;
     final generator = await _generator(template.bundle);
     final android = _argResults['android'] as String? ?? 'true';
     final ios = _argResults['ios'] as String? ?? 'true';

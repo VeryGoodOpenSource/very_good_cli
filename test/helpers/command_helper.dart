@@ -10,6 +10,8 @@ class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
+class MockProgress extends Mock implements Progress {}
+
 class MockPubUpdater extends Mock implements PubUpdater {}
 
 void Function() _overridePrint(void Function(List<String>) fn) {
@@ -39,6 +41,7 @@ void Function() withRunner(
     final analytics = MockAnalytics();
     final logger = MockLogger();
     final pubUpdater = MockPubUpdater();
+    final progress = MockProgress();
     final progressLogs = <String>[];
     final commandRunner = VeryGoodCommandRunner(
       analytics: analytics,
@@ -54,11 +57,11 @@ void Function() withRunner(
     when(
       () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
     ).thenAnswer((_) async {});
-    when(() => logger.progress(any())).thenReturn(
-      ([_]) {
-        if (_ != null) progressLogs.add(_);
-      },
-    );
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final _ = invocation.positionalArguments[0] as String?;
+      if (_ != null) progressLogs.add(_);
+    });
+    when(() => logger.progress(any())).thenReturn(progress);
     when(
       () => pubUpdater.isUpToDate(
         packageName: any(named: 'packageName'),

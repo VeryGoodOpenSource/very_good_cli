@@ -209,6 +209,8 @@ dev_dependencies:
 
 class MockLogger extends Mock implements Logger {}
 
+class MockProgress extends Mock implements Progress {}
+
 void main() {
   group('Flutter', () {
     group('.packagesGet', () {
@@ -328,7 +330,7 @@ void main() {
 
       setUp(() {
         logger = MockLogger();
-        when(() => logger.progress(any())).thenReturn(([_]) {});
+        when(() => logger.progress(any())).thenReturn(MockProgress());
       });
 
       test('throws when there is no pubspec.yaml', () {
@@ -791,7 +793,7 @@ void main() {
             optimizePerformance: true,
             stdout: logger.write,
             stderr: logger.err,
-            progress: logger.progress,
+            progress: (value) => logger.progress(value).complete,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -828,7 +830,7 @@ void main() {
             optimizePerformance: true,
             stdout: logger.write,
             stderr: logger.err,
-            progress: logger.progress,
+            progress: (value) => logger.progress(value).complete,
           ),
           completion(equals([ExitCode.success.code])),
         );
