@@ -1,4 +1,10 @@
-# [0.7.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.2...v0.7.3) (2022-05-20)
+# [0.7.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.3...v0.7.4) (2022-05-29)
+
+### Bug Fixes
+
+- lock mason_logger version to <0.1.0-dev.9 ([#411](https://github.com/VeryGoodOpenSource/very_good_cli/issues/411)) ([02904b3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/02904b3729408061b9aa1d62263522e237be3e55))
+
+## [0.7.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.2...v0.7.3) (2022-05-20)
 
 ### Bug Fixes
 
