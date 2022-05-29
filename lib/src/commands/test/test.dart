@@ -134,7 +134,7 @@ This command should be run from the root of your Flutter project.''',
           optimizePerformance:
               optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
           recursive: recursive,
-          progress: (value) => _logger.progress(value),
+          progress: (value) => _logger.progress(value).complete,
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage: collectCoverage || minCoverage != null,
