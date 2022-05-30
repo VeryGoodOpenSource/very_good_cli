@@ -147,7 +147,7 @@ void main() {
       });
 
       test('handles UsageException', () async {
-        final exception = UsageException('oops!', commandRunner.usage);
+        final exception = UsageException('oops!', 'exception usage');
         var isFirstInvocation = true;
         when(() => logger.info(any())).thenAnswer((_) {
           if (isFirstInvocation) {
@@ -158,7 +158,7 @@ void main() {
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(exception.message)).called(1);
-        verify(() => logger.info(commandRunner.usage)).called(1);
+        verify(() => logger.info('exception usage')).called(1);
       });
 
       test(

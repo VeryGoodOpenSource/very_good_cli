@@ -207,14 +207,13 @@ class CreateCommand extends Command<int> {
   void _validateOrgName(String name) {
     final isValidOrgName = _isValidOrgName(name);
     if (!isValidOrgName) {
-      throw UsageException(
+      usageException(
         '"$name" is not a valid org name.\n\n'
         'A valid org name has at least 2 parts separated by "."\n'
         'Each part must start with a letter and only include '
         'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
         'and hyphens (-)\n'
         '(ex. very.good.org)',
-        usage,
       );
     }
   }
@@ -222,10 +221,9 @@ class CreateCommand extends Command<int> {
   void _validateProjectName(String name) {
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
-      throw UsageException(
+      usageException(
         '"$name" is not a valid package name.\n\n'
         'See https://dart.dev/tools/pub/pubspec#name for more information.',
-        usage,
       );
     }
   }
@@ -247,14 +245,11 @@ class CreateCommand extends Command<int> {
 
   void _validateOutputDirectoryArg(List<String> args) {
     if (args.isEmpty) {
-      throw UsageException(
-        'No option specified for the output directory.',
-        usage,
-      );
+      usageException('No option specified for the output directory.');
     }
 
     if (args.length > 1) {
-      throw UsageException('Multiple output directories specified.', usage);
+      usageException('Multiple output directories specified.');
     }
   }
 }
