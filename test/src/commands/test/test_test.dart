@@ -56,7 +56,7 @@ class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 void main() {
   group('test', () {
     final cwd = Directory.current;
-    const defaultArguments = ['--no-pub'];
+    const defaultArguments = ['-j', '4', '--no-pub'];
 
     late Logger logger;
     late bool isFlutterInstalled;
@@ -90,6 +90,7 @@ void main() {
           stderr: any(named: 'stderr'),
         ),
       ).thenAnswer((_) async => [0]);
+      when<dynamic>(() => argResults['concurrency']).thenReturn('4');
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
@@ -197,7 +198,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
       verify(
         () => flutterTest(
-          arguments: ['-j', '1', ...defaultArguments],
+          arguments: ['-j', '1', '--no-pub'],
           optimizePerformance: true,
           progress: logger.progress,
           stdout: logger.write,
