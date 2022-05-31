@@ -56,6 +56,12 @@ class TestCommand extends Command<int> {
         help: 'Whether to apply optimizations for test performance.',
       )
       ..addOption(
+        'concurrency',
+        abbr: 'j',
+        defaultsTo: '4',
+        help: 'The number of concurrent test suites run.',
+      )
+      ..addOption(
         'exclude-coverage',
         help: 'A glob which will be used to exclude files that match from the '
             'coverage.',
@@ -112,6 +118,7 @@ This command should be run from the root of your Flutter project.''',
       return ExitCode.noInput.code;
     }
 
+    final concurrency = _argResults['concurrency'] as String;
     final recursive = _argResults['recursive'] as bool;
     final collectCoverage = _argResults['coverage'] as bool;
     final minCoverage = double.tryParse(
@@ -142,6 +149,7 @@ This command should be run from the root of your Flutter project.''',
           excludeFromCoverage: excludeFromCoverage,
           randomSeed: randomSeed,
           arguments: [
+            ...['-j', concurrency],
             if (excludeTags != null) ...['-x', excludeTags],
             if (updateGoldens) '--update-goldens',
             '--no-pub',
