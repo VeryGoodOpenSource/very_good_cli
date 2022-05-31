@@ -1,4 +1,11 @@
-# [0.7.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.3...v0.7.4) (2022-05-29)
+# [0.7.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.4...v0.7.5) (2022-05-31)
+
+### Features
+
+- **test:** support --concurrency option ([#416](https://github.com/VeryGoodOpenSource/very_good_cli/issues/416)) ([42697e4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/42697e4ee1c839675e229319541d9aa5d30203e0))
+- show command usage on exception ([#414](https://github.com/VeryGoodOpenSource/very_good_cli/issues/414)) ([1523dcb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1523dcbdc681ff65df1e1d28ba5a130aadb14ee7))
+
+## [0.7.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.3...v0.7.4) (2022-05-29)
 
 ### Bug Fixes
 
