@@ -19,6 +19,8 @@ const expectedTestUsage = [
       '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
       '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
       '                                      (defaults to on)\n'
+      '''-j, --concurrency                     The number of concurrent test suites run.\n'''
+      '                                      (defaults to "4")\n'
       '''    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.\n'''
       '''-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'''
       '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
@@ -54,7 +56,8 @@ class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 void main() {
   group('test', () {
     final cwd = Directory.current;
-    const defaultArguments = ['--no-pub'];
+    const concurrency = '4';
+    const defaultArguments = ['-j', concurrency, '--no-pub'];
 
     late Logger logger;
     late bool isFlutterInstalled;
@@ -88,6 +91,7 @@ void main() {
           stderr: any(named: 'stderr'),
         ),
       ).thenAnswer((_) async => [0]);
+      when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
@@ -182,6 +186,21 @@ void main() {
           recursive: true,
           optimizePerformance: true,
           arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --concurrency 1', () async {
+      when<dynamic>(() => argResults['concurrency']).thenReturn('1');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: ['-j', '1', '--no-pub'],
+          optimizePerformance: true,
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,

@@ -89,7 +89,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
       _logger
         ..err(e.message)
         ..info('')
-        ..info(usage);
+        ..info(e.usage);
       return ExitCode.usage.code;
     }
   }

@@ -53,7 +53,7 @@ class PackagesGetCommand extends Command<int> {
   @override
   Future<int> run() async {
     if (_argResults.rest.length > 1) {
-      throw UsageException('Too many arguments', usage);
+      usageException('Too many arguments');
     }
 
     final recursive = _argResults['recursive'] as bool;
