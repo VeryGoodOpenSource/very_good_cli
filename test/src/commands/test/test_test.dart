@@ -17,6 +17,7 @@ const expectedTestUsage = [
       '-h, --help                            Print this usage information.\n'
       '''    --coverage                        Whether to collect coverage information.\n'''
       '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
+      '''-t, --tags                            Run only tests associated with the specified tags.\n'''
       '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
       '                                      (defaults to on)\n'
       '''-j, --concurrency                     The number of concurrent test suites run.\n'''
@@ -283,6 +284,21 @@ void main() {
           collectCoverage: true,
           optimizePerformance: true,
           arguments: defaultArguments,
+          progress: logger.progress,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally -t test-tag', () async {
+      when<dynamic>(() => argResults['tags']).thenReturn('test-tag');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['-t', 'test-tag', ...defaultArguments],
           progress: logger.progress,
           stdout: logger.write,
           stderr: logger.err,
