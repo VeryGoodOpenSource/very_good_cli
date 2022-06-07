@@ -1,4 +1,10 @@
-# [0.7.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.4...v0.7.5) (2022-05-31)
+# [0.7.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.5...v0.7.6) (2022-06-06)
+
+### Bug Fixes
+
+- run golden tests with test optimization enabled ([#388](https://github.com/VeryGoodOpenSource/very_good_cli/issues/388)) ([9bfb159](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9bfb159f7141586c1a50abd31fc3f4ecfb367c4d))
+
+## [0.7.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.4...v0.7.5) (2022-05-31)
 
 ### Features
 

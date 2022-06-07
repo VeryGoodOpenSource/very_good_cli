@@ -69,6 +69,30 @@ void main() {
   });
 }''';
 
+const flutterGoldenTestContents = '''
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('test with golden', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(),
+          body: Center(child: ColoredBox(color: Colors.blue)),
+        ),
+      ),
+    );
+
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('golden_test.png'),
+    );
+  });
+}
+''';
+
 const longTestNameContents = '''
 import 'package:test/test.dart';
 
@@ -210,6 +234,8 @@ dev_dependencies:
 class MockLogger extends Mock implements Logger {}
 
 void main() {
+  final cwd = Directory.current;
+
   group('Flutter', () {
     group('.packagesGet', () {
       test('throws when there is no pubspec.yaml', () {
@@ -822,6 +848,51 @@ void main() {
         File(
           p.join(testDirectory.path, 'example_test.dart'),
         ).writeAsStringSync(flutterTestContents);
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            optimizePerformance: true,
+            stdout: logger.write,
+            stderr: logger.err,
+            progress: logger.progress,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        verify(() => logger.progress('Optimizing tests')).called(1);
+        verify(
+          () => logger.write(
+            any(
+              that: contains(
+                'Running "flutter test" in ${p.dirname(directory.path)}',
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => logger.write(any(that: contains('+1: All tests passed!'))),
+        ).called(1);
+      });
+
+      test(
+          'completes when there is a nested golden test w/optimizations Flutter (passing)',
+          () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final testDirectory = Directory(p.join(directory.path, 'test'))
+          ..createSync();
+        final goldenTestDirectory =
+            Directory(p.join(testDirectory.path, 'golden'))..createSync();
+        File(
+          p.join(directory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(pubspecFlutter);
+        File(
+          p.join(goldenTestDirectory.path, 'golden_test.dart'),
+        ).writeAsStringSync(flutterGoldenTestContents);
+        File(
+          p.join(goldenTestDirectory.path, 'golden_test.png'),
+        ).writeAsBytesSync(
+          File(p.join(cwd.path, 'test', 'fixtures', 'golden_test.png'))
+              .readAsBytesSync(),
+        );
         await expectLater(
           Flutter.test(
             cwd: directory.path,
