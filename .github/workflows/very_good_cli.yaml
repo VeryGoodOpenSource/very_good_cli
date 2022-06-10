@@ -38,12 +38,19 @@ jobs:
         run: flutter pub run test --run-skipped -t pull-request-only
 
       - name: Run Tests
+        continue-on-error: true
         run: |
           flutter pub global activate coverage 1.2.0
           flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
       - name: Check Code Coverage
+        continue-on-error: true
         uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
+
+      - name: Upload coverage to codacy
+        run: |
+          export CODACY_PROJECT_TOKEN=935762f20b054166b44de6b5ebc819d0
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage/lcov.info
 
   e2e:
     runs-on: ubuntu-latest
