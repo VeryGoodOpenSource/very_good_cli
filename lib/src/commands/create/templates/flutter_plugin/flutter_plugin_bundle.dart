@@ -139,6 +139,13 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     },
     {
       "path":
+          "{{#android}}{{project_name.snakeCase()}}_android{{/android}}/analysis_options.yaml",
+      "data":
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
+      "type": "text"
+    },
+    {
+      "path":
           "{{#android}}{{project_name.snakeCase()}}_android{{/android}}/android/.gitignore",
       "data":
           "Ki5pbWwKLmdyYWRsZQovbG9jYWwucHJvcGVydGllcwovLmlkZWEvd29ya3NwYWNlLnhtbAovLmlkZWEvbGlicmFyaWVzCi5EU19TdG9yZQovYnVpbGQKL2NhcHR1cmVz",
@@ -196,7 +203,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#android}}{{project_name.snakeCase()}}_android{{/android}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9hbmRyb2lkCmRlc2NyaXB0aW9uOiBBbmRyb2lkIGltcGxlbWVudGF0aW9uIG9mIHRoZSB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19IHBsdWdpbgp2ZXJzaW9uOiAwLjEuMCsxCnB1Ymxpc2hfdG86IG5vbmUKCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xNy4wIDwzLjAuMCIKICBmbHV0dGVyOiAiPj0zLjAuMCIKCmZsdXR0ZXI6CiAgcGx1Z2luOgogICAgaW1wbGVtZW50czoge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQogICAgcGxhdGZvcm1zOgogICAgICBhbmRyb2lkOgogICAgICAgIHBhY2thZ2U6IHt7b3JnX25hbWUuZG90Q2FzZSgpfX0KICAgICAgICBwbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1QbHVnaW4KICAgICAgICBkYXJ0UGx1Z2luQ2xhc3M6IHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19QW5kcm9pZAoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHBsdWdpbl9wbGF0Zm9ybV9pbnRlcmZhY2U6IF4yLjAuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9hbmRyb2lkCmRlc2NyaXB0aW9uOiBBbmRyb2lkIGltcGxlbWVudGF0aW9uIG9mIHRoZSB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19IHBsdWdpbgp2ZXJzaW9uOiAwLjEuMCsxCnB1Ymxpc2hfdG86IG5vbmUKCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xNy4wIDwzLjAuMCIKICBmbHV0dGVyOiAiPj0zLjAuMCIKCmZsdXR0ZXI6CiAgcGx1Z2luOgogICAgaW1wbGVtZW50czoge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQogICAgcGxhdGZvcm1zOgogICAgICBhbmRyb2lkOgogICAgICAgIHBhY2thZ2U6IHt7b3JnX25hbWUuZG90Q2FzZSgpfX0KICAgICAgICBwbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1QbHVnaW4KICAgICAgICBkYXJ0UGx1Z2luQ2xhc3M6IHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19QW5kcm9pZAoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHBsdWdpbl9wbGF0Zm9ybV9pbnRlcmZhY2U6IF4yLjAuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCg==",
       "type": "text"
     },
     {
@@ -211,6 +218,13 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
           "{{#android}}{{project_name.snakeCase()}}_android{{/android}}/test/{{project_name.snakeCase()}}_android_test.dart",
       "data":
           "Ly8gQ29weXJpZ2h0IChjKSAyMDIyLCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKaW1wb3J0ICdwYWNrYWdlOmZsdXR0ZXIvc2VydmljZXMuZGFydCc7CmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3Rlc3QvZmx1dHRlcl90ZXN0LmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6e3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9hbmRyb2lkL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fYW5kcm9pZC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlLmRhcnQnOwoKdm9pZCBtYWluKCkgewogIFRlc3RXaWRnZXRzRmx1dHRlckJpbmRpbmcuZW5zdXJlSW5pdGlhbGl6ZWQoKTsKCiAgZ3JvdXAoJ3t7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19QW5kcm9pZCcsICgpIHsKICAgIGNvbnN0IGtQbGF0Zm9ybU5hbWUgPSAnQW5kcm9pZCc7CiAgICBsYXRlIHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19QW5kcm9pZCB7e3Byb2plY3RfbmFtZS5jYW1lbENhc2UoKX19OwogICAgbGF0ZSBMaXN0PE1ldGhvZENhbGw+IGxvZzsKCiAgICBzZXRVcCgoKSBhc3luYyB7CiAgICAgIHt7cHJvamVjdF9uYW1lLmNhbWVsQ2FzZSgpfX0gPSB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fUFuZHJvaWQoKTsKCiAgICAgIGxvZyA9IDxNZXRob2RDYWxsPltdOwogICAgICBUZXN0RGVmYXVsdEJpbmFyeU1lc3NlbmdlckJpbmRpbmcuaW5zdGFuY2UhLmRlZmF1bHRCaW5hcnlNZXNzZW5nZXIKICAgICAgICAgIC5zZXRNb2NrTWV0aG9kQ2FsbEhhbmRsZXIoe3twcm9qZWN0X25hbWUuY2FtZWxDYXNlKCl9fS5tZXRob2RDaGFubmVsLCAobWV0aG9kQ2FsbCkgYXN5bmMgewogICAgICAgIGxvZy5hZGQobWV0aG9kQ2FsbCk7CiAgICAgICAgc3dpdGNoIChtZXRob2RDYWxsLm1ldGhvZCkgewogICAgICAgICAgY2FzZSAnZ2V0UGxhdGZvcm1OYW1lJzoKICAgICAgICAgICAgcmV0dXJuIGtQbGF0Zm9ybU5hbWU7CiAgICAgICAgICBkZWZhdWx0OgogICAgICAgICAgICByZXR1cm4gbnVsbDsKICAgICAgICB9CiAgICAgIH0pOwogICAgfSk7CgogICAgdGVzdCgnY2FuIGJlIHJlZ2lzdGVyZWQnLCAoKSB7CiAgICAgIHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19QW5kcm9pZC5yZWdpc3RlcldpdGgoKTsKICAgICAgZXhwZWN0KHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19UGxhdGZvcm0uaW5zdGFuY2UsIGlzQTx7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fUFuZHJvaWQ+KCkpOwogICAgfSk7CgogICAgdGVzdCgnZ2V0UGxhdGZvcm1OYW1lIHJldHVybnMgY29ycmVjdCBuYW1lJywgKCkgYXN5bmMgewogICAgICBmaW5hbCBuYW1lID0gYXdhaXQge3twcm9qZWN0X25hbWUuY2FtZWxDYXNlKCl9fS5nZXRQbGF0Zm9ybU5hbWUoKTsKICAgICAgZXhwZWN0KAogICAgICAgIGxvZywKICAgICAgICA8TWF0Y2hlcj5baXNNZXRob2RDYWxsKCdnZXRQbGF0Zm9ybU5hbWUnLCBhcmd1bWVudHM6IG51bGwpXSwKICAgICAgKTsKICAgICAgZXhwZWN0KG5hbWUsIGVxdWFscyhrUGxhdGZvcm1OYW1lKSk7CiAgICB9KTsKICB9KTsKfQo=",
+      "type": "text"
+    },
+    {
+      "path":
+          "{{#ios}}{{project_name.snakeCase()}}_ios{{/ios}}/analysis_options.yaml",
+      "data":
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -255,7 +269,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{#ios}}{{project_name.snakeCase()}}_ios{{/ios}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9pb3MKZGVzY3JpcHRpb246IGlPUyBpbXBsZW1lbnRhdGlvbiBvZiB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpmbHV0dGVyOgogIHBsdWdpbjoKICAgIGltcGxlbWVudHM6IHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0KICAgIHBsYXRmb3JtczoKICAgICAgaW9zOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1JT1MKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCiAge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9wbGF0Zm9ybV9pbnRlcmZhY2U6CiAgICBwYXRoOiAuLi97e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZQoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICBwbHVnaW5fcGxhdGZvcm1faW50ZXJmYWNlOiBeMi4wLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9pb3MKZGVzY3JpcHRpb246IGlPUyBpbXBsZW1lbnRhdGlvbiBvZiB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpmbHV0dGVyOgogIHBsdWdpbjoKICAgIGltcGxlbWVudHM6IHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0KICAgIHBsYXRmb3JtczoKICAgICAgaW9zOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1JT1MKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCiAge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9wbGF0Zm9ybV9pbnRlcmZhY2U6CiAgICBwYXRoOiAuLi97e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZQoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICBwbHVnaW5fcGxhdGZvcm1faW50ZXJmYWNlOiBeMi4wLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMQo=",
       "type": "text"
     },
     {
@@ -282,7 +296,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#linux}}{{project_name.snakeCase()}}_linux{{/linux}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -343,7 +357,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#linux}}{{project_name.snakeCase()}}_linux{{/linux}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9saW51eApkZXNjcmlwdGlvbjogTGludXggaW1wbGVtZW50YXRpb24gb2YgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZmx1dHRlcjoKICBwbHVnaW46CiAgICBpbXBsZW1lbnRzOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19CiAgICBwbGF0Zm9ybXM6CiAgICAgIGxpbnV4OgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1MaW51eAoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9saW51eApkZXNjcmlwdGlvbjogTGludXggaW1wbGVtZW50YXRpb24gb2YgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZmx1dHRlcjoKICBwbHVnaW46CiAgICBpbXBsZW1lbnRzOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19CiAgICBwbGF0Zm9ybXM6CiAgICAgIGxpbnV4OgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1MaW51eAoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCg==",
       "type": "text"
     },
     {
@@ -370,7 +384,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#macos}}{{project_name.snakeCase()}}_macos{{/macos}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -410,7 +424,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#macos}}{{project_name.snakeCase()}}_macos{{/macos}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9tYWNvcwpkZXNjcmlwdGlvbjogTWFjT1MgaW1wbGVtZW50YXRpb24gb2YgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZmx1dHRlcjoKICBwbHVnaW46CiAgICBpbXBsZW1lbnRzOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19CiAgICBwbGF0Zm9ybXM6CiAgICAgIG1hY29zOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1NYWNPUwoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9tYWNvcwpkZXNjcmlwdGlvbjogTWFjT1MgaW1wbGVtZW50YXRpb24gb2YgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZmx1dHRlcjoKICBwbHVnaW46CiAgICBpbXBsZW1lbnRzOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19CiAgICBwbGF0Zm9ybXM6CiAgICAgIG1hY29zOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVBsdWdpbgogICAgICAgIGRhcnRQbHVnaW5DbGFzczoge3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX1NYWNPUwoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCg==",
       "type": "text"
     },
     {
@@ -436,7 +450,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#web}}{{project_name.snakeCase()}}_web{{/web}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -460,7 +474,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{#web}}{{project_name.snakeCase()}}_web{{/web}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV93ZWIKZGVzY3JpcHRpb246IFdlYiBpbXBsZW1lbnRhdGlvbiBvZiB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpmbHV0dGVyOgogIHBsdWdpbjoKICAgIGltcGxlbWVudHM6IHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0KICAgIHBsYXRmb3JtczoKICAgICAgd2ViOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVdlYgogICAgICAgIGZpbGVOYW1lOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3dlYi5kYXJ0CgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0ZXJfd2ViX3BsdWdpbnM6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV93ZWIKZGVzY3JpcHRpb246IFdlYiBpbXBsZW1lbnRhdGlvbiBvZiB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpmbHV0dGVyOgogIHBsdWdpbjoKICAgIGltcGxlbWVudHM6IHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0KICAgIHBsYXRmb3JtczoKICAgICAgd2ViOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVdlYgogICAgICAgIGZpbGVOYW1lOiB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3dlYi5kYXJ0CgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0ZXJfd2ViX3BsdWdpbnM6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCg==",
       "type": "text"
     },
     {
@@ -494,7 +508,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#windows}}{{project_name.snakeCase()}}_windows{{/windows}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -521,7 +535,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{#windows}}{{project_name.snakeCase()}}_windows{{/windows}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV93aW5kb3dzCmRlc2NyaXB0aW9uOiBXaW5kb3dzIGltcGxlbWVudGF0aW9uIG9mIHRoZSB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19IHBsdWdpbgp2ZXJzaW9uOiAwLjEuMCsxCnB1Ymxpc2hfdG86IG5vbmUKCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xNy4wIDwzLjAuMCIKICBmbHV0dGVyOiAiPj0zLjAuMCIKCmZsdXR0ZXI6CiAgcGx1Z2luOgogICAgaW1wbGVtZW50czoge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQogICAgcGxhdGZvcm1zOgogICAgICB3aW5kb3dzOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVdpbmRvd3MKICAgICAgICBkYXJ0UGx1Z2luQ2xhc3M6IHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19V2luZG93cwoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV93aW5kb3dzCmRlc2NyaXB0aW9uOiBXaW5kb3dzIGltcGxlbWVudGF0aW9uIG9mIHRoZSB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19IHBsdWdpbgp2ZXJzaW9uOiAwLjEuMCsxCnB1Ymxpc2hfdG86IG5vbmUKCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xNy4wIDwzLjAuMCIKICBmbHV0dGVyOiAiPj0zLjAuMCIKCmZsdXR0ZXI6CiAgcGx1Z2luOgogICAgaW1wbGVtZW50czoge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQogICAgcGxhdGZvcm1zOgogICAgICB3aW5kb3dzOgogICAgICAgIHBsdWdpbkNsYXNzOiB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fVdpbmRvd3MKICAgICAgICBkYXJ0UGx1Z2luQ2xhc3M6IHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19V2luZG93cwoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19X3BsYXRmb3JtX2ludGVyZmFjZToKICAgIHBhdGg6IC4uL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX1fcGxhdGZvcm1faW50ZXJmYWNlCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCg==",
       "type": "text"
     },
     {
@@ -569,7 +583,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -598,7 +612,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/example/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCmxpbnRlcjoKICBydWxlczoKICAgIHB1YmxpY19tZW1iZXJfYXBpX2RvY3M6IGZhbHNlCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCmxpbnRlcjoKICBydWxlczoKICAgIHB1YmxpY19tZW1iZXJfYXBpX2RvY3M6IGZhbHNlCg==",
       "type": "text"
     },
     {
@@ -1242,7 +1256,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/example/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9leGFtcGxlCmRlc2NyaXB0aW9uOiBEZW1vbnN0cmF0ZXMgaG93IHRvIHVzZSB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4uCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19OgogICAgIyBXaGVuIGRlcGVuZGluZyBvbiB0aGlzIHBhY2thZ2UgZnJvbSBhIHJlYWwgYXBwbGljYXRpb24geW91IHNob3VsZCB1c2U6CiAgICAjICAge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTogXngueS56CiAgICAjIFNlZSBodHRwczovL2RhcnQuZGV2L3Rvb2xzL3B1Yi9kZXBlbmRlbmNpZXMjdmVyc2lvbi1jb25zdHJhaW50cwogICAgIyBUaGUgZXhhbXBsZSBhcHAgaXMgYnVuZGxlZCB3aXRoIHRoZSBwbHVnaW4gc28gd2UgdXNlIGEgcGF0aCBkZXBlbmRlbmN5IG9uCiAgICAjIHRoZSBwYXJlbnQgZGlyZWN0b3J5IHRvIHVzZSB0aGUgY3VycmVudCBwbHVnaW4ncyB2ZXJzaW9uLgogICAgcGF0aDogLi4vCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfZHJpdmVyOgogICAgc2RrOiBmbHV0dGVyCiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgaW50ZWdyYXRpb25fdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4wCgpmbHV0dGVyOgogIHVzZXMtbWF0ZXJpYWwtZGVzaWduOiB0cnVlCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9leGFtcGxlCmRlc2NyaXB0aW9uOiBEZW1vbnN0cmF0ZXMgaG93IHRvIHVzZSB0aGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fSBwbHVnaW4uCnZlcnNpb246IDAuMS4wKzEKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE3LjAgPDMuMC4wIgogIGZsdXR0ZXI6ICI+PTMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKICB7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19OgogICAgIyBXaGVuIGRlcGVuZGluZyBvbiB0aGlzIHBhY2thZ2UgZnJvbSBhIHJlYWwgYXBwbGljYXRpb24geW91IHNob3VsZCB1c2U6CiAgICAjICAge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTogXngueS56CiAgICAjIFNlZSBodHRwczovL2RhcnQuZGV2L3Rvb2xzL3B1Yi9kZXBlbmRlbmNpZXMjdmVyc2lvbi1jb25zdHJhaW50cwogICAgIyBUaGUgZXhhbXBsZSBhcHAgaXMgYnVuZGxlZCB3aXRoIHRoZSBwbHVnaW4gc28gd2UgdXNlIGEgcGF0aCBkZXBlbmRlbmN5IG9uCiAgICAjIHRoZSBwYXJlbnQgZGlyZWN0b3J5IHRvIHVzZSB0aGUgY3VycmVudCBwbHVnaW4ncyB2ZXJzaW9uLgogICAgcGF0aDogLi4vCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfZHJpdmVyOgogICAgc2RrOiBmbHV0dGVyCiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgaW50ZWdyYXRpb25fdGVzdDoKICAgIHNkazogZmx1dHRlcgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4xCgpmbHV0dGVyOgogIHVzZXMtbWF0ZXJpYWwtZGVzaWduOiB0cnVlCg==",
       "type": "text"
     },
     {
@@ -1423,7 +1437,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgp7ez4gcGx1Z2luX3BsYXRmb3Jtcy5kYXJ0IH19CgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgp7ez4gcGx1Z2luX2RlcGVuZGVuY2llcy5kYXJ0IH19CgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICBwbHVnaW5fcGxhdGZvcm1faW50ZXJmYWNlOiBeMi4wLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgp7ez4gcGx1Z2luX3BsYXRmb3Jtcy5kYXJ0IH19CgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgp7ez4gcGx1Z2luX2RlcGVuZGVuY2llcy5kYXJ0IH19CgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICBwbHVnaW5fcGxhdGZvcm1faW50ZXJmYWNlOiBeMi4wLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMQo=",
       "type": "text"
     },
     {
@@ -1443,7 +1457,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{project_name.snakeCase()}}_platform_interface/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMS55YW1sCg==",
       "type": "text"
     },
     {
@@ -1474,7 +1488,7 @@ final flutterPluginBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}_platform_interface/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9wbGF0Zm9ybV9pbnRlcmZhY2UKZGVzY3JpcHRpb246IEEgY29tbW9uIHBsYXRmb3JtIGludGVyZmFjZSBmb3IgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luLgp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIHBsdWdpbl9wbGF0Zm9ybV9pbnRlcmZhY2U6IF4yLjEuMAoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fV9wbGF0Zm9ybV9pbnRlcmZhY2UKZGVzY3JpcHRpb246IEEgY29tbW9uIHBsYXRmb3JtIGludGVyZmFjZSBmb3IgdGhlIHt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0gcGx1Z2luLgp2ZXJzaW9uOiAwLjEuMCsxCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTcuMCA8My4wLjAiCiAgZmx1dHRlcjogIj49My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIHBsdWdpbl9wbGF0Zm9ybV9pbnRlcmZhY2U6IF4yLjEuMAoKZGV2X2RlcGVuZGVuY2llczoKICBmbHV0dGVyX3Rlc3Q6CiAgICBzZGs6IGZsdXR0ZXIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMQo=",
       "type": "text"
     },
     {
