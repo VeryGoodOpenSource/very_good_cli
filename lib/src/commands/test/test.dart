@@ -50,11 +50,6 @@ class TestCommand extends Command<int> {
         help: 'Run tests recursively for all nested packages.',
         negatable: false,
       )
-      ..addOption(
-        'tags',
-        abbr: 't',
-        help: 'Run only tests associated with the specified tags.',
-      )
       ..addFlag(
         'optimization',
         defaultsTo: true,
@@ -65,6 +60,11 @@ class TestCommand extends Command<int> {
         abbr: 'j',
         defaultsTo: '4',
         help: 'The number of concurrent test suites run.',
+      )
+      ..addOption(
+        'tags',
+        abbr: 't',
+        help: 'Run only tests associated with the specified tags.',
       )
       ..addOption(
         'exclude-coverage',
