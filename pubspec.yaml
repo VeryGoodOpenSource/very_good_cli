@@ -19,7 +19,7 @@ dependencies:
   stack_trace: ^1.10.0
   universal_io: ^2.0.4
   usage: ^4.0.2
-  very_good_analysis: ^2.4.0
+  very_good_analysis: ^3.0.0
   very_good_test_runner: ^0.1.2
 
 dev_dependencies:
