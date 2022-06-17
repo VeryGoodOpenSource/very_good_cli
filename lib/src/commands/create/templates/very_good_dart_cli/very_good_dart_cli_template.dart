@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:path/path.dart' as path;
 import 'package:mason_logger/mason_logger.dart';
 import 'package:very_good_cli/src/commands/create/templates/post_generate_actions.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
@@ -20,6 +19,8 @@ class VeryGoodDartCLITemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
+    await installDartPackages(logger, outputDir);
+    await applyDartFixes(logger, outputDir);
     _logSummary(logger);
   }
 
