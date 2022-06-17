@@ -17,6 +17,7 @@ final _templates = [
   DartPkgTemplate(),
   FlutterPkgTemplate(),
   FlutterPluginTemplate(),
+  VeryGoodDartCLITemplate(),
 ];
 
 final _defaultTemplate = _templates.first;
@@ -52,6 +53,11 @@ class CreateCommand extends Command<int> {
         'desc',
         help: 'The description for this new project.',
         defaultsTo: _defaultDescription,
+      )
+      ..addOption(
+        'executable-name',
+        help: 'For the dart_cli template, the name for the CLI executable '
+            '(defaults to the same as the project name)',
       )
       ..addOption(
         'org-name',
@@ -143,11 +149,14 @@ class CreateCommand extends Command<int> {
     final linux = _argResults['linux'] as String? ?? 'true';
     final macos = _argResults['macos'] as String? ?? 'true';
     final windows = _argResults['windows'] as String? ?? 'true';
+    final executableName =
+        _argResults['executable-name'] as String? ?? projectName;
     final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
       vars: <String, dynamic>{
         'project_name': projectName,
         'description': description,
+        'executable_name': executableName,
         'org_name': orgName,
         'android': android.toBool(),
         'ios': ios.toBool(),

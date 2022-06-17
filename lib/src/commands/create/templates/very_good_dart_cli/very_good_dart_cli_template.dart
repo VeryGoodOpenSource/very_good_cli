@@ -1,0 +1,32 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as path;
+import 'package:mason_logger/mason_logger.dart';
+import 'package:very_good_cli/src/commands/create/templates/post_generate_actions.dart';
+import 'package:very_good_cli/src/commands/create/templates/template.dart';
+import 'package:very_good_cli/src/commands/create/templates/very_good_dart_cli/very_good_dart_cli.dart';
+
+/// {@template dart_cli_template}
+/// A Dart CLI application template.
+/// {@endtemplate}
+class VeryGoodDartCLITemplate extends Template {
+  /// {@macro dart_cli_template}
+  VeryGoodDartCLITemplate()
+      : super(
+          name: 'dart_cli',
+          bundle: veryGoodDartCliBundle,
+          help: 'Generate a Very Good Dart CLI application.',
+        );
+
+  @override
+  Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
+    _logSummary(logger);
+  }
+
+  void _logSummary(Logger logger) {
+    logger
+      ..info('\n')
+      ..alert('Created a Very Good Dart CLI application! 🦄')
+      ..info('\n');
+  }
+}
