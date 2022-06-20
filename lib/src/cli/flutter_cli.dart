@@ -171,11 +171,9 @@ class Flutter {
               vars: vars,
               fileConflictResolution: FileConflictResolution.overwrite,
             );
-          } catch (_) {
-            optimizationDone?.fail();
-            rethrow;
+          } finally {
+            optimizationDone?.complete();
           }
-          optimizationDone?.complete();
         }
 
         return _flutterTest(
