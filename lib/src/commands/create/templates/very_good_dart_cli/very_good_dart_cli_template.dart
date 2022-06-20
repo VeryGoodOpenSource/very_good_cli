@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
-import 'package:very_good_cli/src/commands/create/templates/post_generate_actions.dart';
-import 'package:very_good_cli/src/commands/create/templates/template.dart';
-import 'package:very_good_cli/src/commands/create/templates/very_good_dart_cli/very_good_dart_cli.dart';
+import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 /// {@template dart_cli_template}
 /// A Dart CLI application template.
