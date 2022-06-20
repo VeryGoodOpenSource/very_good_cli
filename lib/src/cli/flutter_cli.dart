@@ -69,14 +69,14 @@ class Flutter {
   }) async {
     await _runCommand(
       cmd: (cwd) async {
-        final installDone = logger?.progress(
+        final installProgress = logger?.progress(
           'Running "flutter packages get" in $cwd',
         );
 
         try {
           await _verifyGitDependencies(cwd);
         } catch (_) {
-          installDone?.fail();
+          installProgress?.fail();
           rethrow;
         }
 
@@ -87,7 +87,7 @@ class Flutter {
             workingDirectory: cwd,
           );
         } finally {
-          installDone?.complete();
+          installProgress?.complete();
         }
       },
       cwd: cwd,
@@ -157,7 +157,7 @@ class Flutter {
         }
 
         if (optimizePerformance) {
-          final optimizationDone = logger?.progress('Optimizing tests');
+          final optimizationProgress = logger?.progress('Optimizing tests');
           try {
             final generator = await MasonGenerator.fromBundle(testRunnerBundle);
             var vars = <String, dynamic>{'package-root': workingDirectory};
@@ -172,7 +172,7 @@ class Flutter {
               fileConflictResolution: FileConflictResolution.overwrite,
             );
           } finally {
-            optimizationDone?.complete();
+            optimizationProgress?.complete();
           }
         }
 

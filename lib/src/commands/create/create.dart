@@ -135,7 +135,7 @@ class CreateCommand extends Command<int> {
     final description = _description;
     final orgName = _orgName;
     final template = _template;
-    final generateDone = _logger.progress('Bootstrapping');
+    final generateProgress = _logger.progress('Bootstrapping');
     final generator = await _generator(template.bundle);
     final android = _argResults['android'] as String? ?? 'true';
     final ios = _argResults['ios'] as String? ?? 'true';
@@ -158,7 +158,7 @@ class CreateCommand extends Command<int> {
       },
       logger: _logger,
     );
-    generateDone.complete('Generated ${files.length} file(s)');
+    generateProgress.complete('Generated ${files.length} file(s)');
 
     await template.onGenerateComplete(_logger, outputDirectory);
 
