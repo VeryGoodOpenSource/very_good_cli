@@ -158,7 +158,7 @@ class CreateCommand extends Command<int> {
       },
       logger: _logger,
     );
-    generateDone('Generated ${files.length} file(s)');
+    generateDone.complete('Generated ${files.length} file(s)');
 
     await template.onGenerateComplete(_logger, outputDirectory);
 

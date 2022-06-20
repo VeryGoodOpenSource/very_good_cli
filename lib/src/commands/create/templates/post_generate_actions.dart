@@ -13,7 +13,7 @@ Future<void> installDartPackages(
       'Running "flutter pub get" in ${outputDir.path}',
     );
     await Flutter.pubGet(cwd: outputDir.path);
-    installDependenciesDone();
+    installDependenciesDone.complete();
   }
 }
 
@@ -29,7 +29,7 @@ Future<void> installFlutterPackages(
       'Running "flutter packages get" in ${outputDir.path}',
     );
     await Flutter.packagesGet(cwd: outputDir.path, recursive: recursive);
-    installDependenciesDone();
+    installDependenciesDone.complete();
   }
 }
 
@@ -45,6 +45,6 @@ Future<void> applyDartFixes(
       'Running "dart fix --apply" in ${outputDir.path}',
     );
     await Dart.applyFixes(cwd: outputDir.path, recursive: recursive);
-    applyFixesDone();
+    applyFixesDone.complete();
   }
 }

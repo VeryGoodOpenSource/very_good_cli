@@ -21,7 +21,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   String? excludeFromCoverage,
   String? randomSeed,
   List<String>? arguments,
-  void Function([String?]) Function(String message)? progress,
+  Logger? logger,
   void Function(String)? stdout,
   void Function(String)? stderr,
 });
@@ -147,7 +147,7 @@ This command should be run from the root of your Flutter project.''',
           optimizePerformance:
               optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
           recursive: recursive,
-          progress: _logger.progress,
+          logger: _logger,
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage: collectCoverage || minCoverage != null,

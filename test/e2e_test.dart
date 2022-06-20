@@ -11,12 +11,15 @@ class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
+class MockProgress extends Mock implements Progress {}
+
 void main() {
   group(
     'E2E',
     () {
       late Analytics analytics;
       late Logger logger;
+      late Progress progress;
       late VeryGoodCommandRunner commandRunner;
 
       void _removeTemporaryFiles() {
@@ -42,7 +45,8 @@ void main() {
         ).thenAnswer((_) async {});
 
         logger = MockLogger();
-        when(() => logger.progress(any())).thenReturn(([_]) {});
+        progress = MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
 
         commandRunner = VeryGoodCommandRunner(
           analytics: analytics,
