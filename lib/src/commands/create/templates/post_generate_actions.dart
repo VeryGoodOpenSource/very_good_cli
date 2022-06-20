@@ -9,11 +9,11 @@ Future<void> installDartPackages(
 ) async {
   final isFlutterInstalled = await Flutter.installed();
   if (isFlutterInstalled) {
-    final installDependenciesDone = logger.progress(
+    final installDependenciesProgress = logger.progress(
       'Running "flutter pub get" in ${outputDir.path}',
     );
     await Flutter.pubGet(cwd: outputDir.path);
-    installDependenciesDone();
+    installDependenciesProgress.complete();
   }
 }
 
@@ -25,11 +25,11 @@ Future<void> installFlutterPackages(
 }) async {
   final isFlutterInstalled = await Flutter.installed();
   if (isFlutterInstalled) {
-    final installDependenciesDone = logger.progress(
+    final installDependenciesProgress = logger.progress(
       'Running "flutter packages get" in ${outputDir.path}',
     );
     await Flutter.packagesGet(cwd: outputDir.path, recursive: recursive);
-    installDependenciesDone();
+    installDependenciesProgress.complete();
   }
 }
 
@@ -41,10 +41,10 @@ Future<void> applyDartFixes(
 }) async {
   final isDartInstalled = await Dart.installed();
   if (isDartInstalled) {
-    final applyFixesDone = logger.progress(
+    final applyFixesProgress = logger.progress(
       'Running "dart fix --apply" in ${outputDir.path}',
     );
     await Dart.applyFixes(cwd: outputDir.path, recursive: recursive);
-    applyFixesDone();
+    applyFixesProgress.complete();
   }
 }

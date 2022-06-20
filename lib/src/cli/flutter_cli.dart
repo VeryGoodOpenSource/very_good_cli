@@ -65,18 +65,18 @@ class Flutter {
   static Future<void> packagesGet({
     String cwd = '.',
     bool recursive = false,
-    void Function([String?]) Function(String message)? progress,
+    Logger? logger,
   }) async {
     await _runCommand(
       cmd: (cwd) async {
-        final installDone = progress?.call(
+        final installProgress = logger?.progress(
           'Running "flutter packages get" in $cwd',
         );
 
         try {
           await _verifyGitDependencies(cwd);
         } catch (_) {
-          installDone?.call();
+          installProgress?.fail();
           rethrow;
         }
 
@@ -87,7 +87,7 @@ class Flutter {
             workingDirectory: cwd,
           );
         } finally {
-          installDone?.call();
+          installProgress?.complete();
         }
       },
       cwd: cwd,
@@ -122,7 +122,7 @@ class Flutter {
     String? excludeFromCoverage,
     String? randomSeed,
     List<String>? arguments,
-    void Function([String?]) Function(String message)? progress,
+    Logger? logger,
     void Function(String)? stdout,
     void Function(String)? stderr,
   }) async {
@@ -157,7 +157,7 @@ class Flutter {
         }
 
         if (optimizePerformance) {
-          final optimizationDone = progress?.call('Optimizing tests');
+          final optimizationProgress = logger?.progress('Optimizing tests');
           try {
             final generator = await MasonGenerator.fromBundle(testRunnerBundle);
             var vars = <String, dynamic>{'package-root': workingDirectory};
@@ -172,7 +172,7 @@ class Flutter {
               fileConflictResolution: FileConflictResolution.overwrite,
             );
           } finally {
-            optimizationDone?.call();
+            optimizationProgress?.complete();
           }
         }
 

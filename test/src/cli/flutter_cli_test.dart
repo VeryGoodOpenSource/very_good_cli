@@ -233,6 +233,8 @@ dev_dependencies:
 
 class MockLogger extends Mock implements Logger {}
 
+class MockProgress extends Mock implements Progress {}
+
 void main() {
   final cwd = Directory.current;
 
@@ -351,10 +353,12 @@ void main() {
 
     group('.test', () {
       late Logger logger;
+      late Progress progress;
 
       setUp(() {
         logger = MockLogger();
-        when(() => logger.progress(any())).thenReturn(([_]) {});
+        progress = MockProgress();
+        when(() => logger.progress(any())).thenReturn(progress);
       });
 
       test('throws when there is no pubspec.yaml', () {
@@ -817,7 +821,7 @@ void main() {
             optimizePerformance: true,
             stdout: logger.write,
             stderr: logger.err,
-            progress: logger.progress,
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -854,7 +858,7 @@ void main() {
             optimizePerformance: true,
             stdout: logger.write,
             stderr: logger.err,
-            progress: logger.progress,
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -899,7 +903,7 @@ void main() {
             optimizePerformance: true,
             stdout: logger.write,
             stderr: logger.err,
-            progress: logger.progress,
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
