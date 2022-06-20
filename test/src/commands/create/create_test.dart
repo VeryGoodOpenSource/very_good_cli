@@ -23,11 +23,13 @@ const expectedUsage = [
       '''    --project-name            The project name for this new project. This must be a valid dart package name.\n'''
       '    --desc                    The description for this new project.\n'
       '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
+      '''    --executable-name         For the dart_cli template only, the name for the CLI executable (defaults to the project name)\n'''
       '    --org-name                The organization for this new project.\n'
       '                              (defaults to "com.example.verygoodcore")\n'
       '''-t, --template                The template used to generate this new project.\n'''
       '\n'
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
+      '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
@@ -208,6 +210,7 @@ void main() {
         () => logger.progress('Running "flutter packages get" in .tmp'),
       ).called(1);
       verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
+
       verify(
         () => generator.generate(
           any(
@@ -221,6 +224,7 @@ void main() {
             'project_name': 'my_app',
             'org_name': 'com.example.verygoodcore',
             'description': '',
+            'executable_name': 'my_app',
             'android': true,
             'ios': true,
             'web': true,
@@ -283,6 +287,7 @@ void main() {
             'project_name': 'my_app',
             'org_name': 'com.example.verygoodcore',
             'description': 'very good description',
+            'executable_name': 'my_app',
             'android': true,
             'ios': true,
             'web': true,
@@ -424,6 +429,7 @@ void main() {
               vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'description': '',
+                'executable_name': 'my_app',
                 'org_name': orgName,
                 'android': true,
                 'ios': true,
@@ -539,6 +545,7 @@ void main() {
               vars: <String, dynamic>{
                 'project_name': 'my_app',
                 'org_name': 'com.example.verygoodcore',
+                'executable_name': 'my_app',
                 'description': '',
                 'android': true,
                 'ios': true,
@@ -597,6 +604,15 @@ void main() {
             templateName: 'flutter_plugin',
             expectedBundle: flutterPluginBundle,
             expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
+          );
+        });
+
+        test('dart CLI template', () async {
+          await expectValidTemplateName(
+            getPackagesMsg: 'Running "flutter pub get" in .tmp',
+            templateName: 'dart_cli',
+            expectedBundle: veryGoodDartCliBundle,
+            expectedLogSummary: 'Created a Very Good Dart CLI application! 🦄',
           );
         });
       });
