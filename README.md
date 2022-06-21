@@ -37,7 +37,7 @@ Usage: very_good create <output directory>
     --project-name            The project name for this new project. This must be a valid dart package name.
     --desc                    The description for this new project.
                               (defaults to "A Very Good Project created by Very Good CLI.")
-    --executable-name         Used by the dart_cli template, the the CLI executable name (defaults to the project name)
+    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)
     --org-name                The organization for this new project.
                               (defaults to "com.example.verygoodcore")
 -t, --template                The template used to generate this new project.
@@ -70,10 +70,10 @@ very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter packag
 # Create a new Dart package named my_dart_package
 very_good create my_dart_package -t dart_pkg --desc "My new Dart package"
 
-# Create a new Dart CLI package named my_dart_cli
+# Create a new Dart CLI application named my_dart_cli
 very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package"
 
-# Create a new Dart CLI package named my_dart_cli with a custom executable name
+# Create a new Dart CLI application named my_dart_cli with a custom executable name
 very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
 
 # Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
