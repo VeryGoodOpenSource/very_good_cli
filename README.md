@@ -37,7 +37,7 @@ Usage: very_good create <output directory>
     --project-name            The project name for this new project. This must be a valid dart package name.
     --desc                    The description for this new project.
                               (defaults to "A Very Good Project created by Very Good CLI.")
-    --executable-name         For the dart_cli template only, the name for the CLI executable (defaults to the project name)
+    --executable-name         Used by the dart_cli template, the the CLI executable name (defaults to the project name)
     --org-name                The organization for this new project.
                               (defaults to "com.example.verygoodcore")
 -t, --template                The template used to generate this new project.

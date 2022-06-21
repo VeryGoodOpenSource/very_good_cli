@@ -23,7 +23,7 @@ const expectedUsage = [
       '''    --project-name            The project name for this new project. This must be a valid dart package name.\n'''
       '    --desc                    The description for this new project.\n'
       '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
-      '''    --executable-name         For the dart_cli template only, the name for the CLI executable (defaults to the project name)\n'''
+      '''    --executable-name         Used by the dart_cli template, the the CLI executable name (defaults to the project name)\n'''
       '    --org-name                The organization for this new project.\n'
       '                              (defaults to "com.example.verygoodcore")\n'
       '''-t, --template                The template used to generate this new project.\n'''

@@ -56,7 +56,7 @@ class CreateCommand extends Command<int> {
       )
       ..addOption(
         'executable-name',
-        help: 'For the dart_cli template only, the name for the CLI executable '
+        help: 'Used by the dart_cli template, the the CLI executable name '
             '(defaults to the project name)',
       )
       ..addOption(
