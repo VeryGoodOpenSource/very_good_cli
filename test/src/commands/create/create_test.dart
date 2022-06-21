@@ -111,7 +111,7 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(['create', '--help']);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
@@ -132,7 +132,7 @@ void main() {
     test(
       'throws UsageException when --project-name is missing '
       'and directory base is not a valid package name',
-      withRunner((commandRunner, logger, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
         final result = await commandRunner.run(['create', '.tmp']);
@@ -143,7 +143,7 @@ void main() {
 
     test(
       'throws UsageException when --project-name is invalid',
-      withRunner((commandRunner, logger, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
         final result = await commandRunner.run(
@@ -156,7 +156,7 @@ void main() {
 
     test(
       'throws UsageException when output directory is missing',
-      withRunner((commandRunner, logger, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage =
             'No option specified for the output directory.';
         final result = await commandRunner.run(['create']);
@@ -167,7 +167,7 @@ void main() {
 
     test(
       'throws UsageException when multiple output directories are provided',
-      withRunner((commandRunner, logger, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = 'Multiple output directories specified.';
         final result = await commandRunner.run(['create', './a', './b']);
         expect(result, equals(ExitCode.usage.code));
@@ -300,7 +300,7 @@ void main() {
         test(
           'is a valid alias',
           withRunner(
-            (commandRunner, logger, printLogs) async {
+            (commandRunner, logger, pubUpdater, printLogs) async {
               const orgName = 'com.my.org';
               final tempDir = Directory.systemTemp.createTempSync();
               final result = await commandRunner.run(
@@ -325,7 +325,7 @@ void main() {
 
         test(
           'no delimiters',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'My App';
             final result = await commandRunner.run(
               ['create', '.', '--org-name', orgName],
@@ -337,7 +337,7 @@ void main() {
 
         test(
           'less than 2 domains',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'verybadtest';
             final result = await commandRunner.run(
               ['create', '.', '--org-name', orgName],
@@ -349,7 +349,7 @@ void main() {
 
         test(
           'invalid characters present',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very%.bad@.#test';
             final result = await commandRunner.run(
               ['create', '.', '--org-name', orgName],
@@ -361,7 +361,7 @@ void main() {
 
         test(
           'segment starts with a non-letter',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very.bad.1test';
             final result = await commandRunner.run(
               ['create', '.', '--org-name', orgName],
@@ -373,7 +373,7 @@ void main() {
 
         test(
           'valid prefix but invalid suffix',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very.good.prefix.bad@@suffix';
             final result = await commandRunner.run(
               ['create', '.', '--org-name', orgName],
@@ -467,7 +467,7 @@ void main() {
       group('invalid template name', () {
         test(
           'invalid template name',
-          withRunner((commandRunner, logger, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const templateName = 'badtemplate';
             const expectedErrorMessage =
                 '''"$templateName" is not an allowed value for option "template".''';

@@ -33,6 +33,7 @@ void Function() withRunner(
   FutureOr<void> Function(
     VeryGoodCommandRunner commandRunner,
     Logger logger,
+    PubUpdater pubUpdater,
     List<String> printLogs,
   )
       runnerFn,
@@ -69,6 +70,6 @@ void Function() withRunner(
       ),
     ).thenAnswer((_) => Future.value(true));
 
-    await runnerFn(commandRunner, logger, printLogs);
+    await runnerFn(commandRunner, logger, pubUpdater, printLogs);
   });
 }
