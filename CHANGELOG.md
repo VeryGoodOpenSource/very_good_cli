@@ -1,4 +1,15 @@
-# [0.7.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.6...v0.7.7) (2022-06-15)
+# [0.7.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.7...v0.7.8) (2022-06-22)
+
+### Bug Fixes
+
+- **create:** run pre-gen hooks ([#436](https://github.com/VeryGoodOpenSource/very_good_cli/issues/436)) ([75b5f65](https://github.com/VeryGoodOpenSource/very_good_cli/commit/75b5f65d834f93d02b8023162acaf2807d210525))
+
+### Features
+
+- **create:** add Dart CLI template ([#431](https://github.com/VeryGoodOpenSource/very_good_cli/issues/431)) ([1c3a5f0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1c3a5f01d708a76aa88388d6ba69e4c3a917f132))
+- upgrade to mason_logger ^0.1.0-dev.12 ([#434](https://github.com/VeryGoodOpenSource/very_good_cli/issues/434)) ([f85da74](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f85da7400fd6456c781756a48b501af250192a6d))
+
+## [0.7.7](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.6...v0.7.7) (2022-06-15)
 
 ### Features
 
