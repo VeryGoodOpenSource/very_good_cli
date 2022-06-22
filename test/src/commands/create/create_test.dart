@@ -68,6 +68,8 @@ class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockMasonGenerator extends Mock implements MasonGenerator {}
 
+class MockGeneratorHooks extends Mock implements GeneratorHooks {}
+
 class FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
@@ -179,6 +181,7 @@ void main() {
 
     test('completes successfully with correct output', () async {
       final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
       final command = CreateCommand(
         analytics: analytics,
@@ -189,6 +192,13 @@ void main() {
       when(() => argResults.rest).thenReturn(['.tmp']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
       when(
         () => generator.generate(
           any(),
@@ -248,6 +258,7 @@ void main() {
 
     test('completes successfully w/ custom description', () async {
       final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
       final command = CreateCommand(
         analytics: analytics,
@@ -261,6 +272,13 @@ void main() {
       when(() => argResults.rest).thenReturn(['.tmp']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
       when(
         () => generator.generate(
           any(),
@@ -391,6 +409,7 @@ void main() {
       group('valid --org-name', () {
         Future<void> expectValidOrgName(String orgName) async {
           final argResults = MockArgResults();
+          final hooks = MockGeneratorHooks();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
             analytics: analytics,
@@ -404,6 +423,13 @@ void main() {
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
+          when(() => generator.hooks).thenReturn(hooks);
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+            ),
+          ).thenAnswer((_) async {});
           when(
             () => generator.generate(
               any(),
@@ -493,6 +519,7 @@ void main() {
           required String expectedLogSummary,
         }) async {
           final argResults = MockArgResults();
+          final hooks = MockGeneratorHooks();
           final generator = MockMasonGenerator();
           final command = CreateCommand(
             analytics: analytics,
@@ -511,6 +538,13 @@ void main() {
           when(() => argResults.rest).thenReturn(['.tmp']);
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
+          when(() => generator.hooks).thenReturn(hooks);
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+            ),
+          ).thenAnswer((_) async {});
           when(
             () => generator.generate(
               any(),

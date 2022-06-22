@@ -151,20 +151,22 @@ class CreateCommand extends Command<int> {
     final windows = _argResults['windows'] as String? ?? 'true';
     final executableName =
         _argResults['executable-name'] as String? ?? projectName;
+    var vars = <String, dynamic>{
+      'project_name': projectName,
+      'description': description,
+      'executable_name': executableName,
+      'org_name': orgName,
+      'android': android.toBool(),
+      'ios': ios.toBool(),
+      'web': web.toBool(),
+      'linux': linux.toBool(),
+      'macos': macos.toBool(),
+      'windows': windows.toBool(),
+    };
+    await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
-      vars: <String, dynamic>{
-        'project_name': projectName,
-        'description': description,
-        'executable_name': executableName,
-        'org_name': orgName,
-        'android': android.toBool(),
-        'ios': ios.toBool(),
-        'web': web.toBool(),
-        'linux': linux.toBool(),
-        'macos': macos.toBool(),
-        'windows': windows.toBool(),
-      },
+      vars: vars,
       logger: _logger,
     );
     generateProgress.complete('Generated ${files.length} file(s)');
