@@ -17,6 +17,7 @@ final _templates = [
   DartPkgTemplate(),
   FlutterPkgTemplate(),
   FlutterPluginTemplate(),
+  VeryGoodDartCLITemplate(),
 ];
 
 final _defaultTemplate = _templates.first;
@@ -52,6 +53,11 @@ class CreateCommand extends Command<int> {
         'desc',
         help: 'The description for this new project.',
         defaultsTo: _defaultDescription,
+      )
+      ..addOption(
+        'executable-name',
+        help: 'Used by the dart_cli template, the CLI executable name '
+            '(defaults to the project name)',
       )
       ..addOption(
         'org-name',
@@ -143,19 +149,24 @@ class CreateCommand extends Command<int> {
     final linux = _argResults['linux'] as String? ?? 'true';
     final macos = _argResults['macos'] as String? ?? 'true';
     final windows = _argResults['windows'] as String? ?? 'true';
+    final executableName =
+        _argResults['executable-name'] as String? ?? projectName;
+    var vars = <String, dynamic>{
+      'project_name': projectName,
+      'description': description,
+      'executable_name': executableName,
+      'org_name': orgName,
+      'android': android.toBool(),
+      'ios': ios.toBool(),
+      'web': web.toBool(),
+      'linux': linux.toBool(),
+      'macos': macos.toBool(),
+      'windows': windows.toBool(),
+    };
+    await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
-      vars: <String, dynamic>{
-        'project_name': projectName,
-        'description': description,
-        'org_name': orgName,
-        'android': android.toBool(),
-        'ios': ios.toBool(),
-        'web': web.toBool(),
-        'linux': linux.toBool(),
-        'macos': macos.toBool(),
-        'windows': windows.toBool(),
-      },
+      vars: vars,
       logger: _logger,
     );
     generateProgress.complete('Generated ${files.length} file(s)');
