@@ -235,26 +235,73 @@ class MockLogger extends Mock implements Logger {}
 
 class MockProgress extends Mock implements Progress {}
 
+class _TestProcess {
+  Future<ProcessResult> run(
+    String command,
+    List<String> args, {
+    bool runInShell = false,
+    String? workingDirectory,
+  }) {
+    throw UnimplementedError();
+  }
+}
+
+class _MockProcess extends Mock implements _TestProcess {}
+
+class _MockProcessResult extends Mock implements ProcessResult {}
+
 void main() {
   final cwd = Directory.current;
 
   group('Flutter', () {
+    late ProcessResult processResult;
+    late _TestProcess process;
+
+    setUp(() {
+      processResult = _MockProcessResult();
+      process = _MockProcess();
+      when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
+      when(
+        () => process.run(
+          any(),
+          any(),
+          runInShell: any(named: 'runInShell'),
+          workingDirectory: any(named: 'workingDirectory'),
+        ),
+      ).thenAnswer((_) async => processResult);
+    });
+
     group('.packagesGet', () {
       test('throws when there is no pubspec.yaml', () {
-        expectLater(
-          Flutter.packagesGet(cwd: Directory.systemTemp.path),
-          throwsException,
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.packagesGet(cwd: Directory.systemTemp.path),
+            throwsA(isA<PubspecNotFound>()),
+          ),
+          runProcess: process.run,
         );
       });
 
       test('throws when process fails', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(invalidPubspec);
+        final flutterProcessResult = _MockProcessResult();
+        when(
+          () => flutterProcessResult.exitCode,
+        ).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            'flutter',
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => flutterProcessResult);
 
-        expectLater(
-          Flutter.packagesGet(cwd: directory.path),
-          throwsException,
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.packagesGet(cwd: Directory.systemTemp.path),
+            throwsException,
+          ),
+          runProcess: process.run,
         );
       });
 
@@ -263,21 +310,45 @@ void main() {
         File(p.join(directory.path, 'pubspec.yaml'))
             .writeAsStringSync(unreachableGitUrlPubspec);
 
-        expectLater(
-          Flutter.packagesGet(cwd: directory.path),
-          throwsA(isA<UnreachableGitDependency>()),
+        final gitProcessResult = _MockProcessResult();
+        when(
+          () => gitProcessResult.exitCode,
+        ).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            'git',
+            any(that: contains('ls-remote')),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => gitProcessResult);
+
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            () => Flutter.packagesGet(cwd: directory.path),
+            throwsA(isA<UnreachableGitDependency>()),
+          ),
+          runProcess: process.run,
         );
       });
 
-      test('completes when there is a pubspec.yaml', () {
-        expectLater(Flutter.packagesGet(), completes);
+      test('completes when the process succeeds', () {
+        ProcessOverrides.runZoned(
+          () => expectLater(Flutter.packagesGet(), completes),
+          runProcess: process.run,
+        );
       });
 
       test('throws when there is no pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
-        expectLater(
-          Flutter.packagesGet(cwd: directory.path, recursive: true),
-          throwsException,
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.packagesGet(
+              cwd: Directory.systemTemp.createTempSync().path,
+              recursive: true,
+            ),
+            throwsA(isA<PubspecNotFound>()),
+          ),
+          runProcess: process.run,
         );
       });
 
@@ -287,66 +358,77 @@ void main() {
           ..createSync();
         File(p.join(nestedDirectory.path, 'pubspec.yaml'))
             .writeAsStringSync(pubspec);
-        expectLater(
-          Flutter.packagesGet(cwd: directory.path, recursive: true),
-          completes,
+
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.packagesGet(cwd: directory.path, recursive: true),
+            completes,
+          ),
+          runProcess: process.run,
         );
       });
     });
 
     group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () {
-        expectLater(
-          Flutter.pubGet(cwd: Directory.systemTemp.path),
-          throwsException,
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.pubGet(cwd: Directory.systemTemp.path),
+            throwsA(isA<PubspecNotFound>()),
+          ),
+          runProcess: process.run,
         );
       });
 
       test('throws when process fails', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(invalidPubspec);
-
-        expectLater(
-          Flutter.pubGet(cwd: directory.path),
-          throwsException,
+        final flutterProcessResult = _MockProcessResult();
+        when(
+          () => flutterProcessResult.exitCode,
+        ).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            'flutter',
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => flutterProcessResult);
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.pubGet(cwd: Directory.systemTemp.path),
+            throwsException,
+          ),
+          runProcess: process.run,
         );
       });
 
-      test('throws when there is an unreachable git url', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(unreachableGitUrlPubspec);
-
-        expectLater(
-          Flutter.packagesGet(cwd: directory.path),
-          throwsA(isA<UnreachableGitDependency>()),
+      test('completes when the process succeeds', () {
+        ProcessOverrides.runZoned(
+          () => expectLater(Flutter.pubGet(), completes),
+          runProcess: process.run,
         );
       });
 
-      test('completes when there is a pubspec.yaml', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        expectLater(Flutter.pubGet(cwd: directory.path), completes);
-      });
-
-      test('throws when there is no pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
-        expectLater(
-          Flutter.pubGet(cwd: directory.path, recursive: true),
-          throwsException,
+      test('completes when the process succeeds (recursive)', () {
+        ProcessOverrides.runZoned(
+          () => expectLater(Flutter.pubGet(recursive: true), completes),
+          runProcess: process.run,
         );
       });
 
-      test('completes when there is a pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
-        final nestedDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(pubspec);
-        expectLater(
-          Flutter.pubGet(cwd: directory.path, recursive: true),
-          completes,
+      test('throws when process fails', () {
+        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        ProcessOverrides.runZoned(
+          () => expectLater(Flutter.pubGet(), throwsException),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws when process fails (recursive)', () {
+        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        ProcessOverrides.runZoned(
+          () => expectLater(Flutter.pubGet(recursive: true), throwsException),
+          runProcess: process.run,
         );
       });
     });
