@@ -273,10 +273,9 @@ void main() {
 
     group('.packagesGet', () {
       test('throws when there is no pubspec.yaml', () {
-        final directory = Directory.systemTemp.createTempSync();
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: directory.path),
+            Flutter.packagesGet(cwd: Directory.systemTemp.path),
             throwsA(isA<PubspecNotFound>()),
           ),
           runProcess: process.run,
@@ -290,20 +289,13 @@ void main() {
         ).thenReturn(ExitCode.software.code);
         when(
           () => process.run(
-            'git',
-            any(that: contains('ls-remote')),
-            runInShell: any(named: 'runInShell'),
-            workingDirectory: any(named: 'workingDirectory'),
-          ),
-        ).thenAnswer((_) async => processResult);
-        when(
-          () => process.run(
             'flutter',
             any(),
             runInShell: any(named: 'runInShell'),
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((_) async => flutterProcessResult);
+
         ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.packagesGet(cwd: Directory.systemTemp.path),
@@ -348,10 +340,12 @@ void main() {
       });
 
       test('throws when there is no pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: directory.path, recursive: true),
+            Flutter.packagesGet(
+              cwd: Directory.systemTemp.createTempSync().path,
+              recursive: true,
+            ),
             throwsA(isA<PubspecNotFound>()),
           ),
           runProcess: process.run,
@@ -391,14 +385,6 @@ void main() {
         when(
           () => flutterProcessResult.exitCode,
         ).thenReturn(ExitCode.software.code);
-        when(
-          () => process.run(
-            'git',
-            any(that: contains('ls-remote')),
-            runInShell: any(named: 'runInShell'),
-            workingDirectory: any(named: 'workingDirectory'),
-          ),
-        ).thenAnswer((_) async => processResult);
         when(
           () => process.run(
             'flutter',
