@@ -47,6 +47,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
     addCommand(CreateCommand(analytics: _analytics, logger: logger));
     addCommand(PackagesCommand(logger: logger));
     addCommand(TestCommand(logger: logger));
+    addCommand(UpdateCommand(logger: logger, pubUpdater: pubUpdater));
   }
 
   /// Standard timeout duration for the CLI.
