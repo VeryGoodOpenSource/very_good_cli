@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
@@ -48,6 +49,10 @@ class _MockProcessResult extends Mock implements ProcessResult {}
 class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
 class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+
+class _MockLogger extends Mock implements Logger {}
+
+class _MockProgress extends Mock implements Progress {}
 
 class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
 
@@ -238,6 +243,8 @@ void main() {
     });
 
     group('.test', () {
+      late Progress progress;
+      late Logger logger;
       late GeneratorHooks hooks;
       late MasonGenerator generator;
       late List<String> stdoutLogs;
@@ -263,6 +270,9 @@ void main() {
       GeneratorBuilder generatorBuilder() => (_) async => generator;
 
       setUp(() {
+        progress = _MockProgress();
+        logger = _MockLogger();
+        when(() => logger.progress(any())).thenReturn(progress);
         hooks = _MockGeneratorHooks();
         generator = _MockMasonGenerator();
         when(() => generator.hooks).thenReturn(hooks);
@@ -287,11 +297,7 @@ void main() {
 
       test('throws when pubspec not found', () async {
         await expectLater(
-          () => Flutter.test(
-            cwd: Directory.systemTemp.path,
-            stdout: stdoutLogs.add,
-            stderr: stderrLogs.add,
-          ),
+          () => Flutter.test(cwd: Directory.systemTemp.path),
           throwsA(isA<PubspecNotFound>()),
         );
       });
@@ -317,7 +323,41 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
-      test('runs tests when there is a test directory (passing)', () async {
+      test('runs tests and shows timer until tests start', () async {
+        final controller = StreamController<TestEvent>();
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
+        unawaited(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(controller.stream),
+          ),
+        );
+
+        await Future<void>.delayed(const Duration(seconds: 1));
+
+        controller
+          ..add(const DoneTestEvent(success: true, time: 0))
+          ..add(const ExitTestEvent(exitCode: 0, time: 0));
+
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\r00:00 ...',
+            contains('All tests passed!'),
+          ]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
@@ -354,7 +394,7 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
-      test('runs tests when there is a test directory (failing)', () async {
+      test('runs tests (failing)', () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
@@ -366,11 +406,11 @@ void main() {
             testRunner: testRunner(
               Stream.fromIterable([
                 ...failingJsonOutput.map(TestEvent.fromJson),
-                const ExitTestEvent(exitCode: 0, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
           ),
-          completion(equals([ExitCode.success.code])),
+          completion(equals([ExitCode.unavailable.code])),
         );
         expect(
           stdoutLogs,
@@ -405,9 +445,7 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
-      test(
-          'runs tests when there is a test directory '
-          '(skip + exception + message)', () async {
+      test('runs tests (noisy)', () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
@@ -429,17 +467,21 @@ void main() {
           stdoutLogs,
           equals([
             'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
+            '\x1B[2K\r(suite) /my_app/test/counter/view/other_test.dart (SKIPPED)\n',
+            '\x1B[2K\r00:00 ~1: (suite)',
             '\x1B[2K\rCounterCubit initial state is 0 /my_app/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
-            '\x1B[2K\r00:02 ~1: CounterCubit initial state is 0',
-            '''\x1B[2K\r00:02 +1 ~1: CounterCubit emits [1] when increment is called''',
-            '''\x1B[2K\r00:02 +2 ~1: CounterCubit emits [-1] when decrement is called''',
-            '\x1B[2K\r00:02 +2 -1 ~1: App renders CounterPage',
+            '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
+            '''\x1B[2K\r00:02 +3 ~2: ...a really long test name that should get truncated by very_good test''',
+            '\x1B[2K\r00:03 +3 -1 ~2: App renders CounterPage',
             '\x1B[2K\rhello\n',
-            '\x1B[2K\r00:03 +3 -1 ~1: CounterPage renders CounterView',
-            '\x1B[2K\r00:03 +4 -1 ~1: CounterView renders current count',
-            '''\x1B[2K\r00:03 +5 -1 ~1: CounterView calls increment when increment button is tapped''',
-            '''\x1B[2K\r00:03 +6 -1 ~1: CounterView calls decrement when decrement button is tapped''',
-            '\x1B[2K\r00:03 +6 -1 ~1: Some tests failed.\n'
+            '\x1B[2K\r00:04 +4 -1 ~2: CounterPage renders CounterView',
+            '\x1B[2K\r00:04 +5 -1 ~2: CounterView renders current count',
+            '''\x1B[2K\r00:04 +6 -1 ~2: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:04 +7 -1 ~2: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:04 +7 -1 ~2: Some tests failed.\n'
           ]),
         );
         expect(
@@ -467,6 +509,121 @@ void main() {
                 '''\x1B[2K\r - [ERROR] ...failed. See exception logs above. The test description was: renders CounterPage\n'''
           ]),
         );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (error)', () async {
+        const exception = 'oops';
+        final directory = Directory.systemTemp.createTempSync();
+        final controller = StreamController<TestEvent>();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        controller
+          ..addError(exception)
+          ..add(const ExitTestEvent(exitCode: 1, time: 0));
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(controller.stream),
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(stderrLogs, equals(['\x1B[2K\r$exception', '\x1B[2K\r']));
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (error w/stackTrace)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ErrorTestEvent(
+                  testID: 0,
+                  error: 'error',
+                  stackTrace:
+                      stack_trace.Trace.parse('test/example_test.dart 4 main')
+                          .toString(),
+                  isFailure: true,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '\x1B[2K\rerror',
+            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - [FAILED] test/example_test.dart:4\n'
+          ]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/out logs', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/args', () async {
+        const arguments = ['-x', 'e2e', '-j', '1'];
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            arguments: arguments,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(arguments));
         directory.delete(recursive: true).ignore();
       });
 
@@ -509,8 +666,10 @@ void main() {
 
       test('runs tests w/coverage', () async {
         final directory = Directory.systemTemp.createTempSync();
+        final lcovFile = File(p.join(directory.path, 'coverage', 'lcov.info'));
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
+        lcovFile.createSync(recursive: true);
 
         await expectLater(
           Flutter.test(
@@ -526,8 +685,8 @@ void main() {
                 ],
               ),
               onStart: () {
-                File(p.join(directory.path, 'coverage', 'lcov.info'))
-                    .createSync(recursive: true);
+                expect(lcovFile.existsSync(), isFalse);
+                lcovFile.createSync(recursive: true);
               },
             ),
           ),
@@ -624,22 +783,82 @@ void main() {
             contains('All tests passed!'),
           ]),
         );
+        expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
         directory.delete(recursive: true).ignore();
       });
 
-      test(
-          'runs tests w/optimizations when there is a test directory (passing)',
+      test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
           () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
+
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            excludeFromCoverage:
+                '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+        expect(testRunnerArgs, equals(['--coverage']));
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/optimizations (passing)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final originalVars = <String, dynamic>{'package-root': directory.path};
+        final updatedVars = <String, dynamic>{
+          'package-root': directory.path,
+          'foo': 'bar'
+        };
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged] as Function(
+            Map<String, dynamic> vars,
+          ))
+              .call(updatedVars);
+        });
         await expectLater(
           Flutter.test(
             cwd: directory.path,
             optimizePerformance: true,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
+            logger: logger,
             testRunner: testRunner(
               Stream.fromIterable(
                 [
@@ -660,9 +879,10 @@ void main() {
           ]),
         );
         expect(testRunnerArgs, equals([p.join('test', '.test_runner.dart')]));
+        verify(() => logger.progress('Optimizing tests')).called(1);
         verify(
           () => hooks.preGen(
-            vars: <String, String>{'package-root': directory.path},
+            vars: originalVars,
             onVarsChanged: any(named: 'onVarsChanged'),
             workingDirectory: directory.path,
           ),
@@ -670,10 +890,11 @@ void main() {
         verify(
           () => generator.generate(
             any(),
-            vars: <String, String>{'package-root': directory.path},
+            vars: updatedVars,
             fileConflictResolution: FileConflictResolution.overwrite,
           ),
         ).called(1);
+        verify(() => progress.complete()).called(1);
         directory.delete(recursive: true).ignore();
       });
     });
