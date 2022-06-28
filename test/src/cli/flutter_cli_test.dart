@@ -1,208 +1,19 @@
+// ignore_for_file: no_adjacent_strings_in_list
+
+import 'dart:async';
+
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_test_runner/very_good_test_runner.dart';
 
-const otherContents = '''
-class Other {
-  void foo() {
-    print('hello world');
-  }
-}''';
+import '../../fixtures/fixtures.dart';
 
-const calculatorContents = '''
-class Calculator {
-  int add(int x, int y) => x + y;
-  int subtract(int x, int y) => x - y;
-}''';
-
-const calculatorTestContents = '''
-import 'package:test/test.dart';
-import 'package:example/calculator.dart';
-
-void main() {
-  test('...', () {
-    expect(Calculator().add(1, 2), equals(3));
-    expect(Calculator().subtract(43, 1), equals(42));
-  });
-}''';
-
-const calculatorTestContentsMissingCoverage = '''
-import 'package:test/test.dart';
-import 'package:example/calculator.dart';
-
-void main() {
-  test('...', () {
-    expect(Calculator().add(1, 2), equals(3));
-  });
-}''';
-
-const calculatorTestContentsWithOtherImport = '''
-import 'package:test/test.dart';
-import 'package:example/calculator.dart';
-import 'package:example/other.dart';
-
-void main() {
-  test('...', () {
-    expect(Calculator().add(1, 2), equals(3));
-    expect(Calculator().subtract(43, 1), equals(42));
-  });
-}''';
-
-const testContents = '''
-import 'package:test/test.dart';
-
-void main() {
-  test('example', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const flutterTestContents = '''
-import 'package:flutter_test/flutter_test.dart';
-
-void main() {
-  test('example', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const flutterGoldenTestContents = '''
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-void main() {
-  testWidgets('test with golden', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(),
-          body: Center(child: ColoredBox(color: Colors.blue)),
-        ),
-      ),
-    );
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('golden_test.png'),
-    );
-  });
-}
-''';
-
-const longTestNameContents = '''
-import 'package:test/test.dart';
-
-void main() {
-  test('reeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const extraLongTestNameContents = '''
-import 'package:test/test.dart';
-
-void main() {
-  test('reeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
-    expect(true, isTrue);
-  });
-
-  test('extraaaaaareeeeeaaaaalllllllllyyyyyyyyyyyloooonnnnnnngggggggggtestttttttttttttttnameeeeeeeeeeeeeeeee', () {
-    expect(true, isFalse);
-  });
-
-  test('superrrrrrr  extraaaaaa  reeeeeaaaaalllllllllyyyyyyyyyyy   loooonnnnnnnggggggggg    testtttttttttttttt  nameeeeeeeeeeeeeeeee', () {
-    expect(true, isFalse);
-  }, skip: true);
-}''';
-
-const loggingTestContents = '''
-import 'package:test/test.dart';
-
-void main() {
-  test('example', () {
-    print('Hello World!');
-    expect(true, isTrue);
-  });
-}''';
-
-const failingTestContents = '''
-import 'package:test/test.dart';
-void main() {
-  test('example', () {
-    expect(true, isFalse);
-  });
-}''';
-
-const exceptionTestContents = '''
-import 'package:test/test.dart';
-void main() {
-  test('example', () {
-    print('EXCEPTION');
-    throw Exception('oops');
-  });
-}''';
-
-const registerExceptionNoStackTraceContents = '''
-import 'package:test/test.dart';
-import 'package:stack_trace/stack_trace.dart' as stack_trace;
-void main() {
-  test('example', () {
-    print('EXCEPTION');
-    registerException(
-      'fake error',
-      stack_trace.Chain(<stack_trace.Trace>[]),
-    );
-  });
-}''';
-
-String registerExceptionCustomStackTraceContents(String stackTrace) => '''
-import 'package:test/test.dart';
-import 'package:stack_trace/stack_trace.dart' as stack_trace;
-void main() {
-  test('example', () {
-    print('EXCEPTION');
-    registerException(
-      'fake error',
-      stack_trace.Trace.parse('$stackTrace'),
-    );
-  });
-}''';
-
-const skippedTestContents = '''
-import 'package:test/test.dart';
-void main() {
-  test('skipped example', () {
-    expect(true, isTrue);
-  }, skip: true);
-
-  test('example', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const tagsTestContents = '''
-import 'package:test/test.dart';
-void main() {
-  test('skipped example', () {
-    expect(true, isTrue);
-  }, tags: 'pr-only');
-
-  test('example', () {
-    expect(true, isTrue);
-  });
-}''';
-
-const dartTestYamlContents = '''
-tags:
-  pr-only:
-    skip: "Should only be run during pull request"  
-''';
-
-const pubspec = '''
+const _pubspec = '''
 name: example
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -210,18 +21,7 @@ environment:
 dev_dependencies:
   test: any''';
 
-const pubspecFlutter = '''
-name: example
-environment:
-  sdk: ">=2.13.0 <3.0.0"
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter''';
-
-const invalidPubspec = 'name: example';
-
-const unreachableGitUrlPubspec = '''
+const _unreachableGitUrlPubspec = '''
 name: example
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -230,10 +30,6 @@ dev_dependencies:
   very_good_analysis:
     git:
       url: https://github.com/verygoodopensource/_very_good_analysis''';
-
-class MockLogger extends Mock implements Logger {}
-
-class MockProgress extends Mock implements Progress {}
 
 class _TestProcess {
   Future<ProcessResult> run(
@@ -250,12 +46,25 @@ class _MockProcess extends Mock implements _TestProcess {}
 
 class _MockProcessResult extends Mock implements ProcessResult {}
 
-void main() {
-  final cwd = Directory.current;
+class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
+class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+
+class _MockLogger extends Mock implements Logger {}
+
+class _MockProgress extends Mock implements Progress {}
+
+class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
+
+void main() {
   group('Flutter', () {
     late ProcessResult processResult;
     late _TestProcess process;
+
+    setUpAll(() {
+      registerFallbackValue(_FakeGeneratorTarget());
+      registerFallbackValue(FileConflictResolution.prompt);
+    });
 
     setUp(() {
       processResult = _MockProcessResult();
@@ -308,7 +117,7 @@ void main() {
       test('throws when there is an unreachable git url', () {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(unreachableGitUrlPubspec);
+            .writeAsStringSync(_unreachableGitUrlPubspec);
 
         final gitProcessResult = _MockProcessResult();
         when(
@@ -357,7 +166,7 @@ void main() {
         final nestedDirectory = Directory(p.join(directory.path, 'test'))
           ..createSync();
         File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(pubspec);
+            .writeAsStringSync(_pubspec);
 
         ProcessOverrides.runZoned(
           () => expectLater(
@@ -434,1006 +243,660 @@ void main() {
     });
 
     group('.test', () {
-      late Logger logger;
       late Progress progress;
+      late Logger logger;
+      late GeneratorHooks hooks;
+      late MasonGenerator generator;
+      late List<String> stdoutLogs;
+      late List<String> stderrLogs;
+      late List<String> testRunnerArgs;
+
+      FlutterTestRunner testRunner(
+        Stream<TestEvent> stream, {
+        void Function()? onStart,
+      }) {
+        return ({
+          arguments,
+          environment,
+          runInShell = false,
+          workingDirectory,
+        }) {
+          onStart?.call();
+          if (arguments != null) testRunnerArgs.addAll(arguments);
+          return stream;
+        };
+      }
+
+      GeneratorBuilder generatorBuilder() => (_) async => generator;
 
       setUp(() {
-        logger = MockLogger();
-        progress = MockProgress();
+        progress = _MockProgress();
+        logger = _MockLogger();
         when(() => logger.progress(any())).thenReturn(progress);
-      });
-
-      test('throws when there is no pubspec.yaml', () {
-        expectLater(
-          Flutter.test(cwd: Directory.systemTemp.path),
-          throwsException,
-        );
-      });
-
-      test('exits with code 69 when process fails (with cleanup)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(pubspecFlutter);
-        File(p.join(testDirectory.path, 'example_test.dart'))
-            .writeAsStringSync(testContents);
-        await expectLater(
-          Flutter.test(cwd: directory.path, optimizePerformance: true),
-          completion(equals([69])),
-        );
-        await File(
-          p.join(testDirectory.path, '.test_runner.dart'),
-        ).ensureDeleted();
-      });
-
-      test('exits with code 0 when there is no test directory', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-
-        expectLater(
-          Flutter.test(cwd: directory.path, stdout: logger.write),
-          completion(equals([ExitCode.success.code])),
-        );
-
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'No test folder found in ${directory.path}\n',
-              ),
-            ),
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
+        when(() => generator.hooks).thenReturn(hooks);
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
           ),
-        ).called(1);
+        ).thenAnswer((_) async {});
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            fileConflictResolution: any(named: 'fileConflictResolution'),
+          ),
+        ).thenAnswer((_) async => []);
+        testRunnerArgs = [];
+        stdoutLogs = [];
+        stderrLogs = [];
       });
 
-      test('throws when there is no pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
-        expectLater(
-          Flutter.test(cwd: directory.path, recursive: true),
-          throwsException,
+      test('throws when pubspec not found', () async {
+        await expectLater(
+          () => Flutter.test(cwd: Directory.systemTemp.path),
+          throwsA(isA<PubspecNotFound>()),
         );
       });
 
-      test('completes when there is a test directory (failing)', () async {
+      test('completes when there is no test directory', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        final testFile = File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        )..writeAsStringSync(failingTestContents);
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
         await expectLater(
           Flutter.test(
             cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.unavailable.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.err(any(that: contains('${testFile.path} (FAILED)'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('-1: example'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('Some tests failed.'))),
-        ).called(1);
-        verify(
-          () => logger.err(
-            any(that: contains('- [FAILED] test/example_test.dart:4:5')),
-          ),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory (skipping)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        final testFile = File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        )..writeAsStringSync(skippedTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
           ),
           completion(equals([ExitCode.success.code])),
         );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('${testFile.path} (SKIPPED)'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1 ~1: example'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1 ~1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory (tags)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(directory.path, 'dart_test.yaml'),
-        ).writeAsStringSync(dartTestYamlContents);
-        final testFile = File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        )..writeAsStringSync(tagsTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(
-            any(that: contains('Skip: Should only be run during pull request')),
-          ),
-        );
-        verify(
-          () => logger.write(any(that: contains('${testFile.path} (SKIPPED)'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1 ~1: example'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1 ~1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory (w/logs)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(loggingTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('Hello World'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: example'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory (w/exception)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(exceptionTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.unavailable.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
-        verify(
-          () => logger.err(any(that: contains('Exception: oops'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('-1: example'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('-1: Some tests failed.'))),
-        ).called(1);
-        verify(
-          () => logger
-              .err(any(that: contains('- [ERROR] test/example_test.dart:5:5'))),
-        ).called(1);
-      });
-
-      test(
-        'completes when there is a test directory (exception w/o trace)',
-        () async {
-          final directory = Directory.systemTemp.createTempSync();
-          final testDirectory = Directory(p.join(directory.path, 'test'))
-            ..createSync();
-          File(p.join(directory.path, 'pubspec.yaml'))
-              .writeAsStringSync(pubspec);
-          File(
-            p.join(testDirectory.path, 'example_test.dart'),
-          ).writeAsStringSync(registerExceptionNoStackTraceContents);
-          await expectLater(
-            Flutter.test(
-              cwd: directory.path,
-              stdout: logger.write,
-              stderr: logger.err,
-            ),
-            completion(equals([ExitCode.unavailable.code])),
-          );
-          verify(
-            () => logger.write(
-              any(
-                that: contains(
-                  'Running "flutter test" in ${p.dirname(directory.path)}',
-                ),
-              ),
-            ),
-          ).called(1);
-          verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
-          verify(
-            () => logger.write(any(that: contains('-1: Some tests failed.'))),
-          ).called(1);
-          verify(
-            () => logger.err(any(that: contains('- [ERROR] fake error'))),
-          ).called(1);
-        },
-      );
-
-      test(
-        'completes when there is a test directory (exception w/ custom trace)',
-        () async {
-          final directory = Directory.systemTemp.createTempSync();
-          final testDirectory = Directory(p.join(directory.path, 'test'))
-            ..createSync();
-          File(p.join(directory.path, 'pubspec.yaml'))
-              .writeAsStringSync(pubspec);
-          File(
-            p.join(testDirectory.path, 'example_test.dart'),
-          ).writeAsStringSync(
-            registerExceptionCustomStackTraceContents(
-              'test/example_test.dart 4 main',
-            ),
-          );
-          await expectLater(
-            Flutter.test(
-              cwd: directory.path,
-              stdout: logger.write,
-              stderr: logger.err,
-            ),
-            completion(equals([ExitCode.unavailable.code])),
-          );
-          verify(
-            () => logger.write(
-              any(
-                that: contains(
-                  'Running "flutter test" in ${p.dirname(directory.path)}',
-                ),
-              ),
-            ),
-          ).called(1);
-          verify(() => logger.err(any(that: contains('EXCEPTION')))).called(1);
-          verify(
-            () => logger.write(any(that: contains('-1: Some tests failed.'))),
-          ).called(1);
-          verify(
-            () => logger.err(
-              any(that: contains('- [ERROR] test/example_test.dart:4')),
-            ),
-          ).called(1);
-        },
-      );
-
-      test('completes and truncates really long test name', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(longTestNameContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: ...'))),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes and truncates extra long test name', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(extraLongTestNameContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.unavailable.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: ...'))),
-        ).called(1);
-        verify(
-          () => logger.write(
-            any(that: contains('+1 -1 ~1: Some tests failed.')),
-          ),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory w/out stdout,stderr', () {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContents);
-        expectLater(
-          Flutter.test(cwd: directory.path),
-          completion(equals([ExitCode.success.code])),
-        );
-      });
-
-      test('completes when there is a test directory (passing)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test(
-          'completes when there is a test directory w/optimizations Dart (passing)',
-          () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            optimizePerformance: true,
-            stdout: logger.write,
-            stderr: logger.err,
-            logger: logger,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(() => logger.progress('Optimizing tests')).called(1);
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test(
-          'completes when there is a test directory w/optimizations Flutter (passing)',
-          () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(
-          p.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecFlutter);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(flutterTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            optimizePerformance: true,
-            stdout: logger.write,
-            stderr: logger.err,
-            logger: logger,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(() => logger.progress('Optimizing tests')).called(1);
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test(
-          'completes when there is a nested golden test w/optimizations Flutter (passing)',
-          () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        final goldenTestDirectory =
-            Directory(p.join(testDirectory.path, 'golden'))..createSync();
-        File(
-          p.join(directory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspecFlutter);
-        File(
-          p.join(goldenTestDirectory.path, 'golden_test.dart'),
-        ).writeAsStringSync(flutterGoldenTestContents);
-        File(
-          p.join(goldenTestDirectory.path, 'golden_test.png'),
-        ).writeAsBytesSync(
-          File(p.join(cwd.path, 'test', 'fixtures', 'golden_test.png'))
-              .readAsBytesSync(),
-        );
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            optimizePerformance: true,
-            stdout: logger.write,
-            stderr: logger.err,
-            logger: logger,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(() => logger.progress('Optimizing tests')).called(1);
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes when there is a test directory (recursive)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final nestedDirectory = Directory(p.join(directory.path, 'nested'))
-          ..createSync();
-        final testDirectory = Directory(p.join(nestedDirectory.path, 'test'))
-          ..createSync();
-        File(
-          p.join(nestedDirectory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(pubspec);
-        File(
-          p.join(testDirectory.path, 'example_test.dart'),
-        ).writeAsStringSync(testContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            recursive: true,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(nestedDirectory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes w specific test target', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContents);
-        final otherTest = File(
-          p.join(testDirectory.path, 'other_test.dart'),
-        )..writeAsStringSync(testContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            arguments: [otherTest.path],
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes w/randomSeed', () async {
-        const randomSeed = '2305182648';
-        final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            randomSeed: randomSeed,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-      });
-
-      test('completes w/coverage', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContents);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            collectCoverage: true,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
         expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'No test folder found in ${directory.absolute.path}\n',
+          ]),
         );
+        directory.delete(recursive: true).ignore();
       });
 
-      test('overwrites previous coverage file', () async {
+      test('runs tests and shows timer until tests start', () async {
+        final controller = StreamController<TestEvent>();
         final directory = Directory.systemTemp.createTempSync();
-        final coverageDirectory = Directory(p.join(directory.path, 'coverage'))
-          ..createSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(coverageDirectory.path, 'lcov.info'))
-            .writeAsStringSync('HI');
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContents);
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
+        unawaited(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(controller.stream),
+          ),
+        );
+
+        await Future<void>.delayed(const Duration(seconds: 1));
+
+        controller
+          ..add(const DoneTestEvent(success: true, time: 0))
+          ..add(const ExitTestEvent(exitCode: 0, time: 0));
+
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\r00:00 ...',
+            contains('All tests passed!'),
+          ]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (passing)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
             cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            collectCoverage: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
           ),
           completion(equals([ExitCode.success.code])),
         );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
         expect(
-          File(
-            p.join(directory.path, 'coverage', 'lcov.info'),
-          ).readAsStringSync(),
-          isNot(equals('HI')),
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\r00:02 +1: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:02 +2: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:02 +3: CounterCubit emits [-1] when decrement is called''',
+            '\x1B[2K\r00:03 +4: App renders CounterPage',
+            '\x1B[2K\r00:03 +5: CounterPage renders CounterView',
+            '\x1B[2K\r00:03 +6: CounterView renders current count',
+            '''\x1B[2K\r00:03 +7: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:03 +8: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:04 +8: All tests passed!\n'
+          ]),
         );
+        expect(stderrLogs, isEmpty);
+        directory.delete(recursive: true).ignore();
       });
 
-      test('completes w/coverage and --min-coverage 100', () async {
+      test('runs tests (failing)', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContents);
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
             cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ...failingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\r00:11 -1: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:11 +1 -1: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:11 +2 -1: CounterCubit emits [-1] when decrement is called''',
+            '\x1B[2K\r00:11 +3 -1: App renders CounterPage',
+            '\x1B[2K\r00:12 +4 -1: CounterPage renders CounterView',
+            '\x1B[2K\r00:12 +5 -1: CounterView renders current count',
+            '''\x1B[2K\r00:12 +6 -1: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:12 +7 -1: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:12 +7 -1: Some tests failed.\n',
+          ]),
+        );
+        expect(
+          stderrLogs,
+          equals(
+            [
+              '\x1B[2K\rExpected: <1>\n'
+                  '  Actual: <0>\n',
+              '''\x1B[2K\rpackage:test_api                                    expect\n'''
+                  'package:flutter_test/src/widget_tester.dart 455:16  expect\n'
+                  'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
+              '\x1B[2K\rCounterCubit initial state is 0 /my_app/test/counter/cubit/counter_cubit_test.dart (FAILED)',
+              '\x1B[2K\rFailing Tests:\n'
+                  '\x1B[2K\r - [FAILED] test/counter/cubit/counter_cubit_test.dart:16:7\n'
+            ],
+          ),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (noisy)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ...skipExceptionMessageJsonOuput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
+            '\x1B[2K\r(suite) /my_app/test/counter/view/other_test.dart (SKIPPED)\n',
+            '\x1B[2K\r00:00 ~1: (suite)',
+            '\x1B[2K\rCounterCubit initial state is 0 /my_app/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
+            '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
+            '''\x1B[2K\r00:02 +3 ~2: ...a really long test name that should get truncated by very_good test''',
+            '\x1B[2K\r00:03 +3 -1 ~2: App renders CounterPage',
+            '\x1B[2K\rhello\n',
+            '\x1B[2K\r00:04 +4 -1 ~2: CounterPage renders CounterView',
+            '\x1B[2K\r00:04 +5 -1 ~2: CounterView renders current count',
+            '''\x1B[2K\r00:04 +6 -1 ~2: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:04 +7 -1 ~2: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:04 +7 -1 ~2: Some tests failed.\n'
+          ]),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '''\x1B[2K\r══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════\n'''
+                'The following _Exception was thrown running a test:\n'
+                'Exception: oops\n'
+                '\n'
+                'When the exception was thrown, this was the stack:\n'
+                '#0      main.<anonymous closure>.<anonymous closure> (file:///my_app/test/app/view/app_test.dart:15:7)\n'
+                '#1      main.<anonymous closure>.<anonymous closure> (file:///my_app/test/app/view/app_test.dart:14:40)\n'
+                '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n'
+                '<asynchronous suspension>\n'
+                '<asynchronous suspension>\n'
+                '(elided one frame from package:stack_trace)\n'
+                '\n'
+                'The test description was:\n'
+                '  renders CounterPage\n'
+                '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
+            '\x1B[2K\rTest failed. See exception logs above.\n'
+                'The test description was: renders CounterPage',
+            '\x1B[2K\rApp renders CounterPage /my_app/test/app/view/app_test.dart (FAILED)',
+            '\x1B[2K\rFailing Tests:\n'
+                '''\x1B[2K\r - [ERROR] ...failed. See exception logs above. The test description was: renders CounterPage\n'''
+          ]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (error)', () async {
+        const exception = 'oops';
+        final directory = Directory.systemTemp.createTempSync();
+        final controller = StreamController<TestEvent>();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        controller
+          ..addError(exception)
+          ..add(const ExitTestEvent(exitCode: 1, time: 0));
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(controller.stream),
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(stderrLogs, equals(['\x1B[2K\r$exception', '\x1B[2K\r']));
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests (error w/stackTrace)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ErrorTestEvent(
+                  testID: 0,
+                  error: 'error',
+                  stackTrace:
+                      stack_trace.Trace.parse('test/example_test.dart 4 main')
+                          .toString(),
+                  isFailure: true,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '\x1B[2K\rerror',
+            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - [FAILED] test/example_test.dart:4\n'
+          ]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/out logs', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/args', () async {
+        const arguments = ['-x', 'e2e', '-j', '1'];
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            arguments: arguments,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(arguments));
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/randomSeed', () async {
+        const seed = 'seed';
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            randomSeed: seed,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Shuffling test order with --test-randomize-ordering-seed=$seed\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(
+          testRunnerArgs,
+          equals(['--test-randomize-ordering-seed', seed]),
+        );
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/coverage', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final lcovFile = File(p.join(directory.path, 'coverage', 'lcov.info'));
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        lcovFile.createSync(recursive: true);
+
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            collectCoverage: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                expect(lcovFile.existsSync(), isFalse);
+                lcovFile.createSync(recursive: true);
+              },
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage']));
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/coverage + min-coverage 100 (pass)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
             collectCoverage: true,
             minCoverage: 100,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov100);
+              },
+            ),
           ),
           completion(equals([ExitCode.success.code])),
         );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
         expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
         );
+        expect(testRunnerArgs, equals(['--coverage']));
+        directory.delete(recursive: true).ignore();
       });
 
-      test('throws when --min-coverage 100 not met (50%)', () async {
+      test('runs tests w/coverage + min-coverage 100 (fail)', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
         await expectLater(
-          Flutter.test(
+          () => Flutter.test(
             cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
             collectCoverage: true,
             minCoverage: 100,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
           ),
           throwsA(
-            isA<MinCoverageNotMet>().having((e) => e.coverage, 'coverage', 50),
-          ),
-        );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
+            isA<MinCoverageNotMet>().having(
+              (e) => e.coverage,
+              'coverage',
+              95.0,
             ),
           ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
-        expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
         );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+        expect(testRunnerArgs, equals(['--coverage']));
+        directory.delete(recursive: true).ignore();
       });
 
-      test('passes when --min-coverage 100 w/exclude coverage', () async {
+      test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
+          () async {
         final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(libDirectory.path, 'other.dart'),
-        ).writeAsStringSync(otherContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContentsWithOtherImport);
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
         await expectLater(
           Flutter.test(
             cwd: directory.path,
-            excludeFromCoverage: 'lib/other.dart',
-            stdout: logger.write,
-            stderr: logger.err,
             collectCoverage: true,
             minCoverage: 100,
+            excludeFromCoverage:
+                '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
           ),
           completion(equals([ExitCode.success.code])),
         );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
         expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
         );
+        expect(stderrLogs, isEmpty);
+        expect(testRunnerArgs, equals(['--coverage']));
+        directory.delete(recursive: true).ignore();
       });
 
-      test('passes when --min-coverage 50 met (50%)', () async {
+      test('runs tests w/optimizations (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
+        final originalVars = <String, dynamic>{'package-root': directory.path};
+        final updatedVars = <String, dynamic>{
+          'package-root': directory.path,
+          'foo': 'bar'
+        };
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged] as Function(
+            Map<String, dynamic> vars,
+          ))
+              .call(updatedVars);
+        });
         await expectLater(
           Flutter.test(
             cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            collectCoverage: true,
-            minCoverage: 50,
+            optimizePerformance: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            logger: logger,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            buildGenerator: generatorBuilder(),
           ),
           completion(equals([ExitCode.success.code])),
         );
-        verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
-          ),
-        ).called(1);
-        verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
-        ).called(1);
         expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
         );
-      });
-
-      test('passes when --min-coverage 49 met (50%)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final libDirectory = Directory(p.join(directory.path, 'lib'))
-          ..createSync();
-        final testDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(pubspec);
-        File(
-          p.join(libDirectory.path, 'calculator.dart'),
-        ).writeAsStringSync(calculatorContents);
-        File(
-          p.join(testDirectory.path, 'calculator_test.dart'),
-        ).writeAsStringSync(calculatorTestContentsMissingCoverage);
-        await expectLater(
-          Flutter.test(
-            cwd: directory.path,
-            stdout: logger.write,
-            stderr: logger.err,
-            collectCoverage: true,
-            minCoverage: 49,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
+        expect(testRunnerArgs, equals([p.join('test', '.test_runner.dart')]));
+        verify(() => logger.progress('Optimizing tests')).called(1);
         verify(
-          () => logger.write(
-            any(
-              that: contains(
-                'Running "flutter test" in ${p.dirname(directory.path)}',
-              ),
-            ),
+          () => hooks.preGen(
+            vars: originalVars,
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: directory.path,
           ),
         ).called(1);
         verify(
-          () => logger.write(any(that: contains('+1: All tests passed!'))),
+          () => generator.generate(
+            any(),
+            vars: updatedVars,
+            fileConflictResolution: FileConflictResolution.overwrite,
+          ),
         ).called(1);
-        expect(
-          File(p.join(directory.path, 'coverage', 'lcov.info')).existsSync(),
-          isTrue,
-        );
+        verify(() => progress.complete()).called(1);
+        directory.delete(recursive: true).ignore();
       });
     });
   });
-}
-
-extension on File {
-  Future<void> ensureDeleted({
-    Duration timeout = const Duration(seconds: 1),
-    Duration interval = const Duration(milliseconds: 50),
-  }) async {
-    var elapsedTime = Duration.zero;
-    while (existsSync()) {
-      await Future<void>.delayed(interval);
-      elapsedTime += interval;
-      if (elapsedTime >= timeout) throw Exception('timed out');
-    }
-  }
 }
