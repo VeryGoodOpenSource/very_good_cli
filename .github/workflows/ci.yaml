@@ -14,3 +14,9 @@ jobs:
     steps:
       - name: noop
         run: echo 'noop'
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: noop
+        run: echo 'noop'
