@@ -1,4 +1,13 @@
-# [0.7.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.7...v0.7.8) (2022-06-22)
+# [0.7.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.8...v0.7.9) (2022-06-29)
+
+### Features
+
+- add update command ([#435](https://github.com/VeryGoodOpenSource/very_good_cli/issues/435)) ([afce55c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/afce55c5d024ea32f378e76f4ce0ca43ff08b863))
+- enhance upgrade prompt to use very_good update ([#447](https://github.com/VeryGoodOpenSource/very_good_cli/issues/447)) ([215bc83](https://github.com/VeryGoodOpenSource/very_good_cli/commit/215bc83f727a9853eddc4685d31c5b051580f2db))
+- include semantic pull request workflow ([#448](https://github.com/VeryGoodOpenSource/very_good_cli/issues/448)) ([4b015fb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4b015fb07d055734cb662584dcbca5e9de45ff33))
+- **very_good_dart_cli:** add update command ([#445](https://github.com/VeryGoodOpenSource/very_good_cli/issues/445)) ([6a30973](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6a30973f9daaee0a4f16e368e8492bb55e52d762))
+
+## [0.7.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.7...v0.7.8) (2022-06-22)
 
 ### Bug Fixes
 
