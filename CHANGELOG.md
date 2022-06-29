@@ -1,4 +1,4 @@
-# [0.7.8](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.8...v0.7.9) (2022-06-29)
+# [0.7.9](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.8...v0.7.9) (2022-06-29)
 
 ### Features
 
