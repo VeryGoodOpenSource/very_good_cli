@@ -113,8 +113,9 @@ class TestCommand extends Command<int> {
   Future<int> run() async {
     final targetPath = path.normalize(Directory.current.absolute.path);
     final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
+    final recursive = _argResults['recursive'] as bool;
 
-    if (!pubspec.existsSync()) {
+    if (!recursive && !pubspec.existsSync()) {
       _logger.err(
         '''
 Could not find a pubspec.yaml in $targetPath.
@@ -124,7 +125,6 @@ This command should be run from the root of your Flutter project.''',
     }
 
     final concurrency = _argResults['concurrency'] as String;
-    final recursive = _argResults['recursive'] as bool;
     final collectCoverage = _argResults['coverage'] as bool;
     final minCoverage = double.tryParse(
       _argResults['min-coverage'] as String? ?? '',
