@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/commands/test/test.dart';
@@ -130,16 +131,22 @@ void main() {
     );
 
     test(
-      'throws pubspec not found exception '
-      'when no pubspec.yaml exists (recursive)',
+      'completes normally when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final directory = Directory.systemTemp.createTempSync();
         Directory.current = directory.path;
+
+        Directory(path.join(Directory.current.path, 'project')).createSync();
+        File(
+          path.join(
+            Directory.current.path,
+            'project',
+            'pubspec.yaml',
+          ),
+        ).createSync();
+
         final result = await commandRunner.run(['test', '-r']);
-        expect(result, equals(ExitCode.noInput.code));
-        verify(() {
-          logger.err(any(that: contains('Could not find a pubspec.yaml in')));
-        }).called(1);
+        expect(result, equals(ExitCode.success.code));
       }),
     );
 
