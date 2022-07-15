@@ -1,6 +1,7 @@
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/logger_extension.dart';
 
 /// {@template dart_pkg_template}
 /// A Dart package template.
@@ -24,7 +25,7 @@ class DartPkgTemplate extends Template {
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..alert('Created a Very Good Dart Package! 🦄')
+      ..created('Created a Very Good Dart Package! 🦄')
       ..info('\n');
   }
 }
