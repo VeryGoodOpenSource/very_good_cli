@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/logger_extension.dart';
 
 /// {@template dart_cli_template}
 /// A Dart CLI application template.
@@ -25,7 +26,7 @@ class VeryGoodDartCLITemplate extends Template {
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..alert('Created a Very Good Dart CLI application! 🦄')
+      ..created('Created a Very Good Dart CLI application! 🦄')
       ..info('\n');
   }
 }
