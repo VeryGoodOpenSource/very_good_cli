@@ -11,6 +11,7 @@ import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create/create.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/logger_extension.dart';
 
 import '../../../helpers/helpers.dart';
 
@@ -219,7 +220,7 @@ void main() {
       verify(
         () => logger.progress('Running "flutter packages get" in .tmp'),
       ).called(1);
-      verify(() => logger.alert('Created a Very Good App! 🦄')).called(1);
+      verify(() => logger.created('Created a Very Good App! 🦄')).called(1);
       verify(
         () => generator.generate(
           any(
@@ -565,7 +566,7 @@ void main() {
           verify(
             () => logger.progress(getPackagesMsg),
           ).called(1);
-          verify(() => logger.alert(expectedLogSummary)).called(1);
+          verify(() => logger.created(expectedLogSummary)).called(1);
           verify(
             () => generator.generate(
               any(
