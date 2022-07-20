@@ -1,4 +1,17 @@
-# [0.7.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.9...v0.7.10) (2022-07-07)
+# [0.7.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.10...v0.7.11) (2022-07-19)
+
+### Bug Fixes
+
+- `flutter_plugin` template generates all platforms no matter the platform flag used ([#462](https://github.com/VeryGoodOpenSource/very_good_cli/issues/462)) ([29c034e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/29c034e77748b5a0dff267cdeedb18d280df510c))
+- move alert messages to custom method ([#461](https://github.com/VeryGoodOpenSource/very_good_cli/issues/461)) ([ec31ed9](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ec31ed9ec24966bbc0596fe0e359041a406328ee))
+- **flutter_plugin:** remove static workflows ([#456](https://github.com/VeryGoodOpenSource/very_good_cli/issues/456)) ([fc41f17](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fc41f17aa760573aaf8b36c57d216ce5b7cdf0c5))
+
+### Features
+
+- **flutter_plugin:** generate copyright header dates via pregen hook ([#457](https://github.com/VeryGoodOpenSource/very_good_cli/issues/457)) ([7238b1c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7238b1c26af27439e83638ea6a795f2d5aac04a5))
+- **test:** support running outside of project root ([#458](https://github.com/VeryGoodOpenSource/very_good_cli/issues/458)) ([fb67359](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fb673595d76cb1483455b0d80834bff845cdce19))
+
+## [0.7.10](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.9...v0.7.10) (2022-07-07)
 
 ### Features
 
