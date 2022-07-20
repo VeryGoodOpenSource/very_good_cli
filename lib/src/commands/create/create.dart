@@ -163,7 +163,9 @@ class CreateCommand extends Command<int> {
       'macos': macos.toBool(),
       'windows': windows.toBool(),
     };
+    // TODO: _logger.detail('Running pre-generate hook...');
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
+    // TODO: _logger.detail('Running generate...');
     final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
       vars: vars,
