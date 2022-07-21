@@ -9,7 +9,9 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
-typedef FlutterInstalledCommand = Future<bool> Function();
+typedef FlutterInstalledCommand = Future<bool> Function({
+  required Logger logger,
+});
 
 /// Signature for the [Flutter.test] method.
 typedef FlutterTestCommand = Future<List<int>> Function({
@@ -131,7 +133,7 @@ This command should be run from the root of your Flutter project.''',
     );
     final excludeTags = _argResults['exclude-tags'] as String?;
     final tags = _argResults['tags'] as String?;
-    final isFlutterInstalled = await _flutterInstalled();
+    final isFlutterInstalled = await _flutterInstalled(logger: _logger);
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
     final randomOrderingSeed =
         _argResults['test-randomize-ordering-seed'] as String?;

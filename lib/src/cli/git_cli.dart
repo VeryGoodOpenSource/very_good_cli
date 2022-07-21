@@ -22,9 +22,16 @@ Make sure the remote exists and you have the correct access rights.''';
 /// Git CLI
 class Git {
   /// Determine whether the [remote] is reachable.
-  static Future<void> reachable(Uri remote) async {
+  static Future<void> reachable(
+    Uri remote, {
+    required Logger logger,
+  }) async {
     try {
-      await _Cmd.run('git', ['ls-remote', '$remote', '--exit-code']);
+      await _Cmd.run(
+        'git',
+        ['ls-remote', '$remote', '--exit-code'],
+        logger: logger,
+      );
     } catch (_) {
       throw UnreachableGitDependency(remote: remote);
     }

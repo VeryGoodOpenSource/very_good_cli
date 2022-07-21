@@ -19,12 +19,22 @@ class _MockProcess extends Mock implements _TestProcess {}
 
 class _MockProcessResult extends Mock implements ProcessResult {}
 
+class _MockLogger extends Mock implements Logger {}
+
+class _MockProgress extends Mock implements Progress {}
+
 void main() {
   group('Git', () {
     late ProcessResult processResult;
     late _TestProcess process;
+    late Logger logger;
+    late Progress progress;
 
     setUp(() {
+      logger = _MockLogger();
+      progress = _MockProgress();
+      when(() => logger.progress(any())).thenReturn(progress);
+
       processResult = _MockProcessResult();
       process = _MockProcess();
       when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
@@ -43,7 +53,10 @@ void main() {
         await ProcessOverrides.runZoned(
           () async {
             await expectLater(
-              Git.reachable(Uri.parse('https://github.com/org/repo')),
+              Git.reachable(
+                Uri.parse('https://github.com/org/repo'),
+                logger: logger,
+              ),
               completes,
             );
           },
@@ -58,7 +71,10 @@ void main() {
         await ProcessOverrides.runZoned(
           () async {
             await expectLater(
-              Git.reachable(Uri.parse('https://github.com/org/repo')),
+              Git.reachable(
+                Uri.parse('https://github.com/org/repo'),
+                logger: logger,
+              ),
               throwsA(isA<UnreachableGitDependency>()),
             );
           },

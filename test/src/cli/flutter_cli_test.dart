@@ -60,6 +60,8 @@ void main() {
   group('Flutter', () {
     late ProcessResult processResult;
     late _TestProcess process;
+    late Logger logger;
+    late Progress progress;
 
     setUpAll(() {
       registerFallbackValue(_FakeGeneratorTarget());
@@ -67,6 +69,10 @@ void main() {
     });
 
     setUp(() {
+      logger = _MockLogger();
+      progress = _MockProgress();
+      when(() => logger.progress(any())).thenReturn(progress);
+
       processResult = _MockProcessResult();
       process = _MockProcess();
       when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
@@ -84,7 +90,7 @@ void main() {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: Directory.systemTemp.path),
+            Flutter.packagesGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsA(isA<PubspecNotFound>()),
           ),
           runProcess: process.run,
@@ -107,7 +113,7 @@ void main() {
 
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: Directory.systemTemp.path),
+            Flutter.packagesGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsException,
           ),
           runProcess: process.run,
@@ -134,7 +140,7 @@ void main() {
 
         ProcessOverrides.runZoned(
           () => expectLater(
-            () => Flutter.packagesGet(cwd: directory.path),
+            () => Flutter.packagesGet(cwd: directory.path, logger: logger),
             throwsA(isA<UnreachableGitDependency>()),
           ),
           runProcess: process.run,
@@ -143,7 +149,7 @@ void main() {
 
       test('completes when the process succeeds', () {
         ProcessOverrides.runZoned(
-          () => expectLater(Flutter.packagesGet(), completes),
+          () => expectLater(Flutter.packagesGet(logger: logger), completes),
           runProcess: process.run,
         );
       });
@@ -154,6 +160,7 @@ void main() {
             Flutter.packagesGet(
               cwd: Directory.systemTemp.createTempSync().path,
               recursive: true,
+              logger: logger,
             ),
             throwsA(isA<PubspecNotFound>()),
           ),
@@ -170,7 +177,11 @@ void main() {
 
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: directory.path, recursive: true),
+            Flutter.packagesGet(
+              cwd: directory.path,
+              recursive: true,
+              logger: logger,
+            ),
             completes,
           ),
           runProcess: process.run,
@@ -182,7 +193,7 @@ void main() {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.pubGet(cwd: Directory.systemTemp.path),
+            Flutter.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsA(isA<PubspecNotFound>()),
           ),
           runProcess: process.run,
@@ -204,7 +215,7 @@ void main() {
         ).thenAnswer((_) async => flutterProcessResult);
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.pubGet(cwd: Directory.systemTemp.path),
+            Flutter.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsException,
           ),
           runProcess: process.run,
@@ -213,14 +224,17 @@ void main() {
 
       test('completes when the process succeeds', () {
         ProcessOverrides.runZoned(
-          () => expectLater(Flutter.pubGet(), completes),
+          () => expectLater(Flutter.pubGet(logger: logger), completes),
           runProcess: process.run,
         );
       });
 
       test('completes when the process succeeds (recursive)', () {
         ProcessOverrides.runZoned(
-          () => expectLater(Flutter.pubGet(recursive: true), completes),
+          () => expectLater(
+            Flutter.pubGet(recursive: true, logger: logger),
+            completes,
+          ),
           runProcess: process.run,
         );
       });
@@ -228,7 +242,7 @@ void main() {
       test('throws when process fails', () {
         when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
         ProcessOverrides.runZoned(
-          () => expectLater(Flutter.pubGet(), throwsException),
+          () => expectLater(Flutter.pubGet(logger: logger), throwsException),
           runProcess: process.run,
         );
       });
@@ -236,7 +250,10 @@ void main() {
       test('throws when process fails (recursive)', () {
         when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
         ProcessOverrides.runZoned(
-          () => expectLater(Flutter.pubGet(recursive: true), throwsException),
+          () => expectLater(
+            Flutter.pubGet(recursive: true, logger: logger),
+            throwsException,
+          ),
           runProcess: process.run,
         );
       });

@@ -64,9 +64,11 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
-  static Future<bool> installed() async {
+  static Future<bool> installed({
+    required Logger logger,
+  }) async {
     try {
-      await _Cmd.run('flutter', ['--version']);
+      await _Cmd.run('flutter', ['--version'], logger: logger);
       return true;
     } catch (_) {
       return false;
@@ -77,18 +79,18 @@ class Flutter {
   static Future<void> packagesGet({
     String cwd = '.',
     bool recursive = false,
-    Logger? logger,
+    required Logger logger,
   }) async {
     await _runCommand(
       cmd: (cwd) async {
-        final installProgress = logger?.progress(
+        final installProgress = logger.progress(
           'Running "flutter packages get" in $cwd',
         );
 
         try {
-          await _verifyGitDependencies(cwd);
+          await _verifyGitDependencies(cwd, logger: logger);
         } catch (_) {
-          installProgress?.fail();
+          installProgress.fail();
           rethrow;
         }
 
@@ -97,9 +99,10 @@ class Flutter {
             'flutter',
             ['packages', 'get'],
             workingDirectory: cwd,
+            logger: logger,
           );
         } finally {
-          installProgress?.complete();
+          installProgress.complete();
         }
       },
       cwd: cwd,
@@ -111,12 +114,14 @@ class Flutter {
   static Future<void> pubGet({
     String cwd = '.',
     bool recursive = false,
+    required Logger logger,
   }) async {
     await _runCommand(
       cmd: (cwd) => _Cmd.run(
         'flutter',
         ['pub', 'get'],
         workingDirectory: cwd,
+        logger: logger,
       ),
       cwd: cwd,
       recursive: recursive,
@@ -235,7 +240,10 @@ class Flutter {
 ///
 /// If any git dependencies are unreachable,
 /// an [UnreachableGitDependency] is thrown.
-Future<void> _verifyGitDependencies(String cwd) async {
+Future<void> _verifyGitDependencies(
+  String cwd, {
+  required Logger logger,
+}) async {
   final pubspec = Pubspec.parse(
     await File(p.join(cwd, 'pubspec.yaml')).readAsString(),
   );
@@ -254,7 +262,12 @@ Future<void> _verifyGitDependencies(String cwd) async {
       .toList();
 
   await Future.wait(
-    gitDependencies.map((dependency) => Git.reachable(dependency.url)),
+    gitDependencies.map(
+      (dependency) => Git.reachable(
+        dependency.url,
+        logger: logger,
+      ),
+    ),
   );
 }
 

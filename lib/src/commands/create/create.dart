@@ -163,9 +163,7 @@ class CreateCommand extends Command<int> {
       'macos': macos.toBool(),
       'windows': windows.toBool(),
     };
-    // TODO: _logger.detail('Running pre-generate hook...');
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
-    // TODO: _logger.detail('Running generate...');
     final files = await generator.generate(
       DirectoryGeneratorTarget(outputDirectory),
       vars: vars,
@@ -218,6 +216,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateOrgName(String name) {
+    _logger.detail('Validating org name; $name');
     final isValidOrgName = _isValidOrgName(name);
     if (!isValidOrgName) {
       usageException(
@@ -232,6 +231,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateProjectName(String name) {
+    _logger.detail('Validating project name; $name');
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
       usageException(
@@ -257,6 +257,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateOutputDirectoryArg(List<String> args) {
+    _logger.detail('Validating output directory args: $args');
     if (args.isEmpty) {
       usageException('No option specified for the output directory.');
     }

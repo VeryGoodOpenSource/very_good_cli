@@ -7,11 +7,11 @@ import 'package:universal_io/io.dart';
 import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 
-class MockAnalytics extends Mock implements Analytics {}
+class _MockAnalytics extends Mock implements Analytics {}
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
 void main() {
   group(
@@ -32,8 +32,8 @@ void main() {
       tearDownAll(_removeTemporaryFiles);
 
       setUp(() {
-        analytics = MockAnalytics();
-        logger = MockLogger();
+        analytics = _MockAnalytics();
+        logger = _MockLogger();
 
         when(() => analytics.firstRun).thenReturn(false);
         when(() => analytics.enabled).thenReturn(false);
@@ -44,8 +44,8 @@ void main() {
           () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
         ).thenAnswer((_) async {});
 
-        logger = MockLogger();
-        progress = MockProgress();
+        logger = _MockLogger();
+        progress = _MockProgress();
         when(() => logger.progress(any())).thenReturn(progress);
 
         commandRunner = VeryGoodCommandRunner(
