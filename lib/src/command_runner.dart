@@ -48,10 +48,10 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
         'verbose',
         help: 'Noisy logging, including all shell commands executed.',
       );
-    addCommand(CreateCommand(analytics: _analytics, logger: logger));
-    addCommand(PackagesCommand(logger: logger));
-    addCommand(TestCommand(logger: logger));
-    addCommand(UpdateCommand(logger: logger, pubUpdater: pubUpdater));
+    addCommand(CreateCommand(analytics: _analytics, logger: _logger));
+    addCommand(PackagesCommand(logger: _logger));
+    addCommand(TestCommand(logger: _logger));
+    addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
   }
 
   /// Standard timeout duration for the CLI.

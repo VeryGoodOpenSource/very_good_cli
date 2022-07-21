@@ -314,7 +314,7 @@ void main() {
 
       test('throws when pubspec not found', () async {
         await expectLater(
-          () => Flutter.test(cwd: Directory.systemTemp.path),
+          () => Flutter.test(cwd: Directory.systemTemp.path, logger: logger),
           throwsA(isA<PubspecNotFound>()),
         );
       });
@@ -327,6 +327,7 @@ void main() {
             cwd: directory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -352,6 +353,7 @@ void main() {
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(controller.stream),
+            logger: logger,
           ),
         );
 
@@ -389,6 +391,7 @@ void main() {
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -426,6 +429,7 @@ void main() {
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.unavailable.code])),
         );
@@ -477,6 +481,7 @@ void main() {
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -544,6 +549,7 @@ void main() {
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(controller.stream),
+            logger: logger,
           ),
           completion(equals([ExitCode.unavailable.code])),
         );
@@ -575,6 +581,7 @@ void main() {
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.unavailable.code])),
         );
@@ -605,6 +612,7 @@ void main() {
                 ],
               ),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -630,6 +638,7 @@ void main() {
                 ],
               ),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -663,6 +672,7 @@ void main() {
                 ],
               ),
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -706,6 +716,7 @@ void main() {
                 lcovFile.createSync(recursive: true);
               },
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -745,6 +756,7 @@ void main() {
                   ..writeAsStringSync(lcov100);
               },
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -784,6 +796,7 @@ void main() {
                   ..writeAsStringSync(lcov95);
               },
             ),
+            logger: logger,
           ),
           throwsA(
             isA<MinCoverageNotMet>().having(
@@ -833,6 +846,7 @@ void main() {
                   ..writeAsStringSync(lcov95);
               },
             ),
+            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );

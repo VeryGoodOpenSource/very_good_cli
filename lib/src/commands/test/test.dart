@@ -23,7 +23,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   String? excludeFromCoverage,
   String? randomSeed,
   List<String>? arguments,
-  Logger? logger,
+  required Logger logger,
   void Function(String)? stdout,
   void Function(String)? stderr,
 });
