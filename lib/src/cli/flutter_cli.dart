@@ -191,7 +191,7 @@ class Flutter {
               fileConflictResolution: FileConflictResolution.overwrite,
             );
           } finally {
-            optimizationProgress?.complete();
+            optimizationProgress.complete();
           }
         }
 
