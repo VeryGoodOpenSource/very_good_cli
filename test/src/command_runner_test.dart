@@ -33,7 +33,7 @@ const expectedUsage = [
       '\n'
       'Available commands:\n'
       '  create     very_good create <output directory>\n'
-      '             Creates a new very good project in the specified directory.\n'
+      '''             Creates a new very good project in the specified directory.\n'''
       '  packages   Command for managing packages.\n'
       '  test       Run tests in a Dart or Flutter project.\n'
       '  update     Update Very Good CLI.\n'
