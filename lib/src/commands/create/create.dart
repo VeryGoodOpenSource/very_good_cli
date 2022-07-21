@@ -38,10 +38,10 @@ class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
     required Analytics analytics,
-    Logger? logger,
+    required Logger logger,
     GeneratorBuilder? generator,
   })  : _analytics = analytics,
-        _logger = logger ?? Logger(),
+        _logger = logger,
         _generator = generator ?? MasonGenerator.fromBundle {
     argParser
       ..addOption(

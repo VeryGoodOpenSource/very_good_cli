@@ -34,10 +34,10 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
-    Logger? logger,
+    required Logger logger,
     FlutterInstalledCommand? flutterInstalled,
     FlutterTestCommand? flutterTest,
-  })  : _logger = logger ?? Logger(),
+  })  : _logger = logger,
         _flutterInstalled = flutterInstalled ?? Flutter.installed,
         _flutterTest = flutterTest ?? Flutter.test {
     argParser

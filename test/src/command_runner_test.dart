@@ -239,6 +239,15 @@ void main() {
           verifyNever(() => logger.detail('    Command options:'));
         });
 
+        test('logs that analytics is enabled', () async {
+          when(() => analytics.enabled).thenReturn(true);
+          final result = await commandRunner.run(['--verbose']);
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => logger.detail('Running with analytics enabled.'),
+          ).called(1);
+        });
+
         test('enables verbose logging for sub commands', () async {
           final result = await commandRunner.run([
             '--verbose',
