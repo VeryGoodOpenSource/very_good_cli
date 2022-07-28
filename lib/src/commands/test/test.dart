@@ -9,7 +9,9 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
-typedef FlutterInstalledCommand = Future<bool> Function();
+typedef FlutterInstalledCommand = Future<bool> Function({
+  required Logger logger,
+});
 
 /// Signature for the [Flutter.test] method.
 typedef FlutterTestCommand = Future<List<int>> Function({
@@ -21,7 +23,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   String? excludeFromCoverage,
   String? randomSeed,
   List<String>? arguments,
-  Logger? logger,
+  required Logger logger,
   void Function(String)? stdout,
   void Function(String)? stderr,
 });
@@ -32,10 +34,10 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
-    Logger? logger,
+    required Logger logger,
     FlutterInstalledCommand? flutterInstalled,
     FlutterTestCommand? flutterTest,
-  })  : _logger = logger ?? Logger(),
+  })  : _logger = logger,
         _flutterInstalled = flutterInstalled ?? Flutter.installed,
         _flutterTest = flutterTest ?? Flutter.test {
     argParser
@@ -131,7 +133,7 @@ This command should be run from the root of your Flutter project.''',
     );
     final excludeTags = _argResults['exclude-tags'] as String?;
     final tags = _argResults['tags'] as String?;
-    final isFlutterInstalled = await _flutterInstalled();
+    final isFlutterInstalled = await _flutterInstalled(logger: _logger);
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
     final randomOrderingSeed =
         _argResults['test-randomize-ordering-seed'] as String?;

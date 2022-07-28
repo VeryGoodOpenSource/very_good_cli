@@ -38,10 +38,10 @@ class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
     required Analytics analytics,
-    Logger? logger,
+    required Logger logger,
     GeneratorBuilder? generator,
   })  : _analytics = analytics,
-        _logger = logger ?? Logger(),
+        _logger = logger,
         _generator = generator ?? MasonGenerator.fromBundle {
     argParser
       ..addOption(
@@ -216,6 +216,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateOrgName(String name) {
+    _logger.detail('Validating org name; $name');
     final isValidOrgName = _isValidOrgName(name);
     if (!isValidOrgName) {
       usageException(
@@ -230,6 +231,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateProjectName(String name) {
+    _logger.detail('Validating project name; $name');
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
       usageException(
@@ -255,6 +257,7 @@ class CreateCommand extends Command<int> {
   }
 
   void _validateOutputDirectoryArg(List<String> args) {
+    _logger.detail('Validating output directory args: $args');
     if (args.isEmpty) {
       usageException('No option specified for the output directory.');
     }

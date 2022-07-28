@@ -78,7 +78,9 @@ class _Cmd {
     List<String> args, {
     bool throwOnError = true,
     String? workingDirectory,
+    required Logger logger,
   }) async {
+    logger.detail('Running: $cmd with $args');
     final runProcess = ProcessOverrides.current?.runProcess ?? Process.run;
     final result = await runProcess(
       cmd,
@@ -86,6 +88,9 @@ class _Cmd {
       workingDirectory: workingDirectory,
       runInShell: true,
     );
+    logger
+      ..detail('stdout:\n${result.stdout}')
+      ..detail('stderr:\n${result.stderr}');
 
     if (throwOnError) {
       _throwIfProcessFailed(result, cmd, args);

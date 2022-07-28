@@ -22,12 +22,14 @@ const expectedUsage = [
       'Usage: very_good <command> [arguments]\n'
       '\n'
       'Global options:\n'
-      '-h, --help           Print this usage information.\n'
-      '    --version        Print the current version.\n'
-      '    --analytics      Toggle anonymous usage statistics.\n'
+      '-h, --help            Print this usage information.\n'
+      '    --version         Print the current version.\n'
+      '    --analytics       Toggle anonymous usage statistics.\n'
       '\n'
-      '          [false]    Disable anonymous usage statistics\n'
-      '          [true]     Enable anonymous usage statistics\n'
+      '          [false]     Disable anonymous usage statistics\n'
+      '          [true]      Enable anonymous usage statistics\n'
+      '\n'
+      '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
       '\n'
       'Available commands:\n'
       '  create     very_good create <output directory>\n'
@@ -223,6 +225,44 @@ void main() {
           final result = await commandRunner.run(['--version']);
           expect(result, equals(ExitCode.success.code));
           verify(() => logger.info(packageVersion)).called(1);
+        });
+      });
+
+      group('--verbose', () {
+        test('enables verbose logging', () async {
+          final result = await commandRunner.run(['--verbose']);
+          expect(result, equals(ExitCode.success.code));
+
+          verify(() => logger.detail('Argument information:')).called(1);
+          verify(() => logger.detail('  Top level options:')).called(1);
+          verify(() => logger.detail('  - verbose: true')).called(1);
+          verifyNever(() => logger.detail('    Command options:'));
+        });
+
+        test('logs that analytics is enabled', () async {
+          when(() => analytics.enabled).thenReturn(true);
+          final result = await commandRunner.run(['--verbose']);
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => logger.detail('Running with analytics enabled.'),
+          ).called(1);
+        });
+
+        test('enables verbose logging for sub commands', () async {
+          final result = await commandRunner.run([
+            '--verbose',
+            'create',
+            '-t',
+            'dart_pkg',
+          ]);
+          expect(result, equals(ExitCode.usage.code));
+
+          verify(() => logger.detail('Argument information:')).called(1);
+          verify(() => logger.detail('  Top level options:')).called(1);
+          verify(() => logger.detail('  - verbose: true')).called(1);
+          verify(() => logger.detail('  Command: create')).called(1);
+          verify(() => logger.detail('    Command options:')).called(1);
+          verify(() => logger.detail('    - template: dart_pkg')).called(1);
         });
       });
     });

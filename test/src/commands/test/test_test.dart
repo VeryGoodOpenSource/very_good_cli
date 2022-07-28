@@ -75,7 +75,8 @@ void main() {
       flutterTest = MockFlutterTestCommand();
       testCommand = TestCommand(
         logger: logger,
-        flutterInstalled: () async => isFlutterInstalled,
+        flutterInstalled: ({required Logger logger}) async =>
+            isFlutterInstalled,
         flutterTest: flutterTest.call,
       )..argResultOverrides = argResults;
       when(

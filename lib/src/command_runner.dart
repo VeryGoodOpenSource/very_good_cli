@@ -43,11 +43,15 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           'true': 'Enable anonymous usage statistics',
           'false': 'Disable anonymous usage statistics',
         },
+      )
+      ..addFlag(
+        'verbose',
+        help: 'Noisy logging, including all shell commands executed.',
       );
-    addCommand(CreateCommand(analytics: _analytics, logger: logger));
-    addCommand(PackagesCommand(logger: logger));
-    addCommand(TestCommand(logger: logger));
-    addCommand(UpdateCommand(logger: logger, pubUpdater: pubUpdater));
+    addCommand(CreateCommand(analytics: _analytics, logger: _logger));
+    addCommand(PackagesCommand(logger: _logger));
+    addCommand(TestCommand(logger: _logger));
+    addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
   }
 
   /// Standard timeout duration for the CLI.
@@ -78,6 +82,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
             normalizedResponse == 'y' || normalizedResponse == 'yes';
       }
       final _argResults = parse(args);
+      if (_argResults['verbose'] == true) {
+        _logger.level = Level.verbose;
+      }
       return await runCommand(_argResults) ?? ExitCode.success.code;
     } on FormatException catch (e, stackTrace) {
       _logger
@@ -97,6 +104,30 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
+    _logger
+      ..detail('Argument information:')
+      ..detail('  Top level options:');
+    for (final option in topLevelResults.options) {
+      if (topLevelResults.wasParsed(option)) {
+        _logger.detail('  - $option: ${topLevelResults[option]}');
+      }
+    }
+    if (topLevelResults.command != null) {
+      final commandResult = topLevelResults.command!;
+      _logger
+        ..detail('  Command: ${commandResult.name}')
+        ..detail('    Command options:');
+      for (final option in commandResult.options) {
+        if (commandResult.wasParsed(option)) {
+          _logger.detail('    - $option: ${commandResult[option]}');
+        }
+      }
+    }
+
+    if (_analytics.enabled) {
+      _logger.detail('Running with analytics enabled.');
+    }
+
     int? exitCode = ExitCode.unavailable.code;
     if (topLevelResults['version'] == true) {
       _logger.info(packageVersion);

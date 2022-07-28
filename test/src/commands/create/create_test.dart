@@ -130,7 +130,7 @@ void main() {
     );
 
     test('can be instantiated without explicit logger', () {
-      final command = CreateCommand(analytics: analytics);
+      final command = CreateCommand(analytics: analytics, logger: logger);
       expect(command, isNotNull);
     });
 
