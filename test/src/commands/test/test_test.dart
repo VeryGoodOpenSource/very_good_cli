@@ -20,6 +20,7 @@ const expectedTestUsage = [
       '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
       '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
       '                                      (defaults to on)\n'
+      '''    --machine                         Whether to output in a machine readable format (JSON).\n'''
       '''-j, --concurrency                     The number of concurrent test suites run.\n'''
       '                                      (defaults to "4")\n'
       '''-t, --tags                            Run only tests associated with the specified tags.\n'''
@@ -322,6 +323,21 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           arguments: ['-x', 'test-tag', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --machine', () async {
+      when<dynamic>(() => argResults['machine']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['--machine', ...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,

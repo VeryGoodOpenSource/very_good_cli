@@ -57,6 +57,11 @@ class TestCommand extends Command<int> {
         defaultsTo: true,
         help: 'Whether to apply optimizations for test performance.',
       )
+      ..addFlag(
+        'machine',
+        help: 'Whether to output in a machine readable format (JSON).',
+        negatable: false,
+      )
       ..addOption(
         'concurrency',
         abbr: 'j',
@@ -142,6 +147,7 @@ This command should be run from the root of your Flutter project.''',
         : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
+    final machineReadable = _argResults['machine'] as bool;
 
     if (isFlutterInstalled) {
       try {
@@ -160,6 +166,7 @@ This command should be run from the root of your Flutter project.''',
             if (excludeTags != null) ...['-x', excludeTags],
             if (tags != null) ...['-t', tags],
             if (updateGoldens) '--update-goldens',
+            if (machineReadable) ...['--reporter','json'],
             ...['-j', concurrency],
             '--no-pub',
             ..._argResults.rest,
