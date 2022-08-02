@@ -1,3 +1,5 @@
+// ignore_for_file: parameter_assignments
+
 part of 'cli.dart';
 
 /// Thrown when `flutter packages get` or `flutter pub get`
@@ -138,6 +140,7 @@ class Flutter {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    String? reporter,
     List<String>? arguments,
     required Logger logger,
     void Function(String)? stdout,
@@ -151,6 +154,9 @@ class Flutter {
     if (collectCoverage && lcovFile.existsSync()) {
       await lcovFile.delete();
     }
+    final usesJsonReporter = reporter != null && reporter == 'json';
+
+    final logSteps = !usesJsonReporter;
 
     final results = await _runCommand<int>(
       cmd: (cwd) async {
@@ -158,25 +164,35 @@ class Flutter {
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
 
-        stdout?.call(
-          'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
-        );
+        if (logSteps) {
+          stdout?.call(
+            'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
+          );
+        }
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
-          stdout?.call(
-            'No test folder found in ${target.dir.absolute.path}\n',
-          );
+          if (logSteps) {
+            stdout?.call(
+              'No test folder found in ${target.dir.absolute.path}\n',
+            );
+          }
           return ExitCode.success.code;
         }
 
         if (randomSeed != null) {
-          stdout?.call(
-            '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
-          );
+          if (logSteps) {
+            stdout?.call(
+              '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
+            );
+          }
         }
 
         if (optimizePerformance) {
-          final optimizationProgress = logger.progress('Optimizing tests');
+          Progress? optimizationProgress;
+
+          if (logSteps) {
+            optimizationProgress = logger.progress('Optimizing tests');
+          }
           try {
             final generator = await buildGenerator(testRunnerBundle);
             var vars = <String, dynamic>{'package-root': workingDirectory};
@@ -191,16 +207,18 @@ class Flutter {
               fileConflictResolution: FileConflictResolution.overwrite,
             );
           } finally {
-            optimizationProgress.complete();
+            if (logSteps) {
+              optimizationProgress?.complete();
+            }
           }
         }
-
         return _flutterTest(
           cwd: cwd,
           collectCoverage: collectCoverage,
           testRunner: testRunner,
           arguments: [
             ...?arguments,
+            if (reporter != null) ...['--reporter', reporter],
             if (randomSeed != null) ...[
               '--test-randomize-ordering-seed',
               randomSeed

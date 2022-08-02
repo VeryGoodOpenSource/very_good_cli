@@ -43,6 +43,7 @@ abstract class FlutterTestCommand {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    String? reporter,
     List<String>? arguments,
     Logger? logger,
     void Function(String)? stdout,
@@ -330,14 +331,15 @@ void main() {
       ).called(1);
     });
 
-    test('completes normally --machine', () async {
-      when<dynamic>(() => argResults['machine']).thenReturn(true);
+    test('completes normally --reporter json', () async {
+      when<dynamic>(() => argResults['reporter']).thenReturn('json');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
         () => flutterTest(
           optimizePerformance: true,
-          arguments: ['--machine', ...defaultArguments],
+          reporter: 'json',
+          arguments: [...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,

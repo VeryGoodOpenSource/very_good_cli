@@ -22,6 +22,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   double? minCoverage,
   String? excludeFromCoverage,
   String? randomSeed,
+  String? reporter,
   List<String>? arguments,
   required Logger logger,
   void Function(String)? stdout,
@@ -57,10 +58,18 @@ class TestCommand extends Command<int> {
         defaultsTo: true,
         help: 'Whether to apply optimizations for test performance.',
       )
-      ..addFlag(
-        'machine',
-        help: 'Whether to output in a machine readable format (JSON).',
-        negatable: false,
+      ..addOption(
+        'reporter',
+        help: 'Set how to print test results.',
+        defaultsTo: _reporterOptions.first.name,
+        allowed: _reporterOptions.map((element) => element.name).toList(),
+        allowedHelp: _reporterOptions.fold<Map<String, String>>(
+          {},
+          (previousValue, element) => {
+            ...previousValue,
+            element.name: element.help,
+          },
+        ),
       )
       ..addOption(
         'concurrency',
@@ -147,7 +156,7 @@ This command should be run from the root of your Flutter project.''',
         : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
-    final machineReadable = _argResults['machine'] as bool;
+    final reporter = _argResults['reporter'] as String?;
 
     if (isFlutterInstalled) {
       try {
@@ -162,11 +171,11 @@ This command should be run from the root of your Flutter project.''',
           minCoverage: minCoverage,
           excludeFromCoverage: excludeFromCoverage,
           randomSeed: randomSeed,
+          reporter: reporter,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
             if (tags != null) ...['-t', tags],
             if (updateGoldens) '--update-goldens',
-            if (machineReadable) ...['--reporter', 'json'],
             ...['-j', concurrency],
             '--no-pub',
             ..._argResults.rest,
@@ -187,4 +196,37 @@ This command should be run from the root of your Flutter project.''',
     }
     return ExitCode.success.code;
   }
+
+  final _reporterOptions = [
+    const ArgumentOption(
+      name: 'compact',
+      help: 'A single line that updates dynamically.',
+    ),
+    const ArgumentOption(
+      name: 'expanded',
+      help:
+          'A separate line for each update. May be preferred when logging to a '
+          'file or in continuous integration.',
+    ),
+    const ArgumentOption(
+      name: 'json',
+      help:
+          'A machine-readable format. See: https://dart.dev/go/test-docs/json_reporter.md',
+    ),
+  ];
+}
+
+/// Describes a option for an argument in the CLI
+class ArgumentOption {
+  /// {@macro template}
+  const ArgumentOption({
+    required this.name,
+    required this.help,
+  });
+
+  /// The name associated with this option.
+  final String name;
+
+  /// The help text shown in the usage information for the CLI.
+  final String help;
 }
