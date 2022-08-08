@@ -1,4 +1,16 @@
-# [0.7.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.10...v0.7.11) (2022-07-19)
+# [0.7.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.11...v0.7.12) (2022-08-08)
+
+### Bug Fixes
+
+- **dart_cli:** update very_good_dart_cli bundle ([#471](https://github.com/VeryGoodOpenSource/very_good_cli/issues/471)) ([ca66c60](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ca66c60941847eebd0cc037d7ceab0e93a042673))
+
+### Features
+
+- **core:** upgrade to bloc v8.1.0 and Flutter 3.0.5 ([#477](https://github.com/VeryGoodOpenSource/very_good_cli/issues/477)) ([3a46b66](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3a46b661bebd166952687c1d42f7bb7b79c37889))
+- **dart_cli:** add --verbose flag ([#478](https://github.com/VeryGoodOpenSource/very_good_cli/issues/478)) ([8065a63](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8065a63ffdba1e4a1a4518126c477faebff1f49b))
+- add `--verbose` flag ([#465](https://github.com/VeryGoodOpenSource/very_good_cli/issues/465)) ([d2a62fa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d2a62fa827a587a270cc20996480e0d2cbd7fa7c))
+
+## [0.7.11](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.10...v0.7.11) (2022-07-19)
 
 ### Bug Fixes
 
