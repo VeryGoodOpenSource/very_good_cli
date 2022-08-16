@@ -1,4 +1,10 @@
-# [0.7.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.11...v0.7.12) (2022-08-08)
+# [0.7.13](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.12...v0.7.13) (2022-08-16)
+
+### Features
+
+- **core:** upgrade to flutter_bloc v8.1.1 ([#483](https://github.com/VeryGoodOpenSource/very_good_cli/issues/483)) ([e581d17](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e581d1738ff3d5516143ca7335459f742747db2a))
+
+## [0.7.12](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.11...v0.7.12) (2022-08-08)
 
 ### Bug Fixes
 
