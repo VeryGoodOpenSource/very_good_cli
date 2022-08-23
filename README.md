@@ -13,7 +13,7 @@ Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
 ---
 
-A Very Good Command Line Interface for Dart.
+A Very Good Command-Line Interface for Dart.
 
 ## Installing
 
@@ -188,7 +188,7 @@ Run "very_good help" to see global options.
 See the complete list of commands and usage information.
 
 ```sh
-🦄 A Very Good Command Line Interface
+🦄 A Very Good Command-Line Interface
 
 Usage: very_good <command> [arguments]
 

@@ -17,7 +17,7 @@ class MockLogger extends Mock implements Logger {}
 class MockPubUpdater extends Mock implements PubUpdater {}
 
 const expectedUsage = [
-  '🦄 A Very Good Command Line Interface\n'
+  '🦄 A Very Good Command-Line Interface\n'
       '\n'
       'Usage: very_good <command> [arguments]\n'
       '\n'

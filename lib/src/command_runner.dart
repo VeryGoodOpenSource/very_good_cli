@@ -28,7 +28,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
         _analytics =
             analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
         _pubUpdater = pubUpdater ?? PubUpdater(),
-        super('very_good', '🦄 A Very Good Command Line Interface') {
+        super('very_good', '🦄 A Very Good Command-Line Interface') {
     argParser
       ..addFlag(
         'version',
