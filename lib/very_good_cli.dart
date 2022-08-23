@@ -1,4 +1,4 @@
-/// A Very Good Command Line Interface for Dart 🦄
+/// A Very Good Command-Line Interface for Dart 🦄
 ///
 /// ```sh
 /// # activate very_good_cli
