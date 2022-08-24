@@ -29,7 +29,10 @@ final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
 final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
-typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
+typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
+
+/// A method which returns a [Future<MasonGenerator>] given a [Brick].
+typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 
 /// {@template create_command}
 /// `very_good create` command creates code from various built-in templates.
@@ -39,10 +42,12 @@ class CreateCommand extends Command<int> {
   CreateCommand({
     required Analytics analytics,
     required Logger logger,
-    GeneratorBuilder? generator,
+    MasonGeneratorFromBundle? generatorFromBundle,
+    MasonGeneratorFromBrick? generatorFromBrick,
   })  : _analytics = analytics,
         _logger = logger,
-        _generator = generator ?? MasonGenerator.fromBundle {
+        _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
+        _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
     argParser
       ..addOption(
         'project-name',
@@ -113,7 +118,8 @@ class CreateCommand extends Command<int> {
 
   final Analytics _analytics;
   final Logger _logger;
-  final GeneratorBuilder _generator;
+  final MasonGeneratorFromBundle _generatorFromBundle;
+  final MasonGeneratorFromBrick _generatorFromBrick;
 
   @override
   String get description =>
@@ -126,7 +132,7 @@ class CreateCommand extends Command<int> {
   String get name => 'create';
 
   @override
-  String get invocation => 'very_good create <output directory>';
+  String get invocation => 'very_good create <project name>';
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
@@ -136,13 +142,12 @@ class CreateCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final outputDirectory = _outputDirectory;
     final projectName = _projectName;
     final description = _description;
     final orgName = _orgName;
     final template = _template;
     final generateProgress = _logger.progress('Bootstrapping');
-    final generator = await _generator(template.bundle);
+    final generator = await _getGeneratorForTemplate(template);
     final android = _argResults['android'] as String? ?? 'true';
     final ios = _argResults['ios'] as String? ?? 'true';
     final web = _argResults['web'] as String? ?? 'true';
@@ -164,14 +169,14 @@ class CreateCommand extends Command<int> {
       'windows': windows.toBool(),
     };
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
-    final files = await generator.generate(
-      DirectoryGeneratorTarget(outputDirectory),
-      vars: vars,
-      logger: _logger,
-    );
+    final target = DirectoryGeneratorTarget(Directory.current);
+    final files = await generator.generate(target, vars: vars, logger: _logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
-    await template.onGenerateComplete(_logger, outputDirectory);
+    await template.onGenerateComplete(
+      _logger,
+      Directory(path.join(target.dir.path, projectName)),
+    );
 
     unawaited(
       _analytics.sendEvent(
@@ -183,6 +188,21 @@ class CreateCommand extends Command<int> {
     await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
 
     return ExitCode.success.code;
+  }
+
+  Future<MasonGenerator> _getGeneratorForTemplate(Template template) async {
+    try {
+      _logger.detail(
+        '''Building generator from brick: ${template.brick.name} ${template.brick.location.version}''',
+      );
+      return await _generatorFromBrick(template.brick);
+    } catch (_) {
+      _logger.detail('Building generator from brick failed: $_');
+    }
+    _logger.detail(
+      '''Building generator from bundle ${template.bundle.name} ${template.bundle.version}''',
+    );
+    return _generatorFromBundle(template.bundle);
   }
 
   /// Gets the project name.

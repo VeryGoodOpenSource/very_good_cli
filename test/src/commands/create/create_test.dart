@@ -187,7 +187,8 @@ void main() {
       final command = CreateCommand(
         analytics: analytics,
         logger: logger,
-        generator: (_) async => generator,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['project-name'] as String?).thenReturn('my_app');
       when(() => argResults.rest).thenReturn(['.tmp']);
@@ -264,7 +265,8 @@ void main() {
       final command = CreateCommand(
         analytics: analytics,
         logger: logger,
-        generator: (_) async => generator,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['project-name'] as String?).thenReturn('my_app');
       when(
@@ -415,7 +417,8 @@ void main() {
           final command = CreateCommand(
             analytics: analytics,
             logger: logger,
-            generator: (_) async => generator,
+            generatorFromBundle: (_) async => generator,
+            generatorFromBrick: (_) async => generator,
           )..argResultOverrides = argResults;
           when(
             () => argResults['project-name'] as String?,
@@ -525,10 +528,11 @@ void main() {
           final command = CreateCommand(
             analytics: analytics,
             logger: logger,
-            generator: (bundle) async {
+            generatorFromBundle: (bundle) async {
               expect(bundle, equals(expectedBundle));
               return generator;
             },
+            generatorFromBrick: (_) async => generator,
           )..argResultOverrides = argResults;
           when(
             () => argResults['project-name'] as String?,
@@ -618,7 +622,7 @@ void main() {
           await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter pub get" in .tmp',
             templateName: 'dart_pkg',
-            expectedBundle: dartPackageBundle,
+            expectedBundle: veryGoodDartPackageBundle,
             expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
           );
         });
@@ -627,7 +631,7 @@ void main() {
           await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_pkg',
-            expectedBundle: flutterPackageBundle,
+            expectedBundle: veryGoodFlutterPackageBundle,
             expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
           );
         });
@@ -636,7 +640,7 @@ void main() {
           await expectValidTemplateName(
             getPackagesMsg: 'Running "flutter packages get" in .tmp',
             templateName: 'flutter_plugin',
-            expectedBundle: flutterPluginBundle,
+            expectedBundle: veryGoodFlutterPluginBundle,
             expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
           );
         });

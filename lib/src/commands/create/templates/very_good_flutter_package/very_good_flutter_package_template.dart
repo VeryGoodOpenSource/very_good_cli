@@ -11,7 +11,11 @@ class FlutterPkgTemplate extends Template {
   FlutterPkgTemplate()
       : super(
           name: 'flutter_pkg',
-          bundle: flutterPackageBundle,
+          brick: Brick.version(
+            name: veryGoodFlutterPackageBundle.name,
+            version: '^${veryGoodFlutterPackageBundle.version}',
+          ),
+          bundle: veryGoodFlutterPackageBundle,
           help: 'Generate a reusable Flutter package.',
         );
 

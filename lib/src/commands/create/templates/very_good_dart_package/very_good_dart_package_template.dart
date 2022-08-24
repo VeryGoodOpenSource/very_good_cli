@@ -11,7 +11,11 @@ class DartPkgTemplate extends Template {
   DartPkgTemplate()
       : super(
           name: 'dart_pkg',
-          bundle: dartPackageBundle,
+          brick: Brick.version(
+            name: veryGoodDartPackageBundle.name,
+            version: '^${veryGoodDartPackageBundle.version}',
+          ),
+          bundle: veryGoodDartPackageBundle,
           help: 'Generate a reusable Dart package.',
         );
 

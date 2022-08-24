@@ -12,6 +12,7 @@ abstract class Template {
     required this.name,
     required this.bundle,
     required this.help,
+    required this.brick,
   });
 
   /// The name associated with this template.
@@ -22,6 +23,9 @@ abstract class Template {
 
   /// The help text shown in the usage information for the CLI.
   final String help;
+
+  /// The brick associated with this template.
+  final Brick brick;
 
   /// Callback invoked after template generation has completed.
   Future<void> onGenerateComplete(Logger logger, Directory outputDir);

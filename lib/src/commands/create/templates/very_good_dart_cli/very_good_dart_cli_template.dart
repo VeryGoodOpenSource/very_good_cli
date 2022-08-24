@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:mason_logger/mason_logger.dart';
+import 'package:mason/mason.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
 
@@ -12,6 +12,10 @@ class VeryGoodDartCLITemplate extends Template {
   VeryGoodDartCLITemplate()
       : super(
           name: 'dart_cli',
+          brick: Brick.version(
+            name: veryGoodDartCliBundle.name,
+            version: '^${veryGoodDartCliBundle.version}',
+          ),
           bundle: veryGoodDartCliBundle,
           help: 'Generate a Very Good Dart CLI application.',
         );
