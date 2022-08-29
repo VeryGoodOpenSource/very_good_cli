@@ -167,6 +167,141 @@ void main() {
       }),
     );
 
+    test('uses remote brick when possible', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
+          },
+          logger: logger,
+        ),
+      ).called(1);
+    });
+
+    test('uses bundled brick when remote brick is unavailable', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => throw Exception('oops'),
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
+          },
+          logger: logger,
+        ),
+      ).called(1);
+    });
+
+    test('throws when remote and bundled brick generator fails', () async {
+      final argResults = MockArgResults();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => throw Exception('oops'),
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      expect(command.run, throwsException);
+    });
+
     test('completes successfully with correct output', () async {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
