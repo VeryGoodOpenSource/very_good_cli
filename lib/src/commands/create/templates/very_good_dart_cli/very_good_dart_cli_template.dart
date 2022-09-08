@@ -12,10 +12,6 @@ class VeryGoodDartCLITemplate extends Template {
   VeryGoodDartCLITemplate()
       : super(
           name: 'dart_cli',
-          brick: Brick.version(
-            name: veryGoodDartCliBundle.name,
-            version: '^${veryGoodDartCliBundle.version}',
-          ),
           bundle: veryGoodDartCliBundle,
           help: 'Generate a Very Good Dart CLI application.',
         );

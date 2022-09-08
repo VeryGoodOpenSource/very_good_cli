@@ -11,10 +11,6 @@ class FlutterPluginTemplate extends Template {
   FlutterPluginTemplate()
       : super(
           name: 'flutter_plugin',
-          brick: Brick.version(
-            name: veryGoodFlutterPluginBundle.name,
-            version: '^${veryGoodFlutterPluginBundle.version}',
-          ),
           bundle: veryGoodFlutterPluginBundle,
           help: 'Generate a reusable Flutter plugin.',
         );

@@ -11,10 +11,6 @@ class VeryGoodCoreTemplate extends Template {
   VeryGoodCoreTemplate()
       : super(
           name: 'core',
-          brick: Brick.version(
-            name: veryGoodCoreBundle.name,
-            version: '^${veryGoodCoreBundle.version}',
-          ),
           bundle: veryGoodCoreBundle,
           help: 'Generate a Very Good Flutter application.',
         );

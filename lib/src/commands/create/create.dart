@@ -193,10 +193,14 @@ class CreateCommand extends Command<int> {
 
   Future<MasonGenerator> _getGeneratorForTemplate(Template template) async {
     try {
-      _logger.detail(
-        '''Building generator from brick: ${template.brick.name} ${template.brick.location.version}''',
+      final brick = Brick.version(
+        name: template.bundle.name,
+        version: '^${template.bundle.version}',
       );
-      return await _generatorFromBrick(template.brick);
+      _logger.detail(
+        '''Building generator from brick: ${brick.name} ${brick.location.version}''',
+      );
+      return await _generatorFromBrick(brick);
     } catch (_) {
       _logger.detail('Building generator from brick failed: $_');
     }
