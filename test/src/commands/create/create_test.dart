@@ -19,9 +19,9 @@ const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Creates a new very good project in the specified directory.\n'
       '\n'
-      'Usage: very_good create <output directory>\n'
+      'Usage: very_good create <project name>\n'
       '-h, --help                    Print this usage information.\n'
-      '''    --project-name            The project name for this new project. This must be a valid dart package name.\n'''
+      '''-o, --output-directory        The desired output directory when creating a new project.\n'''
       '    --desc                    The description for this new project.\n'
       '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
       '''    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)\n'''
@@ -147,50 +147,38 @@ void main() {
     );
 
     test(
-      'throws UsageException when --project-name is invalid',
+      'throws UsageException when project-name is invalid',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
-        final result = await commandRunner.run(
-          ['create', '.', '--project-name', 'My App'],
-        );
+        final result = await commandRunner.run(['create', 'My App']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
     );
 
     test(
-      'throws UsageException when output directory is missing',
+      'throws UsageException when multiple project names are provided',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        const expectedErrorMessage =
-            'No option specified for the output directory.';
-        final result = await commandRunner.run(['create']);
+        const expectedErrorMessage = 'Multiple project names specified.';
+        final result = await commandRunner.run(['create', 'a', 'b']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
     );
 
-    test(
-      'throws UsageException when multiple output directories are provided',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        const expectedErrorMessage = 'Multiple output directories specified.';
-        final result = await commandRunner.run(['create', './a', './b']);
-        expect(result, equals(ExitCode.usage.code));
-        verify(() => logger.err(expectedErrorMessage)).called(1);
-      }),
-    );
-
-    test('completes successfully with correct output', () async {
+    test('uses remote brick when possible', () async {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
       final command = CreateCommand(
         analytics: analytics,
         logger: logger,
-        generator: (_) async => generator,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
-      when(() => argResults['project-name'] as String?).thenReturn('my_app');
-      when(() => argResults.rest).thenReturn(['.tmp']);
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
       when(() => generator.hooks).thenReturn(hooks);
@@ -207,7 +195,144 @@ void main() {
           logger: any(named: 'logger'),
         ),
       ).thenAnswer((_) async {
-        File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
+          },
+          logger: logger,
+        ),
+      ).called(1);
+    });
+
+    test('uses bundled brick when remote brick is unavailable', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => throw Exception('oops'),
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'android': true,
+            'ios': true,
+            'web': true,
+            'linux': true,
+            'macos': true,
+            'windows': true,
+          },
+          logger: logger,
+        ),
+      ).called(1);
+    });
+
+    test('throws when remote and bundled brick generator fails', () async {
+      final argResults = MockArgResults();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => throw Exception('oops'),
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      expect(command.run, throwsException);
+    });
+
+    test('completes successfully with correct output', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
         return generatedFiles;
       });
       final result = await command.run();
@@ -218,7 +343,7 @@ void main() {
         equals(['Generated ${generatedFiles.length} file(s)']),
       );
       verify(
-        () => logger.progress('Running "flutter packages get" in .tmp'),
+        () => logger.progress('Running "flutter packages get" in .tmp/my_app'),
       ).called(1);
       verify(() => logger.created('Created a Very Good App! 🦄')).called(1);
       verify(
@@ -264,13 +389,14 @@ void main() {
       final command = CreateCommand(
         analytics: analytics,
         logger: logger,
-        generator: (_) async => generator,
+        generatorFromBundle: (_) async => generator,
+        generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
-      when(() => argResults['project-name'] as String?).thenReturn('my_app');
+      when(() => argResults.rest).thenReturn(['my_app']);
       when(
         () => argResults['desc'] as String?,
       ).thenReturn('very good description');
-      when(() => argResults.rest).thenReturn(['.tmp']);
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
       when(() => generator.hooks).thenReturn(hooks);
@@ -287,7 +413,9 @@ void main() {
           logger: any(named: 'logger'),
         ),
       ).thenAnswer((_) async {
-        File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
         return generatedFiles;
       });
       final result = await command.run();
@@ -327,7 +455,7 @@ void main() {
               const orgName = 'com.my.org';
               final tempDir = Directory.systemTemp.createTempSync();
               final result = await commandRunner.run(
-                ['create', p.join(tempDir.path, 'example'), '--org', orgName],
+                ['create', 'example', '-o', tempDir.path, '--org', orgName],
               );
               expect(result, equals(ExitCode.success.code));
               tempDir.deleteSync(recursive: true);
@@ -351,7 +479,7 @@ void main() {
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'My App';
             final result = await commandRunner.run(
-              ['create', '.', '--org-name', orgName],
+              ['create', 'my_app', '--org-name', orgName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
@@ -363,7 +491,7 @@ void main() {
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'verybadtest';
             final result = await commandRunner.run(
-              ['create', '.', '--org-name', orgName],
+              ['create', 'my_app', '--org-name', orgName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
@@ -375,7 +503,7 @@ void main() {
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very%.bad@.#test';
             final result = await commandRunner.run(
-              ['create', '.', '--org-name', orgName],
+              ['create', 'my_app', '--org-name', orgName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
@@ -387,7 +515,7 @@ void main() {
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very.bad.1test';
             final result = await commandRunner.run(
-              ['create', '.', '--org-name', orgName],
+              ['create', 'my_app', '--org-name', orgName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
@@ -399,7 +527,7 @@ void main() {
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const orgName = 'very.good.prefix.bad@@suffix';
             final result = await commandRunner.run(
-              ['create', '.', '--org-name', orgName],
+              ['create', 'my_app', '--org-name', orgName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage(orgName))).called(1);
@@ -415,13 +543,13 @@ void main() {
           final command = CreateCommand(
             analytics: analytics,
             logger: logger,
-            generator: (_) async => generator,
+            generatorFromBundle: (_) async => generator,
+            generatorFromBrick: (_) async => generator,
           )..argResultOverrides = argResults;
-          when(
-            () => argResults['project-name'] as String?,
-          ).thenReturn('my_app');
+          when(() => argResults.rest).thenReturn(['my_app']);
           when(() => argResults['org-name'] as String?).thenReturn(orgName);
-          when(() => argResults.rest).thenReturn(['.tmp']);
+          when(() => argResults['output-directory'] as String?)
+              .thenReturn('.tmp');
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
           when(() => generator.hooks).thenReturn(hooks);
@@ -438,7 +566,9 @@ void main() {
               logger: any(named: 'logger'),
             ),
           ).thenAnswer((_) async {
-            File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+            File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+              ..createSync(recursive: true)
+              ..writeAsStringSync(pubspec);
             return generatedFiles;
           });
           final result = await command.run();
@@ -504,7 +634,7 @@ void main() {
             const expectedErrorMessage =
                 '''"$templateName" is not an allowed value for option "template".''';
             final result = await commandRunner.run(
-              ['create', '.', '--template', templateName],
+              ['create', 'my_app', '--template', templateName],
             );
             expect(result, equals(ExitCode.usage.code));
             verify(() => logger.err(expectedErrorMessage)).called(1);
@@ -525,18 +655,19 @@ void main() {
           final command = CreateCommand(
             analytics: analytics,
             logger: logger,
-            generator: (bundle) async {
+            generatorFromBundle: (bundle) async {
               expect(bundle, equals(expectedBundle));
               return generator;
             },
+            generatorFromBrick: (_) async => generator,
           )..argResultOverrides = argResults;
-          when(
-            () => argResults['project-name'] as String?,
-          ).thenReturn('my_app');
+          when(() => argResults.rest).thenReturn(['my_app']);
           when(
             () => argResults['template'] as String?,
           ).thenReturn(templateName);
-          when(() => argResults.rest).thenReturn(['.tmp']);
+          when(
+            () => argResults['output-directory'] as String?,
+          ).thenReturn('.tmp');
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
           when(() => generator.hooks).thenReturn(hooks);
@@ -553,7 +684,9 @@ void main() {
               logger: any(named: 'logger'),
             ),
           ).thenAnswer((_) async {
-            File(p.join('.tmp', 'pubspec.yaml')).writeAsStringSync(pubspec);
+            File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+              ..createSync(recursive: true)
+              ..writeAsStringSync(pubspec);
             return generatedFiles;
           });
           final result = await command.run();
@@ -607,7 +740,7 @@ void main() {
 
         test('core template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'core',
             expectedBundle: veryGoodCoreBundle,
             expectedLogSummary: 'Created a Very Good App! 🦄',
@@ -616,34 +749,34 @@ void main() {
 
         test('dart pkg template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter pub get" in .tmp',
+            getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_pkg',
-            expectedBundle: dartPackageBundle,
+            expectedBundle: veryGoodDartPackageBundle,
             expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
           );
         });
 
         test('flutter pkg template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_pkg',
-            expectedBundle: flutterPackageBundle,
+            expectedBundle: veryGoodFlutterPackageBundle,
             expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
           );
         });
 
         test('flutter plugin template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp',
+            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_plugin',
-            expectedBundle: flutterPluginBundle,
+            expectedBundle: veryGoodFlutterPluginBundle,
             expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
           );
         });
 
         test('dart CLI template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter pub get" in .tmp',
+            getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_cli',
             expectedBundle: veryGoodDartCliBundle,
             expectedLogSummary: 'Created a Very Good Dart CLI application! 🦄',

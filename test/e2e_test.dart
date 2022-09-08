@@ -58,7 +58,7 @@ void main() {
         final directory = Directory(path.join('.tmp', 'very_good_dart'));
 
         final result = await commandRunner.run(
-          ['create', directory.path, '-t', 'dart_pkg'],
+          ['create', 'very_good_dart', '-t', 'dart_pkg', '-o', '.tmp'],
         );
         expect(result, equals(ExitCode.success.code));
 
@@ -106,7 +106,7 @@ void main() {
         final directory = Directory(path.join('.tmp', 'very_good_flutter'));
 
         final result = await commandRunner.run(
-          ['create', directory.path, '-t', 'flutter_pkg'],
+          ['create', 'very_good_flutter', '-t', 'flutter_pkg', '-o', '.tmp'],
         );
         expect(result, equals(ExitCode.success.code));
 
@@ -154,7 +154,7 @@ void main() {
         final directory = Directory(path.join('.tmp', 'very_good_dart_cli'));
 
         final result = await commandRunner.run(
-          ['create', directory.path, '-t', 'dart_cli'],
+          ['create', 'very_good_dart_cli', '-t', 'dart_cli', '-o', '.tmp'],
         );
         expect(result, equals(ExitCode.success.code));
 
@@ -202,7 +202,7 @@ void main() {
         final directory = Directory(path.join('.tmp', 'very_good_core'));
 
         final result = await commandRunner.run(
-          ['create', directory.path, '-t', 'core'],
+          ['create', 'very_good_core', '-t', 'core', '-o', '.tmp'],
         );
         expect(result, equals(ExitCode.success.code));
 
