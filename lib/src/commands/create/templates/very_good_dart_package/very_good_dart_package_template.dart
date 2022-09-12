@@ -11,7 +11,7 @@ class DartPkgTemplate extends Template {
   DartPkgTemplate()
       : super(
           name: 'dart_pkg',
-          bundle: dartPackageBundle,
+          bundle: veryGoodDartPackageBundle,
           help: 'Generate a reusable Dart package.',
         );
 

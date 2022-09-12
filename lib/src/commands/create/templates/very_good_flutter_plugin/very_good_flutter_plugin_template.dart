@@ -11,7 +11,7 @@ class FlutterPluginTemplate extends Template {
   FlutterPluginTemplate()
       : super(
           name: 'flutter_plugin',
-          bundle: flutterPluginBundle,
+          bundle: veryGoodFlutterPluginBundle,
           help: 'Generate a reusable Flutter plugin.',
         );
 
