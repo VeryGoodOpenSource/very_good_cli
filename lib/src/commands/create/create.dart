@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
@@ -6,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
+import 'package:very_good_analysis/very_good_analysis.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
