@@ -1,4 +1,11 @@
-# [0.7.13](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.12...v0.7.13) (2022-08-16)
+# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-13)
+
+### Features
+
+- support generation from remote bricks ([#488](https://github.com/VeryGoodOpenSource/very_good_cli/issues/488)) ([799d81a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/799d81a90613684da96aa828fa5a49732ae7b008))
+- upgrade bundles to v0.1.0 ([#493](https://github.com/VeryGoodOpenSource/very_good_cli/issues/493)) ([58d6232](https://github.com/VeryGoodOpenSource/very_good_cli/commit/58d6232ca940c70bbff3b416b296818c619f4105))
+
+## [0.7.13](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.12...v0.7.13) (2022-08-16)
 
 ### Features
 
