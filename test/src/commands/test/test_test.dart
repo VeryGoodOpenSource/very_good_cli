@@ -28,7 +28,7 @@ const expectedTestUsage = [
       '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
       '''    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'''
       '''    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
-      '''    --dart-define=<FOO=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
+      '''    --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];

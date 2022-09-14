@@ -100,7 +100,7 @@ class TestCommand extends Command<int> {
             'int.fromEnvironment, and double.fromEnvironment constructors. '
             'Multiple defines can be passed by repeating '
             '"--dart-define" multiple times.',
-        valueHelp: 'FOO=bar',
+        valueHelp: 'foo=bar',
       );
   }
 
