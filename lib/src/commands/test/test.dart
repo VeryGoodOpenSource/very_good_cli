@@ -92,6 +92,15 @@ class TestCommand extends Command<int> {
         help: 'Whether "matchesGoldenFile()" calls within your test methods '
             'should update the golden files.',
         negatable: false,
+      )
+      ..addMultiOption(
+        'dart-define',
+        help: 'Additional key-value pairs that will be available as constants '
+            'from the String.fromEnvironment, bool.fromEnvironment, '
+            'int.fromEnvironment, and double.fromEnvironment constructors. '
+            'Multiple defines can be passed by repeating '
+            '"--dart-define" multiple times.',
+        valueHelp: 'foo=bar',
       );
   }
 
@@ -142,6 +151,7 @@ This command should be run from the root of your Flutter project.''',
         : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
+    final dartDefine = _argResults['dart-define'] as List<String>?;
 
     if (isFlutterInstalled) {
       try {
@@ -160,6 +170,8 @@ This command should be run from the root of your Flutter project.''',
             if (excludeTags != null) ...['-x', excludeTags],
             if (tags != null) ...['-t', tags],
             if (updateGoldens) '--update-goldens',
+            if (dartDefine != null)
+              for (final value in dartDefine) '--dart-define=$value',
             ...['-j', concurrency],
             '--no-pub',
             ..._argResults.rest,
