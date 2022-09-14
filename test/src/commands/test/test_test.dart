@@ -454,8 +454,9 @@ void main() {
     });
 
     test('completes normally --dart-define', () async {
-      when<dynamic>(() => argResults['dart-define'])
-          .thenReturn(['FOO=bar', 'X=42']);
+      when<dynamic>(
+        () => argResults['dart-define'],
+      ).thenReturn(['FOO=bar', 'X=42']);
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
