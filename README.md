@@ -32,9 +32,9 @@ Create a very good project in seconds based on the provided template. The [Very 
 ```sh
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <output directory>
+Usage: very_good create <project name>
 -h, --help                    Print this usage information.
-    --project-name            The project name for this new project. This must be a valid dart package name.
+-o, --output-directory        The desired output directory when creating a new project.
     --desc                    The description for this new project.
                               (defaults to "A Very Good Project created by Very Good CLI.")
     --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)
@@ -46,13 +46,20 @@ Usage: very_good create <output directory>
           [dart_cli]          Generate a Very Good Dart CLI application.
           [dart_pkg]          Generate a reusable Dart package.
           [flutter_pkg]       Generate a reusable Flutter package.
-          [flutter_plugin]    Generate a reusable Flutter federated plugin.
-              --android       The plugin supports the Android platform.
-              --ios           The plugin supports the iOS platform.
-              --web           The plugin supports the Web platform.
-              --linux         The plugin supports the Linux platform.
-              --macos         The plugin supports the macOS platform.
-              --windows       The plugin supports the Windows platform.
+          [flutter_plugin]    Generate a reusable Flutter plugin.
+
+    --android                 The plugin supports the Android platform.
+                              (defaults to "true")
+    --ios                     The plugin supports the iOS platform.
+                              (defaults to "true")
+    --web                     The plugin supports the Web platform.
+                              (defaults to "true")
+    --linux                   The plugin supports the Linux platform.
+                              (defaults to "true")
+    --macos                   The plugin supports the macOS platform.
+                              (defaults to "true")
+    --windows                 The plugin supports the Windows platform.
+                              (defaults to "true")
 ```
 
 #### Usage
