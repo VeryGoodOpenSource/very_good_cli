@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
@@ -162,12 +163,14 @@ class CreateCommand extends Command<int> {
       'description': description,
       'executable_name': executableName,
       'org_name': orgName,
-      'android': android.toBool(),
-      'ios': ios.toBool(),
-      'web': web.toBool(),
-      'linux': linux.toBool(),
-      'macos': macos.toBool(),
-      'windows': windows.toBool(),
+      'platforms': <String>[
+        if (android.toBool()) 'android',
+        if (ios.toBool()) 'ios',
+        if (web.toBool()) 'web',
+        if (linux.toBool()) 'linux',
+        if (macos.toBool()) 'macos',
+        if (windows.toBool()) 'windows',
+      ],
     };
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final target = DirectoryGeneratorTarget(outputDirectory);
