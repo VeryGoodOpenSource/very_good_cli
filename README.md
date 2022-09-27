@@ -7,7 +7,6 @@ Developed with 💙 by [Loka][loka_link]
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
 [![style: very good analysis][loka_flutter_analysis_badge]][loka_flutter_analysis_link]
-[![License: MIT][license_badge]][license_link]
 
 ---
 
