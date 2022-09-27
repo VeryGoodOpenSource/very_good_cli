@@ -33,7 +33,7 @@ Usage: loka_flutter create <project name>
 -h, --help                    Print this usage information.
 -o, --output-directory        The desired output directory when creating a new project.
     --desc                    The description for this new project.
-                              (defaults to "Loka Project created by Loka CLI.")
+                              (defaults to "Project created by Loka CLI.")
     --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)
     --org-name                The organization for this new project.
                               (defaults to "com.example.lokacore")
