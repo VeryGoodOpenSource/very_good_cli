@@ -6,7 +6,7 @@ Developed with 💙 by [Loka][loka_link]
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
-[![style: very good analysis][loka_flutter_analysis_badge]][loka_flutter_analysis_link]
+[![style: very good analysis][loka_flutter_analysis_badge]][very_good_analysis_link]
 
 ---
 
@@ -105,7 +105,7 @@ Out of the box, [Loka Core][loka_flutter_core_link] includes:
 
 ✅&nbsp; [Logging][logging_link] - Built-in, extensible logging to capture uncaught Flutter and Dart Exceptions
 
-✅&nbsp; [Loka Analysis][loka_flutter_analysis_link] - Strict Lint Rules which are used at [Loka][loka_link]
+✅&nbsp; [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Loka][loka_link]
 
 ✅&nbsp; [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
 
@@ -226,7 +226,7 @@ Run "loka_flutter help <command>" for more information about a command.
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [testing_link]: https://flutter.dev/docs/testing
 [loka_flutter_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
-[loka_flutter_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [loka_flutter_core_link]: doc/loka_flutter_core.md
 [loka_flutter_create]: https://raw.githubusercontent.com/LokaHQ/loka_flutter_cli/main/doc/assets/loka_flutter_create.png
 [loka_link]: https://loka.com/

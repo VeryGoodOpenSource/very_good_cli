@@ -218,7 +218,7 @@ Update the `CFBundleLocalizations` array in the `Info.plist` at `ios/Runner/Info
 
 Loka Core comes with a built-in [GitHub Actions workflow][github_actions_link] but you can also add your preferred CI/CD solution.
 
-Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Loka Analysis][loka_flutter_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Loka Coverage GitHub Action][loka_flutter_coverage_link].
+Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Very Good Analysis][very_good_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Very Good Coverage GitHub Action][very_good_coverage_link].
 
 ---
 
@@ -255,8 +255,8 @@ When you create a new project, it has a default launcher icon. To customize this
 [logo]: https://loka.com/images/Loka-Blue-Logo.svg
 [material_design_product_icons]: https://material.io/design/iconography/
 [sentry_link]: https://sentry.io
-[loka_flutter_analysis_link]: https://pub.dev/packages/very_good_analysis
+[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [loka_flutter_core_link]: loka_flutter_core.md
-[loka_flutter_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
+[very_good_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
 [loka_flutter_create]: https://raw.githubusercontent.com/LokaHQ/loka_flutter_cli/main/doc/assets/loka_flutter_create.png
 [loka_link]: https://loka.com/
