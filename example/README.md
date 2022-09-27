@@ -1,9 +1,9 @@
 # Example
 
 ```sh
-# Activate Very Good CLI
-dart pub global activate very_good_cli
+# Activate Loka Flutter CLI
+dart pub global activate -sgit https://github.com/LokaHQ/loka_flutter_cli
 
 # See list of available commands
-very_good --help
+loka_flutter --help
 ```

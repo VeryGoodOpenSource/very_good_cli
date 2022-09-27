@@ -1,6 +1,6 @@
+import 'package:loka_flutter_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Runs `flutter pub get` in the [outputDir].
 Future<void> installDartPackages(

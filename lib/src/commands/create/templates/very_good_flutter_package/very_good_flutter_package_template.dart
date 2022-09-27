@@ -1,7 +1,7 @@
+import 'package:loka_flutter_cli/src/commands/create/templates/templates.dart';
+import 'package:loka_flutter_cli/src/logger_extension.dart';
 import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
 
 /// {@template flutter_pkg_template}
 /// A Flutter package template.
@@ -25,7 +25,7 @@ class FlutterPkgTemplate extends Template {
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..created('Created a Very Good Flutter Package! 🦄')
+      ..created('Created a Flutter Package! ')
       ..info('\n');
   }
 }

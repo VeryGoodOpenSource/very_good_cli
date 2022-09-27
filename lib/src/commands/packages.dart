@@ -1,13 +1,13 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 
 /// {@template packages_command}
-/// `very_good packages` command for managing packages.
+/// `loka_flutter packages` command for managing packages.
 /// {@endtemplate}
 class PackagesCommand extends Command<int> {
   /// {@macro packages_command}
@@ -23,7 +23,7 @@ class PackagesCommand extends Command<int> {
 }
 
 /// {@template packages_get_command}
-/// `very_good packages get` command for installing packages.
+/// `loka_flutter packages get` command for installing packages.
 /// {@endtemplate}
 class PackagesGetCommand extends Command<int> {
   /// {@macro packages_get_command}

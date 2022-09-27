@@ -1,34 +1,33 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/commands/commands.dart';
+import 'package:loka_flutter_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/version.dart';
 
 // The Google Analytics tracking ID.
 const _gaTrackingId = 'UA-117465969-4';
 
 // The Google Analytics Application Name.
-const _gaAppName = 'very-good-cli';
+const _gaAppName = 'loka-flutter-cli';
 
 /// The package name.
-const packageName = 'very_good_cli';
+const packageName = 'loka_flutter_cli';
 
 /// {@template very_good_command_runner}
-/// A [CommandRunner] for the Very Good CLI.
+/// A [CommandRunner] for the Loka Flutter CLI.
 /// {@endtemplate}
-class VeryGoodCommandRunner extends CommandRunner<int> {
+class LokaFlutterCommandRunner extends CommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner({
+  LokaFlutterCommandRunner({
     Analytics? analytics,
     Logger? logger,
     PubUpdater? pubUpdater,
   })  : _logger = logger ?? Logger(),
-        _analytics =
-            analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
+        _analytics = analytics ?? AnalyticsIO(_gaTrackingId, _gaAppName, packageVersion),
         _pubUpdater = pubUpdater ?? PubUpdater(),
-        super('very_good', '🦄 A Very Good Command-Line Interface') {
+        super('loka_flutter', ' Loka Command-Line Interface') {
     argParser
       ..addFlag(
         'version',
@@ -69,7 +68,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           lightGray.wrap(
             '''
 +---------------------------------------------------+
-|           Welcome to the Very Good CLI!           |
+|           Welcome to the Loka CLI!           |
 +---------------------------------------------------+
 | We would like to collect anonymous                |
 | usage statistics in order to improve the tool.    |
@@ -78,8 +77,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           ),
         );
         final normalizedResponse = response.toLowerCase().trim();
-        _analytics.enabled =
-            normalizedResponse == 'y' || normalizedResponse == 'yes';
+        _analytics.enabled = normalizedResponse == 'y' || normalizedResponse == 'yes';
       }
       final _argResults = parse(args);
       if (_argResults['verbose'] == true) {
@@ -154,8 +152,8 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
           ..info(
             '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
-Run ${lightCyan.wrap('very_good update')} to update''',
+${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/LokaHQ/loka_flutter_cli/releases/tag/v$latestVersion')}
+Run ${lightCyan.wrap('loka_flutter update')} to update''',
           );
       }
     } catch (_) {}

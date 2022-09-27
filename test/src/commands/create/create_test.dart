@@ -1,6 +1,10 @@
 import 'dart:async';
 
 import 'package:args/args.dart';
+import 'package:loka_flutter_cli/src/command_runner.dart';
+import 'package:loka_flutter_cli/src/commands/create/create.dart';
+import 'package:loka_flutter_cli/src/commands/create/templates/templates.dart';
+import 'package:loka_flutter_cli/src/logger_extension.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
@@ -8,29 +12,25 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/create/create.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
 
 import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Creates a new very good project in the specified directory.\n'
+  'Creates a new project in the specified directory.\n'
       '\n'
-      'Usage: very_good create <project name>\n'
+      'Usage: flutter_loka create <project name>\n'
       '-h, --help                    Print this usage information.\n'
       '''-o, --output-directory        The desired output directory when creating a new project.\n'''
       '    --desc                    The description for this new project.\n'
-      '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
+      '''                              (defaults to "A Project created by Loka Flutter CLI.")\n'''
       '''    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)\n'''
       '    --org-name                The organization for this new project.\n'
-      '                              (defaults to "com.example.verygoodcore")\n'
+      '                              (defaults to "com.example.lokacore")\n'
       '''-t, --template                The template used to generate this new project.\n'''
       '\n'
-      '''          [core] (default)    Generate a Very Good Flutter application.\n'''
-      '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
+      '''          [core] (default)    Generate a Flutter application.\n'''
+      '''          [dart_cli]          Generate a Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
@@ -48,7 +48,7 @@ const expectedUsage = [
       '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "loka_flutter help" to see global options.'
 ];
 
 const pubspec = '''
@@ -71,8 +71,7 @@ class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 class MockGeneratorHooks extends Mock implements GeneratorHooks {}
 
-class FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+class FakeDirectoryGeneratorTarget extends Fake implements DirectoryGeneratorTarget {}
 
 class FakeLogger extends Fake implements Logger {}
 
@@ -213,7 +212,7 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
+            'org_name': 'com.example.lokacore',
             'description': '',
             'executable_name': 'my_app',
             'platforms': [
@@ -276,7 +275,7 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
+            'org_name': 'com.example.lokacore',
             'description': '',
             'executable_name': 'my_app',
             'platforms': [
@@ -349,7 +348,7 @@ void main() {
       verify(
         () => logger.progress('Running "flutter packages get" in .tmp/my_app'),
       ).called(1);
-      verify(() => logger.created('Created a Very Good App! 🦄')).called(1);
+      verify(() => logger.created('Created an App! ')).called(1);
       verify(
         () => generator.generate(
           any(
@@ -361,7 +360,7 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
+            'org_name': 'com.example.lokacore',
             'description': '',
             'executable_name': 'my_app',
             'platforms': [
@@ -384,7 +383,7 @@ void main() {
         ),
       ).called(1);
       verify(
-        () => analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout),
+        () => analytics.waitForLastPing(timeout: LokaFlutterCommandRunner.timeout),
       ).called(1);
     });
 
@@ -401,7 +400,7 @@ void main() {
       when(() => argResults.rest).thenReturn(['my_app']);
       when(
         () => argResults['desc'] as String?,
-      ).thenReturn('very good description');
+      ).thenReturn('description');
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
@@ -437,8 +436,8 @@ void main() {
           ),
           vars: <String, dynamic>{
             'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
-            'description': 'very good description',
+            'org_name': 'com.example.lokacore',
+            'description': 'description',
             'executable_name': 'my_app',
             'platforms': [
               'android',
@@ -474,13 +473,12 @@ void main() {
       });
 
       group('invalid --org-name', () {
-        String expectedErrorMessage(String orgName) =>
-            '"$orgName" is not a valid org name.\n\n'
+        String expectedErrorMessage(String orgName) => '"$orgName" is not a valid org name.\n\n'
             'A valid org name has at least 2 parts separated by "."\n'
             'Each part must start with a letter and only include '
             'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
             'and hyphens (-)\n'
-            '(ex. very.good.org)';
+            '(ex. loka.flutter.org)';
 
         test(
           'no delimiters',
@@ -556,8 +554,7 @@ void main() {
           )..argResultOverrides = argResults;
           when(() => argResults.rest).thenReturn(['my_app']);
           when(() => argResults['org-name'] as String?).thenReturn(orgName);
-          when(() => argResults['output-directory'] as String?)
-              .thenReturn('.tmp');
+          when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
           when(() => generator.id).thenReturn('generator_id');
           when(() => generator.description).thenReturn('generator description');
           when(() => generator.hooks).thenReturn(hooks);
@@ -610,7 +607,7 @@ void main() {
         }
 
         test('alphanumeric with three parts', () async {
-          await expectValidOrgName('very.good.ventures');
+          await expectValidOrgName('very.good.parts');
         });
 
         test('containing an underscore', () async {
@@ -626,11 +623,11 @@ void main() {
         });
 
         test('more than three parts', () async {
-          await expectValidOrgName('very.good.ventures.app.identifier');
+          await expectValidOrgName('loka.flutter.app.identifier');
         });
 
         test('less than three parts', () async {
-          await expectValidOrgName('verygood.ventures');
+          await expectValidOrgName('loka.flutter');
         });
       });
     });
@@ -641,8 +638,7 @@ void main() {
           'invalid template name',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             const templateName = 'badtemplate';
-            const expectedErrorMessage =
-                '''"$templateName" is not an allowed value for option "template".''';
+            const expectedErrorMessage = '''"$templateName" is not an allowed value for option "template".''';
             final result = await commandRunner.run(
               ['create', 'my_app', '--template', templateName],
             );
@@ -721,7 +717,7 @@ void main() {
               ),
               vars: <String, dynamic>{
                 'project_name': 'my_app',
-                'org_name': 'com.example.verygoodcore',
+                'org_name': 'com.example.lokacore',
                 'executable_name': 'my_app',
                 'description': '',
                 'platforms': [
@@ -745,7 +741,7 @@ void main() {
           ).called(1);
           verify(
             () => analytics.waitForLastPing(
-              timeout: VeryGoodCommandRunner.timeout,
+              timeout: LokaFlutterCommandRunner.timeout,
             ),
           ).called(1);
         }
@@ -755,7 +751,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'core',
             expectedBundle: veryGoodCoreBundle,
-            expectedLogSummary: 'Created a Very Good App! 🦄',
+            expectedLogSummary: 'Created an App!',
           );
         });
 
@@ -764,7 +760,7 @@ void main() {
             getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_pkg',
             expectedBundle: veryGoodDartPackageBundle,
-            expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
+            expectedLogSummary: 'Created a Dart Package! ',
           );
         });
 
@@ -773,7 +769,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_pkg',
             expectedBundle: veryGoodFlutterPackageBundle,
-            expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
+            expectedLogSummary: 'Created a Flutter Package! ',
           );
         });
 
@@ -782,7 +778,7 @@ void main() {
             getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_plugin',
             expectedBundle: veryGoodFlutterPluginBundle,
-            expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
+            expectedLogSummary: 'Created a Flutter Plugin! ',
           );
         });
 
@@ -791,7 +787,7 @@ void main() {
             getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_cli',
             expectedBundle: veryGoodDartCliBundle,
-            expectedLogSummary: 'Created a Very Good Dart CLI application! 🦄',
+            expectedLogSummary: 'Created a Dart CLI application! ',
           );
         });
       });

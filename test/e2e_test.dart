@@ -1,11 +1,11 @@
 @Tags(['e2e'])
+import 'package:loka_flutter_cli/src/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage.dart';
-import 'package:very_good_cli/src/command_runner.dart';
 
 class _MockAnalytics extends Mock implements Analytics {}
 
@@ -20,7 +20,7 @@ void main() {
       late Analytics analytics;
       late Logger logger;
       late Progress progress;
-      late VeryGoodCommandRunner commandRunner;
+      late LokaFlutterCommandRunner commandRunner;
 
       void _removeTemporaryFiles() {
         try {
@@ -48,7 +48,7 @@ void main() {
         progress = _MockProgress();
         when(() => logger.progress(any())).thenReturn(progress);
 
-        commandRunner = VeryGoodCommandRunner(
+        commandRunner = LokaFlutterCommandRunner(
           analytics: analytics,
           logger: logger,
         );

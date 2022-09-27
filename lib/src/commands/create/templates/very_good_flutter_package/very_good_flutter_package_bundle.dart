@@ -12,8 +12,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "type": "text"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/bug_report.md",
+      "path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/bug_report.md",
       "data":
           "LS0tCm5hbWU6IEJ1ZyBSZXBvcnQKYWJvdXQ6IENyZWF0ZSBhIHJlcG9ydCB0byBoZWxwIHVzIGltcHJvdmUKdGl0bGU6ICJmaXg6ICIKbGFiZWxzOiBidWcKLS0tCgoqKkRlc2NyaXB0aW9uKioKCkEgY2xlYXIgYW5kIGNvbmNpc2UgZGVzY3JpcHRpb24gb2Ygd2hhdCB0aGUgYnVnIGlzLgoKKipTdGVwcyBUbyBSZXByb2R1Y2UqKgoKMS4gR28gdG8gJy4uLicKMi4gQ2xpY2sgb24gJy4uLi4nCjMuIFNjcm9sbCBkb3duIHRvICcuLi4uJwo0LiBTZWUgZXJyb3IKCioqRXhwZWN0ZWQgQmVoYXZpb3IqKgoKQSBjbGVhciBhbmQgY29uY2lzZSBkZXNjcmlwdGlvbiBvZiB3aGF0IHlvdSBleHBlY3RlZCB0byBoYXBwZW4uCgoqKlNjcmVlbnNob3RzKioKCklmIGFwcGxpY2FibGUsIGFkZCBzY3JlZW5zaG90cyB0byBoZWxwIGV4cGxhaW4geW91ciBwcm9ibGVtLgoKKipBZGRpdGlvbmFsIENvbnRleHQqKgoKQWRkIGFueSBvdGhlciBjb250ZXh0IGFib3V0IHRoZSBwcm9ibGVtIGhlcmUuCg==",
       "type": "text"
@@ -36,28 +35,21 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
           "LS0tCm5hbWU6IENvbnRpbnVvdXMgSW50ZWdyYXRpb24KYWJvdXQ6IENoYW5nZXMgdG8gdGhlIENJIGNvbmZpZ3VyYXRpb24gZmlsZXMgYW5kIHNjcmlwdHMKdGl0bGU6ICJjaTogIgpsYWJlbHM6IGNpCi0tLQoKKipEZXNjcmlwdGlvbioqCgpEZXNjcmliZSB3aGF0IGNoYW5nZXMgbmVlZCB0byBiZSBkb25lIHRvIHRoZSBjaS9jZCBzeXN0ZW0gYW5kIHdoeS4KCioqUmVxdWlyZW1lbnRzKioKCi0gWyBdIFRoZSBjaSBzeXN0ZW0gaXMgcGFzc2luZwo=",
       "type": "text"
     },
+    {"path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/config.yml", "data": "YmxhbmtfaXNzdWVzX2VuYWJsZWQ6IGZhbHNl", "type": "text"},
     {
-      "path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/config.yml",
-      "data": "YmxhbmtfaXNzdWVzX2VuYWJsZWQ6IGZhbHNl",
-      "type": "text"
-    },
-    {
-      "path":
-          "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/documentation.md",
+      "path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/documentation.md",
       "data":
           "LS0tCm5hbWU6IERvY3VtZW50YXRpb24KYWJvdXQ6IEltcHJvdmUgdGhlIGRvY3VtZW50YXRpb24gc28gYWxsIGNvbGxhYm9yYXRvcnMgaGF2ZSBhIGNvbW1vbiB1bmRlcnN0YW5kaW5nCnRpdGxlOiAiZG9jczogIgpsYWJlbHM6IGRvY3VtZW50YXRpb24KLS0tCgoqKkRlc2NyaXB0aW9uKioKCkNsZWFybHkgZGVzY3JpYmUgd2hhdCBkb2N1bWVudGF0aW9uIHlvdSBhcmUgbG9va2luZyB0byBhZGQgb3IgaW1wcm92ZS4KCioqUmVxdWlyZW1lbnRzKioKCi0gWyBdIFJlcXVpcmVtZW50cyBnbyBoZXJlCg==",
       "type": "text"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/feature_request.md",
+      "path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/feature_request.md",
       "data":
           "LS0tCm5hbWU6IEZlYXR1cmUgUmVxdWVzdAphYm91dDogQSBuZXcgZmVhdHVyZSB0byBiZSBhZGRlZCB0byB0aGUgcHJvamVjdAp0aXRsZTogImZlYXQ6ICIKbGFiZWxzOiBmZWF0dXJlCi0tLQoKKipEZXNjcmlwdGlvbioqCgpDbGVhcmx5IGRlc2NyaWJlIHdoYXQgeW91IGFyZSBsb29raW5nIHRvIGFkZC4gVGhlIG1vcmUgY29udGV4dCB0aGUgYmV0dGVyLgoKKipSZXF1aXJlbWVudHMqKgoKLSBbIF0gQ2hlY2tsaXN0IG9mIHJlcXVpcmVtZW50cyB0byBiZSBmdWxmaWxsZWQKCioqQWRkaXRpb25hbCBDb250ZXh0KioKCkFkZCBhbnkgb3RoZXIgY29udGV4dCBvciBzY3JlZW5zaG90cyBhYm91dCB0aGUgZmVhdHVyZSByZXF1ZXN0IGdvIGhlcmUuCg==",
       "type": "text"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/performance.md",
+      "path": "{{project_name.snakeCase()}}/.github/ISSUE_TEMPLATE/performance.md",
       "data":
           "LS0tCm5hbWU6IFBlcmZvcm1hbmNlIFVwZGF0ZQphYm91dDogQSBjb2RlIGNoYW5nZSB0aGF0IGltcHJvdmVzIHBlcmZvcm1hbmNlCnRpdGxlOiAicGVyZjogIgpsYWJlbHM6IHBlcmZvcm1hbmNlCi0tLQoKKipEZXNjcmlwdGlvbioqCgpDbGVhcmx5IGRlc2NyaWJlIHdoYXQgY29kZSBuZWVkcyB0byBiZSBjaGFuZ2VkIGFuZCB3aGF0IHRoZSBwZXJmb3JtYW5jZSBpbXBhY3QgaXMgZ29pbmcgdG8gYmUuIEJvbnVzIHBvaW50J3MgaWYgeW91IGNhbiB0aWUgdGhpcyBkaXJlY3RseSB0byB1c2VyIGV4cGVyaWVuY2UuCgoqKlJlcXVpcmVtZW50cyoqCgotIFsgXSBUaGVyZSBpcyBubyBkcm9wIGluIHRlc3QgY292ZXJhZ2UuCg==",
       "type": "text"
@@ -106,15 +98,10 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     },
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
-      "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMi55YW1sCg==",
+      "data": "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMi55YW1sCg==",
       "type": "text"
     },
-    {
-      "path": "{{project_name.snakeCase()}}/CHANGELOG.md",
-      "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK",
-      "type": "text"
-    },
+    {"path": "{{project_name.snakeCase()}}/CHANGELOG.md", "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK", "type": "text"},
     {
       "path": "{{project_name.snakeCase()}}/coverage_badge.svg",
       "data":
@@ -122,15 +109,13 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "type": "binary"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/lib/src/{{project_name.snakeCase()}}.dart",
+      "path": "{{project_name.snakeCase()}}/lib/src/{{project_name.snakeCase()}}.dart",
       "data":
           "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSB7CiAgLy8vIHtAbWFjcm8ge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KICBjb25zdCB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSgpOwp9Cg==",
       "type": "text"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/lib/{{project_name.snakeCase()}}.dart",
+      "path": "{{project_name.snakeCase()}}/lib/{{project_name.snakeCase()}}.dart",
       "data":
           "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHt7e2Rlc2NyaXB0aW9ufX19CmxpYnJhcnkge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTsKCmV4cG9ydCAnc3JjL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cg==",
       "type": "text"
@@ -154,8 +139,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "type": "text"
     },
     {
-      "path":
-          "{{project_name.snakeCase()}}/test/src/{{project_name.snakeCase()}}_test.dart",
+      "path": "{{project_name.snakeCase()}}/test/src/{{project_name.snakeCase()}}_test.dart",
       "data":
           "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRlcl90ZXN0L2ZsdXR0ZXJfdGVzdC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0ve3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fS5kYXJ0JzsKCnZvaWQgbWFpbigpIHsKICBncm91cCgne3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0oKSwgaXNOb3ROdWxsKTsKICAgIH0pOwogIH0pOwp9Cg==",
       "type": "text"
@@ -176,11 +160,10 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     }
   ],
   "name": "very_good_flutter_package",
-  "description": "A Very Good Flutter package created by Very Good Ventures.",
+  "description": "A Flutter package created by Loka.",
   "version": "0.1.0",
   "environment": {"mason": ">=0.1.0-dev.26 <0.1.0"},
-  "repository":
-      "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
+  "repository": "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
   "readme": {
     "path": "README.md",
     "data":
@@ -200,16 +183,11 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     "type": "text"
   },
   "vars": {
-    "project_name": {
-      "type": "string",
-      "description": "The package name",
-      "default": "my_package",
-      "prompt": "What is the project name?"
-    },
+    "project_name": {"type": "string", "description": "The package name", "default": "my_package", "prompt": "What is the project name?"},
     "description": {
       "type": "string",
       "description": "The package description",
-      "default": "A very good flutter package",
+      "default": "A Flutter package",
       "prompt": "What is the project description?"
     }
   }

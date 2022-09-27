@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:loka_flutter_cli/src/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage.dart';
-import 'package:very_good_cli/src/command_runner.dart';
 
 class MockAnalytics extends Mock implements Analytics {}
 
@@ -23,15 +23,13 @@ void Function() _overridePrint(void Function(List<String>) fn) {
       },
     );
 
-    return Zone.current
-        .fork(specification: spec)
-        .run<void>(() => fn(printLogs));
+    return Zone.current.fork(specification: spec).run<void>(() => fn(printLogs));
   };
 }
 
 void Function() withRunner(
   FutureOr<void> Function(
-    VeryGoodCommandRunner commandRunner,
+    LokaFlutterCommandRunner commandRunner,
     Logger logger,
     PubUpdater pubUpdater,
     List<String> printLogs,
@@ -44,7 +42,7 @@ void Function() withRunner(
     final progress = MockProgress();
     final pubUpdater = MockPubUpdater();
     final progressLogs = <String>[];
-    final commandRunner = VeryGoodCommandRunner(
+    final commandRunner = LokaFlutterCommandRunner(
       analytics: analytics,
       logger: logger,
       pubUpdater: pubUpdater,

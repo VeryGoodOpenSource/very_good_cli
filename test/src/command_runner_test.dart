@@ -2,13 +2,13 @@
 import 'dart:async';
 
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/command_runner.dart';
+import 'package:loka_flutter_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/version.dart';
 
 class MockAnalytics extends Mock implements Analytics {}
 
@@ -17,9 +17,9 @@ class MockLogger extends Mock implements Logger {}
 class MockPubUpdater extends Mock implements PubUpdater {}
 
 const expectedUsage = [
-  '🦄 A Very Good Command-Line Interface\n'
+  ' Loka Flutter Command-Line Interface\n'
       '\n'
-      'Usage: very_good <command> [arguments]\n'
+      'Usage: loka_flutter <command> [arguments]\n'
       '\n'
       'Global options:\n'
       '-h, --help            Print this usage information.\n'
@@ -32,32 +32,31 @@ const expectedUsage = [
       '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
       '\n'
       'Available commands:\n'
-      '  create     very_good create <project name>\n'
-      '''             Creates a new very good project in the specified directory.\n'''
+      '  create     loka_flutter create <project name>\n'
+      '''             Creates a new project in the specified directory.\n'''
       '  packages   Command for managing packages.\n'
       '  test       Run tests in a Dart or Flutter project.\n'
-      '  update     Update Very Good CLI.\n'
+      '  update     Update Loka Flutter CLI.\n'
       '\n'
-      'Run "very_good help <command>" for more information about a command.'
+      'Run "loka_flutter help <command>" for more information about a command.'
 ];
 
-const responseBody =
-    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
+const responseBody = '{"name": "loka_flutter_cli", "versions": ["0.4.0", "0.3.3"]}';
 
 const latestVersion = '0.0.0';
 
 final updatePrompt = '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
-Run ${lightCyan.wrap('very_good update')} to update''';
+${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/LokaHQ/loka_flutter_cli/releases/tag/v$latestVersion')}
+Run ${lightCyan.wrap('loka_flutter update')} to update''';
 
 void main() {
-  group('VeryGoodCommandRunner', () {
+  group('LokaFlutterCommandRunner', () {
     late List<String> printLogs;
     late Analytics analytics;
     late PubUpdater pubUpdater;
     late Logger logger;
-    late VeryGoodCommandRunner commandRunner;
+    late LokaFlutterCommandRunner commandRunner;
 
     void Function() overridePrint(void Function() fn) {
       return () {
@@ -84,16 +83,15 @@ void main() {
 
       logger = MockLogger();
 
-      commandRunner = VeryGoodCommandRunner(
+      commandRunner = LokaFlutterCommandRunner(
         analytics: analytics,
         logger: logger,
         pubUpdater: pubUpdater,
       );
     });
 
-    test('can be instantiated without an explicit analytics/logger instance',
-        () {
-      final commandRunner = VeryGoodCommandRunner();
+    test('can be instantiated without an explicit analytics/logger instance', () {
+      final commandRunner = LokaFlutterCommandRunner();
       expect(commandRunner, isNotNull);
     });
 

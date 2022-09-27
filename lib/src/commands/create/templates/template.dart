@@ -2,7 +2,7 @@ import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 
 /// {@template template}
-/// Dart class that represents a VeryGoodCLI supported template.
+/// Dart class that represents a CLI supported template.
 /// Each template consists of a [MasonBundle], name,
 /// and help text describing the template.
 /// {@endtemplate}

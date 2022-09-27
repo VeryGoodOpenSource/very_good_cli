@@ -1,8 +1,8 @@
+import 'package:loka_flutter_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 
 class _TestProcess {
   Future<ProcessResult> run(
@@ -59,8 +59,7 @@ void main() {
       test('returns false when dart is not installed', () {
         when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
         ProcessOverrides.runZoned(
-          () =>
-              expectLater(Dart.installed(logger: logger), completion(isFalse)),
+          () => expectLater(Dart.installed(logger: logger), completion(isFalse)),
           runProcess: process.run,
         );
       });

@@ -2,13 +2,13 @@
 
 import 'dart:async';
 
+import 'package:loka_flutter_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 import '../../fixtures/fixtures.dart';
@@ -122,8 +122,7 @@ void main() {
 
       test('throws when there is an unreachable git url', () {
         final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_unreachableGitUrlPubspec);
+        File(p.join(directory.path, 'pubspec.yaml')).writeAsStringSync(_unreachableGitUrlPubspec);
 
         final gitProcessResult = _MockProcessResult();
         when(
@@ -170,10 +169,8 @@ void main() {
 
       test('completes when there is a pubspec.yaml (recursive)', () {
         final directory = Directory.systemTemp.createTempSync();
-        final nestedDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_pubspec);
+        final nestedDirectory = Directory(p.join(directory.path, 'test'))..createSync();
+        File(p.join(nestedDirectory.path, 'pubspec.yaml')).writeAsStringSync(_pubspec);
 
         ProcessOverrides.runZoned(
           () => expectLater(
@@ -496,7 +493,7 @@ void main() {
             '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
             '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
-            '''\x1B[2K\r00:02 +3 ~2: ...a really long test name that should get truncated by very_good test''',
+            '''\x1B[2K\r00:02 +3 ~2: ...a really long test name that should get truncated by loka_flutter test''',
             '\x1B[2K\r00:03 +3 -1 ~2: App renders CounterPage',
             '\x1B[2K\rhello\n',
             '\x1B[2K\r00:04 +4 -1 ~2: CounterPage renders CounterView',
@@ -571,9 +568,7 @@ void main() {
                 ErrorTestEvent(
                   testID: 0,
                   error: 'error',
-                  stackTrace:
-                      stack_trace.Trace.parse('test/example_test.dart 4 main')
-                          .toString(),
+                  stackTrace: stack_trace.Trace.parse('test/example_test.dart 4 main').toString(),
                   isFailure: true,
                   time: 0,
                 ),
@@ -818,8 +813,7 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
-      test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
-          () async {
+      test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)', () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
@@ -829,8 +823,7 @@ void main() {
             cwd: directory.path,
             collectCoverage: true,
             minCoverage: 100,
-            excludeFromCoverage:
-                '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+            excludeFromCoverage: '/bloc/packages/bloc/lib/src/bloc_observer.dart',
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
@@ -865,10 +858,7 @@ void main() {
       test('runs tests w/optimizations (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
         final originalVars = <String, dynamic>{'package-root': directory.path};
-        final updatedVars = <String, dynamic>{
-          'package-root': directory.path,
-          'foo': 'bar'
-        };
+        final updatedVars = <String, dynamic>{'package-root': directory.path, 'foo': 'bar'};
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
         when(

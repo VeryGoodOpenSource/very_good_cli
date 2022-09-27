@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:loka_flutter_cli/src/cli/cli.dart';
+import 'package:loka_flutter_cli/src/commands/test/test.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/commands/test/test.dart';
 
 import '../../../helpers/helpers.dart';
 
@@ -14,7 +14,7 @@ const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
       '\n'
-      'Usage: very_good test [arguments]\n'
+      'Usage: loka_flutter test [arguments]\n'
       '-h, --help                            Print this usage information.\n'
       '''    --coverage                        Whether to collect coverage information.\n'''
       '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
@@ -30,7 +30,7 @@ const expectedTestUsage = [
       '''    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
       '''    --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "loka_flutter help" to see global options.'
 ];
 
 // ignore: one_member_abstracts
@@ -76,8 +76,7 @@ void main() {
       flutterTest = MockFlutterTestCommand();
       testCommand = TestCommand(
         logger: logger,
-        flutterInstalled: ({required Logger logger}) async =>
-            isFlutterInstalled,
+        flutterInstalled: ({required Logger logger}) async => isFlutterInstalled,
         flutterTest: flutterTest.call,
       )..argResultOverrides = argResults;
       when(
@@ -264,8 +263,7 @@ void main() {
       ).called(1);
     });
 
-    test('completes normally --test-randomize-ordering-seed 2305182648',
-        () async {
+    test('completes normally --test-randomize-ordering-seed 2305182648', () async {
       const randomSeed = '2305182648';
       when<dynamic>(
         () => argResults['test-randomize-ordering-seed'],
@@ -348,8 +346,7 @@ void main() {
       ).called(1);
     });
 
-    test('enables coverage collection when --min-coverage is supplied',
-        () async {
+    test('enables coverage collection when --min-coverage is supplied', () async {
       when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
@@ -402,8 +399,7 @@ void main() {
       ).called(1);
     });
 
-    test('exclude files from coverage when --exclude-coverage is used',
-        () async {
+    test('exclude files from coverage when --exclude-coverage is used', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(
         () => argResults['exclude-coverage'],

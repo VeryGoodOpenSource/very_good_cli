@@ -1,10 +1,10 @@
-/// A Very Good Command-Line Interface for Dart 🦄
+/// Loka Command-Line Interface for Dart/Flutter
 ///
 /// ```sh
-/// # activate very_good_cli
-/// dart pub global activate very_good_cli
+/// # activate loka_flutter_cli
+/// dart pub global activate -sgit https://github.com/LokaHQ/loka_flutter_cli
 ///
 /// # see usage
-/// very_good --help
+/// loka_flutter --help
 /// ```
-library very_good_cli;
+library loka_flutter_cli;

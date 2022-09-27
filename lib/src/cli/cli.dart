@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:glob/glob.dart';
 import 'package:lcov_parser/lcov_parser.dart';
+import 'package:loka_flutter_cli/src/commands/test/templates/test_runner_bundle.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/test/templates/test_runner_bundle.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';
@@ -112,10 +112,7 @@ class _Cmd {
     List<String> args,
   ) {
     if (pr.exitCode != 0) {
-      final values = {
-        'Standard out': pr.stdout.toString().trim(),
-        'Standard error': pr.stderr.toString().trim()
-      }..removeWhere((k, v) => v.isEmpty);
+      final values = {'Standard out': pr.stdout.toString().trim(), 'Standard error': pr.stderr.toString().trim()}..removeWhere((k, v) => v.isEmpty);
 
       var message = 'Unknown error';
       if (values.isNotEmpty) {

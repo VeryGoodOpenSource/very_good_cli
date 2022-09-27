@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:loka_flutter_cli/src/commands/create/templates/templates.dart';
+import 'package:loka_flutter_cli/src/logger_extension.dart';
 import 'package:mason/mason.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
 
 /// {@template dart_cli_template}
 /// A Dart CLI application template.
@@ -13,7 +13,7 @@ class VeryGoodDartCLITemplate extends Template {
       : super(
           name: 'dart_cli',
           bundle: veryGoodDartCliBundle,
-          help: 'Generate a Very Good Dart CLI application.',
+          help: 'Generate a Dart CLI application.',
         );
 
   @override
@@ -26,7 +26,7 @@ class VeryGoodDartCLITemplate extends Template {
   void _logSummary(Logger logger) {
     logger
       ..info('\n')
-      ..created('Created a Very Good Dart CLI application! 🦄')
+      ..created('Created a Dart CLI application! ')
       ..info('\n');
   }
 }

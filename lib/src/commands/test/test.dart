@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
 typedef FlutterInstalledCommand = Future<bool> Function({
@@ -29,7 +29,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 });
 
 /// {@template test_command}
-/// `very_good test` command for running tests.
+/// `loka_flutter test` command for running tests.
 /// {@endtemplate}
 class TestCommand extends Command<int> {
   /// {@macro test_command}
@@ -144,11 +144,8 @@ This command should be run from the root of your Flutter project.''',
     final tags = _argResults['tags'] as String?;
     final isFlutterInstalled = await _flutterInstalled(logger: _logger);
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
-    final randomOrderingSeed =
-        _argResults['test-randomize-ordering-seed'] as String?;
-    final randomSeed = randomOrderingSeed == 'random'
-        ? Random().nextInt(4294967295).toString()
-        : randomOrderingSeed;
+    final randomOrderingSeed = _argResults['test-randomize-ordering-seed'] as String?;
+    final randomSeed = randomOrderingSeed == 'random' ? Random().nextInt(4294967295).toString() : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
     final dartDefine = _argResults['dart-define'] as List<String>?;
@@ -156,8 +153,7 @@ This command should be run from the root of your Flutter project.''',
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
-          optimizePerformance:
-              optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
+          optimizePerformance: optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,

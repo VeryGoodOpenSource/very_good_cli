@@ -1,11 +1,11 @@
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/command_runner.dart';
+import 'package:loka_flutter_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/version.dart';
 
 /// {@template update_command}
-/// `very_good update` command which updates very_good cli.
+/// `loka_flutter update` command which updates loka_flutter cli.
 /// {@endtemplate}
 class UpdateCommand extends Command<int> {
   /// {@macro update_command}
@@ -19,7 +19,7 @@ class UpdateCommand extends Command<int> {
   final PubUpdater _pubUpdater;
 
   @override
-  String get description => 'Update Very Good CLI.';
+  String get description => 'Update Loka Flutter CLI.';
 
   @override
   String get name => 'update';
@@ -39,7 +39,7 @@ class UpdateCommand extends Command<int> {
 
     final isUpToDate = packageVersion == latestVersion;
     if (isUpToDate) {
-      _logger.info('Very Good CLI is already at the latest version.');
+      _logger.info('Loka Flutter CLI is already at the latest version.');
       return ExitCode.success.code;
     }
 

@@ -1,9 +1,9 @@
+import 'package:loka_flutter_cli/src/command_runner.dart';
+import 'package:loka_flutter_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
 
@@ -76,7 +76,7 @@ void main() {
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
         verify(
-          () => logger.info('Very Good CLI is already at the latest version.'),
+          () => logger.info('Loka Flutter CLI is already at the latest version.'),
         ).called(1);
         verifyNever(() => logger.progress('Updating to $latestVersion'));
         verifyNever(() => pubUpdater.update(packageName: packageName));

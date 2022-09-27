@@ -1,43 +1,42 @@
-# Very Good Core 🦄
+# Loka Flutter Core 
 
-[![Very Good Ventures][logo_white]][very_good_ventures_link_dark]
-[![Very Good Ventures][logo_black]][very_good_ventures_link_light]
+[![Loka][logo]][loka_link]
 
-Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
+Developed with 💙 by [Loka][loka_link] 
 
-A Very Good Flutter Starter Project created by the [Very Good Ventures Team][very_good_ventures_link].
+Loka Flutter Starter Project created by the [Loka Team][loka_link].
 
 ## Getting Started 🚀
 
-**❗ In order to start using Very Good Core you must have the [Flutter SDK][flutter_install_link] installed on your machine.**
+**❗ In order to start using Loka Core you must have the [Flutter SDK][flutter_install_link] installed on your machine.**
 
 ### Installation 💻
 
-For first time users, start by installing the [Very Good CLI from pub.dev][very_good_cli_link].
+For first time users, start by installing the [Loka CLI from pub.dev][loka_flutter_cli_link].
 
 ```sh
-dart pub global activate very_good_cli
+dart pub global activate -sgit https://github.com/LokaHQ/loka_flutter_cli
 ```
 
 ### Create a new Flutter Project 🆕
 
-Then, you can use the `very_good create` command just like you would `flutter create`
+Then, you can use the `loka_flutter create` command just like you would `flutter create`
 
-![Very Good Create][very_good_create]
+![Loka Create][loka_flutter_create]
 
 **💡 Upon first use, you will be prompted about anonymous usage statistics. You can adjust these settings at any time via the `--analytics` flag**
 
 ```sh
 # opt into anonymous usage statistics
-very_good --analytics true
+loka_flutter --analytics true
 
 # opt out of anonymous usage statistics
-very_good --analytics false
+loka_flutter --analytics false
 ```
 
 ### Running the Project ⚡
 
-Once you have finished running `very_good create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies
+Once you have finished running `loka_flutter create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies
 
 ```sh
 cd my_app
@@ -70,29 +69,29 @@ flutter run --flavor staging --target lib/main_staging.dart
 flutter run --flavor production --target lib/main_production.dart
 ```
 
-_\*Very Good Core works on iOS, Android, Web, and Windows._
+_\*Loka Core works on iOS, Android, Web, and Windows._
 
 Now your app is running 🎉
 
 ---
 
-## Why Very Good Core? 🤔
+## Why Loka Core? 🤔
 
-We liked the simplicity and developer experience of running `flutter create` when getting started on a new project. We wanted to provide a similar experience with `very_good create` which built on top of `flutter create` and includes the core standards and best practices we use at [Very Good Ventures][very_good_ventures_link].
+We liked the simplicity and developer experience of running `flutter create` when getting started on a new project. We wanted to provide a similar experience with `loka_flutter create` which built on top of `flutter create` and includes the core standards and best practices we use at [Loka][loka_link].
 
 We built the CLI to be extensible so it could potentially support multiple commands and templates in the future.
 
 ## Project Structure and Architecture 🏗️
 
-Although Very Good Core is fairly basic in terms of functionality, the architecture and project structure is intended to scale from a simple hobby project to a large production ready application.
+Although Loka Core is fairly basic in terms of functionality, the architecture and project structure is intended to scale from a simple hobby project to a large production ready application.
 
-A folder-by-feature project structure is used to maintain a modular project structure which helps the project scale as the number of features and/or developers increase. In Very Good Core there is only a single feature (`counter`) to start but that will quickly change as you build out your project. Each feature usually consists of a `view` and a `cubit` (or `bloc`). The view is responsible for holding the UI (`Widgets`) which the user sees and interacts with and the `cubit`/`bloc` is responsible for containing the business logic needed to manage the state of the feature. For more details [read our best practices for building scalable apps][scalable_best_practices_blog_link].
+A folder-by-feature project structure is used to maintain a modular project structure which helps the project scale as the number of features and/or developers increase. In Loka Core there is only a single feature (`counter`) to start but that will quickly change as you build out your project. Each feature usually consists of a `view` and a `cubit` (or `bloc`). The view is responsible for holding the UI (`Widgets`) which the user sees and interacts with and the `cubit`/`bloc` is responsible for containing the business logic needed to manage the state of the feature.
 
 ---
 
 ## Testing 🧪
 
-Very Good Core ships with 100% code coverage. To learn more about why we believe 100% code coverage is important and other testing best practices [read our guide to Flutter testing][very_good_testing_blog_link].
+Loka Core ships with 100% code coverage.
 
 ### Running Tests 🧑‍🔬
 
@@ -151,7 +150,7 @@ This project relies on [flutter_localizations][flutter_localizations_link] and f
 3. Use the new string
 
 ```dart
-import 'package:very_good_core/l10n/l10n.dart';
+import 'package:loka_flutter_core/l10n/l10n.dart';
 
 @override
 Widget build(BuildContext context) {
@@ -217,9 +216,9 @@ Update the `CFBundleLocalizations` array in the `Info.plist` at `ios/Runner/Info
 
 ## Continuous Integration 🤖
 
-Very Good Core comes with a built-in [GitHub Actions workflow][github_actions_link] but you can also add your preferred CI/CD solution.
+Loka Core comes with a built-in [GitHub Actions workflow][github_actions_link] but you can also add your preferred CI/CD solution.
 
-Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Very Good Analysis][very_good_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Very Good Coverage GitHub Action][very_good_coverage_link].
+Out of the box, on each pull request and push, the CI `formats`, `lints`, and `tests` the code. This ensures the code remains consistent and behaves correctly as you add functionality or make changes. The project uses [Loka Analysis][loka_flutter_analysis_link] for a strict set of analysis options used by our team. Code coverage is enforced using the [Loka Coverage GitHub Action][loka_flutter_coverage_link].
 
 ---
 
@@ -253,17 +252,11 @@ When you create a new project, it has a default launcher icon. To customize this
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [github_actions_link]: https://docs.github.com/en/actions/learn-github-actions
 [ios_app_icon_guidelines]: https://developer.apple.com/design/human-interface-guidelines/ios/icons-and-images/app-icon/
-[logo_black]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_black.png#gh-light-mode-only
-[logo_white]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_white.png#gh-dark-mode-only
+[logo]: https://loka.com/images/Loka-Blue-Logo.svg
 [material_design_product_icons]: https://material.io/design/iconography/
-[scalable_best_practices_blog_link]: https://verygood.ventures/blog/scalable-best-practices?utm_source=github&utm_medium=banner&utm_campaign=CLI
 [sentry_link]: https://sentry.io
-[very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
-[very_good_core_link]: very_good_core.md
-[very_good_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
-[very_good_cli_link]: https://pub.dev/packages/very_good_cli
-[very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.png
-[very_good_testing_blog_link]: https://verygood.ventures/blog/guide-to-flutter-testing?utm_source=github&utm_medium=banner&utm_campaign=CLI
-[very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core
-[very_good_ventures_link_dark]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core#gh-dark-mode-only
-[very_good_ventures_link_light]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=core#gh-light-mode-only
+[loka_flutter_analysis_link]: https://pub.dev/packages/very_good_analysis
+[loka_flutter_core_link]: loka_flutter_core.md
+[loka_flutter_coverage_link]: https://github.com/marketplace/actions/very-good-coverage
+[loka_flutter_create]: https://raw.githubusercontent.com/LokaHQ/loka_flutter_cli/main/doc/assets/loka_flutter_create.png
+[loka_link]: https://loka.com/

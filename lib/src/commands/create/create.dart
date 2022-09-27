@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:loka_flutter_cli/src/command_runner.dart';
+import 'package:loka_flutter_cli/src/commands/create/templates/templates.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
-const _defaultOrgName = 'com.example.verygoodcore';
-const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
+const _defaultOrgName = 'com.example.lokacore';
+const _defaultDescription = 'Project created by Loka CLI.';
 
 final _templates = [
   VeryGoodCoreTemplate(),
@@ -36,7 +36,7 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 
 /// {@template create_command}
-/// `very_good create` command creates code from various built-in templates.
+/// `loka_flutter create` command creates code from various built-in templates.
 /// {@endtemplate}
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
@@ -123,8 +123,7 @@ class CreateCommand extends Command<int> {
   final MasonGeneratorFromBrick _generatorFromBrick;
 
   @override
-  String get description =>
-      'Creates a new very good project in the specified directory.';
+  String get description => 'Creates a new project in the specified directory.';
 
   @override
   String get summary => '$invocation\n$description';
@@ -133,7 +132,7 @@ class CreateCommand extends Command<int> {
   String get name => 'create';
 
   @override
-  String get invocation => 'very_good create <project name>';
+  String get invocation => 'loka_flutter create <project name>';
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
@@ -156,8 +155,7 @@ class CreateCommand extends Command<int> {
     final linux = _argResults['linux'] as String? ?? 'true';
     final macos = _argResults['macos'] as String? ?? 'true';
     final windows = _argResults['windows'] as String? ?? 'true';
-    final executableName =
-        _argResults['executable-name'] as String? ?? projectName;
+    final executableName = _argResults['executable-name'] as String? ?? projectName;
     var vars = <String, dynamic>{
       'project_name': projectName,
       'description': description,
@@ -189,7 +187,7 @@ class CreateCommand extends Command<int> {
         label: generator.description,
       ),
     );
-    await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
+    await _analytics.waitForLastPing(timeout: LokaFlutterCommandRunner.timeout);
 
     return ExitCode.success.code;
   }
@@ -215,7 +213,7 @@ class CreateCommand extends Command<int> {
 
   /// Gets the project name.
   ///
-  /// `very_good create <project name>`
+  /// `loka_flutter create <project name>`
   String get _projectName {
     final args = _argResults.rest;
     _validateProjectName(args);
@@ -251,7 +249,7 @@ class CreateCommand extends Command<int> {
         'Each part must start with a letter and only include '
         'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
         'and hyphens (-)\n'
-        '(ex. very.good.org)',
+        '(ex. loka.flutter.org)',
       );
     }
   }
