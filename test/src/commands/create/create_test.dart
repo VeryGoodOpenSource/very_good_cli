@@ -19,7 +19,7 @@ const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Creates a new project in the specified directory.\n'
       '\n'
-      'Usage: flutter_loka create <project name>\n'
+      'Usage: loka_flutter create <project name>\n'
       '-h, --help                    Print this usage information.\n'
       '''-o, --output-directory        The desired output directory when creating a new project.\n'''
       '    --desc                    The description for this new project.\n'
