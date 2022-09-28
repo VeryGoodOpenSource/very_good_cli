@@ -69,7 +69,7 @@ Usage: very_good create <project name>
 very_good create my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
-very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
+very_good create my_app --desc "My new Flutter app" --org-name "com.custom.org"
 
 # Create a new Flutter package named my_flutter_package
 very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
