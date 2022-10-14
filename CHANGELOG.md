@@ -1,4 +1,11 @@
-# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-13)
+# [0.8.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.0...v0.8.1) (2022-10-14)
+
+### Features
+
+- **create:** add docs_site template ([#513](https://github.com/VeryGoodOpenSource/very_good_cli/issues/513)) ([822829a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/822829a30a690d0cb588b0ac507ea0fa1e7b7e1f))
+- **test:** add --dart-define ([#492](https://github.com/VeryGoodOpenSource/very_good_cli/issues/492)) ([1efa5aa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1efa5aa8eeaeb0347ac1bdbb223f90e0e1404dc2))
+
+# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-14)
 
 ### Features
 
