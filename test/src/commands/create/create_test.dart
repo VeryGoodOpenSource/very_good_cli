@@ -32,6 +32,7 @@ const expectedUsage = [
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
       '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
+      '          [docs_site]         Generate a Very Good documentation site.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
@@ -654,7 +655,7 @@ void main() {
 
       group('valid template names', () {
         Future<void> expectValidTemplateName({
-          required String getPackagesMsg,
+          String? progressLog,
           required String templateName,
           required MasonBundle expectedBundle,
           required String expectedLogSummary,
@@ -706,9 +707,9 @@ void main() {
             progressLogs,
             equals(['Generated ${generatedFiles.length} file(s)']),
           );
-          verify(
-            () => logger.progress(getPackagesMsg),
-          ).called(1);
+          if (progressLog != null) {
+            verify(() => logger.progress(progressLog)).called(1);
+          }
           verify(() => logger.created(expectedLogSummary)).called(1);
           verify(
             () => generator.generate(
@@ -752,7 +753,7 @@ void main() {
 
         test('core template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
+            progressLog: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'core',
             expectedBundle: veryGoodCoreBundle,
             expectedLogSummary: 'Created a Very Good App! 🦄',
@@ -761,7 +762,7 @@ void main() {
 
         test('dart pkg template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
+            progressLog: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_pkg',
             expectedBundle: veryGoodDartPackageBundle,
             expectedLogSummary: 'Created a Very Good Dart Package! 🦄',
@@ -770,7 +771,7 @@ void main() {
 
         test('flutter pkg template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
+            progressLog: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_pkg',
             expectedBundle: veryGoodFlutterPackageBundle,
             expectedLogSummary: 'Created a Very Good Flutter Package! 🦄',
@@ -779,19 +780,27 @@ void main() {
 
         test('flutter plugin template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter packages get" in .tmp/my_app',
+            progressLog: 'Running "flutter packages get" in .tmp/my_app',
             templateName: 'flutter_plugin',
             expectedBundle: veryGoodFlutterPluginBundle,
             expectedLogSummary: 'Created a Very Good Flutter Plugin! 🦄',
           );
         });
 
-        test('dart CLI template', () async {
+        test('dart cli template', () async {
           await expectValidTemplateName(
-            getPackagesMsg: 'Running "flutter pub get" in .tmp/my_app',
+            progressLog: 'Running "flutter pub get" in .tmp/my_app',
             templateName: 'dart_cli',
             expectedBundle: veryGoodDartCliBundle,
             expectedLogSummary: 'Created a Very Good Dart CLI application! 🦄',
+          );
+        });
+
+        test('docs site template', () async {
+          await expectValidTemplateName(
+            templateName: 'docs_site',
+            expectedBundle: veryGoodDartCliBundle,
+            expectedLogSummary: 'Created a Very Good documentation site! 🦄',
           );
         });
       });
