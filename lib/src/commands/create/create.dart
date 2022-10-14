@@ -19,6 +19,7 @@ final _templates = [
   FlutterPkgTemplate(),
   FlutterPluginTemplate(),
   VeryGoodDartCLITemplate(),
+  VeryGoodDocsSiteTemplate(),
 ];
 
 final _defaultTemplate = _templates.first;
