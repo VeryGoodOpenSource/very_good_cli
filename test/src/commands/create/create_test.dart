@@ -32,6 +32,7 @@ const expectedUsage = [
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
       '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
+      '          [docs_site]         Generate a Very Good documentation site.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
