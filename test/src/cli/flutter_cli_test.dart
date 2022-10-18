@@ -864,10 +864,14 @@ void main() {
 
       test('runs tests w/optimizations (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final originalVars = <String, dynamic>{'package-root': directory.path};
+        final originalVars = <String, dynamic>{
+          'package-root': directory.path,
+          'test-paths': <String>[],
+        };
         final updatedVars = <String, dynamic>{
           'package-root': directory.path,
-          'foo': 'bar'
+          'foo': 'bar',
+          'test-paths': <String>[]
         };
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();

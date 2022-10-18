@@ -138,6 +138,7 @@ class Flutter {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    List<String> testPaths = const [],
     List<String>? arguments,
     required Logger logger,
     void Function(String)? stdout,
@@ -179,7 +180,11 @@ class Flutter {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
             final generator = await buildGenerator(testRunnerBundle);
-            var vars = <String, dynamic>{'package-root': workingDirectory};
+
+            var vars = <String, dynamic>{
+              'package-root': workingDirectory,
+              'test-paths': testPaths
+            };
             await generator.hooks.preGen(
               vars: vars,
               onVarsChanged: (v) => vars = v,
@@ -193,6 +198,10 @@ class Flutter {
           } finally {
             optimizationProgress.complete();
           }
+        } else {
+          logger.info(
+            'Optimization not applied!',
+          );
         }
 
         return _flutterTest(

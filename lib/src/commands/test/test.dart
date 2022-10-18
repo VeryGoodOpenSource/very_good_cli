@@ -22,6 +22,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   double? minCoverage,
   String? excludeFromCoverage,
   String? randomSeed,
+  List<String> testPaths,
   List<String>? arguments,
   required Logger logger,
   void Function(String)? stdout,
@@ -152,12 +153,13 @@ This command should be run from the root of your Flutter project.''',
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
     final dartDefine = _argResults['dart-define'] as List<String>?;
+    final testPaths = _argResults.rest;
 
     if (isFlutterInstalled) {
       try {
+        final isOptimizationApplied = optimizePerformance && !updateGoldens;
         final results = await _flutterTest(
-          optimizePerformance:
-              optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
+          optimizePerformance: isOptimizationApplied,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -166,6 +168,7 @@ This command should be run from the root of your Flutter project.''',
           minCoverage: minCoverage,
           excludeFromCoverage: excludeFromCoverage,
           randomSeed: randomSeed,
+          testPaths: testPaths,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
             if (tags != null) ...['-t', tags],
@@ -174,7 +177,7 @@ This command should be run from the root of your Flutter project.''',
               for (final value in dartDefine) '--dart-define=$value',
             ...['-j', concurrency],
             '--no-pub',
-            ..._argResults.rest,
+            if (!isOptimizationApplied) ..._argResults.rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
