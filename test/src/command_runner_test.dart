@@ -1,5 +1,6 @@
 // ignore_for_file: no_adjacent_strings_in_list
 import 'dart:async';
+import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart' hide packageVersion;
@@ -15,6 +16,10 @@ class MockAnalytics extends Mock implements Analytics {}
 class MockLogger extends Mock implements Logger {}
 
 class MockPubUpdater extends Mock implements PubUpdater {}
+
+class MockProgress extends Mock implements Progress {}
+
+class FakeProcessResult extends Fake implements ProcessResult {}
 
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n'
@@ -53,26 +58,12 @@ Run ${lightCyan.wrap('very_good update')} to update''';
 
 void main() {
   group('VeryGoodCommandRunner', () {
-    late List<String> printLogs;
     late Analytics analytics;
     late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
 
-    void Function() overridePrint(void Function() fn) {
-      return () {
-        final spec = ZoneSpecification(
-          print: (_, __, ___, String msg) {
-            printLogs.add(msg);
-          },
-        );
-        return Zone.current.fork(specification: spec).run<void>(fn);
-      };
-    }
-
     setUp(() {
-      printLogs = [];
-
       analytics = MockAnalytics();
       pubUpdater = MockPubUpdater();
 
@@ -106,6 +97,33 @@ void main() {
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
         verify(() => logger.info(updatePrompt)).called(1);
+      });
+
+      test('doesnt show update message when nsuing update command', () async {
+        when(
+          () => pubUpdater.getLatestVersion(any()),
+        ).thenAnswer((_) async => latestVersion);
+        when(
+          () => pubUpdater.update(packageName: packageName),
+        ).thenAnswer((_) => Future.value(FakeProcessResult()));
+        when(
+          () => pubUpdater.isUpToDate(
+            packageName: any(named: 'packageName'),
+            currentVersion: any(named: 'currentVersion'),
+          ),
+        ).thenAnswer((_) => Future.value(true));
+
+        final progress = MockProgress();
+        final progressLogs = <String>[];
+        when(() => progress.complete(any())).thenAnswer((_) {
+          final message = _.positionalArguments.elementAt(0) as String?;
+          if (message != null) progressLogs.add(message);
+        });
+        when(() => logger.progress(any())).thenReturn(progress);
+
+        final result = await commandRunner.run(['update']);
+        expect(result, equals(ExitCode.success.code));
+        verifyNever(() => logger.info(updatePrompt));
       });
 
       test('handles pub update errors gracefully', () async {
@@ -164,30 +182,22 @@ void main() {
         verify(() => logger.info('exception usage')).called(1);
       });
 
-      test(
-        'handles no command',
-        overridePrint(() async {
-          final result = await commandRunner.run([]);
-          expect(printLogs, equals(expectedUsage));
-          expect(result, equals(ExitCode.success.code));
-        }),
-      );
+      test('handles no command', () async {
+        final result = await commandRunner.run([]);
+        verify(() => logger.info(expectedUsage.join())).called(1);
+        expect(result, equals(ExitCode.success.code));
+      });
 
       group('--help', () {
-        test(
-          'outputs usage',
-          overridePrint(() async {
-            final result = await commandRunner.run(['--help']);
-            expect(printLogs, equals(expectedUsage));
-            expect(result, equals(ExitCode.success.code));
+        test('outputs usage', () async {
+          final result = await commandRunner.run(['--help']);
+          verify(() => logger.info(expectedUsage.join())).called(1);
+          expect(result, equals(ExitCode.success.code));
 
-            printLogs.clear();
-
-            final resultAbbr = await commandRunner.run(['-h']);
-            expect(printLogs, equals(expectedUsage));
-            expect(resultAbbr, equals(ExitCode.success.code));
-          }),
-        );
+          final resultAbbr = await commandRunner.run(['-h']);
+          verify(() => logger.info(expectedUsage.join())).called(1);
+          expect(resultAbbr, equals(ExitCode.success.code));
+        });
       });
 
       group('--analytics', () {
