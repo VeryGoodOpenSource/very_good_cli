@@ -43,6 +43,8 @@ abstract class FlutterTestCommand {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    String? tags,
+    String? excludeTags,
     List<String>? arguments,
     Logger? logger,
     void Function(String)? stdout,
@@ -89,6 +91,8 @@ void main() {
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           randomSeed: any(named: 'randomSeed'),
+          tags: any(named: 'tags'),
+          excludeTags: any(named: 'excludeTags'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
@@ -308,6 +312,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           arguments: ['-t', 'test-tag', ...defaultArguments],
+          tags: 'test-tag',
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
@@ -323,6 +328,7 @@ void main() {
         () => flutterTest(
           optimizePerformance: true,
           arguments: ['-x', 'test-tag', ...defaultArguments],
+          excludeTags: 'test-tag',
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,

@@ -864,10 +864,14 @@ void main() {
 
       test('runs tests w/optimizations (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
-        final originalVars = <String, dynamic>{'package-root': directory.path};
+        final originalVars = <String, dynamic>{
+          'package-root': directory.path,
+          'tags': '',
+          'exclude-tags': '',
+        };
         final updatedVars = <String, dynamic>{
           'package-root': directory.path,
-          'foo': 'bar'
+          'foo': 'bar',
         };
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(directory.path, 'test')).createSync();
@@ -890,6 +894,79 @@ void main() {
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             logger: logger,
+            testRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            buildGenerator: generatorBuilder(),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals([p.join('test', '.test_runner.dart')]));
+        verify(() => logger.progress('Optimizing tests')).called(1);
+        verify(
+          () => hooks.preGen(
+            vars: originalVars,
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: directory.path,
+          ),
+        ).called(1);
+        verify(
+          () => generator.generate(
+            any(),
+            vars: updatedVars,
+            fileConflictResolution: FileConflictResolution.overwrite,
+          ),
+        ).called(1);
+        verify(() => progress.complete()).called(1);
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/optimizations and using tags/exclude-tags (passing)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        final originalVars = <String, dynamic>{
+          'package-root': directory.path,
+          'tags': 'foo',
+          'exclude-tags': 'bar',
+        };
+        final updatedVars = <String, dynamic>{
+          'package-root': directory.path,
+          'foo': 'bar',
+        };
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged] as Function(
+            Map<String, dynamic> vars,
+          ))
+              .call(updatedVars);
+        });
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            optimizePerformance: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            logger: logger,
+            tags: 'foo',
+            excludeTags: 'bar',
             testRunner: testRunner(
               Stream.fromIterable(
                 [

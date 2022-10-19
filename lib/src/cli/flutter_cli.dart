@@ -138,6 +138,8 @@ class Flutter {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    String? tags,
+    String? excludeTags,
     List<String>? arguments,
     required Logger logger,
     void Function(String)? stdout,
@@ -179,7 +181,11 @@ class Flutter {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
             final generator = await buildGenerator(testRunnerBundle);
-            var vars = <String, dynamic>{'package-root': workingDirectory};
+            var vars = <String, dynamic>{
+              'package-root': workingDirectory,
+              'exclude-tags': excludeTags ?? '',
+              'tags': tags ?? '',
+            };
             await generator.hooks.preGen(
               vars: vars,
               onVarsChanged: (v) => vars = v,
