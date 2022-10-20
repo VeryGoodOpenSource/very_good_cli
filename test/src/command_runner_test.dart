@@ -99,7 +99,7 @@ void main() {
         verify(() => logger.info(updatePrompt)).called(1);
       });
 
-      test('doesnt show update message when nsuing update command', () async {
+      test('doesnt show update message when using the update command', () async {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
