@@ -99,32 +99,35 @@ void main() {
         verify(() => logger.info(updatePrompt)).called(1);
       });
 
-      test('doesnt show update message when using the update command', () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenAnswer((_) async => latestVersion);
-        when(
-          () => pubUpdater.update(packageName: packageName),
-        ).thenAnswer((_) => Future.value(FakeProcessResult()));
-        when(
-          () => pubUpdater.isUpToDate(
-            packageName: any(named: 'packageName'),
-            currentVersion: any(named: 'currentVersion'),
-          ),
-        ).thenAnswer((_) => Future.value(true));
+      test(
+        'doesnt show update message when using the update command',
+        () async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => latestVersion);
+          when(
+            () => pubUpdater.update(packageName: packageName),
+          ).thenAnswer((_) => Future.value(FakeProcessResult()));
+          when(
+            () => pubUpdater.isUpToDate(
+              packageName: any(named: 'packageName'),
+              currentVersion: any(named: 'currentVersion'),
+            ),
+          ).thenAnswer((_) => Future.value(true));
 
-        final progress = MockProgress();
-        final progressLogs = <String>[];
-        when(() => progress.complete(any())).thenAnswer((_) {
-          final message = _.positionalArguments.elementAt(0) as String?;
-          if (message != null) progressLogs.add(message);
-        });
-        when(() => logger.progress(any())).thenReturn(progress);
+          final progress = MockProgress();
+          final progressLogs = <String>[];
+          when(() => progress.complete(any())).thenAnswer((_) {
+            final message = _.positionalArguments.elementAt(0) as String?;
+            if (message != null) progressLogs.add(message);
+          });
+          when(() => logger.progress(any())).thenReturn(progress);
 
-        final result = await commandRunner.run(['update']);
-        expect(result, equals(ExitCode.success.code));
-        verifyNever(() => logger.info(updatePrompt));
-      });
+          final result = await commandRunner.run(['update']);
+          expect(result, equals(ExitCode.success.code));
+          verifyNever(() => logger.info(updatePrompt));
+        },
+      );
 
       test('handles pub update errors gracefully', () async {
         when(
