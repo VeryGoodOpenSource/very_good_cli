@@ -1,4 +1,10 @@
-# [0.8.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.0...v0.8.1) (2022-10-14)
+# [0.8.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.1...v0.8.2) (2022-10-21)
+
+### Bug Fixes
+
+- update prompt on update ([#523](https://github.com/VeryGoodOpenSource/very_good_cli/issues/523)) ([7f7e321](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7f7e3215677076b6f85271a4f1add39f1f707d70))
+
+## [0.8.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.0...v0.8.1) (2022-10-14)
 
 ### Features
 
