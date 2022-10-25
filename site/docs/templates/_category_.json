@@ -1,0 +1,9 @@
+{
+  "label": "Templates",
+  "position": 2,
+  "link": {
+    "title": "Templates 🦄",
+    "type": "generated-index",
+    "description": "Learn about all of the templates that can be generated with the very_good create command."
+  }
+}
