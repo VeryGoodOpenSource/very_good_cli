@@ -9,16 +9,14 @@ const config = {
   title: 'Very Good CLI',
   tagline:
     'A Command-Line Interface to generate scalable templates and use helpful commands.',
-  url: 'https://very-good-cli-docs.com',
+  url: 'https://cli.vgv.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'verygoodopensource', // Usually your GitHub org/user name.
-  projectName: 'very_good_cli', // Usually your repo name.
+  organizationName: 'verygoodopensource',
+  projectName: 'very_good_cli',
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -35,10 +33,8 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/verygoodopensource/very_good_cli_docs/tree/main/',
+            'https://github.com/verygoodopensource/very_good_cli/tree/main/site/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
