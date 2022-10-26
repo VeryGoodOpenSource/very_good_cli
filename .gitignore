@@ -19,3 +19,6 @@ coverage/
 
 # Android studio and IntelliJ
 .idea
+
+# Misc files
+.DS_Store
