@@ -46,7 +46,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/meta/open-graph.png',
+      image: '/very_good_cli/img/meta/open-graph.png',
       navbar: {
         title: 'Very Good CLI',
         logo: {
