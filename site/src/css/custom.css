@@ -37,6 +37,10 @@ html .footer {
   margin-top: 4rem;
 }
 
+html footer .footer__copyright {
+  font-size: 0.75rem;
+}
+
 html[data-theme='dark'] .footer {
   background-color: var(--ifm-footer-background-color);
 }
