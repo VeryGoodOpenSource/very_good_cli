@@ -10,7 +10,7 @@ const config = {
   tagline:
     'A Command-Line Interface to generate scalable templates and use helpful commands.',
   url: 'https://cli.vgv.dev',
-  baseUrl: '/',
+  baseUrl: '/very_good_cli/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
