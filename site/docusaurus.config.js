@@ -46,6 +46,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
+      image: 'img/meta/open-graph.png',
       navbar: {
         title: 'Very Good CLI',
         logo: {
@@ -86,6 +87,18 @@ const config = {
                 label: 'Overview',
                 to: '/docs/overview',
               },
+              {
+                label: 'Templates',
+                to: '/docs/category/templates',
+              },
+              {
+                label: 'Commands',
+                to: '/docs/category/commands',
+              },
+              {
+                label: 'Resources',
+                to: '/docs/category/resources',
+              },
             ],
           },
           {
@@ -101,12 +114,17 @@ const config = {
             title: 'More',
             items: [
               {
+                label: 'Open an Issue',
+                href: 'https://github.com/verygoodopensource/very_good_cli/issues/new/choose',
+              },
+              {
                 label: 'GitHub',
                 href: 'https://github.com/verygoodopensource/very_good_cli',
               },
             ],
           },
         ],
+        copyright: `Copyright © ${new Date().getFullYear()} Very Good Ventures.<br/>Built with 💙 by <a target="_blank" rel="noopener" aria-label="Very Good Ventures" href="https://verygood.ventures">Very Good Ventures</a>.`,
       },
       prism: {
         additionalLanguages: ['bash', 'dart', 'yaml'],

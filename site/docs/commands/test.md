@@ -30,7 +30,7 @@ Run "very_good help" to see global options.
 
 Unlike `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
 
-This is an optimization done by the cli because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
+This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 
 If you need to install dependencies before running the tests with `very_good_cli`, be sure to run `very_good packages get` first.
 
