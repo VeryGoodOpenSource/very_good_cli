@@ -9,7 +9,7 @@ const config = {
   title: 'Very Good CLI',
   tagline:
     'A Command-Line Interface to generate scalable templates and use helpful commands.',
-  url: 'https://cli.vgv.dev',
+  url: 'https://verygoodopensource.github.io',
   baseUrl: '/very_good_cli/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
