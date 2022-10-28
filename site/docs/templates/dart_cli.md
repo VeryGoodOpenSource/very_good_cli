@@ -18,4 +18,4 @@ very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package"
 very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
 ```
 
-[dart_cli]: /very_good_cli/img/dart_cli_hero.png
+[dart_cli]: /img/dart_cli_hero.png
