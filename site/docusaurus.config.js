@@ -9,14 +9,14 @@ const config = {
   title: 'Very Good CLI',
   tagline:
     'A Command-Line Interface to generate scalable templates and use helpful commands.',
-  url: 'https://verygoodopensource.github.io',
-  baseUrl: '/very_good_cli/',
+  url: 'https://cli.vgv.dev',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-
   organizationName: 'verygoodopensource',
   projectName: 'very_good_cli',
+  trailingSlash: false,
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -46,7 +46,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: '/very_good_cli/img/meta/open-graph.png',
+      image: '/img/meta/open-graph.png',
       navbar: {
         title: 'Very Good CLI',
         logo: {
