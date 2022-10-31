@@ -48,10 +48,9 @@ const config = {
     ({
       image: '/very_good_cli/img/meta/open-graph.png',
       navbar: {
-        title: 'Very Good CLI',
         logo: {
           alt: 'Very Good CLI Logo',
-          src: 'img/logo.svg',
+          src: 'img/cli_logo.svg',
         },
         items: [
           {
@@ -105,8 +104,12 @@ const config = {
             title: 'Resources',
             items: [
               {
-                label: 'Blog',
-                href: '#',
+                label: 'Tutorials',
+                href: '/docs/resources/tutorials',
+              },
+              {
+                label: 'Learn More',
+                href: '/docs/resources/learn_more',
               },
             ],
           },

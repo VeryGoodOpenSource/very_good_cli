@@ -2,6 +2,6 @@
 sidebar_position: 2
 ---
 
-# Resources 📖
+# Learn More 📖
 
 Additional content about Very Good CLI.
