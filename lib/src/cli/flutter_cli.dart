@@ -398,9 +398,9 @@ Future<int> _flutterTest({
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        final testName = test.name.truncated(
-          _lineLength - (timeElapsed.length + stats.length + 2),
-        );
+        final testName = test.name.toSingleLine().truncated(
+              _lineLength - (timeElapsed.length + stats.length + 2),
+            );
         stdout('''$clearLine$timeElapsed $stats: $testName''');
       }
 
@@ -496,6 +496,9 @@ extension on String {
     final truncated = substring(length - maxLength, length).trim();
     return '...$truncated';
   }
+
+  String toSingleLine() =>
+      replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
 }
 
 String? _getTraceLocation({

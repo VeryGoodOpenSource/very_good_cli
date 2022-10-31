@@ -1121,6 +1121,21 @@ const skipExceptionMessageJsonOuput = [
     'time': 2757
   },
   {
+    'test': {
+      'id': 29,
+      'name': '''this is the case of a multiline test name that should  '''
+          '''         be well processed by very_good test ''',
+      'suiteID': 4,
+      'groupIDs': [16],
+      'metadata': {'skip': false, 'skipReason': null},
+      'line': 4,
+      'column': 3,
+      'url': 'file:///my_app/test/counter/view/long_name_test.dart'
+    },
+    'type': 'testStart',
+    'time': 2757
+  },
+  {
     'testID': 15,
     'result': 'success',
     'skipped': false,
@@ -1401,5 +1416,28 @@ const skipExceptionMessageJsonOuput = [
     'type': 'testDone',
     'time': 4248
   },
-  {'success': false, 'type': 'done', 'time': 4266},
+  {
+    'test': {
+      'id': 29,
+      'name': '''this is the case of a multiline test name that should  '''
+          '''         be well processed by very_good test ''',
+      'suiteID': 4,
+      'groupIDs': [16],
+      'metadata': {'skip': false, 'skipReason': null},
+      'line': 4,
+      'column': 3,
+      'url': 'file:///my_app/test/counter/view/multiline_test.dart'
+    },
+    'type': 'testStart',
+    'time': 5440
+  },
+  {
+    'testID': 29,
+    'result': 'success',
+    'skipped': false,
+    'hidden': false,
+    'type': 'testDone',
+    'time': 5449
+  },
+  {'success': false, 'type': 'done', 'time': 5466},
 ];

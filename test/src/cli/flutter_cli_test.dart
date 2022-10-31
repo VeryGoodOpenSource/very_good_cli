@@ -503,7 +503,8 @@ void main() {
             '\x1B[2K\r00:04 +5 -1 ~2: CounterView renders current count',
             '''\x1B[2K\r00:04 +6 -1 ~2: CounterView calls increment when increment button is tapped''',
             '''\x1B[2K\r00:04 +7 -1 ~2: CounterView calls decrement when decrement button is tapped''',
-            '\x1B[2K\r00:04 +7 -1 ~2: Some tests failed.\n'
+            '''\x1B[2K\r00:05 +8 -1 ~2: ...tiline test name that should be well processed by very_good test''',
+            '\x1B[2K\r00:05 +8 -1 ~2: Some tests failed.\n'
           ]),
         );
         expect(
