@@ -12,7 +12,11 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <img className={clsx(styles.heroLogo)} src="img/cli_logo.svg" alt="CLI Logo"/>
+        <img
+          className={clsx(styles.heroLogo)}
+          src="img/cli_logo.svg"
+          alt="CLI Logo"
+        />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <HomepageHeroImage />
         <HomepageCTA />
@@ -51,7 +55,8 @@ function HomepageHeroImage() {
   return (
     <img
       className={clsx(styles.heroImage)}
-      src="img/home_hero.svg" alt="CLI Hero"
+      src="img/home_hero.svg"
+      alt="CLI Hero"
     />
   );
 }
@@ -143,9 +148,9 @@ function HomepageBlogs() {
           <div className={styles.content}>
             <h2>Generate a Dart CLI with Very Good CLI</h2>
             <p>
-            Generate a Dart Command-Line Interface with Very Good CLI. 
-            Then, take your CLI to the next level with thoughtful command 
-            syntax and design elements.
+              Generate a Dart Command-Line Interface with Very Good CLI. Then,
+              take your CLI to the next level with thoughtful command syntax and
+              design elements.
             </p>
             <Link
               style={{ fontWeight: 'bold' }}
@@ -171,9 +176,9 @@ function HomepageBlogs() {
           <div className={styles.content}>
             <h2>Build a Flutter app with Very Good CLI and Supabase</h2>
             <p>
-            Learn how to make a Flutter app with Supabase and VGV tooling, 
-            such as Very Good CLI, Flutter Bloc, layered architecture, and 
-            100% test coverage.
+              Learn how to make a Flutter app with Supabase and VGV tooling,
+              such as Very Good CLI, Flutter Bloc, layered architecture, and
+              100% test coverage.
             </p>
             <Link
               style={{ fontWeight: 'bold' }}
