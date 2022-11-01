@@ -6,6 +6,8 @@ sidebar_position: 1
 
 This template is a Flutter starter application with VGV-opinionated best practices. It is the default template for the `very_good create` command.
 
+![Very Good Core][core_devices]
+
 ## Why Very Good Core?
 
 We liked the starter app provided by the `flutter create` command, but found ourselves making adjustments every time we started a project. To help streamline the process, we decided to create our own starter template with the core standards and best practices we use at [Very Good Ventures][vgv]. Similar to the Flutter Starter app, Very Good Core contains a basic counter app with some additional features for a more robust app foundation.
@@ -275,6 +277,7 @@ When you create a new project, it has a default launcher icon. To customize this
 [blog_scalable]: https://verygood.ventures/blog/scalable-best-practices
 [blog_testing]: https://verygood.ventures/blog/guide-to-flutter-testing
 [cli_pub]: https://pub.dev/packages/very_good_cli
+[core_devices]: /img/core_devices.png
 [firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://docs.flutter.dev/get-started/install
 [flutter_internationalization]: https://docs.flutter.dev/development/accessibility-and-localization/internationalization
