@@ -9,12 +9,13 @@ import styles from './index.module.css';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
+  const { colorMode } = useColorMode();
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
         <img
           className={clsx(styles.heroLogo)}
-          src="img/logo.svg"
+          src={colorMode == 'dark' ? 'img/logo_dark.svg' : 'img/logo.svg'}
           alt="CLI Logo"
         />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -51,7 +52,6 @@ function HomepageCTA() {
 }
 
 function HomepageHeroImage() {
-  const { colorMode } = useColorMode();
   return (
     <img
       className={clsx(styles.heroImage)}

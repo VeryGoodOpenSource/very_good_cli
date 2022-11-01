@@ -50,7 +50,7 @@ const config = {
       navbar: {
         logo: {
           alt: 'Very Good CLI Logo',
-          src: 'img/logo.svg',
+          src: 'img/cli_icon.svg',
         },
         items: [
           {
