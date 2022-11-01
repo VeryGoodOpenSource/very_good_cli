@@ -1,4 +1,10 @@
-# [0.8.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.1...v0.8.2) (2022-10-21)
+# [0.8.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.2...v0.8.3) (2022-11-01)
+
+### Bug Fixes
+
+- only animate stdout progress on terminals ([#539](https://github.com/VeryGoodOpenSource/very_good_cli/issues/539)) ([8b5cde0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8b5cde039737f737ba1ab9ae5b3576f0a7c2a75c))
+
+## [0.8.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.1...v0.8.2) (2022-10-21)
 
 ### Bug Fixes
 
