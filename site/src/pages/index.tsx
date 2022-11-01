@@ -12,10 +12,14 @@ function HomepageHeader() {
   return (
     <header className={clsx('hero', styles.heroBanner)}>
       <div className="container">
-        <h1 className="hero__title">{siteConfig.title}</h1>
+        <img
+          className={clsx(styles.heroLogo)}
+          src="img/logo.svg"
+          alt="CLI Logo"
+        />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <HomepageCTA />
         <HomepageHeroImage />
+        <HomepageCTA />
       </div>
     </header>
   );
@@ -30,6 +34,7 @@ export default function Home(): JSX.Element {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <HomepageBlogs />
       </main>
     </Layout>
   );
@@ -50,9 +55,8 @@ function HomepageHeroImage() {
   return (
     <img
       className={clsx(styles.heroImage)}
-      src={colorMode == 'dark' ? 'img/hero_dark.svg' : 'img/hero.svg'}
-      alt="Hero"
-      width="720"
+      src="img/home_hero.svg"
+      alt="CLI Hero"
     />
   );
 }
@@ -66,7 +70,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Scalable Starter Templates',
-    Svg: require('@site/static/img/pillar1.svg').default,
+    Svg: require('@site/static/img/icon_templates.svg').default,
     description: (
       <>
         Generate a <a href="/docs/templates/core">Flutter app</a>,{' '}
@@ -79,7 +83,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Built-In Best Practices',
-    Svg: require('@site/static/img/pillar2.svg').default,
+    Svg: require('@site/static/img/icon_best.svg').default,
     description: (
       <>
         All templates come with VGV-opinionated architecture and best practices,
@@ -89,7 +93,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Utility Commands',
-    Svg: require('@site/static/img/pillar3.svg').default,
+    Svg: require('@site/static/img/icon_commands.svg').default,
     description: (
       <>
         Optimize your tests and recursively fetch packages with additional CLI{' '}
@@ -124,5 +128,84 @@ function HomepageFeatures(): JSX.Element {
         </div>
       </div>
     </section>
+  );
+}
+
+function HomepageBlogs() {
+  return (
+    <div className={`${styles.section}`}>
+      <div className={styles.width}>
+        <div className={styles.column}>
+          <img
+            style={{ height: 'auto' }}
+            src="https://uploads-ssl.webflow.com/5ee12d8e99cde2e20255c16c/630640412306dabe23c2db4f_CLI%20generates%20CLI.png"
+            alt="Generate a Dart CLI with Very Good CLI"
+            width="452"
+            height="254"
+          />
+        </div>
+        <div className={styles.column}>
+          <div className={styles.content}>
+            <h2>Generate a Dart CLI with Very Good CLI</h2>
+            <p>
+              Generate a Dart Command-Line Interface with Very Good CLI. Then,
+              take your CLI to the next level with thoughtful command syntax and
+              design elements.
+            </p>
+            <Link
+              style={{ fontWeight: 'bold' }}
+              to="https://verygood.ventures/blog/generate-command-line-application-cli"
+            >
+              Read the Blog <ExternalLinkIcon />
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: '1rem' }}></div>
+      <div className={styles.width}>
+        <div className={styles.column}>
+          <img
+            style={{ height: 'auto' }}
+            src="https://uploads-ssl.webflow.com/5ee12d8e99cde2e20255c16c/62bb5e2d31f6823201f0d747_Supabase.png"
+            alt="Build a Flutter app with Very Good CLI and Supabase"
+            width="452"
+            height="254"
+          />
+        </div>
+        <div className={styles.column}>
+          <div className={styles.content}>
+            <h2>Build a Flutter app with Very Good CLI and Supabase</h2>
+            <p>
+              Learn how to make a Flutter app with Supabase and VGV tooling,
+              such as Very Good CLI, Flutter Bloc, layered architecture, and
+              100% test coverage.
+            </p>
+            <Link
+              style={{ fontWeight: 'bold' }}
+              to="https://verygood.ventures/blog/flutter-app-very-good-cli-supabase"
+            >
+              Read the Blog <ExternalLinkIcon />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg
+      width="13.5"
+      height="13.5"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-theme-IconExternalLink-styles-module"
+    >
+      <path
+        fill="currentColor"
+        d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"
+      ></path>
+    </svg>
   );
 }

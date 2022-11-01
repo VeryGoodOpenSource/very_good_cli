@@ -4,6 +4,12 @@
  * work well for content-centric websites.
  */
 
+@import url('https://fonts.googleapis.com/css?family=Poppins&display=swap');
+
+:root {
+  --ifm-font-family-base: 'Poppins';
+}
+
 /* You can override the default Infima variables here. */
 /* You can override the default Infima variables here. */
 :root {
