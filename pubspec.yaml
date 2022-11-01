@@ -11,7 +11,7 @@ dependencies:
   glob: ^2.0.2
   lcov_parser: ^0.1.2
   mason: ">=0.1.0-dev.34 <0.1.0-dev.35"
-  mason_logger: ^0.2.1
+  mason_logger: ^0.2.2
   meta: ^1.3.0
   path: ^1.8.0
   pub_updater: ^0.2.1
