@@ -5,7 +5,6 @@
 
 .heroBanner {
   padding: 4rem 0;
-  background-color: var(--ifm-background-color);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -32,6 +31,11 @@
   padding: 2rem 0;
   margin-bottom: 4rem;
   width: 100%;
+  background-color: var(--colors-off-white);
+}
+
+html[data-theme='dark'] .features {
+  background-color: var(--colors-light-grey);
 }
 
 .featureSvg {
