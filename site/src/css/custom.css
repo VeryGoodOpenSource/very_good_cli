@@ -20,6 +20,11 @@
   --colors-white: #ffffff;
   --colors-off-white: #fbfcff;
   --colors-off-white-dark: #f3f6ff;
+  --colors-dark-blue: #002891;
+
+  /* Custom Variables */
+  --hero-image-background-color: var(--colors-off-white);
+  --title-text-color: var(--colors-dark-blue);
   
   /* Informa Variables */
   --ifm-color-primary: #2a48df;
@@ -30,8 +35,9 @@
   --ifm-color-primary-lighter: #4d66e4;
   --ifm-color-primary-lightest: #6f83e9;
   --ifm-code-font-size: 95%;
-  --ifm-footer-background-color: var(--colors-off-white);
-  --ifm-background-color: var(--colors-off-white-dark);
+  --ifm-footer-background-color: var(--colors-white);
+  --ifm-background-color: var(--colors-off-white) !important;
+  --ifm-card-background-color: var(--colors-off-white);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
@@ -52,6 +58,7 @@
   --ifm-footer-background-color: var(--colors-dark-grey);
   --ifm-background-color: var(--colors-darker-grey) !important;
   --ifm-navbar-background-color: var(--colors-dark-grey);
+  --ifm-card-background-color: var(--colors-light-grey);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 

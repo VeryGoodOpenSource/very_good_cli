@@ -3,11 +3,16 @@
  * and scoped locally.
  */
 
+ html[data-theme='dark'] .main {
+  background-color: var(--colors-off-white-dark);
+}
+
 .heroBanner {
   padding: 4rem 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  background-color: var(--hero-image-background-color);
 }
 
 .heroImage {
@@ -31,16 +36,16 @@
   padding: 2rem 0;
   margin-bottom: 4rem;
   width: 100%;
-  background-color: var(--colors-off-white);
 }
 
 html[data-theme='dark'] .features {
-  background-color: var(--colors-light-grey);
+  background-color: var(--colors-darker-grey);
 }
 
 .featureSvg {
   height: 100px;
   width: 100px;
+  margin: 24px;
 }
 
 .section {
@@ -62,7 +67,7 @@ html[data-theme='dark'] .features {
 
 .column {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   align-items: center;
   flex-wrap: wrap;
   padding: 0px;
