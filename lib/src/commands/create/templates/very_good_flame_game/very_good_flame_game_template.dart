@@ -13,7 +13,7 @@ class VeryGoodFlameGameTemplate extends Template {
       : super(
           name: 'flame_game',
           bundle: veryGoodFlameGameBundle,
-          help: 'Generate a Very Good Flame Game.',
+          help: 'Generate a Very Good Flame game.',
         );
 
   @override
