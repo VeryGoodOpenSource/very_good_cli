@@ -287,7 +287,7 @@ void main() {
         );
         expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
         expect(testCoverageResult.stderr, isEmpty);
-        expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+        expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
       });
 
       test('create -t core', () async {
