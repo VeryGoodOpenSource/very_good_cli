@@ -4,7 +4,6 @@ sidebar_position: 2
 
 # Flutter Flame Game 🕹
 
-# Very Good Flame Game
 
 This template is for a Flutter Flame game. It includes a simple demo game with the basics you'll need for game development and VGV-opinionated best practices.
 
