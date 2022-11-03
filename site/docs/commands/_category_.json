@@ -1,0 +1,9 @@
+{
+  "label": "Commands",
+  "position": 4,
+  "link": {
+    "title": "Commands",
+    "type": "generated-index",
+    "description": "Learn about the additional commands supported by Very Good CLI."
+  }
+}
