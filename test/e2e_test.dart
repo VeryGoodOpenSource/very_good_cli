@@ -338,6 +338,6 @@ void main() {
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       });
     },
-    timeout: const Timeout(Duration(seconds: 90)),
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }
