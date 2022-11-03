@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Overview
 
-Very Good CLI is a Command-Line interface that enables you to generate VGV-opinionated templates and execute helpful commands.
+Very Good CLI is a Command-Line Interface that enables you to generate VGV-opinionated templates and execute helpful commands.
 
 ![Very Good CLI][very_good_cli]
 
