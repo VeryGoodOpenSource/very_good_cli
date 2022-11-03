@@ -3,7 +3,7 @@
  * and scoped locally.
  */
 
- html[data-theme='dark'] .main {
+html[data-theme='dark'] .main {
   background-color: var(--colors-off-white-dark);
 }
 
