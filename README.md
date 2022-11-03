@@ -46,6 +46,7 @@ Usage: very_good create <project name>
           [dart_cli]          Generate a Very Good Dart CLI application.
           [dart_pkg]          Generate a reusable Dart package.
           [docs_site]         Generate a Very Good documentation site.
+          [flame_game]        Generate a Very Good Flame game.
           [flutter_pkg]       Generate a reusable Flutter package.
           [flutter_plugin]    Generate a reusable Flutter plugin.
 
@@ -71,6 +72,9 @@ very_good create my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
 very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
+
+# Create a new Flame game named my_game
+very_good create my_game -t flame_game --desc "My new Flame game"
 
 # Create a new Flutter package named my_flutter_package
 very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
