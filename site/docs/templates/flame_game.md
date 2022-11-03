@@ -4,7 +4,6 @@ sidebar_position: 2
 
 # Flutter Flame Game 🕹
 
-
 This template is for a Flutter Flame game. It includes a simple demo game with the basics you'll need for game development and VGV-opinionated best practices.
 
 :::note
@@ -15,7 +14,7 @@ Read more about how to use this game template [in our blog][blog].
 
 - **Components** - Think of them as game objects, or anything that can render in a game.
 
-- **Entity and Behaviors** - Entities are what manage the game objects and the behaviors handle the game logic for those objects. 
+- **Entity and Behaviors** - Entities are what manage the game objects and the behaviors handle the game logic for those objects.
 
 - **Sprite Sheets** - Easily access and render sprites on the screen.
 
