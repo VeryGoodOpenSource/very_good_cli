@@ -20,6 +20,7 @@ final _templates = [
   FlutterPluginTemplate(),
   VeryGoodDartCLITemplate(),
   VeryGoodDocsSiteTemplate(),
+  VeryGoodFlameGameTemplate(),
 ];
 
 final _defaultTemplate = _templates.first;
