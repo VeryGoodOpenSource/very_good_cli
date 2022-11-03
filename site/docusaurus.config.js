@@ -76,7 +76,7 @@ const config = {
             'aria-label': 'GitHub repository',
           },
           {
-            to: 'https://verygood.ventures?utm_source=dartfrog&utm_medium=docs&utm_campaign=df',
+            to: 'https://verygood.ventures',
             position: 'right',
             className: 'navbar-vgv-icon',
             'aria-label': 'Very Good Ventures',
