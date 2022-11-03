@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Flutter Flame Game 
+# Flutter Flame Game 🕹
 
 # Very Good Flame Game
 
