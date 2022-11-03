@@ -33,7 +33,7 @@ const expectedUsage = [
       '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [docs_site]         Generate a Very Good documentation site.\n'
-      '          [flame_game]        Generate a Very Good Flame game.\n'
+      '          [flame_game]        Generate a Very Good Flame Game.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
@@ -809,7 +809,8 @@ void main() {
           await expectValidTemplateName(
             templateName: 'flame_game',
             expectedBundle: veryGoodFlameGameBundle,
-            expectedLogSummary: 'Created a Very Good Flame Game! 🔥🦄',
+            expectedLogSummary:
+                'Created a Very Good Game powered by Flame! 🔥🦄',
           );
         });
       });
