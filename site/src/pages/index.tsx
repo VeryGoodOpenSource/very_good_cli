@@ -138,6 +138,33 @@ function HomepageBlogs() {
         <div className={styles.column}>
           <img
             style={{ height: 'auto' }}
+            src="https://uploads-ssl.webflow.com/5ee12d8e99cde2e20255c16c/6362d66f871bd8faaedd560a_Very%20Good%20Game%20templatesmall.png"
+            alt="Generate a game foundation with our new template"
+            width="452"
+            height="254"
+          />
+        </div>
+        <div className={styles.column}>
+          <div className={styles.content}>
+            <h2>Generate a game foundation with our new template</h2>
+            <p>
+              Learn more about the Flame game template, which comes with all 
+              the basics you'll need for game development.
+            </p>
+            <Link
+              style={{ fontWeight: 'bold' }}
+              to="https://verygood.ventures/blog/generate-a-game-with-our-new-template"
+            >
+              Read the Blog <ExternalLinkIcon />
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div style={{ padding: '1rem' }}></div>
+      <div className={styles.width}>
+        <div className={styles.column}>
+          <img
+            style={{ height: 'auto' }}
             src="https://uploads-ssl.webflow.com/5ee12d8e99cde2e20255c16c/630640412306dabe23c2db4f_CLI%20generates%20CLI.png"
             alt="Generate a Dart CLI with Very Good CLI"
             width="452"
@@ -155,34 +182,6 @@ function HomepageBlogs() {
             <Link
               style={{ fontWeight: 'bold' }}
               to="https://verygood.ventures/blog/generate-command-line-application-cli"
-            >
-              Read the Blog <ExternalLinkIcon />
-            </Link>
-          </div>
-        </div>
-      </div>
-      <div style={{ padding: '1rem' }}></div>
-      <div className={styles.width}>
-        <div className={styles.column}>
-          <img
-            style={{ height: 'auto' }}
-            src="https://uploads-ssl.webflow.com/5ee12d8e99cde2e20255c16c/62bb5e2d31f6823201f0d747_Supabase.png"
-            alt="Build a Flutter app with Very Good CLI and Supabase"
-            width="452"
-            height="254"
-          />
-        </div>
-        <div className={styles.column}>
-          <div className={styles.content}>
-            <h2>Build a Flutter app with Very Good CLI and Supabase</h2>
-            <p>
-              Learn how to make a Flutter app with Supabase and VGV tooling,
-              such as Very Good CLI, Flutter Bloc, layered architecture, and
-              100% test coverage.
-            </p>
-            <Link
-              style={{ fontWeight: 'bold' }}
-              to="https://verygood.ventures/blog/flutter-app-very-good-cli-supabase"
             >
               Read the Blog <ExternalLinkIcon />
             </Link>
