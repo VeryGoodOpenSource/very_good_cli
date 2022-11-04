@@ -148,8 +148,8 @@ function HomepageBlogs() {
           <div className={styles.content}>
             <h2>Generate a game foundation with our new template</h2>
             <p>
-              Learn more about the Flame game template, which comes with all 
-              the basics you'll need for game development.
+              Learn more about the Flame game template, which comes with all the
+              basics you'll need for game development.
             </p>
             <Link
               style={{ fontWeight: 'bold' }}
