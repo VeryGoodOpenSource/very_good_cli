@@ -4,10 +4,10 @@ sidebar_position: 2
 
 # Flutter Flame Game 🕹
 
-This template is for a Flutter Flame game. It includes a simple demo game with the basics you'll need for game development and VGV-opinionated best practices.
+This template is for a Flutter game powered by the [Flame Game Engine][flame_link]. It includes a simple demo game with the basics you'll need for game development and VGV-opinionated best practices.
 
 :::note
-Read more about how to use this game template [in our blog][blog].
+Read more about this game template [in our blog][blog].
 :::
 
 ## App Features ✨
@@ -34,3 +34,4 @@ very_good create my_game -t flame_game --desc "My new Flame game"
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template
 [very_good_cli_link]: https://github.com/VeryGoodOpenSource/very_good_cli
 [mason_link]: https://github.com/felangel/mason
+[flame_link]: https://flame-engine.org/
