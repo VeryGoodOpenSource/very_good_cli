@@ -74,6 +74,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Generate a <a href="/docs/templates/core">Flutter app</a>,{' '}
+        <a href="/docs/templates/flame_game">Flame game</a>,{' '}
         <a href="/docs/templates/flutter_pkg">Flutter package</a>,{' '}
         <a href="/docs/templates/dart_pkg">Dart package</a>,{' '}
         <a href="/docs/templates/federated_plugin">federated plugin</a>, or{' '}
