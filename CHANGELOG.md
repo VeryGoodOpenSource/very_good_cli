@@ -1,4 +1,29 @@
-# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-13)
+# [0.8.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.3...v0.8.4) (2022-11-03)
+
+### Features
+
+- **create:** add `flame_game` template ([#544](https://github.com/VeryGoodOpenSource/very_good_cli/issues/544)) ([84393cc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/84393ccbba7cb5e7fa71d8fc0f88ffde5edef1dc))
+
+## [0.8.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.2...v0.8.3) (2022-11-01)
+
+### Bug Fixes
+
+- only animate stdout progress on terminals ([#539](https://github.com/VeryGoodOpenSource/very_good_cli/issues/539)) ([8b5cde0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8b5cde039737f737ba1ab9ae5b3576f0a7c2a75c))
+
+## [0.8.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.1...v0.8.2) (2022-10-21)
+
+### Bug Fixes
+
+- update prompt on update ([#523](https://github.com/VeryGoodOpenSource/very_good_cli/issues/523)) ([7f7e321](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7f7e3215677076b6f85271a4f1add39f1f707d70))
+
+## [0.8.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.0...v0.8.1) (2022-10-14)
+
+### Features
+
+- **create:** add docs_site template ([#513](https://github.com/VeryGoodOpenSource/very_good_cli/issues/513)) ([822829a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/822829a30a690d0cb588b0ac507ea0fa1e7b7e1f))
+- **test:** add --dart-define ([#492](https://github.com/VeryGoodOpenSource/very_good_cli/issues/492)) ([1efa5aa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1efa5aa8eeaeb0347ac1bdbb223f90e0e1404dc2))
+
+# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-14)
 
 ### Features
 

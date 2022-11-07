@@ -62,6 +62,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
   final PubUpdater _pubUpdater;
 
   @override
+  void printUsage() => _logger.info(usage);
+
+  @override
   Future<int> run(Iterable<String> args) async {
     try {
       if (_analytics.firstRun) {
@@ -140,7 +143,9 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
     } else {
       exitCode = await super.runCommand(topLevelResults);
     }
-    await _checkForUpdates();
+    if (topLevelResults.command?.name != UpdateCommand.commandName) {
+      await _checkForUpdates();
+    }
     return exitCode;
   }
 

@@ -198,6 +198,98 @@ void main() {
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       });
 
+      test('create -t docs_site', () async {
+        final directory = Directory(path.join('.tmp', 'very_good_docs_site'));
+
+        final result = await commandRunner.run(
+          ['create', 'very_good_docs_site', '-t', 'docs_site', '-o', '.tmp'],
+        );
+        expect(result, equals(ExitCode.success.code));
+
+        final installResult = await Process.run(
+          'npm',
+          ['install'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(installResult.exitCode, equals(ExitCode.success.code));
+
+        final formatResult = await Process.run(
+          'npm',
+          ['run', 'format'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(formatResult.exitCode, equals(ExitCode.success.code));
+        expect(formatResult.stderr, isEmpty);
+
+        final lintResult = await Process.run(
+          'npm',
+          ['run', 'lint'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(lintResult.exitCode, equals(ExitCode.success.code));
+        expect(lintResult.stderr, isEmpty);
+
+        final buildResult = await Process.run(
+          'npm',
+          ['run', 'build'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(buildResult.exitCode, equals(ExitCode.success.code));
+        expect(buildResult.stderr, isEmpty);
+      });
+
+      test('create -t flame_game', () async {
+        final directory = Directory(path.join('.tmp', 'very_good_flame_game'));
+
+        final result = await commandRunner.run(
+          ['create', 'very_good_flame_game', '-t', 'flame_game', '-o', '.tmp'],
+        );
+        expect(result, equals(ExitCode.success.code));
+
+        final formatResult = await Process.run(
+          'flutter',
+          ['format', '--set-exit-if-changed', '.'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(formatResult.exitCode, equals(ExitCode.success.code));
+        expect(formatResult.stderr, isEmpty);
+
+        final analyzeResult = await Process.run(
+          'flutter',
+          ['analyze', '.'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(analyzeResult.exitCode, equals(ExitCode.success.code));
+        expect(analyzeResult.stderr, isEmpty);
+        expect(analyzeResult.stdout, contains('No issues found!'));
+
+        final testResult = await Process.run(
+          'flutter',
+          ['test', '--no-pub', '--coverage'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(testResult.exitCode, equals(ExitCode.success.code));
+        expect(testResult.stderr, isEmpty);
+        expect(testResult.stdout, contains('All tests passed!'));
+
+        final testCoverageResult = await Process.run(
+          'genhtml',
+          ['coverage/lcov.info', '-o', 'coverage'],
+          workingDirectory: directory.path,
+          runInShell: true,
+        );
+        expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
+        expect(testCoverageResult.stderr, isEmpty);
+        expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
+      });
+
       test('create -t core', () async {
         final directory = Directory(path.join('.tmp', 'very_good_core'));
 
@@ -246,6 +338,6 @@ void main() {
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       });
     },
-    timeout: const Timeout(Duration(seconds: 90)),
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

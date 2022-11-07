@@ -1,9 +1,5 @@
-# Very Good CLI
-
-[![Very Good Ventures][logo_white]][very_good_ventures_link_dark]
-[![Very Good Ventures][logo_black]][very_good_ventures_link_light]
-
-Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
+[![Very Good CLI Logo][cli_logo_white]][cli_link_dark]
+[![Very Good CLI Logo][cli_logo_black]][cli_link_light]
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
@@ -15,13 +11,21 @@ Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 
 A Very Good Command-Line Interface for Dart.
 
-## Installing
+Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
+
+## Documentation 📝
+
+For official documentation, please visit https://cli.vgv.dev.
+
+## Quick Start 🚀
+
+### Installing 🧑‍💻
 
 ```sh
 dart pub global activate very_good_cli
 ```
 
-## Commands
+### Commands ✨
 
 ### `very_good create`
 
@@ -45,6 +49,8 @@ Usage: very_good create <project name>
           [core] (default)    Generate a Very Good Flutter application.
           [dart_cli]          Generate a Very Good Dart CLI application.
           [dart_pkg]          Generate a reusable Dart package.
+          [docs_site]         Generate a Very Good documentation site.
+          [flame_game]        Generate a Very Good Flame game.
           [flutter_pkg]       Generate a reusable Flutter package.
           [flutter_plugin]    Generate a reusable Flutter plugin.
 
@@ -71,6 +77,9 @@ very_good create my_app --desc "My new Flutter app"
 # Create a new Flutter app named my_app with a custom org
 very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
 
+# Create a new Flame game named my_game
+very_good create my_game -t flame_game --desc "My new Flame game"
+
 # Create a new Flutter package named my_flutter_package
 very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
 
@@ -90,30 +99,6 @@ very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plug
 very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
 ```
 
-### What's Included in Very Good Core? 📦
-
-Out of the box, [Very Good Core][very_good_core_link] includes:
-
-✅&nbsp; [Cross Platform Support][flutter_cross_platform_link] - Built-in support for iOS, Android, Web, and Windows (MacOS/Linux coming soon!)
-
-✅&nbsp; [Build Flavors][flutter_flavors_link] - Multiple flavor support for development, staging, and production
-
-✅&nbsp; [Internationalization Support][internationalization_link] - Internationalization support using synthetic code generation to streamline the development process
-
-✅&nbsp; [Sound Null-Safety][null_safety_link] - No more null-dereference exceptions at runtime. Develop with a sound, static type system.
-
-✅&nbsp; [Bloc][bloc_link] - Integrated bloc architecture for scalable, testable code which offers a clear separation between business logic and presentation
-
-✅&nbsp; [Testing][testing_link] - Unit and Widget Tests with 100% line coverage (Integration Tests coming soon!)
-
-✅&nbsp; [Logging][logging_link] - Built-in, extensible logging to capture uncaught Flutter and Dart Exceptions
-
-✅&nbsp; [Very Good Analysis][very_good_analysis_link] - Strict Lint Rules which are used at [Very Good Ventures][very_good_ventures_link]
-
-✅&nbsp; [Continuous Integration][github_actions_link] - Lint, format, test, and enforce code coverage using [GitHub Actions][github_actions_link]
-
-_\* Learn more at [Flutter Starter App: Very Good Core & CLI][very_good_cli_blog_link]_
-
 ---
 
 ### `very_good packages get`
@@ -132,18 +117,6 @@ very_good packages get --recursive
 
 # Install packages recursively (shorthand)
 very_good packages get -r
-```
-
-#### Complete Usage
-
-```sh
-Get packages in a Dart or Flutter project.
-
-Usage: very_good packages get [arguments]
--h, --help         Print this usage information.
--r, --recursive    Install dependencies recursively for all nested packages.
-
-Run "very_good help" to see global options.
 ```
 
 ### `very_good test`
@@ -168,26 +141,6 @@ very_good test --recursive
 
 # Run tests recursively (shorthand)
 very_good test -r
-```
-
-#### Complete Usage
-
-```sh
-Run tests in a Dart or Flutter project.
-
-Usage: very_good test [arguments]
--h, --help                            Print this usage information.
-    --coverage                        Whether to collect coverage information.
--r, --recursive                       Run tests recursively for all nested packages.
-    --[no-]optimization               Whether to apply optimizations for test performance.
-                                      (defaults to on)
-    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.
--x, --exclude-tags                    Run only tests that do not have the specified tags.
-    --min-coverage                    Whether to enforce a minimum coverage percentage.
-    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
-    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.
-
-Run "very_good help" to see global options.
 ```
 
 ### `very_good --help`
@@ -226,8 +179,8 @@ Run "very_good help <command>" for more information about a command.
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
-[logo_black]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_black.png#gh-light-mode-only
-[logo_white]: https://raw.githubusercontent.com/VGVentures/very_good_brand/main/styles/README/vgv_logo_white.png#gh-dark-mode-only
+[cli_logo_black]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo.svg#gh-light-mode-only
+[cli_logo_white]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo_dark.svg#gh-dark-mode-only
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
@@ -235,9 +188,8 @@ Run "very_good help <command>" for more information about a command.
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
-[very_good_cli_blog_link]: https://verygood.ventures/blog/flutter-starter-app-very-good-core-cli?utm_source=github&utm_medium=banner&utm_campaign=CLIblog
 [very_good_core_link]: doc/very_good_core.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
-[very_good_ventures_link]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI
-[very_good_ventures_link_dark]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI#gh-dark-mode-only
-[very_good_ventures_link_light]: https://verygood.ventures/?utm_source=github&utm_medium=banner&utm_campaign=CLI#gh-light-mode-only
+[very_good_ventures_link]: https://verygood.ventures
+[cli_link_dark]: hhttps://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
+[cli_link_light]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-light-mode-only

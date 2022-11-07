@@ -21,8 +21,11 @@ class UpdateCommand extends Command<int> {
   @override
   String get description => 'Update Very Good CLI.';
 
+  /// The [name] of the command. But static.
+  static const String commandName = 'update';
+
   @override
-  String get name => 'update';
+  String get name => commandName;
 
   @override
   Future<int> run() async {

@@ -21,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v1.5.3
+      - uses: subosito/flutter-action@v2.8.0
 
       - name: Install Dependencies
         run: flutter pub get
@@ -43,15 +43,15 @@ jobs:
           flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
+        uses: VeryGoodOpenSource/very_good_coverage@v2.0.0
 
   e2e:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v1.5.3
+      - uses: subosito/flutter-action@v2.8.0
 
       - name: Install LCOV
         run: sudo apt-get install -y lcov
@@ -66,9 +66,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v1.5.3
+      - uses: subosito/flutter-action@v2.8.0
 
       - name: Install Dependencies
         run: |
