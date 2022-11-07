@@ -47,6 +47,9 @@ const expectedUsage = [
       '                              (defaults to "true")\n'
       '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
+      '    --application-id          When informed, this will override the '
+      'default application identifier on the platforms that uses this '
+      'information  (e.g. bundle id on iOS or application on Android)\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -216,6 +219,72 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
+            'application_id': null,
+            'platforms': [
+              'android',
+              'ios',
+              'web',
+              'linux',
+              'macos',
+              'windows',
+            ],
+          },
+          logger: logger,
+        ),
+      ).called(1);
+    });
+
+    test('uses application_id when one is informed', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults['application-id'] as String?).thenReturn('xyz.app.my_app',);
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'application_id': 'xyz.app.my_app',
             'platforms': [
               'android',
               'ios',
@@ -279,6 +348,7 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
+            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -364,6 +434,7 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
+            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -440,6 +511,7 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': 'very good description',
             'executable_name': 'my_app',
+            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -595,6 +667,7 @@ void main() {
                 'description': '',
                 'executable_name': 'my_app',
                 'org_name': orgName,
+                'application_id': null,
                 'platforms': [
                   'android',
                   'ios',
@@ -724,6 +797,7 @@ void main() {
                 'org_name': 'com.example.verygoodcore',
                 'executable_name': 'my_app',
                 'description': '',
+                'application_id': null,
                 'platforms': [
                   'android',
                   'ios',

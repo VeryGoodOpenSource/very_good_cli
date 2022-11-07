@@ -114,6 +114,13 @@ class CreateCommand extends Command<int> {
         'windows',
         help: 'The plugin supports the Windows platform.',
         defaultsTo: 'true',
+      )
+      ..addOption(
+        'application-id',
+        help:
+            'When informed, this will override the default application '
+            'identifier on the platforms that uses this information '
+            ' (e.g. bundle id on iOS or application on Android)',
       );
   }
 
@@ -158,11 +165,13 @@ class CreateCommand extends Command<int> {
     final windows = _argResults['windows'] as String? ?? 'true';
     final executableName =
         _argResults['executable-name'] as String? ?? projectName;
+    final applicationId = _argResults['application-id'] as String?;
     var vars = <String, dynamic>{
       'project_name': projectName,
       'description': description,
       'executable_name': executableName,
       'org_name': orgName,
+      'application_id': applicationId,
       'platforms': <String>[
         if (android.toBool()) 'android',
         if (ios.toBool()) 'ios',
