@@ -14,6 +14,7 @@ Get step-by-step guides to using Very Good CLI.
 ## Flutter Flame Game
 
 - **[Flame Game Template][flame_game_tutorial]**: Learn how to generate a Flutter game, powered by the Flame Game Engine.
+
 ## Dart CLI Template
 
 - **[Dart CLI Template][dart_cli_tutorial]**: Unlock the potential of Dart in the command line with the Dart CLI template.
