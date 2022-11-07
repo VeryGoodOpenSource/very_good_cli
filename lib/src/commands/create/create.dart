@@ -119,8 +119,7 @@ class CreateCommand extends Command<int> {
       )
       ..addOption(
         'application-id',
-        help:
-            'When informed, this will override the default application '
+        help: 'When informed, this will override the default application '
             'identifier on the platforms that uses this information '
             ' (e.g. bundle id on iOS or application on Android)',
       );

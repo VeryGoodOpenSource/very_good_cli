@@ -247,7 +247,9 @@ void main() {
         generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
-      when(() => argResults['application-id'] as String?).thenReturn('xyz.app.my_app',);
+      when(() => argResults['application-id'] as String?).thenReturn(
+        'xyz.app.my_app',
+      );
       when(() => argResults.rest).thenReturn(['my_app']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
