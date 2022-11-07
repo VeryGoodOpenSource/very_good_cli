@@ -1,4 +1,10 @@
-# [0.8.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.2...v0.8.3) (2022-11-01)
+# [0.8.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.3...v0.8.4) (2022-11-03)
+
+### Features
+
+- **create:** add `flame_game` template ([#544](https://github.com/VeryGoodOpenSource/very_good_cli/issues/544)) ([84393cc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/84393ccbba7cb5e7fa71d8fc0f88ffde5edef1dc))
+
+## [0.8.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.2...v0.8.3) (2022-11-01)
 
 ### Bug Fixes
 

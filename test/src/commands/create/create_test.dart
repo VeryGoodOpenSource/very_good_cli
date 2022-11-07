@@ -26,13 +26,14 @@ const expectedUsage = [
       '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
       '''    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)\n'''
       '    --org-name                The organization for this new project.\n'
-      '                              (defaults to "com.example.verygoodcore")\n'
+      '''                              (defaults to "com.example.verygoodcore")\n'''
       '''-t, --template                The template used to generate this new project.\n'''
       '\n'
       '''          [core] (default)    Generate a Very Good Flutter application.\n'''
       '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
       '          [dart_pkg]          Generate a reusable Dart package.\n'
       '          [docs_site]         Generate a Very Good documentation site.\n'
+      '          [flame_game]        Generate a Very Good Flame game.\n'
       '          [flutter_pkg]       Generate a reusable Flutter package.\n'
       '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
       '\n'
@@ -801,6 +802,15 @@ void main() {
             templateName: 'docs_site',
             expectedBundle: veryGoodDartCliBundle,
             expectedLogSummary: 'Created a Very Good documentation site! 🦄',
+          );
+        });
+
+        test('flame game template', () async {
+          await expectValidTemplateName(
+            templateName: 'flame_game',
+            expectedBundle: veryGoodFlameGameBundle,
+            expectedLogSummary:
+                'Created a Very Good Game powered by Flame! 🔥🦄',
           );
         });
       });

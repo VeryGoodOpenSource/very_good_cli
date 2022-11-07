@@ -75,6 +75,12 @@ const config = {
             className: 'navbar-github-icon',
             'aria-label': 'GitHub repository',
           },
+          {
+            to: 'https://verygood.ventures',
+            position: 'right',
+            className: 'navbar-vgv-icon',
+            'aria-label': 'Very Good Ventures',
+          },
         ],
       },
       footer: {
