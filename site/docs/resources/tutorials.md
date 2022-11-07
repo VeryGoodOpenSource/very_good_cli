@@ -21,7 +21,7 @@ Get step-by-step guides to using Very Good CLI.
 
 ## Plugin Template
 
-- **[Plugin Template][plugin_tutorial]**: Unlock the potential of Dart in the command line with the Dart CLI template.
+- **[Plugin Template][plugin_tutorial]**: Learn how to generate a plugin that follows a federated architecture.
 
 ## Test Command
 
