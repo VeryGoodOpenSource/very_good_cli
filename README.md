@@ -97,6 +97,9 @@ very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plug
 
 # Create a new Flutter plugin named my_flutter_plugin (some platforms disabled)
 very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
+
+# Create a new docs site named my_docs_site
+very_good create my_docs_site -t docs_site
 ```
 
 ---
