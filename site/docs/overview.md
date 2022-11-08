@@ -47,6 +47,7 @@ Usage: very_good create <project name>
           [dart_cli]          Generate a Very Good Dart CLI application.
           [dart_pkg]          Generate a reusable Dart package.
           [docs_site]         Generate a Very Good documentation site.
+          [flame_game]        Generate a Very Good Flame game.
           [flutter_pkg]       Generate a reusable Flutter package.
           [flutter_plugin]    Generate a reusable Flutter plugin.
 
