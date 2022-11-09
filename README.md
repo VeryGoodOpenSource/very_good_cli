@@ -194,5 +194,5 @@ Run "very_good help <command>" for more information about a command.
 [very_good_core_link]: doc/very_good_core.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
-[cli_link_dark]: hhttps://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
+[cli_link_dark]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
 [cli_link_light]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-light-mode-only
