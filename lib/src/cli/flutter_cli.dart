@@ -1,5 +1,7 @@
 part of 'cli.dart';
 
+const _testOptimizerFileName = '.test_optimizer.dart';
+
 /// Thrown when `flutter packages get` or `flutter pub get`
 /// is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
@@ -207,13 +209,13 @@ class Flutter {
                 '--test-randomize-ordering-seed',
                 randomSeed
               ],
-              if (optimizePerformance) p.join('test', '.test_optimizer.dart')
+              if (optimizePerformance) p.join('test', _testOptimizerFileName)
             ],
             stdout: stdout ?? noop,
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             if (optimizePerformance) {
-              File(p.join(cwd, 'test', '.test_optimizer.dart'))
+              File(p.join(cwd, 'test', _testOptimizerFileName))
                   .delete()
                   .ignore();
             }
@@ -324,14 +326,15 @@ Future<int> _flutterTest({
   final suites = <int, TestSuite>{};
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
-  final failedTestErrorMessages = <int, String>{};
+  final failedTestErrorMessages = <String, List<String>>{};
 
   var successCount = 0;
   var skipCount = 0;
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
-    final failingTests = failedTestErrorMessages.length.formatFailure();
+    final failingTests =
+        failedTestErrorMessages.values.expand((e) => e).length.formatFailure();
     final skippedTests = skipCount.formatSkipped();
     final result = [passingTests, failingTests, skippedTests]
       ..removeWhere((element) => element.isEmpty);
@@ -378,16 +381,21 @@ Future<int> _flutterTest({
         if (event.stackTrace.trim().isNotEmpty) {
           stderr('$clearLine${event.stackTrace}');
         }
-
-        final traceLocation = _getTraceLocation(stackTrace: event.stackTrace);
-
-        // When failing to recover the location from the stack trace,
-        // save a short description of the error
-        final testErrorDescription = traceLocation ??
-            event.error.replaceAll('\n', ' ').truncated(_lineLength);
-
+        final test = tests[event.testID]!;
+        final suite = suites[test.suiteID]!;
         final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
-        failedTestErrorMessages[event.testID] = '$prefix $testErrorDescription';
+
+        final optimizationApplied = _isOptimizationApplied(suite);
+        final topGroupName = _topGroupName(test, groups);
+        final testPath =
+            _actualTestPath(optimizationApplied, suite.path!, topGroupName);
+        final testName =
+            _actualTestName(optimizationApplied, test.name, topGroupName);
+        final relativeTestPath = p.relative(testPath, from: cwd);
+        failedTestErrorMessages[relativeTestPath] = [
+          ...failedTestErrorMessages[relativeTestPath] ?? [],
+          '$prefix $testName'
+        ];
       }
 
       if (event is TestDoneEvent) {
@@ -395,24 +403,30 @@ Future<int> _flutterTest({
 
         final test = tests[event.testID]!;
         final suite = suites[test.suiteID]!;
+        final optimizationApplied = _isOptimizationApplied(suite);
+        final firstGroupName = _topGroupName(test, groups);
+        final testPath =
+            _actualTestPath(optimizationApplied, suite.path!, firstGroupName);
+        final testName =
+            _actualTestName(optimizationApplied, test.name, firstGroupName);
 
         if (event.skipped) {
           stdout(
-            '''$clearLine${lightYellow.wrap('${test.name} ${suite.path} (SKIPPED)')}\n''',
+            '''$clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
           );
           skipCount++;
         } else if (event.result == TestResult.success) {
           successCount++;
         } else {
-          stderr('$clearLine${test.name} ${suite.path} (FAILED)');
+          stderr('$clearLine$testName $testPath (FAILED)');
         }
 
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        final testName = test.name.toSingleLine().truncated(
+        final truncatedTestName = testName.toSingleLine().truncated(
               _lineLength - (timeElapsed.length + stats.length + 2),
             );
-        stdout('''$clearLine$timeElapsed $stats: $testName''');
+        stdout('''$clearLine$timeElapsed $stats: $truncatedTestName''');
       }
 
       if (event is DoneTestEvent) {
@@ -433,9 +447,15 @@ Future<int> _flutterTest({
           final title = styleBold.wrap('Failing Tests:');
 
           final lines = StringBuffer('$clearLine$title\n');
-          for (final errorMessage in failedTestErrorMessages.values) {
-            lines.writeln('$clearLine - $errorMessage');
+          for (final testSuiteErrorMessages
+              in failedTestErrorMessages.entries) {
+            lines.writeln('$clearLine - ${testSuiteErrorMessages.key} ');
+
+            for (final errorMessage in testSuiteErrorMessages.value) {
+              lines.writeln('$clearLine \t- $errorMessage');
+            }
           }
+
           stderr(lines.toString());
         }
       }
@@ -458,6 +478,29 @@ Future<int> _flutterTest({
 
   return completer.future;
 }
+
+bool _isOptimizationApplied(TestSuite suite) =>
+    suite.path?.contains(_testOptimizerFileName) ?? false;
+
+String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
+    .map((groupID) => groups[groupID]?.name)
+    .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
+
+String _actualTestPath(
+  bool optimizationApplied,
+  String path,
+  String? groupName,
+) =>
+    optimizationApplied
+        ? path.replaceFirst(_testOptimizerFileName, groupName!)
+        : path;
+
+String _actualTestName(
+  bool optimizationApplied,
+  String name,
+  String? topGroupName,
+) =>
+    optimizationApplied ? name.replaceFirst(topGroupName!, '').trim() : name;
 
 final int _lineLength = () {
   try {
@@ -510,23 +553,4 @@ extension on String {
 
   String toSingleLine() =>
       replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
-}
-
-String? _getTraceLocation({
-  required String stackTrace,
-}) {
-  final trace = Trace.parse(stackTrace);
-  if (trace.frames.isEmpty) {
-    return null;
-  }
-
-  final lastFrame = trace.frames.last;
-
-  final library = lastFrame.library;
-  final line = lastFrame.line;
-  final column = lastFrame.column;
-
-  if (line == null) return library;
-  if (column == null) return '$library:$line';
-  return '$library:$line:$column';
 }

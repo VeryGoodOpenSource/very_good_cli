@@ -90,7 +90,10 @@ void main() {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: Directory.systemTemp.path, logger: logger),
+            Flutter.packagesGet(
+              cwd: Directory.systemTemp.path,
+              logger: logger,
+            ),
             throwsA(isA<PubspecNotFound>()),
           ),
           runProcess: process.run,
@@ -113,7 +116,10 @@ void main() {
 
         ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.packagesGet(cwd: Directory.systemTemp.path, logger: logger),
+            Flutter.packagesGet(
+              cwd: Directory.systemTemp.path,
+              logger: logger,
+            ),
             throwsException,
           ),
           runProcess: process.run,
@@ -361,7 +367,9 @@ void main() {
 
         controller
           ..add(const DoneTestEvent(success: true, time: 0))
-          ..add(const ExitTestEvent(exitCode: 0, time: 0));
+          ..add(
+            const ExitTestEvent(exitCode: 0, time: 0),
+          );
 
         await Future<void>.delayed(Duration.zero);
 
@@ -466,7 +474,7 @@ void main() {
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...failingJsonOutput.map(TestEvent.fromJson),
+                ...failingJsonOutput(directory.path).map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
@@ -498,9 +506,10 @@ void main() {
               '''\x1B[2K\rpackage:test_api                                    expect\n'''
                   'package:flutter_test/src/widget_tester.dart 455:16  expect\n'
                   'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
-              '\x1B[2K\rCounterCubit initial state is 0 /my_app/test/counter/cubit/counter_cubit_test.dart (FAILED)',
+              '\x1B[2K\rCounterCubit initial state is 0 ${directory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
               '\x1B[2K\rFailing Tests:\n'
-                  '\x1B[2K\r - [FAILED] test/counter/cubit/counter_cubit_test.dart:16:7\n'
+                  '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
+                  '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
         );
@@ -518,7 +527,8 @@ void main() {
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...skipExceptionMessageJsonOuput.map(TestEvent.fromJson),
+                ...skipExceptionMessageJsonOutput(directory.path)
+                    .map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
@@ -531,9 +541,9 @@ void main() {
           equals([
             'Running "flutter test" in ${p.dirname(directory.path)}...\n',
             '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
-            '\x1B[2K\r(suite) /my_app/test/counter/view/other_test.dart (SKIPPED)\n',
+            '\x1B[2K\r(suite) ${directory.path}/test/counter/view/other_test.dart (SKIPPED)\n',
             '\x1B[2K\r00:00 ~1: (suite)',
-            '\x1B[2K\rCounterCubit initial state is 0 /my_app/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
+            '\x1B[2K\rCounterCubit initial state is 0 ${directory.path}/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
             '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
             '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
@@ -556,8 +566,8 @@ void main() {
                 'Exception: oops\n'
                 '\n'
                 'When the exception was thrown, this was the stack:\n'
-                '#0      main.<anonymous closure>.<anonymous closure> (file:///my_app/test/app/view/app_test.dart:15:7)\n'
-                '#1      main.<anonymous closure>.<anonymous closure> (file:///my_app/test/app/view/app_test.dart:14:40)\n'
+                '#0      main.<anonymous closure>.<anonymous closure> (file://${directory.path}/test/app/view/app_test.dart:15:7)\n'
+                '#1      main.<anonymous closure>.<anonymous closure> (file://${directory.path}/test/app/view/app_test.dart:14:40)\n'
                 '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n'
                 '<asynchronous suspension>\n'
                 '<asynchronous suspension>\n'
@@ -568,9 +578,10 @@ void main() {
                 '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
             '\x1B[2K\rTest failed. See exception logs above.\n'
                 'The test description was: renders CounterPage',
-            '\x1B[2K\rApp renders CounterPage /my_app/test/app/view/app_test.dart (FAILED)',
+            '\x1B[2K\rApp renders CounterPage ${directory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
-                '''\x1B[2K\r - [ERROR] ...failed. See exception logs above. The test description was: renders CounterPage\n'''
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
         directory.delete(recursive: true).ignore();
@@ -610,6 +621,36 @@ void main() {
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 4,
+                    platform: 'vm',
+                    path: '${directory.path}/test/app/view/app_test.dart',
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 10,
+                    suiteID: 4,
+                    name: 'CounterCubit',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 0,
+                    name: 'CounterCubit emits [1] when increment is called',
+                    suiteID: 4,
+                    groupIDs: [10],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
                 ErrorTestEvent(
                   testID: 0,
                   error: 'error',
@@ -633,7 +674,8 @@ void main() {
             '\x1B[2K\rerror',
             '\x1B[2K\rtest/example_test.dart 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - [FAILED] test/example_test.dart:4\n'
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
           ]),
         );
         directory.delete(recursive: true).ignore();
@@ -1095,6 +1137,90 @@ void main() {
           ),
         ).called(1);
         verify(() => progress.complete()).called(1);
+        directory.delete(recursive: true).ignore();
+      });
+
+      test('runs tests w/optimizations (failing)', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 4,
+                    platform: 'vm',
+                    path: '${directory.path}/test/.test_optimizer.dart',
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 10,
+                    suiteID: 4,
+                    name: 'app/view/app_test.dart',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 99,
+                    suiteID: 4,
+                    name: 'app/view/app_test.dart CounterCubit',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 0,
+                    name:
+                        'app/view/app_test.dart CounterCubit emits [1] when increment is called',
+                    suiteID: 4,
+                    groupIDs: [10, 99],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
+                ErrorTestEvent(
+                  testID: 0,
+                  error: 'error',
+                  stackTrace:
+                      stack_trace.Trace.parse('test/example_test.dart 4 main')
+                          .toString(),
+                  isFailure: true,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '\x1B[2K\rerror',
+            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
+          ]),
+        );
         directory.delete(recursive: true).ignore();
       });
     });
