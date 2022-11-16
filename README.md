@@ -97,6 +97,9 @@ very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plug
 
 # Create a new Flutter plugin named my_flutter_plugin (some platforms disabled)
 very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
+
+# Create a new docs site named my_docs_site
+very_good create my_docs_site -t docs_site
 ```
 
 ---
@@ -191,5 +194,5 @@ Run "very_good help <command>" for more information about a command.
 [very_good_core_link]: doc/very_good_core.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
-[cli_link_dark]: hhttps://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
+[cli_link_dark]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
 [cli_link_light]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-light-mode-only
