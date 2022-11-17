@@ -119,9 +119,8 @@ class CreateCommand extends Command<int> {
       )
       ..addOption(
         'application-id',
-        help: 'When informed, this will override the default application '
-            'identifier on the platforms that uses this information '
-            ' (e.g. bundle id on iOS or application on Android)',
+        help: 'The bundle identifier on iOS or application id on Android. '
+            '(defaults to <org-name>.<project-name>)',
       );
   }
 
@@ -172,7 +171,7 @@ class CreateCommand extends Command<int> {
       'description': description,
       'executable_name': executableName,
       'org_name': orgName,
-      'application_id': applicationId,
+      if (applicationId != null) 'application_id': applicationId,
       'platforms': <String>[
         if (android.toBool()) 'android',
         if (ios.toBool()) 'ios',

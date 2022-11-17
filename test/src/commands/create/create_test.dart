@@ -49,9 +49,7 @@ const expectedUsage = [
       '                              (defaults to "true")\n'
       '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
-      '    --application-id          When informed, this will override the '
-      'default application identifier on the platforms that uses this '
-      'information  (e.g. bundle id on iOS or application on Android)\n'
+      '''    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -221,7 +219,6 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
-            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -236,7 +233,7 @@ void main() {
       ).called(1);
     });
 
-    test('uses application_id when one is informed', () async {
+    test('uses application_id when one is provided', () async {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
@@ -352,7 +349,6 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
-            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -438,7 +434,6 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': '',
             'executable_name': 'my_app',
-            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -515,7 +510,6 @@ void main() {
             'org_name': 'com.example.verygoodcore',
             'description': 'very good description',
             'executable_name': 'my_app',
-            'application_id': null,
             'platforms': [
               'android',
               'ios',
@@ -671,7 +665,6 @@ void main() {
                 'description': '',
                 'executable_name': 'my_app',
                 'org_name': orgName,
-                'application_id': null,
                 'platforms': [
                   'android',
                   'ios',
@@ -801,7 +794,6 @@ void main() {
                 'org_name': 'com.example.verygoodcore',
                 'executable_name': 'my_app',
                 'description': '',
-                'application_id': null,
                 'platforms': [
                   'android',
                   'ios',
