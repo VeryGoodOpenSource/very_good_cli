@@ -1,4 +1,10 @@
-# [0.8.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.3...v0.8.4) (2022-11-03)
+# [0.8.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.4...v0.8.5) (2022-11-17)
+
+### Features
+
+- **core:** support application_id argument ([#555](https://github.com/VeryGoodOpenSource/very_good_cli/issues/555)) ([2dff7d5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2dff7d5b0beabd1f882511788742c3c880a58fa2))
+
+## [0.8.4](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.3...v0.8.4) (2022-11-03)
 
 ### Features
 
