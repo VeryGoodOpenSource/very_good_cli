@@ -95,7 +95,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/.github/workflows/main.yaml",
       "data":
-          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpvbjoKICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCgpqb2JzOgogIHNlbWFudGljX3B1bGxfcmVxdWVzdDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL3NlbWFudGljX3B1bGxfcmVxdWVzdC55bWxAdjEKCiAgYnVpbGQ6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9mbHV0dGVyX3BhY2thZ2UueW1sQHYxCiAgICB3aXRoOgogICAgICBmbHV0dGVyX2NoYW5uZWw6IHN0YWJsZQogICAgICBmbHV0dGVyX3ZlcnNpb246IDMuMC40Cg==",
+          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpvbjoKICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCgpqb2JzOgogIHNlbWFudGljX3B1bGxfcmVxdWVzdDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL3NlbWFudGljX3B1bGxfcmVxdWVzdC55bWxAdjEKCiAgYnVpbGQ6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9mbHV0dGVyX3BhY2thZ2UueW1sQHYxCiAgICB3aXRoOgogICAgICBmbHV0dGVyX2NoYW5uZWw6IHN0YWJsZQogICAgICBmbHV0dGVyX3ZlcnNpb246IDMuMy43Cg==",
       "type": "text"
     },
     {
@@ -107,7 +107,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjAuMi55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjEuMC55YW1sCg==",
       "type": "text"
     },
     {
@@ -144,7 +144,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCiAgZmx1dHRlcjogMy4zLjEKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjAuMgo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCiAgZmx1dHRlcjogMy4zLjcKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjEuMAo=",
       "type": "text"
     },
     {
@@ -177,8 +177,8 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   ],
   "name": "very_good_flutter_package",
   "description": "A Very Good Flutter package created by Very Good Ventures.",
-  "version": "0.1.0",
-  "environment": {"mason": ">=0.1.0-dev.26 <0.1.0"},
+  "version": "0.1.3",
+  "environment": {"mason": ">=0.1.0-dev.32 <0.1.0"},
   "repository":
       "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
   "readme": {
@@ -190,7 +190,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjEuMAoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjEgYW5kIHZlcnlfZ29vZF9hbmFseXNpcyAzLjAuMgoKIyAwLjAuMQoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2Ug8J+OiQo=",
+        "IyAwLjEuMwoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjcKCiMgMC4xLjIKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4zCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMiBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMSBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMC4yCgojIDAuMC4xCgotIGZlYXQ6IGluaXRpYWwgcmVsZWFzZSDwn46JCg==",
     "type": "text"
   },
   "license": {
