@@ -15,7 +15,9 @@ function HomepageHeader() {
       <div className="container">
         <img
           className={clsx(styles.heroLogo)}
-          src={colorMode == 'dark' ? 'img/logo_dark.svg' : 'img/logo.svg'}
+          src={
+            colorMode == 'dark' ? 'img/cli_logo_dark.svg' : 'img/cli_logo.svg'
+          }
           alt="CLI Logo"
         />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -45,7 +47,7 @@ function HomepageCTA() {
   return (
     <div className={styles.width}>
       <Link className="button button--primary button--lg" to="/docs/overview">
-        Get Started
+        Get Started &gt;
       </Link>
     </div>
   );
@@ -156,7 +158,7 @@ function HomepageBlogs() {
               style={{ fontWeight: 'bold' }}
               to="https://verygood.ventures/blog/generate-a-game-with-our-new-template"
             >
-              Read the Blog <ExternalLinkIcon />
+              Read the Blog &gt;
             </Link>
           </div>
         </div>
@@ -184,7 +186,7 @@ function HomepageBlogs() {
               style={{ fontWeight: 'bold' }}
               to="https://verygood.ventures/blog/generate-command-line-application-cli"
             >
-              Read the Blog <ExternalLinkIcon />
+              Read the Blog &gt;
             </Link>
           </div>
         </div>

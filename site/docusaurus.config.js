@@ -48,6 +48,7 @@ const config = {
     ({
       image: '/img/meta/open-graph.png',
       navbar: {
+        title: 'Very Good CLI',
         logo: {
           alt: 'Very Good CLI Logo',
           src: 'img/cli_icon.svg',
