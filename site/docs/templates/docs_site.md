@@ -16,11 +16,11 @@ This template is powered by [Docusaurus][docusaurus_link] and comes with the fol
 
 - **Dark Mode** - Ships with site-wide light and dark mode
 
-- **Customizable Homepage** - Customize your home page with React components
+- **Customizable Homepage** - Customize your homepage with React components
 
 - **Easy Theming** - Reflect your branding with custom CSS and theming
 
-- **Markdown Files** - Each page is a markdown file that makes it easy to display code snippets and text
+- **Markdown Files** - Each page is a Markdown file that makes it easy to display code snippets and text
 
 - **Edit Button** - Easily manage documentation edits via the "Edit this page" link that comes with each page
 
@@ -35,11 +35,11 @@ very_good create my_docs_site -t docs_site
 
 ## Preview 📝
 
-### Home Page
+### Homepage
 
 ![Very Good Docs][docs_light]
 
-### Home Page (Dark Mode)
+### Homepage (Dark Mode)
 
 ![Very Good Docs Dark][docs_dark]
 

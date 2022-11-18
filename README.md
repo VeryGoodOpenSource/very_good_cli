@@ -66,6 +66,7 @@ Usage: very_good create <project name>
                               (defaults to "true")
     --windows                 The plugin supports the Windows platform.
                               (defaults to "true")
+    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
 ```
 
 #### Usage
@@ -76,6 +77,9 @@ very_good create my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
 very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
+
+# Create a new Flutter app named my_app with a custom application id
+very_good create my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
 
 # Create a new Flame game named my_game
 very_good create my_game -t flame_game --desc "My new Flame game"
