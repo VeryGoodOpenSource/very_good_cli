@@ -56,10 +56,6 @@ html[data-theme='dark'] .features {
   gap: 0.5rem;
 }
 
-.screen_width {
-  width: 960px;
-}
-
 .width {
   display: flex;
   flex-direction: row;
