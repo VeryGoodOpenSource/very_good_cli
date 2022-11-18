@@ -15,9 +15,7 @@ function HomepageHeader() {
       <div className="container">
         <img
           className={clsx(styles.heroLogo)}
-          src={
-            colorMode == 'dark' ? 'img/cli_logo_dark.svg' : 'img/cli_logo.svg'
-          }
+          src={colorMode == 'dark' ? 'img/logo_dark.svg' : 'img/logo.svg'}
           alt="CLI Logo"
         />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
