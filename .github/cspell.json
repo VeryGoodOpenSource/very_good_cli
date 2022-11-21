@@ -14,5 +14,18 @@
       "description": "Forbidden VGV Spellings"
     }
   ],
-  "useGitignore": true
+  "useGitignore": true,
+  "words": [
+    "codeowners",
+    "contador",
+    "goldens",
+    "localizable",
+    "mipmap",
+    "mostrado",
+    "página",
+    "pregen",
+    "texto",
+    "verygoodcore",
+    "xcassets"
+  ]
 }
