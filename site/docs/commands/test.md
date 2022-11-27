@@ -32,6 +32,8 @@ Unlike `flutter test`, `very_good test` will always run your tests without insta
 
 This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 
+To use Optimized tests it is mandatory that none of your tests main method is async.
+
 If you need to install dependencies before running the tests with `very_good_cli`, be sure to run `very_good packages get` first.
 
 [cov_issue]: https://github.com/flutter/flutter/issues/90225
