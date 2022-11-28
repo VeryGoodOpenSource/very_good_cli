@@ -38,10 +38,6 @@ html[data-theme='dark'] .main {
   width: 100%;
 }
 
-html[data-theme='dark'] .features {
-  background-color: var(--colors-darker-grey);
-}
-
 .featureSvg {
   height: 100px;
   width: 100px;
