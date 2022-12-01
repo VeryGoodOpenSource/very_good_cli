@@ -121,6 +121,12 @@ class CreateCommand extends Command<int> {
         'application-id',
         help: 'The bundle identifier on iOS or application id on Android. '
             '(defaults to <org-name>.<project-name>)',
+      )
+      ..addOption(
+        'publishable',
+        help: 'Whether the generated project is intended to be published '
+            '(Has no effect on flutter application template)',
+        defaultsTo: 'false',
       );
   }
 
@@ -166,6 +172,7 @@ class CreateCommand extends Command<int> {
     final executableName =
         _argResults['executable-name'] as String? ?? projectName;
     final applicationId = _argResults['application-id'] as String?;
+    final publishable = _argResults['publishable'] as String?;
     var vars = <String, dynamic>{
       'project_name': projectName,
       'description': description,
@@ -180,6 +187,8 @@ class CreateCommand extends Command<int> {
         if (macos.toBool()) 'macos',
         if (windows.toBool()) 'windows',
       ],
+      if (publishable != null)
+        'publishable': publishable == 'true',
     };
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final target = DirectoryGeneratorTarget(outputDirectory);
