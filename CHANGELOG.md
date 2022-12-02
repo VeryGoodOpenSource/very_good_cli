@@ -1,4 +1,10 @@
-# [0.8.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.4...v0.8.5) (2022-11-17)
+# [0.8.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.5...v0.8.6) (2022-12-02)
+
+### Features
+
+- remove copyright headers and licenses from generated code ([#593](https://github.com/VeryGoodOpenSource/very_good_cli/issues/593)) ([0fcfc26](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0fcfc266f0803955bb402dce5ba0e472dac0c29a))
+
+## [0.8.5](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.4...v0.8.5) (2022-11-17)
 
 ### Features
 
