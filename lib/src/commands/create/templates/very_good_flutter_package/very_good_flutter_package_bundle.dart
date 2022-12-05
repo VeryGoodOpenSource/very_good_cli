@@ -125,20 +125,14 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{project_name.snakeCase()}}/lib/src/{{project_name.snakeCase()}}.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSB7CiAgLy8vIHtAbWFjcm8ge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KICBjb25zdCB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSgpOwp9Cg==",
+          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSB7CiAgLy8vIHtAbWFjcm8ge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KICBjb25zdCB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSgpOwp9Cg==",
       "type": "text"
     },
     {
       "path":
           "{{project_name.snakeCase()}}/lib/{{project_name.snakeCase()}}.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHt7e2Rlc2NyaXB0aW9ufX19CmxpYnJhcnkge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTsKCmV4cG9ydCAnc3JjL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cg==",
-      "type": "text"
-    },
-    {
-      "path": "{{project_name.snakeCase()}}/LICENSE",
-      "data":
-          "TUlUIExpY2Vuc2UKCkNvcHlyaWdodCAoYykge3tjdXJyZW50X3llYXJ9fSBWZXJ5IEdvb2QgVmVudHVyZXMKClBlcm1pc3Npb24gaXMgaGVyZWJ5IGdyYW50ZWQsIGZyZWUgb2YgY2hhcmdlLCB0byBhbnkgcGVyc29uIG9idGFpbmluZyBhIGNvcHkKb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uIGZpbGVzICh0aGUgIlNvZnR3YXJlIiksIHRvIGRlYWwKaW4gdGhlIFNvZnR3YXJlIHdpdGhvdXQgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0cwp0byB1c2UsIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vciBzZWxsCmNvcGllcyBvZiB0aGUgU29mdHdhcmUsIGFuZCB0byBwZXJtaXQgcGVyc29ucyB0byB3aG9tIHRoZSBTb2Z0d2FyZSBpcwpmdXJuaXNoZWQgdG8gZG8gc28sIHN1YmplY3QgdG8gdGhlIGZvbGxvd2luZyBjb25kaXRpb25zOgoKVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUgaW5jbHVkZWQgaW4gYWxsCmNvcGllcyBvciBzdWJzdGFudGlhbCBwb3J0aW9ucyBvZiB0aGUgU29mdHdhcmUuCgpUSEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9VVCBXQVJSQU5UWSBPRiBBTlkgS0lORCwgRVhQUkVTUyBPUgpJTVBMSUVELCBJTkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRIRSBXQVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSwKRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5EIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hBTEwgVEhFCkFVVEhPUlMgT1IgQ09QWVJJR0hUIEhPTERFUlMgQkUgTElBQkxFIEZPUiBBTlkgQ0xBSU0sIERBTUFHRVMgT1IgT1RIRVIKTElBQklMSVRZLCBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcgRlJPTSwKT1VUIE9GIE9SIElOIENPTk5FQ1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRSBPUiBPVEhFUiBERUFMSU5HUyBJTiBUSEUKU09GVFdBUkUu",
+          "Ly8vIHt7e2Rlc2NyaXB0aW9ufX19CmxpYnJhcnkge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTsKCmV4cG9ydCAnc3JjL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cg==",
       "type": "text"
     },
     {
@@ -157,27 +151,14 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{project_name.snakeCase()}}/test/src/{{project_name.snakeCase()}}_test.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRlcl90ZXN0L2ZsdXR0ZXJfdGVzdC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0ve3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fS5kYXJ0JzsKCnZvaWQgbWFpbigpIHsKICBncm91cCgne3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0oKSwgaXNOb3ROdWxsKTsKICAgIH0pOwogIH0pOwp9Cg==",
+          "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRlcl90ZXN0L2ZsdXR0ZXJfdGVzdC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0ve3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fS5kYXJ0JzsKCnZvaWQgbWFpbigpIHsKICBncm91cCgne3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0oKSwgaXNOb3ROdWxsKTsKICAgIH0pOwogIH0pOwp9Cg==",
       "type": "text"
     }
   ],
-  "hooks": [
-    {
-      "path": "pre_gen.dart",
-      "data":
-          "aW1wb3J0ICdkYXJ0OmlvJzsKCmltcG9ydCAncGFja2FnZTptYXNvbi9tYXNvbi5kYXJ0JzsKCnZvaWQgcnVuKEhvb2tDb250ZXh0IGNvbnRleHQpIHsKICBjb250ZXh0LnZhcnNbJ2N1cnJlbnRfeWVhciddID0gRGF0ZVRpbWUubm93KCkueWVhcjsKfQo=",
-      "type": "text"
-    },
-    {
-      "path": "pubspec.yaml",
-      "data":
-          "bmFtZTogdmVyeV9nb29kX2ZsdXR0ZXJfcGFja2FnZV9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE2LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiBeMC4xLjAtZGV2CgpkZXZfZGVwZW5kZW5jaWVzOgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4x",
-      "type": "text"
-    }
-  ],
+  "hooks": [],
   "name": "very_good_flutter_package",
   "description": "A Very Good Flutter package created by Very Good Ventures.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "environment": {"mason": ">=0.1.0-dev.32 <0.1.0"},
   "repository":
       "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
@@ -190,7 +171,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjEuMwoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjcKCiMgMC4xLjIKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4zCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMiBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMSBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMC4yCgojIDAuMC4xCgotIGZlYXQ6IGluaXRpYWwgcmVsZWFzZSDwn46JCg==",
+        "IyAwLjEuNAoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4zCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuNwoKIyAwLjEuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjMKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4yIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4xIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {
