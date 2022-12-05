@@ -340,7 +340,7 @@ void main() {
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
-      verify(
+      final values = verify(
         () => generator.generate(
           any(
             that: isA<DirectoryGeneratorTarget>().having(
@@ -349,25 +349,13 @@ void main() {
               '.tmp',
             ),
           ),
-          vars: <String, dynamic>{
-            'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
-            'description': '',
-            'executable_name': 'my_app',
-            'application_id': 'xyz.app.my_app',
-            'platforms': [
-              'android',
-              'ios',
-              'web',
-              'linux',
-              'macos',
-              'windows',
-            ],
-            'publishable': true,
-          },
+          vars: captureAny(named: 'vars'),
           logger: logger,
         ),
-      ).called(1);
+      ).captured;
+
+      final vars = values.first as Map<String, dynamic>;
+      expect(vars['publishable'], isTrue);
     });
 
     test('uses bundled brick when remote brick is unavailable', () async {
