@@ -187,8 +187,7 @@ class CreateCommand extends Command<int> {
         if (macos.toBool()) 'macos',
         if (windows.toBool()) 'windows',
       ],
-      if (publishable != null)
-        'publishable': publishable == 'true',
+      if (publishable != null) 'publishable': publishable == 'true',
     };
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final target = DirectoryGeneratorTarget(outputDirectory);
