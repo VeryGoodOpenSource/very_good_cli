@@ -95,7 +95,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/.github/workflows/main.yaml",
       "data":
-          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpvbjoKICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCgpqb2JzOgogIHNlbWFudGljX3B1bGxfcmVxdWVzdDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL3NlbWFudGljX3B1bGxfcmVxdWVzdC55bWxAdjEKCiAgYnVpbGQ6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9mbHV0dGVyX3BhY2thZ2UueW1sQHYxCiAgICB3aXRoOgogICAgICBmbHV0dGVyX2NoYW5uZWw6IHN0YWJsZQogICAgICBmbHV0dGVyX3ZlcnNpb246IDMuMy43Cg==",
+          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpvbjoKICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCgpqb2JzOgogIHNlbWFudGljX3B1bGxfcmVxdWVzdDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL3NlbWFudGljX3B1bGxfcmVxdWVzdC55bWxAdjEKCiAgYnVpbGQ6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9mbHV0dGVyX3BhY2thZ2UueW1sQHYxCiAgICB3aXRoOgogICAgICBmbHV0dGVyX2NoYW5uZWw6IHN0YWJsZQogICAgICBmbHV0dGVyX3ZlcnNpb246IDMuMy43Cnt7I3B1Ymxpc2hhYmxlfX0KICBwYW5hOgogICAgdXNlczogVmVyeUdvb2RPcGVuU291cmNlL3ZlcnlfZ29vZF93b3JrZmxvd3MvLmdpdGh1Yi93b3JrZmxvd3MvcGFuYS55bWxAdjEKe3svcHVibGlzaGFibGV9fQo=",
       "type": "text"
     },
     {
@@ -108,11 +108,6 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
           "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjEuMC55YW1sCg==",
-      "type": "text"
-    },
-    {
-      "path": "{{project_name.snakeCase()}}/CHANGELOG.md",
-      "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK",
       "type": "text"
     },
     {
@@ -138,7 +133,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCiAgZmx1dHRlcjogMy4zLjcKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjEuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xOC4wIDwzLjAuMCIKICBmbHV0dGVyOiAzLjMuNwoKZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXI6CiAgICBzZGs6IGZsdXR0ZXIKCmRldl9kZXBlbmRlbmNpZXM6CiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgbW9ja3RhaWw6IF4wLjMuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMS4wCg==",
       "type": "text"
     },
     {
@@ -153,12 +148,18 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "data":
           "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCgppbXBvcnQgJ3BhY2thZ2U6Zmx1dHRlcl90ZXN0L2ZsdXR0ZXJfdGVzdC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnt7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0ve3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fS5kYXJ0JzsKCnZvaWQgbWFpbigpIHsKICBncm91cCgne3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0nLCAoKSB7CiAgICB0ZXN0KCdjYW4gYmUgaW5zdGFudGlhdGVkJywgKCkgewogICAgICBleHBlY3Qoe3twcm9qZWN0X25hbWUucGFzY2FsQ2FzZSgpfX0oKSwgaXNOb3ROdWxsKTsKICAgIH0pOwogIH0pOwp9Cg==",
       "type": "text"
+    },
+    {
+      "path":
+          "{{project_name.snakeCase()}}/{{#publishable}}CHANGELOG.md{{\\publishable}}",
+      "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK",
+      "type": "text"
     }
   ],
   "hooks": [],
   "name": "very_good_flutter_package",
   "description": "A Very Good Flutter package created by Very Good Ventures.",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "environment": {"mason": ">=0.1.0-dev.32 <0.1.0"},
   "repository":
       "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
@@ -171,7 +172,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjEuNAoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4zCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuNwoKIyAwLjEuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjMKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4yIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4xIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
+        "IyAwLjIuMAoKLSAqKkJSRUFLSU5HKiogZmVhdDogYWRkIGBwdWJsaXNoYWJsZWAgZmxhZyAoZGVmYXVsdHMgdG8gYGZhbHNlYCkKCiMgMC4xLjQKCi0gZG9jczogcmVtb3ZlIGNvcHlyaWdodCBoZWFkZXIgYW5kIGxpY2Vuc2UgZnJvbSBnZW5lcmF0ZWQgY29kZQoKIyAwLjEuMwoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjcKCiMgMC4xLjIKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4zCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMiBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuMSBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMC4yCgojIDAuMC4xCgotIGZlYXQ6IGluaXRpYWwgcmVsZWFzZSDwn46JCg==",
     "type": "text"
   },
   "license": {
@@ -192,6 +193,13 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "description": "The package description",
       "default": "A very good flutter package",
       "prompt": "What is the project description?"
+    },
+    "publishable": {
+      "type": "boolean",
+      "description":
+          "Whether the generated package is intended to be published.",
+      "default": false,
+      "prompt": "Will the package be published?"
     }
   }
 });
