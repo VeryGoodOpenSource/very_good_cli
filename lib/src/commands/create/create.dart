@@ -171,7 +171,7 @@ class CreateCommand extends Command<int> {
     final executableName =
         _argResults['executable-name'] as String? ?? projectName;
     final applicationId = _argResults['application-id'] as String?;
-    final publishable = _argResults['publishable'] as bool;
+    final publishable = _argResults['publishable'] as bool?;
     var vars = <String, dynamic>{
       'project_name': projectName,
       'description': description,
@@ -186,7 +186,7 @@ class CreateCommand extends Command<int> {
         if (macos.toBool()) 'macos',
         if (windows.toBool()) 'windows',
       ],
-      if (publishable) 'publishable': publishable,
+      if (publishable != null) 'publishable': publishable,
     };
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final target = DirectoryGeneratorTarget(outputDirectory);

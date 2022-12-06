@@ -312,8 +312,8 @@ void main() {
         generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
-      when(() => argResults['publishable'] as String?).thenReturn(
-        'true',
+      when(() => argResults['publishable'] as bool?).thenReturn(
+        true,
       );
       when(() => argResults.rest).thenReturn(['my_app']);
       when(() => generator.id).thenReturn('generator_id');
