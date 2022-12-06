@@ -50,8 +50,7 @@ const expectedUsage = [
       '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
       '''    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)\n'''
-      '''    --publishable             Whether the generated project is intended to be published (Has no effect on flutter application template)\n'''
-      '''                              (defaults to "false")\n'''
+      '''    --[no-]publishable        Whether the generated project is intended to be published (Has no effect on flutter application template)\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];

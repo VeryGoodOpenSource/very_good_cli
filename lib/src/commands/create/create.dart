@@ -122,11 +122,10 @@ class CreateCommand extends Command<int> {
         help: 'The bundle identifier on iOS or application id on Android. '
             '(defaults to <org-name>.<project-name>)',
       )
-      ..addOption(
+      ..addFlag(
         'publishable',
         help: 'Whether the generated project is intended to be published '
             '(Has no effect on flutter application template)',
-        defaultsTo: 'false',
       );
   }
 
