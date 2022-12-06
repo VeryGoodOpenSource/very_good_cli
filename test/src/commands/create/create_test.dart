@@ -50,6 +50,7 @@ const expectedUsage = [
       '''    --windows                 The plugin supports the Windows platform.\n'''
       '                              (defaults to "true")\n'
       '''    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)\n'''
+      '''    --publishable             Whether the generated project is intended to be published (Does not affect flutter application templates)\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -298,6 +299,62 @@ void main() {
           logger: logger,
         ),
       ).called(1);
+    });
+
+    test('adds publishable when provided', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = CreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults['publishable'] as bool?).thenReturn(
+        true,
+      );
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      final values = verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: captureAny(named: 'vars'),
+          logger: logger,
+        ),
+      ).captured;
+
+      final vars = values.first as Map<String, dynamic>;
+      expect(vars['publishable'], isTrue);
     });
 
     test('uses bundled brick when remote brick is unavailable', () async {
