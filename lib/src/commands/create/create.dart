@@ -126,7 +126,7 @@ class CreateCommand extends Command<int> {
         'publishable',
         negatable: false,
         help: 'Whether the generated project is intended to be published '
-            '(Has no effect on flutter application template)',
+            '(Does not affect flutter application templates)',
       );
   }
 
