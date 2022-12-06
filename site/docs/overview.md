@@ -63,6 +63,8 @@ Usage: very_good create <project name>
                               (defaults to "true")
     --windows                 The plugin supports the Windows platform.
                               (defaults to "true")
+    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
+    --publishable             Whether the generated project is intended to be published (Does not affect flutter application templates)
 ```
 
 ### `very_good packages get`
