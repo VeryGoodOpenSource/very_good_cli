@@ -1,3 +1,9 @@
+# [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-06)
+
+### Features
+
+- add publishable flag ([#592](https://github.com/VeryGoodOpenSource/very_good_cli/issues/592)) ([89e6930](https://github.com/VeryGoodOpenSource/very_good_cli/commit/89e6930073934769d9f3733a9dadbe41942020c8))
+
 # [0.8.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.5...v0.8.6) (2022-12-02)
 
 ### Features
