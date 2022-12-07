@@ -1,8 +1,12 @@
-# [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-06)
+# [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-07)
+
+### Bug Fixes
+
+- **create:** windows path resolution ([#597](https://github.com/VeryGoodOpenSource/very_good_cli/issues/597)) ([42a3a0f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/42a3a0fd8368369478dcf7fbcf6149c87639684b))
 
 ### Features
 
-- add publishable flag ([#592](https://github.com/VeryGoodOpenSource/very_good_cli/issues/592)) ([89e6930](https://github.com/VeryGoodOpenSource/very_good_cli/commit/89e6930073934769d9f3733a9dadbe41942020c8))
+- add publishable flag ([#592](https://github.com/VeryGoodOpenSource/very_good_cli/issues/592)) ([53cf064](https://github.com/VeryGoodOpenSource/very_good_cli/commit/53cf06456220954639adf3f733f4d7d87bfa832c))
 
 # [0.8.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.5...v0.8.6) (2022-12-02)
 
