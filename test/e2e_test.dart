@@ -349,6 +349,8 @@ void main() {
       });
 
       group('test', () {
+        setUp(_removeTemporaryFiles);
+
         test('fails if the project does not exist', () async {
           final directory = Directory(
             path.join(Directory.current.path, '.tmp', 'not_a_project'),
