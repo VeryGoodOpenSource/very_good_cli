@@ -55,32 +55,25 @@ const config = {
         },
         items: [
           {
-            label: 'Overview',
-            to: '/docs/overview',
+            label: 'Blog',
+            to: 'https://verygood.ventures/blog',
+            position: 'right',
           },
           {
-            label: 'Templates',
-            to: '/docs/category/templates',
+            label: 'OSS',
+            to: 'https://github.com/VeryGoodOpenSource',
+            position: 'right',
           },
           {
-            label: 'Commands',
-            to: '/docs/category/commands',
-          },
-          {
-            label: 'Resources',
-            to: '/docs/category/resources',
+            label: 'VGV',
+            to: 'https://verygood.ventures',
+            position: 'right',
           },
           {
             href: 'https://github.com/verygoodopensource/very_good_cli',
             position: 'right',
             className: 'navbar-github-icon',
             'aria-label': 'GitHub repository',
-          },
-          {
-            to: 'https://verygood.ventures',
-            position: 'right',
-            className: 'navbar-vgv-icon',
-            'aria-label': 'Very Good Ventures',
           },
         ],
       },

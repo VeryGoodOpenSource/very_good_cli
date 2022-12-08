@@ -95,7 +95,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/.github/workflows/main.yaml",
       "data":
-          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sgZ2l0aHViLndvcmtmbG93IH19LSR7eyBnaXRodWIucmVmIH19CiAgY2FuY2VsLWluLXByb2dyZXNzOiB0cnVlCgpvbjoKICBwdWxsX3JlcXVlc3Q6CiAgICBicmFuY2hlczoKICAgICAgLSBtYWluCgpqb2JzOgogIHNlbWFudGljX3B1bGxfcmVxdWVzdDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL3NlbWFudGljX3B1bGxfcmVxdWVzdC55bWxAdjEKCiAgYnVpbGQ6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9kYXJ0X3BhY2thZ2UueW1sQHYxCg==",
+          "bmFtZTogY2kKCmNvbmN1cnJlbmN5OgogIGdyb3VwOiAke3sjbXVzdGFjaGVDYXNlfX1naXRodWIud29ya2Zsb3d7ey9tdXN0YWNoZUNhc2V9fS0ke3sjbXVzdGFjaGVDYXNlfX1naXRodWIucmVme3svbXVzdGFjaGVDYXNlfX0KICBjYW5jZWwtaW4tcHJvZ3Jlc3M6IHRydWUKCm9uOgogIHB1bGxfcmVxdWVzdDoKICAgIGJyYW5jaGVzOgogICAgICAtIG1haW4KCmpvYnM6CiAgc2VtYW50aWNfcHVsbF9yZXF1ZXN0OgogICAgdXNlczogVmVyeUdvb2RPcGVuU291cmNlL3ZlcnlfZ29vZF93b3JrZmxvd3MvLmdpdGh1Yi93b3JrZmxvd3Mvc2VtYW50aWNfcHVsbF9yZXF1ZXN0LnltbEB2MQoKICBidWlsZDoKICAgIHVzZXM6IFZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd29ya2Zsb3dzLy5naXRodWIvd29ya2Zsb3dzL2RhcnRfcGFja2FnZS55bWxAdjEKe3sjcHVibGlzaGFibGV9fQogIHBhbmE6CiAgICB1c2VzOiBWZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dvcmtmbG93cy8uZ2l0aHViL3dvcmtmbG93cy9wYW5hLnltbEB2MQp7ey9wdWJsaXNoYWJsZX19Cg==",
       "type": "text"
     },
     {
@@ -111,11 +111,6 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "type": "text"
     },
     {
-      "path": "{{project_name.snakeCase()}}/CHANGELOG.md",
-      "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK",
-      "type": "text"
-    },
-    {
       "path": "{{project_name.snakeCase()}}/coverage_badge.svg",
       "data":
           "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTAyIiBoZWlnaHQ9IjIwIj4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYiIgeDI9IjAiIHkyPSIxMDAlIj4KICAgICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNiYmIiIHN0b3Atb3BhY2l0eT0iLjEiIC8+CiAgICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9Ii4xIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iYSI+CiAgICAgICAgPHJlY3Qgd2lkdGg9IjEwMiIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiIC8+CiAgICA8L2NsaXBQYXRoPgogICAgPGcgY2xpcC1wYXRoPSJ1cmwoI2EpIj4KICAgICAgICA8cGF0aCBmaWxsPSIjNTU1IiBkPSJNMCAwaDU5djIwSDB6IiAvPgogICAgICAgIDxwYXRoIGZpbGw9IiM0NGNjMTEiIGQ9Ik01OSAwaDQzdjIwSDU5eiIgLz4KICAgICAgICA8cGF0aCBmaWxsPSJ1cmwoI2IpIiBkPSJNMCAwaDEwMnYyMEgweiIgLz4KICAgIDwvZz4KICAgIDxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJEZWphVnUgU2FucyxWZXJkYW5hLEdlbmV2YSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjExMCI+CiAgICAgICAgPHRleHQgeD0iMzA1IiB5PSIxNTAiIGZpbGw9IiMwMTAxMDEiIGZpbGwtb3BhY2l0eT0iLjMiIHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB0ZXh0TGVuZ3RoPSI0OTAiPmNvdmVyYWdlPC90ZXh0PgogICAgICAgIDx0ZXh0IHg9IjMwNSIgeT0iMTQwIiB0cmFuc2Zvcm09InNjYWxlKC4xKSIgdGV4dExlbmd0aD0iNDkwIj5jb3ZlcmFnZTwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI3OTUiIHk9IjE1MCIgZmlsbD0iIzAxMDEwMSIgZmlsbC1vcGFjaXR5PSIuMyIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjMzMCI+MTAwJTwvdGV4dD4KICAgICAgICA8dGV4dCB4PSI3OTUiIHk9IjE0MCIgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHRleHRMZW5ndGg9IjMzMCI+MTAwJTwvdGV4dD4KICAgIDwvZz4KPC9zdmc+Cg==",
@@ -125,26 +120,20 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{project_name.snakeCase()}}/lib/src/{{project_name.snakeCase()}}.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSB7CiAgLy8vIHtAbWFjcm8ge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KICBjb25zdCB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSgpOwp9Cg==",
+          "Ly8vIHtAdGVtcGxhdGUge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KLy8vIHt7e2Rlc2NyaXB0aW9ufX19Ci8vLyB7QGVuZHRlbXBsYXRlfQpjbGFzcyB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSB7CiAgLy8vIHtAbWFjcm8ge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fX0KICBjb25zdCB7e3Byb2plY3RfbmFtZS5wYXNjYWxDYXNlKCl9fSgpOwp9Cg==",
       "type": "text"
     },
     {
       "path":
           "{{project_name.snakeCase()}}/lib/{{project_name.snakeCase()}}.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8vIHt7e2Rlc2NyaXB0aW9ufX19CmxpYnJhcnkge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTsKCmV4cG9ydCAnc3JjL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cg==",
-      "type": "text"
-    },
-    {
-      "path": "{{project_name.snakeCase()}}/LICENSE",
-      "data":
-          "TUlUIExpY2Vuc2UKCkNvcHlyaWdodCAoYykge3tjdXJyZW50X3llYXJ9fSBWZXJ5IEdvb2QgVmVudHVyZXMKClBlcm1pc3Npb24gaXMgaGVyZWJ5IGdyYW50ZWQsIGZyZWUgb2YgY2hhcmdlLCB0byBhbnkgcGVyc29uIG9idGFpbmluZyBhIGNvcHkKb2YgdGhpcyBzb2Z0d2FyZSBhbmQgYXNzb2NpYXRlZCBkb2N1bWVudGF0aW9uIGZpbGVzICh0aGUgIlNvZnR3YXJlIiksIHRvIGRlYWwKaW4gdGhlIFNvZnR3YXJlIHdpdGhvdXQgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0cwp0byB1c2UsIGNvcHksIG1vZGlmeSwgbWVyZ2UsIHB1Ymxpc2gsIGRpc3RyaWJ1dGUsIHN1YmxpY2Vuc2UsIGFuZC9vciBzZWxsCmNvcGllcyBvZiB0aGUgU29mdHdhcmUsIGFuZCB0byBwZXJtaXQgcGVyc29ucyB0byB3aG9tIHRoZSBTb2Z0d2FyZSBpcwpmdXJuaXNoZWQgdG8gZG8gc28sIHN1YmplY3QgdG8gdGhlIGZvbGxvd2luZyBjb25kaXRpb25zOgoKVGhlIGFib3ZlIGNvcHlyaWdodCBub3RpY2UgYW5kIHRoaXMgcGVybWlzc2lvbiBub3RpY2Ugc2hhbGwgYmUgaW5jbHVkZWQgaW4gYWxsCmNvcGllcyBvciBzdWJzdGFudGlhbCBwb3J0aW9ucyBvZiB0aGUgU29mdHdhcmUuCgpUSEUgU09GVFdBUkUgSVMgUFJPVklERUQgIkFTIElTIiwgV0lUSE9VVCBXQVJSQU5UWSBPRiBBTlkgS0lORCwgRVhQUkVTUyBPUgpJTVBMSUVELCBJTkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRIRSBXQVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSwKRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UgQU5EIE5PTklORlJJTkdFTUVOVC4gSU4gTk8gRVZFTlQgU0hBTEwgVEhFCkFVVEhPUlMgT1IgQ09QWVJJR0hUIEhPTERFUlMgQkUgTElBQkxFIEZPUiBBTlkgQ0xBSU0sIERBTUFHRVMgT1IgT1RIRVIKTElBQklMSVRZLCBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwgVE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcgRlJPTSwKT1VUIE9GIE9SIElOIENPTk5FQ1RJT04gV0lUSCBUSEUgU09GVFdBUkUgT1IgVEhFIFVTRSBPUiBPVEhFUiBERUFMSU5HUyBJTiBUSEUKU09GVFdBUkUu",
+          "Ly8vIHt7e2Rlc2NyaXB0aW9ufX19CmxpYnJhcnkge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fTsKCmV4cG9ydCAnc3JjL3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cg==",
       "type": "text"
     },
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCgpkZXZfZGVwZW5kZW5jaWVzOgogIG1vY2t0YWlsOiBeMC4zLjAKICB0ZXN0OiBeMS4xOS4yCiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMy4xLjAK",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xOC4wIDwzLjAuMCIKCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4wLjMuMAogIHRlc3Q6IF4xLjE5LjIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjEuMAo=",
       "type": "text"
     },
     {
@@ -157,27 +146,20 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "path":
           "{{project_name.snakeCase()}}/test/src/{{project_name.snakeCase()}}_test.dart",
       "data":
-          "Ly8gQ29weXJpZ2h0IChjKSB7e2N1cnJlbnRfeWVhcn19LCBWZXJ5IEdvb2QgVmVudHVyZXMKLy8gaHR0cHM6Ly92ZXJ5Z29vZC52ZW50dXJlcwovLwovLyBVc2Ugb2YgdGhpcyBzb3VyY2UgY29kZSBpcyBnb3Zlcm5lZCBieSBhbiBNSVQtc3R5bGUKLy8gbGljZW5zZSB0aGF0IGNhbiBiZSBmb3VuZCBpbiB0aGUgTElDRU5TRSBmaWxlIG9yIGF0Ci8vIGh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlULgoKLy8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTp0ZXN0L3Rlc3QuZGFydCc7CmltcG9ydCAncGFja2FnZTp7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19L3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cgp2b2lkIG1haW4oKSB7CiAgZ3JvdXAoJ3t7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19JywgKCkgewogICAgdGVzdCgnY2FuIGJlIGluc3RhbnRpYXRlZCcsICgpIHsKICAgICAgZXhwZWN0KHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19KCksIGlzTm90TnVsbCk7CiAgICB9KTsKICB9KTsKfQo=",
-      "type": "text"
-    }
-  ],
-  "hooks": [
-    {
-      "path": "pre_gen.dart",
-      "data":
-          "aW1wb3J0ICdkYXJ0OmlvJzsKCmltcG9ydCAncGFja2FnZTptYXNvbi9tYXNvbi5kYXJ0JzsKCnZvaWQgcnVuKEhvb2tDb250ZXh0IGNvbnRleHQpIHsKICBjb250ZXh0LnZhcnNbJ2N1cnJlbnRfeWVhciddID0gRGF0ZVRpbWUubm93KCkueWVhcjsKfQo=",
+          "Ly8gaWdub3JlX2Zvcl9maWxlOiBwcmVmZXJfY29uc3RfY29uc3RydWN0b3JzCmltcG9ydCAncGFja2FnZTp0ZXN0L3Rlc3QuZGFydCc7CmltcG9ydCAncGFja2FnZTp7e3Byb2plY3RfbmFtZS5zbmFrZUNhc2UoKX19L3t7cHJvamVjdF9uYW1lLnNuYWtlQ2FzZSgpfX0uZGFydCc7Cgp2b2lkIG1haW4oKSB7CiAgZ3JvdXAoJ3t7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19JywgKCkgewogICAgdGVzdCgnY2FuIGJlIGluc3RhbnRpYXRlZCcsICgpIHsKICAgICAgZXhwZWN0KHt7cHJvamVjdF9uYW1lLnBhc2NhbENhc2UoKX19KCksIGlzTm90TnVsbCk7CiAgICB9KTsKICB9KTsKfQo=",
       "type": "text"
     },
     {
-      "path": "pubspec.yaml",
-      "data":
-          "bmFtZTogdmVyeV9nb29kX2RhcnRfcGFja2FnZV9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE2LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiBeMC4xLjAtZGV2CgpkZXZfZGVwZW5kZW5jaWVzOgogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMC4x",
+      "path":
+          "{{project_name.snakeCase()}}/{{#publishable}}CHANGELOG.md{{/publishable}}",
+      "data": "IyAwLjEuMCsxCgotIGZlYXQ6IGluaXRpYWwgY29tbWl0IPCfjokK",
       "type": "text"
     }
   ],
+  "hooks": [],
   "name": "very_good_dart_package",
   "description": "A Very Good Dart package created by Very Good Ventures.",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "environment": {"mason": ">=0.1.0-dev.32 <0.1.0"},
   "repository": "https://github.com/VeryGoodOpenSource/very_good_dart_package",
   "readme": {
@@ -189,7 +171,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjEuMQoKLSBmZWF0OiB1cGdyYWRlIHRvIHZlcnlfZ29vZF9hbmFseXNpcyAzLjEuMAoKIyAwLjEuMAoKLSBmZWF0OiB1cGdyYWRlIHRvIERhcnQgMi4xOCBhbmQgdmVyeV9nb29kX2FuYWx5c2lzIDMuMC4yCgojIDAuMC4xCgotIGZlYXQ6IGluaXRpYWwgcmVsZWFzZSDwn46JCg==",
+        "IyAwLjIuMQoKLSBmaXg6IHdpbmRvd3MgcGF0aCByZXNvbHV0aW9uCi0gZml4OiBHaXRIdWIgd29ya2Zsb3cgY29uY3VycmVuY3kgZ3JvdXAKCiMgMC4yLjAKCi0gKipCUkVBS0lORyoqIGZlYXQ6IGFkZCBgcHVibGlzaGFibGVgIGZsYWcgKGRlZmF1bHRzIHRvIGBmYWxzZWApCgojIDAuMS4yCgotIGRvY3M6IHJlbW92ZSBjb3B5cmlnaHQgaGVhZGVyIGFuZCBsaWNlbnNlIGZyb20gZ2VuZXJhdGVkIGNvZGUKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBEYXJ0IDIuMTggYW5kIHZlcnlfZ29vZF9hbmFseXNpcyAzLjAuMgoKIyAwLjAuMQoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2Ug8J+OiQo=",
     "type": "text"
   },
   "license": {
@@ -210,6 +192,13 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
       "description": "The package description",
       "default": "A very good dart package",
       "prompt": "What is the project description?"
+    },
+    "publishable": {
+      "type": "boolean",
+      "description":
+          "Whether the generated package is intended to be published.",
+      "default": false,
+      "prompt": "Will the package be published?"
     }
   }
 });
