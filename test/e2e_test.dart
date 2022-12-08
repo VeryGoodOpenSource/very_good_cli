@@ -370,6 +370,15 @@ void main() {
           );
           await copyDirectory(Directory('test/fixtures/async_main'), directory);
 
+          final pubGetResult = await Process.run(
+            'flutter',
+            ['pub', 'get'],
+            workingDirectory: directory.path,
+            runInShell: true,
+          );
+
+          expect(pubGetResult.exitCode, equals(ExitCode.success.code));
+
           await IOOverrides.runZoned(
             () async {
               final result = await commandRunner.run(['test']);
