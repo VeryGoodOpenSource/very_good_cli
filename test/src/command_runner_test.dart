@@ -191,6 +191,18 @@ void main() {
         expect(result, equals(ExitCode.success.code));
       });
 
+      test('handles completion command', () async {
+        final result = await commandRunner.run(['completion']);
+        verifyNever(() => logger.info(any()));
+        verifyNever(() => logger.err(any()));
+        verifyNever(() => logger.warn(any()));
+        verifyNever(() => logger.write(any()));
+        verifyNever(() => logger.success(any()));
+        verifyNever(() => logger.detail(any()));
+
+        expect(result, equals(ExitCode.success.code));
+      });
+
       group('--help', () {
         test('outputs usage', () async {
           final result = await commandRunner.run(['--help']);

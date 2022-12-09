@@ -1,5 +1,6 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:cli_completion/cli_completion.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
@@ -18,7 +19,7 @@ const packageName = 'very_good_cli';
 /// {@template very_good_command_runner}
 /// A [CommandRunner] for the Very Good CLI.
 /// {@endtemplate}
-class VeryGoodCommandRunner extends CommandRunner<int> {
+class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro very_good_command_runner}
   VeryGoodCommandRunner({
     Analytics? analytics,
@@ -85,6 +86,7 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
             normalizedResponse == 'y' || normalizedResponse == 'yes';
       }
       final _argResults = parse(args);
+
       if (_argResults['verbose'] == true) {
         _logger.level = Level.verbose;
       }
@@ -107,6 +109,11 @@ class VeryGoodCommandRunner extends CommandRunner<int> {
 
   @override
   Future<int?> runCommand(ArgResults topLevelResults) async {
+    if (topLevelResults.command?.name == 'completion') {
+      await super.runCommand(topLevelResults);
+      return ExitCode.success.code;
+    }
+
     _logger
       ..detail('Argument information:')
       ..detail('  Top level options:');
