@@ -99,7 +99,7 @@ void main() {
         'when no pubspec.yaml exists (recursive)',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(
-            ['packages', 'get', '-r', 'test'],
+            ['packages', 'get', '-r', 'site'],
           );
           expect(result, equals(ExitCode.noInput.code));
           verify(() {

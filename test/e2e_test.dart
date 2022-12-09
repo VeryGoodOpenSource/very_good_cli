@@ -352,9 +352,8 @@ void main() {
         setUp(_removeTemporaryFiles);
 
         test('fails if the project does not exist', () async {
-          final directory = Directory(
-            path.join(Directory.current.path, '.tmp', 'not_a_project'),
-          );
+          final directory =
+              Directory.systemTemp.createTempSync('not_a_project');
           await directory.create(recursive: true);
 
           await IOOverrides.runZoned(
@@ -367,9 +366,7 @@ void main() {
         });
 
         test('supports async main methods', () async {
-          final directory = Directory(
-            path.join(Directory.current.path, '.tmp', 'async_main'),
-          );
+          final directory = Directory.systemTemp.createTempSync('async_main');
           await copyDirectory(Directory('test/fixtures/async_main'), directory);
 
           final pubGetResult = await Process.run(
