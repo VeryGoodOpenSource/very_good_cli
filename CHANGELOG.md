@@ -1,3 +1,13 @@
+# [0.9.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.0...v0.9.1) (2022-12-09)
+
+### Bug Fixes
+
+- **test:** groups may not be async ([#599](https://github.com/VeryGoodOpenSource/very_good_cli/issues/599)) ([cec868c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cec868cf2b5ee8d4a002d0125c553a299eb4c532))
+
+### Features
+
+- add cli completion ([#600](https://github.com/VeryGoodOpenSource/very_good_cli/issues/600)) ([c33dadd](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c33daddc1d433e162a7890ffa4f0135eda369bad))
+
 # [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-07)
 
 ### Bug Fixes
