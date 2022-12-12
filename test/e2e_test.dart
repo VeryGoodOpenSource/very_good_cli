@@ -22,15 +22,6 @@ void main() {
       late Progress progress;
       late VeryGoodCommandRunner commandRunner;
 
-      void _removeTemporaryFiles() {
-        try {
-          Directory('.tmp').deleteSync(recursive: true);
-        } catch (_) {}
-      }
-
-      setUpAll(_removeTemporaryFiles);
-      tearDownAll(_removeTemporaryFiles);
-
       setUp(() {
         analytics = _MockAnalytics();
         logger = _MockLogger();
@@ -56,17 +47,24 @@ void main() {
 
       group('create', () {
         test('-t dart_pkg', () async {
-          final directory = Directory(path.join('.tmp', 'very_good_dart'));
+          final directory = Directory.systemTemp.createTempSync();
 
           final result = await commandRunner.run(
-            ['create', 'very_good_dart', '-t', 'dart_pkg', '-o', '.tmp'],
+            [
+              'create',
+              'very_good_dart',
+              '-t',
+              'dart_pkg',
+              '-o',
+              directory.path
+            ],
           );
           expect(result, equals(ExitCode.success.code));
 
           final formatResult = await Process.run(
             'flutter',
             ['format', '--set-exit-if-changed', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -75,7 +73,7 @@ void main() {
           final analyzeResult = await Process.run(
             'flutter',
             ['analyze', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart'),
             runInShell: true,
           );
           expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -85,7 +83,7 @@ void main() {
           final testResult = await Process.run(
             'flutter',
             ['test', '--no-pub', '--coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart'),
             runInShell: true,
           );
           expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -95,7 +93,7 @@ void main() {
           final testCoverageResult = await Process.run(
             'genhtml',
             ['coverage/lcov.info', '-o', 'coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart'),
             runInShell: true,
           );
           expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
@@ -104,17 +102,24 @@ void main() {
         });
 
         test('-t flutter_pkg', () async {
-          final directory = Directory(path.join('.tmp', 'very_good_flutter'));
+          final directory = Directory.systemTemp.createTempSync();
 
           final result = await commandRunner.run(
-            ['create', 'very_good_flutter', '-t', 'flutter_pkg', '-o', '.tmp'],
+            [
+              'create',
+              'very_good_flutter',
+              '-t',
+              'flutter_pkg',
+              '-o',
+              directory.path,
+            ],
           );
           expect(result, equals(ExitCode.success.code));
 
           final formatResult = await Process.run(
             'flutter',
             ['format', '--set-exit-if-changed', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flutter'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -123,7 +128,7 @@ void main() {
           final analyzeResult = await Process.run(
             'flutter',
             ['analyze', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flutter'),
             runInShell: true,
           );
           expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -133,7 +138,7 @@ void main() {
           final testResult = await Process.run(
             'flutter',
             ['test', '--no-pub', '--coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flutter'),
             runInShell: true,
           );
           expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -143,7 +148,7 @@ void main() {
           final testCoverageResult = await Process.run(
             'genhtml',
             ['coverage/lcov.info', '-o', 'coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flutter'),
             runInShell: true,
           );
           expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
@@ -152,17 +157,24 @@ void main() {
         });
 
         test('-t dart_cli', () async {
-          final directory = Directory(path.join('.tmp', 'very_good_dart_cli'));
+          final directory = Directory.systemTemp.createTempSync();
 
           final result = await commandRunner.run(
-            ['create', 'very_good_dart_cli', '-t', 'dart_cli', '-o', '.tmp'],
+            [
+              'create',
+              'very_good_dart_cli',
+              '-t',
+              'dart_cli',
+              '-o',
+              directory.path,
+            ],
           );
           expect(result, equals(ExitCode.success.code));
 
           final formatResult = await Process.run(
             'flutter',
             ['format', '--set-exit-if-changed', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -171,7 +183,7 @@ void main() {
           final analyzeResult = await Process.run(
             'flutter',
             ['analyze', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
             runInShell: true,
           );
           expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -181,7 +193,7 @@ void main() {
           final testResult = await Process.run(
             'flutter',
             ['test', '--no-pub', '--coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
             runInShell: true,
           );
           expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -191,7 +203,7 @@ void main() {
           final testCoverageResult = await Process.run(
             'genhtml',
             ['coverage/lcov.info', '-o', 'coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
             runInShell: true,
           );
           expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
@@ -200,17 +212,23 @@ void main() {
         });
 
         test('-t docs_site', () async {
-          final directory = Directory(path.join('.tmp', 'very_good_docs_site'));
-
+          final directory = Directory.systemTemp.createTempSync();
           final result = await commandRunner.run(
-            ['create', 'very_good_docs_site', '-t', 'docs_site', '-o', '.tmp'],
+            [
+              'create',
+              'very_good_docs_site',
+              '-t',
+              'docs_site',
+              '-o',
+              directory.path
+            ],
           );
           expect(result, equals(ExitCode.success.code));
 
           final installResult = await Process.run(
             'npm',
             ['install'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_docs_site'),
             runInShell: true,
           );
           expect(installResult.exitCode, equals(ExitCode.success.code));
@@ -218,7 +236,7 @@ void main() {
           final formatResult = await Process.run(
             'npm',
             ['run', 'format'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_docs_site'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -227,7 +245,7 @@ void main() {
           final lintResult = await Process.run(
             'npm',
             ['run', 'lint'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_docs_site'),
             runInShell: true,
           );
           expect(lintResult.exitCode, equals(ExitCode.success.code));
@@ -236,7 +254,7 @@ void main() {
           final buildResult = await Process.run(
             'npm',
             ['run', 'build'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_docs_site'),
             runInShell: true,
           );
           expect(buildResult.exitCode, equals(ExitCode.success.code));
@@ -244,8 +262,7 @@ void main() {
         });
 
         test('-t flame_game', () async {
-          final directory =
-              Directory(path.join('.tmp', 'very_good_flame_game'));
+          final directory = Directory.systemTemp.createTempSync();
 
           final result = await commandRunner.run(
             [
@@ -254,7 +271,7 @@ void main() {
               '-t',
               'flame_game',
               '-o',
-              '.tmp'
+              directory.path,
             ],
           );
           expect(result, equals(ExitCode.success.code));
@@ -262,7 +279,7 @@ void main() {
           final formatResult = await Process.run(
             'flutter',
             ['format', '--set-exit-if-changed', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flame_game'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -271,7 +288,7 @@ void main() {
           final analyzeResult = await Process.run(
             'flutter',
             ['analyze', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flame_game'),
             runInShell: true,
           );
           expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -281,7 +298,7 @@ void main() {
           final testResult = await Process.run(
             'flutter',
             ['test', '--no-pub', '--coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flame_game'),
             runInShell: true,
           );
           expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -291,7 +308,7 @@ void main() {
           final testCoverageResult = await Process.run(
             'genhtml',
             ['coverage/lcov.info', '-o', 'coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_flame_game'),
             runInShell: true,
           );
           expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
@@ -300,17 +317,17 @@ void main() {
         });
 
         test('-t core', () async {
-          final directory = Directory(path.join('.tmp', 'very_good_core'));
+          final directory = Directory.systemTemp.createTempSync();
 
           final result = await commandRunner.run(
-            ['create', 'very_good_core', '-t', 'core', '-o', '.tmp'],
+            ['create', 'very_good_core', '-t', 'core', '-o', directory.path],
           );
           expect(result, equals(ExitCode.success.code));
 
           final formatResult = await Process.run(
             'flutter',
             ['format', '--set-exit-if-changed', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_core'),
             runInShell: true,
           );
           expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -319,7 +336,7 @@ void main() {
           final analyzeResult = await Process.run(
             'flutter',
             ['analyze', '.'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_core'),
             runInShell: true,
           );
           expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -329,7 +346,7 @@ void main() {
           final testResult = await Process.run(
             'flutter',
             ['test', '--no-pub', '--coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_core'),
             runInShell: true,
           );
           expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -339,7 +356,7 @@ void main() {
           final testCoverageResult = await Process.run(
             'genhtml',
             ['coverage/lcov.info', '-o', 'coverage'],
-            workingDirectory: directory.path,
+            workingDirectory: path.join(directory.path, 'very_good_core'),
             runInShell: true,
           );
           expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
@@ -349,8 +366,6 @@ void main() {
       });
 
       group('test', () {
-        setUp(_removeTemporaryFiles);
-
         test('fails if the project does not exist', () async {
           final directory =
               Directory.systemTemp.createTempSync('not_a_project');
