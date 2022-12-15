@@ -48,6 +48,19 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        test:
+          # E2E tests for the test command
+          - test/src/commands/test/e2e
+          # E2E tests for the create command
+          - test/src/commands/create/e2e/core_test.dart
+          - test/src/commands/create/e2e/dart_cli_test.dart
+          - test/src/commands/create/e2e/dart_pkg_test.dart
+          - test/src/commands/create/e2e/docs_site_test.dart
+          - test/src/commands/create/e2e/flame_game_test.dart
+          - test/src/commands/create/e2e/flutter_pkg_test.dart
+
     steps:
       - uses: actions/checkout@v3.1.0
 
@@ -60,7 +73,7 @@ jobs:
         run: flutter pub get
 
       - name: Run Tests
-        run: flutter pub run test --run-skipped -t e2e
+        run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
 
   pana:
     runs-on: ubuntu-latest
