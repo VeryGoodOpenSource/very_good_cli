@@ -34,13 +34,13 @@ jobs:
       - name: Analyze
         run: flutter analyze lib test
 
-      - name: Verify Build
-        run: flutter pub run test --run-skipped -t pull-request-only
+      # - name: Verify Build
+      #   run: flutter pub run test --run-skipped -t pull-request-only
 
-      - name: Run Tests
-        run: |
-          flutter pub global activate coverage 1.2.0
-          flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+      # - name: Run Tests
+      #   run: |
+      #     flutter pub global activate coverage 1.2.0
+      #     flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - name: Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
@@ -54,12 +54,12 @@ jobs:
           # E2E tests for the test command
           - test/src/commands/test/e2e
           # E2E tests for the create command
-          - test/src/commands/create/e2e/core_test.dart
-          - test/src/commands/create/e2e/dart_cli_test.dart
-          - test/src/commands/create/e2e/dart_pkg_test.dart
-          - test/src/commands/create/e2e/docs_site_test.dart
-          - test/src/commands/create/e2e/flame_game_test.dart
-          - test/src/commands/create/e2e/flutter_pkg_test.dart
+          # - test/src/commands/create/e2e/core_test.dart
+          # - test/src/commands/create/e2e/dart_cli_test.dart
+          # - test/src/commands/create/e2e/dart_pkg_test.dart
+          # - test/src/commands/create/e2e/docs_site_test.dart
+          # - test/src/commands/create/e2e/flame_game_test.dart
+          # - test/src/commands/create/e2e/flutter_pkg_test.dart
 
     steps:
       - uses: actions/checkout@v3.1.0
