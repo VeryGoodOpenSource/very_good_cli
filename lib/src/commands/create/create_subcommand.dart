@@ -1,5 +1,3 @@
-// ignore_for_file: public_member_api_docs
-
 import 'dart:async';
 import 'dart:io';
 
@@ -10,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
@@ -27,7 +26,28 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 /// A method which returns a [Future<MasonGenerator>] given a [Brick].
 typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 
+
+/// {@template create_subcommand}
+/// Generic class for sub command of [CreateCommand].
+/// {@endtemplate}
+///
+/// It contains the common logic for all sub commands of [CreateCommand],
+/// ncluding the [run] and [runCreate] routines.
+///
+/// By default, adds the following arguments to the [argParser]:
+/// - 'output-directory': the output directory
+/// - 'desc': the description of the project
+///
+/// Sub classes must implement [name], [description] and [template].
+///
+/// For sub commands with multiple templates, sub classes mus mix with
+/// [MultiTemplates].
+///
+/// For sub commands that receive an org name, sub classes must mix with
+/// [OrgName].
 abstract class CreateSubCommand extends Command<int> {
+
+  /// {@macro create_subcommand}
   CreateSubCommand({
     required Analytics analytics,
     required this.logger,
@@ -48,9 +68,12 @@ abstract class CreateSubCommand extends Command<int> {
         defaultsTo: _defaultDescription,
       );
 
+
+    // Add the templates arg if the command has multiple templates.
     if (this is MultiTemplates) {
-      final defaultTemplateName = (this as MultiTemplates).defaultTemplateName;
-      final templates = (this as MultiTemplates).templates;
+      final multiTemplates = this as MultiTemplates;
+      final defaultTemplateName = multiTemplates.defaultTemplateName;
+      final templates = multiTemplates.templates;
 
       argParser.addOption(
         'template',
@@ -89,10 +112,12 @@ abstract class CreateSubCommand extends Command<int> {
   ArgResults get argResults => argResultOverrides ?? super.argResults!;
 
   final Analytics _analytics;
+  /// The logger user to notify the user of the command's progress.
   final Logger logger;
   final MasonGeneratorFromBundle _generatorFromBundle;
   final MasonGeneratorFromBrick _generatorFromBrick;
 
+  /// Gets the output [Directory].
   Directory get outputDirectory {
     final directory = argResults['output-directory'] as String? ?? '.';
     return Directory(directory);
@@ -101,21 +126,24 @@ abstract class CreateSubCommand extends Command<int> {
   /// Gets the project name.
   String get projectName {
     final args = argResults.rest;
-    validateProjectName(args);
+    _validateProjectName(args);
     return args.first;
   }
 
-  Template get template;
-
   /// Gets the description for the project.
   String get projectDescription => argResults['desc'] as String? ?? '';
+
+  /// Should return the desired template to be created during a command run.
+  ///
+  /// For sub commands with multiple templates, see [MultiTemplates].
+  Template get template;
 
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
   }
 
-  void validateProjectName(List<String> args) {
+  void _validateProjectName(List<String> args) {
     logger.detail('Validating project name; args: $args');
 
     if (args.isEmpty) {
@@ -172,6 +200,10 @@ abstract class CreateSubCommand extends Command<int> {
     return result;
   }
 
+
+  /// Invoked by [run] to create the project, contains the logic for using
+  /// the template vars obtained by [getTemplateVars] to generate the project
+  /// from the [generator] and [template].
   Future<int> runCreate(MasonGenerator generator, Template template) async {
     final generateProgress = logger.progress('Bootstrapping');
     final outputDirectory = this.outputDirectory;
@@ -238,6 +270,7 @@ mixin MultiTemplates on CreateSubCommand {
 
   List<Template> get templates;
 
+  @nonVirtual
   @override
   Template get template {
     final templateName =

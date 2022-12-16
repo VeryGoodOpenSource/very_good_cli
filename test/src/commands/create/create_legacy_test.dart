@@ -94,13 +94,13 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(['create', 'legacy',  '--help']);
+        final result = await commandRunner.run(['create', 'legacy', '--help']);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr = await commandRunner.run(['create', 'legacy',  '-h']);
+        final resultAbbr = await commandRunner.run(['create', 'legacy', '-h']);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
@@ -117,7 +117,7 @@ void main() {
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
-        final result = await commandRunner.run(['create', 'legacy',  '.tmp']);
+        final result = await commandRunner.run(['create', 'legacy', '.tmp']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -128,7 +128,7 @@ void main() {
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
-        final result = await commandRunner.run(['create', 'legacy',  'My App']);
+        final result = await commandRunner.run(['create', 'legacy', 'My App']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -138,7 +138,7 @@ void main() {
       'throws UsageException when multiple project names are provided',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = 'Multiple project names specified.';
-        final result = await commandRunner.run(['create', 'legacy',  'a', 'b']);
+        final result = await commandRunner.run(['create', 'legacy', 'a', 'b']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -799,8 +799,16 @@ void main() {
               ..writeAsStringSync(pubspec);
             return generatedFiles;
           });
+
           final result = await command.run();
+
           expect(result, equals(ExitCode.success.code));
+          verify(
+            () => logger.warn(
+              "Deprecated: 'very_good create <project name>' is deprecated. "
+              "Use 'very_good create --help' to see the available options.",
+            ),
+          ).called(1);
           verify(() => logger.progress('Bootstrapping')).called(1);
           expect(
             progressLogs,
@@ -915,4 +923,3 @@ void main() {
     });
   });
 }
-

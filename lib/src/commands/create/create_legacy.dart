@@ -84,12 +84,8 @@ class LegacyCreateCommand extends CreateSubCommand
 
   @override
   Future<int> runCreate(MasonGenerator generator, Template template) {
-    if (argResults.command == null) {
-      logger.warn(
-        "Deprecated: 'very_good create <project name>' is deprecated. "
-        "Use 'very_good create --help' to see the available options.",
-      );
-    }
+    logger.warn(deprecatedUsage);
+
     return super.runCreate(generator, template);
   }
 
@@ -138,10 +134,13 @@ class LegacyCreateCommand extends CreateSubCommand
   bool get hidden => true;
 
   @override
-  String get invocation => 'very_good create <subcommand> [arguments]';
+  String get invocation => '${yellow.wrap(deprecatedUsage)}';
 
   @override
   String get usage => parent!.usage;
+
+  String get deprecatedUsage => 'Deprecated usage: '
+      "run 'very_good create --help' to see the available options.";
 }
 
 extension on String {
