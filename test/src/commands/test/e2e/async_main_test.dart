@@ -1,5 +1,6 @@
 @Tags(['e2e'])
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
@@ -10,7 +11,9 @@ void main() {
     'supports async main methods',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync('async_main');
-      final fixture = Directory('test/fixtures/async_main');
+      final fixture = Directory(
+        path.join(Directory.current.path, 'test/fixtures/async_main'),
+      );
       stdout.writeln(fixture.absolute.path);
       await copyDirectory(fixture, directory);
 
