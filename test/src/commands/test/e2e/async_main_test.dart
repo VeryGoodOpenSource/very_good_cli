@@ -11,8 +11,7 @@ void main() {
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync('async_main');
       final fixture = Directory('test/fixtures/async_main');
-      // ignore: avoid_print
-      print(fixture.absolute.path);
+      stdout.writeln(fixture.absolute.path);
       await copyDirectory(fixture, directory);
 
       final pubGetResult = await Process.run(
