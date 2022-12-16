@@ -17,33 +17,33 @@ on:
       - "pubspec.yaml"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3.1.0
+  #   steps:
+  #     - uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v2.8.0
+  #     - uses: subosito/flutter-action@v2.8.0
 
-      - name: Install Dependencies
-        run: flutter pub get
+  #     - name: Install Dependencies
+  #       run: flutter pub get
 
-      - name: Format
-        run: flutter format --set-exit-if-changed .
+  #     - name: Format
+  #       run: flutter format --set-exit-if-changed .
 
-      - name: Analyze
-        run: flutter analyze lib test
+  #     - name: Analyze
+  #       run: flutter analyze lib test
 
-      - name: Verify Build
-        run: flutter pub run test --run-skipped -t pull-request-only
+  #     - name: Verify Build
+  #       run: flutter pub run test --run-skipped -t pull-request-only
 
-      - name: Run Tests
-        run: |
-          flutter pub global activate coverage 1.2.0
-          flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+  #     - name: Run Tests
+  #       run: |
+  #         flutter pub global activate coverage 1.2.0
+  #         flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-      - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
+  #     - name: Check Code Coverage
+  #       uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
 
   e2e:
     runs-on: ubuntu-latest
@@ -54,12 +54,12 @@ jobs:
           # E2E tests for the test command
           - test/src/commands/test/e2e
           # E2E tests for the create command
-          - test/src/commands/create/e2e/core_test.dart
-          - test/src/commands/create/e2e/dart_cli_test.dart
-          - test/src/commands/create/e2e/dart_pkg_test.dart
-          - test/src/commands/create/e2e/docs_site_test.dart
-          - test/src/commands/create/e2e/flame_game_test.dart
-          - test/src/commands/create/e2e/flutter_pkg_test.dart
+          # - test/src/commands/create/e2e/core_test.dart
+          # - test/src/commands/create/e2e/dart_cli_test.dart
+          # - test/src/commands/create/e2e/dart_pkg_test.dart
+          # - test/src/commands/create/e2e/docs_site_test.dart
+          # - test/src/commands/create/e2e/flame_game_test.dart
+          # - test/src/commands/create/e2e/flutter_pkg_test.dart
 
     steps:
       - uses: actions/checkout@v3.1.0
@@ -72,27 +72,25 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
-      - run: pwd
-
       - name: Run Tests
         run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
 
-  pana:
-    runs-on: ubuntu-latest
+  # pana:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3.1.0
+  #   steps:
+  #     - uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v2.8.0
+  #     - uses: subosito/flutter-action@v2.8.0
 
-      - name: Install Dependencies
-        run: |
-          flutter packages get
-          flutter pub global activate pana
+  #     - name: Install Dependencies
+  #       run: |
+  #         flutter packages get
+  #         flutter pub global activate pana
 
-      - name: Verify Pub Score
-        run: |
-          PANA=$(pana . --no-warning); PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
-          echo "score: $PANA_SCORE"
-          IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0]; TOTAL=SCORE_ARR[1]
-          if (( $SCORE < $TOTAL )); then echo "minimum score not met!"; exit 1; fi
+  #     - name: Verify Pub Score
+  #       run: |
+  #         PANA=$(pana . --no-warning); PANA_SCORE=$(echo $PANA | sed -n "s/.*Points: \([0-9]*\)\/\([0-9]*\)./\1\/\2/p")
+  #         echo "score: $PANA_SCORE"
+  #         IFS='/'; read -a SCORE_ARR <<< "$PANA_SCORE"; SCORE=SCORE_ARR[0]; TOTAL=SCORE_ARR[1]
+  #         if (( $SCORE < $TOTAL )); then echo "minimum score not met!"; exit 1; fi
