@@ -63,6 +63,6 @@ void main() {
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
-    timeout: const Timeout(Duration(minutes: 1)),
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

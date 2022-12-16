@@ -58,6 +58,6 @@ void main() {
       expect(buildResult.exitCode, equals(ExitCode.success.code));
       expect(buildResult.stderr, isEmpty);
     }),
-    timeout: const Timeout(Duration(minutes: 1)),
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }
