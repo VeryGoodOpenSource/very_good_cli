@@ -29,6 +29,5 @@ void main() {
         getCurrentDirectory: () => directory,
       );
     }),
-    skip: true,
   );
 }

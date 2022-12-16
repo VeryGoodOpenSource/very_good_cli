@@ -72,6 +72,8 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - run: pwd
+
       - name: Run Tests
         run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
 
