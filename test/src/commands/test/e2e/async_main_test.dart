@@ -10,11 +10,12 @@ void main() {
   test(
     'supports async main methods',
     withRunner((commandRunner, logger, updater, logs) async {
+      stdout.writeln('cwd: "${Directory.current.absolute.path}"');
       final directory = Directory.systemTemp.createTempSync('async_main');
       final fixture = Directory(
         path.join(Directory.current.path, 'test/fixtures/async_main'),
       );
-      stdout.writeln(fixture.absolute.path);
+      stdout.writeln('fixture: "${fixture.absolute.path}"');
       await copyDirectory(fixture, directory);
 
       final pubGetResult = await Process.run(
