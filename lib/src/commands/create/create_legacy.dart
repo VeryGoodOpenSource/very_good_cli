@@ -1,10 +1,3 @@
-import 'dart:collection';
-import 'dart:math';
-
-import 'package:args/command_runner.dart';
-
-// ignore: implementation_imports
-import 'package:args/src/utils.dart';
 import 'package:mason/mason.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
@@ -13,9 +6,9 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 /// Legacy elements of the [CreateCommand] class kept to maintain backwards
 /// compatibility with the `very_good create <project name>` command syntax.
-abstract class CreateCommandLegacy extends CreateSubCommand
+class LegacyCreateCommand extends CreateSubCommand
     with OrgName, MultiTemplates {
-  CreateCommandLegacy({
+  LegacyCreateCommand({
     required Analytics analytics,
     required Logger logger,
     MasonGeneratorFromBundle? generatorFromBundle,
@@ -25,7 +18,6 @@ abstract class CreateCommandLegacy extends CreateSubCommand
           logger: logger,
           generatorFromBundle: generatorFromBundle,
           generatorFromBrick: generatorFromBrick,
-          hideOptions: true,
         ) {
     argParser
       ..addOption(
@@ -101,10 +93,12 @@ abstract class CreateCommandLegacy extends CreateSubCommand
 
   @override
   Future<int> runCreate(MasonGenerator generator, Template template) {
-    logger.warn(
-      "Deprecated: 'very_good create <project name>' is deprecated. "
-      "Use 'very_good create [sub_command] <project name>' instead.",
-    );
+    if (argResults.command == null) {
+      logger.warn(
+        "Deprecated: 'very_good create <project name>' is deprecated. "
+        "Use 'very_good create --help' to see the available options.",
+      );
+    }
     return super.runCreate(generator, template);
   }
 
@@ -121,6 +115,8 @@ abstract class CreateCommandLegacy extends CreateSubCommand
     final macos = argResults['macos'] as String? ?? 'true';
     final windows = argResults['windows'] as String? ?? 'true';
 
+    final publishable = argResults['publishable'] as bool?;
+
     final executableName =
         argResults['executable-name'] as String? ?? projectName;
 
@@ -136,101 +132,24 @@ abstract class CreateCommandLegacy extends CreateSubCommand
         if (macos.toBool()) 'macos',
         if (windows.toBool()) 'windows',
       ],
+      if (publishable != null) 'publishable': publishable,
     };
   }
 
   @override
-  void addSubcommand(Command<int> command) {
-    final names = [command.name, ...command.aliases];
-    for (final name in names) {
-      _optionalSubCommands[name] = command;
-      argParser.addCommand(name, command.argParser);
-    }
-  }
-
-  /// An unmodifiable view of all sublevel commands of this command.
-  @override
-  Map<String, Command<int>> get subcommands =>
-      UnmodifiableMapView(_optionalSubCommands);
-
-  /// Throws a [UsageException] with [message].
-  @override
-  Never usageException(String message) =>
-      throw UsageException(_wrap(message), _usageWithoutDescription);
+  String get description => 'aaa';
 
   @override
-  String get usage => _wrap('$description\n\n') + _usageWithoutDescription;
+  String get name => 'legacy';
 
-  /// Returns [usage] with [description] removed from the beginning.
-  String get _usageWithoutDescription {
-    const usagePrefix = 'Usage: ';
-    final buffer = StringBuffer()
-      ..writeln(_wrap(usagePrefix + invocation))
-      ..writeln(argParser.usage);
+  @override
+  bool get hidden => true;
 
-    if (subcommands.isNotEmpty) {
-      buffer
-        ..writeln()
-        ..writeln(_getCommandUsage());
-    }
+  @override
+  String get invocation => 'very_good create <subcommand> [arguments]';
 
-    buffer
-      ..writeln()
-      ..write(
-        _wrap('Run "${runner!.executableName} help" to see global options.'),
-      );
-
-    if (usageFooter != null) {
-      buffer
-        ..writeln()
-        ..write(_wrap(usageFooter!));
-    }
-
-    return buffer.toString();
-  }
-
-  String _getCommandUsage() {
-    final lineLength = argParser.usageLineLength;
-    final entries = subcommands.entries
-        .where(
-          (entry) => !entry.value.aliases.contains(name) && !entry.value.hidden,
-        )
-        .toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-
-    final length = entries.map((entry) => entry.key.length).reduce(max);
-    final columnStart = length + 5;
-    final buffer = StringBuffer('Available subcommands:');
-    for (final entry in entries) {
-      final command = entry.value;
-      final lines = wrapTextAsLines(
-        command.summary,
-        start: columnStart,
-        length: lineLength,
-      );
-
-      buffer
-        ..writeln()
-        ..write('  ${padRight(command.name, length)}   ${lines.first}');
-
-      for (final line in lines.skip(1)) {
-        buffer
-          ..writeln()
-          ..write(' ' * columnStart)
-          ..write(line);
-      }
-    }
-
-    return buffer.toString();
-  }
-
-  String _wrap(String text, {int? hangingIndent}) => wrapText(
-        text,
-        length: argParser.usageLineLength,
-        hangingIndent: hangingIndent,
-      );
-
-  final _optionalSubCommands = <String, Command<int>>{};
+  @override
+  String get usage => super.usage;
 }
 
 extension on String {

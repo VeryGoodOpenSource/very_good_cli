@@ -5,6 +5,7 @@ import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
+import 'package:very_good_cli/src/commands/create/create_legacy.dart';
 import 'package:very_good_cli/src/version.dart';
 
 // The Google Analytics tracking ID.
@@ -64,6 +65,55 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
 
   @override
   void printUsage() => _logger.info(usage);
+
+  /// Parse commands wth legacy support on the create command.
+  ///
+  /// Redirects usages of [CreateCommand] to the [LegacyCreateCommand] if
+  /// it detects the legacy syntax.
+  @override
+  ArgResults parse(Iterable<String> args) {
+    ArgResults result;
+
+    try {
+      result = argParser.parse(args);
+    } on ArgParserException catch (error) {
+      if (error.commands.isEmpty) usageException(error.message);
+
+      if (error.commands.last == 'create') {
+        return parse(putLegacyAfterCreate(args));
+      }
+
+      var command = commands[error.commands.first]!;
+      for (var commandName in error.commands.skip(1)) {
+        command = command.subcommands[commandName]!;
+      }
+
+      command.usageException(error.message);
+    }
+
+    if (args.isEmpty || args.last == 'create') {
+      return result;
+    }
+
+    final command = result.command;
+
+    if (command == null ||
+        command.name != 'create' ||
+        command.command != null ||
+        command.wasParsed('help')) {
+      return result;
+    }
+
+    return parse(putLegacyAfterCreate(args));
+  }
+
+  Iterable<String> putLegacyAfterCreate(Iterable<String> args) {
+    final argsList = args.toList();
+    final index = argsList.indexOf('create');
+
+    argsList.insert(index + 1, 'legacy');
+    return argsList;
+  }
 
   @override
   Future<int> run(Iterable<String> args) async {

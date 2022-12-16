@@ -11,7 +11,7 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
     required Logger logger,
     MasonGeneratorFromBundle? generatorFromBundle,
     MasonGeneratorFromBrick? generatorFromBrick,
-    this.fakename,
+
   }) : super(
           analytics: analytics,
           logger: logger,
@@ -25,10 +25,9 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
     );
   }
 
-  String? fakename;
 
   @override
-  String get name => fakename ?? 'flutter_app';
+  String get name => 'flutter_app';
 
   @override
   String get description =>

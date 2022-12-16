@@ -33,7 +33,6 @@ abstract class CreateSubCommand extends Command<int> {
     required this.logger,
     required MasonGeneratorFromBundle? generatorFromBundle,
     required MasonGeneratorFromBrick? generatorFromBrick,
-    bool hideOptions = false,
   })  : _analytics = analytics,
         _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
         _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
@@ -42,13 +41,11 @@ abstract class CreateSubCommand extends Command<int> {
         'output-directory',
         abbr: 'o',
         help: 'The desired output directory when creating a new project.',
-        hide: hideOptions,
       )
       ..addOption(
         'desc',
         help: 'The description for this new project.',
         defaultsTo: _defaultDescription,
-        hide: hideOptions,
       );
 
     if (this is MultiTemplates) {
@@ -68,7 +65,6 @@ abstract class CreateSubCommand extends Command<int> {
             element.name: element.help,
           },
         ),
-        hide: hideOptions,
       );
     }
 
@@ -78,16 +74,12 @@ abstract class CreateSubCommand extends Command<int> {
         help: 'The organization for this new project.',
         defaultsTo: _defaultOrgName,
         aliases: ['org'],
-        hide: hideOptions,
       );
     }
   }
 
   @override
   String get invocation => 'very_good create $name <project name>';
-
-  @override
-  String get summary => '$invocation\n$description';
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
@@ -163,7 +155,6 @@ abstract class CreateSubCommand extends Command<int> {
     return _generatorFromBundle(template.bundle);
   }
 
-  @nonVirtual
   @override
   Future<int> run() async {
     final template = this.template;
