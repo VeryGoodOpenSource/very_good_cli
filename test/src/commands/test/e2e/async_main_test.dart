@@ -32,7 +32,7 @@ void main() {
           final result = await commandRunner.run(['test']);
           expect(result, equals(ExitCode.success.code));
         },
-        getCurrentDirectory: () => directory,
+        // getCurrentDirectory: () => directory,
       );
     }),
     timeout: const Timeout(Duration(minutes: 1)),
