@@ -32,5 +32,6 @@ void main() {
         getCurrentDirectory: () => directory,
       );
     }),
+    timeout: const Timeout(Duration(minutes: 1)),
   );
 }
