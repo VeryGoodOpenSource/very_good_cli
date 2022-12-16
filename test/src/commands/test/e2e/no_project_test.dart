@@ -21,13 +21,8 @@ void main() {
 
       expect(pubGetResult.exitCode, equals(ExitCode.success.code));
 
-      await IOOverrides.runZoned(
-        () async {
-          final result = await commandRunner.run(['test']);
-          expect(result, equals(ExitCode.success.code));
-        },
-        getCurrentDirectory: () => directory,
-      );
+      final result = await commandRunner.run(['test', directory.path]);
+      expect(result, equals(ExitCode.success.code));
     }),
   );
 }
