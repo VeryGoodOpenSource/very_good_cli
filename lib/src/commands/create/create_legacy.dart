@@ -24,56 +24,47 @@ class LegacyCreateCommand extends CreateSubCommand
         'executable-name',
         help: 'Used by the dart_cli template, the CLI executable name '
             '(defaults to the project name)',
-        hide: true,
       )
       ..addOption(
         'android',
         help: 'The plugin supports the Android platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'ios',
         help: 'The plugin supports the iOS platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'web',
         help: 'The plugin supports the Web platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'linux',
         help: 'The plugin supports the Linux platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'macos',
         help: 'The plugin supports the macOS platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'windows',
         help: 'The plugin supports the Windows platform.',
         defaultsTo: 'true',
-        hide: true,
       )
       ..addOption(
         'application-id',
         help: 'The bundle identifier on iOS or application id on Android. '
             '(defaults to <org-name>.<project-name>)',
-        hide: true,
       )
       ..addFlag(
         'publishable',
         negatable: false,
         help: 'Whether the generated project is intended to be published '
             '(Does not affect flutter application templates)',
-        hide: true,
       );
   }
 
@@ -137,7 +128,8 @@ class LegacyCreateCommand extends CreateSubCommand
   }
 
   @override
-  String get description => 'aaa';
+  String get description =>
+      'Creates a new very good project in the specified directory.';
 
   @override
   String get name => 'legacy';
@@ -149,7 +141,7 @@ class LegacyCreateCommand extends CreateSubCommand
   String get invocation => 'very_good create <subcommand> [arguments]';
 
   @override
-  String get usage => super.usage;
+  String get usage => parent!.usage;
 }
 
 extension on String {

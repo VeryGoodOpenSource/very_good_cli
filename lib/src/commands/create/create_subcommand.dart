@@ -240,7 +240,8 @@ mixin MultiTemplates on CreateSubCommand {
 
   @override
   Template get template {
-    final templateName = argResults['template'] as String?;
+    final templateName =
+        argResults['template'] as String? ?? defaultTemplateName;
 
     return templates.firstWhere(
       (element) => element.name == templateName,

@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/create/create.dart';
+import 'package:very_good_cli/src/commands/create/create_legacy.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
 
@@ -19,38 +19,11 @@ const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
   'Creates a new very good project in the specified directory.\n'
       '\n'
-      'Usage: very_good create <project name>\n'
-      '-h, --help                    Print this usage information.\n'
-      '''-o, --output-directory        The desired output directory when creating a new project.\n'''
-      '    --desc                    The description for this new project.\n'
-      '''                              (defaults to "A Very Good Project created by Very Good CLI.")\n'''
-      '''    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)\n'''
-      '    --org-name                The organization for this new project.\n'
-      '''                              (defaults to "com.example.verygoodcore")\n'''
-      '''-t, --template                The template used to generate this new project.\n'''
+      'Usage: very_good create <subcommand> [arguments]\n'
+      '-h, --help    Print this usage information.\n'
       '\n'
-      '''          [core] (default)    Generate a Very Good Flutter application.\n'''
-      '''          [dart_cli]          Generate a Very Good Dart CLI application.\n'''
-      '          [dart_pkg]          Generate a reusable Dart package.\n'
-      '          [docs_site]         Generate a Very Good documentation site.\n'
-      '          [flame_game]        Generate a Very Good Flame game.\n'
-      '          [flutter_pkg]       Generate a reusable Flutter package.\n'
-      '          [flutter_plugin]    Generate a reusable Flutter plugin.\n'
-      '\n'
-      '''    --android                 The plugin supports the Android platform.\n'''
-      '                              (defaults to "true")\n'
-      '    --ios                     The plugin supports the iOS platform.\n'
-      '                              (defaults to "true")\n'
-      '    --web                     The plugin supports the Web platform.\n'
-      '                              (defaults to "true")\n'
-      '    --linux                   The plugin supports the Linux platform.\n'
-      '                              (defaults to "true")\n'
-      '    --macos                   The plugin supports the macOS platform.\n'
-      '                              (defaults to "true")\n'
-      '''    --windows                 The plugin supports the Windows platform.\n'''
-      '                              (defaults to "true")\n'
-      '''    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)\n'''
-      '''    --publishable             Whether the generated project is intended to be published (Does not affect flutter application templates)\n'''
+      'Available subcommands:\n'
+      '  flutter_app   Creates a new very good Flutter app in the specified directory.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -81,7 +54,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 class FakeLogger extends Fake implements Logger {}
 
 void main() {
-  group('create', () {
+  group('create legacy', () {
     late List<String> progressLogs;
     late Analytics analytics;
     late Logger logger;
@@ -121,20 +94,20 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(['create', '--help']);
+        final result = await commandRunner.run(['create', 'legacy',  '--help']);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr = await commandRunner.run(['create', '-h']);
+        final resultAbbr = await commandRunner.run(['create', 'legacy',  '-h']);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
 
     test('can be instantiated without explicit logger', () {
-      final command = CreateCommand(analytics: analytics, logger: logger);
+      final command = LegacyCreateCommand(analytics: analytics, logger: logger);
       expect(command, isNotNull);
     });
 
@@ -144,7 +117,7 @@ void main() {
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '".tmp" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
-        final result = await commandRunner.run(['create', '.tmp']);
+        final result = await commandRunner.run(['create', 'legacy',  '.tmp']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -155,7 +128,7 @@ void main() {
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = '"My App" is not a valid package name.\n\n'
             'See https://dart.dev/tools/pub/pubspec#name for more information.';
-        final result = await commandRunner.run(['create', 'My App']);
+        final result = await commandRunner.run(['create', 'legacy',  'My App']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -165,7 +138,7 @@ void main() {
       'throws UsageException when multiple project names are provided',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         const expectedErrorMessage = 'Multiple project names specified.';
-        final result = await commandRunner.run(['create', 'a', 'b']);
+        final result = await commandRunner.run(['create', 'legacy',  'a', 'b']);
         expect(result, equals(ExitCode.usage.code));
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
@@ -175,7 +148,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => throw Exception('oops'),
@@ -238,7 +211,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => throw Exception('oops'),
@@ -305,7 +278,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => throw Exception('oops'),
@@ -361,7 +334,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => generator,
@@ -422,7 +395,7 @@ void main() {
 
     test('throws when remote and bundled brick generator fails', () async {
       final argResults = MockArgResults();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => throw Exception('oops'),
@@ -437,7 +410,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => generator,
@@ -505,7 +478,7 @@ void main() {
       ).called(1);
       verify(
         () => analytics.sendEvent(
-          'create',
+          'create legacy',
           'generator_id',
           label: 'generator description',
         ),
@@ -519,7 +492,7 @@ void main() {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
-      final command = CreateCommand(
+      final command = LegacyCreateCommand(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: (_) async => generator,
@@ -675,7 +648,7 @@ void main() {
           final argResults = MockArgResults();
           final hooks = MockGeneratorHooks();
           final generator = MockMasonGenerator();
-          final command = CreateCommand(
+          final command = LegacyCreateCommand(
             analytics: analytics,
             logger: logger,
             generatorFromBundle: (_) async => generator,
@@ -789,7 +762,7 @@ void main() {
           final argResults = MockArgResults();
           final hooks = MockGeneratorHooks();
           final generator = MockMasonGenerator();
-          final command = CreateCommand(
+          final command = LegacyCreateCommand(
             analytics: analytics,
             logger: logger,
             generatorFromBundle: (bundle) async {
@@ -865,7 +838,7 @@ void main() {
           ).called(1);
           verify(
             () => analytics.sendEvent(
-              'create',
+              'create legacy',
               'generator_id',
               label: 'generator description',
             ),
@@ -942,3 +915,4 @@ void main() {
     });
   });
 }
+
