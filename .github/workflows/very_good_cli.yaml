@@ -46,7 +46,7 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     strategy:
       matrix:
