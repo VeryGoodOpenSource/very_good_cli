@@ -10,7 +10,10 @@ void main() {
     'supports async main methods',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync('async_main');
-      await copyDirectory(Directory('test/fixtures/async_main'), directory);
+      final fixture = Directory('test/fixtures/async_main');
+      // ignore: avoid_print
+      print(fixture.absolute.path);
+      await copyDirectory(fixture, directory);
 
       final pubGetResult = await Process.run(
         'flutter',
