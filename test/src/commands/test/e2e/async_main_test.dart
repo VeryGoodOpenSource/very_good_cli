@@ -1,10 +1,10 @@
 @Tags(['e2e'])
-// import 'package:mason/mason.dart';
-// import 'package:path/path.dart' as path;
+import 'package:mason/mason.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-// import '../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   stdout.writeln('main() cwd: "${Directory.current.absolute.path}"');
@@ -12,38 +12,39 @@ void main() {
     stdout.writeln('test() cwd: "${Directory.current.absolute.path}"');
     expect(true, isTrue);
   });
-  // test(
-  //   'supports async main methods',
-  //   withRunner((commandRunner, logger, updater, logs) async {
-  //     stdout.writeln('cwd: "${Directory.current.absolute.path}"');
-  //     final directory = Directory.systemTemp.createTempSync('async_main');
-  //     final fixture = Directory(
-  //       path.join(Directory.current.path, 'test/fixtures/async_main'),
-  //     );
 
-  //     stdout
-  //       ..writeln('tempDir: "${directory.absolute.path}"')
-  //       ..writeln('fixture: "${fixture.absolute.path}"');
+  test(
+    'supports async main methods',
+    withRunner((commandRunner, logger, updater, logs) async {
+      stdout.writeln('cwd: "${Directory.current.absolute.path}"');
+      final directory = Directory.systemTemp.createTempSync('async_main');
+      final fixture = Directory(
+        path.join(Directory.current.path, 'test/fixtures/async_main'),
+      );
 
-  //     await copyDirectory(fixture, directory);
+      stdout
+        ..writeln('tempDir: "${directory.absolute.path}"')
+        ..writeln('fixture: "${fixture.absolute.path}"');
 
-  //     final pubGetResult = await Process.run(
-  //       'flutter',
-  //       ['pub', 'get'],
-  //       workingDirectory: directory.path,
-  //       runInShell: true,
-  //     );
+      await copyDirectory(fixture, directory);
 
-  //     expect(pubGetResult.exitCode, equals(ExitCode.success.code));
+      final pubGetResult = await Process.run(
+        'flutter',
+        ['pub', 'get'],
+        workingDirectory: directory.path,
+        runInShell: true,
+      );
 
-  //     await IOOverrides.runZoned(
-  //       () async {
-  //         final result = await commandRunner.run(['test']);
-  //         expect(result, equals(ExitCode.success.code));
-  //       },
-  //       // getCurrentDirectory: () => directory,
-  //     );
-  //   }),
-  //   timeout: const Timeout(Duration(minutes: 1)),
-  // );
+      expect(pubGetResult.exitCode, equals(ExitCode.success.code));
+
+      await IOOverrides.runZoned(
+        () async {
+          final result = await commandRunner.run(['test']);
+          expect(result, equals(ExitCode.success.code));
+        },
+        // getCurrentDirectory: () => directory,
+      );
+    }),
+    timeout: const Timeout(Duration(minutes: 1)),
+  );
 }
