@@ -4,10 +4,14 @@ import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
+/// {@template very_good_legacy_create_command}
 /// Legacy elements of the [CreateCommand] class kept to maintain backwards
 /// compatibility with the `very_good create <project name>` command syntax.
+/// {@endtemplate}
 class LegacyCreateCommand extends CreateSubCommand
     with OrgName, MultiTemplates {
+
+  /// {@macro very_good_legacy_create_command}
   LegacyCreateCommand({
     required Analytics analytics,
     required Logger logger,
@@ -139,6 +143,8 @@ class LegacyCreateCommand extends CreateSubCommand
   @override
   String get usage => parent!.usage;
 
+
+  /// The deprecated message to display when the command is invoked.
   String get deprecatedUsage => 'Deprecated usage: '
       "run 'very_good create --help' to see the available options.";
 }

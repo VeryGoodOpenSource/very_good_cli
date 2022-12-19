@@ -80,7 +80,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     } on ArgParserException catch (error) {
       if (error.commands.isEmpty) usageException(error.message);
 
-      // if there is an error and the ;ast parsed command is create,
+      // if there is an error and the last parsed command is create,
       // we p[ossibly have a legacy syntax usage, retry parsing with the
       // legacy command.
       if (error.commands.last == 'create') {
@@ -90,7 +90,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
       // Otherwise just go about showing the usage exception for the last
       // parsed command.
       var command = commands[error.commands.first]!;
-      for (var commandName in error.commands.skip(1)) {
+      for (final commandName in error.commands.skip(1)) {
         command = command.subcommands[commandName]!;
       }
 

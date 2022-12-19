@@ -26,13 +26,12 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 /// A method which returns a [Future<MasonGenerator>] given a [Brick].
 typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 
-
 /// {@template create_subcommand}
-/// Generic class for sub command of [CreateCommand].
+/// Generic class for sub commands of [CreateCommand].
 /// {@endtemplate}
 ///
 /// It contains the common logic for all sub commands of [CreateCommand],
-/// ncluding the [run] and [runCreate] routines.
+/// nicluding the [run] and [runCreate] routines.
 ///
 /// By default, adds the following arguments to the [argParser]:
 /// - 'output-directory': the output directory
@@ -40,13 +39,12 @@ typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 ///
 /// Sub classes must implement [name], [description] and [template].
 ///
-/// For sub commands with multiple templates, sub classes mus mix with
+/// For sub commands with multiple templates, sub classes must mix with
 /// [MultiTemplates].
 ///
 /// For sub commands that receive an org name, sub classes must mix with
 /// [OrgName].
 abstract class CreateSubCommand extends Command<int> {
-
   /// {@macro create_subcommand}
   CreateSubCommand({
     required Analytics analytics,
@@ -67,7 +65,6 @@ abstract class CreateSubCommand extends Command<int> {
         help: 'The description for this new project.',
         defaultsTo: _defaultDescription,
       );
-
 
     // Add the templates arg if the command has multiple templates.
     if (this is MultiTemplates) {
@@ -112,6 +109,7 @@ abstract class CreateSubCommand extends Command<int> {
   ArgResults get argResults => argResultOverrides ?? super.argResults!;
 
   final Analytics _analytics;
+
   /// The logger user to notify the user of the command's progress.
   final Logger logger;
   final MasonGeneratorFromBundle _generatorFromBundle;
@@ -200,7 +198,6 @@ abstract class CreateSubCommand extends Command<int> {
     return result;
   }
 
-
   /// Invoked by [run] to create the project, contains the logic for using
   /// the template vars obtained by [getTemplateVars] to generate the project
   /// from the [generator] and [template].
@@ -208,7 +205,7 @@ abstract class CreateSubCommand extends Command<int> {
     final generateProgress = logger.progress('Bootstrapping');
     var vars = getTemplateVars();
 
-    final target = DirectoryGeneratorTarget(this.outputDirectory);
+    final target = DirectoryGeneratorTarget(outputDirectory);
 
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final files = await generator.generate(target, vars: vars, logger: logger);
@@ -222,6 +219,12 @@ abstract class CreateSubCommand extends Command<int> {
     return ExitCode.success.code;
   }
 
+  /// Responsible for returns the template parameters to be passed to the
+  /// template brick.
+  ///
+  /// Override if the create subcomamnd requires additional template parameters.
+  ///
+  /// For subcommands that mix with [OrgName], it includes 'org_name'.
   @mustCallSuper
   Map<String, dynamic> getTemplateVars() {
     final projectName = this.projectName;
@@ -235,6 +238,10 @@ abstract class CreateSubCommand extends Command<int> {
   }
 }
 
+/// Mixin for [CreateSubCommand] subclasses that receives the org name
+/// parameter.
+///
+/// Takes care of parsing from [argResults] and validating the org name.
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
@@ -263,9 +270,21 @@ mixin OrgName on CreateSubCommand {
   }
 }
 
+/// Mixin for [CreateSubCommand] subclasses that receives multiple templates.
+///
+/// Subcommands that mix with this mixin should override [templates] and
+/// [defaultTemplateName];
+///
+/// Takes care of parsing the desired template from [argResults] and
+/// validating the org name.
 mixin MultiTemplates on CreateSubCommand {
+
+  /// Gets the desired template to be created during a command run when the
+  /// template argument is not provided.`
   String get defaultTemplateName;
 
+
+  /// Gets all the templates to be created during a command run.
   List<Template> get templates;
 
   @nonVirtual

@@ -23,7 +23,8 @@ const expectedUsage = [
       '-h, --help    Print this usage information.\n'
       '\n'
       'Available subcommands:\n'
-      '  flutter_app   Creates a new very good Flutter app in the specified directory.\n'
+      '  flutter_app   Creates a new very good Flutter app in the specified '
+      'directory.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
