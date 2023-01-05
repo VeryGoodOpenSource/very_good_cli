@@ -4,16 +4,16 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../helpers/helpers.dart';
+import '../../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t core',
+    'create flutter_app',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
-        ['create', 'very_good_core', '-t', 'core', '-o', directory.path],
+        ['create', 'flutter_app', 'very_good_core', '-o', directory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
