@@ -85,7 +85,7 @@ void main() {
           verify(
             () => logger.info(
               '''
-Usage: Deprecated usage: run 'very_good create --help' to see the available options.
+Usage: Deprecated usage of the create command: run 'very_good create --help' to see the available options.
 -h, --help                    Print this usage information.
 -o, --output-directory        The desired output directory when creating a new project.
     --desc                    The description for this new project.

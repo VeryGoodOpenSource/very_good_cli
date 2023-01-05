@@ -127,7 +127,7 @@ class LegacyCreateCommand extends CreateSubCommand
   }
 
   @override
-  String get description => deprecatedUsage;
+  String get description => 'Deprecated usage of the create command';
 
   @override
   String get name => 'legacy';
@@ -136,13 +136,13 @@ class LegacyCreateCommand extends CreateSubCommand
   bool get hidden => true;
 
   @override
-  String get usage => deprecatedUsage;
+  String get usage => description;
 
   @override
   String get invocation => '${yellow.wrap(deprecatedUsage)}';
 
   /// The deprecated message to display when the command is invoked.
-  String get deprecatedUsage => 'Deprecated usage: '
+  String get deprecatedUsage => '$description: '
       "run 'very_good create --help' to see the available options.";
 }
 

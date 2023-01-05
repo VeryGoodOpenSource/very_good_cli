@@ -58,7 +58,7 @@ jobs:
 
           # E2E tests for the legacy create command syntax
           - test/src/commands/create/e2e/legacy/core_test.dart
-          - test/src/commands/create/e2e/legacy/legacy/dart_cli_test.dart
+          - test/src/commands/create/e2e/legacy/dart_cli_test.dart
           - test/src/commands/create/e2e/legacy/dart_pkg_test.dart
           - test/src/commands/create/e2e/legacy/docs_site_test.dart
           - test/src/commands/create/e2e/legacy/flame_game_test.dart
