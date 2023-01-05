@@ -66,7 +66,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   @override
   void printUsage() => _logger.info(usage);
 
-  /// Parse commands wth legacy support on the create command.
+  /// Parse commands with legacy support for the create command.
   ///
   /// Redirects usages of [CreateCommand] to the [LegacyCreateCommand] if
   /// it detects the legacy syntax.
@@ -81,7 +81,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
       if (error.commands.isEmpty) usageException(error.message);
 
       // if there is an error and the last parsed command is create,
-      // we p[ossibly have a legacy syntax usage, retry parsing with the
+      // we possibly have a legacy syntax usage, retry parsing with the
       // legacy command.
       if (error.commands.last == 'create') {
         return parse(_putLegacyAfterCreate(args));
@@ -99,21 +99,21 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
 
     // if no arg is passed, or the last given command is create,
     // show normal results.
-    if (args.isEmpty || args.last == 'create') {
+    if (args.isEmpty) {
       return result;
     }
 
-    final command = result.command;
+    final topLevelCommand = result.command;
 
     // Retry with legacy command if:
     // - top level command is not null
-    // - the command is under create
-    // - no create subcommand was parsed
-    // - user is not calling create --help
-    if (command != null &&
-        command.name == 'create' &&
-        command.command == null &&
-        !command.wasParsed('help')) {
+    // - and the top level command is create
+    // - and no create subcommand was parsed
+    // - and user is not calling create --help
+    if (topLevelCommand != null &&
+        topLevelCommand.name == 'create' &&
+        topLevelCommand.command == null &&
+        !topLevelCommand.wasParsed('help')) {
       return parse(_putLegacyAfterCreate(args));
     }
 
