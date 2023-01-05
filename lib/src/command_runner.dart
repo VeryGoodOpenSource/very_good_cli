@@ -5,7 +5,6 @@ import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/commands/create/create_legacy.dart';
 import 'package:very_good_cli/src/version.dart';
 
 // The Google Analytics tracking ID.
