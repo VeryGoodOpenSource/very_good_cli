@@ -40,7 +40,7 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
   Map<String, dynamic> getTemplateVars() {
     final vars = super.getTemplateVars();
 
-    final applicationId = argResults['application-id'] as String?;
+    final applicationId = argResults!['application-id'] as String?;
     if (applicationId != null) {
       vars['application_id'] = applicationId;
     }

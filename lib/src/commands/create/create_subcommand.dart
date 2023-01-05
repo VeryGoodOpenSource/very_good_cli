@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
@@ -31,7 +30,7 @@ typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 /// {@endtemplate}
 ///
 /// It contains the common logic for all sub commands of [CreateCommand],
-/// nicluding the [run] and [runCreate] routines.
+/// including the [run] and [runCreate] routines.
 ///
 /// By default, adds the following arguments to the [argParser]:
 /// - 'output-directory': the output directory
@@ -101,13 +100,6 @@ abstract class CreateSubCommand extends Command<int> {
   @override
   String get invocation => 'very_good create $name <project name>';
 
-  /// [ArgResults] which can be overridden for testing.
-  @visibleForTesting
-  ArgResults? argResultOverrides;
-
-  @override
-  ArgResults get argResults => argResultOverrides ?? super.argResults!;
-
   final Analytics _analytics;
 
   /// The logger user to notify the user of the command's progress.
@@ -117,19 +109,19 @@ abstract class CreateSubCommand extends Command<int> {
 
   /// Gets the output [Directory].
   Directory get outputDirectory {
-    final directory = argResults['output-directory'] as String? ?? '.';
+    final directory = argResults!['output-directory'] as String? ?? '.';
     return Directory(directory);
   }
 
   /// Gets the project name.
   String get projectName {
-    final args = argResults.rest;
+    final args = argResults!.rest;
     _validateProjectName(args);
     return args.first;
   }
 
   /// Gets the description for the project.
-  String get projectDescription => argResults['desc'] as String? ?? '';
+  String get projectDescription => argResults!['desc'] as String? ?? '';
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -222,7 +214,8 @@ abstract class CreateSubCommand extends Command<int> {
   /// Responsible for returns the template parameters to be passed to the
   /// template brick.
   ///
-  /// Override if the create subcomamnd requires additional template parameters.
+  /// Override if the create sub command requires additional template
+  /// parameters.
   ///
   /// For subcommands that mix with [OrgName], it includes 'org_name'.
   @mustCallSuper
@@ -245,7 +238,7 @@ abstract class CreateSubCommand extends Command<int> {
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
-    final orgName = argResults['org-name'] as String? ?? _defaultOrgName;
+    final orgName = argResults!['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
     return orgName;
   }
@@ -278,11 +271,9 @@ mixin OrgName on CreateSubCommand {
 /// Takes care of parsing the desired template from [argResults] and
 /// validating the org name.
 mixin MultiTemplates on CreateSubCommand {
-
   /// Gets the desired template to be created during a command run when the
   /// template argument is not provided.`
   String get defaultTemplateName;
-
 
   /// Gets all the templates to be created during a command run.
   List<Template> get templates;
@@ -291,7 +282,7 @@ mixin MultiTemplates on CreateSubCommand {
   @override
   Template get template {
     final templateName =
-        argResults['template'] as String? ?? defaultTemplateName;
+        argResults!['template'] as String? ?? defaultTemplateName;
 
     return templates.firstWhere(
       (element) => element.name == templateName,

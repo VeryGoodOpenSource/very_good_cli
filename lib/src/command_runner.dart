@@ -120,8 +120,6 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     return result;
   }
 
-
-
   @override
   Future<int> run(Iterable<String> args) async {
     try {
@@ -230,7 +228,6 @@ Run ${lightCyan.wrap('very_good update')} to update''',
     } catch (_) {}
   }
 }
-
 
 Iterable<String> _putLegacyAfterCreate(Iterable<String> args) {
   final argsList = args.toList();

@@ -107,7 +107,7 @@ void main() {
       }),
     );
 
-    test('can be instantiated without explicit logger', () {
+    test('can be instantiated without explicit generators', () {
       final command = LegacyCreateCommand(analytics: analytics, logger: logger);
       expect(command, isNotNull);
     });
@@ -144,69 +144,6 @@ void main() {
         verify(() => logger.err(expectedErrorMessage)).called(1);
       }),
     );
-
-    test('uses remote brick when possible', () async {
-      final argResults = MockArgResults();
-      final hooks = MockGeneratorHooks();
-      final generator = MockMasonGenerator();
-      final command = LegacyCreateCommand(
-        analytics: analytics,
-        logger: logger,
-        generatorFromBundle: (_) async => throw Exception('oops'),
-        generatorFromBrick: (_) async => generator,
-      )..argResultOverrides = argResults;
-      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
-      when(() => argResults.rest).thenReturn(['my_app']);
-      when(() => generator.id).thenReturn('generator_id');
-      when(() => generator.description).thenReturn('generator description');
-      when(() => generator.hooks).thenReturn(hooks);
-      when(
-        () => hooks.preGen(
-          vars: any(named: 'vars'),
-          onVarsChanged: any(named: 'onVarsChanged'),
-        ),
-      ).thenAnswer((_) async {});
-      when(
-        () => generator.generate(
-          any(),
-          vars: any(named: 'vars'),
-          logger: any(named: 'logger'),
-        ),
-      ).thenAnswer((_) async {
-        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
-          ..createSync(recursive: true)
-          ..writeAsStringSync(pubspec);
-        return generatedFiles;
-      });
-      final result = await command.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => generator.generate(
-          any(
-            that: isA<DirectoryGeneratorTarget>().having(
-              (g) => g.dir.path,
-              'dir',
-              '.tmp',
-            ),
-          ),
-          vars: <String, dynamic>{
-            'project_name': 'my_app',
-            'org_name': 'com.example.verygoodcore',
-            'description': '',
-            'executable_name': 'my_app',
-            'platforms': [
-              'android',
-              'ios',
-              'web',
-              'linux',
-              'macos',
-              'windows',
-            ],
-          },
-          logger: logger,
-        ),
-      ).called(1);
-    });
 
     test('uses application_id when one is provided', () async {
       final argResults = MockArgResults();
@@ -275,7 +212,7 @@ void main() {
       ).called(1);
     });
 
-    test('adds publishable when provided', () async {
+    test('uses remote brick when possible', () async {
       final argResults = MockArgResults();
       final hooks = MockGeneratorHooks();
       final generator = MockMasonGenerator();
@@ -286,9 +223,6 @@ void main() {
         generatorFromBrick: (_) async => generator,
       )..argResultOverrides = argResults;
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
-      when(() => argResults['publishable'] as bool?).thenReturn(
-        true,
-      );
       when(() => argResults.rest).thenReturn(['my_app']);
       when(() => generator.id).thenReturn('generator_id');
       when(() => generator.description).thenReturn('generator description');
@@ -313,7 +247,7 @@ void main() {
       });
       final result = await command.run();
       expect(result, equals(ExitCode.success.code));
-      final values = verify(
+      verify(
         () => generator.generate(
           any(
             that: isA<DirectoryGeneratorTarget>().having(
@@ -322,13 +256,23 @@ void main() {
               '.tmp',
             ),
           ),
-          vars: captureAny(named: 'vars'),
+          vars: <String, dynamic>{
+            'project_name': 'my_app',
+            'org_name': 'com.example.verygoodcore',
+            'description': '',
+            'executable_name': 'my_app',
+            'platforms': [
+              'android',
+              'ios',
+              'web',
+              'linux',
+              'macos',
+              'windows',
+            ],
+          },
           logger: logger,
         ),
-      ).captured;
-
-      final vars = values.first as Map<String, dynamic>;
-      expect(vars['publishable'], isTrue);
+      ).called(1);
     });
 
     test('uses bundled brick when remote brick is unavailable', () async {
@@ -405,6 +349,62 @@ void main() {
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
       when(() => argResults.rest).thenReturn(['my_app']);
       expect(command.run, throwsException);
+    });
+
+    test('adds publishable when provided', () async {
+      final argResults = MockArgResults();
+      final hooks = MockGeneratorHooks();
+      final generator = MockMasonGenerator();
+      final command = LegacyCreateCommand(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: (_) async => throw Exception('oops'),
+        generatorFromBrick: (_) async => generator,
+      )..argResultOverrides = argResults;
+      when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
+      when(() => argResults['publishable'] as bool?).thenReturn(
+        true,
+      );
+      when(() => argResults.rest).thenReturn(['my_app']);
+      when(() => generator.id).thenReturn('generator_id');
+      when(() => generator.description).thenReturn('generator description');
+      when(() => generator.hooks).thenReturn(hooks);
+      when(
+        () => hooks.preGen(
+          vars: any(named: 'vars'),
+          onVarsChanged: any(named: 'onVarsChanged'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => generator.generate(
+          any(),
+          vars: any(named: 'vars'),
+          logger: any(named: 'logger'),
+        ),
+      ).thenAnswer((_) async {
+        File(p.join('.tmp', 'my_app', 'pubspec.yaml'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(pubspec);
+        return generatedFiles;
+      });
+      final result = await command.run();
+      expect(result, equals(ExitCode.success.code));
+      final values = verify(
+        () => generator.generate(
+          any(
+            that: isA<DirectoryGeneratorTarget>().having(
+              (g) => g.dir.path,
+              'dir',
+              '.tmp',
+            ),
+          ),
+          vars: captureAny(named: 'vars'),
+          logger: logger,
+        ),
+      ).captured;
+
+      final vars = values.first as Map<String, dynamic>;
+      expect(vars['publishable'], isTrue);
     });
 
     test('completes successfully with correct output', () async {
@@ -806,8 +806,8 @@ void main() {
           expect(result, equals(ExitCode.success.code));
           verify(
             () => logger.warn(
-              "Deprecated: 'very_good create <project name>' is deprecated. "
-              "Use 'very_good create --help' to see the available options.",
+              "Deprecated usage: run 'very_good create --help' to see the "
+              'available options.',
             ),
           ).called(1);
           verify(() => logger.progress('Bootstrapping')).called(1);

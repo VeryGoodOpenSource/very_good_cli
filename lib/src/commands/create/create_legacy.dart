@@ -1,4 +1,6 @@
+import 'package:args/args.dart';
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
@@ -10,7 +12,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@endtemplate}
 class LegacyCreateCommand extends CreateSubCommand
     with OrgName, MultiTemplates {
-
   /// {@macro very_good_legacy_create_command}
   LegacyCreateCommand({
     required Analytics analytics,
@@ -72,6 +73,10 @@ class LegacyCreateCommand extends CreateSubCommand
       );
   }
 
+  /// [ArgResults] which can be overridden for testing.
+  @visibleForTesting
+  ArgResults? argResultOverrides;
+
   @override
   String get defaultTemplateName => 'core';
 
@@ -85,6 +90,9 @@ class LegacyCreateCommand extends CreateSubCommand
         VeryGoodDocsSiteTemplate(),
         VeryGoodFlameGameTemplate(),
       ];
+
+  @override
+  ArgResults get argResults => argResultOverrides ?? super.argResults!;
 
   @override
   Future<int> runCreate(MasonGenerator generator, Template template) {
@@ -142,7 +150,6 @@ class LegacyCreateCommand extends CreateSubCommand
 
   @override
   String get usage => parent!.usage;
-
 
   /// The deprecated message to display when the command is invoked.
   String get deprecatedUsage => 'Deprecated usage: '
