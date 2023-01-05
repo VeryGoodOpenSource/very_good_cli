@@ -511,6 +511,8 @@ See https://dart.dev/tools/pub/pubspec#name for more information.''',
               },
             );
 
+            runner = _TestCommandRunner(command: command);
+
             final result = await runner.run([
               'create_subcommand',
               'test_project',

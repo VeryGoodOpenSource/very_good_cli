@@ -43,6 +43,9 @@ class CreateCommand extends Command<int> {
   }
 
   @override
+  String get summary => '$invocation\n$description';
+
+  @override
   String get description =>
       'Creates a new very good project in the specified directory.';
 

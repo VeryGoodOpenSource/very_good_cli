@@ -187,6 +187,11 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
           _logger.detail('    - $option: ${commandResult[option]}');
         }
       }
+
+      if (commandResult.command != null) {
+        final subCommandResult = commandResult.command!;
+        _logger.detail('    Command sub command: ${subCommandResult.name}');
+      }
     }
 
     if (_analytics.enabled) {
