@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
@@ -97,9 +98,6 @@ abstract class CreateSubCommand extends Command<int> {
     }
   }
 
-  @override
-  String get invocation => 'very_good create $name <project name>';
-
   final Analytics _analytics;
 
   /// The logger user to notify the user of the command's progress.
@@ -107,26 +105,36 @@ abstract class CreateSubCommand extends Command<int> {
   final MasonGeneratorFromBundle _generatorFromBundle;
   final MasonGeneratorFromBrick _generatorFromBrick;
 
+  /// [ArgResults] which can be overridden for testing.
+  @visibleForTesting
+  ArgResults? argResultOverrides;
+
   /// Gets the output [Directory].
   Directory get outputDirectory {
-    final directory = argResults!['output-directory'] as String? ?? '.';
+    final directory = argResults['output-directory'] as String? ?? '.';
     return Directory(directory);
   }
 
   /// Gets the project name.
   String get projectName {
-    final args = argResults!.rest;
+    final args = argResults.rest;
     _validateProjectName(args);
     return args.first;
   }
 
   /// Gets the description for the project.
-  String get projectDescription => argResults!['desc'] as String? ?? '';
+  String get projectDescription => argResults['desc'] as String? ?? '';
 
   /// Should return the desired template to be created during a command run.
   ///
   /// For sub commands with multiple templates, see [MultiTemplates].
   Template get template;
+
+  @override
+  String get invocation => 'very_good create $name <project name>';
+
+  @override
+  ArgResults get argResults => argResultOverrides ?? super.argResults!;
 
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
@@ -238,7 +246,7 @@ abstract class CreateSubCommand extends Command<int> {
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
-    final orgName = argResults!['org-name'] as String? ?? _defaultOrgName;
+    final orgName = argResults['org-name'] as String? ?? _defaultOrgName;
     _validateOrgName(orgName);
     return orgName;
   }
@@ -282,7 +290,7 @@ mixin MultiTemplates on CreateSubCommand {
   @override
   Template get template {
     final templateName =
-        argResults!['template'] as String? ?? defaultTemplateName;
+        argResults['template'] as String? ?? defaultTemplateName;
 
     return templates.firstWhere(
       (element) => element.name == templateName,

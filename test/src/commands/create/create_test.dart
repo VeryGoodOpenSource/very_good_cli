@@ -1,5 +1,3 @@
-// ignore_for_file: no_adjacent_strings_in_list
-
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -42,6 +40,7 @@ void main() {
         'Allows the creation of projects in the legacy syntax',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDir = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDir.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
@@ -57,14 +56,13 @@ void main() {
           verify(
             () => logger.info('Created a Very Good Dart Package! 🦄'),
           ).called(1);
-
-          tempDir.deleteSync(recursive: true);
         }),
       );
       test(
         'Shows legacy usage when invalid legacy options is passed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDir = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDir.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
@@ -123,8 +121,6 @@ Usage: Deprecated usage: run 'very_good create --help' to see the available opti
 Run "very_good help" to see global options.''',
             ),
           ).called(1);
-
-          tempDir.deleteSync(recursive: true);
         }),
       );
     });

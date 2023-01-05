@@ -1,6 +1,4 @@
-import 'package:args/args.dart';
 import 'package:mason/mason.dart';
-import 'package:meta/meta.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
@@ -73,10 +71,6 @@ class LegacyCreateCommand extends CreateSubCommand
       );
   }
 
-  /// [ArgResults] which can be overridden for testing.
-  @visibleForTesting
-  ArgResults? argResultOverrides;
-
   @override
   String get defaultTemplateName => 'core';
 
@@ -90,9 +84,6 @@ class LegacyCreateCommand extends CreateSubCommand
         VeryGoodDocsSiteTemplate(),
         VeryGoodFlameGameTemplate(),
       ];
-
-  @override
-  ArgResults get argResults => argResultOverrides ?? super.argResults!;
 
   @override
   Future<int> runCreate(MasonGenerator generator, Template template) {

@@ -128,7 +128,6 @@ void main() {
     progressLogs = <String>[];
 
     analytics = MockAnalytics();
-    analytics = MockAnalytics();
     when(
       () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
     ).thenAnswer((_) async {});
