@@ -127,8 +127,7 @@ class LegacyCreateCommand extends CreateSubCommand
   }
 
   @override
-  String get description =>
-      'Creates a new very good project in the specified directory.';
+  String get description => deprecatedUsage;
 
   @override
   String get name => 'legacy';
@@ -137,10 +136,10 @@ class LegacyCreateCommand extends CreateSubCommand
   bool get hidden => true;
 
   @override
-  String get invocation => '${yellow.wrap(deprecatedUsage)}';
+  String get usage => deprecatedUsage;
 
   @override
-  String get usage => parent!.usage;
+  String get invocation => '${yellow.wrap(deprecatedUsage)}';
 
   /// The deprecated message to display when the command is invoked.
   String get deprecatedUsage => 'Deprecated usage: '

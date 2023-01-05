@@ -17,16 +17,8 @@ import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Creates a new very good project in the specified directory.\n'
-      '\n'
-      'Usage: very_good create <subcommand> [arguments]\n'
-      '-h, --help    Print this usage information.\n'
-      '\n'
-      'Available subcommands:\n'
-      '  flutter_app   Creates a new very good Flutter app in the specified '
-      'directory.\n'
-      '\n'
-      'Run "very_good help" to see global options.'
+  "Deprecated usage: run 'very_good create --help' "
+      'to see the available options.'
 ];
 
 const pubspec = '''
