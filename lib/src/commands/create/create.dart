@@ -2,7 +2,6 @@ import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/create/commands/commands.dart';
-import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
 
 /// {@template create_command}
 /// `very_good create` command creates code from various built-in templates.

@@ -6,7 +6,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:usage/usage.dart';
-import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
+import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
 
 class MockTemplate extends Mock implements Template {}

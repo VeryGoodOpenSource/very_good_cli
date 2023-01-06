@@ -1,6 +1,6 @@
 import 'package:mason/mason.dart';
 import 'package:usage/usage.dart';
-import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
+import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 /// {@template very_good_create_flutter_app_command}
