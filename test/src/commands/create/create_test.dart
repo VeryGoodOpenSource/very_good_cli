@@ -59,6 +59,29 @@ void main() {
         }),
       );
       test(
+        'Allows the creation of projects in the legacy syntax with no options',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDir = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDir.deleteSync(recursive: true));
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([
+                'create',
+                'legacy_project',
+              ]);
+
+              expect(result, equals(ExitCode.success.code));
+
+              verify(
+                () => logger.info('Created a Very Good App! 🦄'),
+              ).called(1);
+            },
+            getCurrentDirectory: () => tempDir,
+          );
+        }),
+      );
+
+      test(
         'Shows legacy usage when invalid legacy options is passed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDir = Directory.systemTemp.createTempSync();
@@ -120,6 +143,19 @@ Usage: Deprecated usage of the create command: run 'very_good create --help' to 
 
 Run "very_good help" to see global options.''',
             ),
+          ).called(1);
+        }),
+      );
+
+      test(
+        'Shows new usage when no option, argument or subcommand is provided',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final result = await commandRunner.run(['create']);
+
+          expect(result, equals(ExitCode.usage.code));
+
+          verify(
+            () => logger.info('Missing subcommand for "very_good create".'),
           ).called(1);
         }),
       );

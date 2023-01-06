@@ -112,7 +112,8 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     if (topLevelCommand != null &&
         topLevelCommand.name == 'create' &&
         topLevelCommand.command == null &&
-        !topLevelCommand.wasParsed('help')) {
+        !topLevelCommand.wasParsed('help') &&
+        topLevelCommand.rest.isNotEmpty) {
       return parse(_putLegacyAfterCreate(args));
     }
 
