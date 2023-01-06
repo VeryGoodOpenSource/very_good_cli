@@ -98,6 +98,7 @@ void main() {
       expect(command.argParser.options, contains('application-id'));
     });
   });
+
   group('create flutter_app', () {
     test(
       'help',

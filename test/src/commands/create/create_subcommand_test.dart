@@ -329,6 +329,7 @@ Run "runner help" to see global options.''';
             ),
           ).called(1);
         });
+
         test('uses default values for omitted options', () async {
           final result = await runner.run([
             'create_subcommand',
@@ -497,6 +498,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.''',
             ),
           ).called(1);
         });
+
         test(
           'uses bundled brick when remote brick is unavailable',
           () async {
@@ -605,7 +607,6 @@ Run "runner help" to see global options.''';
     group('parsing of options', () {
       late GeneratorHooks hooks;
       late MasonGenerator generator;
-
       late _TestCommandRunner runner;
 
       setUp(() {
@@ -973,7 +974,6 @@ Run "runner help" to see global options.''';
     group('parsing of options', () {
       late GeneratorHooks hooks;
       late MasonGenerator generator;
-
       late _TestCommandRunner runner;
 
       setUp(() {
@@ -1043,6 +1043,7 @@ Run "runner help" to see global options.''';
         verifyNever(() => template1.onGenerateComplete(logger, any()));
         verify(() => template2.onGenerateComplete(logger, any())).called(1);
       });
+
       test('selects the default template when omitted', () async {
         final result = await runner.run([
           'create_subcommand',
@@ -1054,6 +1055,7 @@ Run "runner help" to see global options.''';
         verify(() => template1.onGenerateComplete(logger, any())).called(1);
         verifyNever(() => template2.onGenerateComplete(logger, any()));
       });
+
       group('validates template name', () {
         test('throws UsageException when --template is invalid', () async {
           await expectLater(

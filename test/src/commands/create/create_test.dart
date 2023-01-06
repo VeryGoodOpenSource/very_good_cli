@@ -58,6 +58,7 @@ void main() {
           ).called(1);
         }),
       );
+
       test(
         'Allows the creation of projects in the legacy syntax with no options',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
