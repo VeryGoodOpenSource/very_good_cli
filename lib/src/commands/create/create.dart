@@ -20,7 +20,7 @@ class CreateCommand extends Command<int> {
   }) {
     // Legacy sub command: hidden sub command that maintains backwards
     // compatibility with the `very_good create <project-name>` command syntax.
-    // The command runner will call legacy if the suer run the legacy syntax.
+    // The command runner will call legacy if the user uses the legacy syntax.
     addSubcommand(
       LegacyCreateCommand(
         analytics: analytics,
