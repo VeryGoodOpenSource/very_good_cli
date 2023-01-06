@@ -16,9 +16,16 @@ import 'package:very_good_cli/src/logger_extension.dart';
 import '../../../helpers/helpers.dart';
 
 const expectedUsage = [
-  // ignore: no_adjacent_strings_in_list
-  "Deprecated usage: run 'very_good create --help' "
-      'to see the available options.'
+  '''
+Creates a new very good project in the specified directory.
+
+Usage: very_good create <subcommand> [arguments]
+-h, --help    Print this usage information.
+
+Available subcommands:
+  flutter_app   Creates a new very good Flutter app in the specified directory.
+
+Run "very_good help" to see global options.'''
 ];
 
 const pubspec = '''
@@ -798,8 +805,8 @@ void main() {
           expect(result, equals(ExitCode.success.code));
           verify(
             () => logger.warn(
-              "Deprecated usage: run 'very_good create --help' to see the "
-              'available options.',
+              'Deprecated usage of the create command: '
+              "run 'very_good create --help' to see the available options.",
             ),
           ).called(1);
           verify(() => logger.progress('Bootstrapping')).called(1);

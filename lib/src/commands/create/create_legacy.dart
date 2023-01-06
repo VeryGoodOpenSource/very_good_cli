@@ -136,7 +136,7 @@ class LegacyCreateCommand extends CreateSubCommand
   bool get hidden => true;
 
   @override
-  String get usage => description;
+  String get usage => parent!.usage;
 
   @override
   String get invocation => '${yellow.wrap(deprecatedUsage)}';
