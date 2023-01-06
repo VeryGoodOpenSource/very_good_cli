@@ -29,7 +29,8 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
-  flutter_app   Creates a new very good Flutter app in the specified directory.
+  dart_package   Creates a new very good Dart package in the specified directory.
+  flutter_app    Creates a new very good Flutter app in the specified directory.
 
 Run "very_good help" to see global options.'''
 ];
