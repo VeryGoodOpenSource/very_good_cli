@@ -35,7 +35,7 @@ typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 ///
 /// By default, adds the following arguments to the [argParser]:
 /// - 'output-directory': the output directory
-/// - 'desc': the description of the project
+/// - 'description': the description of the project
 ///
 /// Sub classes must implement [name], [description] and [template].
 ///
@@ -61,8 +61,9 @@ abstract class CreateSubCommand extends Command<int> {
         help: 'The desired output directory when creating a new project.',
       )
       ..addOption(
-        'desc',
+        'description',
         help: 'The description for this new project.',
+        aliases: ['desc'],
         defaultsTo: _defaultDescription,
       );
 
@@ -123,7 +124,7 @@ abstract class CreateSubCommand extends Command<int> {
   }
 
   /// Gets the description for the project.
-  String get projectDescription => argResults['desc'] as String? ?? '';
+  String get projectDescription => argResults['description'] as String? ?? '';
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -131,7 +132,7 @@ abstract class CreateSubCommand extends Command<int> {
   Template get template;
 
   @override
-  String get invocation => 'very_good create $name <project name>';
+  String get invocation => 'very_good create $name <project-name> [arguments]';
 
   @override
   ArgResults get argResults => argResultOverrides ?? super.argResults!;

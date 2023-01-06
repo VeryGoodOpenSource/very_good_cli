@@ -29,10 +29,10 @@ final expectedUsage = [
   '''
 Creates a new very good Flutter app in the specified directory.
 
-Usage: very_good create flutter_app <project name>
+Usage: very_good create flutter_app <project-name> [arguments]
 -h, --help                Print this usage information.
 -o, --output-directory    The desired output directory when creating a new project.
-    --desc                The description for this new project.
+    --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --org-name            The organization for this new project.
                           (defaults to "com.example.verygoodcore")

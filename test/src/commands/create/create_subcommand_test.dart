@@ -147,10 +147,10 @@ void main() {
 
   group('CreateSubCommand', () {
     const expectedUsage = '''
-Usage: very_good create create_subcommand <project name>
+Usage: very_good create create_subcommand <project-name> [arguments]
 -h, --help                Print this usage information.
 -o, --output-directory    The desired output directory when creating a new project.
-    --desc                The description for this new project.
+    --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
 
 Run "runner help" to see global options.''';
@@ -192,7 +192,7 @@ Run "runner help" to see global options.''';
               .having((o) => o.abbr, 'abbr', 'o')
               .having((o) => o.defaultsTo, 'defaultsTo', null)
               .having((o) => o.mandatory, 'mandatory', false),
-          'desc': isA<Option>()
+          'description': isA<Option>()
               .having((o) => o.isSingle, 'isSingle', true)
               .having((o) => o.abbr, 'abbr', null)
               .having(
@@ -266,11 +266,11 @@ Run "runner help" to see global options.''';
       });
 
       group('parsing of options', () {
-        test('parses desc, output dir and project name', () async {
+        test('parses description, output dir and project name', () async {
           final result = await runner.run([
             'create_subcommand',
             'test_project',
-            '--desc',
+            '--description',
             'test_desc',
             '--output-directory',
             'test_dir'
@@ -392,7 +392,7 @@ Run "runner help" to see global options.''';
                   await runner.run(
                     [
                       'create_subcommand',
-                      '--desc="some description"',
+                      '--description="some description"',
                     ],
                   );
                 },
@@ -545,10 +545,10 @@ See https://dart.dev/tools/pub/pubspec#name for more information.''',
   });
   group('OrgName', () {
     const expectedUsage = '''
-Usage: very_good create create_subcommand <project name>
+Usage: very_good create create_subcommand <project-name> [arguments]
 -h, --help                Print this usage information.
 -o, --output-directory    The desired output directory when creating a new project.
-    --desc                The description for this new project.
+    --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --org-name            The organization for this new project.
                           (defaults to "com.example.verygoodcore")
@@ -887,10 +887,10 @@ Each part must start with a letter and only include alphanumeric characters (A-Z
   });
   group('MultiTemplates', () {
     const expectedUsage = '''
-Usage: very_good create create_subcommand <project name>
+Usage: very_good create create_subcommand <project-name> [arguments]
 -h, --help                         Print this usage information.
 -o, --output-directory             The desired output directory when creating a new project.
-    --desc                         The description for this new project.
+    --description                  The description for this new project.
                                    (defaults to "A Very Good Project created by Very Good CLI.")
 -t, --template                     The template used to generate this new project.
 

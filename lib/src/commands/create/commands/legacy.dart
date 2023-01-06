@@ -6,7 +6,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
 /// {@template very_good_legacy_create_command}
 /// Legacy elements of the [CreateCommand] class kept to maintain backwards
-/// compatibility with the `very_good create <project name>` command syntax.
+/// compatibility with the `very_good create <project-name>` command syntax.
 /// {@endtemplate}
 class LegacyCreateCommand extends CreateSubCommand
     with OrgName, MultiTemplates {

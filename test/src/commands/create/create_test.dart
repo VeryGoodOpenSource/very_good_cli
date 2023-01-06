@@ -1,15 +1,31 @@
-import 'package:mason_logger/mason_logger.dart';
+import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 
 import '../../../helpers/helpers.dart';
+
+class _TestProcess {
+  Future<ProcessResult> run(
+    String command,
+    List<String> args, {
+    bool runInShell = false,
+    String? workingDirectory,
+  }) {
+    throw UnimplementedError();
+  }
+}
+
+class _MockProcess extends Mock implements _TestProcess {}
+
+class _MockProcessResult extends Mock implements ProcessResult {}
 
 final expectedUsage = [
   '''
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <subcommand> [arguments]
+Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
@@ -17,6 +33,12 @@ Available subcommands:
 
 Run "very_good help" to see global options.'''
 ];
+
+const pubspec = '''
+name: example
+environment:
+  sdk: ">=2.13.0 <3.0.0"
+''';
 
 void main() {
   group('create', () {
@@ -62,9 +84,18 @@ void main() {
       test(
         'Allows the creation of projects in the legacy syntax with no options',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDir = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDir.deleteSync(recursive: true));
-          await IOOverrides.runZoned(
+          final processResult = _MockProcessResult();
+          final process = _MockProcess();
+          when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
+          when(
+            () => process.run(
+              any(),
+              any(),
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((_) async => processResult);
+          await ProcessOverrides.runZoned(
             () async {
               final result = await commandRunner.run([
                 'create',
@@ -74,11 +105,19 @@ void main() {
               expect(result, equals(ExitCode.success.code));
 
               verify(
+                () => logger.warn(
+                  'Deprecated usage of the create command: run '
+                  "'very_good create --help' to see the available options.",
+                ),
+              ).called(1);
+              verify(
                 () => logger.info('Created a Very Good App! 🦄'),
               ).called(1);
             },
-            getCurrentDirectory: () => tempDir,
+            runProcess: process.run,
           );
+
+          Directory('legacy_project').deleteSync(recursive: true);
         }),
       );
 
@@ -112,7 +151,7 @@ void main() {
 Usage: Deprecated usage of the create command: run 'very_good create --help' to see the available options.
 -h, --help                    Print this usage information.
 -o, --output-directory        The desired output directory when creating a new project.
-    --desc                    The description for this new project.
+    --description             The description for this new project.
                               (defaults to "A Very Good Project created by Very Good CLI.")
 -t, --template                The template used to generate this new project.
 
@@ -156,7 +195,7 @@ Run "very_good help" to see global options.''',
           expect(result, equals(ExitCode.usage.code));
 
           verify(
-            () => logger.info('Missing subcommand for "very_good create".'),
+            () => logger.err('Missing subcommand for "very_good create".'),
           ).called(1);
         }),
       );

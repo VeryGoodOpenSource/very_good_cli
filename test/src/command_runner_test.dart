@@ -37,7 +37,7 @@ const expectedUsage = [
       '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
       '\n'
       'Available commands:\n'
-      '  create     very_good create <subcommand> [arguments]\n'
+      '  create     very_good create <subcommand> <project-name> [arguments]\n'
       '''             Creates a new very good project in the specified directory.\n'''
       '  packages   Command for managing packages.\n'
       '  test       Run tests in a Dart or Flutter project.\n'

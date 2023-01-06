@@ -9,17 +9,17 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/create/create_legacy.dart';
+import 'package:very_good_cli/src/commands/create/commands/legacy.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
 
-import '../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 const expectedUsage = [
   '''
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <subcommand> [arguments]
+Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
@@ -500,7 +500,7 @@ void main() {
       )..argResultOverrides = argResults;
       when(() => argResults.rest).thenReturn(['my_app']);
       when(
-        () => argResults['desc'] as String?,
+        () => argResults['description'] as String?,
       ).thenReturn('very good description');
       when(() => argResults['output-directory'] as String?).thenReturn('.tmp');
       when(() => generator.id).thenReturn('generator_id');

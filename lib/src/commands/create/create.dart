@@ -1,8 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
-import 'package:very_good_cli/src/commands/create/create_legacy.dart';
+import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/create_subcommand.dart';
 
 /// {@template create_command}
@@ -20,7 +19,7 @@ class CreateCommand extends Command<int> {
     MasonGeneratorFromBrick? generatorFromBrick,
   }) {
     // Legacy sub command: hidden sub command that maintains backwards
-    // compatibility with the `very_good create <project name>` command syntax.
+    // compatibility with the `very_good create <project-name>` command syntax.
     // The command runner will call legacy if the suer run the legacy syntax.
     addSubcommand(
       LegacyCreateCommand(
@@ -53,5 +52,6 @@ class CreateCommand extends Command<int> {
   String get name => 'create';
 
   @override
-  String get invocation => 'very_good create <subcommand> [arguments]';
+  String get invocation =>
+      'very_good create <subcommand> <project-name> [arguments]';
 }
