@@ -97,6 +97,14 @@ abstract class CreateSubCommand extends Command<int> {
         aliases: ['org'],
       );
     }
+
+    if (this is Publishable) {
+      argParser.addFlag(
+        'publishable',
+        negatable: false,
+        help: 'Whether the generated project is intended to be published.',
+      );
+    }
   }
 
   final Analytics _analytics;
@@ -236,6 +244,7 @@ abstract class CreateSubCommand extends Command<int> {
       'project_name': projectName,
       'description': projectDescription,
       if (this is OrgName) 'org_name': (this as OrgName).orgName,
+      if (this is Publishable) 'publishable': (this as Publishable).publishable,
     };
   }
 }
@@ -297,4 +306,14 @@ mixin MultiTemplates on CreateSubCommand {
       (element) => element.name == templateName,
     );
   }
+}
+
+/// Mixin for [CreateSubCommand] subclasses that receives the publishable
+/// flag.
+///
+/// Takes care of parsing it from [argResults] and pass it
+/// to the brick generator.
+mixin Publishable on CreateSubCommand {
+  /// Gets the publishable flag.
+  bool get publishable => argResults['publishable'] as bool? ?? false;
 }

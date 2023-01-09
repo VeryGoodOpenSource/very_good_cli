@@ -38,6 +38,16 @@ class CreateCommand extends Command<int> {
         generatorFromBrick: generatorFromBrick,
       ),
     );
+
+    // very_good create dart_pkg <args>
+    addSubcommand(
+      CreateDartPackage(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
   }
 
   @override

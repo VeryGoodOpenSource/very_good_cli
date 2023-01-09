@@ -71,6 +71,23 @@ class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
         );
 }
 
+class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
+    with Publishable {
+  _TestCreateSubCommandWithPublishable({
+    required Template template,
+    required Analytics analytics,
+    required Logger logger,
+    required MasonGeneratorFromBundle? generatorFromBundle,
+    required MasonGeneratorFromBrick? generatorFromBrick,
+  }) : super(
+          template: template,
+          analytics: analytics,
+          logger: logger,
+          generatorFromBundle: generatorFromBundle,
+          generatorFromBrick: generatorFromBrick,
+        );
+}
+
 class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
     with MultiTemplates {
   _TestCreateSubCommandMultiTemplate({
@@ -1075,6 +1092,224 @@ Run "runner help" to see global options.''';
                     'message',
                     '"template3" is not an allowed value for option '
                         '"template".',
+                  ),
+            ),
+          );
+        });
+      });
+    });
+  });
+
+  group('Publishable', () {
+    const expectedUsage = '''
+Usage: very_good create create_subcommand <project-name> [arguments]
+-h, --help                Print this usage information.
+-o, --output-directory    The desired output directory when creating a new project.
+    --description         The description for this new project.
+                          (defaults to "A Very Good Project created by Very Good CLI.")
+    --publishable         Whether the generated project is intended to be published.
+
+Run "runner help" to see global options.''';
+
+    late Template template;
+    late MockBundle bundle;
+
+    setUp(() {
+      bundle = MockBundle();
+      when(() => bundle.name).thenReturn('test');
+      when(() => bundle.description).thenReturn('Test bundle');
+      when(() => bundle.version).thenReturn('<bundleversion>');
+      template = MockTemplate();
+      when(() => template.name).thenReturn('test');
+      when(() => template.bundle).thenReturn(bundle);
+      when(() => template.onGenerateComplete(any(), any())).thenAnswer(
+        (_) async {},
+      );
+      when(
+        () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
+      ).thenAnswer((_) async {});
+    });
+
+    group('can be instantiated', () {
+      test('with default options', () {
+        final command = _TestCreateSubCommandWithPublishable(
+          template: template,
+          analytics: analytics,
+          logger: logger,
+          generatorFromBundle: null,
+          generatorFromBrick: null,
+        );
+
+        expect(
+          command.argParser.options['publishable'],
+          isA<Option>()
+              .having((o) => o.isFlag, 'isFlag', true)
+              .having((o) => o.abbr, 'abbr', null)
+              .having((o) => o.defaultsTo, 'defaultsTo', false)
+              .having((o) => o.aliases, 'aliases', <String>[]),
+        );
+        expect(command.argParser.commands, isEmpty);
+      });
+    });
+
+    group('parsing of options', () {
+      late GeneratorHooks hooks;
+      late MasonGenerator generator;
+      late _TestCommandRunner runner;
+
+      setUp(() {
+        hooks = MockGeneratorHooks();
+        generator = MockMasonGenerator();
+
+        when(() => generator.hooks).thenReturn(hooks);
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        ).thenAnswer((_) async {});
+
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            logger: any(named: 'logger'),
+          ),
+        ).thenAnswer((_) async {
+          return generatedFiles;
+        });
+
+        when(() => generator.id).thenReturn('generator_id');
+        when(() => generator.description).thenReturn('generator description');
+        when(() => generator.hooks).thenReturn(hooks);
+
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            logger: any(named: 'logger'),
+          ),
+        ).thenAnswer((_) async {
+          return generatedFiles;
+        });
+
+        final command = _TestCreateSubCommandWithPublishable(
+          template: template,
+          analytics: analytics,
+          logger: logger,
+          generatorFromBundle: (_) async => throw Exception('oops'),
+          generatorFromBrick: (_) async => generator,
+        );
+
+        runner = _TestCommandRunner(command: command);
+      });
+
+      test('parses publishable', () async {
+        final result = await runner.run([
+          'create_subcommand',
+          'test_project',
+          '--publishable',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (description) => description['publishable'],
+                'publishable',
+                true,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(
+              that: isA<DirectoryGeneratorTarget>(),
+            ),
+            vars: any(
+              named: 'vars',
+              that: isA<Map>().having(
+                (vars) {
+                  return vars['publishable'];
+                },
+                'publishable',
+                true,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      test('uses default values for omitted options', () async {
+        final result = await runner.run([
+          'create_subcommand',
+          'test_project',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (description) => description['publishable'],
+                'publishable',
+                false,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(
+              that: isA<DirectoryGeneratorTarget>(),
+            ),
+            vars: any(
+              named: 'vars',
+              that: isA<Map>().having(
+                (description) => description['publishable'],
+                'publishable',
+                false,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      group('validates publishable', () {
+        test('throws UsageException when --template is invalid', () async {
+          await expectLater(
+            () async {
+              await runner.run([
+                'create_subcommand',
+                'test_project',
+                '--no-publishable',
+              ]);
+            },
+            throwsA(
+              isA<UsageException>()
+                  .having((e) => e.usage, 'usage', expectedUsage)
+                  .having(
+                    (e) => e.message,
+                    'message',
+                    'Cannot negate option "no-publishable".',
                   ),
             ),
           );
