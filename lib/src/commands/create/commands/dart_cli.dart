@@ -21,8 +21,7 @@ class CreateDartCLI extends CreateSubCommand with Publishable {
         ) {
     argParser.addOption(
       'executable-name',
-      help: 'Used by the dart_cli template, the CLI executable name '
-          '(defaults to the project name)',
+      help: 'The CLI executable name (defaults to the project name)',
     );
   }
 
