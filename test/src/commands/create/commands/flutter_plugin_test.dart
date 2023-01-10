@@ -87,7 +87,7 @@ void main() {
         generatorFromBundle: null,
         generatorFromBrick: null,
       );
-      expect(command.name, equals('dart_package'));
+      expect(command.name, equals('flutter_plugin'));
       expect(
         command.description,
         equals(
@@ -97,10 +97,11 @@ void main() {
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());
+      expect(command.argParser.options, contains('platforms'));
     });
   });
 
-  group('create dart_package', () {
+  group('create flutter_plugin', () {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
