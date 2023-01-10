@@ -35,7 +35,7 @@ Usage: very_good create dart_cli <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --publishable         Whether the generated project is intended to be published.
-    --executable-name     Used by the dart_cli template, the CLI executable name (defaults to the project name)
+    --executable-name     The CLI executable name (defaults to the project name)
 
 Run "very_good help" to see global options.''',
 ];
