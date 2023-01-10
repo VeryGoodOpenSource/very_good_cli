@@ -171,7 +171,7 @@ void main() {
         });
       });
 
-      test('create core app', () async {
+      test('create flame game', () async {
         final tempDir = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDir.deleteSync(recursive: true));
         final argResults = MockArgResults();
