@@ -39,7 +39,7 @@ class CreateCommand extends Command<int> {
       ),
     );
 
-    // very_good create dart_pkg <args>
+    // very_good create dart_package <args>
     addSubcommand(
       CreateDartPackage(
         analytics: analytics,
@@ -62,6 +62,16 @@ class CreateCommand extends Command<int> {
     // very_good create docs_site <args>
     addSubcommand(
       CreateDocsSite(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
+
+    // very_good create flutter_package <args>
+    addSubcommand(
+      CreateFlutterPackage(
         analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,

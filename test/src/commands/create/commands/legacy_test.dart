@@ -23,10 +23,11 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
-  dart_cli       Creates a new very good Dart CLI in the specified directory.
-  dart_package   Creates a new very good Dart package in the specified directory.
-  docs_site      Creates a new very good docs site in the specified directory.
-  flutter_app    Creates a new very good Flutter app in the specified directory.
+  dart_cli          Creates a new very good Dart CLI in the specified directory.
+  dart_package      Creates a new very good Dart package in the specified directory.
+  docs_site         Creates a new very good docs site in the specified directory.
+  flutter_app       Creates a new very good Flutter app in the specified directory.
+  flutter_package   Creates a new very good Flutter package in the specified directory.
 
 Run "very_good help" to see global options.'''
 ];

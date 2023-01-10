@@ -56,6 +56,7 @@ jobs:
           # E2E tests for the create command
           - test/src/commands/create/e2e/flutter_app/core_test.dart
           - test/src/commands/create/e2e/dart_package/dart_pkg_test.dart
+          - test/src/commands/create/e2e/flutter_package/flutter_pkg_test.dart
           - test/src/commands/create/e2e/dart_cli/dart_cli_test.dart
           - test/src/commands/create/e2e/docs_site/docs_site_test.dart
 

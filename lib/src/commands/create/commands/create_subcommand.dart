@@ -44,6 +44,9 @@ typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 ///
 /// For sub commands that receive an org name, sub classes must mix with
 /// [OrgName].
+///
+/// For sub commands that receive a publishable flag, sub classes must mix with
+/// [Publishable].
 abstract class CreateSubCommand extends Command<int> {
   /// {@macro create_subcommand}
   CreateSubCommand({
@@ -235,6 +238,7 @@ abstract class CreateSubCommand extends Command<int> {
   /// parameters.
   ///
   /// For subcommands that mix with [OrgName], it includes 'org_name'.
+  /// For subcommands that mix with [Publishable], it includes 'publishable'.
   @mustCallSuper
   Map<String, dynamic> getTemplateVars() {
     final projectName = this.projectName;
