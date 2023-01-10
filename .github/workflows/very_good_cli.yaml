@@ -57,6 +57,7 @@ jobs:
           - test/src/commands/create/e2e/flutter_app/core_test.dart
           - test/src/commands/create/e2e/dart_package/dart_pkg_test.dart
           - test/src/commands/create/e2e/dart_cli/dart_cli_test.dart
+          - test/src/commands/create/e2e/docs_site/docs_site_test.dart
 
           # E2E tests for the legacy create command syntax
           - test/src/commands/create/e2e/legacy/core_test.dart
