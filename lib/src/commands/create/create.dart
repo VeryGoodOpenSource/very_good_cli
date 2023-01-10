@@ -88,6 +88,16 @@ class CreateCommand extends Command<int> {
         generatorFromBrick: generatorFromBrick,
       ),
     );
+
+    // very_good create flame_game <args>
+    addSubcommand(
+      CreateFlameGame(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
   }
 
   @override
