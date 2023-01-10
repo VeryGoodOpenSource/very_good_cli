@@ -41,7 +41,7 @@ class CreateFlutterPlugin extends CreateSubCommand with Publishable {
 
   @override
   String get description =>
-      'Creates a new very good  federated Flutter plugin in the specified '
+      'Creates a new very good federated Flutter plugin in the specified '
       'directory.';
 
   @override

@@ -34,6 +34,7 @@ Available subcommands:
   docs_site         Creates a new very good docs site in the specified directory.
   flutter_app       Creates a new very good Flutter app in the specified directory.
   flutter_package   Creates a new very good Flutter package in the specified directory.
+  flutter_plugin    Creates a new very good federated Flutter plugin in the specified directory.
 
 Run "very_good help" to see global options.'''
 ];
