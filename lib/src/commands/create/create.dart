@@ -48,6 +48,16 @@ class CreateCommand extends Command<int> {
         generatorFromBrick: generatorFromBrick,
       ),
     );
+
+    // very_good create dart_cli <args>
+    addSubcommand(
+      CreateDartCLI(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
   }
 
   @override
