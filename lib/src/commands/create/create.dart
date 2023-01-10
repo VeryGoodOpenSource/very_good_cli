@@ -58,6 +58,16 @@ class CreateCommand extends Command<int> {
         generatorFromBrick: generatorFromBrick,
       ),
     );
+
+    // very_good create docs_site <args>
+    addSubcommand(
+      CreateDocsSite(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
   }
 
   @override
