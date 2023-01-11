@@ -78,6 +78,16 @@ class CreateCommand extends Command<int> {
         generatorFromBrick: generatorFromBrick,
       ),
     );
+
+    // very_good create flutter_plugin <args>
+    addSubcommand(
+      CreateFlutterPlugin(
+        analytics: analytics,
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
   }
 
   @override
