@@ -12,6 +12,6 @@ This template is for a Flutter package.
 # Create a new Flutter package named my_flutter_package
 very_good create flutter_package my_flutter_package --desc "My new Flutter package"
 
-# Create a new Flutter package named my_flutter_packagee that is publishable
+# Create a new Flutter package named my_flutter_package that is publishable
 very_good create flutter_package my_flutter_package --desc "My new Flutter package" --publishable
 ```
