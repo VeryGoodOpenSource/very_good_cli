@@ -1,4 +1,9 @@
-# Migrating to 0.10.0
+---
+sidebar_position: 3
+---
+
+
+# Migrating to 0.10.0 ⛷️
 
 The version 0.10.0 changed the syntax of `very_good create`.
 Previous usage received templates, these templates were now transformed into sub commands so in the

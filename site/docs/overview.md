@@ -48,6 +48,11 @@ Available subcommands:
 Run "very_good help" to see global options.
 ```
 
+#### Migrating to 0.10.0
+
+⚠️ The version 0.10.0 changed the syntax of `very_good create`. Learn how to migrate [here][migrating_link].
+
+
 ### `very_good packages get`
 
 Get packages in a Dart or Flutter project.
@@ -119,3 +124,4 @@ Run "very_good help <command>" for more information about a command.
 [dart_sdk]: https://dart.dev/get-dart
 [flutter_sdk]: https://docs.flutter.dev/get-started/install
 [very_good_cli]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
+[migrating_link]: resources/migrating_to_0_10_0
