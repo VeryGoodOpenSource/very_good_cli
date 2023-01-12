@@ -52,7 +52,6 @@ Run "very_good help" to see global options.
 
 ⚠️ The version 0.10.0 changed the syntax of `very_good create`. Learn how to migrate [here][migrating_link].
 
-
 ### `very_good packages get`
 
 Get packages in a Dart or Flutter project.
