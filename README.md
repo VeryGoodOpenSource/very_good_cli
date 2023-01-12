@@ -29,7 +29,7 @@ dart pub global activate very_good_cli
 
 ### `very_good create`
 
-Create a very good project in seconds based on the provided template. Each type of template is described by a sub-command. Ex: `very_good create flutter_app` create flutter apps.
+Create a very good project in seconds based on the provided template. Each type of template is described by a sub-command. Ex: `very_good create flutter_app` to create flutter apps.
 
 ![Very Good Create][very_good_create]
 

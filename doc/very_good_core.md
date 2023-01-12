@@ -21,7 +21,7 @@ dart pub global activate very_good_cli
 
 ### Create a new Flutter Project 🆕
 
-Then, you can use the `very_good create` command just like you would `flutter create`
+Then, you can use the `very_good create flutter_app` command just like you would `flutter create`
 
 ![Very Good Create][very_good_create]
 

@@ -28,43 +28,24 @@ dart pub global activate very_good_cli
 
 ### `very_good create`
 
-The `very_good create` command allows you to create a very good project in seconds based on the provided template. The [Flutter Starter App (core)][very_good_core_link] template is used by default.
+Create a very good project in seconds based on the provided template. Each type of template is described by a sub-command. Ex: `very_good create flutter_app` to create flutter apps.
 
 ```sh
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <project name>
--h, --help                    Print this usage information.
--o, --output-directory        The desired output directory when creating a new project.
-    --desc                    The description for this new project.
-                              (defaults to "A Very Good Project created by Very Good CLI.")
-    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)
-    --org-name                The organization for this new project.
-                              (defaults to "com.example.verygoodcore")
--t, --template                The template used to generate this new project.
+Usage: very_good create <subcommand> <project-name> [arguments]
+-h, --help    Print this usage information.
 
-          [core] (default)    Generate a Very Good Flutter application.
-          [dart_cli]          Generate a Very Good Dart CLI application.
-          [dart_pkg]          Generate a reusable Dart package.
-          [docs_site]         Generate a Very Good documentation site.
-          [flame_game]        Generate a Very Good Flame game.
-          [flutter_pkg]       Generate a reusable Flutter package.
-          [flutter_plugin]    Generate a reusable Flutter plugin.
+Available subcommands:
+  dart_cli          Creates a new very good Dart CLI in the specified directory.
+  dart_package      Creates a new very good Dart package in the specified directory.
+  docs_site         Creates a new very good docs site in the specified directory.
+  flame_game        Creates a new very good Flame game in the specified directory.
+  flutter_app       Creates a new very good Flutter app in the specified directory.
+  flutter_package   Creates a new very good Flutter package in the specified directory.
+  flutter_plugin    Creates a new very good federated Flutter plugin in the specified directory.
 
-    --android                 The plugin supports the Android platform.
-                              (defaults to "true")
-    --ios                     The plugin supports the iOS platform.
-                              (defaults to "true")
-    --web                     The plugin supports the Web platform.
-                              (defaults to "true")
-    --linux                   The plugin supports the Linux platform.
-                              (defaults to "true")
-    --macos                   The plugin supports the macOS platform.
-                              (defaults to "true")
-    --windows                 The plugin supports the Windows platform.
-                              (defaults to "true")
-    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
-    --publishable             Whether the generated project is intended to be published (Does not affect flutter application templates)
+Run "very_good help" to see global options.
 ```
 
 ### `very_good packages get`
@@ -137,5 +118,4 @@ Run "very_good help <command>" for more information about a command.
 
 [dart_sdk]: https://dart.dev/get-dart
 [flutter_sdk]: https://docs.flutter.dev/get-started/install
-[very_good_core_link]: /docs/templates/core
 [very_good_cli]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
