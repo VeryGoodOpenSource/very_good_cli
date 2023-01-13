@@ -56,9 +56,9 @@ The default template (core) is now under the sub-command flutter_app
 + very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 ```
 
-Flutter plugin changed the way it receives supported platforms.
-Before, it was a series of options list which platforms **should not** be considered,
-now it is a multi-option with the platforms that **should** be considered.
+We changed the way the plugin template receives supported platforms via the command line.
+
+Previously, you would list which platforms **should not** be generated with the plugin template. Now, you should include the platforms that **should** be generated with the plugin template.
 
 ```diff
 - very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
