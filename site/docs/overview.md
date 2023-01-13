@@ -123,4 +123,4 @@ Run "very_good help <command>" for more information about a command.
 [dart_sdk]: https://dart.dev/get-dart
 [flutter_sdk]: https://docs.flutter.dev/get-started/install
 [very_good_cli]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
-[new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
+[new_syntax_link]: /docs/resources/syntax_changes_in_0_10_0
