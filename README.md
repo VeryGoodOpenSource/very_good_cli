@@ -185,7 +185,7 @@ Run "very_good help <command>" for more information about a command.
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_core_link]: site/docs/templates/core.md
-[migrating_link]: site/docs/resources/migrating_to_0_10_0.md
+[new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
 [cli_link_dark]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
