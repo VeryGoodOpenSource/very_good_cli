@@ -7,7 +7,7 @@ future, we can have multiple templates for flutter apps, for example.
 Comparisons between the previous and the current syntax:
 
 #### Core template
-The default template (core) is now under the subcommand flutter_app
+The default template (core) is now under the sub-command flutter_app
 ```sh
 # Before 0.10.0
 very_good create my_app --desc "My new Flutter app"
