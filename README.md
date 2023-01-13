@@ -91,7 +91,7 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 very_good create docs_site my_docs_site
 ```
 
-#### Migrating to 0.10.0
+#### Syntax changes on 0.10.0
 
 ⚠️ The version 0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
