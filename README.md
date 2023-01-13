@@ -93,7 +93,7 @@ very_good create docs_site my_docs_site
 
 #### Migrating to 0.10.0
 
-⚠️ The version 0.10.0 changed the syntax of `very_good create`. Learn how to migrate [here][migrating_link].
+⚠️ The version 0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
 ---
 
