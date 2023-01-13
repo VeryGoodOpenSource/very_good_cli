@@ -26,19 +26,19 @@ class VeryGoodCoreTemplate extends Template {
     logger
       ..info('\n')
       ..created('Created a Very Good App! 🦄')
-      ..info('\n');
-//       ..info(
-//         lightGray.wrap(
-//           '''
-// +----------------------------------------------------+
-// | Looking for more features?                         |
-// | We have an enterprise-grade solution for companies |
-// | called Very Good Start.                            |
-// |                                                    |
-// | For more info visit:                               |
-// | https://verygood.ventures/solution/very-good-start |
-// +----------------------------------------------------+''',
-//         ),
-//       );
+      ..info('\n')
+      ..info(
+        lightGray.wrap(
+          '''
++----------------------------------------------------+
+| Looking for more features?                         |
+| We have an enterprise-grade solution for companies |
+| called Very Good Start.                            |
+|                                                    |
+| For more info visit:                               |
+| https://verygood.ventures/solution/very-good-start |
++----------------------------------------------------+''',
+        ),
+      );
   }
 }
