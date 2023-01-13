@@ -12,7 +12,7 @@ Comparisons between the previous and the current syntax:
 
 #### Core template
 
-The default template (core) is now under the subcommand flutter_app
+The default template (core) is now under the sub-command flutter_app
 
 ```sh
 # Before 0.10.0
@@ -74,9 +74,9 @@ very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plug
 very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 ```
 
-Flutter plugin changed the way it receives which platforms will be supported.
+Flutter plugin changed the way it receives supported platforms.
 Before, it was a series of options list which platforms **should not** be considered,
-not it is a multi-option with the platforms that **should** be considered.
+now it is a multi-option with the platforms that **should** be considered.
 
 ```sh
 # Before 0.10.0
