@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Migrating to 0.10.0 ⛷️
 
-The version 0.10.0 changed the syntax of `very_good create`.
+v0.10.0 changed the syntax of `very_good create`.
 Previous usage received templates, these templates were now transformed into sub commands so in the
 future, we can have multiple templates for flutter apps, for example.
 
