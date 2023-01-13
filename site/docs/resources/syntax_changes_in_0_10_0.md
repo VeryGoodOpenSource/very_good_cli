@@ -93,9 +93,6 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 #### Docs site
 
 ```sh
-# Before 0.10.0
-very_good create my_docs_site -t docs_site
-
-# After 0.10.0
-very_good create docs_site my_docs_site
+- very_good create my_docs_site -t docs_site
++ very_good create docs_site my_docs_site
 ```
