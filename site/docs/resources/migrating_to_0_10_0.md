@@ -4,9 +4,9 @@ sidebar_position: 3
 
 # Syntax changes in 0.10.0 ⛷️
 
-v0.10.0 changed the syntax of `very_good create`.
-Previous usage received templates, these templates were now transformed into sub commands so in the
-future, we can have multiple templates for flutter apps, for example.
+The syntax of the `very_good create` command changed in v0.10.0.
+
+Previously, the `very_good_cli` would receive the template type via a `-t` flag. Now,`very_good_cli` receives sub-commands for each template. This makes it easier for us to support multiple templates and streamlines the command step for users.
 
 Comparisons between the previous and the current syntax:
 
