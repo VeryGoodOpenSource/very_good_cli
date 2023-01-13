@@ -66,7 +66,7 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 
 Flutter plugin changed the way it receives which platforms will be supported.
 Before, it was a series of options list which platforms **should not** be considered,
-not it is a multi-option with the platforms that **should** be considered.
+now it is a multi-option with the platforms that **should** be considered.
 
 ```sh
 # Before 0.10.0
