@@ -48,9 +48,9 @@ Available subcommands:
 Run "very_good help" to see global options.
 ```
 
-#### Syntax changes on 0.10.0
+#### Syntax changes in 0.10.0
 
-⚠️ The version 0.10.0 changed the syntax of `very_good create`. Learn how to migrate [here][new_syntax_link].
+⚠️ The version 0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
 ### `very_good packages get`
 
