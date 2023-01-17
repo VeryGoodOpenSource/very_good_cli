@@ -31,6 +31,7 @@ The default template (core) is now under the sub-command flutter_app
 ```diff
 - very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
 + very_good create flutter_package my_flutter_package --desc "My new Flutter package"
++ very_good create flutter_pkg my_flutter_package --desc "My new Flutter package"
 ```
 
 #### Dart package
