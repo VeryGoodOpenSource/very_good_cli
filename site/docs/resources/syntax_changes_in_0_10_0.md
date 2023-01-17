@@ -8,7 +8,7 @@ The syntax of the `very_good create` command changed in v0.10.0.
 
 Previously, the `very_good_cli` would receive the template type via a `-t` flag. Now,`very_good_cli` receives sub-commands for each template. This makes it easier for us to support multiple templates and streamlines the command step for users.
 
-Comparisons between the previous and the current syntax:
+Refer to the following examples to better understand the syntax changes:
 
 #### Core template
 
