@@ -1,4 +1,16 @@
-# [0.9.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.0...v0.9.1) (2022-12-09)
+# [0.10.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.1...v0.10.0) (2023-01-17)
+
+### Features
+
+- create dart cli new usage ([#612](https://github.com/VeryGoodOpenSource/very_good_cli/issues/612)) ([1a94dc6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1a94dc60c15bf38b48955f0a5c50a5ed514a947b))
+- create dart package new usage ([#611](https://github.com/VeryGoodOpenSource/very_good_cli/issues/611)) ([aa391d6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/aa391d692d816ebe548a7a9f85b72bed23f50b04))
+- create docs site new usage ([#614](https://github.com/VeryGoodOpenSource/very_good_cli/issues/614)) ([35b9bd1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/35b9bd1c8e165fba851036e32e1ace3c0f286b02))
+- create flame game new usage ([#618](https://github.com/VeryGoodOpenSource/very_good_cli/issues/618)) ([9b480f2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9b480f26e23b1399b201aa28950f2245e02e6924))
+- create flutter package new usage ([#616](https://github.com/VeryGoodOpenSource/very_good_cli/issues/616)) ([ece6849](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ece68492327da478c5016775abd7b1d099c3d180))
+- create flutter plugin new usage ([#617](https://github.com/VeryGoodOpenSource/very_good_cli/issues/617)) ([0a8bef5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0a8bef5b1291092819654c5ceb454fed7b5447df))
+- recreate flutter create with sub commands ([#607](https://github.com/VeryGoodOpenSource/very_good_cli/issues/607)) ([e01a127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e01a127758bc539d3c5cd8e98c5cca04f496df34))
+
+## [0.9.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.0...v0.9.1) (2022-12-09)
 
 ### Bug Fixes
 
@@ -18,7 +30,7 @@
 
 - add publishable flag ([#592](https://github.com/VeryGoodOpenSource/very_good_cli/issues/592)) ([53cf064](https://github.com/VeryGoodOpenSource/very_good_cli/commit/53cf06456220954639adf3f733f4d7d87bfa832c))
 
-# [0.8.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.5...v0.8.6) (2022-12-02)
+## [0.8.6](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.5...v0.8.6) (2022-12-02)
 
 ### Features
 
