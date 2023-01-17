@@ -50,7 +50,7 @@ Run "very_good help" to see global options.
 
 #### Syntax changes in 0.10.0
 
-⚠️ The version 0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
+⚠️ v0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
 ### `very_good packages get`
 
