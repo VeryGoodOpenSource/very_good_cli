@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Flutter Starter App (Core) 🍎
 
-This template is a Flutter starter application with VGV-opinionated best practices. It is the default template for the `very_good create` command.
+This template is a Flutter starter application with VGV-opinionated best practices. It is the default template for the `very_good create flutter_app` command.
 
 ![Very Good Core][core_devices]
 
@@ -48,14 +48,14 @@ dart pub global activate very_good_cli
 
 ### Create a new Flutter Project 🆕
 
-Then, you can use the `very_good create` command just like you would `flutter create`. If desired, can specify a custom org name at time of generation with the `--org` flag.
+Then, you can use the `very_good create flutter_app` command just like you would `flutter create`. If desired, can specify a custom org name at time of generation with the `--org` flag.
 
 ```sh
 # Create a new Flutter app named my_app
-very_good create my_app --desc "My new Flutter app"
+very_good create flutter_app my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
-very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
+very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
 ```
 
 :::note

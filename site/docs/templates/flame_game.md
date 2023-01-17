@@ -28,7 +28,7 @@ Read more about this game template [in our blog][blog].
 
 ```sh
 # Create a new Flame game named my_game
-very_good create my_game -t flame_game --desc "My new Flame game"
+very_good create flame_game my_game --desc "My new Flame game"
 ```
 
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template

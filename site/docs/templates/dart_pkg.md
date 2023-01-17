@@ -10,5 +10,8 @@ This template is for a Dart package.
 
 ```sh
 # Create a new Dart package named my_dart_package
-very_good create my_dart_package -t dart_pkg --desc "My new Dart package"
+very_good create dart_package my_dart_package --desc "My new Dart package"
+
+# Create a new Dart package named my_dart_package that is publishable
+very_good create dart_package my_dart_package --desc "My new Dart package" --publishable
 ```
