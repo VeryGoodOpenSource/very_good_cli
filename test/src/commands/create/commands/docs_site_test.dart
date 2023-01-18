@@ -88,7 +88,7 @@ void main() {
         ),
       );
       expect(command.logger, equals(logger));
-      expect(command, isA<OrgName>());
+      expect(command, isA<CreateSubCommand>());
     });
   });
 
