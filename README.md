@@ -40,13 +40,13 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
-  dart_cli          Creates a new very good Dart CLI in the specified directory.
-  dart_package      Creates a new very good Dart package in the specified directory.
-  docs_site         Creates a new very good docs site in the specified directory.
-  flame_game        Creates a new very good Flame game in the specified directory.
-  flutter_app       Creates a new very good Flutter app in the specified directory.
-  flutter_package   Creates a new very good Flutter package in the specified directory.
-  flutter_plugin    Creates a new very good federated Flutter plugin in the specified directory.
+  dart_cli          Generate a Very Good Dart CLI application.
+  dart_package      Generate a reusable Dart package.
+  docs_site         Generate a Very Good documentation site.
+  flame_game        Generate a Very Good Flame game.
+  flutter_app       Generate a Very Good Flutter application.
+  flutter_package   Generate a reusable Flutter package.
+  flutter_plugin    Generate a reusable Flutter plugin.
 
 Run "very_good help" to see global options.
 ```

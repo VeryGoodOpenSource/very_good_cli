@@ -33,8 +33,7 @@ class CreateDocsSite extends CreateSubCommand {
   String get name => 'docs_site';
 
   @override
-  String get description =>
-      'Creates a new very good docs site in the specified directory.';
+  String get description => 'Generate a Very Good documentation site.';
 
   @override
   Map<String, dynamic> getTemplateVars() {

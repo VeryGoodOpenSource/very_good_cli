@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Creates a new very good docs site in the specified directory.
+Generate a Very Good documentation site.
 
 Usage: very_good create docs_site <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -83,9 +83,7 @@ void main() {
       expect(command.name, equals('docs_site'));
       expect(
         command.description,
-        equals(
-          'Creates a new very good docs site in the specified directory.',
-        ),
+        equals('Generate a Very Good documentation site.'),
       );
       expect(command.logger, equals(logger));
       expect(command, isA<CreateSubCommand>());

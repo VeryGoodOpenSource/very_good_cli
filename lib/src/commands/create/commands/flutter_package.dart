@@ -27,8 +27,7 @@ class CreateFlutterPackage extends CreateSubCommand with Publishable {
   List<String> get aliases => ['flutter_pkg'];
 
   @override
-  String get description =>
-      'Creates a new very good Flutter package in the specified directory.';
+  String get description => 'Generate a reusable Flutter package.';
 
   @override
   Template get template => FlutterPkgTemplate();

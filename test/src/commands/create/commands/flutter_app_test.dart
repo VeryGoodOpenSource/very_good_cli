@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Creates a new very good Flutter app in the specified directory.
+Generate a Very Good Flutter application.
 
 Usage: very_good create flutter_app <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -90,9 +90,7 @@ void main() {
       expect(command.name, equals('flutter_app'));
       expect(
         command.description,
-        equals(
-          'Creates a new very good Flutter app in the specified directory.',
-        ),
+        equals('Generate a Very Good Flutter application.'),
       );
       expect(command.logger, equals(logger));
       expect(command.argParser.options, contains('application-id'));
