@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Generate a reusable Flutter plugin.
+Generate a Very Good Flutter plugin.
 
 Usage: very_good create flutter_plugin <project-name> [arguments]
 -h, --help                       Print this usage information.
@@ -91,7 +91,7 @@ void main() {
       expect(
         command.description,
         equals(
-          'Generate a reusable Flutter plugin.',
+          'Generate a Very Good Flutter plugin.',
         ),
       );
       expect(command.logger, equals(logger));

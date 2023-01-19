@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Generate a reusable Dart package.
+Generate a Very Good Dart package.
 
 Usage: very_good create dart_package <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -83,7 +83,7 @@ void main() {
       expect(
         command.description,
         equals(
-          'Generate a reusable Dart package.',
+          'Generate a Very Good Dart package.',
         ),
       );
       expect(command.logger, equals(logger));

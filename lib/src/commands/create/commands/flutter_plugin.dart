@@ -40,7 +40,7 @@ class CreateFlutterPlugin extends CreateSubCommand with Publishable {
   String get name => 'flutter_plugin';
 
   @override
-  String get description => 'Generate a reusable Flutter plugin.';
+  String get description => 'Generate a Very Good Flutter plugin.';
 
   @override
   Template get template => FlutterPluginTemplate();

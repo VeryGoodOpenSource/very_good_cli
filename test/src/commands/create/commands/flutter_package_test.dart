@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Generate a reusable Flutter package.
+Generate a Very Good Flutter package.
 
 Usage: very_good create flutter_package <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -82,7 +82,7 @@ void main() {
       expect(command.name, equals('flutter_package'));
       expect(
         command.description,
-        equals('Generate a reusable Flutter package.'),
+        equals('Generate a Very Good Flutter package.'),
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());
