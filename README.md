@@ -29,82 +29,71 @@ dart pub global activate very_good_cli
 
 ### `very_good create`
 
-Create a very good project in seconds based on the provided template. The [Very Good Core][very_good_core_link] template is used by default.
+Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command (e.g.,`very_good create flutter_app` will generate a Flutter starter app).
 
 ![Very Good Create][very_good_create]
 
 ```sh
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <project name>
--h, --help                    Print this usage information.
--o, --output-directory        The desired output directory when creating a new project.
-    --desc                    The description for this new project.
-                              (defaults to "A Very Good Project created by Very Good CLI.")
-    --executable-name         Used by the dart_cli template, the CLI executable name (defaults to the project name)
-    --org-name                The organization for this new project.
-                              (defaults to "com.example.verygoodcore")
--t, --template                The template used to generate this new project.
+Usage: very_good create <subcommand> <project-name> [arguments]
+-h, --help    Print this usage information.
 
-          [core] (default)    Generate a Very Good Flutter application.
-          [dart_cli]          Generate a Very Good Dart CLI application.
-          [dart_pkg]          Generate a reusable Dart package.
-          [docs_site]         Generate a Very Good documentation site.
-          [flame_game]        Generate a Very Good Flame game.
-          [flutter_pkg]       Generate a reusable Flutter package.
-          [flutter_plugin]    Generate a reusable Flutter plugin.
+Available subcommands:
+  dart_cli          Creates a new very good Dart CLI in the specified directory.
+  dart_package      Creates a new very good Dart package in the specified directory.
+  docs_site         Creates a new very good docs site in the specified directory.
+  flame_game        Creates a new very good Flame game in the specified directory.
+  flutter_app       Creates a new very good Flutter app in the specified directory.
+  flutter_package   Creates a new very good Flutter package in the specified directory.
+  flutter_plugin    Creates a new very good federated Flutter plugin in the specified directory.
 
-    --android                 The plugin supports the Android platform.
-                              (defaults to "true")
-    --ios                     The plugin supports the iOS platform.
-                              (defaults to "true")
-    --web                     The plugin supports the Web platform.
-                              (defaults to "true")
-    --linux                   The plugin supports the Linux platform.
-                              (defaults to "true")
-    --macos                   The plugin supports the macOS platform.
-                              (defaults to "true")
-    --windows                 The plugin supports the Windows platform.
-                              (defaults to "true")
-    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
+Run "very_good help" to see global options.
 ```
 
 #### Usage
 
 ```sh
 # Create a new Flutter app named my_app
-very_good create my_app --desc "My new Flutter app"
+very_good create flutter_app my_app
 
 # Create a new Flutter app named my_app with a custom org
-very_good create my_app --desc "My new Flutter app" --org "com.custom.org"
+very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
 
 # Create a new Flutter app named my_app with a custom application id
-very_good create my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
+very_good create flutter_app my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
 
 # Create a new Flame game named my_game
-very_good create my_game -t flame_game --desc "My new Flame game"
+very_good create flame_game my_game --desc "My new Flame game"
 
 # Create a new Flutter package named my_flutter_package
-very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
+very_good create flutter_package my_flutter_package --desc "My new Flutter package"
 
 # Create a new Dart package named my_dart_package
-very_good create my_dart_package -t dart_pkg --desc "My new Dart package"
+very_good create dart_package my_dart_package --desc "My new Dart package"
+
+# Create a new Dart package named my_dart_package that is publishable
+very_good create dart_package my_dart_package --desc "My new Dart package" --publishable
 
 # Create a new Dart CLI application named my_dart_cli
-very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package"
+very_good create dart_cli my_dart_cli --desc "My new Dart CLI package"
 
 # Create a new Dart CLI application named my_dart_cli with a custom executable name
-very_good create my_dart_cli -t dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
+very_good create dart_cli my_dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
 
 # Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
-very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin"
+very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 
-# Create a new Flutter plugin named my_flutter_plugin (some platforms disabled)
-very_good create my_flutter_plugin -t flutter_plugin --desc "My new Flutter plugin" --windows false --macos false --linux false
+# Create a new Flutter plugin named my_flutter_plugin (some platforms only)
+very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --platforms android,ios,macos
 
 # Create a new docs site named my_docs_site
-very_good create my_docs_site -t docs_site
+very_good create docs_site my_docs_site
 ```
+
+#### Syntax changes in v0.10.0
+
+⚠️ v0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
 ---
 
@@ -195,7 +184,8 @@ Run "very_good help <command>" for more information about a command.
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
-[very_good_core_link]: doc/very_good_core.md
+[very_good_core_link]: site/docs/templates/core.md
+[new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
 [cli_link_dark]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only

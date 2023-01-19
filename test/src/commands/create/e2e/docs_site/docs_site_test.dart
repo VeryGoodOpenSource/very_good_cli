@@ -4,22 +4,15 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../helpers/helpers.dart';
+import '../../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t docs_site',
+    'create docs_site',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
       final result = await commandRunner.run(
-        [
-          'create',
-          'very_good_docs_site',
-          '-t',
-          'docs_site',
-          '-o',
-          directory.path
-        ],
+        ['create', 'docs_site', 'very_good_docs_site', '-o', directory.path],
       );
       expect(result, equals(ExitCode.success.code));
 

@@ -29,8 +29,8 @@ This template is powered by [Docusaurus][docusaurus_link] and comes with the fol
 ## Getting Started 🚀
 
 ```sh
-# Create a new docs site
-very_good create my_docs_site -t docs_site
+# Create a new docs site named my_docs_site
+very_good create docs_site my_docs_site
 ```
 
 ## Preview 📝
