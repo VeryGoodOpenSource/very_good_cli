@@ -35,7 +35,7 @@ Usage: very_good create docs_site <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --org-name            The organization for this new project.
-                          (defaults to "com.example.verygoodcore")
+                          (defaults to "my-org")
 
 Run "very_good help" to see global options.''',
 ];
@@ -88,7 +88,7 @@ void main() {
         ),
       );
       expect(command.logger, equals(logger));
-      expect(command, isA<OrgName>());
+      expect(command, isA<CreateSubCommand>());
     });
   });
 
@@ -179,7 +179,7 @@ void main() {
             .thenReturn(tempDir.path);
         when(() => argResults.rest).thenReturn(['my_docs_site']);
         when(() => argResults['org-name'] as String?).thenReturn(
-          'xyz.app.my_app',
+          'VeryGoodOpenSource',
         );
 
         final result = await command.run();
@@ -193,7 +193,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
-              'org_name': 'xyz.app.my_app',
+              'org_name': 'VeryGoodOpenSource',
             },
             onVarsChanged: any(named: 'onVarsChanged'),
           ),
@@ -204,7 +204,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
-              'org_name': 'xyz.app.my_app',
+              'org_name': 'VeryGoodOpenSource',
             },
             logger: logger,
           ),
