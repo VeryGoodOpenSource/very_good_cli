@@ -4,20 +4,19 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../helpers/helpers.dart';
+import '../../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t flutter_pkg',
+    'create flame_game',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
         [
           'create',
-          'very_good_flutter',
-          '-t',
-          'flutter_pkg',
+          'flame_game',
+          'very_good_flame_game',
           '-o',
           directory.path,
         ],
@@ -27,7 +26,7 @@ void main() {
       final formatResult = await Process.run(
         'flutter',
         ['format', '--set-exit-if-changed', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_flutter'),
+        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
         runInShell: true,
       );
       expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -36,7 +35,7 @@ void main() {
       final analyzeResult = await Process.run(
         'flutter',
         ['analyze', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_flutter'),
+        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
         runInShell: true,
       );
       expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -46,7 +45,7 @@ void main() {
       final testResult = await Process.run(
         'flutter',
         ['test', '--no-pub', '--coverage'],
-        workingDirectory: path.join(directory.path, 'very_good_flutter'),
+        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
         runInShell: true,
       );
       expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -56,12 +55,12 @@ void main() {
       final testCoverageResult = await Process.run(
         'genhtml',
         ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: path.join(directory.path, 'very_good_flutter'),
+        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
         runInShell: true,
       );
       expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
       expect(testCoverageResult.stderr, isEmpty);
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
     timeout: const Timeout(Duration(minutes: 2)),
   );

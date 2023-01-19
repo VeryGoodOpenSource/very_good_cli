@@ -4,23 +4,29 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../helpers/helpers.dart';
+import '../../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t dart_pkg',
+    'create dart_cli',
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
-        ['create', 'very_good_dart', '-t', 'dart_pkg', '-o', directory.path],
+        [
+          'create',
+          'dart_cli',
+          'very_good_dart_cli',
+          '-o',
+          directory.path,
+        ],
       );
       expect(result, equals(ExitCode.success.code));
 
       final formatResult = await Process.run(
         'flutter',
         ['format', '--set-exit-if-changed', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
         runInShell: true,
       );
       expect(formatResult.exitCode, equals(ExitCode.success.code));
@@ -29,7 +35,7 @@ void main() {
       final analyzeResult = await Process.run(
         'flutter',
         ['analyze', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
         runInShell: true,
       );
       expect(analyzeResult.exitCode, equals(ExitCode.success.code));
@@ -39,7 +45,7 @@ void main() {
       final testResult = await Process.run(
         'flutter',
         ['test', '--no-pub', '--coverage'],
-        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
         runInShell: true,
       );
       expect(testResult.exitCode, equals(ExitCode.success.code));
@@ -49,7 +55,7 @@ void main() {
       final testCoverageResult = await Process.run(
         'genhtml',
         ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
         runInShell: true,
       );
       expect(testCoverageResult.exitCode, equals(ExitCode.success.code));

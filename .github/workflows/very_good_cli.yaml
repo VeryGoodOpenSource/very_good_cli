@@ -54,12 +54,20 @@ jobs:
           # E2E tests for the test command
           - test/src/commands/test/e2e
           # E2E tests for the create command
-          - test/src/commands/create/e2e/core_test.dart
-          - test/src/commands/create/e2e/dart_cli_test.dart
-          - test/src/commands/create/e2e/dart_pkg_test.dart
-          - test/src/commands/create/e2e/docs_site_test.dart
-          - test/src/commands/create/e2e/flame_game_test.dart
-          - test/src/commands/create/e2e/flutter_pkg_test.dart
+          - test/src/commands/create/e2e/flutter_app/core_test.dart
+          - test/src/commands/create/e2e/dart_cli/dart_cli_test.dart
+          - test/src/commands/create/e2e/dart_package/dart_pkg_test.dart
+          - test/src/commands/create/e2e/docs_site/docs_site_test.dart
+          - test/src/commands/create/e2e/flame_game/flame_game_test.dart
+          - test/src/commands/create/e2e/flutter_package/flutter_pkg_test.dart
+
+          # E2E tests for the legacy create command syntax
+          - test/src/commands/create/e2e/legacy/core_test.dart
+          - test/src/commands/create/e2e/legacy/dart_cli_test.dart
+          - test/src/commands/create/e2e/legacy/dart_pkg_test.dart
+          - test/src/commands/create/e2e/legacy/docs_site_test.dart
+          - test/src/commands/create/e2e/legacy/flame_game_test.dart
+          - test/src/commands/create/e2e/legacy/flutter_pkg_test.dart
 
     steps:
       - uses: actions/checkout@v3.1.0

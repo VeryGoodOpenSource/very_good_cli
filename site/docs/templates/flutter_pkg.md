@@ -10,5 +10,8 @@ This template is for a Flutter package.
 
 ```sh
 # Create a new Flutter package named my_flutter_package
-very_good create my_flutter_package -t flutter_pkg --desc "My new Flutter package"
+very_good create flutter_package my_flutter_package --desc "My new Flutter package"
+
+# Create a new Flutter package named my_flutter_package that is publishable
+very_good create flutter_package my_flutter_package --desc "My new Flutter package" --publishable
 ```
