@@ -30,8 +30,7 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
   String get name => 'flutter_app';
 
   @override
-  String get description =>
-      'Creates a new very good Flutter app in the specified directory.';
+  String get description => 'Generate a Very Good Flutter application.';
 
   @override
   Template get template => VeryGoodCoreTemplate();

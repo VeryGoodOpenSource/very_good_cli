@@ -28,7 +28,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Creates a new very good Flame game in the specified directory.
+Generate a Very Good Flame game.
 
 Usage: very_good create flame_game <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -90,9 +90,7 @@ void main() {
       expect(command.name, equals('flame_game'));
       expect(
         command.description,
-        equals(
-          'Creates a new very good Flame game in the specified directory.',
-        ),
+        equals('Generate a Very Good Flame game.'),
       );
       expect(command.logger, equals(logger));
     });

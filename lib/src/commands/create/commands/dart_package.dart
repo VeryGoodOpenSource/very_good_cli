@@ -27,8 +27,7 @@ class CreateDartPackage extends CreateSubCommand with Publishable {
   List<String> get aliases => ['dart_pkg'];
 
   @override
-  String get description =>
-      'Creates a new very good Dart package in the specified directory.';
+  String get description => 'Generate a Very Good Dart package.';
 
   @override
   Template get template => DartPkgTemplate();

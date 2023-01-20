@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Creates a new very good federated Flutter plugin in the specified directory.
+Generate a Very Good Flutter plugin.
 
 Usage: very_good create flutter_plugin <project-name> [arguments]
 -h, --help                       Print this usage information.
@@ -91,8 +91,7 @@ void main() {
       expect(
         command.description,
         equals(
-          'Creates a new very good federated Flutter plugin in the specified '
-          'directory.',
+          'Generate a Very Good Flutter plugin.',
         ),
       );
       expect(command.logger, equals(logger));

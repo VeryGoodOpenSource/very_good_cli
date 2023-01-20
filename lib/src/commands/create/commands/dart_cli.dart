@@ -29,8 +29,7 @@ class CreateDartCLI extends CreateSubCommand with Publishable {
   String get name => 'dart_cli';
 
   @override
-  String get description =>
-      'Creates a new very good Dart CLI in the specified directory.';
+  String get description => 'Generate a Very Good Dart CLI application.';
 
   @override
   Template get template => VeryGoodDartCLITemplate();
