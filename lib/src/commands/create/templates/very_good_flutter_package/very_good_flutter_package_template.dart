@@ -12,7 +12,7 @@ class FlutterPkgTemplate extends Template {
       : super(
           name: 'flutter_pkg',
           bundle: veryGoodFlutterPackageBundle,
-          help: 'Generate a reusable Flutter package.',
+          help: 'Generate a Very Good Flutter package.',
         );
 
   @override

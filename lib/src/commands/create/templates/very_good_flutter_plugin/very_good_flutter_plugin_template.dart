@@ -12,7 +12,7 @@ class FlutterPluginTemplate extends Template {
       : super(
           name: 'flutter_plugin',
           bundle: veryGoodFlutterPluginBundle,
-          help: 'Generate a reusable Flutter plugin.',
+          help: 'Generate a Very Good Flutter plugin.',
         );
 
   @override

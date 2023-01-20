@@ -27,7 +27,7 @@ class FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Creates a new very good Dart CLI in the specified directory.
+Generate a Very Good Dart CLI application.
 
 Usage: very_good create dart_cli <project-name> [arguments]
 -h, --help                Print this usage information.
@@ -83,7 +83,7 @@ void main() {
       expect(command.name, equals('dart_cli'));
       expect(
         command.description,
-        equals('Creates a new very good Dart CLI in the specified directory.'),
+        equals('Generate a Very Good Dart CLI application.'),
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());

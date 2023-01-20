@@ -24,8 +24,7 @@ class CreateFlameGame extends CreateSubCommand with OrgName {
   String get name => 'flame_game';
 
   @override
-  String get description =>
-      'Creates a new very good Flame game in the specified directory.';
+  String get description => 'Generate a Very Good Flame game.';
 
   @override
   Template get template => VeryGoodFlameGameTemplate();
