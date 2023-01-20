@@ -106,7 +106,10 @@ void main() {
             () => pubUpdater.getLatestVersion(any()),
           ).thenAnswer((_) async => latestVersion);
           when(
-            () => pubUpdater.update(packageName: packageName),
+            () => pubUpdater.update(
+              packageName: packageName,
+              versionConstraint: latestVersion,
+            ),
           ).thenAnswer((_) => Future.value(FakeProcessResult()));
           when(
             () => pubUpdater.isUpToDate(
