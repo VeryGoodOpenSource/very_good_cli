@@ -33,16 +33,11 @@ class FakeDirectory extends Fake implements Directory {}
 class _TestCreateSubCommand extends CreateSubCommand {
   _TestCreateSubCommand({
     required this.template,
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        );
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  });
 
   @override
   final String name = 'create_subcommand';
@@ -57,35 +52,23 @@ class _TestCreateSubCommand extends CreateSubCommand {
 class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
     with OrgName {
   _TestCreateSubCommandWithOrgName({
-    required Template template,
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          template: template,
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        );
+    required super.template,
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  });
 }
 
 class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
     with Publishable {
   _TestCreateSubCommandWithPublishable({
-    required Template template,
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          template: template,
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        );
+    required super.template,
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  });
 }
 
 class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
@@ -93,16 +76,11 @@ class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
   _TestCreateSubCommandMultiTemplate({
     required this.defaultTemplateName,
     required this.templates,
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        );
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  });
 
   @override
   final String name = 'create_subcommand';
@@ -710,7 +688,7 @@ Run "runner help" to see global options.''';
             ),
             vars: any(
               named: 'vars',
-              that: isA<Map>().having(
+              that: isA<Map<String, dynamic>>().having(
                 (vars) {
                   return vars['org_name'];
                 },
@@ -754,7 +732,7 @@ Run "runner help" to see global options.''';
             ),
             vars: any(
               named: 'vars',
-              that: isA<Map>().having(
+              that: isA<Map<String, dynamic>>().having(
                 (vars) {
                   return vars['org_name'];
                 },
@@ -796,7 +774,7 @@ Run "runner help" to see global options.''';
             ),
             vars: any(
               named: 'vars',
-              that: isA<Map>().having(
+              that: isA<Map<String, dynamic>>().having(
                 (vars) {
                   return vars['org_name'];
                 },
@@ -1240,7 +1218,7 @@ Run "runner help" to see global options.''';
             ),
             vars: any(
               named: 'vars',
-              that: isA<Map>().having(
+              that: isA<Map<String, dynamic>>().having(
                 (vars) {
                   return vars['publishable'];
                 },
@@ -1282,7 +1260,7 @@ Run "runner help" to see global options.''';
             ),
             vars: any(
               named: 'vars',
-              that: isA<Map>().having(
+              that: isA<Map<String, dynamic>>().having(
                 (description) => description['publishable'],
                 'publishable',
                 false,

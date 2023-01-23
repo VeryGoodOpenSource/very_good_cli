@@ -407,7 +407,7 @@ Future<int> _flutterTest({
       if (event is DoneTestEvent) {
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        final summary = event.success == true
+        final summary = event.success ?? false
             ? lightGreen.wrap('All tests passed!')!
             : lightRed.wrap('Some tests failed.')!;
 

@@ -1,5 +1,3 @@
-import 'package:mason/mason.dart';
-import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
@@ -9,16 +7,11 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlameGame extends CreateSubCommand with OrgName {
   /// {@macro very_good_create_flame_game_command}
   CreateFlameGame({
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        );
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  });
 
   @override
   String get name => 'flame_game';

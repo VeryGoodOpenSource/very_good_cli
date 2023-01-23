@@ -879,7 +879,7 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((invocation) async {
-          (invocation.namedArguments[#onVarsChanged] as Function(
+          (invocation.namedArguments[#onVarsChanged] as void Function(
             Map<String, dynamic> vars,
           ))
               .call(updatedVars);
