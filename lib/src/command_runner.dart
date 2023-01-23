@@ -140,12 +140,12 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
         _analytics.enabled =
             normalizedResponse == 'y' || normalizedResponse == 'yes';
       }
-      final _argResults = parse(args);
+      final argResults = parse(args);
 
-      if (_argResults['verbose'] == true) {
+      if (argResults['verbose'] == true) {
         _logger.level = Level.verbose;
       }
-      return await runCommand(_argResults) ?? ExitCode.success.code;
+      return await runCommand(argResults) ?? ExitCode.success.code;
     } on FormatException catch (e, stackTrace) {
       _logger
         ..err(e.message)

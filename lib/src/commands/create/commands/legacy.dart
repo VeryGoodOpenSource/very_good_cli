@@ -1,5 +1,4 @@
 import 'package:mason/mason.dart';
-import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
@@ -11,16 +10,11 @@ class LegacyCreateCommand extends CreateSubCommand
     with OrgName, MultiTemplates {
   /// {@macro very_good_legacy_create_command}
   LegacyCreateCommand({
-    required Analytics analytics,
-    required Logger logger,
-    MasonGeneratorFromBundle? generatorFromBundle,
-    MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        ) {
+    required super.analytics,
+    required super.logger,
+    super.generatorFromBundle,
+    super.generatorFromBrick,
+  }) {
     argParser
       ..addOption(
         'executable-name',
