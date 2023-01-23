@@ -1,5 +1,3 @@
-import 'package:mason_logger/mason_logger.dart';
-import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
@@ -9,16 +7,11 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateDartCLI extends CreateSubCommand with Publishable {
   /// {@macro very_good_create_dart_cli_command}
   CreateDartCLI({
-    required Analytics analytics,
-    required Logger logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : super(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: generatorFromBundle,
-          generatorFromBrick: generatorFromBrick,
-        ) {
+    required super.analytics,
+    required super.logger,
+    required super.generatorFromBundle,
+    required super.generatorFromBrick,
+  }) {
     argParser.addOption(
       'executable-name',
       help: 'The CLI executable name (defaults to the project name)',
