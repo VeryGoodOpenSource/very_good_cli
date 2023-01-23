@@ -19,7 +19,7 @@ class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockProgress extends Mock implements Progress {}
 
-class FakeProcessResult extends Fake implements ProcessResult {}
+class MockProcessResult extends Mock implements ProcessResult {}
 
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n'
@@ -62,10 +62,12 @@ void main() {
     late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
+    late ProcessResult processResult;
 
     setUp(() {
       analytics = MockAnalytics();
       pubUpdater = MockPubUpdater();
+      processResult = MockProcessResult();
 
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
@@ -110,14 +112,14 @@ void main() {
               packageName: packageName,
               versionConstraint: latestVersion,
             ),
-          ).thenAnswer((_) => Future.value(FakeProcessResult()));
+          ).thenAnswer((_) => Future.value(processResult));
           when(
             () => pubUpdater.isUpToDate(
               packageName: any(named: 'packageName'),
               currentVersion: any(named: 'currentVersion'),
             ),
           ).thenAnswer((_) => Future.value(true));
-
+          when(() => processResult.exitCode).thenReturn(0);
           final progress = MockProgress();
           final progressLogs = <String>[];
           when(() => progress.complete(any())).thenAnswer((_) {
