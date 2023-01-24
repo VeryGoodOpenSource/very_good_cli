@@ -7,7 +7,7 @@ import 'package:very_good_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
 
-class FakeProcessResult extends Fake implements ProcessResult {}
+class MockProcessResult extends Mock implements ProcessResult {}
 
 void main() {
   const latestVersion = '0.0.0';
@@ -24,7 +24,10 @@ void main() {
         verify(() => logger.progress('Checking for updates')).called(1);
         verify(() => logger.err('Exception: oops'));
         verifyNever(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
         );
       }),
     );
@@ -36,14 +39,62 @@ void main() {
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
         when(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
         ).thenThrow(Exception('oops'));
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.software.code));
         verify(() => logger.progress('Checking for updates')).called(1);
         verify(() => logger.err('Exception: oops'));
         verify(
-          () => pubUpdater.update(packageName: any(named: 'packageName')),
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
+        ).called(1);
+      }),
+    );
+
+    test(
+      'handles pub update process errors',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final processResult = MockProcessResult();
+
+        when(
+          () => processResult.exitCode,
+        ).thenReturn(1);
+
+        when<dynamic>(
+          () => processResult.stderr,
+        ).thenReturn('Oh no! Installing this is not possible right now!');
+
+        when(
+          () => pubUpdater.getLatestVersion(any()),
+        ).thenAnswer((_) async => latestVersion);
+
+        when(
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
+        ).thenAnswer((_) => Future.value(processResult));
+
+        final result = await commandRunner.run(['update']);
+
+        expect(result, equals(ExitCode.software.code));
+        verify(() => logger.progress('Checking for updates')).called(1);
+        verify(
+          () => logger.err(
+            '''Error updating Very Good CLI: Oh no! Installing this is not possible right now!''',
+          ),
+        );
+        verify(
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
         ).called(1);
       }),
     );
@@ -51,18 +102,30 @@ void main() {
     test(
       'updates when newer version exists',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final processResult = MockProcessResult();
+
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
         when(
-          () => pubUpdater.update(packageName: packageName),
-        ).thenAnswer((_) => Future.value(FakeProcessResult()));
+          () => pubUpdater.update(
+            packageName: any(named: 'packageName'),
+            versionConstraint: any(named: 'versionConstraint'),
+          ),
+        ).thenAnswer((_) => Future.value(processResult));
+
+        when(() => processResult.exitCode).thenReturn(0);
         when(() => logger.progress(any())).thenReturn(MockProgress());
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
         verify(() => logger.progress('Checking for updates')).called(1);
         verify(() => logger.progress('Updating to $latestVersion')).called(1);
-        verify(() => pubUpdater.update(packageName: packageName)).called(1);
+        verify(
+          () => pubUpdater.update(
+            packageName: packageName,
+            versionConstraint: latestVersion,
+          ),
+        ).called(1);
       }),
     );
 
@@ -79,7 +142,12 @@ void main() {
           () => logger.info('Very Good CLI is already at the latest version.'),
         ).called(1);
         verifyNever(() => logger.progress('Updating to $latestVersion'));
-        verifyNever(() => pubUpdater.update(packageName: packageName));
+        verifyNever(
+          () => pubUpdater.update(
+            packageName: packageName,
+            versionConstraint: latestVersion,
+          ),
+        );
       }),
     );
   });
