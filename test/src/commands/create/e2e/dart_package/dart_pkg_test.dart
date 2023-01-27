@@ -18,7 +18,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
 
       final formatResult = await Process.run(
-        'flutter',
+        'dart',
         ['format', '--set-exit-if-changed', '.'],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
