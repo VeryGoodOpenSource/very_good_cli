@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs `mason bundle` to generate bundles for all bricks within the respective templates directories.
 
-bricks=(very_good_core very_good_dart_package very_good_dart_cli very_good_flutter_package very_good_flutter_plugin)
+bricks=(very_good_core very_good_dart_package very_good_dart_cli very_good_flutter_package very_good_flutter_plugin very_good_flame_game very_good_docs_site)
 
 for brick in "${bricks[@]}"
 do
