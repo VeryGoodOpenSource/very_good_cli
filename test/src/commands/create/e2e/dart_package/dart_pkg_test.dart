@@ -48,7 +48,7 @@ void main() {
 
       final testCoverageResult = await Process.run(
         'genhtml',
-        ['coverage/lcov.info', '-o', 'coverage', '--reporter', 'compact'],
+        ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
       );
