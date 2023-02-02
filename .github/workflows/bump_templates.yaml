@@ -1,6 +1,9 @@
 name: bump_templates.yaml
 
 on:
+  schedule:
+    # weekly on mondays at 8 am utc
+    - cron: '0 8 * * 1'
   workflow_dispatch:
 
 jobs:
