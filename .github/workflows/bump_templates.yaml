@@ -1,4 +1,4 @@
-name: bump_templates.yaml
+name: update_templates
 
 on:
   schedule:
