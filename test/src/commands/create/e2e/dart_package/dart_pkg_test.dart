@@ -18,7 +18,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
 
       final formatResult = await Process.run(
-        'flutter',
+        'dart',
         ['format', '--set-exit-if-changed', '.'],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
@@ -48,7 +48,7 @@ void main() {
 
       final testCoverageResult = await Process.run(
         'genhtml',
-        ['coverage/lcov.info', '-o', 'coverage'],
+        ['coverage/lcov.info', '-o', 'coverage', '--reporter', 'compact'],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
       );
