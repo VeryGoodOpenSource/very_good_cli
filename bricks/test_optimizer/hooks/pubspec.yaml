@@ -1,0 +1,9 @@
+name: _hooks_
+publish_to: none
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  mason: ">=0.1.0-dev.41 <0.1.0"
+  path: ^1.8.1

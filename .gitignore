@@ -15,7 +15,8 @@ doc/api/
 # Files generated during tests
 .test_coverage.dart
 coverage/
-.test_runner.dart
+.test_optimizer.dart
+!bricks/test_optimizer/__brick__/test/.test_optimizer.dart
 
 # Android studio and IntelliJ
 .idea

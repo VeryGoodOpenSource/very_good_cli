@@ -178,7 +178,7 @@ class Flutter {
         if (optimizePerformance) {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
-            final generator = await buildGenerator(testRunnerBundle);
+            final generator = await buildGenerator(testOptimizerBundle);
             var vars = <String, dynamic>{'package-root': workingDirectory};
             await generator.hooks.preGen(
               vars: vars,
