@@ -1,0 +1,37 @@
+name: update_templates
+
+on:
+  schedule:
+    # weekly on mondays at 8 am utc
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.3.0
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Bump templates
+        run: tool/generate_bundles.sh
+
+      - name: Config Git User
+        run: |
+          git config user.name VGV Bot
+          git config user.email vgvbot@users.noreply.github.com
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4.2.3
+        with:
+          base: main
+          branch: feat/bump-template-bundles
+          commit-message: "feat: bump template bundles"
+          title: "feat: bump template bundles"
+          body: Please squash and merge me!
+          labels: bot
+          author: VGV Bot <vgvbot@users.noreply.github.com>
+          assignees: vgvbot
+          reviewers: felangel
+          committer: VGV Bot <vgvbot@users.noreply.github.com>
