@@ -4,7 +4,7 @@ import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 
 Future<void> run(HookContext context) async {
-  final packageRoot = context.vars['package-root'];
+  final packageRoot = context.vars['package-root'] as String;
   final testDir = Directory(path.join(packageRoot, 'test'));
 
   if (!testDir.existsSync()) {

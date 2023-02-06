@@ -7,3 +7,7 @@ environment:
 dependencies:
   mason: ">=0.1.0-dev.41 <0.1.0"
   path: ^1.8.1
+
+dev_dependencies:
+  mocktail: ^0.3.0
+  very_good_analysis: ^3.1.0
