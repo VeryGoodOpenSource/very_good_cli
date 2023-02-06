@@ -140,10 +140,16 @@ const _ignoredDirectories = {
   '.fvm',
 };
 
-bool _isPubspec(FileSystemEntity entity, Set<String> ignore) {
-  final segments = p.split(entity.path).toSet();
-  if (segments.intersection(_ignoredDirectories).isNotEmpty) return false;
-  if (segments.intersection(ignore).isNotEmpty) return false;
+bool _isPubspec(FileSystemEntity entity) {
   if (entity is! File) return false;
   return p.basename(entity.path) == 'pubspec.yaml';
+}
+
+extension on Set<String> {
+  bool excludes(FileSystemEntity entity) {
+    final segments = p.split(entity.path).toSet();
+    if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;
+    if (segments.intersection(this).isNotEmpty) return true;
+    return false;
+  }
 }

@@ -293,7 +293,7 @@ Future<List<T>> _runCommand<T>({
 
   final processes = _Cmd.runWhere<T>(
     run: (entity) => cmd(entity.parent.path),
-    where: (entity) => _isPubspec(entity, ignore),
+    where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
     cwd: cwd,
   );
 

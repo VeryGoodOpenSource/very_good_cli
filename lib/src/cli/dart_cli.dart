@@ -41,7 +41,7 @@ class Dart {
         workingDirectory: entity.parent.path,
         logger: logger,
       ),
-      where: (entity) => _isPubspec(entity, ignore),
+      where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
       cwd: cwd,
     );
 
