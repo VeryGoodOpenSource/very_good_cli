@@ -18,6 +18,7 @@ class Dart {
   static Future<void> applyFixes({
     String cwd = '.',
     bool recursive = false,
+    Set<String> ignore = const {},
     required Logger logger,
   }) async {
     if (!recursive) {
@@ -40,7 +41,7 @@ class Dart {
         workingDirectory: entity.parent.path,
         logger: logger,
       ),
-      where: _isPubspec,
+      where: (entity) => _isPubspec(entity, ignore),
       cwd: cwd,
     );
 

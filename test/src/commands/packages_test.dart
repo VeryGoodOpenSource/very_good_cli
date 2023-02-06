@@ -34,6 +34,7 @@ const expectedPackagesGetUsage = [
       'Usage: very_good packages get [arguments]\n'
       '-h, --help         Print this usage information.\n'
       '''-r, --recursive    Install dependencies recursively for all nested packages.\n'''
+      '''--ignore    Exclude packages from installing dependencies.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -263,6 +264,64 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
+        }),
+      );
+
+      test(
+        'completes normally '
+        'when pubspec.yaml exists and directory is ignored (recursive)',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          final directoryA = Directory(
+            path.join(tempDirectory.path, 'plugin_a'),
+          );
+          final directoryB = Directory(
+            path.join(tempDirectory.path, 'plugin_b'),
+          );
+          final pubspecA = File(
+            path.join(directoryA.path, 'example_a', 'pubspec.yaml'),
+          );
+          final pubspecB = File(
+            path.join(directoryB.path, 'example_b', 'pubspec.yaml'),
+          );
+          pubspecA
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
+          name: example_a
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+            );
+          pubspecB
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '''
+          name: example_b
+          version: 0.1.0
+          
+          environment:
+            sdk: ">=2.12.0 <3.0.0"
+          ''',
+            );
+
+          final result = await commandRunner.run(
+            [
+              'packages',
+              'get',
+              '--recursive',
+              '--ignore=plugin_b',
+              tempDirectory.path,
+            ],
+          );
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(that: contains('Running "flutter packages get" in')),
+            );
+          }).called(1);
         }),
       );
     });
