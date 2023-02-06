@@ -34,7 +34,7 @@ const expectedPackagesGetUsage = [
       'Usage: very_good packages get [arguments]\n'
       '-h, --help         Print this usage information.\n'
       '''-r, --recursive    Install dependencies recursively for all nested packages.\n'''
-      '''--ignore    Exclude packages from installing dependencies.\n'''
+      '    --ignore       Exclude packages from installing dependencies.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
