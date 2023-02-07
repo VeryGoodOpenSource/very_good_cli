@@ -2,17 +2,17 @@
 
 ### Bug Fixes
 
-- bump_templates.yaml ([#642](https://github.com/VeryGoodOpenSource/very_good_cli/issues/642)) ([369ccf6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/369ccf6877aba93cb31249506244edf615989869))
+- bump_templates.yaml ([#642](https://github.com/VeryGoodOpenSource/very_good_cli/issues/642)) ([e1c60e3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e1c60e3df239a7683b18c5a995d3cb32df5530d0))
 - **create:** docs site template org validation ([#624](https://github.com/VeryGoodOpenSource/very_good_cli/issues/624)) ([c44f194](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c44f1947c6e268355068e2b3c491b884a094a776))
 - fix test report in case of multiline test name ([#535](https://github.com/VeryGoodOpenSource/very_good_cli/issues/535)) ([5f2aa49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5f2aa49f7725173a86f57e7fc19fd3250d5b8e70))
-- update silently fails when the sdk doesnt support most recent version ([#627](https://github.com/VeryGoodOpenSource/very_good_cli/issues/627)) ([2742e54](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2742e545bae4e88072a558f4172f3c2ea92914af))
+- update silently fails when the sdk does not support most recent version ([#627](https://github.com/VeryGoodOpenSource/very_good_cli/issues/627)) ([3540c42](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3540c42ce38f79c69698bbff64dc8e147d84301f))
 
 ### Features
 
-- bump template bundles ([#643](https://github.com/VeryGoodOpenSource/very_good_cli/issues/643)) ([30b1644](https://github.com/VeryGoodOpenSource/very_good_cli/commit/30b164434a5d70b140d51b5e7aa6b458f399d23c))
+- bump template bundles ([#643](https://github.com/VeryGoodOpenSource/very_good_cli/issues/643)) ([c3cd8f3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c3cd8f32559036e55fcfba6bd644e4b7d711f9c8))
 - change description of create sub commands ([#625](https://github.com/VeryGoodOpenSource/very_good_cli/issues/625)) ([560f44a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/560f44a9930038be385e3e5a8257445c0559f312))
 - update sdk constraints ([#628](https://github.com/VeryGoodOpenSource/very_good_cli/issues/628)) ([19f6ddf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/19f6ddfb7e348446fa36905c7a7c2e3cf0c48c7e))
-- update template bundles ([#637](https://github.com/VeryGoodOpenSource/very_good_cli/issues/637)) ([732d452](https://github.com/VeryGoodOpenSource/very_good_cli/commit/732d452a3330b3cd518dd2f2dda086dee4587fa4))
+- update template bundles ([#637](https://github.com/VeryGoodOpenSource/very_good_cli/issues/637)) ([6450872](https://github.com/VeryGoodOpenSource/very_good_cli/commit/64508722ac79abc01b70eee2498dbbdf546cfc43))
 
 # [0.10.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.1...v0.10.0) (2023-01-17)
 
