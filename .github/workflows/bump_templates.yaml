@@ -14,6 +14,9 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1
 
+      - name: Install mason
+        run: dart pub global activate mason
+
       - name: Bump templates
         run: tool/generate_bundles.sh
 
