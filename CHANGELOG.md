@@ -1,3 +1,19 @@
+# [0.11.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.10.0...v0.11.0) (2023-02-07)
+
+### Bug Fixes
+
+- bump_templates.yaml ([#642](https://github.com/VeryGoodOpenSource/very_good_cli/issues/642)) ([369ccf6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/369ccf6877aba93cb31249506244edf615989869))
+- **create:** docs site template org validation ([#624](https://github.com/VeryGoodOpenSource/very_good_cli/issues/624)) ([c44f194](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c44f1947c6e268355068e2b3c491b884a094a776))
+- fix test report in case of multiline test name ([#535](https://github.com/VeryGoodOpenSource/very_good_cli/issues/535)) ([5f2aa49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5f2aa49f7725173a86f57e7fc19fd3250d5b8e70))
+- update silently fails when the sdk doesnt support most recent version ([#627](https://github.com/VeryGoodOpenSource/very_good_cli/issues/627)) ([2742e54](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2742e545bae4e88072a558f4172f3c2ea92914af))
+
+### Features
+
+- bump template bundles ([#643](https://github.com/VeryGoodOpenSource/very_good_cli/issues/643)) ([30b1644](https://github.com/VeryGoodOpenSource/very_good_cli/commit/30b164434a5d70b140d51b5e7aa6b458f399d23c))
+- change description of create sub commands ([#625](https://github.com/VeryGoodOpenSource/very_good_cli/issues/625)) ([560f44a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/560f44a9930038be385e3e5a8257445c0559f312))
+- update sdk constraints ([#628](https://github.com/VeryGoodOpenSource/very_good_cli/issues/628)) ([19f6ddf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/19f6ddfb7e348446fa36905c7a7c2e3cf0c48c7e))
+- update template bundles ([#637](https://github.com/VeryGoodOpenSource/very_good_cli/issues/637)) ([732d452](https://github.com/VeryGoodOpenSource/very_good_cli/commit/732d452a3330b3cd518dd2f2dda086dee4587fa4))
+
 # [0.10.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.1...v0.10.0) (2023-01-17)
 
 ### Features
