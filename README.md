@@ -1,5 +1,5 @@
-[![Very Good CLI Logo][cli_logo_white]][cli_link_dark]
 [![Very Good CLI Logo][cli_logo_black]][cli_link_light]
+[![Very Good CLI Logo][cli_logo_white]][cli_link_dark]
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
