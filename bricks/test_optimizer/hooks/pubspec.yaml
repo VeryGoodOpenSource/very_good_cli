@@ -6,8 +6,8 @@ environment:
 
 dependencies:
   mason: ">=0.1.0-dev.41 <0.1.0"
-  path: ^1.8.1
   test: ^1.22.2
+  path: ^1.8.1
 
 dev_dependencies:
   checked_yaml: ^2.0.2
