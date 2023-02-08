@@ -42,10 +42,16 @@ void main() {
 
         await pre_gen.run(context);
 
-        expect(context.vars['tests'], [
-          'test2_test.dart',
-          'test1_test.dart',
-        ]);
+        final tests = context.vars['tests'] as List<String>;
+
+        expect(
+          tests,
+          containsAll([
+            'test2_test.dart',
+            'test1_test.dart',
+          ]),
+        );
+        expect(test, isNot(contains('no_test_here.dart')));
         expect(context.vars['isFlutter'], false);
       });
 
