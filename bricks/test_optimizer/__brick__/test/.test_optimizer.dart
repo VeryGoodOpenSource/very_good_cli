@@ -24,7 +24,7 @@ class _TestOptimizationAwareGoldenFileComparator extends LocalFileComparator {
   static Uri get _testFile {
     final basedir =
         (goldenFileComparator as LocalFileComparator).basedir.toString();
-    return Uri.parse("$basedir/.test_runner.dart");
+    return Uri.parse("$basedir/.test_optimizer.dart");
   }
 
   static List<String> get _goldenFilePaths =>

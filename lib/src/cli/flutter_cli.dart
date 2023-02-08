@@ -205,13 +205,13 @@ class Flutter {
               '--test-randomize-ordering-seed',
               randomSeed
             ],
-            if (optimizePerformance) p.join('test', '.test_runner.dart')
+            if (optimizePerformance) p.join('test', '.test_optimizer.dart')
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         ).whenComplete(() {
           if (optimizePerformance) {
-            File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
+            File(p.join(cwd, 'test', '.test_optimizer.dart')).delete().ignore();
           }
         });
       },
