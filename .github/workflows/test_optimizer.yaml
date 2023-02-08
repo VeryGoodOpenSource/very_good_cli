@@ -25,7 +25,7 @@ jobs:
       dart_sdk: 2.19.0
       working_directory: bricks/test_optimizer/hooks
 
-  verify_bundle: # Detects if running tool/generate_test_optimizer_bundle.sh would change any files
+  verify_bundle:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0
@@ -36,7 +36,7 @@ jobs:
         run: dart pub global activate mason_cli
 
       - name: Run bundle generate
-        run: dart tool/generate_test_optimizer_bundle.sh
+        run: tool/generate_test_optimizer_bundle.sh
 
-      - name: Check for changes
-        run: git diff --exit-code --quiet
+      - name: Check for unbundled changes
+        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the test_opitimizer brick. Please run tools/generate_test_optimizer_bundle.sh to bundle these changes"; exit 1; }

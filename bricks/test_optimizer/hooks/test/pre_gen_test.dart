@@ -1,11 +1,10 @@
 import 'dart:io';
 
+import 'package:hooks/pre_gen.dart' as pre_gen;
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-
-import '../pre_gen.dart' as pre_gen;
 
 class MockProgress extends Mock implements Progress {}
 
