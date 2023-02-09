@@ -145,15 +145,15 @@ class Flutter {
     FlutterTestRunner testRunner = flutterTest,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
   }) async {
-    final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
-    final lcovFile = File(lcovPath);
-
-    if (collectCoverage && lcovFile.existsSync()) {
-      await lcovFile.delete();
-    }
-
-    final results = await _runCommand<int>(
+    return _runCommand<int>(
       cmd: (cwd) async {
+        final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
+        final lcovFile = File(lcovPath);
+
+        if (collectCoverage && lcovFile.existsSync()) {
+          await lcovFile.delete();
+        }
+
         void noop(String? _) {}
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
@@ -209,29 +209,30 @@ class Flutter {
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
-        ).whenComplete(() {
+        ).whenComplete(() async {
           if (optimizePerformance) {
             File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
+          }
+
+          if (collectCoverage) {
+            assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
+          }
+
+          if (minCoverage != null) {
+            final records = await Parser.parse(lcovPath);
+            final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+              records,
+              excludeFromCoverage,
+            );
+            final coverage = coverageMetrics.percentage;
+
+            if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
           }
         });
       },
       cwd: cwd,
       recursive: recursive,
     );
-
-    if (collectCoverage) {
-      assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
-    }
-    if (minCoverage != null) {
-      final records = await Parser.parse(lcovPath);
-      final coverageMetrics = _CoverageMetrics.fromLcovRecords(
-        records,
-        excludeFromCoverage,
-      );
-      final coverage = coverageMetrics.percentage;
-      if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
-    }
-    return results;
   }
 }
 
