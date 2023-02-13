@@ -760,10 +760,10 @@ void main() {
 
       group('valid template names', () {
         Future<void> expectValidTemplateName({
-          String? progressLog,
           required String templateName,
           required MasonBundle expectedBundle,
           required String expectedLogSummary,
+          String? progressLog,
         }) async {
           final argResults = MockArgResults();
           final hooks = MockGeneratorHooks();

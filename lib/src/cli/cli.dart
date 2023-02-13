@@ -78,9 +78,9 @@ class _Cmd {
   static Future<ProcessResult> run(
     String cmd,
     List<String> args, {
+    required Logger logger,
     bool throwOnError = true,
     String? workingDirectory,
-    required Logger logger,
   }) async {
     logger.detail('Running: $cmd with $args');
     final runProcess = ProcessOverrides.current?.runProcess ?? Process.run;
