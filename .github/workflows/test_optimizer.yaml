@@ -1,0 +1,42 @@
+name: test_optimizer_ci
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    paths:
+      - .github/workflows/test_optimizer.yaml
+      - bricks/test_optimizer/**"
+    branches:
+      - main
+  pull_request:
+    paths:
+      - .github/workflows/test_optimizer.yaml
+      - bricks/test_optimizer/**"
+    branches:
+      - main
+
+jobs:
+  build_hooks:
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+    with:
+      dart_sdk: 2.19.0
+      working_directory: bricks/test_optimizer/hooks
+
+  verify_bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3.3.0
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install mason
+        run: dart pub global activate mason_cli
+
+      - name: Run bundle generate
+        run: tool/generate_test_optimizer_bundle.sh
+
+      - name: Check for unbundled changes
+        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the test_opitimizer brick. Please run tools/generate_test_optimizer_bundle.sh to bundle these changes"; exit 1; }
