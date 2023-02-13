@@ -124,7 +124,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjEuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy40LjAuMC55YW1sCg==",
       "type": "text"
     },
     {
@@ -156,7 +156,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCiAgZmx1dHRlcjogMy43LjAKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4zLjEuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCiAgZmx1dHRlcjogMy43LjAKCmRlcGVuZGVuY2llczoKICBmbHV0dGVyOgogICAgc2RrOiBmbHV0dGVyCgpkZXZfZGVwZW5kZW5jaWVzOgogIGZsdXR0ZXJfdGVzdDoKICAgIHNkazogZmx1dHRlcgogIG1vY2t0YWlsOiBeMC4zLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF40LjAuMAo=",
       "type": "text"
     },
     {
@@ -182,7 +182,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "hooks": [],
   "name": "very_good_flutter_package",
   "description": "A Very Good Flutter package created by Very Good Ventures.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "environment": {"mason": ">=0.1.0-dev.32 <0.1.0"},
   "repository":
       "https://github.com/VeryGoodOpenSource/very_good_flutter_package",
@@ -195,7 +195,7 @@ final veryGoodFlutterPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjIuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy43LjAKCiMgMC4yLjEKCi0gZml4OiB3aW5kb3dzIHBhdGggcmVzb2x1dGlvbgotIGZpeDogR2l0SHViIHdvcmtmbG93IGNvbmN1cnJlbmN5IGdyb3VwCgojIDAuMi4wCgotICoqQlJFQUtJTkcqKiBmZWF0OiBhZGQgYHB1Ymxpc2hhYmxlYCBmbGFnIChkZWZhdWx0cyB0byBgZmFsc2VgKQoKIyAwLjEuNAoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4zCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuNwoKIyAwLjEuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjMKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4yIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4xIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
+        "IyAwLjIuMwoKLSBmZWF0OiB1cGdyYWRlIHRvIGB2ZXJ5X2dvb2RfYW5hbHlzaXMgXjQuMC4wYAoKIyAwLjIuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy43LjAKCiMgMC4yLjEKCi0gZml4OiB3aW5kb3dzIHBhdGggcmVzb2x1dGlvbgotIGZpeDogR2l0SHViIHdvcmtmbG93IGNvbmN1cnJlbmN5IGdyb3VwCgojIDAuMi4wCgotICoqQlJFQUtJTkcqKiBmZWF0OiBhZGQgYHB1Ymxpc2hhYmxlYCBmbGFnIChkZWZhdWx0cyB0byBgZmFsc2VgKQoKIyAwLjEuNAoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4zCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRmx1dHRlciAzLjMuNwoKIyAwLjEuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIEZsdXR0ZXIgMy4zLjMKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4yIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBGbHV0dGVyIDMuMy4xIGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {
