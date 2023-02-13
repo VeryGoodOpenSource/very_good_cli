@@ -927,7 +927,10 @@ void main() {
             contains('All tests passed!'),
           ]),
         );
-        expect(testRunnerArgs, equals([p.join('test', '.test_runner.dart')]));
+        expect(
+          testRunnerArgs,
+          equals([p.join('test', '.test_optimizer.dart')]),
+        );
         verify(() => logger.progress('Optimizing tests')).called(1);
         verify(
           () => hooks.preGen(

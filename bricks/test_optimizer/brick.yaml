@@ -1,0 +1,13 @@
+name: test_optimizer
+description: A brick that generates a single entrypoint for Dart tests.
+version: 0.1.0+1
+
+environment:
+  mason: ">=0.1.0-dev.41 <0.1.0"
+
+vars:
+  package-root:
+    type: string
+    default: "."
+    description: The path to the package root.
+    prompt: Please enter the path to the package root.

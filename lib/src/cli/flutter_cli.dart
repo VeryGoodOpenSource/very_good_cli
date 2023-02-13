@@ -183,7 +183,7 @@ class Flutter {
         if (optimizePerformance) {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
-            final generator = await buildGenerator(testRunnerBundle);
+            final generator = await buildGenerator(testOptimizerBundle);
             var vars = <String, dynamic>{'package-root': workingDirectory};
             await generator.hooks.preGen(
               vars: vars,
@@ -210,13 +210,13 @@ class Flutter {
               '--test-randomize-ordering-seed',
               randomSeed
             ],
-            if (optimizePerformance) p.join('test', '.test_runner.dart')
+            if (optimizePerformance) p.join('test', '.test_optimizer.dart')
           ],
           stdout: stdout ?? noop,
           stderr: stderr ?? noop,
         ).whenComplete(() {
           if (optimizePerformance) {
-            File(p.join(cwd, 'test', '.test_runner.dart')).delete().ignore();
+            File(p.join(cwd, 'test', '.test_optimizer.dart')).delete().ignore();
           }
         });
       },
