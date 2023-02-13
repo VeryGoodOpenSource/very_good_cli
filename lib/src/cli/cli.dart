@@ -152,6 +152,14 @@ extension on Set<String> {
     final segments = p.split(entity.path).toSet();
     if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;
     if (segments.intersection(this).isNotEmpty) return true;
+
+    for (final value in this) {
+      final glob = Glob(value);
+      if (glob.matches(entity.path)) {
+        return true;
+      }
+    }
+
     return false;
   }
 }

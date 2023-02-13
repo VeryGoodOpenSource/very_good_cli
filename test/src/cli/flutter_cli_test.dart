@@ -178,10 +178,15 @@ void main() {
           final ignoredDirectory = Directory(
             p.join(directory.path, 'test_plugin'),
           )..createSync();
+          final ignoredDirectoryTwo = Directory(
+            p.join(directory.path, 'test_plugin_two'),
+          )..createSync();
 
           File(p.join(nestedDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
           File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+          File(p.join(ignoredDirectoryTwo.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
 
           ProcessOverrides.runZoned(
@@ -189,19 +194,19 @@ void main() {
               Flutter.packagesGet(
                 cwd: directory.path,
                 recursive: true,
-                ignore: {'test_plugin'},
+                ignore: {'test_plugin', '/**/test_plugin_two/**'},
                 logger: logger,
               ),
               completes,
             ),
             runProcess: process.run,
-          );
-
-          verify(() {
-            logger.progress(
-              any(that: contains('Running "flutter packages get" in')),
-            );
-          }).called(1);
+          ).whenComplete(() {
+            verify(() {
+              logger.progress(
+                any(that: contains('Running "flutter packages get" in')),
+              );
+            }).called(1);
+          });
         },
       );
     });
