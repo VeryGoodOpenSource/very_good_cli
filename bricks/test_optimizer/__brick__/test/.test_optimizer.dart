@@ -37,7 +37,7 @@ class _TestOptimizationAwareGoldenFileComparator extends LocalFileComparator {
 
   @override
   Uri getTestUri(Uri key, int? version) {
-    final keyString = key.path;
+    final keyString = key.toFilePath();
     return Uri.parse(goldenFilePaths
         .singleWhere((goldenFilePath) => goldenFilePath.endsWith(keyString)));
   }
