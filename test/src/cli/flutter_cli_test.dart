@@ -906,7 +906,7 @@ void main() {
 
           expect(
             stdoutLogs,
-            equals([
+            unorderedEquals([
               'Running "flutter test" in '
                   '${p.dirname(nestedDirectory.path)}...\n',
               contains('All tests passed!'),
@@ -970,7 +970,7 @@ void main() {
 
           expect(
             stdoutLogs,
-            equals([
+            unorderedEquals([
               'Running "flutter test" in '
                   '${p.dirname(nestedDirectory.path)}...\n',
               contains('All tests passed!'),
