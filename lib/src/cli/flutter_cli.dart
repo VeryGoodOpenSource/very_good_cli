@@ -77,10 +77,10 @@ class Flutter {
 
   /// Install flutter dependencies (`flutter packages get`).
   static Future<void> packagesGet({
+    required Logger logger,
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
-    required Logger logger,
   }) async {
     await _runCommand(
       cmd: (cwd) async {
@@ -114,10 +114,10 @@ class Flutter {
 
   /// Install dart dependencies (`flutter pub get`).
   static Future<void> pubGet({
+    required Logger logger,
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
-    required Logger logger,
   }) async {
     await _runCommand(
       cmd: (cwd) => _Cmd.run(
@@ -135,6 +135,7 @@ class Flutter {
   /// Run tests (`flutter test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({
+    required Logger logger,
     String cwd = '.',
     bool recursive = false,
     bool collectCoverage = false,
@@ -144,7 +145,6 @@ class Flutter {
     String? excludeFromCoverage,
     String? randomSeed,
     List<String>? arguments,
-    required Logger logger,
     void Function(String)? stdout,
     void Function(String)? stderr,
     FlutterTestRunner testRunner = flutterTest,
@@ -307,12 +307,12 @@ Future<List<T>> _runCommand<T>({
 }
 
 Future<int> _flutterTest({
+  required void Function(String) stdout,
+  required void Function(String) stderr,
   String cwd = '.',
   bool collectCoverage = false,
   List<String>? arguments,
   FlutterTestRunner testRunner = flutterTest,
-  required void Function(String) stdout,
-  required void Function(String) stderr,
 }) {
   const clearLine = '\u001B[2K\r';
 

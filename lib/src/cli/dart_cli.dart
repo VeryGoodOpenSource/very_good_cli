@@ -16,10 +16,10 @@ class Dart {
 
   /// Apply all fixes (`dart fix --apply`).
   static Future<void> applyFixes({
+    required Logger logger,
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
-    required Logger logger,
   }) async {
     if (!recursive) {
       final pubspec = File(p.join(cwd, 'pubspec.yaml'));

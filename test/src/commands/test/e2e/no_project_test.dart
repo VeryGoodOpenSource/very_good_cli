@@ -1,4 +1,6 @@
 @Tags(['e2e'])
+library no_project_test;
+
 import 'package:mason/mason.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
