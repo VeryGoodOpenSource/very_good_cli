@@ -972,12 +972,15 @@ void main() {
             stdoutLogs,
             unorderedEquals([
               'Running "flutter test" in '
+                  '${p.dirname(directory.path)}...\n',
+              contains('All tests passed!'),
+              'Running "flutter test" in '
                   '${p.dirname(nestedDirectory.path)}...\n',
               contains('All tests passed!'),
             ]),
           );
           expect(stderrLogs, isEmpty);
-          expect(testRunnerArgs, equals(['--coverage']));
+          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
 
           directory.delete(recursive: true).ignore();
           nestedDirectory.delete(recursive: true).ignore();

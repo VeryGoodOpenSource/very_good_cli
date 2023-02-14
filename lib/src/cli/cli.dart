@@ -108,15 +108,19 @@ class _Cmd {
     final directories =
         Directory(cwd).listSync(recursive: true).where(where).toList()
           ..sort((a, b) {
+            // Linux and macos behaves differently regarding the order
+            // that the list of folders/files are returned. In other to keep the
+            // behavior the same across platforms, we run a consistent
+            // sorting logic.
             final aSplit = p.split(a.path);
             final bSplit = p.split(b.path);
             final aLevel = aSplit.length;
             final bLevel = bSplit.length;
 
             if (aLevel == bLevel) {
-              return 1;
-            } else {
               return aSplit.last.compareTo(bSplit.last);
+            } else {
+              return aLevel.compareTo(bLevel);
             }
           });
 
