@@ -105,7 +105,22 @@ class _Cmd {
     required bool Function(FileSystemEntity) where,
     String cwd = '.',
   }) {
-    return Directory(cwd).listSync(recursive: true).where(where).map(run);
+    final directories = Directory(cwd).listSync(recursive: true)
+        .where(where).toList()..sort((a, b) {
+          final aSplit = p.split(a.path);
+          final bSplit = p.split(b.path);
+          final aLevel = aSplit.length;
+          final bLevel = bSplit.length;
+
+          if (aLevel == bLevel) {
+            return 1;
+          } else {
+            return aSplit.last.compareTo(bSplit.last);
+          }
+        });
+
+
+    return directories.map(run);
   }
 
   static void _throwIfProcessFailed(
