@@ -15,6 +15,7 @@ typedef FlutterInstalledCommand = Future<bool> Function({
 
 /// Signature for the [Flutter.test] method.
 typedef FlutterTestCommand = Future<List<int>> Function({
+  required Logger logger,
   String cwd,
   bool recursive,
   bool collectCoverage,
@@ -23,7 +24,6 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   String? excludeFromCoverage,
   String? randomSeed,
   List<String>? arguments,
-  required Logger logger,
   void Function(String)? stdout,
   void Function(String)? stderr,
 });
