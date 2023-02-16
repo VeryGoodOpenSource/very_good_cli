@@ -139,6 +139,7 @@ class Flutter {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    bool? forceAnsi,
     List<String>? arguments,
     void Function(String)? stdout,
     void Function(String)? stderr,
@@ -194,21 +195,23 @@ class Flutter {
             optimizationProgress.complete();
           }
         }
-
-        return _flutterTest(
-          cwd: cwd,
-          collectCoverage: collectCoverage,
-          testRunner: testRunner,
-          arguments: [
-            ...?arguments,
-            if (randomSeed != null) ...[
-              '--test-randomize-ordering-seed',
-              randomSeed
+        return _overrideAnsiOutput(
+          forceAnsi,
+          () => _flutterTest(
+            cwd: cwd,
+            collectCoverage: collectCoverage,
+            testRunner: testRunner,
+            arguments: [
+              ...?arguments,
+              if (randomSeed != null) ...[
+                '--test-randomize-ordering-seed',
+                randomSeed
+              ],
+              if (optimizePerformance) p.join('test', '.test_optimizer.dart')
             ],
-            if (optimizePerformance) p.join('test', '.test_optimizer.dart')
-          ],
-          stdout: stdout ?? noop,
-          stderr: stderr ?? noop,
+            stdout: stdout ?? noop,
+            stderr: stderr ?? noop,
+          ),
         ).whenComplete(() {
           if (optimizePerformance) {
             File(p.join(cwd, 'test', '.test_optimizer.dart')).delete().ignore();
@@ -233,6 +236,11 @@ class Flutter {
     }
     return results;
   }
+
+  static T _overrideAnsiOutput<T>(bool? enableAnsiOutput, T Function() body) =>
+      enableAnsiOutput == null
+          ? body.call()
+          : overrideAnsiOutput(enableAnsiOutput, body);
 }
 
 /// Ensures all git dependencies are reachable for the pubspec
