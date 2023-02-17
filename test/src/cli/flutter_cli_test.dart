@@ -436,6 +436,47 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
+      test('runs tests (passing) with forced ansi output', () async {
+        final directory = Directory.systemTemp.createTempSync();
+        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(directory.path, 'test')).createSync();
+
+        await expectLater(
+          Flutter.test(
+            cwd: directory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+            forceAnsi: true,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+1\x1B[0m: CounterCubit initial state is 0''',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+2\x1B[0m: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+3\x1B[0m: CounterCubit emits [-1] when decrement is called''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+4\x1B[0m: App renders CounterPage''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+5\x1B[0m: CounterPage renders CounterView''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+6\x1B[0m: CounterView renders current count''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+7\x1B[0m: ...rView calls increment when increment button is tapped''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+8\x1B[0m: ...rView calls decrement when decrement button is tapped''',
+            '''\x1B[2K\r\x1B[90m\x1B[90m00:04\x1B[0m\x1B[0m \x1B[92m+8\x1B[0m: \x1B[92mAll tests passed!\x1B[0m\n'''
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+        directory.delete(recursive: true).ignore();
+      });
+
       test('runs tests (failing)', () async {
         final directory = Directory.systemTemp.createTempSync();
         File(p.join(directory.path, 'pubspec.yaml')).createSync();
