@@ -23,6 +23,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   double? minCoverage,
   String? excludeFromCoverage,
   String? randomSeed,
+  bool? forceAnsi,
   List<String>? arguments,
   void Function(String)? stdout,
   void Function(String)? stderr,
@@ -93,6 +94,13 @@ class TestCommand extends Command<int> {
             'should update the golden files.',
         negatable: false,
       )
+      ..addFlag(
+        'force-ansi',
+        defaultsTo: null,
+        help: 'Whether to force ansi output. If not specified, '
+            'it will maintain the default behavior based on stdout and stderr.',
+        negatable: false,
+      )
       ..addMultiOption(
         'dart-define',
         help: 'Additional key-value pairs that will be available as constants '
@@ -151,6 +159,7 @@ This command should be run from the root of your Flutter project.''',
         : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
+    final forceAnsi = _argResults['force-ansi'] as bool?;
     final dartDefine = _argResults['dart-define'] as List<String>?;
 
     if (isFlutterInstalled) {
@@ -166,6 +175,7 @@ This command should be run from the root of your Flutter project.''',
           minCoverage: minCoverage,
           excludeFromCoverage: excludeFromCoverage,
           randomSeed: randomSeed,
+          forceAnsi: forceAnsi,
           arguments: [
             if (excludeTags != null) ...['-x', excludeTags],
             if (tags != null) ...['-t', tags],

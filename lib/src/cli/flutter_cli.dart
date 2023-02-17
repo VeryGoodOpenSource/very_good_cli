@@ -139,6 +139,7 @@ class Flutter {
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
+    bool? forceAnsi,
     List<String>? arguments,
     void Function(String)? stdout,
     void Function(String)? stderr,
@@ -194,46 +195,55 @@ class Flutter {
             optimizationProgress.complete();
           }
         }
-
-        return _flutterTest(
-          cwd: cwd,
-          collectCoverage: collectCoverage,
-          testRunner: testRunner,
-          arguments: [
-            ...?arguments,
-            if (randomSeed != null) ...[
-              '--test-randomize-ordering-seed',
-              randomSeed
+        return _overrideAnsiOutput(
+          forceAnsi,
+          () => _flutterTest(
+            cwd: cwd,
+            collectCoverage: collectCoverage,
+            testRunner: testRunner,
+            arguments: [
+              ...?arguments,
+              if (randomSeed != null) ...[
+                '--test-randomize-ordering-seed',
+                randomSeed
+              ],
+              if (optimizePerformance) p.join('test', '.test_optimizer.dart')
             ],
-            if (optimizePerformance) p.join('test', '.test_optimizer.dart')
-          ],
-          stdout: stdout ?? noop,
-          stderr: stderr ?? noop,
-        ).whenComplete(() async {
-          if (optimizePerformance) {
-            File(p.join(cwd, 'test', '.test_optimizer.dart')).delete().ignore();
-          }
+            stdout: stdout ?? noop,
+            stderr: stderr ?? noop,
+          ).whenComplete(() async {
+            if (optimizePerformance) {
+              File(p.join(cwd, 'test', '.test_optimizer.dart'))
+                  .delete()
+                  .ignore();
+            }
 
-          if (collectCoverage) {
-            assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
-          }
+            if (collectCoverage) {
+              assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
+            }
 
-          if (minCoverage != null) {
-            final records = await Parser.parse(lcovPath);
-            final coverageMetrics = _CoverageMetrics.fromLcovRecords(
-              records,
-              excludeFromCoverage,
-            );
-            final coverage = coverageMetrics.percentage;
+            if (minCoverage != null) {
+              final records = await Parser.parse(lcovPath);
+              final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+                records,
+                excludeFromCoverage,
+              );
+              final coverage = coverageMetrics.percentage;
 
-            if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
-          }
-        });
+              if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
+            }
+          }),
+        );
       },
       cwd: cwd,
       recursive: recursive,
     );
   }
+
+  static T _overrideAnsiOutput<T>(bool? enableAnsiOutput, T Function() body) =>
+      enableAnsiOutput == null
+          ? body.call()
+          : overrideAnsiOutput(enableAnsiOutput, body);
 }
 
 /// Ensures all git dependencies are reachable for the pubspec
