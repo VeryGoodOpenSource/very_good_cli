@@ -1,3 +1,7 @@
+# [v0.11.0+2]
+
+- fix: upgrade bricks to `flutter 3.7.3` to meet very_good_analysis requirements (requires at least `flutter 3.7.1`)
+
 # [v0.11.0+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0...v0.11.0+1) (2023-02-07)
 
 # [0.11.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.10.0...v0.11.0) (2023-02-07)
