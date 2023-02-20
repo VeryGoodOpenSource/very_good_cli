@@ -42,16 +42,15 @@ void main() {
 
         await pre_gen.run(context);
 
-        final tests = context.vars['tests'] as Map<String, String>;
+        final tests = context.vars['tests'] as List<Map<String, String>>;
 
         expect(
-          tests.keys,
-          containsAll([
-            'test2_test.dart',
-            'test1_test.dart',
+          tests,
+          equals([
+            {'path': 'test2_test.dart', 'identifier': 'a'},
+            {'path': 'test1_test.dart', 'identifier': 'b'},
           ]),
         );
-        expect(tests.keys, isNot(contains('no_test_here.dart')));
         expect(context.vars['isFlutter'], false);
       });
 
