@@ -926,6 +926,130 @@ void main() {
         directory.delete(recursive: true).ignore();
       });
 
+      test(
+        'runs tests w/coverage + min-coverage 100 + recursive (pass)',
+        () async {
+          final directory = Directory.systemTemp.createTempSync();
+          File(p.join(directory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(directory.path, 'test')).createSync();
+
+          final nestedDirectory = Directory(p.join(directory.path, 'test'))
+            ..createSync();
+          File(p.join(nestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(nestedDirectory.path, 'test')).createSync();
+
+          await expectLater(
+            Flutter.test(
+              cwd: directory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              recursive: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              testRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(directory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                  File(p.join(nestedDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                },
+              ),
+              logger: logger,
+            ),
+            completion(equals([ExitCode.success.code, ExitCode.success.code])),
+          );
+
+          expect(
+            stdoutLogs,
+            unorderedEquals([
+              'Running "flutter test" in '
+                  '${p.dirname(nestedDirectory.path)}...\n',
+              contains('All tests passed!'),
+              'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+
+          directory.delete(recursive: true).ignore();
+          nestedDirectory.delete(recursive: true).ignore();
+        },
+      );
+
+      test(
+        'runs tests w/coverage + min-coverage 100 + recursive (fail)',
+        () async {
+          final directory = Directory.systemTemp.createTempSync();
+          File(p.join(directory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(directory.path, 'test')).createSync();
+
+          final nestedDirectory = Directory(p.join(directory.path, 'test'))
+            ..createSync();
+          File(p.join(nestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(nestedDirectory.path, 'test')).createSync();
+
+          await expectLater(
+            Flutter.test(
+              cwd: directory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              recursive: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              testRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(directory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                  File(p.join(nestedDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov95);
+                },
+              ),
+              logger: logger,
+            ),
+            throwsA(
+              isA<MinCoverageNotMet>().having(
+                (e) => e.coverage,
+                'coverage',
+                95.0,
+              ),
+            ),
+          );
+
+          expect(
+            stdoutLogs,
+            unorderedEquals([
+              'Running "flutter test" in '
+                  '${p.dirname(directory.path)}...\n',
+              contains('All tests passed!'),
+              'Running "flutter test" in '
+                  '${p.dirname(nestedDirectory.path)}...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(stderrLogs, isEmpty);
+          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+
+          directory.delete(recursive: true).ignore();
+          nestedDirectory.delete(recursive: true).ignore();
+        },
+      );
+
       test('runs tests w/optimizations (passing)', () async {
         final directory = Directory.systemTemp.createTempSync();
         final originalVars = <String, dynamic>{'package-root': directory.path};
