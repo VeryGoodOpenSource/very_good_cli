@@ -63,7 +63,7 @@ class StringIdGenerator {
 
   /// Generate the next short identifier.
   String next() {
-    final r = <String>[for (final char in _nextId) _chars[char]];
+    final r = <String>['_', for (final char in _nextId) _chars[char]];
     _increment();
     return r.join();
   }
