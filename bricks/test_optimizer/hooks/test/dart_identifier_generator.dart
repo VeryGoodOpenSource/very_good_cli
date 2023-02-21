@@ -1,20 +1,20 @@
-import 'package:hooks/pre_gen.dart';
+import 'package:hooks/dart_identifier_generator.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$StringIdGenerator', () {
+  group('$DartIdentifierGenerator', () {
     test('can be instantiated', () {
-      expect(StringIdGenerator.new, returnsNormally);
+      expect(DartIdentifierGenerator.new, returnsNormally);
     });
 
     group('next', () {
       test('returns normally', () {
-        final generator = StringIdGenerator();
+        final generator = DartIdentifierGenerator();
         expect(generator.next, returnsNormally);
       });
 
       test('generates unique strings', () {
-        final generator = StringIdGenerator();
+        final generator = DartIdentifierGenerator();
         final ids = <String>{};
         const count = 1000;
         for (var i = 0; i < count; i++) {
@@ -28,7 +28,7 @@ void main() {
       test('identifier is a valid dart identifier', () {
         // For a full specification of valid dart identifiers, read
         // Section 17.37 from the [Dart Language Specification](https://dart.dev/guides/language/specifications/DartLangSpec-v2.10.pdf).
-        final generator = StringIdGenerator();
+        final generator = DartIdentifierGenerator();
         final ids = <String>[];
         const count = 1000;
         for (var i = 0; i < count; i++) {

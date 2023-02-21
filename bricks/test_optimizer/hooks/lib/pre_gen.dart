@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:hooks/dart_identifier_generator.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 
@@ -28,7 +29,7 @@ Future<void> run(HookContext context) async {
   final flutterSdkRegExp = RegExp(r'sdk:\s*flutter$', multiLine: true);
   final isFlutter = flutterSdkRegExp.hasMatch(pubspecContents);
 
-  final identifierGenerator = StringIdGenerator();
+  final identifierGenerator = DartIdentifierGenerator();
   final testIdentifierTable = <Map<String, String>>[];
   for (final entity
       in testDir.listSync(recursive: true).where((entity) => entity.isTest)) {
@@ -46,37 +47,5 @@ Future<void> run(HookContext context) async {
 extension on FileSystemEntity {
   bool get isTest {
     return this is File && path.basename(this.path).endsWith('_test.dart');
-  }
-}
-
-/// {@template string_id_generator}
-/// A class that generates short identifiers.
-/// {@endtemplate}
-class StringIdGenerator {
-  /// {@macro string_id_generator}
-  StringIdGenerator([
-    this._chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  ]) : _nextId = [0];
-
-  final String _chars;
-  final List<int> _nextId;
-
-  /// Generate the next short identifier.
-  String next() {
-    final r = <String>['_', for (final char in _nextId) _chars[char]];
-    _increment();
-    return r.join();
-  }
-
-  void _increment() {
-    for (var i = 0; i < _nextId.length; i++) {
-      final val = ++_nextId[i];
-      if (val >= _chars.length) {
-        _nextId[i] = 0;
-      } else {
-        return;
-      }
-    }
-    _nextId.add(0);
   }
 }
