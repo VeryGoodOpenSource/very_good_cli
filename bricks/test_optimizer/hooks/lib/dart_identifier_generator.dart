@@ -1,5 +1,5 @@
 /// {@template DartIdentifierGenerator}
-/// A class that generates short valid Dart identifiers.
+/// A class that generates valid Dart identifiers.
 ///
 /// See also:
 ///
