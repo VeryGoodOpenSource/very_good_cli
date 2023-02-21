@@ -25,7 +25,7 @@ void main() {
         expect(ids.length, count);
       });
 
-      test('identifier is a valid dart identifier', () {
+      test('generates valid dart identifiers', () {
         // For a full specification of valid dart identifiers, read
         // Section 17.37 from the [Dart Language Specification](https://dart.dev/guides/language/specifications/DartLangSpec-v2.10.pdf).
         final generator = DartIdentifierGenerator();
