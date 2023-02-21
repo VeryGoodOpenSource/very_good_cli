@@ -30,8 +30,7 @@ void main() {
         // Section 17.37 from the [Dart Language Specification](https://dart.dev/guides/language/specifications/DartLangSpec-v2.10.pdf).
         final generator = DartIdentifierGenerator();
         final ids = <String>[];
-        const count = 1000;
-        for (var i = 0; i < count; i++) {
+        for (var i = 0; i < 1000; i++) {
           final id = generator.next();
           expect(ids, isNot(contains(id)));
           ids.add(id);
