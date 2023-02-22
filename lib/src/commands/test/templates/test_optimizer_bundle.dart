@@ -1,4 +1,4 @@
-// To generate this file, run: tools/generate_test_optimizer_bundle.sh
+// To generate this file, run: tool/generate_test_optimizer_bundle.sh
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, implicit_dynamic_list_literal, implicit_dynamic_map_literal, inference_failure_on_collection_literal
 
