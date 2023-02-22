@@ -181,6 +181,12 @@ void main() {
           final ignoredDirectoryTwo = Directory(
             p.join(directory.path, 'test_plugin_two'),
           )..createSync();
+          final ignoredDirectoryThree = Directory(
+            p.join(directory.path, 'test_plugin_three'),
+          )..createSync();
+          final ignoredDirectoryFour = Directory(
+            p.join(directory.path, 'test_plugin_four'),
+          )..createSync();
 
           File(p.join(nestedDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
@@ -188,13 +194,22 @@ void main() {
               .writeAsStringSync(_pubspec);
           File(p.join(ignoredDirectoryTwo.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
+          File(p.join(ignoredDirectoryThree.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+          File(p.join(ignoredDirectoryFour.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
 
           ProcessOverrides.runZoned(
             () => expectLater(
               Flutter.packagesGet(
                 cwd: directory.path,
                 recursive: true,
-                ignore: {'test_plugin', '/**/test_plugin_two/**'},
+                ignore: {
+                  'test_plugin',
+                  '/**/test_plugin_two/**',
+                  '${directory.path}/test_plugin_three',
+                  '${directory.path}/test_plugin_four/'
+                },
                 logger: logger,
               ),
               completes,
