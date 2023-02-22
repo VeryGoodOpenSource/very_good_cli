@@ -105,7 +105,26 @@ class _Cmd {
     required bool Function(FileSystemEntity) where,
     String cwd = '.',
   }) {
-    return Directory(cwd).listSync(recursive: true).where(where).map(run);
+    final directories =
+        Directory(cwd).listSync(recursive: true).where(where).toList()
+          ..sort((a, b) {
+            /// Linux and macOS have different sorting behaviors
+            /// regarding the order that the list of folders/files are returned.
+            /// To ensure consistency across platforms, we apply a
+            /// uniform sorting logic.
+            final aSplit = p.split(a.path);
+            final bSplit = p.split(b.path);
+            final aLevel = aSplit.length;
+            final bLevel = bSplit.length;
+
+            if (aLevel == bLevel) {
+              return aSplit.last.compareTo(bSplit.last);
+            } else {
+              return aLevel.compareTo(bLevel);
+            }
+          });
+
+    return directories.map(run);
   }
 
   static void _throwIfProcessFailed(
