@@ -6,11 +6,11 @@
 import 'package:flutter_test/flutter_test.dart';
 {{/isFlutter}}{{^isFlutter}}import 'package:test/test.dart';{{/isFlutter}}
 
-{{#tests}}import '{{{.}}}' as {{#snakeCase}}{{{.}}}{{/snakeCase}};
+{{#tests}}import '{{{path}}}' as {{identifier}};
 {{/tests}}
 void main() {
 {{#isFlutter}}  goldenFileComparator = _TestOptimizationAwareGoldenFileComparator();{{/isFlutter}}
-{{#tests}}  group('{{#snakeCase}}{{{.}}}{{/snakeCase}}', () { {{#snakeCase}}{{{.}}}{{/snakeCase}}.main(); });
+{{#tests}}  group('{{path.snakeCase()}}', () { {{identifier}}.main(); });
 {{/tests}}}
 
 {{#isFlutter}}

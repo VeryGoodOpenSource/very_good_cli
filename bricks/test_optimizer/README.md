@@ -18,20 +18,20 @@ The above command will generate a `.test_optimizer.dart` in the `test` directory
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // Consider adding this file to your .gitignore.
 
-import 'app/view/app_test.dart' as app_view_app_test_dart;
-import 'counter/cubit/counter_cubit_test.dart' as counter_cubit_counter_cubit_test_dart;
-import 'counter/view/counter_page_test.dart' as counter_view_counter_page_test_dart;
+import 'app/view/app_test.dart' as _a;
+import 'counter/cubit/counter_cubit_test.dart' as _b;
+import 'counter/view/counter_page_test.dart' as _c;
 
 void main() {
-  app_view_app_test_dart.main();
-  counter_cubit_counter_cubit_test_dart.main();
-  counter_view_counter_page_test_dart.main();
+  group('app_view_app_test_dart', () { _a.main(); });
+  group('counter_cubit_counter_cubit_test_dart', () { _b.main(); });
+  group('counter_view_counter_page_test_dart', () { _c.main(); });
 }
 ```
 
 [1]: https://github.com/felangel/mason
 
---- 
+---
 
 ### Note for maintainers
 

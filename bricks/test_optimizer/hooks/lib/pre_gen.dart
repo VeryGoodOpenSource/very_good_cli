@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:hooks/dart_identifier_generator.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 
@@ -28,17 +29,19 @@ Future<void> run(HookContext context) async {
   final flutterSdkRegExp = RegExp(r'sdk:\s*flutter$', multiLine: true);
   final isFlutter = flutterSdkRegExp.hasMatch(pubspecContents);
 
-  final tests = testDir
-      .listSync(recursive: true)
-      .where((entity) => entity.isTest)
-      .map(
-        (entity) => path
-            .relative(entity.path, from: testDir.path)
-            .replaceAll(r'\', '/'),
-      )
-      .toList();
+  final identifierGenerator = DartIdentifierGenerator();
+  final testIdentifierTable = <Map<String, String>>[];
+  for (final entity
+      in testDir.listSync(recursive: true).where((entity) => entity.isTest)) {
+    final relativePath =
+        path.relative(entity.path, from: testDir.path).replaceAll(r'\', '/');
+    testIdentifierTable.add({
+      'path': relativePath,
+      'identifier': identifierGenerator.next(),
+    });
+  }
 
-  context.vars = {'tests': tests, 'isFlutter': isFlutter};
+  context.vars = {'tests': testIdentifierTable, 'isFlutter': isFlutter};
 }
 
 extension on FileSystemEntity {
