@@ -1,4 +1,4 @@
-/// {@template DartIdentifierGenerator}
+/// {@template dart_identifier_generator}
 /// A class that generates valid Dart identifiers.
 ///
 /// See also:
@@ -6,7 +6,7 @@
 /// * Section 17.37 from [Dart Language Specification](https://dart.dev/guides/language/specifications/DartLangSpec-v2.10.pdf)
 /// {@endtemplate}
 class DartIdentifierGenerator {
-  /// {@macro DartIdentifierGenerator}
+  /// {@macro dart_identifier_generator}
   DartIdentifierGenerator([
     this._chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
   ]) : _nextId = [0];
