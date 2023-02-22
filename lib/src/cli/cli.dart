@@ -172,7 +172,15 @@ extension on Set<String> {
     if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;
     if (segments.intersection(this).isNotEmpty) return true;
 
-    for (final value in this) {
+    for (var value in this) {
+      if (value.contains('/') && !value.contains('*')) {
+        if (value.endsWith('/')) {
+          value = '$value**';
+        } else {
+          value = '$value/**';
+        }
+      }
+
       final glob = Glob(value);
       if (glob.matches(entity.path)) {
         return true;
