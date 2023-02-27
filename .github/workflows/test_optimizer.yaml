@@ -8,13 +8,13 @@ on:
   push:
     paths:
       - .github/workflows/test_optimizer.yaml
-      - bricks/test_optimizer/**"
+      - "bricks/test_optimizer/**"
     branches:
       - main
   pull_request:
     paths:
       - .github/workflows/test_optimizer.yaml
-      - bricks/test_optimizer/**"
+      - "bricks/test_optimizer/**"
     branches:
       - main
 
