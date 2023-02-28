@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   args: ^2.1.0
-  cli_completion: ^0.2.0
+  cli_completion: ">=0.2.0 <0.4.0"
   glob: ^2.0.2
   lcov_parser: ^0.1.2
   mason: ">=0.1.0-dev.41 <0.1.0-dev.42"
