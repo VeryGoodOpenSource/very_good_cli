@@ -319,9 +319,22 @@ void main() {
           expect(result, equals(ExitCode.success.code));
           verify(() {
             logger.progress(
-              any(that: contains('Running "flutter packages get" in')),
+              any(
+                that: contains(
+                  'Running "flutter packages get" in ${directoryA.path}',
+                ),
+              ),
             );
           }).called(1);
+          verifyNever(() {
+            logger.progress(
+              any(
+                that: contains(
+                  'Running "flutter packages get" in ${directoryB.path}',
+                ),
+              ),
+            );
+          });
         }),
       );
     });

@@ -188,6 +188,13 @@ void main() {
             p.join(directory.path, 'test_plugin_four'),
           )..createSync();
 
+          final ignoredDirectories = [
+            ignoredDirectory,
+            ignoredDirectoryTwo,
+            ignoredDirectoryThree,
+            ignoredDirectoryFour
+          ];
+
           File(p.join(nestedDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
           File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
@@ -218,9 +225,27 @@ void main() {
           ).whenComplete(() {
             verify(() {
               logger.progress(
-                any(that: contains('Running "flutter packages get" in')),
+                any(
+                  that: contains(
+                    'Running "flutter packages get" in '
+                    '${nestedDirectory.path}',
+                  ),
+                ),
               );
             }).called(1);
+
+            for (final directory in ignoredDirectories) {
+              verifyNever(() {
+                logger.progress(
+                  any(
+                    that: contains(
+                      'Running "flutter packages get" in '
+                      '${directory.path}',
+                    ),
+                  ),
+                );
+              });
+            }
           });
         },
       );
