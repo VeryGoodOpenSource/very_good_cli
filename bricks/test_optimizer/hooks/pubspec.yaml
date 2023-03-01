@@ -8,6 +8,9 @@ dependencies:
   mason: ">=0.1.0-dev.41 <0.1.0"
   path: ^1.8.1
 
+
+# Beware: on hooks, even dev dependencies have to be compatible to all dart versions covered by
+# the sdk constraints above
 dev_dependencies:
   mocktail: ^0.3.0
   test: ^1.22.2
