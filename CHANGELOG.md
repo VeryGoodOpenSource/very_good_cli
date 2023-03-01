@@ -1,3 +1,19 @@
+# [0.12.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0+1...v0.12.0) (2023-02-28)
+
+### Bug Fixes
+
+- documentation inconsistency with tool directory ([#662](https://github.com/VeryGoodOpenSource/very_good_cli/issues/662)) ([7ace466](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7ace466fd68f9f208e54306c74cdc84e9b0e4f6d))
+- recursive min coverage ([#647](https://github.com/VeryGoodOpenSource/very_good_cli/issues/647)) ([5f46928](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5f46928949df76373e78573a5635b4297e5e0a46))
+- test optimizer to import files as valid dart names ([#658](https://github.com/VeryGoodOpenSource/very_good_cli/issues/658)) ([61345cc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/61345cc3d4c90431563a1808cbc27cb816c6f551))
+
+### Features
+
+- add test optimizer brick ([#639](https://github.com/VeryGoodOpenSource/very_good_cli/issues/639)) ([3f8434e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3f8434edc886eb74cacd763dd166f63cf907d205))
+- allow forcing ansi output via ansi-output option ([#534](https://github.com/VeryGoodOpenSource/very_good_cli/issues/534)) ([ff31511](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ff31511c12df99085d28545436ea64d05de714f1))
+- bump template bundles ([#650](https://github.com/VeryGoodOpenSource/very_good_cli/issues/650)) ([c6c2ba5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c6c2ba506c74f07ce586863a4fcf500bc5f0070a))
+- bump template bundles ([#661](https://github.com/VeryGoodOpenSource/very_good_cli/issues/661)) ([af4eaf2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af4eaf2e19899861acf4c624a882f3922b915c7d))
+- bump template bundles ([#663](https://github.com/VeryGoodOpenSource/very_good_cli/issues/663)) ([e10b59e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e10b59e585c7b6a2aa0c8d659be4c827d8deed20))
+
 # [v0.11.0+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0...v0.11.0+1) (2023-02-07)
 
 # [0.11.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.10.0...v0.11.0) (2023-02-07)
