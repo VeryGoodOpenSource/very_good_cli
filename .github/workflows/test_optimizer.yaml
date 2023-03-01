@@ -22,7 +22,7 @@ jobs:
   build_hooks:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
     with:
-      dart_sdk: 2.19.0
+      dart_sdk: 2.18.0
       working_directory: bricks/test_optimizer/hooks
 
   verify_bundle:
@@ -39,4 +39,4 @@ jobs:
         run: tool/generate_test_optimizer_bundle.sh
 
       - name: Check for unbundled changes
-        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the test_opitimizer brick. Please run tools/generate_test_optimizer_bundle.sh to bundle these changes"; exit 1; }
+        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the test_optimizer brick. Please run tool/generate_test_optimizer_bundle.sh to bundle these changes"; exit 1; }

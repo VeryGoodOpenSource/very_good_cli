@@ -35,7 +35,7 @@ final testOptimizerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE5LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDEgPDAuMS4wIgogIHBhdGg6IF4xLjguMQoKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjAuMy4wCiAgdGVzdDogXjEuMjIuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
+          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0yLjE4LjAgPDMuMC4wIgoKZGVwZW5kZW5jaWVzOgogIG1hc29uOiAiPj0wLjEuMC1kZXYuNDEgPDAuMS4wIgogIHBhdGg6IF4xLjguMQoKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjAuMy4wCiAgdGVzdDogXjEuMjIuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCg==",
       "type": "text"
     },
     {
