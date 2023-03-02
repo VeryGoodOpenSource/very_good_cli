@@ -1,3 +1,15 @@
+# [0.12.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.1...v0.12.2) (2023-03-02)
+
+### Bug Fixes
+
+- **test_optimizer:** mismatch of versions on hook ([#675](https://github.com/VeryGoodOpenSource/very_good_cli/issues/675)) ([d354745](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d354745510080249a60975e7475830760583d226))
+
+## [0.12.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.0...v0.12.1) (2023-03-01)
+
+### Bug Fixes
+
+- **test_optimizer:** set dart constraint to v2.18.0 ([#673](https://github.com/VeryGoodOpenSource/very_good_cli/issues/673)) ([491a78c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/491a78c69355de5bff3b693a223f305559b89ee9))
+
 # [0.12.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0+1...v0.12.0) (2023-02-28)
 
 ### Bug Fixes

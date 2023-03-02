@@ -2,13 +2,16 @@ name: hooks
 publish_to: none
 
 environment:
-  sdk: ">=2.19.0 <3.0.0"
+  sdk: ">=2.18.0 <3.0.0"
 
 dependencies:
   mason: ">=0.1.0-dev.41 <0.1.0"
   path: ^1.8.1
 
+
+# Beware: on hooks, even dev dependencies have to be compatible to all dart versions covered by
+# the sdk constraints above
 dev_dependencies:
   mocktail: ^0.3.0
   test: ^1.22.2
-  very_good_analysis: ^4.0.0
+  very_good_analysis: ^3.1.0
