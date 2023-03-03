@@ -173,7 +173,9 @@ extension on Set<String> {
     if (segments.intersection(this).isNotEmpty) return true;
 
     for (final value in this) {
-      return Glob(value).matches(entity.path);
+      if (Glob(value).matches(entity.path)) {
+        return true;
+      }
     }
 
     return false;
