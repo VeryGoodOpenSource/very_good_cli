@@ -82,6 +82,7 @@ class Flutter {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    Set<String> ignore = const {},
   }) async {
     await _runCommand(
       cmd: (cwd) async {
@@ -109,6 +110,7 @@ class Flutter {
       },
       cwd: cwd,
       recursive: recursive,
+      ignore: ignore,
     );
   }
 
@@ -117,6 +119,7 @@ class Flutter {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    Set<String> ignore = const {},
   }) async {
     await _runCommand(
       cmd: (cwd) => _Cmd.run(
@@ -127,6 +130,7 @@ class Flutter {
       ),
       cwd: cwd,
       recursive: recursive,
+      ignore: ignore,
     );
   }
 
@@ -138,6 +142,7 @@ class Flutter {
     bool recursive = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    Set<String> ignore = const {},
     double? minCoverage,
     String? excludeFromCoverage,
     String? randomSeed,
@@ -239,6 +244,7 @@ class Flutter {
       },
       cwd: cwd,
       recursive: recursive,
+      ignore: ignore,
     );
   }
 
@@ -289,6 +295,7 @@ Future<List<T>> _runCommand<T>({
   required Future<T> Function(String cwd) cmd,
   required String cwd,
   required bool recursive,
+  required Set<String> ignore,
 }) async {
   if (!recursive) {
     final pubspec = File(p.join(cwd, 'pubspec.yaml'));
@@ -299,7 +306,7 @@ Future<List<T>> _runCommand<T>({
 
   final processes = _Cmd.runWhere<T>(
     run: (entity) => cmd(entity.parent.path),
-    where: _isPubspec,
+    where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
     cwd: cwd,
   );
 
