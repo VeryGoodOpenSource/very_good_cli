@@ -168,25 +168,61 @@ void main() {
         );
       });
 
-      test('completes when there is a pubspec.yaml (recursive)', () {
-        final directory = Directory.systemTemp.createTempSync();
-        final nestedDirectory = Directory(p.join(directory.path, 'test'))
-          ..createSync();
-        File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_pubspec);
+      test(
+        'completes when there is a pubspec.yaml and '
+        'directory is ignored (recursive)',
+        () {
+          final directory = Directory.systemTemp.createTempSync();
+          final nestedDirectory = Directory(p.join(directory.path, 'test'))
+            ..createSync();
+          final ignoredDirectory = Directory(
+            p.join(directory.path, 'test_plugin'),
+          )..createSync();
 
-        ProcessOverrides.runZoned(
-          () => expectLater(
-            Flutter.packagesGet(
-              cwd: directory.path,
-              recursive: true,
-              logger: logger,
+          File(p.join(nestedDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+          File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+
+          ProcessOverrides.runZoned(
+            () => expectLater(
+              Flutter.packagesGet(
+                cwd: directory.path,
+                recursive: true,
+                ignore: {
+                  'test_plugin',
+                  '/**/test_plugin_two/**',
+                },
+                logger: logger,
+              ),
+              completes,
             ),
-            completes,
-          ),
-          runProcess: process.run,
-        );
-      });
+            runProcess: process.run,
+          ).whenComplete(() {
+            verify(() {
+              logger.progress(
+                any(
+                  that: contains(
+                    'Running "flutter packages get" in '
+                    '${nestedDirectory.path}',
+                  ),
+                ),
+              );
+            }).called(1);
+
+            verifyNever(() {
+              logger.progress(
+                any(
+                  that: contains(
+                    'Running "flutter packages get" in '
+                    '${ignoredDirectory.path}',
+                  ),
+                ),
+              );
+            });
+          });
+        },
+      );
     });
 
     group('.pubGet', () {

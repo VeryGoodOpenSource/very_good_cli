@@ -19,6 +19,7 @@ class Dart {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    Set<String> ignore = const {},
   }) async {
     if (!recursive) {
       final pubspec = File(p.join(cwd, 'pubspec.yaml'));
@@ -40,7 +41,7 @@ class Dart {
         workingDirectory: entity.parent.path,
         logger: logger,
       ),
-      where: _isPubspec,
+      where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
       cwd: cwd,
     );
 

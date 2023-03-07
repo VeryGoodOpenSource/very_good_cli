@@ -162,8 +162,22 @@ const _ignoredDirectories = {
 };
 
 bool _isPubspec(FileSystemEntity entity) {
-  final segments = p.split(entity.path).toSet();
-  if (segments.intersection(_ignoredDirectories).isNotEmpty) return false;
   if (entity is! File) return false;
   return p.basename(entity.path) == 'pubspec.yaml';
+}
+
+extension on Set<String> {
+  bool excludes(FileSystemEntity entity) {
+    final segments = p.split(entity.path).toSet();
+    if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;
+    if (segments.intersection(this).isNotEmpty) return true;
+
+    for (final value in this) {
+      if (Glob(value).matches(entity.path)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
