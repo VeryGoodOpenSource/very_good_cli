@@ -98,16 +98,18 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3.1.0
 
-      - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: 2.18.0
+          # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
+          # refer to https://docs.flutter.dev/development/tools/sdk/releases.
+          flutter-version: "3.3.0"
 
       - name: 📦 Install Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: 🧪 Run Tests
-        run: dart test ${{ matrix.test }} --run-skipped -t minDartSdk
+        run: flutter pub run test ${{ matrix.test }} --run-skipped -t minDartSdk
 
   pana:
     runs-on: ubuntu-latest
