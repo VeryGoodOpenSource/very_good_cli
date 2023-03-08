@@ -42,8 +42,9 @@ void main() {
         expect(
           runningDartSdkVersion,
           equals(minDartSdkVersion),
-          reason: 'To ensure compatibility, the minimum dart SDK version '
-              'should be used to run the tests.',
+          reason: 'To ensure compatibility, the supported minimum Dart SDK '
+              '($minDartSdkVersion) version should be used instead of '
+              '($runningDartSdkVersion) to run this test.',
         );
 
         final pubGetResult = await Process.run(
