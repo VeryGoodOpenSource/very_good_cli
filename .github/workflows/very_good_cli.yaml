@@ -57,8 +57,7 @@ jobs:
           - ""
         test:
           # E2E tests for the test command
-          - test/src/commands/test/e2e/async_main_test.dart
-          - test/src/commands/test/e2e/no_project_test.dart
+          - test/src/commands/test/e2e/
 
           # E2E tests for the create command
           - test/src/commands/create/e2e/flutter_app/core_test.dart
