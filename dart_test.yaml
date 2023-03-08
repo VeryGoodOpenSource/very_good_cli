@@ -3,5 +3,3 @@ tags:
     skip: "Should only be run during pull request"
   e2e:
     skip: "End to end tests should be run in parallel with other unit tests"
-  minDartSdk:
-    skip: "Tests which should run exclusively on the minimum Dart SDK version supported by the package"
