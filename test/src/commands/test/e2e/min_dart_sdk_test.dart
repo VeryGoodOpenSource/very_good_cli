@@ -24,16 +24,10 @@ void main() {
         final minDartSdkVersion =
             (dartSdkVersionConstraint as VersionRange).min;
 
-        final directory = Directory.systemTemp.createTempSync('async_main');
-        await copyDirectory(
-          Directory('test/fixtures/async_main'),
-          directory,
-        );
         final dartVersionResult = await Process.run(
           'dart',
           ['--version'],
         );
-
         final runningDartSdkVersion = Version.parse(
           // Current output of dart --version follows the format:
           // `Dart SDK version: 2.19.2 (stable) (Tue Feb 7 18:37:17 2023 +0000)`
@@ -45,6 +39,12 @@ void main() {
           reason: 'To ensure compatibility, the supported minimum Dart SDK '
               '($minDartSdkVersion) version should be used instead of '
               '($runningDartSdkVersion) to run this test.',
+        );
+
+        final directory = Directory.systemTemp.createTempSync('async_main');
+        await copyDirectory(
+          Directory('test/fixtures/async_main'),
+          directory,
         );
 
         final pubGetResult = await Process.run(
