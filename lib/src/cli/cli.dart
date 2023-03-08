@@ -165,6 +165,10 @@ bool _isPubspec(FileSystemEntity entity) {
   return p.basename(entity.path) == 'pubspec.yaml';
 }
 
+// The extension is intended to be unnamed, but it's not possible to
+// due to an issue with Dart SDK 2.18.0.
+//
+// Once the min Dart SDK is bumped, this extension can be unnamed again.
 extension _Set on Set<String> {
   bool excludes(FileSystemEntity entity) {
     final segments = p.split(entity.path).toSet();
