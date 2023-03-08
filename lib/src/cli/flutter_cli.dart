@@ -517,7 +517,7 @@ final int _lineLength = () {
   }
 }();
 
-extension on TestEvent {
+extension _TestEvent on TestEvent {
   bool shouldCancelTimer() {
     final event = this;
     if (event is MessageTestEvent) return true;

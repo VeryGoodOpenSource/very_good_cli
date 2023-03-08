@@ -165,7 +165,7 @@ bool _isPubspec(FileSystemEntity entity) {
   return p.basename(entity.path) == 'pubspec.yaml';
 }
 
-extension on Set<String> {
+extension _Set on Set<String> {
   bool excludes(FileSystemEntity entity) {
     final segments = p.split(entity.path).toSet();
     if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;
