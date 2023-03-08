@@ -52,7 +52,9 @@ jobs:
       matrix:
         test:
           # E2E tests for the test command
-          - test/src/commands/test/e2e
+          - test/src/commands/test/e2e/async_main_test.dart
+          - test/src/commands/test/e2e/no_project_test.dart
+
           # E2E tests for the create command
           - test/src/commands/create/e2e/flutter_app/core_test.dart
           - test/src/commands/create/e2e/dart_cli/dart_cli_test.dart
@@ -82,6 +84,30 @@ jobs:
 
       - name: Run Tests
         run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
+
+  minDartSdk:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        test:
+          # minDartSdk tests for the test command
+          - test/src/commands/test/e2e/min_dart_sdk_test.dart
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 2.18.0
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🧪 Run Tests
+        run: dart test ${{ matrix.test }} --run-skipped -t minDartSdk
 
   pana:
     runs-on: ubuntu-latest
