@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 {{/tests}}
 void main() {
 {{#isFlutter}}  goldenFileComparator = _TestOptimizationAwareGoldenFileComparator();{{/isFlutter}}
-{{#tests}}  group('{{path.snakeCase()}}', () { {{identifier}}.main(); });
+{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); });
 {{/tests}}}
 
 {{#isFlutter}}
