@@ -517,8 +517,8 @@ final int _lineLength = () {
   }
 }();
 
-// The extension is intended to be unnamed, but it's not possible to
-// due to an issue with Dart SDK 2.18.0.
+// The extension is intended to be unnamed, but it's not possible due to
+// an issue with Dart SDK 2.18.0.
 //
 // Once the min Dart SDK is bumped, this extension can be unnamed again.
 extension _TestEvent on TestEvent {
