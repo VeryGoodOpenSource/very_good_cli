@@ -36,6 +36,9 @@ void main() {
           ..createSync();
         File(path.join(testDir.path, 'test1_test.dart')).createSync();
         File(path.join(testDir.path, 'test2_test.dart')).createSync();
+        final subTestDir = Directory(path.join(testDir.path, 'sub_test'))
+          ..createSync();
+        File(path.join(subTestDir.path, 'test1_test.dart')).createSync();
         File(path.join(testDir.path, 'no_test_here.dart')).createSync();
 
         context.vars['package-root'] = packageRoot.absolute.path;
@@ -49,6 +52,7 @@ void main() {
           equals([
             {'path': 'test1_test.dart', 'identifier': '_a'},
             {'path': 'test2_test.dart', 'identifier': '_b'},
+            {'path': 'sub_test/test1_test.dart', 'identifier': '_c'},
           ]),
         );
         expect(context.vars['isFlutter'], false);
