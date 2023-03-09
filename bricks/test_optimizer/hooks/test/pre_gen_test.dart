@@ -47,8 +47,8 @@ void main() {
         expect(
           tests,
           equals([
-            {'path': 'test2_test.dart', 'identifier': '_a'},
-            {'path': 'test1_test.dart', 'identifier': '_b'},
+            {'path': 'test1_test.dart', 'identifier': '_a'},
+            {'path': 'test2_test.dart', 'identifier': '_b'},
           ]),
         );
         expect(context.vars['isFlutter'], false);

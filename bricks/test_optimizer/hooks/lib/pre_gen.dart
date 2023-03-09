@@ -31,8 +31,29 @@ Future<void> run(HookContext context) async {
 
   final identifierGenerator = DartIdentifierGenerator();
   final testIdentifierTable = <Map<String, String>>[];
-  for (final entity
-      in testDir.listSync(recursive: true).where((entity) => entity.isTest)) {
+
+  final tests = testDir
+      .listSync(recursive: true)
+      .where((entity) => entity.isTest)
+      .toList()
+    ..sort((a, b) {
+      /// Linux and macOS have different sorting behaviors
+      /// regarding the order that the list of folders/files are returned.
+      /// To ensure consistency across platforms, we apply a
+      /// uniform sorting logic.
+      final aSplit = path.split(a.path);
+      final bSplit = path.split(b.path);
+      final aLevel = aSplit.length;
+      final bLevel = bSplit.length;
+
+      if (aLevel == bLevel) {
+        return aSplit.last.compareTo(bSplit.last);
+      } else {
+        return aLevel.compareTo(bLevel);
+      }
+    });
+
+  for (final entity in tests) {
     final relativePath =
         path.relative(entity.path, from: testDir.path).replaceAll(r'\', '/');
     testIdentifierTable.add({
