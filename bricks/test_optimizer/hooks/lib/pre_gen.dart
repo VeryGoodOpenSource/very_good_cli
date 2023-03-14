@@ -37,10 +37,9 @@ Future<void> run(HookContext context) async {
       .where((entity) => entity.isTest)
       .toList()
     ..sort((a, b) {
-      /// Linux and macOS have different sorting behaviors
-      /// regarding the order that the list of folders/files are returned.
-      /// To ensure consistency across platforms, we apply a
-      /// uniform sorting logic.
+      // Linux and macOS have different sorting behaviors regarding the order
+      // that the list of folders/files are returned. To ensure consistency across
+      // platforms, we apply a uniform sorting logic.
       final aSplit = path.split(a.path);
       final bSplit = path.split(b.path);
       final aLevel = aSplit.length;
