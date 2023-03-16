@@ -51,6 +51,7 @@ void main() {
         final paths = testsMap.keys;
         expect(paths, contains('test1_test.dart'));
         expect(paths, contains('test2_test.dart'));
+        expect(paths, isNot(contains('no_test_here.dart')));
 
         expect(
           testsMap.values.toSet().length,
