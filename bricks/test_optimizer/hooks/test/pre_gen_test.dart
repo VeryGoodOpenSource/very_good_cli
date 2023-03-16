@@ -48,8 +48,10 @@ void main() {
           testsMap[path] = identifier;
         }
 
-        expect(testsMap.keys, contains('test1_test.dart'));
-        expect(testsMap.keys, contains('test2_test.dart'));
+        final paths = testsMap.keys;
+        expect(paths, contains('test1_test.dart'));
+        expect(paths, contains('test2_test.dart'));
+
         expect(
           testsMap.values.toSet().length,
           equals(tests.length),
