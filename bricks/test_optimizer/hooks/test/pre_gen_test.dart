@@ -22,7 +22,6 @@ void main() {
 
     setUp(() {
       context = _FakeContext();
-      registerFallbackValue('');
     });
 
     group('Completes', () {
