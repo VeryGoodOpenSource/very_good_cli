@@ -6,26 +6,24 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
-class MockProgress extends Mock implements Progress {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockLogger extends Mock implements Logger {}
-
-class FakeContext extends Fake implements HookContext {
+class _FakeContext extends Fake implements HookContext {
   @override
-  final logger = MockLogger();
+  final logger = _MockLogger();
 
   @override
   Map<String, Object?> vars = {};
 }
 
 void main() {
-  late HookContext context;
-
-  setUp(() {
-    context = FakeContext();
-  });
-
   group('Pre gen hook', () {
+    late HookContext context;
+
+    setUp(() {
+      context = _FakeContext();
+    });
+
     group('Completes', () {
       test('with test files list', () async {
         final packageRoot =
@@ -43,14 +41,24 @@ void main() {
         await pre_gen.run(context);
 
         final tests = context.vars['tests'] as List<Map<String, String>>;
+        final testsMap = <String, String>{};
+        for (final test in tests) {
+          final path = test['path']!;
+          final identifier = test['identifier']!;
+          testsMap[path] = identifier;
+        }
+
+        final paths = testsMap.keys;
+        expect(paths, contains('test1_test.dart'));
+        expect(paths, contains('test2_test.dart'));
+        expect(paths, isNot(contains('no_test_here.dart')));
 
         expect(
-          tests,
-          equals([
-            {'path': 'test2_test.dart', 'identifier': '_a'},
-            {'path': 'test1_test.dart', 'identifier': '_b'},
-          ]),
+          testsMap.values.toSet().length,
+          equals(tests.length),
+          reason: 'All tests files should have unique identifiers',
         );
+
         expect(context.vars['isFlutter'], false);
       });
 
@@ -112,6 +120,7 @@ dependencies:
         expect(context.vars['tests'], isNull);
         expect(context.vars['isFlutter'], isNull);
       });
+
       test('when target dir does not contain a pubspec.yaml', () async {
         final packageRoot =
             Directory.systemTemp.createTempSync('test_optimizer');
