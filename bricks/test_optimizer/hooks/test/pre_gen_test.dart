@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:hooks/pre_gen.dart' as pre_gen;
 import 'package:mason/mason.dart';
