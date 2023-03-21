@@ -75,7 +75,7 @@ void main() {
           testResult.exitCode,
           equals(ExitCode.success.code),
           reason:
-              '`flutter test` in $packageDirectory failed with ${testResult.stderr}',
+              '''`flutter test` in $packageDirectory failed with ${testResult.stderr}''',
         );
         expect(testResult.stderr, isEmpty);
         expect(testResult.stdout, contains('All tests passed!'));
@@ -90,7 +90,7 @@ void main() {
           testCoverageResult.exitCode,
           equals(ExitCode.success.code),
           reason:
-              '`genhtml` in $packageDirectory failed with ${testCoverageResult.stderr}',
+              '''`genhtml` in $packageDirectory failed with ${testCoverageResult.stderr}''',
         );
         expect(testCoverageResult.stderr, isEmpty);
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
