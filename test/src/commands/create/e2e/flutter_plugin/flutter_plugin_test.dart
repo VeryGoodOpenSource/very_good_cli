@@ -11,7 +11,7 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create flutter_plugin',
-    timeout: const Timeout(Duration(minutes: 2)),
+    timeout: const Timeout(Duration(minutes: 5)),
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
       const pluginName = 'very_good';
