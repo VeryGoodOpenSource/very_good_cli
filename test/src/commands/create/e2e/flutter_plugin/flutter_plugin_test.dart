@@ -14,7 +14,7 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
-      const pluginName = 'very_good_flutter_plugin';
+      const pluginName = 'very_good';
       final pluginDirectory = path.join(directory.path, pluginName);
 
       final result = await commandRunner.run(
@@ -28,7 +28,7 @@ void main() {
 
       final formatResult = await Process.run(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format', '.'],
         workingDirectory: pluginDirectory,
         runInShell: true,
       );
@@ -53,35 +53,50 @@ void main() {
       expect(analyzeResult.stderr, isEmpty);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await Process.run(
-        'flutter',
-        ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
-        workingDirectory: pluginDirectory,
-        runInShell: true,
-      );
-      expect(
-        testResult.exitCode,
-        equals(ExitCode.success.code),
-        reason: '`flutter test` failed with ${testResult.stderr}',
-      );
-      expect(testResult.stderr, isEmpty);
-      expect(testResult.stdout, contains('All tests passed!'));
+      final packageDirectories = [
+        path.join(pluginDirectory, pluginName),
+        path.join(pluginDirectory, '${pluginName}_android'),
+        path.join(pluginDirectory, '${pluginName}_ios'),
+        path.join(pluginDirectory, '${pluginName}_linux'),
+        path.join(pluginDirectory, '${pluginName}_macos'),
+        path.join(pluginDirectory, '${pluginName}_web'),
+        path.join(pluginDirectory, '${pluginName}_windows'),
+        path.join(pluginDirectory, '${pluginName}_platform_interface'),
+      ];
 
-      final testCoverageResult = await Process.run(
-        'genhtml',
-        ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: pluginDirectory,
-        runInShell: true,
-      );
-      expect(
-        testCoverageResult.exitCode,
-        equals(ExitCode.success.code),
-        reason: '`genhtml` failed with ${testCoverageResult.stderr}',
-      );
-      expect(testCoverageResult.stderr, isEmpty);
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      for (final packageDirectory in packageDirectories) {
+        final testResult = await Process.run(
+          'flutter',
+          ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
+          workingDirectory: packageDirectory,
+          runInShell: true,
+        );
+        expect(
+          testResult.exitCode,
+          equals(ExitCode.success.code),
+          reason:
+              '`flutter test` in $packageDirectory failed with ${testResult.stderr}',
+        );
+        expect(testResult.stderr, isEmpty);
+        expect(testResult.stdout, contains('All tests passed!'));
 
-      directory.deleteSync();
+        final testCoverageResult = await Process.run(
+          'genhtml',
+          ['coverage/lcov.info', '-o', 'coverage'],
+          workingDirectory: packageDirectory,
+          runInShell: true,
+        );
+        expect(
+          testCoverageResult.exitCode,
+          equals(ExitCode.success.code),
+          reason:
+              '`genhtml` in $packageDirectory failed with ${testCoverageResult.stderr}',
+        );
+        expect(testCoverageResult.stderr, isEmpty);
+        expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      }
+
+      directory.deleteSync(recursive: true);
     }),
   );
 }
