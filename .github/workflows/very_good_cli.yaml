@@ -54,7 +54,6 @@ jobs:
           # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
           # refer to https://docs.flutter.dev/development/tools/sdk/releases.
           - "3.3.0"
-          - ""
         test:
           # E2E tests for the test command
           - test/src/commands/test/e2e/
