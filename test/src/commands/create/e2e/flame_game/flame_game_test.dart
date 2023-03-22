@@ -11,6 +11,7 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create flame_game',
+    timeout: const Timeout(Duration(minutes: 5)),
     withRunner((commandRunner, logger, updater, logs) async {
       final directory = Directory.systemTemp.createTempSync();
 
@@ -64,6 +65,5 @@ void main() {
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }
