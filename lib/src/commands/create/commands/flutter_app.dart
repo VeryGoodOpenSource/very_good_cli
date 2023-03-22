@@ -4,7 +4,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_flutter_app_command}
 /// A [CreateSubCommand] for creating Flutter apps.
 /// {@endtemplate}
-class CreateFlutterApp extends CreateSubCommand with OrgName {
+class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   /// {@macro very_good_create_flutter_app_command}
   CreateFlutterApp({
     required super.analytics,
@@ -26,9 +26,6 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
   String get description => 'Generate a Very Good Flutter application.';
 
   @override
-  Template get template => VeryGoodCoreTemplate();
-
-  @override
   Map<String, dynamic> getTemplateVars() {
     final vars = super.getTemplateVars();
 
@@ -39,4 +36,13 @@ class CreateFlutterApp extends CreateSubCommand with OrgName {
 
     return vars;
   }
+
+  @override
+  String get defaultTemplateName => 'core';
+
+  @override
+  final List<Template> templates = [
+    VeryGoodCoreTemplate(),
+    VeryGoodWearAppTemplate(),
+  ];
 }
