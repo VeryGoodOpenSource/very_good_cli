@@ -65,61 +65,6 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   @override
   void printUsage() => _logger.info(usage);
 
-  /// Parse commands with legacy support for the create command.
-  ///
-  /// Redirects usages of [CreateCommand] to the [LegacyCreateCommand] if
-  /// it detects the legacy syntax.
-  @override
-  ArgResults parse(Iterable<String> args) {
-    ArgResults result;
-
-    // Try to parse the args
-    try {
-      result = argParser.parse(args);
-    } on ArgParserException catch (error) {
-      if (error.commands.isEmpty) usageException(error.message);
-
-      // if there is an error and the last parsed command is create,
-      // we possibly have a legacy syntax usage, retry parsing with the
-      // legacy command.
-      if (error.commands.last == 'create') {
-        return parse(_putLegacyAfterCreate(args));
-      }
-
-      // Otherwise just go about showing the usage exception for the last
-      // parsed command.
-      var command = commands[error.commands.first]!;
-      for (final commandName in error.commands.skip(1)) {
-        command = command.subcommands[commandName]!;
-      }
-
-      command.usageException(error.message);
-    }
-
-    // if no arg is passed, or the last given command is create,
-    // show normal results.
-    if (args.isEmpty) {
-      return result;
-    }
-
-    final topLevelCommand = result.command;
-
-    // Retry with legacy command if:
-    // - top level command is not null
-    // - and the top level command is create
-    // - and no create subcommand was parsed
-    // - and user is not calling create --help
-    if (topLevelCommand != null &&
-        topLevelCommand.name == 'create' &&
-        topLevelCommand.command == null &&
-        !topLevelCommand.wasParsed('help') &&
-        topLevelCommand.rest.isNotEmpty) {
-      return parse(_putLegacyAfterCreate(args));
-    }
-
-    return result;
-  }
-
   @override
   Future<int> run(Iterable<String> args) async {
     try {
@@ -232,12 +177,4 @@ Run ${lightCyan.wrap('very_good update')} to update''',
       }
     } catch (_) {}
   }
-}
-
-Iterable<String> _putLegacyAfterCreate(Iterable<String> args) {
-  final argsList = args.toList();
-  final index = argsList.indexOf('create');
-
-  argsList.insert(index + 1, 'legacy');
-  return argsList;
 }

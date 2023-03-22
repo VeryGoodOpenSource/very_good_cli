@@ -17,18 +17,6 @@ class CreateCommand extends Command<int> {
     MasonGeneratorFromBundle? generatorFromBundle,
     MasonGeneratorFromBrick? generatorFromBrick,
   }) {
-    // Legacy sub command: hidden sub command that maintains backwards
-    // compatibility with the `very_good create <project-name>` command syntax.
-    // The command runner will call legacy if the user uses the legacy syntax.
-    addSubcommand(
-      LegacyCreateCommand(
-        analytics: analytics,
-        logger: logger,
-        generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
-      ),
-    );
-
     // very_good create flutter_app <args>
     addSubcommand(
       CreateFlutterApp(
