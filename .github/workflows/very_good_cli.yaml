@@ -50,9 +50,14 @@ jobs:
 
     strategy:
       matrix:
+        flutter-version:
+          # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
+          # refer to https://docs.flutter.dev/development/tools/sdk/releases.
+          - "3.3.0"
         test:
           # E2E tests for the test command
-          - test/src/commands/test/e2e
+          - test/src/commands/test/e2e/
+
           # E2E tests for the create command
           - test/src/commands/create/e2e/flutter_app/core_test.dart
           - test/src/commands/create/e2e/dart_cli/dart_cli_test.dart
@@ -70,14 +75,18 @@ jobs:
           - test/src/commands/create/e2e/legacy/flutter_pkg_test.dart
 
     steps:
-      - uses: actions/checkout@v3.1.0
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3.1.0
 
-      - uses: subosito/flutter-action@v2.8.0
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
 
       - name: Install LCOV
         run: sudo apt-get install -y lcov
 
-      - name: Install Dependencies
+      - name: 📦 Install Dependencies
         run: flutter pub get
 
       - name: Run Tests
