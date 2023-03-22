@@ -517,7 +517,11 @@ final int _lineLength = () {
   }
 }();
 
-extension on TestEvent {
+// The extension is intended to be unnamed, but it's not possible due to
+// an issue with Dart SDK 2.18.0.
+//
+// Once the min Dart SDK is bumped, this extension can be unnamed again.
+extension _TestEvent on TestEvent {
   bool shouldCancelTimer() {
     final event = this;
     if (event is MessageTestEvent) return true;
