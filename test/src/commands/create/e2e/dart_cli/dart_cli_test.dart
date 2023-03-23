@@ -46,13 +46,45 @@ void main() {
 
       final testResult = await Process.run(
         'dart',
-        ['test', '--coverage', '--reporter', 'compact'],
+        [
+          'test',
+          '--reporter=compact',
+          '--coverage=coverage',
+        ],
         workingDirectory: path.join(directory.path, 'very_good_dart_cli'),
         runInShell: true,
       );
-      expect(testResult.exitCode, equals(ExitCode.success.code));
       expect(testResult.stderr, isEmpty);
       expect(testResult.stdout, contains('All tests passed!'));
+      expect(testResult.exitCode, equals(ExitCode.success.code));
+
+      final actavateCoverageResult = await Process.run(
+        'dart',
+        ['pub', 'global', 'activate', 'coverage', '1.2.0'],
+        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        runInShell: true,
+      );
+      expect(actavateCoverageResult.stderr, isEmpty);
+      expect(actavateCoverageResult.exitCode, equals(ExitCode.success.code));
+
+      final coverageResult = await Process.run(
+        'dart',
+        [
+          'pub',
+          'global',
+          'run',
+          'coverage:format_coverage',
+          '--lcov',
+          '--in=coverage',
+          '--out=coverage/lcov.info',
+          '--packages=.dart_tool/package_config.json',
+          '--report-on=lib',
+        ],
+        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        runInShell: true,
+      );
+      expect(coverageResult.stderr, isEmpty);
+      expect(coverageResult.exitCode, equals(ExitCode.success.code));
 
       final testCoverageResult = await Process.run(
         'genhtml',

@@ -39,14 +39,46 @@ void main() {
       expect(analyzeResult.stdout, contains('No issues found!'));
 
       final testResult = await Process.run(
-        'flutter',
-        ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
+        'dart',
+        [
+          'test',
+          '--reporter=compact',
+          '--coverage=coverage',
+        ],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
       );
-      expect(testResult.exitCode, equals(ExitCode.success.code));
       expect(testResult.stderr, isEmpty);
       expect(testResult.stdout, contains('All tests passed!'));
+      expect(testResult.exitCode, equals(ExitCode.success.code));
+
+      final actavateCoverageResult = await Process.run(
+        'dart',
+        ['pub', 'global', 'activate', 'coverage', '1.2.0'],
+        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        runInShell: true,
+      );
+      expect(actavateCoverageResult.stderr, isEmpty);
+      expect(actavateCoverageResult.exitCode, equals(ExitCode.success.code));
+
+      final coverageResult = await Process.run(
+        'dart',
+        [
+          'pub',
+          'global',
+          'run',
+          'coverage:format_coverage',
+          '--lcov',
+          '--in=coverage',
+          '--out=coverage/lcov.info',
+          '--packages=.dart_tool/package_config.json',
+          '--report-on=lib',
+        ],
+        workingDirectory: path.join(directory.path, 'very_good_dart'),
+        runInShell: true,
+      );
+      expect(coverageResult.stderr, isEmpty);
+      expect(coverageResult.exitCode, equals(ExitCode.success.code));
 
       final testCoverageResult = await Process.run(
         'genhtml',
@@ -54,9 +86,9 @@ void main() {
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
       );
-      expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
       expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
     }),
     timeout: const Timeout(Duration(minutes: 2)),
   );
