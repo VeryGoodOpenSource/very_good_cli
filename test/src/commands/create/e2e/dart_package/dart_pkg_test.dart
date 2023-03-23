@@ -39,8 +39,8 @@ void main() {
       expect(analyzeResult.stdout, contains('No issues found!'));
 
       final testResult = await Process.run(
-        'flutter',
-        ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
+        'dart',
+        ['test', '--coverage', '--reporter', 'compact'],
         workingDirectory: path.join(directory.path, 'very_good_dart'),
         runInShell: true,
       );
