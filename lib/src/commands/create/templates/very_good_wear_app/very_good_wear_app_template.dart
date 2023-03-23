@@ -4,12 +4,10 @@ import 'package:mason/mason.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
 
-
 /// {@template wear_app_template}
 /// A template for Wear OS apps.
 /// {@endtemplate}
 class VeryGoodWearAppTemplate extends Template {
-
   /// {@macro wear_app_template}
   VeryGoodWearAppTemplate()
       : super(
