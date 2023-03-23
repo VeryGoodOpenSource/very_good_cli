@@ -1,4 +1,12 @@
-# [0.12.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.1...v0.12.2) (2023-03-02)
+# [0.12.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.2...v0.12.3) (2023-03-23)
+
+### Features
+
+- add support for excluding packages ([#640](https://github.com/VeryGoodOpenSource/very_good_cli/issues/640)) ([3701efa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3701efa9516b7b2b0e02de90fb85dcde3b089766))
+- bump template bundles ([#690](https://github.com/VeryGoodOpenSource/very_good_cli/issues/690)) ([5ed7c15](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5ed7c159ce77208822fccb2068a3d7521f1a95dc))
+- **test:** enhance logs and final test report in case of failing tests ([#563](https://github.com/VeryGoodOpenSource/very_good_cli/issues/563)) ([3b5668e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3b5668e3b48fa1bb7e49bba9f78329360c6b4c1a))
+
+## [0.12.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.1...v0.12.2) (2023-03-02)
 
 ### Bug Fixes
 
