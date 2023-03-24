@@ -18,40 +18,31 @@ void main() {
       );
       expect(result, equals(ExitCode.success.code));
 
-      final installResult = await Process.run(
+      final workingDirectory = path.join(directory.path, 'very_good_docs_site');
+
+      await expectSuccessfulProcessResult(
         'npm',
         ['install'],
-        workingDirectory: path.join(directory.path, 'very_good_docs_site'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(installResult.exitCode, equals(ExitCode.success.code));
 
-      final formatResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'npm',
         ['run', 'format'],
-        workingDirectory: path.join(directory.path, 'very_good_docs_site'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(formatResult.exitCode, equals(ExitCode.success.code));
-      expect(formatResult.stderr, isEmpty);
 
-      final lintResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'npm',
         ['run', 'lint'],
-        workingDirectory: path.join(directory.path, 'very_good_docs_site'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(lintResult.exitCode, equals(ExitCode.success.code));
-      expect(lintResult.stderr, isEmpty);
 
-      final buildResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'npm',
         ['run', 'build'],
-        workingDirectory: path.join(directory.path, 'very_good_docs_site'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(buildResult.exitCode, equals(ExitCode.success.code));
-      expect(buildResult.stderr, isEmpty);
     }),
     timeout: const Timeout(Duration(minutes: 2)),
   );

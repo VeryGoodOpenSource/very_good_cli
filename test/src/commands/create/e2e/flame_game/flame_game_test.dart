@@ -26,43 +26,36 @@ void main() {
       );
       expect(result, equals(ExitCode.success.code));
 
-      final formatResult = await Process.run(
+      final workingDirectory = path.join(
+        directory.path,
+        'very_good_flame_game',
+      );
+
+      await expectSuccessfulProcessResult(
         'dart',
         ['format', '--set-exit-if-changed', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(formatResult.exitCode, equals(ExitCode.success.code));
-      expect(formatResult.stderr, isEmpty);
 
-      final analyzeResult = await Process.run(
+      final analyzeResult = await expectSuccessfulProcessResult(
         'flutter',
         ['analyze', '.'],
-        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(analyzeResult.exitCode, equals(ExitCode.success.code));
-      expect(analyzeResult.stderr, isEmpty);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await Process.run(
+      final testResult = await expectSuccessfulProcessResult(
         'flutter',
         ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
-        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(testResult.exitCode, equals(ExitCode.success.code));
-      expect(testResult.stderr, isEmpty);
       expect(testResult.stdout, contains('All tests passed!'));
 
-      final testCoverageResult = await Process.run(
+      final testCoverageResult = await expectSuccessfulProcessResult(
         'genhtml',
         ['coverage/lcov.info', '-o', 'coverage'],
-        workingDirectory: path.join(directory.path, 'very_good_flame_game'),
-        runInShell: true,
+        workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.exitCode, equals(ExitCode.success.code));
-      expect(testCoverageResult.stderr, isEmpty);
       expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
   );
