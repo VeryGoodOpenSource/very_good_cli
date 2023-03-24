@@ -26,7 +26,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
 
       final workingDirectory = path.join(directory.path, 'very_good_dart_cli');
-      
+
       await expectSuccessfulProcessResult(
         'dart',
         ['format', '--set-exit-if-changed', '.'],

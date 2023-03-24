@@ -14,14 +14,11 @@ void main() {
       final directory = Directory.systemTemp.createTempSync('async_main');
       await copyDirectory(Directory('test/fixtures/async_main'), directory);
 
-      final pubGetResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'flutter',
         ['pub', 'get'],
         workingDirectory: directory.path,
-        runInShell: true,
       );
-
-      expect(pubGetResult.exitCode, equals(ExitCode.success.code));
 
       final result = await commandRunner.run(['test', directory.path]);
       expect(result, equals(ExitCode.success.code));

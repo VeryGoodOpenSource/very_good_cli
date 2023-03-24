@@ -9,8 +9,8 @@ Future<ProcessResult> expectSuccessfulProcessResult(
   required String workingDirectory,
 }) async {
   final result = await Process.run(
-    'dart',
-    ['format', '--set-exit-if-changed', '.'],
+    executable,
+    arguments,
     workingDirectory: workingDirectory,
     runInShell: true,
   );
