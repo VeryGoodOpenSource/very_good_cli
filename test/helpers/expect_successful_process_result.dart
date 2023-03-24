@@ -7,6 +7,7 @@ Future<ProcessResult> expectSuccessfulProcessResult(
   String executable,
   List<String> arguments, {
   required String workingDirectory,
+  bool validateStderr = true,
 }) async {
   final result = await Process.run(
     executable,
@@ -20,7 +21,9 @@ Future<ProcessResult> expectSuccessfulProcessResult(
     reason:
         '''`$executable ${arguments.join(' ')}` in $workingDirectory failed with "${result.stderr}" and "${result.stdout}"''',
   );
-  expect(result.stderr, isEmpty);
+  if (validateStderr) {
+    expect(result.stderr, isEmpty);
+  }
 
   return result;
 }

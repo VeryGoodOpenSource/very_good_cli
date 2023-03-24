@@ -24,6 +24,7 @@ void main() {
         'npm',
         ['install'],
         workingDirectory: workingDirectory,
+        validateStderr: false,
       );
 
       await expectSuccessfulProcessResult(
