@@ -18,7 +18,7 @@ Future<ProcessResult> expectSuccessfulProcessResult(
     result.exitCode,
     equals(ExitCode.success.code),
     reason:
-        '''`$executable ${arguments.join(' ')}` in $workingDirectory failed with ${result.stderr}''',
+        '''`$executable ${arguments.join(' ')}` in $workingDirectory failed with "${result.stderr}" and "${result.stdout}"''',
   );
   expect(result.stderr, isEmpty);
 
