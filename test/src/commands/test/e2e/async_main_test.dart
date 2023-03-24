@@ -25,7 +25,13 @@ void main() {
         workingDirectory: directory.path,
       );
 
-      final result = await commandRunner.run(['test', directory.path]);
+      final cwd = Directory.current;
+      Directory.current = directory;
+      addTearDown(() {
+        Directory.current = cwd;
+      });
+
+      final result = await commandRunner.run(['test']);
       expect(result, equals(ExitCode.success.code));
     }),
     timeout: const Timeout(Duration(minutes: 2)),

@@ -2,6 +2,7 @@
 library no_project_test;
 
 import 'package:mason/mason.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
@@ -20,7 +21,15 @@ void main() {
         workingDirectory: directory.path,
       );
 
-      final result = await commandRunner.run(['test', directory.path]);
+      final cwd = Directory.current;
+      Directory.current = directory;
+      addTearDown(() {
+        Directory.current = cwd;
+      });
+
+      final result = await commandRunner.run(['test']);
+
+      verifyNever(() => logger.err(any()));
       expect(result, equals(ExitCode.success.code));
     }),
   );
