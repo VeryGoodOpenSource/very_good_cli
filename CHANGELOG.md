@@ -1,4 +1,6 @@
-# [0.12.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.2...v0.12.3) (2023-03-23)
+# [0.12.3+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3...v0.12.3+1) (2023-03-27)
+
+## [0.12.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.2...v0.12.3) (2023-03-23)
 
 ### Features
 
