@@ -176,9 +176,7 @@ extension _Set on Set<String> {
     if (segments.intersection(this).isNotEmpty) return true;
 
     for (final value in this) {
-      if (Glob(value).matches(entity.path)) {
-        return true;
-      }
+      return value.isNotEmpty && Glob(value).matches(entity.path);
     }
 
     return false;
