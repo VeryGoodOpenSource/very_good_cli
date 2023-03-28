@@ -19,16 +19,19 @@ void main() {
 
       await copyDirectory(fixture, directory);
 
-      final pubGetResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'flutter',
         ['pub', 'get'],
         workingDirectory: directory.path,
-        runInShell: true,
       );
 
-      expect(pubGetResult.exitCode, equals(ExitCode.success.code));
+      final cwd = Directory.current;
+      Directory.current = directory;
+      addTearDown(() {
+        Directory.current = cwd;
+      });
 
-      final result = await commandRunner.run(['test', directory.path]);
+      final result = await commandRunner.run(['test']);
       expect(result, equals(ExitCode.success.code));
     }),
     timeout: const Timeout(Duration(minutes: 2)),

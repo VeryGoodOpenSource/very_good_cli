@@ -2,6 +2,7 @@
 library no_project_test;
 
 import 'package:mason/mason.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
@@ -14,16 +15,21 @@ void main() {
       final directory = Directory.systemTemp.createTempSync('async_main');
       await copyDirectory(Directory('test/fixtures/async_main'), directory);
 
-      final pubGetResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'flutter',
         ['pub', 'get'],
         workingDirectory: directory.path,
-        runInShell: true,
       );
 
-      expect(pubGetResult.exitCode, equals(ExitCode.success.code));
+      final cwd = Directory.current;
+      Directory.current = directory;
+      addTearDown(() {
+        Directory.current = cwd;
+      });
 
-      final result = await commandRunner.run(['test', directory.path]);
+      final result = await commandRunner.run(['test']);
+
+      verifyNever(() => logger.err(any()));
       expect(result, equals(ExitCode.success.code));
     }),
   );

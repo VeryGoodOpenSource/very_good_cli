@@ -8,3 +8,4 @@ environment:
 
 dev_dependencies:
   test: ^1.19.2
+  test_api: 0.4.18
