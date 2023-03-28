@@ -269,7 +269,7 @@ void main() {
 
       test(
         'completes normally '
-        '''when pubspec.yaml exists and directory is not ignored (recursive) with an empty glob''',
+        '''when pubspec.yaml exists and directory are ignored (recursive) with ''',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           final directory = Directory(
@@ -313,7 +313,7 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
-          directory.deleteSync();
+          directory.deleteSync(recursive: true);
         }),
       );
 
