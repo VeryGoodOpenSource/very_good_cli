@@ -26,31 +26,17 @@ void main() {
         reason: '`very_good create flutter_plugin` failed with $result',
       );
 
-      final formatResult = await Process.run(
+      await expectSuccessfulProcessResult(
         'dart',
-        ['format', '.'],
+        ['format', '--set-exit-if-changed', '.'],
         workingDirectory: pluginDirectory,
-        runInShell: true,
       );
-      expect(
-        formatResult.exitCode,
-        equals(ExitCode.success.code),
-        reason: '`dart format` failed with ${formatResult.stderr}',
-      );
-      expect(formatResult.stderr, isEmpty);
 
-      final analyzeResult = await Process.run(
+      final analyzeResult = await expectSuccessfulProcessResult(
         'flutter',
         ['analyze', '.'],
         workingDirectory: pluginDirectory,
-        runInShell: true,
       );
-      expect(
-        analyzeResult.exitCode,
-        equals(ExitCode.success.code),
-        reason: '`flutter analyze` failed with ${analyzeResult.stderr}',
-      );
-      expect(analyzeResult.stderr, isEmpty);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
       final packageDirectories = [
@@ -65,34 +51,18 @@ void main() {
       ];
 
       for (final packageDirectory in packageDirectories) {
-        final testResult = await Process.run(
+        final testResult = await expectSuccessfulProcessResult(
           'flutter',
           ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
           workingDirectory: packageDirectory,
-          runInShell: true,
         );
-        expect(
-          testResult.exitCode,
-          equals(ExitCode.success.code),
-          reason:
-              '''`flutter test` in $packageDirectory failed with ${testResult.stderr}''',
-        );
-        expect(testResult.stderr, isEmpty);
         expect(testResult.stdout, contains('All tests passed!'));
 
-        final testCoverageResult = await Process.run(
+        final testCoverageResult = await expectSuccessfulProcessResult(
           'genhtml',
           ['coverage/lcov.info', '-o', 'coverage'],
           workingDirectory: packageDirectory,
-          runInShell: true,
         );
-        expect(
-          testCoverageResult.exitCode,
-          equals(ExitCode.success.code),
-          reason:
-              '''`genhtml` in $packageDirectory failed with ${testCoverageResult.stderr}''',
-        );
-        expect(testCoverageResult.stderr, isEmpty);
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       }
 
