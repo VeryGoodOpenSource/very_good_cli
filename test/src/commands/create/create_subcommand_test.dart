@@ -74,7 +74,6 @@ class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
 class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
     with MultiTemplates {
   _TestCreateSubCommandMultiTemplate({
-    required this.defaultTemplateName,
     required this.templates,
     required super.analytics,
     required super.logger,
@@ -87,9 +86,6 @@ class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
 
   @override
   final String description = 'Create command';
-
-  @override
-  final String defaultTemplateName;
 
   @override
   final List<Template> templates;
@@ -932,7 +928,6 @@ Run "runner help" to see global options.''';
     group('can be instantiated', () {
       test('with default options', () {
         final command = _TestCreateSubCommandMultiTemplate(
-          defaultTemplateName: 'template1',
           templates: templates,
           analytics: analytics,
           logger: logger,
@@ -1014,7 +1009,6 @@ Run "runner help" to see global options.''';
         });
 
         final command = _TestCreateSubCommandMultiTemplate(
-          defaultTemplateName: 'template1',
           templates: templates,
           analytics: analytics,
           logger: logger,

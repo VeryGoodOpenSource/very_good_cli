@@ -7,3 +7,4 @@ export 'very_good_docs_site/very_good_docs_site.dart';
 export 'very_good_flame_game/very_good_flame_game.dart';
 export 'very_good_flutter_package/very_good_flutter_package.dart';
 export 'very_good_flutter_plugin/very_good_flutter_plugin.dart';
+export 'very_good_wear_app/very_good_wear_app.dart';

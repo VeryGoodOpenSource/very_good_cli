@@ -287,15 +287,16 @@ mixin OrgName on CreateSubCommand {
 
 /// Mixin for [CreateSubCommand] subclasses that receives multiple templates.
 ///
-/// Subcommands that mix with this mixin should override [templates] and
-/// [defaultTemplateName];
+/// Subcommands that mix with this mixin should override [templates].
 ///
 /// Takes care of parsing the desired template from [argResults] and
 /// validating the org name.
 mixin MultiTemplates on CreateSubCommand {
   /// Gets the desired template to be created during a command run when the
-  /// template argument is not provided.`
-  String get defaultTemplateName;
+  /// template argument is not provided.
+  ///
+  /// Defaults to the first template in [templates].
+  String get defaultTemplateName => templates.first.name;
 
   /// Gets all the templates to be created during a command run.
   List<Template> get templates;

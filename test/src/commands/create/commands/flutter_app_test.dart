@@ -1,14 +1,15 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:usage/usage.dart';
+import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
 
 import '../../../../helpers/helpers.dart';
+import '../../../../helpers/test_multi_template_commands.dart';
 
 class MockAnalytics extends Mock implements Analytics {}
 
@@ -17,8 +18,6 @@ class MockLogger extends Mock implements Logger {}
 class MockMasonGenerator extends Mock implements MasonGenerator {}
 
 class MockGeneratorHooks extends Mock implements GeneratorHooks {}
-
-class MockArgResults extends Mock implements ArgResults {}
 
 class FakeLogger extends Fake implements Logger {}
 
@@ -30,13 +29,18 @@ final expectedUsage = [
 Generate a Very Good Flutter application.
 
 Usage: very_good create flutter_app <project-name> [arguments]
--h, --help                Print this usage information.
--o, --output-directory    The desired output directory when creating a new project.
-    --description         The description for this new project.
-                          (defaults to "A Very Good Project created by Very Good CLI.")
-    --org-name            The organization for this new project.
-                          (defaults to "com.example.verygoodcore")
-    --application-id      The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
+-h, --help                    Print this usage information.
+-o, --output-directory        The desired output directory when creating a new project.
+    --description             The description for this new project.
+                              (defaults to "A Very Good Project created by Very Good CLI.")
+-t, --template                The template used to generate this new project.
+
+          [core] (default)    Generate a Very Good Flutter application.
+          [wear]              Generate a Very Good Flutter Wear OS application.
+
+    --org-name                The organization for this new project.
+                              (defaults to "com.example.verygoodcore")
+    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
 
 Run "very_good help" to see global options.''',
 ];
@@ -51,6 +55,8 @@ void main() {
   late List<String> progressLogs;
   late Analytics analytics;
   late Logger logger;
+
+  final generatedFiles = List.filled(10, const GeneratedFile.created(path: ''));
 
   setUpAll(() {
     registerFallbackValue(FakeDirectoryGeneratorTarget());
@@ -116,9 +122,6 @@ void main() {
     );
 
     group('running the command', () {
-      final generatedFiles =
-          List.filled(10, const GeneratedFile.created(path: ''));
-
       late GeneratorHooks hooks;
       late MasonGenerator generator;
 
@@ -133,16 +136,6 @@ void main() {
             onVarsChanged: any(named: 'onVarsChanged'),
           ),
         ).thenAnswer((_) async {});
-
-        when(
-          () => generator.generate(
-            any(),
-            vars: any(named: 'vars'),
-            logger: any(named: 'logger'),
-          ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
@@ -170,59 +163,54 @@ void main() {
         });
       });
 
-      test('create core app', () async {
-        final tempDir = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-        final argResults = MockArgResults();
-        final command = CreateFlutterApp(
-          analytics: analytics,
-          logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
-        )..argResultOverrides = argResults;
-        when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDir.path);
-        when(() => argResults.rest).thenReturn(['my_app']);
-        when(() => argResults['application-id'] as String?).thenReturn(
-          'xyz.app.my_app',
-        );
-
-        final result = await command.run();
-
-        expect(command.template.name, 'core');
-        expect(result, equals(ExitCode.success.code));
-
-        verify(() => logger.progress('Bootstrapping')).called(1);
-        verify(
-          () => hooks.preGen(
-            vars: <String, dynamic>{
-              'project_name': 'my_app',
-              'description': '',
-              'org_name': 'com.example.verygoodcore',
-              'application_id': 'xyz.app.my_app',
-            },
-            onVarsChanged: any(named: 'onVarsChanged'),
-          ),
-        );
-        verify(
-          () => generator.generate(
-            any(),
-            vars: <String, dynamic>{
-              'project_name': 'my_app',
-              'description': '',
-              'org_name': 'com.example.verygoodcore',
-              'application_id': 'xyz.app.my_app',
-            },
+      group('templates', () {
+        test('core', () async {
+          await testMultiTemplateCommand(
+            multiTemplatesCommand: CreateFlutterApp(
+              analytics: analytics,
+              logger: logger,
+              generatorFromBundle: (_) async => throw Exception('oops'),
+              generatorFromBrick: (_) async => generator,
+            ),
             logger: logger,
-          ),
-        ).called(1);
-        expect(
-          progressLogs,
-          equals(['Generated ${generatedFiles.length} file(s)']),
-        );
-        verify(
-          () => logger.info('Created a Very Good App! 🦄'),
-        ).called(1);
+            hooks: hooks,
+            generator: generator,
+            templateName: 'core',
+            mockArgs: {'application-id': 'xyz.app.my_app'},
+            expectedVars: {
+              'project_name': 'my_app',
+              'description': '',
+              'org_name': 'com.example.verygoodcore',
+              'application_id': 'xyz.app.my_app',
+            },
+            expectedLogSummary: 'Created a Very Good App! 🦄',
+          );
+        });
+
+        test('wear', () async {
+          await testMultiTemplateCommand(
+            multiTemplatesCommand: CreateFlutterApp(
+              analytics: analytics,
+              logger: logger,
+              generatorFromBundle: (_) async => throw Exception('oops'),
+              generatorFromBrick: (_) async => generator,
+            ),
+            logger: logger,
+            hooks: hooks,
+            generator: generator,
+            templateName: 'wear',
+            mockArgs: {
+              'application-id': 'xyz.app.my_wear_app',
+            },
+            expectedVars: {
+              'project_name': 'my_app',
+              'description': '',
+              'org_name': 'com.example.verygoodcore',
+              'application_id': 'xyz.app.my_wear_app',
+            },
+            expectedLogSummary: 'Created a Very Good Wear OS app! ⌚️🦄',
+          );
+        });
       });
     });
   });
