@@ -4,7 +4,6 @@ sidebar_position: 8
 
 # Flutter Wear OS app 🤖⌚️
 
-
 Template of a Wear OS a based on the [Core][core_link]. It includes VGV best practices with the addition of specific setup to make Flutter Apps stand out on Wear OS devices.
 
 ![Very Good Wear_App][wear_os_photo]
@@ -12,7 +11,6 @@ Template of a Wear OS a based on the [Core][core_link]. It includes VGV best pra
 :::note
 Read more about this app template [in our blog][blog].
 :::
-
 
 ## App Features ✨
 
