@@ -269,7 +269,7 @@ void main() {
 
       test(
         'completes normally '
-        '''when pubspec.yaml exists and directory are ignored (recursive) with ''',
+        '''when pubspec.yaml exists and directory is not ignored (recursive) with an empty glob''',,
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           final directory = Directory(
