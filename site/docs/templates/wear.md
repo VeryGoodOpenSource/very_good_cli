@@ -16,7 +16,7 @@ Read more about this app template [in our blog][blog].
 
 - **Condensed Layout** - The layout is optimized for the small screen size of Wear OS devices.
 
-- **Hooked into the hardware** - The app has a sample usage of the hardware resources of the device.
+- **Hooked into the Hardware** - The app has a sample usage of the hardware resources of the device.
 
 - **Ambient Mode** - The app has a sample usage of the ambient mode of the device.
 
