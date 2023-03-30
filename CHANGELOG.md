@@ -1,4 +1,10 @@
-# [0.12.3+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3...v0.12.3+1) (2023-03-27)
+# [0.13.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3+1...v0.13.0) (2023-03-29)
+
+### Features
+
+- add wear os template to the create command ([#694](https://github.com/VeryGoodOpenSource/very_good_cli/issues/694)) ([40f71c1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/40f71c13b79b28129b380e83b31a92bf5dfd8327))
+
+## [0.12.3+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3...v0.12.3+1) (2023-03-27)
 
 ## [0.12.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.2...v0.12.3) (2023-03-23)
 
