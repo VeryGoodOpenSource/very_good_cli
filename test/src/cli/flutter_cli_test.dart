@@ -1038,7 +1038,8 @@ void main() {
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                   File(
-                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
+                    p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                  )
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                 },
@@ -1096,7 +1097,8 @@ void main() {
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                   File(
-                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
+                    p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                  )
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov95);
                 },
