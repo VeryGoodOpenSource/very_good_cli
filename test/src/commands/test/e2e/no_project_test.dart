@@ -13,6 +13,8 @@ void main() {
     'fails if the project does not exist',
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync('async_main');
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
       await copyDirectory(Directory('test/fixtures/async_main'), tempDirectory);
 
       await expectSuccessfulProcessResult(
@@ -31,8 +33,6 @@ void main() {
 
       verifyNever(() => logger.err(any()));
       expect(result, equals(ExitCode.success.code));
-
-      tempDirectory.deleteSync(recursive: true);
     }),
   );
 }

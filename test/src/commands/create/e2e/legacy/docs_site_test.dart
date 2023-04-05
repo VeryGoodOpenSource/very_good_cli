@@ -14,6 +14,8 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
       final result = await commandRunner.run(
         [
           'create',
@@ -53,8 +55,6 @@ void main() {
         ['run', 'build'],
         workingDirectory: workingDirectory,
       );
-
-      tempDirectory.deleteSync(recursive: true);
     }),
   );
 }

@@ -14,6 +14,7 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
         [
@@ -56,8 +57,6 @@ void main() {
         workingDirectory: workingDirectory,
       );
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
-
-      tempDirectory.deleteSync(recursive: true);
     }),
   );
 }

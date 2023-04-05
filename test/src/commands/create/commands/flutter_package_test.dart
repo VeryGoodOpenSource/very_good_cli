@@ -165,6 +165,7 @@ void main() {
       test('creates flutter package', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateFlutterPackage(
           analytics: analytics,
@@ -206,8 +207,6 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Flutter Package! 🦄'),
         ).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

@@ -105,14 +105,14 @@ void main() {
         'throws when installation fails',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           File(path.join(tempDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync('');
           final result = await commandRunner.run(
             ['packages', 'get', tempDirectory.path],
           );
           expect(result, equals(ExitCode.unavailable.code));
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -120,6 +120,8 @@ void main() {
         'ignores .fvm directory',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           final directory = Directory(path.join(tempDirectory.path, '.fvm'))
             ..createSync();
           File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
@@ -138,8 +140,6 @@ void main() {
           verify(() {
             logger.err(any(that: contains('Could not find a pubspec.yaml in')));
           }).called(1);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -148,6 +148,8 @@ void main() {
         'when pubspec.yaml exists',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
             '''
           name: example
@@ -166,8 +168,6 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(1);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -176,6 +176,8 @@ void main() {
         'when pubspec.yaml exists (recursive)',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           final pubspecA = File(
             path.join(tempDirectory.path, 'example_a', 'pubspec.yaml'),
           );
@@ -214,8 +216,6 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -224,6 +224,8 @@ void main() {
         'when pubspec.yaml exists and directory is not ignored (recursive)',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           final directory = Directory(
             path.join(tempDirectory.path, 'macos_plugin'),
           );
@@ -265,8 +267,6 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -275,6 +275,8 @@ void main() {
         'when pubspec.yaml exists and directory is ignored (recursive)',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           final directoryA = Directory(
             path.join(tempDirectory.path, 'plugin_a'),
           );
@@ -338,8 +340,6 @@ void main() {
               ),
             );
           });
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
     });

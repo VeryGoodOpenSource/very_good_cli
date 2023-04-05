@@ -23,6 +23,7 @@ Future<void> testMultiTemplateCommand({
 }) async {
   final tempDirectory = Directory.systemTemp.createTempSync();
   addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
   final argResults = _MockArgResults();
   final command = multiTemplatesCommand..argResultOverrides = argResults;
 
@@ -56,6 +57,4 @@ Future<void> testMultiTemplateCommand({
     ),
   ).called(1);
   verify(() => logger.created(expectedLogSummary)).called(1);
-
-  tempDirectory.deleteSync(recursive: true);
 }

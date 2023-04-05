@@ -172,6 +172,7 @@ void main() {
       test('create flame game', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateFlameGame(
           analytics: analytics,
@@ -220,8 +221,6 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Game powered by Flame! 🔥🦄'),
         ).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

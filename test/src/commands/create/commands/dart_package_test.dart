@@ -167,6 +167,7 @@ void main() {
       test('creates dart package', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateDartPackage(
           analytics: analytics,
@@ -208,8 +209,6 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Dart Package! 🦄'),
         ).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

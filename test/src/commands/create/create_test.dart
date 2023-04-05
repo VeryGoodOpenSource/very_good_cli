@@ -84,8 +84,6 @@ void main() {
           verify(
             () => logger.info('Created a Very Good Dart Package! 🦄'),
           ).called(1);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -192,8 +190,6 @@ Usage: Deprecated usage of the create command: run 'very_good create --help' to 
 Run "very_good help" to see global options.''',
             ),
           ).called(1);
-
-          tempDirectory.deleteSync(recursive: true);
         }),
       );
 

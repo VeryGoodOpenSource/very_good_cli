@@ -14,6 +14,8 @@ void main() {
     timeout: const Timeout(Duration(minutes: 8)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
       const pluginName = 'very_good';
       final pluginDirectory = path.join(tempDirectory.path, pluginName);
 
@@ -65,8 +67,6 @@ void main() {
         );
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       }
-
-      tempDirectory.deleteSync(recursive: true);
     }),
   );
 }

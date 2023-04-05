@@ -166,6 +166,7 @@ void main() {
       test('creates docs site', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateDocsSite(
           analytics: analytics,
@@ -210,8 +211,6 @@ void main() {
         verify(
           () => logger.info('Created a Very Good documentation site! 🦄'),
         ).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

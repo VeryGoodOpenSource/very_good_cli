@@ -14,6 +14,8 @@ void main() {
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync('async_main');
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
       final fixture = Directory(
         path.join(Directory.current.path, 'test/fixtures/async_main'),
       );
@@ -34,8 +36,6 @@ void main() {
 
       final result = await commandRunner.run(['test']);
       expect(result, equals(ExitCode.success.code));
-
-      tempDirectory.deleteSync(recursive: true);
     }),
   );
 }

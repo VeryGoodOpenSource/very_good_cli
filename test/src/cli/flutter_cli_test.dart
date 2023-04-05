@@ -128,6 +128,8 @@ void main() {
 
       test('throws when there is an unreachable git url', () {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml'))
             .writeAsStringSync(_unreachableGitUrlPubspec);
 
@@ -151,8 +153,6 @@ void main() {
           ),
           runProcess: process.run,
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('completes when the process succeeds', () {
@@ -164,6 +164,8 @@ void main() {
 
       test('throws when there is no pubspec.yaml (recursive)', () {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.packagesGet(
@@ -175,8 +177,6 @@ void main() {
           ),
           runProcess: process.run,
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test(
@@ -184,6 +184,8 @@ void main() {
         'directory is ignored (recursive)',
         () {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
             ..createSync();
           final ignoredDirectory = Directory(
@@ -232,8 +234,6 @@ void main() {
               );
             });
           });
-
-          tempDirectory.deleteSync(recursive: true);
         },
       );
     });
@@ -370,6 +370,8 @@ void main() {
 
       test('completes when there is no test directory', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         await expectLater(
           Flutter.test(
@@ -387,13 +389,13 @@ void main() {
             'No test folder found in ${tempDirectory.absolute.path}\n',
           ]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests and shows timer until tests start', () async {
-        final controller = StreamController<TestEvent>();
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final controller = StreamController<TestEvent>();
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -425,12 +427,12 @@ void main() {
             contains('All tests passed!'),
           ]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -464,12 +466,12 @@ void main() {
           ]),
         );
         expect(stderrLogs, isEmpty);
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (passing) with forced ansi output', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -506,12 +508,12 @@ void main() {
           ]),
         );
         expect(stderrLogs, isEmpty);
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (failing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -561,12 +563,12 @@ void main() {
             ],
           ),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (noisy)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -633,13 +635,14 @@ void main() {
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (error)', () async {
         const exception = 'oops';
+
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final controller = StreamController<TestEvent>();
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
@@ -657,12 +660,12 @@ void main() {
           completion(equals([ExitCode.unavailable.code])),
         );
         expect(stderrLogs, equals(['\x1B[2K\r$exception', '\x1B[2K\r']));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (error w/stackTrace)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -729,12 +732,12 @@ void main() {
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
           ]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/out logs', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -752,13 +755,14 @@ void main() {
           ),
           completion(equals([ExitCode.success.code])),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/args', () async {
         const arguments = ['-x', 'e2e', '-j', '1'];
+
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -787,13 +791,14 @@ void main() {
           ]),
         );
         expect(testRunnerArgs, equals(arguments));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/randomSeed', () async {
         const seed = 'seed';
+
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -826,12 +831,12 @@ void main() {
           testRunnerArgs,
           equals(['--test-randomize-ordering-seed', seed]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final lcovFile =
             File(p.join(tempDirectory.path, 'coverage', 'lcov.info'));
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
@@ -868,12 +873,12 @@ void main() {
           ]),
         );
         expect(testRunnerArgs, equals(['--coverage']));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 (pass)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -909,12 +914,12 @@ void main() {
           ]),
         );
         expect(testRunnerArgs, equals(['--coverage']));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 (fail)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -957,13 +962,13 @@ void main() {
         );
         expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
           () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -1002,14 +1007,14 @@ void main() {
         );
         expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test(
         'runs tests w/coverage + min-coverage 100 + recursive (pass)',
         () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -1060,8 +1065,6 @@ void main() {
             ]),
           );
           expect(testRunnerArgs, equals(['--coverage', '--coverage']));
-
-          tempDirectory.deleteSync(recursive: true);
         },
       );
 
@@ -1069,6 +1072,8 @@ void main() {
         'runs tests w/coverage + min-coverage 100 + recursive (fail)',
         () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
 
@@ -1127,13 +1132,13 @@ void main() {
           );
           expect(stderrLogs, isEmpty);
           expect(testRunnerArgs, equals(['--coverage', '--coverage']));
-
-          tempDirectory.deleteSync(recursive: true);
         },
       );
 
       test('runs tests w/optimizations (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final originalVars = <String, dynamic>{
           'package-root': tempDirectory.path
         };
@@ -1201,12 +1206,12 @@ void main() {
           ),
         ).called(1);
         verify(() => progress.complete()).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/optimizations (failing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
@@ -1286,8 +1291,6 @@ void main() {
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
           ]),
         );
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

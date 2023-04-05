@@ -176,6 +176,7 @@ void main() {
       test('creates a flutter plugin', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateFlutterPlugin(
           analytics: analytics,
@@ -221,8 +222,6 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Flutter Plugin! 🦄'),
         ).called(1);
-
-        tempDirectory.deleteSync(recursive: true);
       });
     });
   });
