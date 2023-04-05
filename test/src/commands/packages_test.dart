@@ -1,20 +1,12 @@
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
-import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:usage/usage.dart';
 
 import '../../helpers/helpers.dart';
 
-class MockAnalytics extends Mock implements Analytics {}
-
-class MockLogger extends Mock implements Logger {}
-
-class MockPubUpdater extends Mock implements PubUpdater {}
-
-const expectedPackagesUsage = [
+const _expectedPackagesUsage = [
   // ignore: no_adjacent_strings_in_list
   'Command for managing packages.\n'
       '\n'
@@ -27,7 +19,7 @@ const expectedPackagesUsage = [
       'Run "very_good help" to see global options.'
 ];
 
-const expectedPackagesGetUsage = [
+const _expectedPackagesGetUsage = [
   // ignore: no_adjacent_strings_in_list
   'Get packages in a Dart or Flutter project.\n'
       '\n'
@@ -45,13 +37,13 @@ void main() {
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(['packages', '--help']);
-        expect(printLogs, equals(expectedPackagesUsage));
+        expect(printLogs, equals(_expectedPackagesUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
         final resultAbbr = await commandRunner.run(['packages', '-h']);
-        expect(printLogs, equals(expectedPackagesUsage));
+        expect(printLogs, equals(_expectedPackagesUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
@@ -61,13 +53,13 @@ void main() {
         'help',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(['packages', 'get', '--help']);
-          expect(printLogs, equals(expectedPackagesGetUsage));
+          expect(printLogs, equals(_expectedPackagesGetUsage));
           expect(result, equals(ExitCode.success.code));
 
           printLogs.clear();
 
           final resultAbbr = await commandRunner.run(['packages', 'get', '-h']);
-          expect(printLogs, equals(expectedPackagesGetUsage));
+          expect(printLogs, equals(_expectedPackagesGetUsage));
           expect(resultAbbr, equals(ExitCode.success.code));
         }),
       );
@@ -112,12 +104,15 @@ void main() {
       test(
         'throws when installation fails',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final directory = Directory.systemTemp.createTempSync();
-          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('');
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          File(path.join(tempDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync('');
           final result = await commandRunner.run(
-            ['packages', 'get', directory.path],
+            ['packages', 'get', tempDirectory.path],
           );
           expect(result, equals(ExitCode.unavailable.code));
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -143,6 +138,8 @@ void main() {
           verify(() {
             logger.err(any(that: contains('Could not find a pubspec.yaml in')));
           }).called(1);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -150,8 +147,8 @@ void main() {
         'completes normally '
         'when pubspec.yaml exists',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final directory = Directory.systemTemp.createTempSync();
-          File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
             '''
           name: example
           version: 0.1.0
@@ -161,7 +158,7 @@ void main() {
           ''',
           );
           final result = await commandRunner.run(
-            ['packages', 'get', directory.path],
+            ['packages', 'get', tempDirectory.path],
           );
           expect(result, equals(ExitCode.success.code));
           verify(() {
@@ -169,6 +166,8 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(1);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -176,12 +175,12 @@ void main() {
         'completes normally '
         'when pubspec.yaml exists (recursive)',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final directory = Directory.systemTemp.createTempSync();
+          final tempDirectory = Directory.systemTemp.createTempSync();
           final pubspecA = File(
-            path.join(directory.path, 'example_a', 'pubspec.yaml'),
+            path.join(tempDirectory.path, 'example_a', 'pubspec.yaml'),
           );
           final pubspecB = File(
-            path.join(directory.path, 'example_b', 'pubspec.yaml'),
+            path.join(tempDirectory.path, 'example_b', 'pubspec.yaml'),
           );
           pubspecA
             ..createSync(recursive: true)
@@ -207,7 +206,7 @@ void main() {
             );
 
           final result = await commandRunner.run(
-            ['packages', 'get', '--recursive', directory.path],
+            ['packages', 'get', '--recursive', tempDirectory.path],
           );
           expect(result, equals(ExitCode.success.code));
           verify(() {
@@ -215,6 +214,8 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -264,6 +265,8 @@ void main() {
               any(that: contains('Running "flutter packages get" in')),
             );
           }).called(2);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -335,6 +338,8 @@ void main() {
               ),
             );
           });
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
     });

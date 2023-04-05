@@ -11,29 +11,31 @@ import '../../../../helpers/helpers.dart';
 void main() {
   test(
     'supports async main methods',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync('async_main');
+      final tempDirectory = Directory.systemTemp.createTempSync('async_main');
       final fixture = Directory(
         path.join(Directory.current.path, 'test/fixtures/async_main'),
       );
 
-      await copyDirectory(fixture, directory);
+      await copyDirectory(fixture, tempDirectory);
 
       await expectSuccessfulProcessResult(
         'flutter',
         ['pub', 'get'],
-        workingDirectory: directory.path,
+        workingDirectory: tempDirectory.path,
       );
 
       final cwd = Directory.current;
-      Directory.current = directory;
+      Directory.current = tempDirectory;
       addTearDown(() {
         Directory.current = cwd;
       });
 
       final result = await commandRunner.run(['test']);
       expect(result, equals(ExitCode.success.code));
+
+      tempDirectory.deleteSync(recursive: true);
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

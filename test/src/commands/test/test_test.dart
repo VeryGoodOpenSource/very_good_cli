@@ -128,21 +128,23 @@ void main() {
       'throws pubspec not found exception '
       'when no pubspec.yaml exists',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        Directory.current = tempDirectory.path;
         final result = await commandRunner.run(['test']);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
         }).called(1);
+
+        tempDirectory.deleteSync(recursive: true);
       }),
     );
 
     test(
       'completes normally when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final directory = Directory.systemTemp.createTempSync();
-        Directory.current = directory.path;
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        Directory.current = tempDirectory.path;
 
         Directory(path.join(Directory.current.path, 'project')).createSync();
         File(
@@ -155,6 +157,8 @@ void main() {
 
         final result = await commandRunner.run(['test', '-r']);
         expect(result, equals(ExitCode.success.code));
+
+        tempDirectory.deleteSync(recursive: true);
       }),
     );
 

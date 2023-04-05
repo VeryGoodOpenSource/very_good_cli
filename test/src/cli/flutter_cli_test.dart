@@ -127,8 +127,8 @@ void main() {
       });
 
       test('throws when there is an unreachable git url', () {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml'))
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml'))
             .writeAsStringSync(_unreachableGitUrlPubspec);
 
         final gitProcessResult = _MockProcessResult();
@@ -146,11 +146,13 @@ void main() {
 
         ProcessOverrides.runZoned(
           () => expectLater(
-            () => Flutter.packagesGet(cwd: directory.path, logger: logger),
+            () => Flutter.packagesGet(cwd: tempDirectory.path, logger: logger),
             throwsA(isA<UnreachableGitDependency>()),
           ),
           runProcess: process.run,
         );
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('completes when the process succeeds', () {
@@ -161,10 +163,11 @@ void main() {
       });
 
       test('throws when there is no pubspec.yaml (recursive)', () {
+        final tempDirectory = Directory.systemTemp.createTempSync();
         ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.packagesGet(
-              cwd: Directory.systemTemp.createTempSync().path,
+              cwd: tempDirectory.path,
               recursive: true,
               logger: logger,
             ),
@@ -172,17 +175,19 @@ void main() {
           ),
           runProcess: process.run,
         );
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test(
         'completes when there is a pubspec.yaml and '
         'directory is ignored (recursive)',
         () {
-          final directory = Directory.systemTemp.createTempSync();
-          final nestedDirectory = Directory(p.join(directory.path, 'test'))
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
             ..createSync();
           final ignoredDirectory = Directory(
-            p.join(directory.path, 'test_plugin'),
+            p.join(tempDirectory.path, 'test_plugin'),
           )..createSync();
 
           File(p.join(nestedDirectory.path, 'pubspec.yaml'))
@@ -193,7 +198,7 @@ void main() {
           ProcessOverrides.runZoned(
             () => expectLater(
               Flutter.packagesGet(
-                cwd: directory.path,
+                cwd: tempDirectory.path,
                 recursive: true,
                 ignore: {
                   'test_plugin',
@@ -227,6 +232,8 @@ void main() {
               );
             });
           });
+
+          tempDirectory.deleteSync(recursive: true);
         },
       );
     });
@@ -362,11 +369,11 @@ void main() {
       });
 
       test('completes when there is no test directory', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             logger: logger,
@@ -376,22 +383,23 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
-            'No test folder found in ${directory.absolute.path}\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
+            'No test folder found in ${tempDirectory.absolute.path}\n',
           ]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests and shows timer until tests start', () async {
         final controller = StreamController<TestEvent>();
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
         unawaited(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(controller.stream),
@@ -412,21 +420,22 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             '\x1B[2K\r00:00 ...',
             contains('All tests passed!'),
           ]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (passing)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
@@ -442,7 +451,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             '\x1B[2K\r00:02 +1: CounterCubit initial state is 0',
             '''\x1B[2K\r00:02 +2: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:02 +3: CounterCubit emits [-1] when decrement is called''',
@@ -455,17 +464,18 @@ void main() {
           ]),
         );
         expect(stderrLogs, isEmpty);
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (passing) with forced ansi output', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
@@ -483,7 +493,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+1\x1B[0m: CounterCubit initial state is 0''',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+2\x1B[0m: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+3\x1B[0m: CounterCubit emits [-1] when decrement is called''',
@@ -496,21 +506,23 @@ void main() {
           ]),
         );
         expect(stderrLogs, isEmpty);
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (failing)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...failingJsonOutput(directory.path).map(TestEvent.fromJson),
+                ...failingJsonOutput(tempDirectory.path)
+                    .map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
@@ -521,7 +533,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             '\x1B[2K\r00:11 -1: CounterCubit initial state is 0',
             '''\x1B[2K\r00:11 +1 -1: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:11 +2 -1: CounterCubit emits [-1] when decrement is called''',
@@ -542,28 +554,29 @@ void main() {
               '''\x1B[2K\rpackage:test_api                                    expect\n'''
                   'package:flutter_test/src/widget_tester.dart 455:16  expect\n'
                   'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
-              '\x1B[2K\rCounterCubit initial state is 0 ${directory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
+              '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
               '\x1B[2K\rFailing Tests:\n'
                   '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
                   '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (noisy)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...skipExceptionMessageJsonOutput(directory.path)
+                ...skipExceptionMessageJsonOutput(tempDirectory.path)
                     .map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
@@ -575,11 +588,11 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
-            '\x1B[2K\r(suite) ${directory.path}/test/counter/view/other_test.dart (SKIPPED)\n',
+            '\x1B[2K\r(suite) ${tempDirectory.path}/test/counter/view/other_test.dart (SKIPPED)\n',
             '\x1B[2K\r00:00 ~1: (suite)',
-            '\x1B[2K\rCounterCubit initial state is 0 ${directory.path}/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
+            '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
             '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
             '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
@@ -602,8 +615,8 @@ void main() {
                 'Exception: oops\n'
                 '\n'
                 'When the exception was thrown, this was the stack:\n'
-                '#0      main.<anonymous closure>.<anonymous closure> (file://${directory.path}/test/app/view/app_test.dart:15:7)\n'
-                '#1      main.<anonymous closure>.<anonymous closure> (file://${directory.path}/test/app/view/app_test.dart:14:40)\n'
+                '#0      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:15:7)\n'
+                '#1      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:14:40)\n'
                 '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n'
                 '<asynchronous suspension>\n'
                 '<asynchronous suspension>\n'
@@ -614,27 +627,28 @@ void main() {
                 '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
             '\x1B[2K\rTest failed. See exception logs above.\n'
                 'The test description was: renders CounterPage',
-            '\x1B[2K\rApp renders CounterPage ${directory.path}/test/app/view/app_test.dart (FAILED)',
+            '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
                 '\x1B[2K\r - test/app/view/app_test.dart \n'
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (error)', () async {
         const exception = 'oops';
-        final directory = Directory.systemTemp.createTempSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
         final controller = StreamController<TestEvent>();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         controller
           ..addError(exception)
           ..add(const ExitTestEvent(exitCode: 1, time: 0));
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(controller.stream),
@@ -643,16 +657,17 @@ void main() {
           completion(equals([ExitCode.unavailable.code])),
         );
         expect(stderrLogs, equals(['\x1B[2K\r$exception', '\x1B[2K\r']));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests (error w/stackTrace)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
@@ -661,7 +676,7 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${directory.path}/test/app/view/app_test.dart',
+                    path: '${tempDirectory.path}/test/app/view/app_test.dart',
                   ),
                   time: 0,
                 ),
@@ -714,16 +729,17 @@ void main() {
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
           ]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/out logs', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             testRunner: testRunner(
               Stream.fromIterable(
                 [
@@ -736,17 +752,18 @@ void main() {
           ),
           completion(equals([ExitCode.success.code])),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/args', () async {
         const arguments = ['-x', 'e2e', '-j', '1'];
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             arguments: arguments,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
@@ -765,22 +782,23 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
         expect(testRunnerArgs, equals(arguments));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/randomSeed', () async {
         const seed = 'seed';
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             randomSeed: seed,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
@@ -799,7 +817,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             'Shuffling test order with --test-randomize-ordering-seed=$seed\n',
             contains('All tests passed!'),
           ]),
@@ -808,19 +826,21 @@ void main() {
           testRunnerArgs,
           equals(['--test-randomize-ordering-seed', seed]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final lcovFile = File(p.join(directory.path, 'coverage', 'lcov.info'));
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        final lcovFile =
+            File(p.join(tempDirectory.path, 'coverage', 'lcov.info'));
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         lcovFile.createSync(recursive: true);
 
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             collectCoverage: true,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
@@ -843,22 +863,23 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
         expect(testRunnerArgs, equals(['--coverage']));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 (pass)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             collectCoverage: true,
             minCoverage: 100,
             stdout: stdoutLogs.add,
@@ -871,7 +892,7 @@ void main() {
                 ],
               ),
               onStart: () {
-                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
                   ..createSync(recursive: true)
                   ..writeAsStringSync(lcov100);
               },
@@ -883,22 +904,23 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
         expect(testRunnerArgs, equals(['--coverage']));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 (fail)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
         await expectLater(
           () => Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             collectCoverage: true,
             minCoverage: 100,
             stdout: stdoutLogs.add,
@@ -911,7 +933,7 @@ void main() {
                 ],
               ),
               onStart: () {
-                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
                   ..createSync(recursive: true)
                   ..writeAsStringSync(lcov95);
               },
@@ -929,24 +951,25 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
         expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
           () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             collectCoverage: true,
             minCoverage: 100,
             excludeFromCoverage:
@@ -961,7 +984,7 @@ void main() {
                 ],
               ),
               onStart: () {
-                File(p.join(directory.path, 'coverage', 'lcov.info'))
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
                   ..createSync(recursive: true)
                   ..writeAsStringSync(lcov95);
               },
@@ -973,30 +996,31 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
         expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test(
         'runs tests w/coverage + min-coverage 100 + recursive (pass)',
         () async {
-          final directory = Directory.systemTemp.createTempSync();
-          File(p.join(directory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(directory.path, 'test')).createSync();
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final nestedDirectory = Directory(p.join(directory.path, 'test'))
-            ..createSync();
-          File(p.join(nestedDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(nestedDirectory.path, 'test')).createSync();
+          final tempNestedDirectory =
+              Directory(p.join(tempDirectory.path, 'test'))..createSync();
+          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
           await expectLater(
             Flutter.test(
-              cwd: directory.path,
+              cwd: tempDirectory.path,
               collectCoverage: true,
               minCoverage: 100,
               recursive: true,
@@ -1010,10 +1034,11 @@ void main() {
                   ],
                 ),
                 onStart: () {
-                  File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
-                  File(p.join(nestedDirectory.path, 'coverage', 'lcov.info'))
+                  File(
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                 },
@@ -1027,34 +1052,33 @@ void main() {
             stdoutLogs,
             unorderedEquals([
               'Running "flutter test" in '
-                  '${p.dirname(nestedDirectory.path)}...\n',
+                  '${p.dirname(tempNestedDirectory.path)}...\n',
               contains('All tests passed!'),
-              'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+              'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
               contains('All tests passed!'),
             ]),
           );
           expect(testRunnerArgs, equals(['--coverage', '--coverage']));
 
-          directory.delete(recursive: true).ignore();
-          nestedDirectory.delete(recursive: true).ignore();
+          tempDirectory.deleteSync(recursive: true);
         },
       );
 
       test(
         'runs tests w/coverage + min-coverage 100 + recursive (fail)',
         () async {
-          final directory = Directory.systemTemp.createTempSync();
-          File(p.join(directory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(directory.path, 'test')).createSync();
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final nestedDirectory = Directory(p.join(directory.path, 'test'))
-            ..createSync();
-          File(p.join(nestedDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(nestedDirectory.path, 'test')).createSync();
+          final tempNestedDirectory =
+              Directory(p.join(tempDirectory.path, 'test'))..createSync();
+          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
           await expectLater(
             Flutter.test(
-              cwd: directory.path,
+              cwd: tempDirectory.path,
               collectCoverage: true,
               minCoverage: 100,
               recursive: true,
@@ -1068,10 +1092,11 @@ void main() {
                   ],
                 ),
                 onStart: () {
-                  File(p.join(directory.path, 'coverage', 'lcov.info'))
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
-                  File(p.join(nestedDirectory.path, 'coverage', 'lcov.info'))
+                  File(
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov95);
                 },
@@ -1091,30 +1116,31 @@ void main() {
             stdoutLogs,
             unorderedEquals([
               'Running "flutter test" in '
-                  '${p.dirname(directory.path)}...\n',
+                  '${p.dirname(tempDirectory.path)}...\n',
               contains('All tests passed!'),
               'Running "flutter test" in '
-                  '${p.dirname(nestedDirectory.path)}...\n',
+                  '${p.dirname(tempNestedDirectory.path)}...\n',
               contains('All tests passed!'),
             ]),
           );
           expect(stderrLogs, isEmpty);
           expect(testRunnerArgs, equals(['--coverage', '--coverage']));
 
-          directory.delete(recursive: true).ignore();
-          nestedDirectory.delete(recursive: true).ignore();
+          tempDirectory.deleteSync(recursive: true);
         },
       );
 
       test('runs tests w/optimizations (passing)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        final originalVars = <String, dynamic>{'package-root': directory.path};
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        final originalVars = <String, dynamic>{
+          'package-root': tempDirectory.path
+        };
         final updatedVars = <String, dynamic>{
-          'package-root': directory.path,
+          'package-root': tempDirectory.path,
           'foo': 'bar'
         };
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         when(
           () => hooks.preGen(
             vars: any(named: 'vars'),
@@ -1129,7 +1155,7 @@ void main() {
         });
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             optimizePerformance: true,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
@@ -1149,7 +1175,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in ${p.dirname(directory.path)}...\n',
+            'Running "flutter test" in ${p.dirname(tempDirectory.path)}...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -1162,7 +1188,7 @@ void main() {
           () => hooks.preGen(
             vars: originalVars,
             onVarsChanged: any(named: 'onVarsChanged'),
-            workingDirectory: directory.path,
+            workingDirectory: tempDirectory.path,
           ),
         ).called(1);
         verify(
@@ -1173,16 +1199,17 @@ void main() {
           ),
         ).called(1);
         verify(() => progress.complete()).called(1);
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
 
       test('runs tests w/optimizations (failing)', () async {
-        final directory = Directory.systemTemp.createTempSync();
-        File(p.join(directory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(directory.path, 'test')).createSync();
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           Flutter.test(
-            cwd: directory.path,
+            cwd: tempDirectory.path,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
             testRunner: testRunner(
@@ -1191,7 +1218,7 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${directory.path}/test/.test_optimizer.dart',
+                    path: '${tempDirectory.path}/test/.test_optimizer.dart',
                   ),
                   time: 0,
                 ),
@@ -1257,7 +1284,8 @@ void main() {
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
           ]),
         );
-        directory.delete(recursive: true).ignore();
+
+        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

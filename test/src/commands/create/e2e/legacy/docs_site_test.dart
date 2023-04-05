@@ -11,8 +11,9 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create -t docs_site',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
       final result = await commandRunner.run(
         [
           'create',
@@ -20,12 +21,13 @@ void main() {
           '-t',
           'docs_site',
           '-o',
-          directory.path
+          tempDirectory.path
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(directory.path, 'very_good_docs_site');
+      final workingDirectory =
+          path.join(tempDirectory.path, 'very_good_docs_site');
 
       await expectSuccessfulProcessResult(
         'npm',
@@ -51,7 +53,8 @@ void main() {
         ['run', 'build'],
         workingDirectory: workingDirectory,
       );
+
+      tempDirectory.deleteSync(recursive: true);
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

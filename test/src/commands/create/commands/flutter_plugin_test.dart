@@ -174,8 +174,8 @@ void main() {
       });
 
       test('creates a flutter plugin', () async {
-        final tempDir = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
         final argResults = MockArgResults();
         final command = CreateFlutterPlugin(
           analytics: analytics,
@@ -184,7 +184,7 @@ void main() {
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
         when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDir.path);
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_plugin']);
         when(() => argResults['platforms'] as List<String>)
             .thenReturn(['android', 'ios', 'windows']);
@@ -221,6 +221,8 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Flutter Plugin! 🦄'),
         ).called(1);
+
+        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

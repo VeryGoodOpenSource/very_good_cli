@@ -165,8 +165,8 @@ void main() {
       });
 
       test('creates dart package', () async {
-        final tempDir = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
         final argResults = MockArgResults();
         final command = CreateDartCLI(
           analytics: analytics,
@@ -175,7 +175,7 @@ void main() {
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
         when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDir.path);
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_cli']);
         when(() => argResults['executable-name'] as String?).thenReturn(
           'my_executable',
@@ -213,6 +213,8 @@ void main() {
         verify(
           () => logger.info('Created a Very Good Dart CLI application! 🦄'),
         ).called(1);
+
+        tempDirectory.deleteSync(recursive: true);
       });
     });
   });

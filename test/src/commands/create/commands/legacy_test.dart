@@ -567,12 +567,19 @@ void main() {
           withRunner(
             (commandRunner, logger, pubUpdater, printLogs) async {
               const orgName = 'com.my.org';
-              final tempDir = Directory.systemTemp.createTempSync();
+              final tempDirectory = Directory.systemTemp.createTempSync();
               final result = await commandRunner.run(
-                ['create', 'example', '-o', tempDir.path, '--org', orgName],
+                [
+                  'create',
+                  'example',
+                  '-o',
+                  tempDirectory.path,
+                  '--org',
+                  orgName
+                ],
               );
               expect(result, equals(ExitCode.success.code));
-              tempDir.deleteSync(recursive: true);
+              tempDirectory.deleteSync(recursive: true);
             },
           ),
           timeout: const Timeout(Duration(seconds: 60)),

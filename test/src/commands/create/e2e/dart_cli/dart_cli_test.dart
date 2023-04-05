@@ -11,8 +11,9 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create dart_cli',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
         [
@@ -20,12 +21,13 @@ void main() {
           'dart_cli',
           'very_good_dart_cli',
           '-o',
-          directory.path,
+          tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(directory.path, 'very_good_dart_cli');
+      final workingDirectory =
+          path.join(tempDirectory.path, 'very_good_dart_cli');
 
       // add coverage to collect coverage on dart test
       await expectSuccessfulProcessResult(
@@ -76,7 +78,8 @@ void main() {
         workingDirectory: workingDirectory,
       );
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+
+      tempDirectory.deleteSync(recursive: true);
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

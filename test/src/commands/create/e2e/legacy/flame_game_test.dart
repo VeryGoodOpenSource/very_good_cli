@@ -11,8 +11,9 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create -t flame_game',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
         [
@@ -21,13 +22,13 @@ void main() {
           '-t',
           'flame_game',
           '-o',
-          directory.path,
+          tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
       final workingDirectory = path.join(
-        directory.path,
+        tempDirectory.path,
         'very_good_flame_game',
       );
 
@@ -58,6 +59,5 @@ void main() {
       );
       expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

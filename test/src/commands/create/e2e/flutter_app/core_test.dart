@@ -11,15 +11,16 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create flutter_app',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
 
       final result = await commandRunner.run(
-        ['create', 'flutter_app', 'very_good_core', '-o', directory.path],
+        ['create', 'flutter_app', 'very_good_core', '-o', tempDirectory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(directory.path, 'very_good_core');
+      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
 
       await expectSuccessfulProcessResult(
         'dart',
@@ -47,7 +48,8 @@ void main() {
         workingDirectory: workingDirectory,
       );
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+
+      tempDirectory.deleteSync(recursive: true);
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

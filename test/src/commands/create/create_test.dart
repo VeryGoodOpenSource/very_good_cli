@@ -67,14 +67,14 @@ void main() {
       test(
         'Allows the creation of projects in the legacy syntax',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDir = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDir.deleteSync(recursive: true));
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
             'legacy_project',
             '-o',
-            tempDir.path,
+            tempDirectory.path,
             '--template',
             'dart_pkg',
           ]);
@@ -84,6 +84,8 @@ void main() {
           verify(
             () => logger.info('Created a Very Good Dart Package! 🦄'),
           ).called(1);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
@@ -130,14 +132,14 @@ void main() {
       test(
         'Shows legacy usage when invalid legacy options is passed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDir = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDir.deleteSync(recursive: true));
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
             'legacy_project',
             '-o',
-            tempDir.path,
+            tempDirectory.path,
             '--template',
             'wrong_template',
           ]);
@@ -190,6 +192,8 @@ Usage: Deprecated usage of the create command: run 'very_good create --help' to 
 Run "very_good help" to see global options.''',
             ),
           ).called(1);
+
+          tempDirectory.deleteSync(recursive: true);
         }),
       );
 
