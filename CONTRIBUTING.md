@@ -127,7 +127,7 @@ dart fix --apply
 
 > **Note**: Out Dart code bases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis), if you want to give feedback about the chosen lint rules open an [issue](https://github.com/VeryGoodOpenSource/very_good_analysis/issues/new/choose).
 
-8. Create the Pull Request with a meaningful description and linking to the original issue where possible.
+8. Create the Pull Request with a meaningful description, linking to the original issue where possible.
 
 9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing.
 
