@@ -29,7 +29,7 @@ very_good packages get -r
 dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 ```
 
-4. Run all test optimizer tests.
+4. Run all test optimizer tests:
 
 ```sh
 # 🪝 Run test optimizer hook's unit test
