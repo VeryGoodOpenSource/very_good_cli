@@ -30,5 +30,3 @@ void main() {
 ```
 
 [1]: https://github.com/felangel/mason
-
----
