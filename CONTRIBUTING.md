@@ -2,7 +2,7 @@
 
 Hello! If you’re interested in contributing to Very Good CLI you’re reading the right document. First of all, thank you for showing interest in contributing! Before you do so it is important to carefully read this file before contributing.
 
-Contributing to an open-source project can take many different forms, and it's important to understand that code contributions are just one piece of the puzzle. There are many ways you can contribute to Very Good CLI: bug reports, documentation, feature requests, user support and code.
+Contributing to an open source project can take many different forms, and it's important to understand that code contributions are just one piece of the puzzle. There are many ways you can contribute to Very Good CLI: bug reports, documentation, feature requests, user support and code.
 
 > **Note**: This project is opinionated and follows patterns and practices used by the team at [Very Good Ventures][very_good_ventures_link].
 
@@ -78,10 +78,10 @@ Before creating a Pull Request please:
 ```sh
 # 🪵 Branch from `main`
 git branch <branch-name>
-git checkout <branc-name>
+git checkout <branch-name>
 ```
 
-Where `<branch-name>` is an appropiate name describing your change.
+Where `<branch-name>` is an appropriate name describing your change.
 
 2. Install all Very Good CLI's dependencies:
 
@@ -95,7 +95,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 
 3. Ensure you have a meaningful [semantic][conventional_commits_link] commit message.
 
-4. Add tests! Pull Requests without 100% test coverage will **not** be approved. If you're unsure on how to do so watch our [Testing Foundamentals Course](https://www.youtube.com/watch?v=M_eZg-X789w&list=PLprI2satkVdFwpxo_bjFkCxXz5RluG8FY).
+4. Add tests! Pull Requests without 100% test coverage will **not** be approved. If you're unsure on how to do so watch our [Testing Fundamentals Course](https://www.youtube.com/watch?v=M_eZg-X789w&list=PLprI2satkVdFwpxo_bjFkCxXz5RluG8FY).
 
 5. Ensure the existing test suite passes locally:
 
@@ -125,7 +125,7 @@ Some analyzer issues may be solvable automatically with:
 dart fix --apply
 ```
 
-> **Note**: Out Dart codebases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis), if you want to give feedback about the chosen lint rules open an [issue](https://github.com/VeryGoodOpenSource/very_good_analysis/issues/new/choose).
+> **Note**: Out Dart code bases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis), if you want to give feedback about the chosen lint rules open an [issue](https://github.com/VeryGoodOpenSource/very_good_analysis/issues/new/choose).
 
 8. Create the Pull Request with a meaningful description and linking to the original issue where possible.
 
