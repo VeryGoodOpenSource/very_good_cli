@@ -35,7 +35,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 # 🪝 Run test optimizer hook's unit test
 cd bricks/test_optimizer/hooks && dart test && cd ../../../
 
-# 💻 Run very_good test end to end tests
+# 💻 Run `very_good test` end to end tests
 dart test test/src/commands/test/e2e/async_main_test.dart --run-skipped -t e2e &&
 dart test test/src/commands/test/e2e/no_project_test.dart --run-skipped -t e2e
 ```
