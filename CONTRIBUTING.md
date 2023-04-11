@@ -118,7 +118,7 @@ dart format .
 dart analyze --fatal-infos --fatal-warnings .
 ```
 
-Some analyzer issues may be solvable automatically with:
+Some analysis issues may be fixed automatically with:
 
 ```sh
 # Automatically fix analysis issues that have associated automated fixes
