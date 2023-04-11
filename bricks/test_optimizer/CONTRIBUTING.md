@@ -6,7 +6,7 @@ Hello! If you’re interested in contributing to Very Good CLI's test optimizer 
 
 To develop for Very Good CLI's test optimizer, you will need to become familiar with our processes and conventions detailed [here](../../CONTRIBUTING.md).
 
-> **Note**: The test optimizer brick is not published at [Brickhub](brickhub.dev). It is not intended to be used by the general public. Instead, it has been designed to work closely with Very Good CLI's `test` command.
+> **Note**: The test optimizer brick is not published at [Brick Hub](brickhub.dev). It is not intended to be used by the general public. Instead, it has been designed to work closely with Very Good CLI's `test` command.
 
 ## Setting up your local development environment
 
@@ -29,7 +29,7 @@ very_good packages get -r
 dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 ```
 
-4. Run all test optimizier tests.
+4. Run all test optimizer tests.
 
 ```sh
 # 🪝 Run test optimizer hook's unit test
