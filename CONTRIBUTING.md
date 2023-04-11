@@ -1,10 +1,6 @@
-# 🦄 Welcome
+# 🦄 Contributing to Very Good CLI
 
-Hello! If you’re interested in contributing to Very Good CLI you’re reading the right document. First of all, thank you for showing interest in contributing! Before you do so it is important to carefully read this file before contributing.
-
-Contributing to an open source project can take many different forms, and it's important to understand that code contributions are just one piece of the puzzle. There are many ways you can contribute to Very Good CLI: bug reports, documentation, feature requests, user support and code.
-
-> **Note**: This project is opinionated and follows patterns and practices used by the team at [Very Good Ventures][very_good_ventures_link].
+First of all, thank you for taking the time to contribute! 🎉👍 Before you do, please carefully read this guide.
 
 ## Understanding Very Good CLI
 
@@ -12,34 +8,32 @@ Very Good CLI allows generating scalable templates and use helpful commands. The
 
 Templates have their own repositories, if you want to contribute to them please refer to their repositories:
 
-- `dart_cli` uses [Very Good Dart CLI](https://github.com/VeryGoodOpenSource/very_good_dart_cli) template.
-- `dart_package` uses [Very Good Dart Package](https://github.com/VeryGoodOpenSource/very_good_dart_package) template.
-- `docs_site` uses [Very Good Docs Site](https://github.com/VeryGoodOpenSource/very_good_docs_site) template.
-- `flame_game` uses [Very Good Flame Game](https://github.com/VeryGoodOpenSource/very_good_flame_game) template.
-- `flutter_app` uses [Very Good Core](https://github.com/VeryGoodOpenSource/very_good_core) template.
-- `flutter_package` uses [Very Good Flutter Package](https://github.com/VeryGoodOpenSource/very_good_flutter_package) template.
-- `flutter_plugin` uses [Very Good Flutter Plugin](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin) template.
+- [Dart CLI](https://github.com/VeryGoodOpenSource/very_good_dart_cli)
+- [Dart Package](https://github.com/VeryGoodOpenSource/very_good_dart_package)
+- [Docs Site](https://github.com/VeryGoodOpenSource/very_good_docs_site)
+- [Flame Game](https://github.com/VeryGoodOpenSource/very_good_flame_game)
+- [Flutter Starter App (Very Good Core)](https://github.com/VeryGoodOpenSource/very_good_core)
+- [Flutter Package](https://github.com/VeryGoodOpenSource/very_good_flutter_package)
+- [Flutter Plugin](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin)
+- [Flutter Wear OS App](https://github.com/VeryGoodOpenSource/very_good_wear_app)
 
-If you want us to support more feature-rich templates we're open to hearing your feedback!
+If there are additional templates you'd like to see, open an issue and tell us!
 
-Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion), if you want to contribute Very Good CLI's completion refer to its repository.
-
-Very Good CLI's test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md), if you want to contribute refer to its [contributing file](bricks/test_optimizer/CONTRIBUTING.md).
+💡 Note: Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion) and its test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md). If you want to contribute to either of those, please refer to their respective respositories.
 
 ## Opening an issue
 
-We highly recommend [creating an issue][bug_report_link] if you have found a bug, want to suggest a feature or recommend a change rather than immediately opening a pull request. An issue lets us reach an agreement on a fix before you put significant effort into a pull request.
+We highly recommend [creating an issue][bug_report_link] if you have found a bug, want to suggest a feature, or recommend a change. Please do not immediately open a pull request. Opening an issue first allows us to reach an agreement on a fix before you put significant effort into a pull request.
 
-It is good practice to check beforehand if an issue already exists to avoid duplicates. If no duplicate exists, please use the built-in [Bug Report][bug_report_link] template and provide as much information as possible including detailed reproduction steps in the case of a bug.
-Once one of the package maintainers has reviewed the issue and an agreement is reached regarding the fix, a pull request can be created.
+When reporting a bug, please use the built-in [Bug Report][bug_report_link] template and provide as much information as possible including detailed reproduction steps. Once one of the package maintainers has reviewed the issue and we reach an agreement on the fix, open a pull request.
 
 ## Developing for Very Good CLI
 
-To develop for Very Good CLI you will need to become familiar with our processes and conventions:
+To develop for Very Good CLI you will need to become familiar with Very Good Ventures processes and conventions:
 
 ### Setting up your local development environment
 
-1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/66c2a5e847ba4db6a9cb212e2b08e2af9f9e70d2/pubspec.yaml#L7). If you have Flutter installed you likely have a valid Dart SDK version already installed.
+1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/66c2a5e847ba4db6a9cb212e2b08e2af9f9e70d2/pubspec.yaml#L7). If you have Flutter installed, you likely have a valid Dart SDK version already installed.
 
 2. Install all Very Good CLI's dependencies:
 
@@ -58,7 +52,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 dart test
 ```
 
-If not all test passed out of the box please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose) so it can get fixed.
+If some tests do not pass out of the box, please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose).
 
 4. Install your own version of Very Good CLI in your local environment:
 
@@ -67,13 +61,11 @@ If not all test passed out of the box please submit an [issue](https://github.co
 dart pub global activate --source path .
 ```
 
-> **Note**: If you're changes are related to Very Good CLI test optimizer refer its [contributing file](bricks/test_optimizer/CONTRIBUTING.md).
-
 ### Creating a Pull Request
 
 Before creating a Pull Request please:
 
-1. [Fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) the [Git Hub repository](https://github.com/VeryGoodOpenSource/very_good_cli) and create your branch from `main`:
+1. [Fork](https://docs.github.com/en/get-started/quickstart/contributing-to-projects) the [GitHub repository](https://github.com/VeryGoodOpenSource/very_good_cli) and create your branch from `main`:
 
 ```sh
 # 🪵 Branch from `main`
@@ -83,7 +75,7 @@ git checkout <branch-name>
 
 Where `<branch-name>` is an appropriate name describing your change.
 
-2. Install all Very Good CLI's dependencies:
+2. Install dependencies:
 
 ```sh
 # 📂 Get project dependencies recursively with Very Good CLI
@@ -125,13 +117,13 @@ Some analysis issues may be fixed automatically with:
 dart fix --apply
 ```
 
-> **Note**: Out Dart code bases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis), if you want to give feedback about the chosen lint rules open an [issue](https://github.com/VeryGoodOpenSource/very_good_analysis/issues/new/choose).
+> **Note**: Our codebases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis). 
 
 8. Create the Pull Request with a meaningful description, linking to the original issue where possible.
 
 9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing.
 
-> **Note**: While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional work, tests, or other changes before your pull request can be ultimately accepted.
+> **Note**: While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional work, tests, or other changes before your pull request can be accepted.
 
 [conventional_commits_link]: https://www.conventionalcommits.org/en/v1.0.0
 [bug_report_link]: https://github.com/VeryGoodOpenSource/very_good_cli/issues/new?assignees=&labels=bug&template=bug_report.md&title=fix%3A+
