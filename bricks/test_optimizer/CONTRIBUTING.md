@@ -56,7 +56,7 @@ Then, you can start using it:
 mason make test_optimizer
 ```
 
-6. If you want to run your test optimizer with Very Good CLI (`very_good test`) locally then:
+6. If you want to run your test optimizer with Very Good CLI (like for example `very_good test`) locally then:
 
 ```sh
 # 📦 Bundle test optimizer
