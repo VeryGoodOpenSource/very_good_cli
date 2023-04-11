@@ -19,7 +19,7 @@ Templates have their own repositories, if you want to contribute to them please 
 
 If there are additional templates you'd like to see, open an issue and tell us!
 
-💡 Note: Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion) and its test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md). If you want to contribute to either of those, please refer to their respective respositories.
+💡 Note: Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion) and its test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md). If you want to contribute to either of those, please refer to their respective repositories.
 
 ## Opening an issue
 
@@ -117,7 +117,7 @@ Some analysis issues may be fixed automatically with:
 dart fix --apply
 ```
 
-> **Note**: Our codebases use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis). 
+> **Note**: Our repositories use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis). 
 
 8. Create the Pull Request with a meaningful description, linking to the original issue where possible.
 
