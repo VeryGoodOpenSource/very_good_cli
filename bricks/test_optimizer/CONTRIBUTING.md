@@ -4,7 +4,7 @@ Hello! If you’re interested in contributing to Very Good CLI's test optimizer 
 
 ## Developing for Very Good CLI's test optimizer
 
-Before you develop for Very Good CLI's test optimizer, you will need to become familiar with our processes and conventions detailed [here](../../CONTRIBUTING.md).
+To develop for Very Good CLI's test optimizer, you will need to become familiar with our processes and conventions detailed [here](../../CONTRIBUTING.md).
 
 > **Note:** The test optimizer brick is not published at [Brickhub](brickhub.dev). It is not intended to be used by the general public. Instead, it has been designed to work closely with Very Good CLI's `test` command.
 
