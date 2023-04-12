@@ -121,7 +121,7 @@ dart fix --apply
 
 8. Create the Pull Request with a meaningful description, linking to the original issue where possible.
 
-9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing for your Pull Request once they are approved to run by a maintainer.
+9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing for your Pull Request once they have been approved to run by a maintainer.
 
 💡 **Note**: While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional work, tests, or other changes before your pull request can be accepted.
 
