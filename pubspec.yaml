@@ -4,7 +4,7 @@ version: 0.13.0
 repository: https://github.com/VeryGoodOpenSource/very_good_cli
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=2.19.0 <3.0.0"
 
 dependencies:
   args: ^2.1.0
@@ -23,14 +23,13 @@ dependencies:
   usage: ^4.0.2
   very_good_test_runner: ^0.1.2
 
-
 dev_dependencies:
   build_runner: ^2.0.0
   build_verify: ^3.0.0
   build_version: ^2.0.0
   mocktail: ^0.3.0
   test: ^1.17.0
-  very_good_analysis: ^3.1.0
+  very_good_analysis: ^4.0.0
 
 executables:
   very_good:
