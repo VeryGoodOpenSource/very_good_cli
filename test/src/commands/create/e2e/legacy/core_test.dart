@@ -11,15 +11,17 @@ import '../../../../../helpers/helpers.dart';
 void main() {
   test(
     'create -t core',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
-        ['create', 'very_good_core', '-t', 'core', '-o', directory.path],
+        ['create', 'very_good_core', '-t', 'core', '-o', tempDirectory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(directory.path, 'very_good_core');
+      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
 
       await expectSuccessfulProcessResult(
         'dart',
@@ -48,6 +50,5 @@ void main() {
       );
       expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
     }),
-    timeout: const Timeout(Duration(minutes: 2)),
   );
 }
