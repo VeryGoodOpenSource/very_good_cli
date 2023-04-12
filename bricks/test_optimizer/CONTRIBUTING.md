@@ -8,7 +8,7 @@ To develop for Very Good CLI's test optimizer, you will also need to become fami
 
 💡 **Note**: The test optimizer brick is not published at [Brick Hub](brickhub.dev). It is not intended to be used by the general public. Instead, it has been designed to work closely with Very Good CLI's `test` command.
 
-## Setting up your local development environment
+### Setting up your local development environment
 
 1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/bricks/test_optimizer/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
 
@@ -35,7 +35,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 # 🪝 Run test optimizer hook's unit test
 cd bricks/test_optimizer/hooks && dart test && cd ../../../
 
-# 💻 Run very_good test end to end tests
+# 💻 Run `very_good test` end to end tests
 dart test test/src/commands/test/e2e/async_main_test.dart --run-skipped -t e2e &&
 dart test test/src/commands/test/e2e/no_project_test.dart --run-skipped -t e2e
 ```
