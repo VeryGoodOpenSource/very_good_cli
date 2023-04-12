@@ -1,3 +1,9 @@
+# [0.13.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.0...v0.13.1) (2023-04-12)
+
+### Bug Fixes
+
+- support ignoring empty globs ([#703](https://github.com/VeryGoodOpenSource/very_good_cli/issues/703)) ([6a1a9df](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6a1a9df9394b53879084e36bf40566ae9ac2abc8))
+
 # [0.13.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3+1...v0.13.0) (2023-03-29)
 
 ### Features
