@@ -19,7 +19,7 @@ Templates have their own repositories, if you want to contribute to them please 
 
 If there are additional templates you'd like to see, open an issue and tell us!
 
-💡 Note: Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion) and its test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md). If you want to contribute to either of those, please refer to their respective repositories.
+💡 **Note**: Very Good CLI's completion functionality is powered by [CLI Completion](https://github.com/VeryGoodOpenSource/cli_completion) and its test command optimization is powered by [test optimizer](bricks/test_optimizer/README.md). If you want to contribute to either of those, please refer to their respective CONTRIBUTING files.
 
 ## Opening an issue
 
@@ -33,7 +33,7 @@ To develop for Very Good CLI you will need to become familiar with Very Good Ven
 
 ### Setting up your local development environment
 
-1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/66c2a5e847ba4db6a9cb212e2b08e2af9f9e70d2/pubspec.yaml#L7). If you have Flutter installed, you likely have a valid Dart SDK version already installed.
+1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/pubspec.yaml). If you have Flutter installed, you likely have a valid Dart SDK version already installed.
 
 2. Install all Very Good CLI's dependencies:
 
@@ -117,13 +117,13 @@ Some analysis issues may be fixed automatically with:
 dart fix --apply
 ```
 
-> **Note**: Our repositories use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis). 
+💡 **Note**: Our repositories use [Very Good Analysis](https://github.com/VeryGoodOpenSource/very_good_analysis).
 
 8. Create the Pull Request with a meaningful description, linking to the original issue where possible.
 
-9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing.
+9. Verify that all [status checks](https://github.com/VeryGoodOpenSource/very_good_cli/actions/) are passing for your Pull Request once they are approved to run by a maintainer.
 
-> **Note**: While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional work, tests, or other changes before your pull request can be accepted.
+💡 **Note**: While the prerequisites above must be satisfied prior to having your pull request reviewed, the reviewer(s) may ask you to complete additional work, tests, or other changes before your pull request can be accepted.
 
 [conventional_commits_link]: https://www.conventionalcommits.org/en/v1.0.0
 [bug_report_link]: https://github.com/VeryGoodOpenSource/very_good_cli/issues/new?assignees=&labels=bug&template=bug_report.md&title=fix%3A+
