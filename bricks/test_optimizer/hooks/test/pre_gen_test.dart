@@ -17,6 +17,16 @@ class _FakeContext extends Fake implements HookContext {
 }
 
 void main() {
+  late Directory tempDirectory;
+
+  setUp(() {
+    tempDirectory = Directory.systemTemp.createTempSync('test_optimizer');
+  });
+
+  tearDown(() {
+    tempDirectory.deleteSync(recursive: true);
+  });
+
   group('Pre gen hook', () {
     late HookContext context;
 
@@ -26,17 +36,15 @@ void main() {
 
     group('Completes', () {
       test('with test files list', () async {
-        final packageRoot =
-            Directory.systemTemp.createTempSync('test_optimizer');
-        File(path.join(packageRoot.path, 'pubspec.yaml')).createSync();
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 
-        final testDir = Directory(path.join(packageRoot.path, 'test'))
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
           ..createSync();
         File(path.join(testDir.path, 'test1_test.dart')).createSync();
         File(path.join(testDir.path, 'test2_test.dart')).createSync();
         File(path.join(testDir.path, 'no_test_here.dart')).createSync();
 
-        context.vars['package-root'] = packageRoot.absolute.path;
+        context.vars['package-root'] = tempDirectory.absolute.path;
 
         await pre_gen.run(context);
 
@@ -63,25 +71,23 @@ void main() {
       });
 
       test('with proper isFlutter identification', () async {
-        final packageRoot =
-            Directory.systemTemp.createTempSync('test_optimizer');
-
-        File(path.join(packageRoot.path, 'pubspec.yaml'))
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
           ..createSync()
           ..writeAsStringSync('''
 dependencies:
   flutter:
     sdk: flutter''');
 
-        Directory(path.join(packageRoot.path, 'test')).createSync();
+        Directory(path.join(tempDirectory.path, 'test')).createSync();
 
-        context.vars['package-root'] = packageRoot.absolute.path;
+        context.vars['package-root'] = tempDirectory.absolute.path;
 
         await pre_gen.run(context);
 
         expect(context.vars['isFlutter'], true);
       });
     });
+
     group('Fails', () {
       setUp(() {
         pre_gen.exitFn = (code) {
@@ -94,13 +100,11 @@ dependencies:
       });
 
       test('when target test dir does not exist', () async {
-        final packageRoot =
-            Directory.systemTemp.createTempSync('test_optimizer');
-        File(path.join(packageRoot.path, 'pubspec.yaml')).createSync();
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 
-        final testDir = Directory(path.join(packageRoot.path, 'test'));
+        final testDir = Directory(path.join(tempDirectory.path, 'test'));
 
-        context.vars['package-root'] = packageRoot.absolute.path;
+        context.vars['package-root'] = tempDirectory.absolute.path;
 
         await expectLater(
           () => pre_gen.run(context),
@@ -122,16 +126,13 @@ dependencies:
       });
 
       test('when target dir does not contain a pubspec.yaml', () async {
-        final packageRoot =
-            Directory.systemTemp.createTempSync('test_optimizer');
-
-        final testDir = Directory(path.join(packageRoot.path, 'test'))
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
           ..createSync();
         File(path.join(testDir.path, 'test1_test.dart')).createSync();
         File(path.join(testDir.path, 'test2_test.dart')).createSync();
         File(path.join(testDir.path, 'no_test_here.dart')).createSync();
 
-        context.vars['package-root'] = packageRoot.absolute.path;
+        context.vars['package-root'] = tempDirectory.absolute.path;
 
         await expectLater(
           () => pre_gen.run(context),

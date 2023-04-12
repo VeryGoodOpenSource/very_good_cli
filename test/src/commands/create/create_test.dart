@@ -67,14 +67,14 @@ void main() {
       test(
         'Allows the creation of projects in the legacy syntax',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDir = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDir.deleteSync(recursive: true));
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
             'legacy_project',
             '-o',
-            tempDir.path,
+            tempDirectory.path,
             '--template',
             'dart_pkg',
           ]);
@@ -130,14 +130,14 @@ void main() {
       test(
         'Shows legacy usage when invalid legacy options is passed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDir = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDir.deleteSync(recursive: true));
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
           final result = await commandRunner.run([
             'create',
             'legacy_project',
             '-o',
-            tempDir.path,
+            tempDirectory.path,
             '--template',
             'wrong_template',
           ]);
