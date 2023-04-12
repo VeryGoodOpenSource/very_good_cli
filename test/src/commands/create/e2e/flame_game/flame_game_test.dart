@@ -13,7 +13,8 @@ void main() {
     'create flame_game',
     timeout: const Timeout(Duration(minutes: 5)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
         [
@@ -21,13 +22,13 @@ void main() {
           'flame_game',
           'very_good_flame_game',
           '-o',
-          directory.path,
+          tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
       final workingDirectory = path.join(
-        directory.path,
+        tempDirectory.path,
         'very_good_flame_game',
       );
 

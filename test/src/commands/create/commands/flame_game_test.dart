@@ -170,8 +170,9 @@ void main() {
       });
 
       test('create flame game', () async {
-        final tempDir = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateFlameGame(
           analytics: analytics,
@@ -180,7 +181,7 @@ void main() {
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
         when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDir.path);
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_app']);
         when(() => argResults['application-id'] as String?).thenReturn(
           'xyz.app.my_app',

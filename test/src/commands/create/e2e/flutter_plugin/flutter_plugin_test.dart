@@ -13,12 +13,14 @@ void main() {
     'create flutter_plugin',
     timeout: const Timeout(Duration(minutes: 8)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync();
+      final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
       const pluginName = 'very_good';
-      final pluginDirectory = path.join(directory.path, pluginName);
+      final pluginDirectory = path.join(tempDirectory.path, pluginName);
 
       final result = await commandRunner.run(
-        ['create', 'flutter_plugin', pluginName, '-o', directory.path],
+        ['create', 'flutter_plugin', pluginName, '-o', tempDirectory.path],
       );
       expect(
         result,
@@ -65,8 +67,6 @@ void main() {
         );
         expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
       }
-
-      directory.deleteSync(recursive: true);
     }),
   );
 }

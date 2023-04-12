@@ -21,14 +21,15 @@ Future<void> testMultiTemplateCommand({
   required Map<String, dynamic> expectedVars,
   required String expectedLogSummary,
 }) async {
-  final tempDir = Directory.systemTemp.createTempSync();
-  addTearDown(() => tempDir.deleteSync(recursive: true));
+  final tempDirectory = Directory.systemTemp.createTempSync();
+  addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
   final argResults = _MockArgResults();
   final command = multiTemplatesCommand..argResultOverrides = argResults;
 
   when(() => argResults['template'] as String?).thenReturn(templateName);
   when(() => argResults['output-directory'] as String?)
-      .thenReturn(tempDir.path);
+      .thenReturn(tempDirectory.path);
 
   for (final entry in mockArgs.entries) {
     when(() => argResults[entry.key]).thenReturn(entry.value);

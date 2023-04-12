@@ -564,18 +564,26 @@ void main() {
       group('--org', () {
         test(
           'is a valid alias',
+          timeout: const Timeout(Duration(seconds: 60)),
           withRunner(
             (commandRunner, logger, pubUpdater, printLogs) async {
               const orgName = 'com.my.org';
-              final tempDir = Directory.systemTemp.createTempSync();
+              final tempDirectory = Directory.systemTemp.createTempSync();
+              addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
               final result = await commandRunner.run(
-                ['create', 'example', '-o', tempDir.path, '--org', orgName],
+                [
+                  'create',
+                  'example',
+                  '-o',
+                  tempDirectory.path,
+                  '--org',
+                  orgName
+                ],
               );
               expect(result, equals(ExitCode.success.code));
-              tempDir.deleteSync(recursive: true);
             },
           ),
-          timeout: const Timeout(Duration(seconds: 60)),
         );
       });
 
