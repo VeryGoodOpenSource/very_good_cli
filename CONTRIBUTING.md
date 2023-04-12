@@ -87,7 +87,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 
 3. Ensure you have a meaningful [semantic][conventional_commits_link] commit message.
 
-4. Add tests! Pull Requests without 100% test coverage will **not** be approved. If you're unsure on how to do so watch our [Testing Fundamentals Course](https://www.youtube.com/watch?v=M_eZg-X789w&list=PLprI2satkVdFwpxo_bjFkCxXz5RluG8FY).
+4. Add tests! Pull Requests without 100% test coverage will **not** be merged. If you're unsure on how to do so watch our [Testing Fundamentals Course](https://www.youtube.com/watch?v=M_eZg-X789w&list=PLprI2satkVdFwpxo_bjFkCxXz5RluG8FY).
 
 5. Ensure the existing test suite passes locally:
 
