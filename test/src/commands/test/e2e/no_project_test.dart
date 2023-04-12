@@ -12,17 +12,19 @@ void main() {
   test(
     'fails if the project does not exist',
     withRunner((commandRunner, logger, updater, logs) async {
-      final directory = Directory.systemTemp.createTempSync('async_main');
-      await copyDirectory(Directory('test/fixtures/async_main'), directory);
+      final tempDirectory = Directory.systemTemp.createTempSync('async_main');
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+      await copyDirectory(Directory('test/fixtures/async_main'), tempDirectory);
 
       await expectSuccessfulProcessResult(
         'flutter',
         ['pub', 'get'],
-        workingDirectory: directory.path,
+        workingDirectory: tempDirectory.path,
       );
 
       final cwd = Directory.current;
-      Directory.current = directory;
+      Directory.current = tempDirectory;
       addTearDown(() {
         Directory.current = cwd;
       });
