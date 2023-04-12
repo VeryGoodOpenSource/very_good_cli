@@ -10,6 +10,8 @@ To develop for Very Good CLI's test optimizer, you will also need to become fami
 
 ### Setting up your local development environment
 
+All commands are relative to `test_optimizer`, make sure to change your working directory before running these commands.
+
 1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/bricks/test_optimizer/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
 
 2. Install [Mason](https://github.com/felangel/mason/tree/master/packages/mason_cli#installation) in your local environment:
@@ -26,16 +28,17 @@ dart pub global activate mason_cli
 very_good packages get -r
 
 # Or get project dependencies manually
-dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
+cd hooks/ && dart pub get && cd ../
 ```
 
 4. Run all test optimizer tests:
 
 ```sh
 # 🪝 Run test optimizer hook's unit test
-cd bricks/test_optimizer/hooks && dart test && cd ../../../
+cd hooks/ && dart test && cd ../../../
 
 # 💻 Run `very_good test` end to end tests
+cd ../../ &&
 dart test test/src/commands/test/e2e/async_main_test.dart --run-skipped -t e2e &&
 dart test test/src/commands/test/e2e/no_project_test.dart --run-skipped -t e2e
 ```
