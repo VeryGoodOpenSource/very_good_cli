@@ -1,6 +1,3 @@
-@Tags(['e2e'])
-library no_project_test;
-
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -15,7 +12,10 @@ void main() {
       final tempDirectory = Directory.systemTemp.createTempSync('async_main');
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      await copyDirectory(Directory('test/fixtures/async_main'), tempDirectory);
+      await copyDirectory(
+        Directory('test/commands/test/no_project/fixture'),
+        tempDirectory,
+      );
 
       await expectSuccessfulProcessResult(
         'flutter',
