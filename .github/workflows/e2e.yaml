@@ -1,0 +1,76 @@
+name: e2e
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/e2e.yaml"
+      - "**"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/e2e.yaml"
+      - "**"
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        flutter-version:
+          # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
+          # refer to https://docs.flutter.dev/development/tools/sdk/releases.
+          - "3.3.0"
+          # Latest stable version
+          - ""
+        test:
+          # E2E tests for the test command
+          - test/commands/test/async_main/async_main_test.dart
+          - test/commands/test/no_project/no_project_test.dart
+
+          # E2E tests for the create command
+          - test/commands/create/flutter_app/core_test.dart
+          - test/commands/create/dart_cli/dart_cli_test.dart
+          - test/commands/create/dart_package/dart_pkg_test.dart
+          - test/commands/create/docs_site/docs_site_test.dart
+          - test/commands/create/flame_game/flame_game_test.dart
+          - test/commands/create/flutter_package/flutter_pkg_test.dart
+          - test/commands/create/flutter_plugin/flutter_plugin_test.dart
+
+          # E2E tests for the legacy create command syntax
+          - test/commands/create/legacy/core_test.dart
+          - test/commands/create/legacy/dart_cli_test.dart
+          - test/commands/create/legacy/dart_pkg_test.dart
+          - test/commands/create/legacy/docs_site_test.dart
+          - test/commands/create/legacy/flame_game_test.dart
+          - test/commands/create/legacy/flutter_pkg_test.dart
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v3.1.0
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter-version }}
+
+      - name: Install LCOV
+        run: sudo apt-get install -y lcov
+
+      - name: 📦 Install Dependencies (root)
+        run: flutter pub get
+
+      - name: 📦 Install Dependencies (e2e)
+        working-directory: e2e
+        run: flutter pub get
+
+      - name: Run Tests
+        working-directory: e2e
+        run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
