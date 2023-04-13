@@ -56,7 +56,9 @@ jobs:
           - "3.3.0"
         test:
           # E2E tests for the test command
-          - test/src/commands/test/e2e/
+          - test/src/commands/test/e2e/async_main_test.dart
+          - test/src/commands/test/e2e/no_project_test.dart
+          - test/src/commands/test/e2e/spaced_golden_file_name_test.dart
 
           # E2E tests for the create command
           - test/src/commands/create/e2e/flutter_app/core_test.dart
