@@ -1,5 +1,5 @@
 @Tags(['e2e'])
-library no_project_test;
+library spaced_golden_file_name_test;
 
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
