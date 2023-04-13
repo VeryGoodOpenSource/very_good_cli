@@ -1,0 +1,14 @@
+name: spaced_golden_file_name
+description: Fixture for testing golden files with spaced file names.
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
