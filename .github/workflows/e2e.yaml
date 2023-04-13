@@ -73,4 +73,4 @@ jobs:
 
       - name: Run Tests
         working-directory: e2e
-        run: flutter pub run test ${{ matrix.test }} --run-skipped -t e2e
+        run: flutter pub run test ${{ matrix.test }} --run-skipped
