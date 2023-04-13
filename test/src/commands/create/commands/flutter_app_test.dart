@@ -9,7 +9,6 @@ import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
 
 import '../../../../helpers/helpers.dart';
-import '../../../../helpers/test_multi_template_commands.dart';
 
 class MockAnalytics extends Mock implements Analytics {}
 

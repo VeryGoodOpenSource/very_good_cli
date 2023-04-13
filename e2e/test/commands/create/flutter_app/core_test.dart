@@ -1,35 +1,24 @@
-@Tags(['e2e'])
-library legacy.flutter_pkg_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t flutter_pkg',
+    'create flutter_app',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
-        [
-          'create',
-          'very_good_flutter',
-          '-t',
-          'flutter_pkg',
-          '-o',
-          tempDirectory.path,
-        ],
+        ['create', 'flutter_app', 'very_good_core', '-o', tempDirectory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory =
-          path.join(tempDirectory.path, 'very_good_flutter');
+      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
 
       await expectSuccessfulProcessResult(
         'dart',

@@ -3,7 +3,7 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../test/helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(

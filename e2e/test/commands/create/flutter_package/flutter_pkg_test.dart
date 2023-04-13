@@ -1,27 +1,31 @@
-@Tags(['e2e'])
-library legacy.core_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t core',
+    'create flutter_package',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
-        ['create', 'very_good_core', '-t', 'core', '-o', tempDirectory.path],
+        [
+          'create',
+          'flutter_package',
+          'very_good_flutter',
+          '-o',
+          tempDirectory.path,
+        ],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
+      final workingDirectory =
+          path.join(tempDirectory.path, 'very_good_flutter');
 
       await expectSuccessfulProcessResult(
         'dart',
