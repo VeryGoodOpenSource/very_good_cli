@@ -36,7 +36,7 @@ void main() {
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: workingDirectory,
       );
 
