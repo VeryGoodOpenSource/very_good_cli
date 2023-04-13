@@ -1,3 +1,6 @@
+@Tags(['e2e'])
+library spaced_golden_file_name_test;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
