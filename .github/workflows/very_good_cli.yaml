@@ -25,7 +25,15 @@ jobs:
 
       - uses: subosito/flutter-action@v2.8.0
 
-      - name: Install Dependencies
+      - name: Install Dependencies (root)
+        run: flutter pub get
+
+      - name: Install Dependencies (test/fixtures/async_main)
+        working-directory: test/fixtures/async_main
+        run: dart pub get
+
+      - name: Install Dependencies (test/fixtures/spaced_golden_file_name)
+        working-directory: test/fixtures/spaced_golden_file_name
         run: flutter pub get
 
       - name: Format
