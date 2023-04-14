@@ -4,7 +4,7 @@ First of all, thank you for taking the time to contribute! 🎉👍 Before you d
 
 ## Understanding Very Good CLI
 
-Very Good CLI allows generating scalable templates and use helpful commands. These functionalities have been decomposed into different repositories and packages.
+Very Good CLI allows you to generate scalable templates and use helpful commands. These functionalities have been decomposed into different repositories and packages.
 
 Templates have their own repositories, if you want to contribute to them please refer to their repositories:
 
