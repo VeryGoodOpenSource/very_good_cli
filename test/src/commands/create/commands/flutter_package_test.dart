@@ -163,8 +163,9 @@ void main() {
       });
 
       test('creates flutter package', () async {
-        final tempDir = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
         final argResults = MockArgResults();
         final command = CreateFlutterPackage(
           analytics: analytics,
@@ -173,7 +174,7 @@ void main() {
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
         when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDir.path);
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_flutter_package']);
 
         final result = await command.run();
