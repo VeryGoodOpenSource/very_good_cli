@@ -9,7 +9,7 @@ void main() {
   test(
     'fails if the project does not exist',
     withRunner((commandRunner, logger, updater, logs) async {
-      final tempDirectory = Directory.systemTemp.createTempSync('async_main');
+      final tempDirectory = Directory.systemTemp.createTempSync('no_project');
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       await copyDirectory(
