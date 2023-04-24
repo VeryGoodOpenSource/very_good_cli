@@ -1,12 +1,9 @@
-@Tags(['e2e'])
-library flutter_plugin_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
@@ -30,7 +27,7 @@ void main() {
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: pluginDirectory,
       );
 

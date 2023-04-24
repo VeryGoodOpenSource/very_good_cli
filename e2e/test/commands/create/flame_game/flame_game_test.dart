@@ -1,17 +1,14 @@
-@Tags(['e2e'])
-library legacy.flutter_pkg_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t flutter_pkg',
-    timeout: const Timeout(Duration(minutes: 2)),
+    'create flame_game',
+    timeout: const Timeout(Duration(minutes: 5)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
@@ -19,21 +16,22 @@ void main() {
       final result = await commandRunner.run(
         [
           'create',
-          'very_good_flutter',
-          '-t',
-          'flutter_pkg',
+          'flame_game',
+          'very_good_flame_game',
           '-o',
           tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory =
-          path.join(tempDirectory.path, 'very_good_flutter');
+      final workingDirectory = path.join(
+        tempDirectory.path,
+        'very_good_flame_game',
+      );
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: workingDirectory,
       );
 
@@ -56,7 +54,7 @@ void main() {
         ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
   );
 }

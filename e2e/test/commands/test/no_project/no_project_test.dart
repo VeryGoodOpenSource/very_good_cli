@@ -1,6 +1,3 @@
-@Tags(['e2e'])
-library no_project_test;
-
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
@@ -12,10 +9,13 @@ void main() {
   test(
     'fails if the project does not exist',
     withRunner((commandRunner, logger, updater, logs) async {
-      final tempDirectory = Directory.systemTemp.createTempSync('async_main');
+      final tempDirectory = Directory.systemTemp.createTempSync('no_project');
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      await copyDirectory(Directory('test/fixtures/async_main'), tempDirectory);
+      await copyDirectory(
+        Directory('test/commands/test/no_project/fixture'),
+        tempDirectory,
+      );
 
       await expectSuccessfulProcessResult(
         'flutter',

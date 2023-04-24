@@ -1,0 +1,19 @@
+name: very_good_cli_e2e
+description: End to End tests for package:very_good_cli
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dev_dependencies:
+  mason: ^0.1.0-dev.41
+  mocktail: ^0.3.0
+  path: ^1.8.0
+  pub_updater: ^0.2.4
+  test: ^1.19.2
+  universal_io: ^2.0.4
+  usage: ^4.0.2
+  very_good_analysis: ^3.1.0
+  very_good_cli:
+    path: ../

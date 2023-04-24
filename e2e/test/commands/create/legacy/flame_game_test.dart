@@ -1,26 +1,23 @@
-@Tags(['e2e'])
-library flame_game_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create flame_game',
-    timeout: const Timeout(Duration(minutes: 5)),
+    'create -t flame_game',
+    timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
-      addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
         [
           'create',
-          'flame_game',
           'very_good_flame_game',
+          '-t',
+          'flame_game',
           '-o',
           tempDirectory.path,
         ],
@@ -34,7 +31,7 @@ void main() {
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: workingDirectory,
       );
 

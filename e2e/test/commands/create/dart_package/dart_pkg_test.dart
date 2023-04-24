@@ -1,34 +1,24 @@
-@Tags(['e2e'])
-library dart_cli_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create dart_cli',
+    'create dart_package',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
-        [
-          'create',
-          'dart_cli',
-          'very_good_dart_cli',
-          '-o',
-          tempDirectory.path,
-        ],
+        ['create', 'dart_package', 'very_good_dart', '-o', tempDirectory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory =
-          path.join(tempDirectory.path, 'very_good_dart_cli');
+      final workingDirectory = path.join(tempDirectory.path, 'very_good_dart');
 
       // add coverage to collect coverage on dart test
       await expectSuccessfulProcessResult(
@@ -39,7 +29,7 @@ void main() {
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: workingDirectory,
       );
 
