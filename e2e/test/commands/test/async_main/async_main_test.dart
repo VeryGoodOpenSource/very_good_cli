@@ -1,6 +1,3 @@
-@Tags(['e2e'])
-library async_main_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
@@ -17,7 +14,10 @@ void main() {
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final fixture = Directory(
-        path.join(Directory.current.path, 'test/fixtures/async_main'),
+        path.join(
+          Directory.current.path,
+          'test/commands/test/async_main/fixture',
+        ),
       );
 
       await copyDirectory(fixture, tempDirectory);

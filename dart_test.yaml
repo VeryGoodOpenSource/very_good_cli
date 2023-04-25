@@ -1,5 +1,3 @@
 tags:
   pull-request-only:
     skip: "Should only be run during pull request"
-  e2e:
-    skip: "End to end tests should be run in parallel with other unit tests"

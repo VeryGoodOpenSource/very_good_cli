@@ -1,40 +1,28 @@
-@Tags(['e2e'])
-library legacy.flame_game_test;
-
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 
-import '../../../../../helpers/helpers.dart';
+import '../../../../helpers/helpers.dart';
 
 void main() {
   test(
-    'create -t flame_game',
+    'create -t core',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       final result = await commandRunner.run(
-        [
-          'create',
-          'very_good_flame_game',
-          '-t',
-          'flame_game',
-          '-o',
-          tempDirectory.path,
-        ],
+        ['create', 'very_good_core', '-t', 'core', '-o', tempDirectory.path],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(
-        tempDirectory.path,
-        'very_good_flame_game',
-      );
+      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
 
       await expectSuccessfulProcessResult(
         'dart',
-        ['format', '--set-exit-if-changed', '.'],
+        ['format'],
         workingDirectory: workingDirectory,
       );
 
@@ -57,7 +45,7 @@ void main() {
         ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
+      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
     }),
   );
 }
