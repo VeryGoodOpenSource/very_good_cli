@@ -10,8 +10,6 @@ To develop for Very Good CLI's test optimizer, you will also need to become fami
 
 ### Setting up your local development environment
 
-All commands are relative to `test_optimizer`, make sure to change your working directory before running these commands.
-
 1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/bricks/test_optimizer/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
 
 2. Install [Mason](https://github.com/felangel/mason/tree/master/packages/mason_cli#installation) in your local environment:
@@ -21,26 +19,23 @@ All commands are relative to `test_optimizer`, make sure to change your working 
 dart pub global activate mason_cli
 ```
 
-3. Get all project dependencies:
+3. Get hooks' dependencies:
 
 ```sh
-# 📂 Get project dependencies recursively with Very Good CLI
-very_good packages get -r
-
-# Or get project dependencies manually
-cd hooks/ && dart pub get && cd ../
+# 🪝 Get hooks' dependencies (from bricks/test_optimizer/hooks)
+dart pub get
 ```
 
 4. Run all test optimizer tests:
 
 ```sh
-# 🪝 Run test optimizer hook's unit test
-cd hooks/ && dart test && cd ../../../
+# 🪝 Run test optimizer hooks' unit test (from bricks/test_optimizer/hooks)
+dart test
 
-# 💻 Run `very_good test` end to end tests
-cd ../../ &&
-dart test test/src/commands/test/e2e/async_main_test.dart --run-skipped -t e2e &&
-dart test test/src/commands/test/e2e/no_project_test.dart --run-skipped -t e2e
+# 💻 Run `very_good test` end to end tests (from e2e/)
+dart test test/src/commands/test/async_main_test.dart &&
+dart test test/src/commands/test/no_project_test.dart &&
+dart test test/src/commands/test/spaced_golden_file_name.dart
 ```
 
 If not all test passed out of the box please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose) so it can get fixed.
@@ -48,8 +43,8 @@ If not all test passed out of the box please submit an [issue](https://github.co
 5. Install your own version of test optimizer in your local environment:
 
 ```sh
-# 🧱 Adds test optimizer brick from path
-mason add --global test_optimizer --path bricks/test_optimizer
+# 🧱 Adds test optimizer brick from path (from bricks/test_optimizer)
+mason add --global test_optimizer --path .
 ```
 
 Then, you can start using it:
@@ -62,10 +57,10 @@ mason make test_optimizer
 6. If you want to run your test optimizer with Very Good CLI (like for example `very_good test`) locally then:
 
 ```sh
-# 📦 Bundle test optimizer
+# 📦 Bundle test optimizer (from root)
 tool/generate_test_optimizer_bundle.sh
 
-# 💻 Install your own version of Very Good CLI in your local environment
+# 💻 Install your own version of Very Good CLI in your local environment (from root)
 dart pub global activate --source path .
 ```
 
