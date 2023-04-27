@@ -1,4 +1,4 @@
-## 🦄 Contributing to Very Good CLI
+## 🦄 Contributing to the Very Good CLI test optimizer 
 
 First of all, thank you for taking the time to contribute! 🎉👍 Before you do, please carefully read this guide.
 
@@ -54,7 +54,7 @@ Then, you can start using it:
 mason make test_optimizer
 ```
 
-6. If you want to run your test optimizer with Very Good CLI (like for example `very_good test`) locally then:
+6. If you want to run your test optimizer with Very Good CLI (like for example `very_good test`) locally:
 
 ```sh
 # 📦 Bundle test optimizer (from root)
@@ -64,4 +64,4 @@ tool/generate_test_optimizer_bundle.sh
 dart pub global activate --source path .
 ```
 
-💡 **Note**: After changing the test optimizer brick, make sure to always generate a new test optimizer bundle and commit this as part of your Pull Request.
+💡 **Note**: After changing the test optimizer brick, make sure to always generate a new test optimizer bundle and commit this as part of your pull request.
