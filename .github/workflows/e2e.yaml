@@ -32,6 +32,7 @@ jobs:
           # E2E tests for the test command
           - test/commands/test/async_main/async_main_test.dart
           - test/commands/test/no_project/no_project_test.dart
+          - test/commands/test/spaced_golden_file_name/spaced_golden_file_name_test.dart
 
           # E2E tests for the create command
           - test/commands/create/flutter_app/core_test.dart
