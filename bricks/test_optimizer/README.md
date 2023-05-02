@@ -30,9 +30,3 @@ void main() {
 ```
 
 [1]: https://github.com/felangel/mason
-
----
-
-### Note for maintainers
-
-After changing this brick, make sure to run `./tools/generate_test_optimizer_bundle.sh` from the root of the repository to update the bundle.
