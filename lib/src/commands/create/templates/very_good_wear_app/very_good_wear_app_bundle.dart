@@ -77,7 +77,7 @@ final veryGoodWearAppBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy4zLjEuMC55YW1sCmxpbnRlcjoKICBydWxlczoKICAgIHB1YmxpY19tZW1iZXJfYXBpX2RvY3M6IGZhbHNlCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy40LjAuMC55YW1sCmxpbnRlcjoKICBydWxlczoKICAgIHB1YmxpY19tZW1iZXJfYXBpX2RvY3M6IGZhbHNlCg==",
       "type": "text"
     },
     {
@@ -588,7 +588,7 @@ final veryGoodWearAppBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjogQSBuZXcgRmx1dHRlciBXZWFyT1MgcHJvamVjdC4KdmVyc2lvbjogMS4wLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgYmxvYzogXjguMS4xCiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0ZXJfYmxvYzogXjguMS4yCiAgZmx1dHRlcl9sb2NhbGl6YXRpb25zOgogICAgc2RrOiBmbHV0dGVyCiAgaW50bDogXjAuMTcuMAogIHdlYXI6IF4xLjEuMAogIHdlYXJhYmxlX3JvdGFyeTogXjIuMC4wCgpkZXZfZGVwZW5kZW5jaWVzOgogIGJsb2NfdGVzdDogXjkuMS4xCiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgbW9ja3RhaWw6IF4wLjMuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjMuMS4wCgpmbHV0dGVyOgogIHVzZXMtbWF0ZXJpYWwtZGVzaWduOiB0cnVlCiAgZ2VuZXJhdGU6IHRydWUK",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjogQSBuZXcgRmx1dHRlciBXZWFyT1MgcHJvamVjdC4KdmVyc2lvbjogMS4wLjArMQpwdWJsaXNoX3RvOiBub25lCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgYmxvYzogXjguMS4xCiAgZmx1dHRlcjoKICAgIHNkazogZmx1dHRlcgogIGZsdXR0ZXJfYmxvYzogXjguMS4yCiAgZmx1dHRlcl9sb2NhbGl6YXRpb25zOgogICAgc2RrOiBmbHV0dGVyCiAgaW50bDogXjAuMTcuMAogIHdlYXI6IF4xLjEuMAogIHdlYXJhYmxlX3JvdGFyeTogXjIuMC4wCgpkZXZfZGVwZW5kZW5jaWVzOgogIGJsb2NfdGVzdDogXjkuMS4xCiAgZmx1dHRlcl90ZXN0OgogICAgc2RrOiBmbHV0dGVyCiAgbW9ja3RhaWw6IF4wLjMuMAogIHZlcnlfZ29vZF9hbmFseXNpczogXjQuMC4wCgpmbHV0dGVyOgogIHVzZXMtbWF0ZXJpYWwtZGVzaWduOiB0cnVlCiAgZ2VuZXJhdGU6IHRydWUK",
       "type": "text"
     },
     {
@@ -647,15 +647,15 @@ final veryGoodWearAppBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogdmVyeV9nb29kX3dlYXJfYXBwX2hvb2tzCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTguMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246IF4wLjEuMC1kZXYuNDAKCmRldl9kZXBlbmRlbmNpZXM6CiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeMy4xLjAK",
+          "bmFtZTogdmVyeV9nb29kX3dlYXJfYXBwX2hvb2tzCgplbnZpcm9ubWVudDoKICBzZGs6ICI+PTIuMTkuMCA8My4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246IF4wLjEuMC1kZXYuNDkKCmRldl9kZXBlbmRlbmNpZXM6CiAgdmVyeV9nb29kX2FuYWx5c2lzOiBeNC4wLjAK",
       "type": "text"
     }
   ],
   "name": "very_good_wear_app",
   "description":
       "A Very Good WearOS Flutter app created by Very Good Ventures.",
-  "version": "0.0.1",
-  "environment": {"mason": ">=0.1.0-dev.41 <0.1.0"},
+  "version": "0.1.0",
+  "environment": {"mason": ">=0.1.0-dev.49 <0.1.0"},
   "repository": "https://github.com/VeryGoodOpenSource/very_good_wear_app",
   "readme": {
     "path": "README.md",
@@ -666,7 +666,7 @@ final veryGoodWearAppBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyBbMC4wLjFdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dlYXJfYXBwL2NvbXBhcmUvMWM2MjlmYjcwNjE5YmUyMDNjN2RlZjY4M2I0MTA1MjM2YTBkMmYyYS4uLnYwLjAuMSkgKDIwMjMtMDMtMTcpCgojIyBGZWF0dXJlcwoKLSBhZGQgYnJpY2sgZ2VuZXJhdG9yIChbIzRdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dlYXJfYXBwL2lzc3Vlcy80KSkgKFs2NzUyNzk4XShodHRwczovL2dpdGh1Yi5jb20vVmVyeUdvb2RPcGVuU291cmNlL3ZlcnlfZ29vZF93ZWFyX2FwcC9jb21taXQvNjc1Mjc5ODlkY2ViNGRkMDRhYjJkZjIxYWQwMzVlNmZjMWQ0ODQ1YikpCi0gYWRkIHRlbXBsYXRlIGFwcGxpY2F0aW9uIGJhc2UgKFsjM10oaHR0cHM6Ly9naXRodWIuY29tL1ZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2Rfd2Vhcl9hcHAvaXNzdWVzLzMpKSAoWzRjNWQ5N2ZdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3dlYXJfYXBwL2NvbW1pdC80YzVkOTdmYmE4NTlhZjMyZTFjYmQ1NTNkOTNhOTBjOTczZDNkMjMzKSkK",
+        "IyAwLjEuMAoKLSBkb2NzOiBmaXhlZCBWZXJ5R29vZENvcmUgdHlwbwotIGZlYXQhOiBidW1wIG1pbiBEYXJ0IFNESyB0byAyLjE5LjAKCiMgMC4wLjEKCi0gZmVhdDogYWRkIGJyaWNrIGdlbmVyYXRvcgotIGFkZCB0ZW1wbGF0ZSBhcHBsaWNhdGlvbiBiYXNlCg==",
     "type": "text"
   },
   "license": {
