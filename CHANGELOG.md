@@ -1,4 +1,14 @@
-# [0.13.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.0...v0.13.1) (2023-04-12)
+# [0.14.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.1...v0.14.0) (2023-05-10)
+
+### Bug Fixes
+
+- allow spaced golden file names ([#722](https://github.com/VeryGoodOpenSource/very_good_cli/issues/722)) ([0e63104](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0e63104d2f309763875c768705e9d453198c731f))
+
+### Features
+
+- bump template bundles ([#731](https://github.com/VeryGoodOpenSource/very_good_cli/issues/731)) ([be974e2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/be974e24d2497f3ac6ce0b4df3dbcee44f48217d))
+
+## [0.13.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.0...v0.13.1) (2023-04-12)
 
 ### Bug Fixes
 
