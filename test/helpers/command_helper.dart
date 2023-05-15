@@ -35,8 +35,7 @@ void Function() withRunner(
     Logger logger,
     PubUpdater pubUpdater,
     List<String> printLogs,
-  )
-      runnerFn,
+  ) runnerFn,
 ) {
   return _overridePrint((printLogs) async {
     final analytics = MockAnalytics();
