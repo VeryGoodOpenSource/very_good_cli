@@ -734,6 +734,50 @@ void main() {
         );
       });
 
+      test('runs tests (compilation error)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testEventStream = Stream.fromIterable([
+          ...compulationErrorJsonOutput(tempDirectory.path)
+              .map(TestEvent.fromJson),
+          const ExitTestEvent(exitCode: 1, time: 0),
+        ]);
+
+        await expectLater(
+          Flutter.test(
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            testRunner: testRunner(testEventStream),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+
+        expect(
+          stdoutLogs,
+          containsAllInOrder([
+            '\x1B[2K\r00:00 -1: loading test/.test_optimizer.dart',
+            '\x1B[2K\r00:00 -1: Some tests failed.\n'
+          ]),
+        );
+        expect(
+          stderrLogs,
+          containsAll([
+            '\x1B[2K\rFailed to load "test/.test_optimizer.dart":\n'
+                "test/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n"
+                '    expect(Thing(thing: true), isNull);\n'
+                '                 ^^^^^\n'
+                "lib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n"
+                '  const Thing();\n'
+                '        ^^^^^',
+          ]),
+        );
+      });
+
       test('runs tests w/out logs', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

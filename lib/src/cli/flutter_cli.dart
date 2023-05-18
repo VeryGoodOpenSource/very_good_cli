@@ -388,16 +388,39 @@ Future<int> _flutterTest({
         if (event.stackTrace.trim().isNotEmpty) {
           stderr('$clearLine${event.stackTrace}');
         }
+
         final test = tests[event.testID]!;
         final suite = suites[test.suiteID]!;
         final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
 
         final optimizationApplied = _isOptimizationApplied(suite);
-        final topGroupName = _topGroupName(test, groups);
-        final testPath =
-            _actualTestPath(optimizationApplied, suite.path!, topGroupName);
-        final testName =
-            _actualTestName(optimizationApplied, test.name, topGroupName);
+
+        var testPath = suite.path!;
+        var testName = test.name;
+
+        if (optimizationApplied) {
+          // When there is a test error before any group is computed, it means
+          // that there is an error when compiling the test optimizer file.
+          if (groups.isEmpty) {
+            if (!event.isFailure && event.error.isCompilationError()) {
+              final relativeTestPath = p.relative(testPath, from: cwd);
+              failedTestErrorMessages[relativeTestPath] = [
+                '$prefix ${event.error}'
+              ];
+              return;
+            }
+          } else {
+            final topGroupName = _topGroupName(test, groups)!;
+
+            testPath = testPath.replaceFirst(
+              _testOptimizerFileName,
+              topGroupName,
+            );
+
+            testName = testName.replaceFirst(topGroupName, '').trim();
+          }
+        }
+
         final relativeTestPath = p.relative(testPath, from: cwd);
         failedTestErrorMessages[relativeTestPath] = [
           ...failedTestErrorMessages[relativeTestPath] ?? [],
@@ -411,11 +434,18 @@ Future<int> _flutterTest({
         final test = tests[event.testID]!;
         final suite = suites[test.suiteID]!;
         final optimizationApplied = _isOptimizationApplied(suite);
-        final firstGroupName = _topGroupName(test, groups);
-        final testPath =
-            _actualTestPath(optimizationApplied, suite.path!, firstGroupName);
-        final testName =
-            _actualTestName(optimizationApplied, test.name, firstGroupName);
+
+        var testPath = suite.path!;
+        var testName = test.name;
+
+        if (optimizationApplied) {
+          final firstGroupName = _topGroupName(test, groups) ?? '';
+          testPath = testPath.replaceFirst(
+            _testOptimizerFileName,
+            firstGroupName,
+          );
+          testName = testName.replaceFirst(firstGroupName, '').trim();
+        }
 
         if (event.skipped) {
           stdout(
@@ -493,22 +523,6 @@ String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
 
-String _actualTestPath(
-  bool optimizationApplied,
-  String path,
-  String? groupName,
-) =>
-    optimizationApplied
-        ? path.replaceFirst(_testOptimizerFileName, groupName!)
-        : path;
-
-String _actualTestName(
-  bool optimizationApplied,
-  String name,
-  String? topGroupName,
-) =>
-    optimizationApplied ? name.replaceFirst(topGroupName!, '').trim() : name;
-
 final int _lineLength = () {
   try {
     return stdout.terminalColumns;
@@ -562,6 +576,11 @@ extension on String {
     return '...$truncated';
   }
 
-  String toSingleLine() =>
-      replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
+  String toSingleLine() {
+    return replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
+  }
+
+  bool isCompilationError() {
+    return contains('Compilation failed for');
+  }
 }
