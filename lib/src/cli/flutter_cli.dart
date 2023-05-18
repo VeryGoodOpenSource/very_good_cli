@@ -401,15 +401,7 @@ Future<int> _flutterTest({
         if (optimizationApplied) {
           // When there is a test error before any group is computed, it means
           // that there is an error when compiling the test optimizer file.
-          if (groups.isEmpty) {
-            if (!event.isFailure && event.error.isCompilationError()) {
-              final relativeTestPath = p.relative(testPath, from: cwd);
-              failedTestErrorMessages[relativeTestPath] = [
-                '$prefix ${event.error}'
-              ];
-              return;
-            }
-          } else {
+          if (groups.isNotEmpty) {
             final topGroupName = _topGroupName(test, groups)!;
 
             testPath = testPath.replaceFirst(
@@ -578,9 +570,5 @@ extension on String {
 
   String toSingleLine() {
     return replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
-  }
-
-  bool isCompilationError() {
-    return contains('Compilation failed for');
   }
 }

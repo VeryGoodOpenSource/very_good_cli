@@ -1442,53 +1442,53 @@ List<Map<String, Object>> skipExceptionMessageJsonOutput(String cwd) => [
       {'success': false, 'type': 'done', 'time': 5466},
     ];
 
-List<Map<String, Object>> compulationErrorJsonOutput(String cwd) {
+List<Map<String, Object>> compilationErrorJsonOutput(String cwd) {
   return [
     {
-      "protocolVersion": "0.1.1",
-      "runnerVersion": "1.24.3",
-      "pid": 65730,
-      "type": "start",
-      "time": 0
+      'protocolVersion': '0.1.1',
+      'runnerVersion': '1.24.3',
+      'pid': 65730,
+      'type': 'start',
+      'time': 0
     },
     {
-      "suite": {"id": 0, "platform": "vm", "path": "test/.test_optimizer.dart"},
-      "type": "suite",
-      "time": 0
+      'suite': {'id': 0, 'platform': 'vm', 'path': 'test/.test_optimizer.dart'},
+      'type': 'suite',
+      'time': 0
     },
     {
-      "test": {
-        "id": 1,
-        "name": "loading test/.test_optimizer.dart",
-        "suiteID": 0,
-        "groupIDs": [],
-        "metadata": {"skip": false, "skipReason": null},
-        "line": null,
-        "column": null,
-        "url": null
+      'test': {
+        'id': 1,
+        'name': 'loading test/.test_optimizer.dart',
+        'suiteID': 0,
+        'groupIDs': <int>[],
+        'metadata': {'skip': false, 'skipReason': null},
+        'line': null,
+        'column': null,
+        'url': null
       },
-      "type": "testStart",
-      "time": 0
+      'type': 'testStart',
+      'time': 0
     },
-    {"count": 1, "time": 4, "type": "allSuites"},
+    {'count': 1, 'time': 4, 'type': 'allSuites'},
     {
-      "testID": 1,
-      "error":
+      'testID': 1,
+      'error':
           "Failed to load \"test/.test_optimizer.dart\":\ntest/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n    expect(Thing(thing: true), isNull);\n                 ^^^^^\nlib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n  const Thing();\n        ^^^^^",
-      "stackTrace":
-          "package:test_core/src/runner/vm/platform.dart 255:7   VMPlatform._compileToKernel\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 232:15  VMPlatform._spawnIsolate\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 76:19   VMPlatform.load\n===== asynchronous gap ===========================\npackage:test_core/src/runner/loader.dart 232:27       Loader.loadFile.<fn>\n===== asynchronous gap ===========================\npackage:test_core/src/runner/load_suite.dart 98:19    new LoadSuite.<fn>.<fn>\n",
-      "isFailure": false,
-      "type": "error",
-      "time": 532
+      'stackTrace':
+          'package:test_core/src/runner/vm/platform.dart 255:7   VMPlatform._compileToKernel\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 232:15  VMPlatform._spawnIsolate\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 76:19   VMPlatform.load\n===== asynchronous gap ===========================\npackage:test_core/src/runner/loader.dart 232:27       Loader.loadFile.<fn>\n===== asynchronous gap ===========================\npackage:test_core/src/runner/load_suite.dart 98:19    new LoadSuite.<fn>.<fn>\n',
+      'isFailure': false,
+      'type': 'error',
+      'time': 532
     },
     {
-      "testID": 1,
-      "result": "error",
-      "skipped": false,
-      "hidden": false,
-      "type": "testDone",
-      "time": 535
+      'testID': 1,
+      'result': 'error',
+      'skipped': false,
+      'hidden': false,
+      'type': 'testDone',
+      'time': 535
     },
-    {"success": false, "type": "done", "time": 536},
+    {'success': false, 'type': 'done', 'time': 536},
   ];
 }

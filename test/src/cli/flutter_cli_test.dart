@@ -741,7 +741,7 @@ void main() {
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 
         final testEventStream = Stream.fromIterable([
-          ...compulationErrorJsonOutput(tempDirectory.path)
+          ...compilationErrorJsonOutput(tempDirectory.path)
               .map(TestEvent.fromJson),
           const ExitTestEvent(exitCode: 1, time: 0),
         ]);
