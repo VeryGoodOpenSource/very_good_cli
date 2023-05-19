@@ -398,19 +398,17 @@ Future<int> _flutterTest({
         var testPath = suite.path!;
         var testName = test.name;
 
-        if (optimizationApplied) {
-          // When there is a test error before any group is computed, it means
-          // that there is an error when compiling the test optimizer file.
-          if (groups.isNotEmpty) {
-            final topGroupName = _topGroupName(test, groups)!;
+        // When there is a test error before any group is computed, it means
+        // that there is an error when compiling the test optimizer file.
+        if (optimizationApplied && groups.isNotEmpty) {
+          final topGroupName = _topGroupName(test, groups)!;
 
-            testPath = testPath.replaceFirst(
-              _testOptimizerFileName,
-              topGroupName,
-            );
+          testPath = testPath.replaceFirst(
+            _testOptimizerFileName,
+            topGroupName,
+          );
 
-            testName = testName.replaceFirst(topGroupName, '').trim();
-          }
+          testName = testName.replaceFirst(topGroupName, '').trim();
         }
 
         final relativeTestPath = p.relative(testPath, from: cwd);
