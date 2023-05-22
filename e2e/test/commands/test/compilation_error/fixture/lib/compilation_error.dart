@@ -1,0 +1,3 @@
+class Thing {
+  const Thing();
+}
