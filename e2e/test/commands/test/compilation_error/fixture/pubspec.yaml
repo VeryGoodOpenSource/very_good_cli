@@ -1,0 +1,9 @@
+name: compilation_error
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ">=2.19.0 <3.0.0"
+
+dev_dependencies:
+  test: ^1.19.2
