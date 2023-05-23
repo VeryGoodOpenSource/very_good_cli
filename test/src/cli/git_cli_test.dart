@@ -17,15 +17,25 @@ class _TestProcess {
 
 class _MockProcess extends Mock implements _TestProcess {}
 
-class _MockProcessResult extends Mock implements ProcessResult {}
-
 class _MockLogger extends Mock implements Logger {}
 
 class _MockProgress extends Mock implements Progress {}
 
 void main() {
+  final successProcessResult = ProcessResult(
+    42,
+    ExitCode.success.code,
+    '',
+    '',
+  );
+  final softwareErrorProcessResult = ProcessResult(
+    42,
+    ExitCode.software.code,
+    '',
+    '',
+  );
+
   group('Git', () {
-    late ProcessResult processResult;
     late _TestProcess process;
     late Logger logger;
     late Progress progress;
@@ -35,9 +45,7 @@ void main() {
       progress = _MockProgress();
       when(() => logger.progress(any())).thenReturn(progress);
 
-      processResult = _MockProcessResult();
       process = _MockProcess();
-      when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
       when(
         () => process.run(
           any(),
@@ -45,7 +53,7 @@ void main() {
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
-      ).thenAnswer((_) async => processResult);
+      ).thenAnswer((_) async => successProcessResult);
     });
 
     group('reachable', () {
@@ -67,7 +75,15 @@ void main() {
       test(
           'throws UnreachableGitDependency '
           'for an unreachable remote', () async {
-        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
         await ProcessOverrides.runZoned(
           () async {
             await expectLater(

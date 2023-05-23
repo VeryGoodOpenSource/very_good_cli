@@ -113,7 +113,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/analysis_options.yaml",
       "data":
-          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy40LjAuMC55YW1sCg==",
+          "aW5jbHVkZTogcGFja2FnZTp2ZXJ5X2dvb2RfYW5hbHlzaXMvYW5hbHlzaXNfb3B0aW9ucy41LjAuMC55YW1sCg==",
       "type": "text"
     },
     {
@@ -139,7 +139,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIj49Mi4xOS4wIDwzLjAuMCIKCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4wLjMuMAogIHRlc3Q6IF4xLjE5LjIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF40LjAuMAo=",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIj49My4wLjAgPDQuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjAuMy4wCiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjUuMC4wCg==",
       "type": "text"
     },
     {
@@ -165,7 +165,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "hooks": [],
   "name": "very_good_dart_package",
   "description": "A Very Good Dart package created by Very Good Ventures.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "environment": {"mason": ">=0.1.0-dev.49 <0.1.0"},
   "repository": "https://github.com/VeryGoodOpenSource/very_good_dart_package",
   "readme": {
@@ -177,7 +177,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjMuMAoKLSBmZWF0ITogYnVtcCBtaW4gRGFydCBTREsgdG8gMi4xOS4wCgojIDAuMi41CgotIGZpeDogcGF0Y2ggdmVyc2lvbiBkb3duZ3JhZGUKLSBjaG9yZTogc3VwcG9ydCBkYXJ0IHNkayAyLjE4LjAKCiMgMC4yLjQKCi0gZml4OiB1bm5lY2Vzc2FyeSBpc3N1ZS9wciB0ZW1wbGF0ZXMgb24gdGVtcGxhdGUgc3JjCi0gZmVhdDogdXBkYXRlIHdvcmtmbG93cywgYWRkIHNwZWxsY2hlY2sKCiMgMC4yLjMKCi0gZmVhdDogdXBncmFkZSB0byBgdmVyeV9nb29kX2FuYWx5c2lzIF40LjAuMGAKCiMgMC4yLjIKCi0gZmVhdDogdXBncmFkZSB0byBEYXJ0IDIuMTkgYW5kIGZpeCBkZXBlbmRhYm90IGZpbGUKCiMgMC4yLjEKCi0gZml4OiB3aW5kb3dzIHBhdGggcmVzb2x1dGlvbgotIGZpeDogR2l0SHViIHdvcmtmbG93IGNvbmN1cnJlbmN5IGdyb3VwCgojIDAuMi4wCgotICoqQlJFQUtJTkcqKiBmZWF0OiBhZGQgYHB1Ymxpc2hhYmxlYCBmbGFnIChkZWZhdWx0cyB0byBgZmFsc2VgKQoKIyAwLjEuMgoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRGFydCAyLjE4IGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
+        "IyAwLjQuMAoKLSBmZWF0ITogdXBkYXRlIHRvIERhcnQgMwoKIyAwLjMuMAoKLSBmZWF0ITogYnVtcCBtaW4gRGFydCBTREsgdG8gMi4xOS4wCgojIDAuMi41CgotIGZpeDogcGF0Y2ggdmVyc2lvbiBkb3duZ3JhZGUKLSBjaG9yZTogc3VwcG9ydCBkYXJ0IHNkayAyLjE4LjAKCiMgMC4yLjQKCi0gZml4OiB1bm5lY2Vzc2FyeSBpc3N1ZS9wciB0ZW1wbGF0ZXMgb24gdGVtcGxhdGUgc3JjCi0gZmVhdDogdXBkYXRlIHdvcmtmbG93cywgYWRkIHNwZWxsY2hlY2sKCiMgMC4yLjMKCi0gZmVhdDogdXBncmFkZSB0byBgdmVyeV9nb29kX2FuYWx5c2lzIF40LjAuMGAKCiMgMC4yLjIKCi0gZmVhdDogdXBncmFkZSB0byBEYXJ0IDIuMTkgYW5kIGZpeCBkZXBlbmRhYm90IGZpbGUKCiMgMC4yLjEKCi0gZml4OiB3aW5kb3dzIHBhdGggcmVzb2x1dGlvbgotIGZpeDogR2l0SHViIHdvcmtmbG93IGNvbmN1cnJlbmN5IGdyb3VwCgojIDAuMi4wCgotICoqQlJFQUtJTkcqKiBmZWF0OiBhZGQgYHB1Ymxpc2hhYmxlYCBmbGFnIChkZWZhdWx0cyB0byBgZmFsc2VgKQoKIyAwLjEuMgoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRGFydCAyLjE4IGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {

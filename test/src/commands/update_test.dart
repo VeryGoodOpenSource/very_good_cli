@@ -7,10 +7,14 @@ import 'package:very_good_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
 
-class MockProcessResult extends Mock implements ProcessResult {}
-
 void main() {
   const latestVersion = '0.0.0';
+  final successProcessResult = ProcessResult(
+    42,
+    ExitCode.success.code,
+    '',
+    '',
+  );
 
   group('update', () {
     test(
@@ -60,15 +64,12 @@ void main() {
     test(
       'handles pub update process errors',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final processResult = MockProcessResult();
-
-        when(
-          () => processResult.exitCode,
-        ).thenReturn(1);
-
-        when<dynamic>(
-          () => processResult.stderr,
-        ).thenReturn('Oh no! Installing this is not possible right now!');
+        final softwareErrorProcessResult = ProcessResult(
+          42,
+          ExitCode.software.code,
+          '',
+          'Oh no! Installing this is not possible right now!',
+        );
 
         when(
           () => pubUpdater.getLatestVersion(any()),
@@ -79,7 +80,7 @@ void main() {
             packageName: any(named: 'packageName'),
             versionConstraint: any(named: 'versionConstraint'),
           ),
-        ).thenAnswer((_) => Future.value(processResult));
+        ).thenAnswer((_) => Future.value(softwareErrorProcessResult));
 
         final result = await commandRunner.run(['update']);
 
@@ -102,8 +103,6 @@ void main() {
     test(
       'updates when newer version exists',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final processResult = MockProcessResult();
-
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
@@ -112,9 +111,8 @@ void main() {
             packageName: any(named: 'packageName'),
             versionConstraint: any(named: 'versionConstraint'),
           ),
-        ).thenAnswer((_) => Future.value(processResult));
+        ).thenAnswer((_) => Future.value(successProcessResult));
 
-        when(() => processResult.exitCode).thenReturn(0);
         when(() => logger.progress(any())).thenReturn(MockProgress());
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
