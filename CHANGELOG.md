@@ -1,3 +1,14 @@
+# [0.15.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.14.0...v0.15.0) (2023-05-23)
+
+### Bug Fixes
+
+- do not  crash on test compilation error ([#739](https://github.com/VeryGoodOpenSource/very_good_cli/issues/739)) ([f19411c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f19411c5c49e374783b553debb485583d60b5310))
+
+### Features
+
+- increase min sdk constraint to 3.0.0 ([#744](https://github.com/VeryGoodOpenSource/very_good_cli/issues/744)) ([464696c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/464696cb1440d67959db85c312e5a5a7bcdd8351))
+- remove deprecated legacy  syntax ([#693](https://github.com/VeryGoodOpenSource/very_good_cli/issues/693)) ([af9b283](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af9b2830b804e951568079f3ae9321737ff9aa02))
+
 # [0.14.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.1...v0.14.0) (2023-05-10)
 
 ### Bug Fixes
