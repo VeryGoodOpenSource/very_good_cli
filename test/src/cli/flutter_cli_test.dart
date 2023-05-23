@@ -15,21 +15,18 @@ import '../../fixtures/fixtures.dart';
 
 const _pubspec = '''
 name: example
-environment:
-  sdk: ">=2.13.0 <3.0.0"
 
 dev_dependencies:
   test: any''';
 
 const _unreachableGitUrlPubspec = '''
 name: example
-environment:
-  sdk: ">=2.13.0 <3.0.0"
 
 dev_dependencies:
   very_good_analysis:
     git:
-      url: https://github.com/verygoodopensource/_very_good_analysis''';
+      url: https://github.com/verygoodopensource/_very_good_analysis
+''';
 
 class _TestProcess {
   Future<ProcessResult> run(
