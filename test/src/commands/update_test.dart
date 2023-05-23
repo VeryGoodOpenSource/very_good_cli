@@ -64,9 +64,9 @@ void main() {
     test(
       'handles pub update process errors',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final softwareErrorProcessResult = ProcessResult(
+        final errorProcessResult = ProcessResult(
           42,
-          ExitCode.software.code,
+          1,
           '',
           'Oh no! Installing this is not possible right now!',
         );
@@ -80,7 +80,7 @@ void main() {
             packageName: any(named: 'packageName'),
             versionConstraint: any(named: 'versionConstraint'),
           ),
-        ).thenAnswer((_) => Future.value(softwareErrorProcessResult));
+        ).thenAnswer((_) => Future.value(errorProcessResult));
 
         final result = await commandRunner.run(['update']);
 
