@@ -19,8 +19,6 @@ class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockProgress extends Mock implements Progress {}
 
-class MockProcessResult extends Mock implements ProcessResult {}
-
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n'
       '\n'
@@ -57,17 +55,22 @@ ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodo
 Run ${lightCyan.wrap('very_good update')} to update''';
 
 void main() {
+  final successProcessResult = ProcessResult(
+    42,
+    ExitCode.success.code,
+    '',
+    '',
+  );
+
   group('VeryGoodCommandRunner', () {
     late Analytics analytics;
     late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
-    late ProcessResult processResult;
 
     setUp(() {
       analytics = MockAnalytics();
       pubUpdater = MockPubUpdater();
-      processResult = MockProcessResult();
 
       when(() => analytics.firstRun).thenReturn(false);
       when(() => analytics.enabled).thenReturn(false);
@@ -102,7 +105,7 @@ void main() {
       });
 
       test(
-        'doesnt show update message when using the update command',
+        'does not show update message when using the update command',
         () async {
           when(
             () => pubUpdater.getLatestVersion(any()),
@@ -112,14 +115,13 @@ void main() {
               packageName: packageName,
               versionConstraint: latestVersion,
             ),
-          ).thenAnswer((_) => Future.value(processResult));
+          ).thenAnswer((_) => Future.value(successProcessResult));
           when(
             () => pubUpdater.isUpToDate(
               packageName: any(named: 'packageName'),
               currentVersion: any(named: 'currentVersion'),
             ),
           ).thenAnswer((_) => Future.value(true));
-          when(() => processResult.exitCode).thenReturn(0);
           final progress = MockProgress();
           final progressLogs = <String>[];
           when(() => progress.complete(any())).thenAnswer((_) {

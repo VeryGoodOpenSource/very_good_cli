@@ -15,21 +15,18 @@ import '../../fixtures/fixtures.dart';
 
 const _pubspec = '''
 name: example
-environment:
-  sdk: ">=2.13.0 <3.0.0"
 
 dev_dependencies:
   test: any''';
 
 const _unreachableGitUrlPubspec = '''
 name: example
-environment:
-  sdk: ">=2.13.0 <3.0.0"
 
 dev_dependencies:
   very_good_analysis:
     git:
-      url: https://github.com/verygoodopensource/_very_good_analysis''';
+      url: https://github.com/verygoodopensource/_very_good_analysis
+''';
 
 class _TestProcess {
   Future<ProcessResult> run(
@@ -44,8 +41,6 @@ class _TestProcess {
 
 class _MockProcess extends Mock implements _TestProcess {}
 
-class _MockProcessResult extends Mock implements ProcessResult {}
-
 class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
 class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
@@ -57,8 +52,20 @@ class _MockProgress extends Mock implements Progress {}
 class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
 
 void main() {
+  final successProcessResult = ProcessResult(
+    42,
+    ExitCode.success.code,
+    '',
+    '',
+  );
+  final softwareErrorProcessResult = ProcessResult(
+    42,
+    ExitCode.software.code,
+    '',
+    'Some error',
+  );
+
   group('Flutter', () {
-    late ProcessResult processResult;
     late _TestProcess process;
     late Logger logger;
     late Progress progress;
@@ -73,9 +80,7 @@ void main() {
       progress = _MockProgress();
       when(() => logger.progress(any())).thenReturn(progress);
 
-      processResult = _MockProcessResult();
       process = _MockProcess();
-      when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
       when(
         () => process.run(
           any(),
@@ -83,7 +88,7 @@ void main() {
           runInShell: any(named: 'runInShell'),
           workingDirectory: any(named: 'workingDirectory'),
         ),
-      ).thenAnswer((_) async => processResult);
+      ).thenAnswer((_) async => successProcessResult);
     });
 
     group('.packagesGet', () {
@@ -101,10 +106,6 @@ void main() {
       });
 
       test('throws when process fails', () {
-        final flutterProcessResult = _MockProcessResult();
-        when(
-          () => flutterProcessResult.exitCode,
-        ).thenReturn(ExitCode.software.code);
         when(
           () => process.run(
             'flutter',
@@ -112,7 +113,7 @@ void main() {
             runInShell: any(named: 'runInShell'),
             workingDirectory: any(named: 'workingDirectory'),
           ),
-        ).thenAnswer((_) async => flutterProcessResult);
+        ).thenAnswer((_) async => softwareErrorProcessResult);
 
         ProcessOverrides.runZoned(
           () => expectLater(
@@ -133,10 +134,6 @@ void main() {
         File(p.join(tempDirectory.path, 'pubspec.yaml'))
             .writeAsStringSync(_unreachableGitUrlPubspec);
 
-        final gitProcessResult = _MockProcessResult();
-        when(
-          () => gitProcessResult.exitCode,
-        ).thenReturn(ExitCode.software.code);
         when(
           () => process.run(
             'git',
@@ -144,7 +141,7 @@ void main() {
             runInShell: any(named: 'runInShell'),
             workingDirectory: any(named: 'workingDirectory'),
           ),
-        ).thenAnswer((_) async => gitProcessResult);
+        ).thenAnswer((_) async => softwareErrorProcessResult);
 
         ProcessOverrides.runZoned(
           () => expectLater(
@@ -250,10 +247,6 @@ void main() {
       });
 
       test('throws when process fails', () {
-        final flutterProcessResult = _MockProcessResult();
-        when(
-          () => flutterProcessResult.exitCode,
-        ).thenReturn(ExitCode.software.code);
         when(
           () => process.run(
             'flutter',
@@ -261,7 +254,7 @@ void main() {
             runInShell: any(named: 'runInShell'),
             workingDirectory: any(named: 'workingDirectory'),
           ),
-        ).thenAnswer((_) async => flutterProcessResult);
+        ).thenAnswer((_) async => softwareErrorProcessResult);
         ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(cwd: Directory.systemTemp.path, logger: logger),
@@ -289,7 +282,15 @@ void main() {
       });
 
       test('throws when process fails', () {
-        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
         ProcessOverrides.runZoned(
           () => expectLater(Flutter.pubGet(logger: logger), throwsException),
           runProcess: process.run,
@@ -297,7 +298,15 @@ void main() {
       });
 
       test('throws when process fails (recursive)', () {
-        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
         ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(recursive: true, logger: logger),

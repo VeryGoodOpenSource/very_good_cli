@@ -17,15 +17,13 @@ class _TestProcess {
 
 class _MockProcess extends Mock implements _TestProcess {}
 
-class _MockProcessResult extends Mock implements ProcessResult {}
-
 class _MockLogger extends Mock implements Logger {}
 
 class _MockProgress extends Mock implements Progress {}
 
 void main() {
   group('Dart', () {
-    late ProcessResult processResult;
+    final processResult = ProcessResult(42, ExitCode.success.code, '', '');
     late _TestProcess process;
     late Logger logger;
     late Progress progress;
@@ -35,9 +33,7 @@ void main() {
       progress = _MockProgress();
       when(() => logger.progress(any())).thenReturn(progress);
 
-      processResult = _MockProcessResult();
       process = _MockProcess();
-      when(() => processResult.exitCode).thenReturn(ExitCode.success.code);
       when(
         () => process.run(
           any(),
@@ -57,7 +53,22 @@ void main() {
       });
 
       test('returns false when dart is not installed', () {
-        when(() => processResult.exitCode).thenReturn(ExitCode.software.code);
+        final processResult = ProcessResult(
+          42,
+          ExitCode.software.code,
+          '',
+          '',
+        );
+
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => processResult);
+
         ProcessOverrides.runZoned(
           () =>
               expectLater(Dart.installed(logger: logger), completion(isFalse)),
