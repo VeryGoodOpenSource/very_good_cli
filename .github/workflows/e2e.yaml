@@ -44,14 +44,6 @@ jobs:
           - test/commands/create/flutter_package/flutter_pkg_test.dart
           - test/commands/create/flutter_plugin/flutter_plugin_test.dart
 
-          # E2E tests for the legacy create command syntax
-          - test/commands/create/legacy/core_test.dart
-          - test/commands/create/legacy/dart_cli_test.dart
-          - test/commands/create/legacy/dart_pkg_test.dart
-          - test/commands/create/legacy/docs_site_test.dart
-          - test/commands/create/legacy/flame_game_test.dart
-          - test/commands/create/legacy/flutter_pkg_test.dart
-
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v3.1.0
