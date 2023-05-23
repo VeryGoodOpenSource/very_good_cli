@@ -1,6 +1,7 @@
 name: test_optimizer
 description: A brick that generates a single entrypoint for Dart tests.
 version: 0.1.0+1
+publish_to: none
 
 environment:
   mason: ">=0.1.0-dev.49 <0.1.0"
