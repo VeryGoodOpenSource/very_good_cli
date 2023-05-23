@@ -73,30 +73,31 @@ void main() {
       });
 
       test(
-          'throws UnreachableGitDependency '
-          'for an unreachable remote', () async {
-        when(
-          () => process.run(
-            any(),
-            any(),
-            runInShell: any(named: 'runInShell'),
-            workingDirectory: any(named: 'workingDirectory'),
-          ),
-        ).thenAnswer((_) async => softwareErrorProcessResult);
+        'throws UnreachableGitDependency for an unreachable remote',
+        () async {
+          when(
+            () => process.run(
+              any(),
+              any(),
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        await ProcessOverrides.runZoned(
-          () async {
-            await expectLater(
-              Git.reachable(
-                Uri.parse('https://github.com/org/repo'),
-                logger: logger,
-              ),
-              throwsA(isA<UnreachableGitDependency>()),
-            );
-          },
-          runProcess: process.run,
-        );
-      });
+          await ProcessOverrides.runZoned(
+            () async {
+              await expectLater(
+                Git.reachable(
+                  Uri.parse('https://github.com/org/repo'),
+                  logger: logger,
+                ),
+                throwsA(isA<UnreachableGitDependency>()),
+              );
+            },
+            runProcess: process.run,
+          );
+        },
+      );
     });
 
     group('UnreachableGitDependency', () {

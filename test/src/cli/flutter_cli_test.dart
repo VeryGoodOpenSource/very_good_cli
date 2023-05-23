@@ -62,7 +62,7 @@ void main() {
     42,
     ExitCode.software.code,
     '',
-    '',
+    'Some error',
   );
 
   group('Flutter', () {
