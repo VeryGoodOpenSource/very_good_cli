@@ -55,6 +55,7 @@ final testOptimizerBundle = MasonBundle.fromJson(<String, dynamic>{
   "description": "A brick that generates a single entrypoint for Dart tests.",
   "version": "0.1.0+1",
   "environment": {"mason": ">=0.1.0-dev.49 <0.1.0"},
+  "publish_to": "none",
   "readme": {
     "path": "README.md",
     "data":
