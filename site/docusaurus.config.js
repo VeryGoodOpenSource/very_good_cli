@@ -55,19 +55,21 @@ const config = {
         },
         items: [
           {
-            label: 'Blog',
-            to: 'https://verygood.ventures/blog',
+            to: '/docs/overview',
+            label: 'Get Started',
+            position: 'right',
+            className: 'button nav-button',
+          },
+          {
+            label: 'VGV.DEV',
+            to: 'https://vgv.dev',
             position: 'right',
           },
           {
-            label: 'OSS',
-            to: 'https://github.com/VeryGoodOpenSource',
+            href: 'https://verygood.ventures',
             position: 'right',
-          },
-          {
-            label: 'VGV',
-            to: 'https://verygood.ventures',
-            position: 'right',
+            className: 'navbar-vgv-icon',
+            'aria-label': 'VGV website',
           },
           {
             href: 'https://github.com/verygoodopensource/very_good_cli',
