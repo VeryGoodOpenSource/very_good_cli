@@ -73,6 +73,19 @@ html[data-theme='dark'] .footer {
   background-color: var(--ifm-footer-background-color);
 }
 
+/* Get Started button in Navbar */
+.nav-button {
+  background-color: var(--ifm-color-primary);
+  color: var(--ifm-button-color);
+  font-weight: 600;
+  padding: 8px 16px;
+}
+
+.nav-button:hover {
+  color: var(--ifm-button-color);
+  background-color: var(--ifm-color-primary-dark);
+}
+
 /* GitHub Navbar Icon */
 .navbar-github-icon:hover {
   opacity: 0.6;
@@ -109,4 +122,28 @@ html[data-theme='dark'] .navbar-github-icon:before {
 html[data-theme='dark'] .navbar-vgv-icon:before {
   background: url('../../static/img/vgv_logo_fill.svg') no-repeat;
   background-size: 24px;
+}
+
+@media screen and (max-width: 996px) {
+  .nav-button {
+    background-color: var(--colors-white);
+    color: var(--ifm-menu-color);
+    font-size: 1em;
+    font-weight: 300;
+    padding: 4px 12px;
+  }
+  .nav-button:hover {
+    color: var(--ifm-menu-color);
+    background-color: var(--ifm-menu-color-background-hover);
+  }
+
+  html[data-theme='dark'] .nav-button {
+    background-color: var(--ifm-navbar-background-color);
+    color: var(--ifm-menu-color);
+  }
+
+  html[data-theme='dark'] .nav-button:hover {
+    background-color: var(--ifm-menu-color-background-hover);
+    color: var(--ifm-menu-color);
+  }
 }
