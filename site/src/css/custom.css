@@ -25,7 +25,7 @@
   --hero-image-background-color: var(--colors-off-white);
   --title-text-color: var(--colors-dark-blue);
 
-  /* Informa Variables */
+  /* Infima Variables */
   --ifm-color-primary: #2a48df;
   --ifm-color-primary-dark: #1f3ccf;
   --ifm-color-primary-darker: #1d39c4;
@@ -45,7 +45,7 @@
   /* Custom Variables */
   --hero-image-background-color: var(--colors-darker-grey);
 
-  /* Infirma Variables */
+  /* Infima Variables */
   --ifm-color-primary: #66fbd1;
   --ifm-color-primary-dark: #44fac7;
   --ifm-color-primary-darker: #32fac1;
