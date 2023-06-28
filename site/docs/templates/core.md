@@ -58,18 +58,6 @@ very_good create flutter_app my_app --desc "My new Flutter app"
 very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
 ```
 
-:::note
-Upon first use, you will be prompted about anonymous usage statistics. You can adjust these settings at any time via the `--analytics` flag
-:::
-
-```sh
-# opt into anonymous usage statistics
-very_good --analytics true
-
-# opt out of anonymous usage statistics
-very_good --analytics false
-```
-
 ### Running the Project ⚡
 
 Once you have finished running `very_good create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies
