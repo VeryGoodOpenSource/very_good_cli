@@ -74,6 +74,13 @@ void main() {
       );
     });
 
+    test('can be instantiated with optional parameters', () {
+      expect(
+        () => VeryGoodCommandRunner(logger: logger),
+        returnsNormally,
+      );
+    });
+
     group('run', () {
       test('shows update message when newer version exists', () async {
         when(
