@@ -7,7 +7,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateDocsSite extends CreateSubCommand {
   /// {@macro very_good_create_docs_site}
   CreateDocsSite({
-    required super.analytics,
     required super.logger,
     required super.generatorFromBundle,
     required super.generatorFromBrick,
