@@ -18,7 +18,7 @@ void main() {
   );
 
   group('update', () {
-    test('can be instantiated with optional parameters', () {
+    test('can be instantiated without optional parameters', () {
       expect(
         () => UpdateCommand(logger: Logger()),
         returnsNormally,

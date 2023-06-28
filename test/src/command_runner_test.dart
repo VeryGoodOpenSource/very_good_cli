@@ -74,7 +74,7 @@ void main() {
       );
     });
 
-    test('can be instantiated with optional parameters', () {
+    test('can be instantiated without optional parameters', () {
       expect(
         () => VeryGoodCommandRunner(logger: logger),
         returnsNormally,
