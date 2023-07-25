@@ -126,8 +126,24 @@ html[data-theme='dark'] .navbar-vgv-icon:before {
 
 @media screen and (max-width: 996px) {
   .nav-button {
-    color: var(--ifm-button-color);
-    background-color: var(--ifm-color-primary);
-    max-width: 8em;
+    background-color: var(--colors-white);
+    color: var(--ifm-menu-color);
+    font-size: 1em;
+    font-weight: 300;
+    padding: 4px 12px;
+  }
+  .nav-button:hover {
+    color: var(--ifm-menu-color);
+    background-color: var(--ifm-menu-color-background-hover);
+  }
+
+  html[data-theme='dark'] .nav-button {
+    background-color: var(--ifm-navbar-background-color);
+    color: var(--ifm-menu-color);
+  }
+
+  html[data-theme='dark'] .nav-button:hover {
+    background-color: var(--ifm-menu-color-background-hover);
+    color: var(--ifm-menu-color);
   }
 }
