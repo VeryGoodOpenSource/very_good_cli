@@ -80,55 +80,6 @@ const config = {
         ],
       },
       footer: {
-        links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Overview',
-                to: '/docs/overview',
-              },
-              {
-                label: 'Templates',
-                to: '/docs/category/templates',
-              },
-              {
-                label: 'Commands',
-                to: '/docs/category/commands',
-              },
-              {
-                label: 'Resources',
-                to: '/docs/category/resources',
-              },
-            ],
-          },
-          {
-            title: 'Resources',
-            items: [
-              {
-                label: 'Tutorials',
-                href: '/docs/resources/tutorials',
-              },
-              {
-                label: 'Learn More',
-                href: '/docs/resources/learn_more',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'Open an Issue',
-                href: 'https://github.com/verygoodopensource/very_good_cli/issues/new/choose',
-              },
-              {
-                label: 'GitHub',
-                href: 'https://github.com/verygoodopensource/very_good_cli',
-              },
-            ],
-          },
-        ],
         copyright: `Copyright © ${new Date().getFullYear()} Very Good Ventures.<br/>Built with 💙 by <a target="_blank" rel="noopener" aria-label="Very Good Ventures" href="https://verygood.ventures">Very Good Ventures</a>.`,
       },
       prism: {
