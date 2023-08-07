@@ -7,11 +7,8 @@ import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
-import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
-
-class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
@@ -27,11 +24,6 @@ const expectedUsage = [
       'Global options:\n'
       '-h, --help            Print this usage information.\n'
       '    --version         Print the current version.\n'
-      '    --analytics       Toggle anonymous usage statistics.\n'
-      '\n'
-      '          [false]     Disable anonymous usage statistics\n'
-      '          [true]      Enable anonymous usage statistics\n'
-      '\n'
       '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
       '\n'
       'Available commands:\n'
@@ -63,17 +55,13 @@ void main() {
   );
 
   group('VeryGoodCommandRunner', () {
-    late Analytics analytics;
     late PubUpdater pubUpdater;
     late Logger logger;
     late VeryGoodCommandRunner commandRunner;
 
     setUp(() {
-      analytics = MockAnalytics();
       pubUpdater = MockPubUpdater();
 
-      when(() => analytics.firstRun).thenReturn(false);
-      when(() => analytics.enabled).thenReturn(false);
       when(
         () => pubUpdater.getLatestVersion(any()),
       ).thenAnswer((_) async => packageVersion);
@@ -81,16 +69,13 @@ void main() {
       logger = MockLogger();
 
       commandRunner = VeryGoodCommandRunner(
-        analytics: analytics,
         logger: logger,
         pubUpdater: pubUpdater,
       );
     });
 
-    test('can be instantiated without an explicit analytics/logger instance',
-        () {
-      final commandRunner = VeryGoodCommandRunner();
-      expect(commandRunner, isNotNull);
+    test('can be instantiated without optional parameters', () {
+      expect(VeryGoodCommandRunner.new, returnsNormally);
     });
 
     group('run', () {
@@ -144,22 +129,6 @@ void main() {
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
         verifyNever(() => logger.info(updatePrompt));
-      });
-
-      test('prompts for analytics collection on first run (y)', () async {
-        when(() => analytics.firstRun).thenReturn(true);
-        when(() => logger.prompt(any())).thenReturn('y');
-        final result = await commandRunner.run(['--version']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() => analytics.enabled = true);
-      });
-
-      test('prompts for analytics collection on first run (n)', () async {
-        when(() => analytics.firstRun).thenReturn(true);
-        when(() => logger.prompt(any())).thenReturn('n');
-        final result = await commandRunner.run(['--version']);
-        expect(result, equals(ExitCode.success.code));
-        verify(() => analytics.enabled = false);
       });
 
       test('handles FormatException', () async {
@@ -222,36 +191,6 @@ void main() {
         });
       });
 
-      group('--analytics', () {
-        test('sets analytics.enabled to true', () async {
-          final result = await commandRunner.run(['--analytics', 'true']);
-          expect(result, equals(ExitCode.success.code));
-          verify(() => analytics.enabled = true);
-        });
-
-        test('sets analytics.enabled to false', () async {
-          final result = await commandRunner.run(['--analytics', 'false']);
-          expect(result, equals(ExitCode.success.code));
-          verify(() => analytics.enabled = false);
-        });
-
-        test('does not accept erroneous input', () async {
-          final result = await commandRunner.run(['--analytics', 'garbage']);
-          expect(result, equals(ExitCode.usage.code));
-          verifyNever(() => analytics.enabled);
-          verify(
-            () => logger.err(
-              '"garbage" is not an allowed value for option "analytics".',
-            ),
-          ).called(1);
-        });
-
-        test('exits with bad usage when missing value', () async {
-          final result = await commandRunner.run(['--analytics']);
-          expect(result, equals(ExitCode.usage.code));
-        });
-      });
-
       group('--version', () {
         test('outputs current version', () async {
           final result = await commandRunner.run(['--version']);
@@ -269,15 +208,6 @@ void main() {
           verify(() => logger.detail('  Top level options:')).called(1);
           verify(() => logger.detail('  - verbose: true')).called(1);
           verifyNever(() => logger.detail('    Command options:'));
-        });
-
-        test('logs that analytics is enabled', () async {
-          when(() => analytics.enabled).thenReturn(true);
-          final result = await commandRunner.run(['--verbose']);
-          expect(result, equals(ExitCode.success.code));
-          verify(
-            () => logger.detail('Running with analytics enabled.'),
-          ).called(1);
         });
 
         test('enables verbose logging for sub commands', () async {

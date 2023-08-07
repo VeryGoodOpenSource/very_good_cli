@@ -7,7 +7,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlutterPackage extends CreateSubCommand with Publishable {
   /// {@macro very_good_create_flutter_package_command}
   CreateFlutterPackage({
-    required super.analytics,
     required super.logger,
     required super.generatorFromBundle,
     required super.generatorFromBrick,

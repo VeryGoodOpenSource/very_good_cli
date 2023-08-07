@@ -7,7 +7,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   /// {@macro very_good_create_flutter_app_command}
   CreateFlutterApp({
-    required super.analytics,
     required super.logger,
     required super.generatorFromBundle,
     required super.generatorFromBrick,
