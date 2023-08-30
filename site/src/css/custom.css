@@ -13,8 +13,8 @@
 /* You can override the default Infima variables here. */
 :root {
   /* Color Palette */
-  --colors-darker-grey: #27364a;
-  --colors-dark-grey: #1d2939;
+  --colors-darker-blue: #020f30;
+  --colors-dark-navy: #081842;
   --colors-light-grey: #314155;
   --colors-white: #ffffff;
   --colors-off-white: #fbfcff;
@@ -43,7 +43,7 @@
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
   /* Custom Variables */
-  --hero-image-background-color: var(--colors-darker-grey);
+  --hero-image-background-color: var(--colors-darker-blue);
 
   /* Infima Variables */
   --ifm-color-primary: #66fbd1;
@@ -53,9 +53,9 @@
   --ifm-color-primary-light: #88fcdb;
   --ifm-color-primary-lighter: #9afce1;
   --ifm-color-primary-lightest: #cdfef0;
-  --ifm-footer-background-color: var(--colors-dark-grey);
-  --ifm-background-color: var(--colors-darker-grey) !important;
-  --ifm-navbar-background-color: var(--colors-dark-grey);
+  --ifm-footer-background-color: var(--colors-darker-blue);
+  --ifm-background-color: var(--colors-darker-blue) !important;
+  --ifm-navbar-background-color: var(--colors-dark-navy);
   --ifm-card-background-color: var(--colors-light-grey);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
@@ -126,8 +126,28 @@ html[data-theme='dark'] .navbar-vgv-icon:before {
 
 @media screen and (max-width: 996px) {
   .nav-button {
-    color: var(--ifm-button-color);
-    background-color: var(--ifm-color-primary);
-    max-width: 8em;
+    background-color: var(--colors-white);
+    color: var(--ifm-menu-color);
+    font-size: 1em;
+    font-weight: 300;
+    padding: 4px 12px;
   }
+  .nav-button:hover {
+    color: var(--ifm-menu-color);
+    background-color: var(--ifm-menu-color-background-hover);
+  }
+
+  html[data-theme='dark'] .nav-button {
+    background-color: var(--ifm-navbar-background-color);
+    color: var(--ifm-menu-color);
+  }
+
+  html[data-theme='dark'] .nav-button:hover {
+    background-color: var(--ifm-menu-color-background-hover);
+    color: var(--ifm-menu-color);
+  }
+}
+
+html[data-theme='dark'] code {
+  background: #081842 !important;
 }

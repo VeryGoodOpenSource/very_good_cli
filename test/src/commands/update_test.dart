@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/commands/update.dart';
 import 'package:very_good_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
@@ -17,6 +18,13 @@ void main() {
   );
 
   group('update', () {
+    test('can be instantiated without optional parameters', () {
+      expect(
+        () => UpdateCommand(logger: Logger()),
+        returnsNormally,
+      );
+    });
+
     test(
       'handles pub latest version query errors',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {

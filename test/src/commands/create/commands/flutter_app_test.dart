@@ -4,13 +4,10 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
 
 import '../../../../helpers/helpers.dart';
-
-class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
@@ -52,7 +49,6 @@ environment:
 
 void main() {
   late List<String> progressLogs;
-  late Analytics analytics;
   late Logger logger;
 
   final generatedFiles = List.filled(10, const GeneratedFile.created(path: ''));
@@ -64,14 +60,6 @@ void main() {
 
   setUp(() {
     progressLogs = <String>[];
-
-    analytics = MockAnalytics();
-    when(
-      () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
-    ).thenAnswer((_) async {});
-    when(
-      () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
-    ).thenAnswer((_) async {});
 
     logger = MockLogger();
 
@@ -87,7 +75,6 @@ void main() {
     test('with default options', () {
       final logger = Logger();
       final command = CreateFlutterApp(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: null,
         generatorFromBrick: null,
@@ -166,7 +153,6 @@ void main() {
         test('core', () async {
           await testMultiTemplateCommand(
             multiTemplatesCommand: CreateFlutterApp(
-              analytics: analytics,
               logger: logger,
               generatorFromBundle: (_) async => throw Exception('oops'),
               generatorFromBrick: (_) async => generator,
@@ -189,7 +175,6 @@ void main() {
         test('wear', () async {
           await testMultiTemplateCommand(
             multiTemplatesCommand: CreateFlutterApp(
-              analytics: analytics,
               logger: logger,
               generatorFromBundle: (_) async => throw Exception('oops'),
               generatorFromBrick: (_) async => generator,

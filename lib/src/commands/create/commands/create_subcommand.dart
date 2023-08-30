@@ -6,8 +6,6 @@ import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-import 'package:usage/usage_io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
@@ -50,12 +48,10 @@ typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 abstract class CreateSubCommand extends Command<int> {
   /// {@macro create_subcommand}
   CreateSubCommand({
-    required Analytics analytics,
     required this.logger,
     required MasonGeneratorFromBundle? generatorFromBundle,
     required MasonGeneratorFromBrick? generatorFromBrick,
-  })  : _analytics = analytics,
-        _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
+  })  : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
         _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
     argParser
       ..addOption(
@@ -109,8 +105,6 @@ abstract class CreateSubCommand extends Command<int> {
       );
     }
   }
-
-  final Analytics _analytics;
 
   /// The logger user to notify the user of the command's progress.
   final Logger logger;
@@ -199,14 +193,6 @@ abstract class CreateSubCommand extends Command<int> {
     final generator = await _getGeneratorForTemplate();
     final result = await runCreate(generator, template);
 
-    unawaited(
-      _analytics.sendEvent(
-        'create $name',
-        generator.id,
-        label: generator.description,
-      ),
-    );
-    await _analytics.waitForLastPing(timeout: VeryGoodCommandRunner.timeout);
     return result;
   }
 

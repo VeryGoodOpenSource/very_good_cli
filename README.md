@@ -155,10 +155,6 @@ Usage: very_good <command> [arguments]
 Global options:
 -h, --help           Print this usage information.
     --version        Print the current version.
-    --analytics      Toggle anonymous usage statistics.
-
-          [false]    Disable anonymous usage statistics
-          [true]     Enable anonymous usage statistics
 
 Available commands:
   create     very_good create <output directory>

@@ -1,6 +1,5 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
-import 'package:usage/usage_io.dart';
 import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 
 /// {@template create_command}
@@ -12,7 +11,6 @@ import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
-    required Analytics analytics,
     required Logger logger,
     MasonGeneratorFromBundle? generatorFromBundle,
     MasonGeneratorFromBrick? generatorFromBrick,
@@ -20,7 +18,6 @@ class CreateCommand extends Command<int> {
     // very_good create flutter_app <args>
     addSubcommand(
       CreateFlutterApp(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -30,7 +27,6 @@ class CreateCommand extends Command<int> {
     // very_good create dart_package <args>
     addSubcommand(
       CreateDartPackage(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -40,7 +36,6 @@ class CreateCommand extends Command<int> {
     // very_good create dart_cli <args>
     addSubcommand(
       CreateDartCLI(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -50,7 +45,6 @@ class CreateCommand extends Command<int> {
     // very_good create docs_site <args>
     addSubcommand(
       CreateDocsSite(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -60,7 +54,6 @@ class CreateCommand extends Command<int> {
     // very_good create flutter_package <args>
     addSubcommand(
       CreateFlutterPackage(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -70,7 +63,6 @@ class CreateCommand extends Command<int> {
     // very_good create flutter_plugin <args>
     addSubcommand(
       CreateFlutterPlugin(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,
@@ -80,7 +72,6 @@ class CreateCommand extends Command<int> {
     // very_good create flame_game <args>
     addSubcommand(
       CreateFlameGame(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: generatorFromBundle,
         generatorFromBrick: generatorFromBrick,

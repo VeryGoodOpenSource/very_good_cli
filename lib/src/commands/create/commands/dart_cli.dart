@@ -7,7 +7,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateDartCLI extends CreateSubCommand with Publishable {
   /// {@macro very_good_create_dart_cli_command}
   CreateDartCLI({
-    required super.analytics,
     required super.logger,
     required super.generatorFromBundle,
     required super.generatorFromBrick,
