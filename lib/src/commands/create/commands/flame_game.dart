@@ -7,7 +7,6 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlameGame extends CreateSubCommand with OrgName {
   /// {@macro very_good_create_flame_game_command}
   CreateFlameGame({
-    required super.analytics,
     required super.logger,
     required super.generatorFromBundle,
     required super.generatorFromBrick,
