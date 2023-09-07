@@ -28,7 +28,7 @@ jobs:
   verify_bundle:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3.3.0
+      - uses: actions/checkout@v4
 
       - uses: dart-lang/setup-dart@v1
 
