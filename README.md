@@ -1,7 +1,10 @@
-[![Very Good CLI Logo][cli_logo_icon]][cli_link]
+
+
+<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />
 
 # Very Good CLI
 
+<br clear="left"/>
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
@@ -178,8 +181,6 @@ Run "very_good help <command>" for more information about a command.
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
 [cli_logo_icon]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg
-[cli_logo_black]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo.svg#gh-light-mode-only
-[cli_logo_white]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo_dark.svg#gh-dark-mode-only
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
