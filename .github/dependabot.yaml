@@ -4,7 +4,19 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/site"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/bricks/test_optimizer/hooks"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "pub"
     directory: "/"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
+    directory: "/e2e"
     schedule:
       interval: "daily"
