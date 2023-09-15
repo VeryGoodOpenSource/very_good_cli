@@ -1,6 +1,6 @@
 
 
-<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />
+[<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](cli_link)
 
 ### Very Good CLI
 
