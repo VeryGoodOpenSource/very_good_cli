@@ -2,7 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />
 
-# Very Good CLI
+### Very Good CLI
 
 <br clear="left"/>
 
