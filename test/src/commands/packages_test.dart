@@ -130,7 +130,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
           );
           final result = await commandRunner.run(
@@ -156,7 +156,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
           );
           final result = await commandRunner.run(
@@ -192,7 +192,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
           pubspecB
@@ -203,7 +203,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
 
@@ -243,7 +243,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
           pubspecB
@@ -254,7 +254,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
 
@@ -292,7 +292,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
           pubspecB
@@ -303,7 +303,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
 
@@ -347,7 +347,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
           pubspecB
@@ -358,7 +358,7 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ">=2.12.0 <3.0.0"
+            sdk: ">=3.1.0 <4.0.0"
           ''',
             );
 
