@@ -31,6 +31,8 @@ Usage: very_good create flutter_plugin <project-name> [arguments]
 -o, --output-directory           The desired output directory when creating a new project.
     --description                The description for this new project.
                                  (defaults to "A Very Good Project created by Very Good CLI.")
+    --org-name                   The organization for this new project.
+                                 (defaults to "com.example.verygoodcore")
     --publishable                Whether the generated project is intended to be published.
     --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios
 
@@ -187,6 +189,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_plugin',
               'description': '',
+              'org_name': 'com.example.verygoodcore',
               'publishable': false,
               'platforms': ['android', 'ios', 'windows'],
             },
@@ -199,6 +202,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_plugin',
               'description': '',
+              'org_name': 'com.example.verygoodcore',
               'publishable': false,
               'platforms': ['android', 'ios', 'windows'],
             },
