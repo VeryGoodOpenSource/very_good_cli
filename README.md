@@ -1,6 +1,6 @@
 
 
-[<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](cli_link)
+[<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
 
 ### Very Good CLI
 
@@ -192,4 +192,3 @@ Run "very_good help <command>" for more information about a command.
 [new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
-[cli_link]: https://cli.vgv.dev/
