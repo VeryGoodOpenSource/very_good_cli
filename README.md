@@ -1,5 +1,8 @@
 [![Very Good CLI Logo][cli_logo_icon]][cli_link]
 
+# Very Good CLI
+
+
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
 [![pub package][pub_badge]][pub_link]
