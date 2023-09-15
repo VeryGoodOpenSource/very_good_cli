@@ -471,7 +471,7 @@ void main() {
             '\x1B[2K\r00:03 +6: CounterView renders current count',
             '''\x1B[2K\r00:03 +7: CounterView calls increment when increment button is tapped''',
             '''\x1B[2K\r00:03 +8: CounterView calls decrement when decrement button is tapped''',
-            '\x1B[2K\r00:04 +8: All tests passed!\n'
+            '\x1B[2K\r00:04 +8: All tests passed!\n',
           ]),
         );
         expect(stderrLogs, isEmpty);
@@ -513,7 +513,7 @@ void main() {
             '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+6\x1B[0m: CounterView renders current count''',
             '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+7\x1B[0m: ...rView calls increment when increment button is tapped''',
             '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+8\x1B[0m: ...rView calls decrement when decrement button is tapped''',
-            '''\x1B[2K\r\x1B[90m\x1B[90m00:04\x1B[0m\x1B[0m \x1B[92m+8\x1B[0m: \x1B[92mAll tests passed!\x1B[0m\n'''
+            '''\x1B[2K\r\x1B[90m\x1B[90m00:04\x1B[0m\x1B[0m \x1B[92m+8\x1B[0m: \x1B[92mAll tests passed!\x1B[0m\n''',
           ]),
         );
         expect(stderrLogs, isEmpty);
@@ -615,7 +615,7 @@ void main() {
             '''\x1B[2K\r00:04 +6 -1 ~2: CounterView calls increment when increment button is tapped''',
             '''\x1B[2K\r00:04 +7 -1 ~2: CounterView calls decrement when decrement button is tapped''',
             '''\x1B[2K\r00:05 +8 -1 ~2: ...tiline test name that should be well processed by very_good test''',
-            '\x1B[2K\r00:05 +8 -1 ~2: Some tests failed.\n'
+            '\x1B[2K\r00:05 +8 -1 ~2: Some tests failed.\n',
           ]),
         );
         expect(
@@ -770,7 +770,7 @@ void main() {
           stdoutLogs,
           containsAllInOrder([
             '\x1B[2K\r00:00 -1: loading test/.test_optimizer.dart',
-            '\x1B[2K\r00:00 -1: Some tests failed.\n'
+            '\x1B[2K\r00:00 -1: Some tests failed.\n',
           ]),
         );
         expect(
@@ -1193,11 +1193,11 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final originalVars = <String, dynamic>{
-          'package-root': tempDirectory.path
+          'package-root': tempDirectory.path,
         };
         final updatedVars = <String, dynamic>{
           'package-root': tempDirectory.path,
-          'foo': 'bar'
+          'foo': 'bar',
         };
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();

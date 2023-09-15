@@ -243,7 +243,7 @@ Run "runner help" to see global options.''';
             '--description',
             'test_desc',
             '--output-directory',
-            'test_dir'
+            'test_dir',
           ]);
 
           expect(result, equals(ExitCode.success.code));
