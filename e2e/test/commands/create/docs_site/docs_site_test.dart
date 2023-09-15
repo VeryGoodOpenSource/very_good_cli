@@ -19,7 +19,7 @@ void main() {
           'docs_site',
           'very_good_docs_site',
           '-o',
-          tempDirectory.path
+          tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));

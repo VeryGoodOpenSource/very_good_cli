@@ -17,15 +17,14 @@ void main() {
         [
           'create',
           'dart_cli',
-          'very_good_dart_cli',
+          'my_cli',
           '-o',
           tempDirectory.path,
         ],
       );
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory =
-          path.join(tempDirectory.path, 'very_good_dart_cli');
+      final workingDirectory = path.join(tempDirectory.path, 'my_cli');
 
       // add coverage to collect coverage on dart test
       await expectSuccessfulProcessResult(
