@@ -212,9 +212,9 @@ class Flutter {
               ...?arguments,
               if (randomSeed != null) ...[
                 '--test-randomize-ordering-seed',
-                randomSeed
+                randomSeed,
               ],
-              if (optimizePerformance) p.join('test', _testOptimizerFileName)
+              if (optimizePerformance) p.join('test', _testOptimizerFileName),
             ],
             stdout: stdout ?? noop,
             stderr: stderr ?? noop,
@@ -273,7 +273,7 @@ Future<void> _verifyGitDependencies(
   final gitDependencies = [
     ...dependencies.entries,
     ...devDependencies.entries,
-    ...dependencyOverrides.entries
+    ...dependencyOverrides.entries,
   ]
       .where((entry) => entry.value is GitDependency)
       .map((entry) => entry.value)
@@ -414,7 +414,7 @@ Future<int> _flutterTest({
         final relativeTestPath = p.relative(testPath, from: cwd);
         failedTestErrorMessages[relativeTestPath] = [
           ...failedTestErrorMessages[relativeTestPath] ?? [],
-          '$prefix $testName'
+          '$prefix $testName',
         ];
       }
 

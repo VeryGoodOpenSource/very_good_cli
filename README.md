@@ -1,5 +1,10 @@
-[![Very Good CLI Logo][cli_logo_black]][cli_link_light]
-[![Very Good CLI Logo][cli_logo_white]][cli_link_dark]
+
+
+[<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
+
+### Very Good CLI
+
+<br clear="left"/>
 
 [![ci][ci_badge]][ci_link]
 [![coverage][coverage_badge]][ci_link]
@@ -155,10 +160,6 @@ Usage: very_good <command> [arguments]
 Global options:
 -h, --help           Print this usage information.
     --version        Print the current version.
-    --analytics      Toggle anonymous usage statistics.
-
-          [false]    Disable anonymous usage statistics
-          [true]     Enable anonymous usage statistics
 
 Available commands:
   create     very_good create <output directory>
@@ -179,8 +180,7 @@ Run "very_good help <command>" for more information about a command.
 [internationalization_link]: https://flutter.dev/docs/development/accessibility-and-localization/internationalization
 [license_badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [license_link]: https://opensource.org/licenses/MIT
-[cli_logo_black]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo.svg#gh-light-mode-only
-[cli_logo_white]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/logo_dark.svg#gh-dark-mode-only
+[cli_logo_icon]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
@@ -192,5 +192,3 @@ Run "very_good help <command>" for more information about a command.
 [new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
-[cli_link_dark]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-dark-mode-only
-[cli_link_light]: https://github.com/VeryGoodOpenSource/very_good_cli#gh-light-mode-only

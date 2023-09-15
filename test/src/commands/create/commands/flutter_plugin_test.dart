@@ -5,12 +5,9 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:usage/usage.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
-
-class MockAnalytics extends Mock implements Analytics {}
 
 class MockLogger extends Mock implements Logger {}
 
@@ -34,6 +31,8 @@ Usage: very_good create flutter_plugin <project-name> [arguments]
 -o, --output-directory           The desired output directory when creating a new project.
     --description                The description for this new project.
                                  (defaults to "A Very Good Project created by Very Good CLI.")
+    --org-name                   The organization for this new project.
+                                 (defaults to "com.example.verygoodcore")
     --publishable                Whether the generated project is intended to be published.
     --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios
 
@@ -54,7 +53,6 @@ environment:
 ''';
 
 void main() {
-  late Analytics analytics;
   late Logger logger;
 
   setUpAll(() {
@@ -63,14 +61,6 @@ void main() {
   });
 
   setUp(() {
-    analytics = MockAnalytics();
-    when(
-      () => analytics.sendEvent(any(), any(), label: any(named: 'label')),
-    ).thenAnswer((_) async {});
-    when(
-      () => analytics.waitForLastPing(timeout: any(named: 'timeout')),
-    ).thenAnswer((_) async {});
-
     logger = MockLogger();
 
     final progress = MockProgress();
@@ -82,7 +72,6 @@ void main() {
     test('with default options', () {
       final logger = Logger();
       final command = CreateFlutterPlugin(
-        analytics: analytics,
         logger: logger,
         generatorFromBundle: null,
         generatorFromBrick: null,
@@ -179,7 +168,6 @@ void main() {
 
         final argResults = MockArgResults();
         final command = CreateFlutterPlugin(
-          analytics: analytics,
           logger: logger,
           generatorFromBundle: (_) async => throw Exception('oops'),
           generatorFromBrick: (_) async => generator,
@@ -201,6 +189,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_plugin',
               'description': '',
+              'org_name': 'com.example.verygoodcore',
               'publishable': false,
               'platforms': ['android', 'ios', 'windows'],
             },
@@ -213,6 +202,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_plugin',
               'description': '',
+              'org_name': 'com.example.verygoodcore',
               'publishable': false,
               'platforms': ['android', 'ios', 'windows'],
             },

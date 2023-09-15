@@ -27,7 +27,7 @@ jobs:
         flutter-version:
           # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
           # refer to https://docs.flutter.dev/development/tools/sdk/releases.
-          - "3.10.0"
+          - "3.13.0"
         test:
           # E2E tests for the test command
           - test/commands/test/async_main/async_main_test.dart
@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@v4
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2

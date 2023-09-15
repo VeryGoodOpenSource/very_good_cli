@@ -13,7 +13,7 @@ void main() {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      const pluginName = 'very_good';
+      const pluginName = 'my_plugin';
       final pluginDirectory = path.join(tempDirectory.path, pluginName);
 
       final result = await commandRunner.run(
