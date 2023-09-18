@@ -100,10 +100,6 @@ very_good create docs_site my_docs_site
 
 ```
 
-#### Syntax changes in v0.10.0
-
-⚠️ v0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
-
 ---
 
 ### `very_good packages get`
@@ -158,14 +154,16 @@ See the complete list of commands and usage information.
 Usage: very_good <command> [arguments]
 
 Global options:
--h, --help           Print this usage information.
-    --version        Print the current version.
+-h, --help            Print this usage information.
+    --version         Print the current version.
+    --[no-]verbose    Noisy logging, including all shell commands executed.
 
 Available commands:
-  create     very_good create <output directory>
+  create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
+  update     Update Very Good CLI.
 
 Run "very_good help <command>" for more information about a command.
 ```
