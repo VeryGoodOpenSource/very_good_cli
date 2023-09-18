@@ -1,3 +1,53 @@
+# 0.16.0
+
+- fix!: remove analytics ([#756](https://github.com/VeryGoodOpenSource/very_good_cli/pull/756))
+- chore: update pubspec meta info ([#778](https://github.com/VeryGoodOpenSource/very_good_cli/pull/778))
+- fix: pass `org_name` to the plugin template ([#777](https://github.com/VeryGoodOpenSource/very_good_cli/pull/777))
+- chore: update dependencies and SDK constraints ([#782](https://github.com/VeryGoodOpenSource/very_good_cli/pull/782))
+- chore: update dependencies and SDK constraints on sub packages and fixtures ([#785](https://github.com/VeryGoodOpenSource/very_good_cli/pull/785))
+- docs: update readme headline ([#786](https://github.com/VeryGoodOpenSource/very_good_cli/pull/786))
+- chore: finish updating Very Good Analysis to 5.1.0 ([#792](https://github.com/VeryGoodOpenSource/very_good_cli/pull/792))
+- docs: update docs ([#798](https://github.com/VeryGoodOpenSource/very_good_cli/pull/798))
+- **Very Good Core**:
+    - feat!: bump min Dart SDK to 3.1.0
+    - feat!: update to Flutter 3.13.2
+    - fix: added RunnerTests iOS Schema
+    - feat: update to Material 3
+    - docs: update l10n README documentation
+    - docs: translation generation in README.md
+    - fix: very_good create flutter_app doesn't create .gradlew files
+    - feat: upgrade to `very_good_analysis ^5.1.0`
+- **Very Good Wear App**
+    - feat!: update to Flutter 3.13.2
+    - feat: update to Material 3
+    - fix: project doesn't build due to Kotlin gradle plugin incompatibility
+    - fix: very_good create flutter_app doesn't create .gradlew files
+    - feat: upgrade to `very_good_analysis ^5.1.0`
+- **Very Good Flame Game**
+    - feat!: update to Flame 1.8.2
+    - feat!: bump min Dart SDK to 3.1.0
+    - feat!: update to Flutter 3.13.2
+    - fix: added RunnerTests iOS Schema
+    - fix: very_good create flutter_app doesn't create .gradlew files
+    - feat: upgrade to `very_good_analysis ^5.1.0`
+    - fix: text style tests for `CounterComponent`
+- **Very Good Flutter Package**
+    - feat: upgrade to very_good_analysis ^5.1.0
+    - docs: update README.md install instructions
+- **Very Good Dart Package**
+    - feat: upgrade to very_good_analysis ^5.1.0
+    - docs: update README.md install instructions
+- **Very Good Dart CLI**
+    - feat: update very good analysis to v5 and fix patch
+    - feat: bump Dart SDK to >=3.0.0 <4.0.0
+- **Very Good Flutter Plugin**
+    - fix: flaky integrated tests
+    - feat: upgrade to `very_good_analysis ^5.1.0`
+    - feat: add fluttium test workflow
+    - docs: add docs for integration tests
+- **Very Good Docs Site**
+    - build(deps): various dependency updates
+
 # [0.15.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.14.0...v0.15.0) (2023-05-23)
 
 ### Bug Fixes
