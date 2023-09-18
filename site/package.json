@@ -30,7 +30,7 @@
     "@babel/eslint-parser": "^7.22.15",
     "@docusaurus/eslint-plugin": "^2.4.1",
     "@docusaurus/module-type-aliases": "^2.4.1",
-    "@tsconfig/docusaurus": "^1.0.5",
+    "@tsconfig/docusaurus": "^2.0.1",
     "eslint": "^8.49.0",
     "prettier": "^2.7.1",
     "typescript": "^5.2.2"
