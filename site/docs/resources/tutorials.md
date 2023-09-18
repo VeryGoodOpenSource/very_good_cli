@@ -15,6 +15,10 @@ Get step-by-step guides to using Very Good CLI.
 
 - **[Flame Game Template][flame_game_tutorial]**: Learn how to generate a Flutter game, powered by the Flame Game Engine.
 
+## Flutter Wear OS App
+
+- **[Flutter Wear OS template][flutter_wear_os_tutorial]**: Based on the Core, learn how to generate a Flutter app made for Wear OS.
+
 ## Dart CLI Template
 
 - **[Dart CLI Template][dart_cli_tutorial]**: Unlock the potential of Dart in the command line with the Dart CLI template.
@@ -33,3 +37,4 @@ Get step-by-step guides to using Very Good CLI.
 [supabase_tutorial]: https://verygood.ventures/blog/flutter-app-very-good-cli-supabase
 [test_tutorial]: https://verygood.ventures/blog/flutter-tests-very-good-cli
 [flame_game_tutorial]: https://verygood.ventures/blog/generate-a-game-with-our-new-template
+[flutter_wear_os_tutorial]: https://verygood.ventures/blog/building-wear-os-apps-with-flutter-a-very-good-guide

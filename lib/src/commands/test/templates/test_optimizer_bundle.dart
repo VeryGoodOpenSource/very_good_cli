@@ -35,7 +35,7 @@ final testOptimizerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0zLjAuMCA8NC4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246ICI+PTAuMS4wLWRldi40OSA8MC4xLjAiCiAgcGF0aDogXjEuOC4xCgojIEJld2FyZTogb24gaG9va3MsIGV2ZW4gZGV2IGRlcGVuZGVuY2llcyBoYXZlIHRvIGJlIGNvbXBhdGlibGUgdG8gYWxsIGRhcnQgdmVyc2lvbnMgY292ZXJlZCBieQojIHRoZSBzZGsgY29uc3RyYWludHMgYWJvdmUKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjAuMy4wCiAgdGVzdDogXjEuMjQuMwogIHZlcnlfZ29vZF9hbmFseXNpczogXjUuMC4wCg==",
+          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiAiPj0zLjEuMCA8NC4wLjAiCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246ICI+PTAuMS4wLWRldi41MCA8MC4xLjAiCiAgcGF0aDogXjEuOC4xCgojIEJld2FyZTogb24gaG9va3MsIGV2ZW4gZGV2IGRlcGVuZGVuY2llcyBoYXZlIHRvIGJlIGNvbXBhdGlibGUgdG8gYWxsIGRhcnQgdmVyc2lvbnMgY292ZXJlZCBieQojIHRoZSBzZGsgY29uc3RyYWludHMgYWJvdmUKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjEuMC4wCiAgdGVzdDogXjEuMjQuMwogIHZlcnlfZ29vZF9hbmFseXNpczogXjUuMS4wCg==",
       "type": "text"
     },
     {
@@ -54,7 +54,7 @@ final testOptimizerBundle = MasonBundle.fromJson(<String, dynamic>{
   "name": "test_optimizer",
   "description": "A brick that generates a single entrypoint for Dart tests.",
   "version": "0.1.0+1",
-  "environment": {"mason": ">=0.1.0-dev.49 <0.1.0"},
+  "environment": {"mason": ">=0.1.0-dev.50 <0.1.0"},
   "publish_to": "none",
   "readme": {
     "path": "README.md",
