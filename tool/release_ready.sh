@@ -14,10 +14,10 @@ if [ ! -f "pubspec.yaml" ] && [ ! -f "brick.yaml" ] && [ ! -f "package.json" ]; 
 fi
 
 currentBranch=$(git symbolic-ref --short -q HEAD)
-# if [[ ! $currentBranch == "main" ]]; then
-#  echo "Releasing is only supported on the main branch."
-#  exit 1
-# fi
+if [[ ! $currentBranch == "main" ]]; then
+ echo "Releasing is only supported on the main branch."
+ exit 1
+fi
 
 # Get information
 old_version=""
