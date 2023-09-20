@@ -28,7 +28,7 @@ For official documentation, please visit https://cli.vgv.dev.
 dart pub global activate very_good_cli
 ```
 
-Or install a (specific version)[https://pub.dev/packages/very_good_cli/versions] using:
+Or install a [specific version](https://pub.dev/packages/very_good_cli/versions) using:
 
 ```sh
 dart pub global activate very_good_cli <version>
