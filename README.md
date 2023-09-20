@@ -1,5 +1,3 @@
-
-
 [<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
 
 ### Very Good CLI
@@ -28,6 +26,12 @@ For official documentation, please visit https://cli.vgv.dev.
 
 ```sh
 dart pub global activate very_good_cli
+```
+
+Or install a (specific version)[https://pub.dev/packages/very_good_cli/versions] using:
+
+```sh
+dart piub global acrtivate very_good_cli <version>
 ```
 
 ### Commands ✨
