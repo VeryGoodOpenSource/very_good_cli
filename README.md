@@ -31,7 +31,7 @@ dart pub global activate very_good_cli
 Or install a (specific version)[https://pub.dev/packages/very_good_cli/versions] using:
 
 ```sh
-dart piub global acrtivate very_good_cli <version>
+dart pub global activate very_good_cli <version>
 ```
 
 ### Commands ✨
