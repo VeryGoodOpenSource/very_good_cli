@@ -1,5 +1,5 @@
 name: spdx_license
-description: A new brick created with the Mason CLI.
+description: Generates a Dart SPDX License enumeration.
 
 version: 0.1.0+1
 
