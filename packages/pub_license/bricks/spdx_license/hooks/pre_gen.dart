@@ -37,7 +37,27 @@ class GenerateSpdxLicense implements Exception {
 
 Future<void> run(HookContext context) async {
   try {
-    await _run(context);
+    final licensesVar = context.vars['licenses'];
+    final shouldFetchLicenses =
+        (licensesVar == null || (licensesVar is List && licensesVar.isEmpty)) &&
+            licensesVar is! List<String>;
+
+    // Download the SPDX licenses if they have not been provided by the user.
+    final licenses = shouldFetchLicenses
+        ? await _donwloadLicenses(context.logger)
+        : licensesVar as List;
+
+    final newLicensesVar = <Map<String, dynamic>>[
+      for (final license in licenses)
+        {
+          'license': license,
+          'identifier': license.toString().toDartIdentifier(),
+        },
+    ];
+
+    context.vars = {
+      'licenses': newLicensesVar,
+    };
   } on GenerateSpdxLicense catch (e) {
     context.logger.err(e.message);
   } catch (e) {
@@ -45,8 +65,8 @@ Future<void> run(HookContext context) async {
   }
 }
 
-Future<void> _run(HookContext context) async {
-  final progress = context.logger.progress(
+Future<List<String>> _donwloadLicenses(Logger logger) async {
+  final progress = logger.progress(
     'Starting to download the SPDX license list, this might take some time...',
   );
 
@@ -78,6 +98,17 @@ Future<void> _run(HookContext context) async {
     licenses.add(license);
   }
 
-  context.vars['licenses'] = licenses.toList()..sort();
-  progress.complete();
+  progress.complete('Found ${licenses.length} SPDX licenses');
+  return licenses.toList()..sort();
+}
+
+extension on String {
+  String toDartIdentifier() {
+    return '\$$this'
+        .replaceAll('-', '_')
+        .replaceAll('.', '_')
+        .replaceAll(' ', '')
+        .replaceAll('+', 'plus')
+        .trim();
+  }
 }
