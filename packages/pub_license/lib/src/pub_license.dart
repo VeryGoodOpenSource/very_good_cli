@@ -1,7 +1,7 @@
-import 'package:http/http.dart' as http;
-import 'package:meta/meta.dart';
 import 'package:html/dom.dart' as html_dom;
 import 'package:html/parser.dart' as html_parser;
+import 'package:http/http.dart' as http;
+import 'package:meta/meta.dart';
 import 'package:pub_license/src/models/spdx_license.gen.dart';
 
 /// The PUB Uri used to retrieve the license of a package.
@@ -94,10 +94,4 @@ SpdxLicense _scrapeLicense(html_dom.Document document) {
 
   final licenseText = rawLicenseText.split('(').first.trim();
   return SpdxLicense.parse(licenseText);
-}
-
-void main() async {
-  final pubLicense = PubLicense();
-  final license = await pubLicense.getLicense('dart_frog');
-  print(license);
 }
