@@ -57,6 +57,7 @@ Future<void> run(HookContext context) async {
 
     context.vars = {
       'licenses': newLicensesVar,
+      'total': newLicensesVar.length,
     };
   } on GenerateSpdxLicense catch (e) {
     context.logger.err(e.message);
