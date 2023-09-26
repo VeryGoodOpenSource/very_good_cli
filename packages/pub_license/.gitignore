@@ -6,5 +6,3 @@
 build/
 pubspec.lock
 
-# Files and directories created by mason
-.mason/

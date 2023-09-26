@@ -1,4 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// 
+// If you need to make changes, please refer to the spdx_license brick README
+// file.
 
 // ignore_for_file: type=lint
 
