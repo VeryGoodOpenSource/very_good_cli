@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the spdx_license brick README
+//
+// If you need to make changes, please refer to the SPDX License brick README
 // file.
 
 // ignore_for_file: type=lint
@@ -71,7 +71,8 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._(
+      'BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -550,7 +551,8 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._(
+      'X11-distribute-modifications-variant'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
@@ -619,13 +621,11 @@ enum SpdxLicense {
   /// If the [value] is not a valid [SpdxLicense], [SpdxLicense.$unknown] is
   /// returned instead.
   factory SpdxLicense.parse(String value) =>
-      _nameMap[value] ?? SpdxLicense.$unknown;
+      _valueMap[value] ?? SpdxLicense.$unknown;
 
-  static final Map<String, SpdxLicense> _nameMap =
-      SpdxLicense.values.asNameMap();
+  static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
+      .asNameMap()
+      .map((key, value) => MapEntry(value.value, value));
 
   final String value;
-
-  @override
-  String toString() => value;
 }

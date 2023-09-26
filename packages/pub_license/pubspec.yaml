@@ -1,5 +1,5 @@
 name: pub_license
-description: A Dart package which enables checking for the license of pub.dev packages.
+description: A Dart package which enables checking a package's license.
 version: 0.1.0+1
 repository: https://github.com/VeryGoodOpenSource/very_good_cli
 issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
@@ -7,6 +7,11 @@ publish_to: none
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  html: ^0.15.4
+  http: ^1.1.0
+  meta: ^1.10.0
 
 dev_dependencies:
   mocktail: ^1.0.0

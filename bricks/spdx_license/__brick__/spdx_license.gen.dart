@@ -26,13 +26,11 @@ enum SpdxLicense {
   /// If the [value] is not a valid [SpdxLicense], [SpdxLicense.$unknown] is
   /// returned instead.
   factory SpdxLicense.parse(String value) =>
-      _nameMap[value] ?? SpdxLicense.$unknown;
+      _valueMap[value] ?? SpdxLicense.$unknown;
 
-  static final Map<String, SpdxLicense> _nameMap =
-      SpdxLicense.values.asNameMap();
+  static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
+      .asNameMap()
+      .map((key, value) => MapEntry(value.value, value));
 
   final String value;
-
-  @override
-  String toString() => value;
 }

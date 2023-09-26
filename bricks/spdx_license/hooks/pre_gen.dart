@@ -25,12 +25,13 @@ const _spdxLicenseListUrl =
 /// PANA tool uses those under the [_spdxTargetPath].
 const _spdxTargetPath = 'license-list-data-main/json/details';
 
-/// {@template generate_spdx_license}
+/// {@template generate_spdx_license_exception}
 /// An exception thrown by the Generate SPDX License tool.
 /// {@endtemplate}
-class GenerateSpdxLicense implements Exception {
-  const GenerateSpdxLicense(String message)
-      : message = '[GenerateSpdxLicense] $message';
+class GenerateSpdxLicenseException implements Exception {
+  /// {@macro generate_spdx_license_exception}
+  const GenerateSpdxLicenseException(String message)
+      : message = '[spdx_license] $message';
 
   final String message;
 }
@@ -59,7 +60,7 @@ Future<void> run(HookContext context) async {
       'licenses': newLicensesVar,
       'total': newLicensesVar.length,
     };
-  } on GenerateSpdxLicense catch (e) {
+  } on GenerateSpdxLicenseException catch (e) {
     context.logger.err(e.message);
   } catch (e) {
     context.logger.err('An unknown error occurred, received error: $e');
@@ -75,7 +76,7 @@ Future<List<String>> _donwloadLicenses(Logger logger) async {
 
   if (response.statusCode != 200) {
     progress.cancel();
-    throw GenerateSpdxLicense(
+    throw GenerateSpdxLicenseException(
       '''Failed to download the SPDX license list, received response with status code: ${response.statusCode}''',
     );
   }
@@ -85,7 +86,7 @@ Future<List<String>> _donwloadLicenses(Logger logger) async {
     archive = ZipDecoder().decodeBytes(response.bodyBytes);
   } catch (e) {
     progress.cancel();
-    throw GenerateSpdxLicense(
+    throw GenerateSpdxLicenseException(
       'Failed to decode the SPDX license list, received error: $e',
     );
   }
