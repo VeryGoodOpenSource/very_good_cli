@@ -86,7 +86,14 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     progress.update('Collecting licenses');
     final packagesLicenses = await _collectLicenses(pubspecLock.packages);
-    progress.complete('Retrieved ${packagesLicenses.length} licenses.');
+
+    final uniqueLicenseTypes = packagesLicenses.values
+        .where((license) => license != null)
+        .map((license) => license!.value)
+        .toSet();
+    progress.complete(
+      '''Retrieved ${packagesLicenses.length} licenses of type: ${uniqueLicenseTypes.toList().stringify()}''',
+    );
 
     final forbiddenPackages = Map<String, SpdxLicense>.from(packagesLicenses)
       ..removeWhere((key, value) => !forbidden.contains(value.value));
@@ -98,6 +105,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       failedPackages: failedPackages,
     );
 
+    // TODO(alestiago): Consider allowed to!
     if (failedPackages.isNotEmpty) {
       return ExitCode.unavailable.code;
     } else if (forbiddenPackages.isNotEmpty) {
