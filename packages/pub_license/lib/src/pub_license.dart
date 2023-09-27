@@ -25,7 +25,7 @@ class PubLicenseException implements Exception {
 }
 
 /// {@template pub_license}
-/// A Dart package which enables checking a package's license.
+/// A Dart package that enables checking pub.dev's hosted packages license.
 /// {@endtemplate}
 class PubLicense {
   /// {@macro pub_license}
@@ -72,12 +72,11 @@ class PubLicense {
 
 SpdxLicense _scrapeLicense(html_dom.Document document) {
   final detailInfoBox = document.querySelector('.detail-info-box');
-
   if (detailInfoBox == null) {
-    return SpdxLicense.$unknown;
+    throw const PubLicenseException('Failed to scrape license.');
   }
 
-  String? rawLicenseText;
+  late final String? rawLicenseText;
   for (var i = 0; i < detailInfoBox.children.length; i++) {
     final child = detailInfoBox.children[i];
 
@@ -87,9 +86,8 @@ SpdxLicense _scrapeLicense(html_dom.Document document) {
       break;
     }
   }
-
   if (rawLicenseText == null) {
-    return SpdxLicense.$unknown;
+    throw const PubLicenseException('Failed to scrape license.');
   }
 
   final licenseText = rawLicenseText.split('(').first.trim();
