@@ -220,8 +220,11 @@ void main() {
                 () => logger.info('with us and get information on '),
                 () => logger.info('future updates please go join '),
                 () => logger.info('our newsletter: '),
-                () => logger.info(any(
-                    that: contains('https://verygood.ventures/#newsletter'))),
+                () => logger.info(
+                      any(
+                        that: contains('https://verygood.ventures/#newsletter'),
+                      ),
+                    ),
               ]);
 
               verify(

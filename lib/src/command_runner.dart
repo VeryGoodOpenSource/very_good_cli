@@ -48,6 +48,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   final Logger _logger;
   final PubUpdater _pubUpdater;
 
+  /// Map of environments information.
   Map<String, String> get environment => environmentOverride ?? _environment;
   final Map<String, String> _environment;
 
