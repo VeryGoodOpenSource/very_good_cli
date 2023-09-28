@@ -90,6 +90,8 @@ SpdxLicense _scrapeLicense(html_dom.Document document) {
     throw const PubLicenseException('Failed to scrape license.');
   }
 
+  // FIXME(alestiago): Parse those with more than one license, see:
+  // https://pub.dev/packages/just_audio/license
   final licenseText = rawLicenseText.split('(').first.trim();
   return SpdxLicense.parse(licenseText);
 }
