@@ -16,6 +16,12 @@ class MockPubUpdater extends Mock implements PubUpdater {}
 
 class MockProgress extends Mock implements Progress {}
 
+class MockDirectory extends Mock implements Directory {}
+
+class MockFile extends Mock implements File {}
+
+class MockStdout extends Mock implements Stdout {}
+
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n'
       '\n'
@@ -71,6 +77,7 @@ void main() {
       commandRunner = VeryGoodCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
+        environment: {'CI': 'true'},
       );
     });
 
@@ -177,6 +184,109 @@ void main() {
         verifyNever(() => logger.detail(any()));
 
         expect(result, equals(ExitCode.success.code));
+      });
+
+      group('_showThankYou', () {
+        late Directory cliCache;
+        late File versionFile;
+        late Stdout stdout;
+
+        setUp(() {
+          cliCache = MockDirectory();
+          when(() => cliCache.path).thenReturn('/users/test');
+
+          versionFile = MockFile();
+          when(() => versionFile.readAsStringSync()).thenReturn('0.0.0');
+
+          stdout = MockStdout();
+          when(() => stdout.supportsAnsiEscapes).thenReturn(true);
+          when(() => stdout.terminalColumns).thenReturn(30);
+        });
+
+        test('shows message when version changed', () async {
+          commandRunner.environmentOverride = {
+            'HOME': '/users/test',
+          };
+
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([]);
+              expect(result, equals(ExitCode.success.code));
+
+              verifyInOrder([
+                () => logger.info('\nThank you for using Very Good '),
+                () => logger.info('CLI from Very Good Ventures. '),
+                () => logger.info('If you want to stay in touch '),
+                () => logger.info('with us and get information on '),
+                () => logger.info('future updates please go join '),
+                () => logger.info('our newsletter: '),
+                () => logger.info(any(
+                    that: contains('https://verygood.ventures/#newsletter'))),
+              ]);
+
+              verify(
+                () => versionFile.createSync(
+                  recursive: any(that: isTrue, named: 'recursive'),
+                ),
+              ).called(1);
+              verify(() => versionFile.readAsStringSync()).called(1);
+              verify(
+                () => versionFile
+                    .writeAsStringSync(any(that: equals(packageVersion))),
+              ).called(1);
+            },
+            createDirectory: (path) => cliCache,
+            createFile: (path) => versionFile,
+            stdout: () => stdout,
+          );
+        });
+
+        test('cache inside XDG directory', () async {
+          commandRunner.environmentOverride = {
+            'HOME': '/users/test',
+            'XDG_CONFIG_HOME': '/users/test/.xdg',
+          };
+
+          final xdgCache = MockDirectory();
+          when(() => xdgCache.path).thenReturn('/users/test/.xdg');
+
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([]);
+              expect(result, equals(ExitCode.success.code));
+
+              verifyNever(() => cliCache.path);
+              verify(() => xdgCache.path).called(1);
+            },
+            createDirectory: (path) =>
+                path.contains('.xdg') ? xdgCache : cliCache,
+            createFile: (path) => versionFile,
+            stdout: () => stdout,
+          );
+        });
+
+        test('cache inside local APP_DATA on windows', () async {
+          commandRunner
+            ..environmentOverride = {'LOCALAPPDATA': '/C/Users/test'}
+            ..isWindowsOverride = true;
+
+          final windowsCache = MockDirectory();
+          when(() => windowsCache.path).thenReturn('/C/Users/test');
+
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([]);
+              expect(result, equals(ExitCode.success.code));
+
+              verifyNever(() => cliCache.path);
+              verify(() => windowsCache.path).called(1);
+            },
+            createDirectory: (path) =>
+                path.startsWith('/C/') ? windowsCache : cliCache,
+            createFile: (path) => versionFile,
+            stdout: () => stdout,
+          );
+        });
       });
 
       group('--help', () {
