@@ -83,7 +83,9 @@ Future<void> preGen(
   } on GenerateSpdxLicenseException catch (e) {
     context.logger.err(e.message);
   } catch (e) {
-    context.logger.err('An unknown error occurred, received error: $e');
+    context.logger.err(
+      '''[spdx_license] An unknown error occurred, received error: $e''',
+    );
   }
 }
 

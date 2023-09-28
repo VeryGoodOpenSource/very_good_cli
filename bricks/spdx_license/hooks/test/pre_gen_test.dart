@@ -191,7 +191,7 @@ void main() {
 
         verify(
           () => context.logger.err(
-            'An unknown error occurred, received error: $error',
+            '[spdx_license] An unknown error occurred, received error: $error',
           ),
         ).called(1);
       });
