@@ -63,6 +63,19 @@ void main() {
       archive = _MockArchive();
     });
 
+    group('run', () {
+      test('downalods licenses successfully', tags: ['pull-request-only'],
+          () async {
+        await pre_gen.run(context);
+
+        expect(context.vars['total'], greaterThan(0));
+        expect(
+          (context.vars['licenses'] as List).length,
+          equals(context.vars['total']),
+        );
+      });
+    });
+
     group('sets vars correctly', () {
       test('when licenses are provided', () async {
         context.vars['licenses'] = ['MIT', 'BSD'];
