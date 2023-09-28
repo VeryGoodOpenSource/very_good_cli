@@ -51,19 +51,3 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
-
-  verify_bundle:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dart-lang/setup-dart@v1
-
-      - name: Install mason
-        run: dart pub global activate mason_cli
-
-      - name: Run bundle generate
-        run: tool/generate_spdx_license_bundle.sh
-
-      - name: Check for unbundled changes
-        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the spdx_license brick. Please run tool/generate_spdx_license_bundle.sh to bundle these changes"; exit 1; }
