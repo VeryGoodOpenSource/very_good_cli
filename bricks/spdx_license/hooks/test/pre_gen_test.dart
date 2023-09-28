@@ -64,7 +64,7 @@ void main() {
     });
 
     group('run', () {
-      test('downalods licenses successfully', tags: ['pull-request-only'],
+      test('downloads licenses successfully', tags: ['pull-request-only'],
           () async {
         await pre_gen.run(context);
 
