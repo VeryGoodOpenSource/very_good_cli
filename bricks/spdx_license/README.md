@@ -17,14 +17,14 @@ This package should always match [PANA's](https://github.com/dart-lang/pana/blob
 dart pub global activate mason_cli
 ```
 
-4. Get all Mason bricks:
+3. Get all Mason bricks:
 
 ```sh
 # 🗂 Gets all bricks in the nearest mason.yaml (from project root)
 mason get
 ```
 
-5. Generate a Dart SPDX License enumeration:
+4. Generate a Dart SPDX License enumeration:
 
 ```sh
 # ⚙️ Generate code using the spdx_license brick (from within project)
