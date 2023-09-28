@@ -52,6 +52,7 @@ void main() {
       context = _TestHookContext(logger: logger);
 
       response = _MockResponse();
+      when(() => response.statusCode).thenReturn(200);
 
       client = _MockClient();
       registerFallbackValue(Uri());
@@ -89,9 +90,17 @@ void main() {
     });
 
     group('progress', () {
-      test('completes when finished decoding', () async {
-        when(() => response.statusCode).thenReturn(200);
+      test('starts with valid message', () async {
+        when(() => response.statusCode).thenReturn(404);
 
+        await pre_gen.preGen(context, client: client);
+
+        const message =
+            '''Starting to download the SPDX license list, this might take some time...''';
+        verify(() => logger.progress(message)).called(1);
+      });
+
+      test('completes when finished decoding', () async {
         final bodyBytes = Uint8List.fromList([]);
         when(() => response.bodyBytes).thenReturn(bodyBytes);
         when(() => zipDecoder.decodeBytes(bodyBytes)).thenReturn(archive);
@@ -116,8 +125,6 @@ void main() {
         });
 
         test('when fails to decode list', () async {
-          when(() => response.statusCode).thenReturn(200);
-
           final bodyBytes = Uint8List.fromList([]);
           when(() => response.bodyBytes).thenReturn(bodyBytes);
           when(() => zipDecoder.decodeBytes(bodyBytes)).thenThrow('error');
@@ -146,8 +153,6 @@ void main() {
       });
 
       test('when fails to decode list', () async {
-        when(() => response.statusCode).thenReturn(200);
-
         final bodyBytes = Uint8List.fromList([]);
         when(() => response.bodyBytes).thenReturn(bodyBytes);
         const error = 'an error';
