@@ -7,13 +7,13 @@
 
 /// List of all SPDX licenses.
 ///
-/// This file was automatically generated with the SPDX license brick.
+/// This file was automatically generated with the SPDX License brick.
 library spdx_license;
 
 /// {@template spdx_license}
 /// A list of all {{total}} SPDX licenses.
 ///
-/// These have been automatically generated from the SPDX license brick.
+/// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
 enum SpdxLicense {
   {{#licenses}}{{{identifier}}}._('{{{license}}}'),
