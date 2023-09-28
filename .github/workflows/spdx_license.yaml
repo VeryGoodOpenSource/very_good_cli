@@ -20,6 +20,9 @@ on:
 
 jobs:
   build_hooks:
+    defaults:
+      run:
+        working-directory: bricks/spdx_license/hooks
     runs-on: ubuntu-latest
     steps:
       - name: 📚 Git Checkout
