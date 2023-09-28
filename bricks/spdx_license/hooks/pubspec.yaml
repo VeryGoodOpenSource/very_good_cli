@@ -1,0 +1,20 @@
+name: spdx_license_hooks
+description: Hook for generating SPDX license.
+version: 0.1.0+1
+repository: https://github.com/VeryGoodOpenSource/very_good_cli
+issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  archive: ^3.4.2
+  http: ^1.1.0
+  mason: ^0.1.0-dev.51
+  path: ^1.8.3
+
+dev_dependencies:
+  mocktail: ^1.0.0
+  test: ^1.19.2
+  very_good_analysis: ^5.1.0
