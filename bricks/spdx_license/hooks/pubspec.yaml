@@ -12,6 +12,7 @@ dependencies:
   archive: ^3.4.2
   http: ^1.1.0
   mason: ^0.1.0-dev.51
+  meta: ^1.10.0
   path: ^1.8.3
 
 dev_dependencies:

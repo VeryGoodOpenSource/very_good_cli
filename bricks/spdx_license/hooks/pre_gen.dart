@@ -6,6 +6,7 @@ library generate_spdx_license_pre_gen;
 import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 
 /// The SPDX license list URL.
@@ -36,7 +37,14 @@ class GenerateSpdxLicenseException implements Exception {
   final String message;
 }
 
-Future<void> run(HookContext context) async {
+Future<void> run(HookContext context) async => preGen(context);
+
+@visibleForTesting
+Future<void> preGen(
+  HookContext context, {
+  @visibleForTesting http.Client? client,
+  @visibleForTesting ZipDecoder? zipDecoder,
+}) async {
   try {
     final licensesVar = context.vars['licenses'];
     final shouldFetchLicenses =
@@ -45,7 +53,11 @@ Future<void> run(HookContext context) async {
 
     // Download the SPDX licenses if they have not been provided by the user.
     final licenses = shouldFetchLicenses
-        ? await _donwloadLicenses(context.logger)
+        ? await _downloadLicenses(
+            logger: context.logger,
+            client: client,
+            zipDecoder: zipDecoder,
+          )
         : licensesVar as List;
 
     final newLicensesVar = <Map<String, dynamic>>[
@@ -67,12 +79,17 @@ Future<void> run(HookContext context) async {
   }
 }
 
-Future<List<String>> _donwloadLicenses(Logger logger) async {
+Future<List<String>> _downloadLicenses({
+  required Logger logger,
+  @visibleForTesting http.Client? client,
+  @visibleForTesting ZipDecoder? zipDecoder,
+}) async {
   final progress = logger.progress(
     'Starting to download the SPDX license list, this might take some time...',
   );
 
-  final response = await http.Client().get(Uri.parse(_spdxLicenseListUrl));
+  final httpClient = client ?? http.Client();
+  final response = await httpClient.get(Uri.parse(_spdxLicenseListUrl));
 
   if (response.statusCode != 200) {
     progress.cancel();
@@ -83,7 +100,8 @@ Future<List<String>> _donwloadLicenses(Logger logger) async {
 
   late final Archive archive;
   try {
-    archive = ZipDecoder().decodeBytes(response.bodyBytes);
+    final decoder = zipDecoder ?? ZipDecoder();
+    archive = decoder.decodeBytes(response.bodyBytes);
   } catch (e) {
     progress.cancel();
     throw GenerateSpdxLicenseException(
