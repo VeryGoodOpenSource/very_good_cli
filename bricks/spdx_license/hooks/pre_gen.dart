@@ -37,8 +37,17 @@ class GenerateSpdxLicenseException implements Exception {
   final String message;
 }
 
+/// {@macro pre_gen}
 Future<void> run(HookContext context) async => preGen(context);
 
+/// {@template pre_gen}
+/// Populates the context `licenses` variable with the SPDX license list, and
+/// the `total` variable with the total number of licenses.
+///
+/// If the user decides to use their own license list, the `licenses` variable
+/// will be populated with the user's list. Otherwise, the SPDX license list
+/// will be downloaded and parsed from the same source as the PANA tool.
+/// {@endtemplate}
 @visibleForTesting
 Future<void> preGen(
   HookContext context, {
@@ -51,7 +60,6 @@ Future<void> preGen(
         (licensesVar == null || (licensesVar is List && licensesVar.isEmpty)) &&
             licensesVar is! List<String>;
 
-    // Download the SPDX licenses if they have not been provided by the user.
     final licenses = shouldFetchLicenses
         ? await _downloadLicenses(
             logger: context.logger,
