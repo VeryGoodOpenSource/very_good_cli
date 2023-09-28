@@ -1,7 +1,7 @@
 /// A generator that creates the SPDX License enumeration.
 ///
 /// For more information, see the `README.md`.
-library generate_spdx_license_pre_gen;
+library spdx_license_pre_gen;
 
 import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
