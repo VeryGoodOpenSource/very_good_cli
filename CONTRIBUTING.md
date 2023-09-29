@@ -49,7 +49,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 
 ```sh
 # 💻 Run Very Good CLI's unit tests
-dart test
+flutter test -x pull-request-only
 ```
 
 If some tests do not pass out of the box, please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose).
