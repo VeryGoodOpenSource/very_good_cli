@@ -1,6 +1,6 @@
 /// Enables checking a package's license from pub.dev.
 ///
-/// The script is intented to be used by Very Good CLI to help extracting
+/// This library is intented to be used by Very Good CLI to help extracting
 /// license information. The existance of this script is likely to be ephemeral.
 /// It may be obsolete once [pub.dev](https://pub.dev/) exposes stable license
 /// information in their official API; you may track the progress [here](https://github.com/dart-lang/pub-dev/issues/4717).
