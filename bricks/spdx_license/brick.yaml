@@ -1,0 +1,12 @@
+name: spdx_license
+description: Generates a Dart SPDX License enumeration.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  mason: ">=0.1.0-dev.51 <0.1.0"
+
+vars:
+  licenses:
+    type: list
+    description: List of all SPDX licenses
