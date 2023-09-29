@@ -93,14 +93,14 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 
 ```sh
 # 🧪 Run Very Good CLI's unit test
-dart test
+flutter test -x pull-request-only
 ```
 
 6. Format your code:
 
 ```sh
 # 🧼 Run Dart's formatter
-dart format .
+dart format lib test
 ```
 
 7. Analyze your code:
