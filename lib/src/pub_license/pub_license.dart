@@ -88,10 +88,6 @@ class PubLicense {
 
 /// Scrapes the license from the pub.dev's package license page.
 ///
-/// It may throw a [PubLicenseException] if:
-/// * The detail info box is not found.
-/// * The license header is not found.
-///
 /// The expected HTML structure is:
 /// ```html
 /// <aside class="detail-info-box">
@@ -104,6 +100,10 @@ class PubLicense {
 ///   </p>
 /// </aside>
 /// ```
+///
+/// It may throw a [PubLicenseException] if:
+/// * The detail info box is not found.
+/// * The license header is not found.
 Set<String> _scrapeLicense(html_dom.Document document) {
   final detailInfoBox = document.querySelector('.detail-info-box');
   if (detailInfoBox == null) {
