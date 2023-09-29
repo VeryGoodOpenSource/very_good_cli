@@ -55,7 +55,7 @@ class PubLicense {
 
   /// Retrieves the license of a package.
   ///
-  /// If the license is not found, an empty [Set] is returned.
+  /// Some packages may have multiple licenses, hence a [Set] is returned.
   ///
   /// It may throw a [PubLicenseException] if:
   /// * The response from pub.dev is not successful.
