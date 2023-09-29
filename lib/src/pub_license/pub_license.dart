@@ -34,9 +34,24 @@ class PubLicense {
   /// {@macro pub_license}
   PubLicense({
     @visibleForTesting http.Client? client,
-  }) : _client = client ?? http.Client();
+    @visibleForTesting
+    html_dom.Document Function(
+      dynamic input, {
+      String? encoding,
+      bool generateSpans,
+      String? sourceUrl,
+    })? parse,
+  })  : _client = client ?? http.Client(),
+        _parse = parse ?? html_parser.parse;
 
   final http.Client _client;
+
+  final html_dom.Document Function(
+    dynamic input, {
+    String? encoding,
+    bool generateSpans,
+    String? sourceUrl,
+  }) _parse;
 
   /// Retrieves the license of a package.
   ///
@@ -56,7 +71,7 @@ class PubLicense {
 
     late final html_dom.Document document;
     try {
-      document = html_parser.parse(response.body);
+      document = _parse(response.body);
     } on html_parser.ParseError catch (e) {
       throw PubLicenseException(
         'Failed to parse the response body, received error: $e',
@@ -97,7 +112,7 @@ Set<String> _scrapeLicense(html_dom.Document document) {
     );
   }
 
-  late final String? rawLicenseText;
+  String? rawLicenseText;
   for (var i = 0; i < detailInfoBox.children.length; i++) {
     final child = detailInfoBox.children[i];
 
