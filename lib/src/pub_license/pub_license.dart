@@ -1,4 +1,4 @@
-/// A Dart script which enables checking a package's license.
+/// Enables checking a package's license from pub.dev.
 ///
 /// The script is intented to be used by Very Good CLI to help extracting
 /// license information. The existance of this script is likely to be ephemeral.
