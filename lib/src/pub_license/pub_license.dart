@@ -71,6 +71,24 @@ class PubLicense {
   }
 }
 
+/// Scrapes the license from the pub.dev's package license page.
+///
+/// It may throw a [PubLicenseException] if:
+/// * The detail info box is not found.
+/// * The license header is not found.
+///
+/// The expected HTML structure is:
+/// ```html
+/// <aside class="detail-info-box">
+///   <h3> ... </h3>
+///   <p> ... </p>
+///   <h3 class="title">License</h3>
+///   <p>
+///   <img/>
+///   MIT (<a href="/packages/very_good_cli/license">LICENSE</a>)
+///   </p>
+/// </aside>
+/// ```
 Set<String> _scrapeLicense(html_dom.Document document) {
   final detailInfoBox = document.querySelector('.detail-info-box');
   if (detailInfoBox == null) {
@@ -95,8 +113,6 @@ Set<String> _scrapeLicense(html_dom.Document document) {
     );
   }
 
-  // FIXME(alestiago): Parse those with more than one license, see:
-  // https://pub.dev/packages/just_audio/license
   final licenseText = rawLicenseText.split('(').first.trim();
   return licenseText.split(',').map((e) => e.trim()).toSet();
 }
