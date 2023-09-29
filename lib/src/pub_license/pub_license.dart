@@ -28,7 +28,7 @@ class PubLicenseException implements Exception {
 }
 
 /// {@template pub_license}
-/// A Dart package that enables checking pub.dev's hosted packages license.
+/// Enables checking pub.dev's hosted packages license.
 /// {@endtemplate}
 class PubLicense {
   /// {@macro pub_license}
