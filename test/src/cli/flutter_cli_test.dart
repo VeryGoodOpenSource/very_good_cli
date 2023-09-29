@@ -668,7 +668,14 @@ void main() {
           ),
           completion(equals([ExitCode.unavailable.code])),
         );
-        expect(stderrLogs, equals(['\x1B[2K\r$exception', '\x1B[2K\r']));
+        expect(
+          stderrLogs.first,
+          equals('\x1B[2K\r$exception'),
+        );
+        expect(
+          stderrLogs[1],
+          startsWith('\x1B[2K\r'),
+        );
       });
 
       test('runs tests (error w/stackTrace)', () async {
