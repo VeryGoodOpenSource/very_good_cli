@@ -6,7 +6,7 @@
 ///
 /// To run this script, use the following command:
 /// ```bash
-/// dart test/src/pub_license/fixtures/generate_pub_license_fixture.dart
+/// dart test/src/pub_license/fixtures/generate_pub_license_fixtures.dart
 /// ```
 ///
 /// Or simply use the "Run" CodeLens from VSCode's Dart extension if running
