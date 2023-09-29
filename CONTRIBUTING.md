@@ -48,7 +48,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 3. Run all Very Good CLI tests:
 
 ```sh
-# 💻 Run Very Good CLI's unit tests
+# 🧪 Run Very Good CLI's unit test (from project root)
 flutter test -x pull-request-only
 ```
 
@@ -92,7 +92,7 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 5. Ensure the existing test suite passes locally:
 
 ```sh
-# 🧪 Run Very Good CLI's unit test
+# 🧪 Run Very Good CLI's unit test (from project root)
 flutter test -x pull-request-only
 ```
 
