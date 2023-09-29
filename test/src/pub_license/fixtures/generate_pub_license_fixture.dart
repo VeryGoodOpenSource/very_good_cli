@@ -1,7 +1,7 @@
 /// A small script used to generate the fixture for the pub_license test.
 ///
 /// Fixtures are simply a temporary snapshot of an HTML response from pub.dev.
-/// The generated fixtures allows testing pub_license scraping logic without
+/// The generated fixtures allow testing pub_license scraping logic without
 /// making a request to pub.dev every time the test is run.
 ///
 /// To run this script, use the following command:
