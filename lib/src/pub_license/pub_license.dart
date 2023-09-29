@@ -98,5 +98,5 @@ Set<String> _scrapeLicense(html_dom.Document document) {
   // FIXME(alestiago): Parse those with more than one license, see:
   // https://pub.dev/packages/just_audio/license
   final licenseText = rawLicenseText.split('(').first.trim();
-  throw UnimplementedError();
+  return licenseText.split(',').map((e) => e.trim()).toSet();
 }
