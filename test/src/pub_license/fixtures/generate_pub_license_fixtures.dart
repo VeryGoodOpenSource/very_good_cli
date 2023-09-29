@@ -11,7 +11,7 @@
 ///
 /// Or simply use the "Run" CodeLens from VSCode's Dart extension if running
 /// from VSCode.
-library generate_pub_license_fixture;
+library generate_pub_license_fixtures;
 
 // ignore_for_file: avoid_print
 
