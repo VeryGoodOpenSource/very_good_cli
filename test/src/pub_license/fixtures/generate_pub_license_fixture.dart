@@ -9,7 +9,8 @@
 /// dart test/src/pub_license/fixtures/generate_pub_license_fixture.dart
 /// ```
 ///
-///  Or simply use the "Run" CodeLens from VSCode's Dart extension.
+/// Or simply use the "Run" CodeLens from VSCode's Dart extension if running
+/// from VSCode.
 library generate_pub_license_fixture;
 
 // ignore_for_file: avoid_print
