@@ -2,6 +2,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:mason/mason.dart' hide packageVersion;
+import 'package:meta/meta.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -15,8 +16,8 @@ const packageName = 'very_good_cli';
 class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro very_good_command_runner}
   VeryGoodCommandRunner({
-    Logger? logger,
-    PubUpdater? pubUpdater,
+    @visibleForTesting Logger? logger,
+    @visibleForTesting PubUpdater? pubUpdater,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         super('very_good', '🦄 A Very Good Command-Line Interface') {
