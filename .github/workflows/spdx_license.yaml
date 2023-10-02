@@ -51,3 +51,26 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
+  brick_test:
+    defaults:
+      run:
+        working-directory: bricks/spdx_license
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
+        with:
+          working_directory: bricks/spdx_license
+
+      - name: 🧱 Mason make
+        # If this step fails, you may need to run the following command (from bricks/spdx_license):
+        # ```sh
+        # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite`
+        # ```
+        # This will build the brick and generate the necessary and latest files for testing.
+        run: |
+          dart pub global activate mason_cli
+          mason get
+          mason make spdx_license --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed
