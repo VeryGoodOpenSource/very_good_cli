@@ -55,4 +55,4 @@ jobs:
   build_brick:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
     with:
-      working-directory: bricks/spdx_license
+      working_directory: bricks/spdx_license
