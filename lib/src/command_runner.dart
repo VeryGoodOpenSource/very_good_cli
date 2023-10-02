@@ -16,8 +16,8 @@ const packageName = 'very_good_cli';
 class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro very_good_command_runner}
   VeryGoodCommandRunner({
-    @visibleForTesting Logger? logger,
-    @visibleForTesting PubUpdater? pubUpdater,
+    Logger? logger,
+    PubUpdater? pubUpdater,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         super('very_good', '🦄 A Very Good Command-Line Interface') {
