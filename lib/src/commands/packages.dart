@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/cli/cli.dart';
 /// {@endtemplate}
 class PackagesCommand extends Command<int> {
   /// {@macro packages_command}
-  PackagesCommand({@visibleForTesting Logger? logger}) {
+  PackagesCommand({Logger? logger}) {
     addSubcommand(PackagesGetCommand(logger: logger));
   }
 
@@ -27,7 +27,7 @@ class PackagesCommand extends Command<int> {
 /// {@endtemplate}
 class PackagesGetCommand extends Command<int> {
   /// {@macro packages_get_command}
-  PackagesGetCommand({@visibleForTesting Logger? logger})
+  PackagesGetCommand({Logger? logger})
       : _logger = logger ?? Logger() {
     argParser
       ..addFlag(

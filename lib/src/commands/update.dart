@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart' hide packageVersion;
-import 'package:meta/meta.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -14,7 +13,7 @@ class UpdateCommand extends Command<int> {
   /// {@macro update_command}
   UpdateCommand({
     required Logger logger,
-    @visibleForTesting PubUpdater? pubUpdater,
+    PubUpdater? pubUpdater,
   })  : _logger = logger,
         _pubUpdater = pubUpdater ?? PubUpdater();
 
