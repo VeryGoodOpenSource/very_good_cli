@@ -51,3 +51,12 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
+
+  build_brick:
+    defaults:
+      run:
+        working-directory: bricks/spdx_license
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
