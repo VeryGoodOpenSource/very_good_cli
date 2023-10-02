@@ -27,8 +27,7 @@ class PackagesCommand extends Command<int> {
 /// {@endtemplate}
 class PackagesGetCommand extends Command<int> {
   /// {@macro packages_get_command}
-  PackagesGetCommand({Logger? logger})
-      : _logger = logger ?? Logger() {
+  PackagesGetCommand({Logger? logger}) : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'recursive',
