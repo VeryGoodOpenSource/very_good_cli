@@ -51,6 +51,7 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
+
   brick_test:
     defaults:
       run:
@@ -67,7 +68,7 @@ jobs:
       - name: 🧱 Mason make
         # If this step fails, you may need to run the following command (from bricks/spdx_license):
         # ```sh
-        # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite`
+        # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite
         # ```
         # This will build the brick and generate the necessary and latest files for testing.
         run: |
