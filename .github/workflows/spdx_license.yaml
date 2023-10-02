@@ -51,13 +51,3 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
-
-  brick_test:
-    defaults:
-      run:
-        working-directory: bricks/spdx_license
-    runs-on: ubuntu-latest
-    steps:
-      - uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1
-        with:
-          working_directory: bricks/spdx_license
