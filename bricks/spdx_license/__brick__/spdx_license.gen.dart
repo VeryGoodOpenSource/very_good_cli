@@ -23,10 +23,28 @@ enum SpdxLicense {
 
   /// Parses a [String] into a [SpdxLicense].
   ///
-  /// If the [value] is not a valid [SpdxLicense], [SpdxLicense.$unknown] is
-  /// returned instead.
-  factory SpdxLicense.parse(String value) =>
-      _valueMap[value] ?? SpdxLicense.$unknown;
+  /// If the [source] is not a valid [SpdxLicense], a [FormatException] is
+  /// thrown.
+  factory SpdxLicense.parse(String source) {
+    final result = _valueMap[source];
+    if (result == null) {
+      throw FormatException('Failed to parse $source as SpdxLicense.');
+    }
+
+    return result;
+  }
+
+  /// Parse [source] into a possible [SpdxLicense].
+  ///
+  /// Like [SpdxLicense.parse] except that it returns `null` where a similar
+  /// call to [SpdxLicense.parse] would throw a [FormatException].
+  static SpdxLicense? tryParse(String source) {
+    try {
+      return SpdxLicense.parse(source);
+    } on FormatException {
+      return null;
+    }
+  }
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
       .asNameMap()
