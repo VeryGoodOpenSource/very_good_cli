@@ -214,8 +214,7 @@ This command should be run from the root of your Flutter project.''',
 /// The heuristics used to determine whether the user is not targetting test
 /// files are:
 /// * No [rest] arguments are passed.
-/// * None of the [rest] arguments are options (i.e. they do not start with
-/// `-`).
+/// * All [rest] arguments are options (i.e. they do not start with `-`).
 /// See also:
 /// * [What does -- mean in SSH?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
 bool isTargettingTestFiles(List<String> rest) {
