@@ -13,7 +13,7 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
-    directory: "/bricks/spdx_license/hooks"
+    directory: "/tool/spdx_license/hooks"
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
