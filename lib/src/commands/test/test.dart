@@ -211,8 +211,8 @@ This command should be run from the root of your Flutter project.''',
 /// The additional options after the `--` are passed to the test runner which
 /// allows the user to target specific test files or directories.
 ///
-/// The heuristics used to determine whether the user is not targetting test
-/// files are:
+/// The heuristics used to determine if the user is not targetting test files
+/// are:
 /// * No [rest] arguments are passed.
 /// * All [rest] arguments are options (i.e. they do not start with `-`).
 ///
