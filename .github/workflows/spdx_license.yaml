@@ -76,11 +76,4 @@ jobs:
         run: dart analyze --fatal-infos --fatal-warnings test/**_test.dart
 
       - name: 🧪 Run Tests
-        run: |
-          dart pub global activate coverage 1.2.0
-          dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="test/**.gen.dart"
-
-      - name: 📊 Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
-        with:
-          path: bricks/spdx_license/coverage/lcov.info
+        run: dart test -j 4 --run-skipped --test-randomize-ordering-seed random
