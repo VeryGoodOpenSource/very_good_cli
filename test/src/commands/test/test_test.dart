@@ -503,7 +503,7 @@ void main() {
     });
 
     test(
-        '''disables optimizePerformance when first rest arguement is not an option''',
+        '''disables optimizePerformance when rest arguement is not an option''',
         () async {
       when(() => argResults.rest).thenReturn(['my-test.dart']);
 
@@ -523,7 +523,7 @@ void main() {
       ).called(1);
     });
 
-    test('enables optimizePerformance when first rest arguement is an option',
+    test('enables optimizePerformance when rest arguement is an option',
         () async {
       when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
 
