@@ -49,8 +49,8 @@ abstract class CreateSubCommand extends Command<int> {
   /// {@macro create_subcommand}
   CreateSubCommand({
     required this.logger,
-    required MasonGeneratorFromBundle? generatorFromBundle,
-    required MasonGeneratorFromBrick? generatorFromBrick,
+    @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
+    @visibleForTesting required MasonGeneratorFromBrick? generatorFromBrick,
   })  : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
         _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
     argParser
