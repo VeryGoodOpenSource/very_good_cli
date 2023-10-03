@@ -161,16 +161,13 @@ This command should be run from the root of your Flutter project.''',
     final updateGoldens = _argResults['update-goldens'] as bool;
     final forceAnsi = _argResults['force-ansi'] as bool?;
     final dartDefine = _argResults['dart-define'] as List<String>?;
-    final rest = _argResults.rest;
 
     if (isFlutterInstalled) {
       try {
-        final isTargettingTestFiles =
-            rest.isNotEmpty && !rest.first.startsWith('-');
-
         final results = await _flutterTest(
-          optimizePerformance:
-              optimizePerformance && !isTargettingTestFiles && !updateGoldens,
+          optimizePerformance: optimizePerformance &&
+              !isTargettingTestFiles(_argResults.rest) &&
+              !updateGoldens,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -188,7 +185,7 @@ This command should be run from the root of your Flutter project.''',
               for (final value in dartDefine) '--dart-define=$value',
             ...['-j', concurrency],
             '--no-pub',
-            ...rest,
+            ..._argResults.rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
@@ -206,4 +203,25 @@ This command should be run from the root of your Flutter project.''',
     }
     return ExitCode.success.code;
   }
+}
+
+/// Determines whether the user is targetting test files or not.
+///
+/// The user can only target test files by using the `--` option terminator.
+/// The additional options after the `--` are passed to the test runner which
+/// allows the user to target specific test files or directories.
+///
+/// The heuristics used to determine whether the user is not targetting test
+/// files are:
+/// * No [rest] arguments are passed.
+/// * None of the [rest] arguments are options (i.e. they do not start with
+/// `-`).
+/// See also:
+/// * [What does -- mean in SSH?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
+bool isTargettingTestFiles(List<String> rest) {
+  if (rest.isEmpty) {
+    return false;
+  }
+
+  return rest.where((arg) => !arg.startsWith('-')).isNotEmpty;
 }
