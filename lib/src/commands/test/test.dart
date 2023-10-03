@@ -215,6 +215,7 @@ This command should be run from the root of your Flutter project.''',
 /// files are:
 /// * No [rest] arguments are passed.
 /// * All [rest] arguments are options (i.e. they do not start with `-`).
+///
 /// See also:
 /// * [What does -- mean in SSH?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
 bool isTargettingTestFiles(List<String> rest) {
