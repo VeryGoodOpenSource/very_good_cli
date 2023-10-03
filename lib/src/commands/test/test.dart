@@ -166,7 +166,7 @@ This command should be run from the root of your Flutter project.''',
       try {
         final results = await _flutterTest(
           optimizePerformance: optimizePerformance &&
-              !isTargettingTestFiles(_argResults.rest) &&
+              !_isTargettingTestFiles(_argResults.rest) &&
               !updateGoldens,
           recursive: recursive,
           logger: _logger,
@@ -218,7 +218,7 @@ This command should be run from the root of your Flutter project.''',
 ///
 /// See also:
 /// * [What does -- mean in SSH?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
-bool isTargettingTestFiles(List<String> rest) {
+bool _isTargettingTestFiles(List<String> rest) {
   if (rest.isEmpty) {
     return false;
   }
