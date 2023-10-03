@@ -1,5 +1,5 @@
 name: spdx_license_brick_test
-description: Testing package for the SPDX license brick output.
+description: Testing package for the SPDX License brick output.
 version: 0.1.0+1
 repository: https://github.com/VeryGoodOpenSource/very_good_cli
 issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
