@@ -36,8 +36,8 @@ class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
     required Logger logger,
-    FlutterInstalledCommand? flutterInstalled,
-    FlutterTestCommand? flutterTest,
+    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
+    @visibleForTesting FlutterTestCommand? flutterTest,
   })  : _logger = logger,
         _flutterInstalled = flutterInstalled ?? Flutter.installed,
         _flutterTest = flutterTest ?? Flutter.test {

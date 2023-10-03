@@ -1,5 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
+import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 
 /// {@template create_command}
@@ -12,8 +13,8 @@ class CreateCommand extends Command<int> {
   /// {@macro create_command}
   CreateCommand({
     required Logger logger,
-    MasonGeneratorFromBundle? generatorFromBundle,
-    MasonGeneratorFromBrick? generatorFromBrick,
+    @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
+    @visibleForTesting MasonGeneratorFromBrick? generatorFromBrick,
   }) {
     // very_good create flutter_app <args>
     addSubcommand(
