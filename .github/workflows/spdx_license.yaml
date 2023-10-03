@@ -57,3 +57,4 @@ jobs:
     with:
       working_directory: bricks/spdx_license
       format_directories: test/**_test.dart
+      analyze_directories: test/**_test.dart
