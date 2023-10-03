@@ -161,12 +161,13 @@ This command should be run from the root of your Flutter project.''',
     final updateGoldens = _argResults['update-goldens'] as bool;
     final forceAnsi = _argResults['force-ansi'] as bool?;
     final dartDefine = _argResults['dart-define'] as List<String>?;
+    final rest = _argResults.rest;
 
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
           optimizePerformance: optimizePerformance &&
-              !_isTargettingTestFiles(_argResults.rest) &&
+              !_isTargettingTestFiles(rest) &&
               !updateGoldens,
           recursive: recursive,
           logger: _logger,
@@ -185,7 +186,7 @@ This command should be run from the root of your Flutter project.''',
               for (final value in dartDefine) '--dart-define=$value',
             ...['-j', concurrency],
             '--no-pub',
-            ..._argResults.rest,
+            ...rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
