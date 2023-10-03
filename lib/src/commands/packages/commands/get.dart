@@ -6,22 +6,6 @@ import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
-/// {@template packages_command}
-/// `very_good packages` command for managing packages.
-/// {@endtemplate}
-class PackagesCommand extends Command<int> {
-  /// {@macro packages_command}
-  PackagesCommand({Logger? logger}) {
-    addSubcommand(PackagesGetCommand(logger: logger));
-  }
-
-  @override
-  String get description => 'Command for managing packages.';
-
-  @override
-  String get name => 'packages';
-}
-
 /// {@template packages_get_command}
 /// `very_good packages get` command for installing packages.
 /// {@endtemplate}
