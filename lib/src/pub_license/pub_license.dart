@@ -28,6 +28,15 @@ class PubLicenseException implements Exception {
   final String message;
 }
 
+/// The function signature for parsing HTML documents.
+@visibleForTesting
+typedef HtmlDocumentParse = html_dom.Document Function(
+  dynamic input, {
+  String? encoding,
+  bool generateSpans,
+  String? sourceUrl,
+});
+
 /// {@template pub_license}
 /// Enables checking pub.dev's hosted packages license.
 /// {@endtemplate}
@@ -35,13 +44,7 @@ class PubLicense {
   /// {@macro pub_license}
   PubLicense({
     @visibleForTesting http.Client? client,
-    @visibleForTesting
-    html_dom.Document Function(
-      dynamic input, {
-      String? encoding,
-      bool generateSpans,
-      String? sourceUrl,
-    })? parse,
+    @visibleForTesting HtmlDocumentParse? parse,
   })  : _client = client ?? http.Client(),
         _parse = parse ?? html_parser.parse;
 
