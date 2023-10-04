@@ -1,6 +1,8 @@
 name: spdx_license_bot
 
 on:
+  # This should ideally trigger whenever there is a commit to the [SPDX License repository](https://github.com/spdx/license-list-data).
+  # However, this is not yet possible see: https://github.com/orgs/community/discussions/26323
   schedule:
     # At 08:04 on every day-of-week from Monday through Friday.
     - cron: "4 8 * * 1-5"
