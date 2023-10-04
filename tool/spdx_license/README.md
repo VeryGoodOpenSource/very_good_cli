@@ -8,7 +8,7 @@ This package should always match [PANA's](https://github.com/dart-lang/pana/blob
 
 ## Usage
 
-1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with the SPDX license brick can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/bricks/spdx_license/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
+1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with the SPDX license brick can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/tool/spdx_license/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
 
 2. Install [Mason](https://github.com/felangel/mason/tree/master/packages/mason_cli#installation) in your local environment:
 

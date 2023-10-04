@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 602 SPDX licenses.
+/// A list of all 599 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -77,6 +77,7 @@ enum SpdxLicense {
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
+  $BSD_3_Clause_flex._('BSD-3-Clause-flex'),
   $BSD_4_Clause._('BSD-4-Clause'),
   $BSD_4_Clause_Shortened._('BSD-4-Clause-Shortened'),
   $BSD_4_Clause_UC._('BSD-4-Clause-UC'),
@@ -254,7 +255,6 @@ enum SpdxLicense {
   $GFDL_1_3_or_later._('GFDL-1.3-or-later'),
   $GL2PS._('GL2PS'),
   $GLWTPL._('GLWTPL'),
-  $GNU_compiler_exception._('GNU-compiler-exception'),
   $GPL_1_0._('GPL-1.0'),
   $GPL_1_0plus._('GPL-1.0+'),
   $GPL_1_0_only._('GPL-1.0-only'),
@@ -487,7 +487,6 @@ enum SpdxLicense {
   $RSCPL._('RSCPL'),
   $Rdisc._('Rdisc'),
   $Ruby._('Ruby'),
-  $SANE_exception._('SANE-exception'),
   $SAX_PD._('SAX-PD'),
   $SCEA._('SCEA'),
   $SGI_B_1_0._('SGI-B-1.0'),
@@ -535,7 +534,6 @@ enum SpdxLicense {
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
   $TermReadKey._('TermReadKey'),
-  $Texinfo_exception._('Texinfo-exception'),
   $UCAR._('UCAR'),
   $UCL_1_0._('UCL-1.0'),
   $UPL_1_0._('UPL-1.0'),
@@ -609,7 +607,6 @@ enum SpdxLicense {
   $python_ldap._('python-ldap'),
   $snprintf._('snprintf'),
   $ssh_keyscan._('ssh-keyscan'),
-  $stunnel_exception._('stunnel-exception'),
   $swrule._('swrule'),
   $ulem._('ulem'),
   $w3m._('w3m'),
@@ -627,11 +624,10 @@ enum SpdxLicense {
   /// If the [source] is not a valid [SpdxLicense], a [FormatException] is
   /// thrown.
   factory SpdxLicense.parse(String source) {
-    final result = _valueMap[source];
+    final result = SpdxLicense.tryParse(source);
     if (result == null) {
       throw FormatException('Failed to parse $source as SpdxLicense.');
     }
-
     return result;
   }
 
@@ -639,17 +635,11 @@ enum SpdxLicense {
   ///
   /// Like [SpdxLicense.parse] except that it returns `null` where a similar
   /// call to [SpdxLicense.parse] would throw a [FormatException].
-  static SpdxLicense? tryParse(String source) {
-    try {
-      return SpdxLicense.parse(source);
-    } on FormatException {
-      return null;
-    }
-  }
+  static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }

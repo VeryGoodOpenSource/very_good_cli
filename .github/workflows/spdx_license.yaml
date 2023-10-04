@@ -8,13 +8,13 @@ on:
   push:
     paths:
       - .github/workflows/spdx_license.yaml
-      - "bricks/spdx_license/**"
+      - "tool/spdx_license/**"
     branches:
       - main
   pull_request:
     paths:
       - .github/workflows/spdx_license.yaml
-      - "bricks/spdx_license/**"
+      - "tool/spdx_license/**"
     branches:
       - main
 
@@ -22,7 +22,7 @@ jobs:
   build_hooks:
     defaults:
       run:
-        working-directory: bricks/spdx_license/hooks
+        working-directory: tool/spdx_license/hooks
     runs-on: ubuntu-latest
     steps:
       - name: 📚 Git Checkout
@@ -50,12 +50,12 @@ jobs:
       - name: 📊 Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
-          path: bricks/spdx_license/hooks/coverage/lcov.info
+          path: tool/spdx_license/hooks/coverage/lcov.info
 
   build_brick:
     defaults:
       run:
-        working-directory: bricks/spdx_license
+        working-directory: tool/spdx_license
     runs-on: ubuntu-latest
     steps:
       - name: 📚 Git Checkout
@@ -70,7 +70,7 @@ jobs:
         run: dart pub get
 
       - name: 🧱 Mason make
-        # If this step fails, you may need to run the following command (from bricks/spdx_license):
+        # If this step fails, you may need to run the following command (from tool/spdx_license):
         # ```sh
         # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite
         # ```
