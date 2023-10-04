@@ -501,5 +501,47 @@ void main() {
         ),
       ).called(1);
     });
+
+    test(
+        '''disables optimizePerformance when rest arguement is not an option''',
+        () async {
+      when(() => argResults.rest).thenReturn(['my-test.dart']);
+
+      final result = await testCommand.run();
+
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            ...defaultArguments,
+            ...argResults.rest,
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('enables optimizePerformance when rest arguement is an option',
+        () async {
+      when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+
+      final result = await testCommand.run();
+
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: [
+            ...defaultArguments,
+            ...argResults.rest,
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
   });
 }

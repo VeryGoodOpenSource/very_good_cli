@@ -1,0 +1,13 @@
+name: spdx_license_brick_test
+description: Testing package for the SPDX License brick output.
+version: 0.1.0+1
+repository: https://github.com/VeryGoodOpenSource/very_good_cli
+issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dev_dependencies:
+  test: ^1.19.2
+  very_good_analysis: ^5.1.0

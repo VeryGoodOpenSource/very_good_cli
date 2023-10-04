@@ -51,3 +51,40 @@ jobs:
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
         with:
           path: bricks/spdx_license/hooks/coverage/lcov.info
+
+  build_brick:
+    defaults:
+      run:
+        working-directory: bricks/spdx_license
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.1.0
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🧱 Mason make
+        # If this step fails, you may need to run the following command (from bricks/spdx_license):
+        # ```sh
+        # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite
+        # ```
+        # This will build the brick and generate the latest files for testing.
+        run: |
+          dart pub global activate mason_cli
+          mason get
+          mason make spdx_license --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed
+
+      - name: ✨ Check Formatting
+        run: dart format --set-exit-if-changed test/**_test.dart
+
+      - name: 🕵️ Analyze
+        run: dart analyze --fatal-infos --fatal-warnings test/**_test.dart
+
+      - name: 🧪 Run Tests
+        run: dart test -j 4 --run-skipped --test-randomize-ordering-seed random

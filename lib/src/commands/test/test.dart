@@ -36,8 +36,8 @@ class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
     required Logger logger,
-    FlutterInstalledCommand? flutterInstalled,
-    FlutterTestCommand? flutterTest,
+    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
+    @visibleForTesting FlutterTestCommand? flutterTest,
   })  : _logger = logger,
         _flutterInstalled = flutterInstalled ?? Flutter.installed,
         _flutterTest = flutterTest ?? Flutter.test {
@@ -161,12 +161,14 @@ This command should be run from the root of your Flutter project.''',
     final updateGoldens = _argResults['update-goldens'] as bool;
     final forceAnsi = _argResults['force-ansi'] as bool?;
     final dartDefine = _argResults['dart-define'] as List<String>?;
+    final rest = _argResults.rest;
 
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
-          optimizePerformance:
-              optimizePerformance && _argResults.rest.isEmpty && !updateGoldens,
+          optimizePerformance: optimizePerformance &&
+              !_isTargettingTestFiles(rest) &&
+              !updateGoldens,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -184,7 +186,7 @@ This command should be run from the root of your Flutter project.''',
               for (final value in dartDefine) '--dart-define=$value',
             ...['-j', concurrency],
             '--no-pub',
-            ..._argResults.rest,
+            ...rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
@@ -202,4 +204,25 @@ This command should be run from the root of your Flutter project.''',
     }
     return ExitCode.success.code;
   }
+}
+
+/// Determines whether the user is targetting test files or not.
+///
+/// The user can only target test files by using the `--` option terminator.
+/// The additional options after the `--` are passed to the test runner which
+/// allows the user to target specific test files or directories.
+///
+/// The heuristics used to determine if the user is not targetting test files
+/// are:
+/// * No [rest] arguments are passed.
+/// * All [rest] arguments are options (i.e. they do not start with `-`).
+///
+/// See also:
+/// * [What does -- mean in Shell?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
+bool _isTargettingTestFiles(List<String> rest) {
+  if (rest.isEmpty) {
+    return false;
+  }
+
+  return rest.where((arg) => !arg.startsWith('-')).isNotEmpty;
 }
