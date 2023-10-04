@@ -8,11 +8,6 @@ on:
     - cron: "4 8 * * 1-5"
   workflow_dispatch:
 
-env:
-  # The code Mason returns when there are changes detected after generation, see:
-  # https://github.com/felangel/mason/tree/master/packages/mason_cli#detecting-changes-after-generation
-  MASON_DETECTED_CHANGES_CODE: 70
-
 jobs:
   build:
     defaults:
@@ -38,16 +33,16 @@ jobs:
 
       - name: 🧱 Mason Make
         id: make
-        run: echo "MAKE_CODE=${mason make spdx_license --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed}" >> $GITHUB_ENV
+        run: if [[ $(mason make spdx_license -q --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed) =~ "0 files changed" ]]; then echo "did_change=false"; else echo "did_change=true"; fi >> $GITHUB_ENV
 
       - name: 🔑 Config Git User
-        if: $MAKE_CODE == $MASON_DETECTED_CHANGES_CODE
+        if: ${{ env.did_change == 'true' }}
         run: |
           git config user.name VGV Bot
           git config user.email vgvbot@users.noreply.github.com
 
       - name: 📝 Create Pull Request
-        if: $MAKE_CODE == $MASON_DETECTED_CHANGES_CODE
+        if: ${{ env.did_change == 'true' }}
         uses: peter-evans/create-pull-request@v5.0.2
         with:
           base: main
