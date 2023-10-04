@@ -27,8 +27,6 @@ jobs:
 
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
-        with:
-          sdk: 3.1.0
 
       - name: 📦 Install Dependencies
         run: dart pub get
@@ -60,5 +58,4 @@ jobs:
           labels: bot
           author: VGV Bot <vgvbot@users.noreply.github.com>
           assignees: vgvbot
-          reviewers: alestiago
           committer: VGV Bot <vgvbot@users.noreply.github.com>
