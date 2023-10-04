@@ -31,6 +31,14 @@ very_good test [arguments]
 Run "very_good help" to see global options.
 ```
 
+### Passing Flutter specific arguements
+
+The `flutter test` command exposes more arguements than those available through `very_good test`. Despite this, you can use the arguement terminator `--` to signify the end of `very_good test` command options and the beginning of `flutter test` command options.
+
+For example, if you wish to run `flutter test --no-track-widget-creation` you can simply do `very_good test -- --no-track-widget-creation`.
+
+You may also target specific files by using the arguement terminator; for example `very_good test -- test/very_good_test/**`. However, when targetting a subset of the project tests optimization will allways be disabled.
+
 ### Tests without pub install
 
 Unlike `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
@@ -38,5 +46,7 @@ Unlike `flutter test`, `very_good test` will always run your tests without insta
 This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 
 If you need to install dependencies before running the tests with `very_good_cli`, be sure to run `very_good packages get` first.
+
+
 
 [cov_issue]: https://github.com/flutter/flutter/issues/90225
