@@ -77,6 +77,7 @@ enum SpdxLicense {
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
+  $BSD_3_Clause_flex._('BSD-3-Clause-flex'),
   $BSD_4_Clause._('BSD-4-Clause'),
   $BSD_4_Clause_Shortened._('BSD-4-Clause-Shortened'),
   $BSD_4_Clause_UC._('BSD-4-Clause-UC'),
@@ -609,7 +610,6 @@ enum SpdxLicense {
   $python_ldap._('python-ldap'),
   $snprintf._('snprintf'),
   $ssh_keyscan._('ssh-keyscan'),
-  $stunnel_exception._('stunnel-exception'),
   $swrule._('swrule'),
   $ulem._('ulem'),
   $w3m._('w3m'),
@@ -627,11 +627,10 @@ enum SpdxLicense {
   /// If the [source] is not a valid [SpdxLicense], a [FormatException] is
   /// thrown.
   factory SpdxLicense.parse(String source) {
-    final result = _valueMap[source];
+    final result = SpdxLicense.tryParse(source);
     if (result == null) {
       throw FormatException('Failed to parse $source as SpdxLicense.');
     }
-
     return result;
   }
 
@@ -639,17 +638,11 @@ enum SpdxLicense {
   ///
   /// Like [SpdxLicense.parse] except that it returns `null` where a similar
   /// call to [SpdxLicense.parse] would throw a [FormatException].
-  static SpdxLicense? tryParse(String source) {
-    try {
-      return SpdxLicense.parse(source);
-    } on FormatException {
-      return null;
-    }
-  }
+  static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }
