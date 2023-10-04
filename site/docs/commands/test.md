@@ -47,6 +47,4 @@ This is an optimization done by the CLI because dependency installation is usual
 
 If you need to install dependencies before running the tests with `very_good_cli`, be sure to run `very_good packages get` first.
 
-
-
 [cov_issue]: https://github.com/flutter/flutter/issues/90225
