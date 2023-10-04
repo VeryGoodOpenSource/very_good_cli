@@ -49,8 +49,8 @@ jobs:
         with:
           base: main
           branch: chore/update-spdx-license
-          commit-message: "chore: update SPDX License template"
-          title: "chore: update SPDX License template"
+          commit-message: "chore: update SPDX licenses"
+          title: "chore: update SPDX licenses"
           body: Please squash and merge me!
           labels: bot
           author: VGV Bot <vgvbot@users.noreply.github.com>
