@@ -10,7 +10,7 @@ To develop for Very Good CLI's SPDX License brick, you will also need to become 
 
 ### Setting up your local development environment
 
-1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with the SPDX license brick can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/bricks/spdx_license/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
+1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with the SPDX license brick can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/tool/spdx_license/hooks/pubspec.yaml). If you have Flutter installed you likely have a valid Dart SDK version already installed.
 
 2. Install [Mason](https://github.com/felangel/mason/tree/master/packages/mason_cli#installation) in your local environment:
 
@@ -22,14 +22,14 @@ dart pub global activate mason_cli
 3. Get hooks' dependencies:
 
 ```sh
-# 🪝 Get hooks' dependencies (from bricks/spdx_license/hooks)
+# 🪝 Get hooks' dependencies (from tool/spdx_license/hooks)
 dart pub get
 ```
 
 4. Run all hook's tests:
 
 ```sh
-# 🧪 Test all hook's (from bricks/spdx_license/hooks)
+# 🧪 Test all hook's (from tool/spdx_license/hooks)
 dart test
 ```
 
