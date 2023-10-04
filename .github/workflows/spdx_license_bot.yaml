@@ -1,0 +1,57 @@
+name: spdx_license_bot
+
+on:
+  schedule:
+    # At 08:04 on every day-of-week from Monday through Friday.
+    - cron: "4 8 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: tool/spdx_license
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.1.0
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 💻 Install Mason
+        run: |
+          dart pub global activate mason_cli
+          mason get
+
+      - name: 🧱 Mason Make
+        id: make
+        run: echo "MAKE_CODE=${mason make spdx_license --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed}" >> $GITHUB_ENV
+
+      - name: 🔑 Config Git User
+        if: $MAKE_CODE != 70
+        run: |
+          git config user.name VGV Bot
+          git config user.email vgvbot@users.noreply.github.com
+
+      - name: 📝 Create Pull Request
+        if: $MAKE_CODE != 70
+        uses: peter-evans/create-pull-request@v5.0.2
+        with:
+          base: main
+          branch: chore/update-spdx-license
+          commit-message: "chore: update SPDX License template"
+          title: "chore: update SPDX License template"
+          body: Please squash and merge me!
+          labels: bot
+          author: VGV Bot <vgvbot@users.noreply.github.com>
+          assignees: vgvbot
+          reviewers: alestiago
+          committer: VGV Bot <vgvbot@users.noreply.github.com>
