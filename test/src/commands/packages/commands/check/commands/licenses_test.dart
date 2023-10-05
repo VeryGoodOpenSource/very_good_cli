@@ -18,7 +18,7 @@ const _expectedPackagesCheckLicensesUsage = [
 
 void main() {
   group('packages check licenses', () {
-    final commandArguements = UnmodifiableListView(
+    final commandArguments = UnmodifiableListView(
       ['packages', 'check', 'licenses'],
     );
 
@@ -26,15 +26,14 @@ void main() {
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(
-          [...commandArguements, '--help'],
+          [...commandArguments, '--help'],
         );
         expect(printLogs, equals(_expectedPackagesCheckLicensesUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr =
-            await commandRunner.run([...commandArguements, '-h']);
+        final resultAbbr = await commandRunner.run([...commandArguments, '-h']);
         expect(printLogs, equals(_expectedPackagesCheckLicensesUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
@@ -43,7 +42,7 @@ void main() {
     test(
       'returns exit code 0',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(commandArguements);
+        final result = await commandRunner.run(commandArguments);
         expect(result, equals(ExitCode.success.code));
       }),
     );
