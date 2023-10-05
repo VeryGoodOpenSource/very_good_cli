@@ -93,7 +93,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     progress.complete(
-      '''Retrieved ${licenses.length} licenses from ${filteredDependencies.length} packages of type: ${licenseTypes.toList().stringify()}''',
+      '''Retrieved ${licenses.length} licenses from ${filteredDependencies.length} packages of type: ${licenseTypes.toList().stringify()}.''',
     );
 
     return ExitCode.success.code;
