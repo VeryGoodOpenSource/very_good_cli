@@ -8,7 +8,7 @@ import '../../../../../helpers/helpers.dart';
 
 const _expectedPackagesCheckUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Check packages in a Dart or Flutter project.\n'
+  'Perform checks in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages check <subcommand> [arguments]\n'
       '-h, --help    Print this usage information.\n'

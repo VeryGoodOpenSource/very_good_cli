@@ -14,7 +14,7 @@ class PackagesCheckCommand extends Command<int> {
   final Logger _logger;
 
   @override
-  String get description => 'Check packages in a Dart or Flutter project.';
+  String get description => 'Perform checks in a Dart or Flutter project.';
 
   @override
   String get name => 'check';
