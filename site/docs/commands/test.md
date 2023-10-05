@@ -31,6 +31,12 @@ very_good test [arguments]
 Run "very_good help" to see global options.
 ```
 
+### Passing Flutter specific arguments
+
+The `flutter test` command exposes more arguments than those available through `very_good test`. Despite this, you can use the argument terminator `--` to signify the end of `very_good test` command options and the beginning of `flutter test` command options; making all `flutter test` arguments available!
+
+For example, if you wish to run `flutter test --no-track-widget-creation` you can simply use `very_good test -- --no-track-widget-creation`.
+
 ### Tests without pub install
 
 Unlike `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
