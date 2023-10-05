@@ -1,7 +1,5 @@
-import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
-import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
 
 /// {@template packages_check_command}
