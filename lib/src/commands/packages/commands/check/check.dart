@@ -23,16 +23,4 @@ class PackagesCheckCommand extends Command<int> {
 
   @override
   bool get hidden => true;
-
-  /// [ArgResults] which can be overridden for testing.
-  @visibleForTesting
-  ArgResults? argResultOverrides;
-
-  // ignore: unused_element
-  ArgResults get _argResults => argResultOverrides ?? argResults!;
-
-  @override
-  Future<int> run() async {
-    return ExitCode.success.code;
-  }
 }
