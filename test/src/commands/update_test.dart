@@ -27,7 +27,8 @@ void main() {
 
     test(
       'handles pub latest version query errors',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenThrow(Exception('oops'));
@@ -46,7 +47,8 @@ void main() {
 
     test(
       'handles pub update errors',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
@@ -71,7 +73,8 @@ void main() {
 
     test(
       'handles pub update process errors',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final errorProcessResult = ProcessResult(
           42,
           1,
@@ -110,7 +113,8 @@ void main() {
 
     test(
       'updates when newer version exists',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => latestVersion);
@@ -137,7 +141,8 @@ void main() {
 
     test(
       'does not update when already on latest version',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => packageVersion);
