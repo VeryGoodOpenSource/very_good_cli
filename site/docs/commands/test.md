@@ -37,7 +37,6 @@ The `flutter test` command exposes more arguments than those available through `
 
 For example, if you wish to run `flutter test --no-track-widget-creation` you can simply use `very_good test -- --no-track-widget-creation`.
 
-You may also target specific files by using the argument terminator; for example, `very_good test -- test/very_good_test/**`. However, when targeting a subset of the project tests, optimization will always be disabled.
 
 ### Tests without pub install
 
