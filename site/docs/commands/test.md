@@ -37,7 +37,6 @@ The `flutter test` command exposes more arguments than those available through `
 
 For example, if you wish to run `flutter test --no-track-widget-creation` you can simply use `very_good test -- --no-track-widget-creation`.
 
-
 ### Tests without pub install
 
 Unlike `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
