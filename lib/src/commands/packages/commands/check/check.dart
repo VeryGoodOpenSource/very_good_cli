@@ -3,18 +3,17 @@ import 'package:mason/mason.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
 
 /// {@template packages_check_command}
-/// `very_good packages check` command for checking packages.
+/// `very_good packages check` command for performing checks in a Dart or
+/// Flutter project.
 /// {@endtemplate}
 class PackagesCheckCommand extends Command<int> {
   /// {@macro packages_check_command}
-  PackagesCheckCommand({Logger? logger}) : _logger = logger ?? Logger() {
-    addSubcommand(PackagesCheckLicensesCommand(logger: _logger));
+  PackagesCheckCommand({Logger? logger}) {
+    addSubcommand(PackagesCheckLicensesCommand(logger: logger));
   }
 
-  final Logger _logger;
-
   @override
-  String get description => 'Check packages in a Dart or Flutter project.';
+  String get description => 'Perform checks in a Dart or Flutter project.';
 
   @override
   String get name => 'check';

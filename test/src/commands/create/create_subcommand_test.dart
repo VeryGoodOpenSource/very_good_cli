@@ -8,24 +8,24 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
 
-class MockTemplate extends Mock implements Template {}
+class _MockTemplate extends Mock implements Template {}
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
-class MockBundle extends Mock implements MasonBundle {}
+class _MockBundle extends Mock implements MasonBundle {}
 
-class MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
 
-class FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger {}
 
-class FakeDirectoryGeneratorTarget extends Fake
+class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
-class FakeDirectory extends Fake implements Directory {}
+class _FakeDirectory extends Fake implements Directory {}
 
 class _TestCreateSubCommand extends CreateSubCommand {
   _TestCreateSubCommand({
@@ -102,17 +102,17 @@ void main() {
   late Progress progress;
 
   setUpAll(() {
-    registerFallbackValue(FakeDirectoryGeneratorTarget());
-    registerFallbackValue(FakeLogger());
-    registerFallbackValue(FakeDirectory());
+    registerFallbackValue(_FakeDirectoryGeneratorTarget());
+    registerFallbackValue(_FakeLogger());
+    registerFallbackValue(_FakeDirectory());
   });
 
   setUp(() {
     progressLogs = <String>[];
 
-    logger = MockLogger();
+    logger = _MockLogger();
 
-    progress = MockProgress();
+    progress = _MockProgress();
     when(() => progress.complete(any())).thenAnswer((_) {
       final message = _.positionalArguments.elementAt(0) as String?;
       if (message != null) progressLogs.add(message);
@@ -131,14 +131,14 @@ Usage: very_good create create_subcommand <project-name> [arguments]
 Run "runner help" to see global options.''';
 
     late Template template;
-    late MockBundle bundle;
+    late _MockBundle bundle;
 
     setUp(() {
-      bundle = MockBundle();
+      bundle = _MockBundle();
       when(() => bundle.name).thenReturn('test');
       when(() => bundle.description).thenReturn('Test bundle');
       when(() => bundle.version).thenReturn('<bundleversion>');
-      template = MockTemplate();
+      template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
       when(() => template.onGenerateComplete(any(), any())).thenAnswer(
@@ -184,8 +184,8 @@ Run "runner help" to see global options.''';
       late _TestCommandRunner runner;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(
@@ -516,14 +516,14 @@ Usage: very_good create create_subcommand <project-name> [arguments]
 Run "runner help" to see global options.''';
 
     late Template template;
-    late MockBundle bundle;
+    late _MockBundle bundle;
 
     setUp(() {
-      bundle = MockBundle();
+      bundle = _MockBundle();
       when(() => bundle.name).thenReturn('test');
       when(() => bundle.description).thenReturn('Test bundle');
       when(() => bundle.version).thenReturn('<bundleversion>');
-      template = MockTemplate();
+      template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
       when(() => template.onGenerateComplete(any(), any())).thenAnswer(
@@ -566,8 +566,8 @@ Run "runner help" to see global options.''';
       late _TestCommandRunner runner;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(
@@ -854,16 +854,16 @@ Usage: very_good create create_subcommand <project-name> [arguments]
 
 Run "runner help" to see global options.''';
 
-    late MockBundle bundle;
+    late _MockBundle bundle;
     late List<Template> templates;
 
     setUp(() {
-      bundle = MockBundle();
+      bundle = _MockBundle();
       when(() => bundle.name).thenReturn('test');
       when(() => bundle.description).thenReturn('Test bundle');
       when(() => bundle.version).thenReturn('<bundleversion>');
 
-      final template1 = MockTemplate();
+      final template1 = _MockTemplate();
       when(() => template1.name).thenReturn('template1');
       when(() => template1.help).thenReturn('template1 help');
       when(() => template1.bundle).thenReturn(bundle);
@@ -871,7 +871,7 @@ Run "runner help" to see global options.''';
         (_) async {},
       );
 
-      final template2 = MockTemplate();
+      final template2 = _MockTemplate();
       when(() => template2.name).thenReturn('template2');
       when(() => template2.help).thenReturn('template2 help');
       when(() => template2.bundle).thenReturn(bundle);
@@ -923,8 +923,8 @@ Run "runner help" to see global options.''';
       late _TestCommandRunner runner;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(
@@ -1039,14 +1039,14 @@ Usage: very_good create create_subcommand <project-name> [arguments]
 Run "runner help" to see global options.''';
 
     late Template template;
-    late MockBundle bundle;
+    late _MockBundle bundle;
 
     setUp(() {
-      bundle = MockBundle();
+      bundle = _MockBundle();
       when(() => bundle.name).thenReturn('test');
       when(() => bundle.description).thenReturn('Test bundle');
       when(() => bundle.version).thenReturn('<bundleversion>');
-      template = MockTemplate();
+      template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
       when(() => template.onGenerateComplete(any(), any())).thenAnswer(
@@ -1081,8 +1081,8 @@ Run "runner help" to see global options.''';
       late _TestCommandRunner runner;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(

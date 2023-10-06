@@ -8,6 +8,8 @@ import 'package:very_good_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
 
+class _MockProgress extends Mock implements Progress {}
+
 void main() {
   const latestVersion = '0.0.0';
   final successProcessResult = ProcessResult(
@@ -121,7 +123,7 @@ void main() {
           ),
         ).thenAnswer((_) => Future.value(successProcessResult));
 
-        when(() => logger.progress(any())).thenReturn(MockProgress());
+        when(() => logger.progress(any())).thenReturn(_MockProgress());
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
         verify(() => logger.progress('Checking for updates')).called(1);
@@ -141,7 +143,7 @@ void main() {
         when(
           () => pubUpdater.getLatestVersion(any()),
         ).thenAnswer((_) async => packageVersion);
-        when(() => logger.progress(any())).thenReturn(MockProgress());
+        when(() => logger.progress(any())).thenReturn(_MockProgress());
         final result = await commandRunner.run(['update']);
         expect(result, equals(ExitCode.success.code));
         verify(

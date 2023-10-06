@@ -5,11 +5,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater {}
 
 void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
@@ -35,9 +35,9 @@ void Function() withRunner(
   ) runnerFn,
 ) {
   return _overridePrint((printLogs) async {
-    final logger = MockLogger();
-    final progress = MockProgress();
-    final pubUpdater = MockPubUpdater();
+    final logger = _MockLogger();
+    final progress = _MockProgress();
+    final pubUpdater = _MockPubUpdater();
     final progressLogs = <String>[];
     final commandRunner = VeryGoodCommandRunner(
       logger: logger,
