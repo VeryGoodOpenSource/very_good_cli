@@ -10,6 +10,12 @@ import 'package:very_good_cli/src/commands/test/test.dart';
 
 import '../../../helpers/helpers.dart';
 
+class _MockLogger extends Mock implements Logger {}
+
+class _MockArgResults extends Mock implements ArgResults {}
+
+class _MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
+
 const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
@@ -52,12 +58,6 @@ abstract class FlutterTestCommand {
   });
 }
 
-class MockLogger extends Mock implements Logger {}
-
-class MockArgResults extends Mock implements ArgResults {}
-
-class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
-
 void main() {
   group('test', () {
     final cwd = Directory.current;
@@ -71,10 +71,10 @@ void main() {
     late TestCommand testCommand;
 
     setUp(() {
-      logger = MockLogger();
+      logger = _MockLogger();
       isFlutterInstalled = true;
-      argResults = MockArgResults();
-      flutterTest = MockFlutterTestCommand();
+      argResults = _MockArgResults();
+      flutterTest = _MockFlutterTestCommand();
       testCommand = TestCommand(
         logger: logger,
         flutterInstalled: ({required Logger logger}) async =>

@@ -6,11 +6,11 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater {}
 
 class _MockPubLicense extends Mock implements PubLicense {}
 
@@ -39,8 +39,8 @@ void Function() withRunner(
   ) runnerFn,
 ) {
   return _overridePrint((printLogs) async {
-    final logger = MockLogger();
-    final progress = MockProgress();
+    final logger = _MockLogger();
+    final progress = _MockProgress();
     final pubUpdater = MockPubUpdater();
     final pubLicense = _MockPubLicense();
     final progressLogs = <String>[];

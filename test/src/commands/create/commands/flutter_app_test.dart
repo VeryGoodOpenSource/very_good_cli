@@ -9,15 +9,17 @@ import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
-class FakeLogger extends Fake implements Logger {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
 
-class FakeDirectoryGeneratorTarget extends Fake
+class _FakeLogger extends Fake implements Logger {}
+
+class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
@@ -54,16 +56,16 @@ void main() {
   final generatedFiles = List.filled(10, const GeneratedFile.created(path: ''));
 
   setUpAll(() {
-    registerFallbackValue(FakeDirectoryGeneratorTarget());
-    registerFallbackValue(FakeLogger());
+    registerFallbackValue(_FakeDirectoryGeneratorTarget());
+    registerFallbackValue(_FakeLogger());
   });
 
   setUp(() {
     progressLogs = <String>[];
 
-    logger = MockLogger();
+    logger = _MockLogger();
 
-    final progress = MockProgress();
+    final progress = _MockProgress();
     when(() => progress.complete(any())).thenAnswer((_) {
       final message = _.positionalArguments.elementAt(0) as String?;
       if (message != null) progressLogs.add(message);
@@ -113,8 +115,8 @@ void main() {
       late MasonGenerator generator;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(
