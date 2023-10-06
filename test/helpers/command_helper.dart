@@ -41,7 +41,7 @@ void Function() withRunner(
   return _overridePrint((printLogs) async {
     final logger = _MockLogger();
     final progress = _MockProgress();
-    final pubUpdater = MockPubUpdater();
+    final pubUpdater = _MockPubUpdater();
     final pubLicense = _MockPubLicense();
     final progressLogs = <String>[];
     final commandRunner = VeryGoodCommandRunner(
