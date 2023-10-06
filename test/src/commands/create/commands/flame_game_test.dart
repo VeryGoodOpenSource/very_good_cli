@@ -88,7 +88,8 @@ void main() {
   group('create flame_game', () {
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result =
             await commandRunner.run(['create', 'flame_game', '--help']);
         expect(printLogs, equals(expectedUsage));

@@ -83,7 +83,8 @@ void main() {
   group('create dart_package', () {
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result =
             await commandRunner.run(['create', 'dart_package', '--help']);
         expect(printLogs, equals(expectedUsage));

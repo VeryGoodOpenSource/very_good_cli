@@ -81,7 +81,8 @@ void main() {
   group('create flutter_package', () {
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result =
             await commandRunner.run(['create', 'flutter_package', '--help']);
         expect(printLogs, equals(expectedUsage));
