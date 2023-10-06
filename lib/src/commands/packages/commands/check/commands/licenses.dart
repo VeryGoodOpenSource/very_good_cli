@@ -57,7 +57,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final filteredDependencies =
-        pubspecLock.packages.where(_filterHostedDirectDependency);
+        pubspecLock.packages.where(_isHostedDirectDependency);
 
     final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
@@ -120,7 +120,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
   }
 }
 
-bool _filterHostedDirectDependency(
+bool _isHostedDirectDependency(
   PackageDependency dependency,
 ) {
   // ignore: invalid_use_of_protected_member
