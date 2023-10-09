@@ -94,8 +94,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
       (previousValue, element) => previousValue..addAll(element),
     );
 
+    final licenseWord = licenseTypes.length > 1 ? 'licenses' : 'license';
+    final packageWord =
+        filteredDependencies.length > 1 ? 'packages' : 'package';
     progress.complete(
-      '''Retrieved ${licenses.length} licenses from ${filteredDependencies.length} packages of type: ${licenseTypes.toList().stringify()}.''',
+      '''Retrieved ${licenses.length} $licenseWord from ${filteredDependencies.length} $packageWord of type: ${licenseTypes.toList().stringify()}.''',
     );
 
     return ExitCode.success.code;
