@@ -47,6 +47,7 @@ void Function() withRunner(
     final commandRunner = VeryGoodCommandRunner(
       logger: logger,
       pubUpdater: pubUpdater,
+      pubLicense: pubLicense,
     );
 
     when(() => progress.complete(any())).thenAnswer((_) {

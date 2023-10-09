@@ -9,7 +9,8 @@ import 'package:pubspec_lock/pubspec_lock.dart';
 import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
 /// The basename of the pubspec lock file.
-const _pubspecLockBasename = 'pubspec.lock';
+@visibleForTesting
+const pubspecLockBasename = 'pubspec.lock';
 
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
@@ -53,26 +54,36 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final pubspecLock = _tryParsePubspecLock(targetPath);
     if (pubspecLock == null) {
       progress.cancel();
-      return ExitCode.usage.code;
+      return ExitCode.noInput.code;
     }
 
     final filteredDependencies =
         pubspecLock.packages.where(_isHostedDirectDependency);
 
-    final licenses = <String, Set<String>?>{};
+    if (filteredDependencies.isEmpty) {
+      progress.cancel();
+      _logger.err('No hosted direct dependencies found in $targetPath');
+      return ExitCode.usage.code;
+    }
+
+    final licenses = <String, Set<String>>{};
     for (final dependency in filteredDependencies) {
       progress.update(
         'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages',
       );
 
       final packageName = dependency.package();
-      Set<String>? rawLicense;
+      Set<String> rawLicense;
       try {
         rawLicense = await _pubLicense.getLicense(packageName);
       } on PubLicenseException catch (e) {
-        _logger.warn('[$packageName] ${e.message}');
+        progress.cancel();
+        _logger.err('[$packageName] ${e.message}');
+        return ExitCode.unavailable.code;
       } catch (e) {
-        _logger.warn('[$packageName] Unexpected failure with error: $e');
+        progress.cancel();
+        _logger.err('[$packageName] Unexpected failure with error: $e');
+        return ExitCode.software.code;
       }
 
       licenses[packageName] = rawLicense;
@@ -80,17 +91,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final licenseTypes = licenses.values.fold(
       <String>{},
-      (previousValue, element) {
-        if (element == null) return previousValue;
-        return previousValue..addAll(element);
-      },
+      (previousValue, element) => previousValue..addAll(element),
     );
-
-    if (licenseTypes.isEmpty) {
-      progress.cancel();
-      _logger.err('No licenses found');
-      return ExitCode.usage.code;
-    }
 
     progress.complete(
       '''Retrieved ${licenses.length} licenses from ${filteredDependencies.length} packages of type: ${licenseTypes.toList().stringify()}.''',
@@ -104,17 +106,17 @@ class PackagesCheckLicensesCommand extends Command<int> {
   /// If no [PubspecLock] file is found or is unable to be parsed, `null` is
   /// returned and an error is logged accordingly.
   PubspecLock? _tryParsePubspecLock(String targetPath) {
-    final pubspecLockFile = File(path.join(targetPath, _pubspecLockBasename));
+    final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
 
     if (!pubspecLockFile.existsSync()) {
-      _logger.err('Could not find a $_pubspecLockBasename in $targetPath');
+      _logger.err('Could not find a $pubspecLockBasename in $targetPath');
       return null;
     }
 
     try {
       return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
     } catch (e) {
-      _logger.err('Could not parse $_pubspecLockBasename in $targetPath');
+      _logger.err('Could not parse $pubspecLockBasename in $targetPath');
       return null;
     }
   }
