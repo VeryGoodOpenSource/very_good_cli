@@ -68,6 +68,7 @@ void main() {
 
             const report =
                 '''Retrieved 1 license from 1 package of type: MIT.''';
+            // TODO(alestiago): Check that the progress completes with report.
 
             expect(result, equals(ExitCode.success.code));
           }),
@@ -92,6 +93,7 @@ void main() {
 
             const report =
                 '''Retrieved 4 licenses from 2 package of type: MIT and BSD.''';
+            // TODO(alestiago): Check that the progress completes with report.
 
             expect(result, equals(ExitCode.success.code));
           }),
