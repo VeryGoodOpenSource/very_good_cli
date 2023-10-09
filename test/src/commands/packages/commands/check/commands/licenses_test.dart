@@ -24,7 +24,8 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result = await commandRunner.run(
           [...commandArguments, '--help'],
         );
@@ -41,7 +42,8 @@ void main() {
 
     test(
       'returns exit code 0',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result = await commandRunner.run(commandArguments);
         expect(result, equals(ExitCode.success.code));
       }),

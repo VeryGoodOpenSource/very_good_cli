@@ -18,7 +18,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
   PackagesCheckLicensesCommand({
     Logger? logger,
-    @visibleForTesting PubLicense? pubLicense,
+    PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
         _pubLicense = pubLicense ?? PubLicense();
 

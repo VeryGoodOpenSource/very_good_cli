@@ -27,7 +27,8 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result = await commandRunner.run(
           [...commandArguments, '--help'],
         );

@@ -2,8 +2,10 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:mason/mason.dart' hide packageVersion;
+import 'package:meta/meta.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
+import 'package:very_good_cli/src/pub_license/pub_license.dart';
 import 'package:very_good_cli/src/version.dart';
 
 /// The package name.
@@ -17,6 +19,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   VeryGoodCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
+    @visibleForTesting PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         super('very_good', '🦄 A Very Good Command-Line Interface') {
@@ -31,7 +34,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
         help: 'Noisy logging, including all shell commands executed.',
       );
     addCommand(CreateCommand(logger: _logger));
-    addCommand(PackagesCommand(logger: _logger));
+    addCommand(PackagesCommand(logger: _logger, pubLicense: pubLicense));
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
   }
