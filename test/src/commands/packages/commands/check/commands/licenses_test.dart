@@ -16,8 +16,13 @@ const _expectedPackagesCheckLicensesUsage = [
   'Check packages licenses in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
-      '-h, --help               Print this usage information.\n'
-      '''    --ignore-failures    Avoids terminating whenever a license fails to be retrieved.\n'''
+      '-h, --help                           Print this usage information.\n'
+      '''    --ignore-failures                Avoids terminating whenever a license fails to be retrieved.\n'''
+      '''    --dependency-type                The type of dependencies to check licenses for.\n'''
+      '\n'
+      '''          [direct-dev]               Check for direct dev dependencies.\n'''
+      '''          [direct-main] (default)    Check for direct main dependencies.\n'''
+      '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -282,6 +287,8 @@ void main() {
         }),
       );
     });
+
+    group('dependency-type', () {});
 
     group('exits with error', () {
       test(
