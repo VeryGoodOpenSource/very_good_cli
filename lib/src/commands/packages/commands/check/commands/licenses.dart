@@ -72,21 +72,21 @@ class PackagesCheckLicensesCommand extends Command<int> {
         'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages',
       );
 
-      final packageName = dependency.package();
+      final dependencyName = dependency.package();
       Set<String> rawLicense;
       try {
-        rawLicense = await _pubLicense.getLicense(packageName);
+        rawLicense = await _pubLicense.getLicense(dependencyName);
       } on PubLicenseException catch (e) {
         progress.cancel();
-        _logger.err('[$packageName] ${e.message}');
+        _logger.err('[$dependencyName] ${e.message}');
         return ExitCode.unavailable.code;
       } catch (e) {
         progress.cancel();
-        _logger.err('[$packageName] Unexpected failure with error: $e');
+        _logger.err('[$dependencyName] Unexpected failure with error: $e');
         return ExitCode.software.code;
       }
 
-      licenses[packageName] = rawLicense;
+      licenses[dependencyName] = rawLicense;
     }
 
     final licenseTypes = licenses.values.fold(
