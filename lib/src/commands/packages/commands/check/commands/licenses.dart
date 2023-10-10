@@ -111,25 +111,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    final licenseTypes =
-        licenses.values.fold(<String>{}, (previousValue, element) {
-      if (element == null) return previousValue;
-      return previousValue..addAll(element);
-    });
-    final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
-      if (element == null) return previousValue;
-      return previousValue + element.length;
-    });
-
-    final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
-    final packageWord =
-        filteredDependencies.length == 1 ? 'package' : 'packages';
-    final suffix = licenseTypes.isEmpty
-        ? ''
-        : ' of type: ${licenseTypes.toList().stringify()}';
-    progress.complete(
-      '''Retrieved $licenseCount $licenseWord from ${filteredDependencies.length} $packageWord$suffix.''',
-    );
+    progress.complete(_composeReport(licenses));
 
     return ExitCode.success.code;
   }
@@ -154,6 +136,28 @@ bool _isHostedDirectDependency(
   final isPubHostedDependency = dependency.hosted != null;
   final isDirectDependency = dependency.type() == DependencyType.direct;
   return isPubHostedDependency && isDirectDependency;
+}
+
+/// Composes a human friendly [String] to report the result of the retrieved
+/// licenses.
+String _composeReport(Map<String, Set<String>?> licenses) {
+  final licenseTypes =
+      licenses.values.fold(<String>{}, (previousValue, element) {
+    if (element == null) return previousValue;
+    return previousValue..addAll(element);
+  });
+  final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
+    if (element == null) return previousValue;
+    return previousValue + element.length;
+  });
+
+  final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
+  final packageWord = licenses.length == 1 ? 'package' : 'packages';
+  final suffix = licenseTypes.isEmpty
+      ? ''
+      : ' of type: ${licenseTypes.toList().stringify()}';
+
+  return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
 extension on List<Object> {
