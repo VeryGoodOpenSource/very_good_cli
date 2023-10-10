@@ -47,7 +47,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    // TODO(alestiago): Usage exception when too many arguments.
     final ignoreFailures = _argResults['ignore-failures'] as bool;
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
