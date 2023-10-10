@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
@@ -318,13 +319,184 @@ void main() {
         );
 
         group('reports licenses', () {
-          test('on developer main dependencies only', () {});
+          /// A map of dependencies by type from [_validPubspecLockContent].
+          const dependenciesByType = {
+            dependencyTypeMainDirectOption: ['very_good_test_runner'],
+            dependencyTypeDevDirectOption: ['very_good_analysis'],
+            dependencyTypeTransitiveOption: ['yaml'],
+          };
 
-          test('on developer dev dependencies only', () {});
+          group('on developer main dependencies only', () {
+            test('by default', () {});
 
-          test('on transitive dependencies only', () {});
+            test('when specified', () {});
+          });
 
-          test('on all dependencies', () {});
+          test(
+            'on developer dev dependencies only',
+            withRunner((
+              commandRunner,
+              logger,
+              pubUpdater,
+              pubLicense,
+              printLogs,
+            ) async {
+              final tempDirectory = Directory.systemTemp.createTempSync();
+              addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+              File(path.join(tempDirectory.path, pubspecLockBasename))
+                  .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => logger.progress(any())).thenReturn(progress);
+
+              when(() => pubLicense.getLicense(any()))
+                  .thenAnswer((_) => Future.value({'MIT'}));
+
+              final result = await commandRunner.run(
+                [
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeDevDirectOption,
+                  tempDirectory.path,
+                ],
+              );
+
+              final packageNames =
+                  verify(() => pubLicense.getLicense(captureAny()))
+                      .captured
+                      .cast<String>();
+
+              expect(
+                packageNames,
+                equals(dependenciesByType[dependencyTypeDevDirectOption]),
+              );
+
+              verify(
+                () => progress.update('Collecting licenses of 0/1 packages'),
+              ).called(1);
+              verify(
+                () => progress.complete(
+                  'Retrieved 1 license from 1 package of type: MIT.',
+                ),
+              ).called(1);
+
+              expect(result, equals(ExitCode.success.code));
+            }),
+          );
+
+          test(
+            'on transitive dependencies only',
+            withRunner((
+              commandRunner,
+              logger,
+              pubUpdater,
+              pubLicense,
+              printLogs,
+            ) async {
+              final tempDirectory = Directory.systemTemp.createTempSync();
+              addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+              File(path.join(tempDirectory.path, pubspecLockBasename))
+                  .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => logger.progress(any())).thenReturn(progress);
+
+              when(() => pubLicense.getLicense(any()))
+                  .thenAnswer((_) => Future.value({'MIT'}));
+
+              final result = await commandRunner.run(
+                [
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeTransitiveOption,
+                  tempDirectory.path,
+                ],
+              );
+
+              final packageNames =
+                  verify(() => pubLicense.getLicense(captureAny()))
+                      .captured
+                      .cast<String>();
+
+              expect(
+                packageNames,
+                equals(dependenciesByType[dependencyTypeTransitiveOption]),
+              );
+
+              verify(
+                () => progress.update('Collecting licenses of 0/1 packages'),
+              ).called(1);
+              verify(
+                () => progress.complete(
+                  'Retrieved 1 license from 1 package of type: MIT.',
+                ),
+              ).called(1);
+
+              expect(result, equals(ExitCode.success.code));
+            }),
+          );
+
+          test(
+            'on all dependencies',
+            withRunner((
+              commandRunner,
+              logger,
+              pubUpdater,
+              pubLicense,
+              printLogs,
+            ) async {
+              final tempDirectory = Directory.systemTemp.createTempSync();
+              addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+              File(path.join(tempDirectory.path, pubspecLockBasename))
+                  .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => logger.progress(any())).thenReturn(progress);
+
+              when(() => pubLicense.getLicense(any()))
+                  .thenAnswer((_) => Future.value({'MIT'}));
+
+              final result = await commandRunner.run(
+                [
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeDevDirectOption,
+                  dependencyTypeArgument,
+                  dependencyTypeTransitiveOption,
+                  dependencyTypeArgument,
+                  dependencyTypeMainDirectOption,
+                  tempDirectory.path,
+                ],
+              );
+
+              final packageNames =
+                  verify(() => pubLicense.getLicense(captureAny()))
+                      .captured
+                      .cast<String>();
+
+              expect(
+                packageNames,
+                equals([...dependenciesByType.values].flattened),
+              );
+
+              verify(
+                () => progress.update('Collecting licenses of 0/3 packages'),
+              ).called(1);
+              verify(
+                () => progress.update('Collecting licenses of 1/3 packages'),
+              ).called(1);
+              verify(
+                () => progress.update('Collecting licenses of 2/3 packages'),
+              ).called(1);
+              verify(
+                () => progress.complete(
+                  'Retrieved 3 licenses from 3 packages of type: MIT.',
+                ),
+              ).called(1);
+
+              expect(result, equals(ExitCode.success.code));
+            }),
+          );
         });
       });
     });
@@ -485,14 +657,6 @@ void main() {
 /// - one hosted transitive dependency
 const _validPubspecLockContent = '''
 packages:
-  very_good_analysis:
-    dependency: "direct dev"
-    description:
-      name: very_good_analysis
-      sha256: "9ae7f3a3bd5764fb021b335ca28a34f040cd0ab6eec00a1b213b445dae58a4b8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.0"
   very_good_test_runner:
     dependency: "direct main"
     description:
@@ -501,6 +665,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.2"
+  very_good_analysis:
+    dependency: "direct dev"
+    description:
+      name: very_good_analysis
+      sha256: "9ae7f3a3bd5764fb021b335ca28a34f040cd0ab6eec00a1b213b445dae58a4b8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
   yaml:
     dependency: transitive
     description:
