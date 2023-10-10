@@ -90,11 +90,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final filteredDependencies = pubspecLock.packages.where((dependency) {
-      final dependencyType = dependency.type();
       // ignore: invalid_use_of_protected_member
       final isPubHosted = dependency.hosted != null;
       if (!isPubHosted) return false;
 
+      final dependencyType = dependency.type();
       return (dependencyTypes.contains('direct-main') &&
               dependencyType == DependencyType.direct) ||
           (dependencyTypes.contains('direct-dev') &&
