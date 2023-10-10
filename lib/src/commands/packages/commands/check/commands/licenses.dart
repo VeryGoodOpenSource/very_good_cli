@@ -51,8 +51,15 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final progress = _logger.progress('Checking licenses on $targetPath');
 
-    final pubspecLock = _tryParsePubspecLock(targetPath);
+    final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
+    if (!pubspecLockFile.existsSync()) {
+      _logger.err('Could not find a $pubspecLockBasename in $targetPath');
+      return ExitCode.noInput.code;
+    }
+
+    final pubspecLock = _tryParsePubspecLock(pubspecLockFile);
     if (pubspecLock == null) {
+      _logger.err('Could not parse $pubspecLockBasename in $targetPath');
       progress.cancel();
       return ExitCode.noInput.code;
     }
@@ -107,25 +114,17 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     return ExitCode.success.code;
   }
+}
 
-  /// Attempts to parse a [PubspecLock] file in the given [path].
-  ///
-  /// If no [PubspecLock] file is found or is unable to be parsed, `null` is
-  /// returned and an error is logged accordingly.
-  PubspecLock? _tryParsePubspecLock(String targetPath) {
-    final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
-
-    if (!pubspecLockFile.existsSync()) {
-      _logger.err('Could not find a $pubspecLockBasename in $targetPath');
-      return null;
-    }
-
-    try {
-      return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
-    } catch (e) {
-      _logger.err('Could not parse $pubspecLockBasename in $targetPath');
-      return null;
-    }
+/// Attempts to parse a [PubspecLock] file in the given [path].
+///
+/// If no [PubspecLock] file is found or is unable to be parsed, `null` is
+/// returned.
+PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
+  try {
+    return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
+  } catch (e) {
+    return null;
   }
 }
 
