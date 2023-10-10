@@ -118,6 +118,84 @@ void main() {
       },
     );
 
+    group('ignore-failures', () {
+      const ignoreFailuresArgument = '--ignore-failures';
+
+      group('reports licenses', () {
+        test(
+          'when a PubLicenseException is thrown',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => pubLicense.getLicense(any())).thenAnswer(
+              (_) => Future.value({'MIT'}),
+            );
+            const failedDependencyName = 'very_good_test_runner';
+            const exception = PubLicenseException('message');
+            when(() => pubLicense.getLicense(failedDependencyName))
+                .thenThrow(exception);
+
+            final result = await commandRunner.run(
+              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            );
+
+            final errorMessage =
+                '''[$failedDependencyName] ${exception.message}''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            const report =
+                '''Retrieved 1 license from 2 packages of type: MIT.''';
+            verify(() => progress.complete(report)).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when an unknown error is thrown',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => pubLicense.getLicense(any())).thenAnswer(
+              (_) => Future.value({'MIT'}),
+            );
+            const failedDependencyName = 'very_good_test_runner';
+            const error = 'error';
+            when(() => pubLicense.getLicense(failedDependencyName))
+                .thenThrow(error);
+
+            final result = await commandRunner.run(
+              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            );
+
+            const errorMessage =
+                '''[$failedDependencyName] Unexpected failure with error: $error''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            const report =
+                '''Retrieved 1 license from 2 packages of type: MIT.''';
+            verify(() => progress.complete(report)).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+      });
+    });
+
     group('exits with error', () {
       test(
         'when it did not find a pubspec.lock file at the target path',
