@@ -105,9 +105,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
       (previousValue, element) => previousValue + element.length,
     );
 
-    final licenseWord = licenseCount != 1 ? 'licenses' : 'license';
+    final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
     final packageWord =
-        filteredDependencies.length != 1 ? 'packages' : 'package';
+        filteredDependencies.length == 1 ? 'package' : 'packages';
     progress.complete(
       '''Retrieved $licenseCount $licenseWord from ${filteredDependencies.length} $packageWord of type: ${licenseTypes.toList().stringify()}.''',
     );
