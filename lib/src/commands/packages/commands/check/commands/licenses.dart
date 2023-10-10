@@ -23,7 +23,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
   })  : _logger = logger ?? Logger(),
         _pubLicense = pubLicense ?? PubLicense();
 
-  // ignore: unused_field
   final Logger _logger;
 
   final PubLicense _pubLicense;
