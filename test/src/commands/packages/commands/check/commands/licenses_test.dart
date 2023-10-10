@@ -36,10 +36,6 @@ void main() {
 
     setUp(() {
       progress = _MockProgress();
-      // when(() => progress.cancel()).thenReturn(null);
-      // when(() => progress.update(any())).thenReturn(null);
-      // when(() => progress.fail(any())).thenReturn(null);
-      // when(() => progress.complete(any())).thenReturn(null);
     });
 
     test(
