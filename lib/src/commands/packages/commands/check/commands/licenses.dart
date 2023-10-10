@@ -118,8 +118,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
 /// Attempts to parse a [PubspecLock] file in the given [path].
 ///
-/// If no [PubspecLock] file is not readable or fails to be parsed, `null`
-/// is returned.
+/// If [pubspecLockFile] is not readable or fails to be parsed, `null` is
+/// returned.
 PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   try {
     return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
