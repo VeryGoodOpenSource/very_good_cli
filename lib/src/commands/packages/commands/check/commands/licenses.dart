@@ -37,11 +37,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
   @override
   bool get hidden => true;
 
-  /// [ArgResults] which can be overridden for testing.
-  @visibleForTesting
-  ArgResults? argResultOverrides;
-
-  ArgResults get _argResults => argResultOverrides ?? argResults!;
+  ArgResults get _argResults => argResults!;
 
   @override
   Future<int> run() async {
