@@ -21,7 +21,13 @@ class PackagesCheckLicensesCommand extends Command<int> {
     Logger? logger,
     PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
-        _pubLicense = pubLicense ?? PubLicense();
+        _pubLicense = pubLicense ?? PubLicense() {
+    argParser.addFlag(
+      'ignore-failures',
+      help: 'Avoids terminating whenever a license fails to be retrieved.',
+      negatable: false,
+    );
+  }
 
   final Logger _logger;
 
@@ -41,6 +47,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    // TODO(alestiago): Usage exception when too many arguments.
+    final ignoreFailures = _argResults['ignore-failures'] as bool;
+
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
 
@@ -76,20 +85,28 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
 
       final dependencyName = dependency.package();
-      Set<String> rawLicense;
       try {
-        rawLicense = await _pubLicense.getLicense(dependencyName);
+        licenses[dependencyName] = await _pubLicense.getLicense(dependencyName);
       } on PubLicenseException catch (e) {
-        progress.cancel();
-        _logger.err('[$dependencyName] ${e.message}');
-        return ExitCode.unavailable.code;
-      } catch (e) {
-        progress.cancel();
-        _logger.err('[$dependencyName] Unexpected failure with error: $e');
-        return ExitCode.software.code;
-      }
+        final errorMessage = '[$dependencyName] ${e.message}';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.unavailable.code;
+        }
 
-      licenses[dependencyName] = rawLicense;
+        _logger.err(errorMessage);
+      } catch (e) {
+        final errorMessage =
+            '[$dependencyName] Unexpected failure with error: $e';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.software.code;
+        }
+
+        _logger.err(errorMessage);
+      }
     }
 
     final licenseTypes = licenses.values.fold(

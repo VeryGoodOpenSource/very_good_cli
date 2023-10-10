@@ -17,7 +17,8 @@ const _expectedPackagesCheckLicensesUsage = [
   'Check packages licenses in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
-      '-h, --help    Print this usage information.\n'
+      '-h, --help               Print this usage information.\n'
+      '''    --ignore-failures    Avoids terminating whenever a license fails to be retrieved.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
