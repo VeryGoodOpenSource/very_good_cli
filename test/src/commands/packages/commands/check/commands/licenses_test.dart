@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
@@ -25,9 +24,7 @@ const _expectedPackagesCheckLicensesUsage = [
 
 void main() {
   group('packages check licenses', () {
-    final commandArguments = UnmodifiableListView(
-      ['packages', 'check', 'licenses'],
-    );
+    const commandArguments = ['packages', 'check', 'licenses'];
 
     late Progress progress;
 
@@ -62,6 +59,17 @@ void main() {
       expect(command.hidden, isTrue);
     });
 
+    test(
+      '''throws usage exception when too many rest arguments are provided''',
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        final result = await commandRunner.run(
+          [...commandArguments, 'arg1', 'arg2'],
+        );
+        expect(result, equals(ExitCode.usage.code));
+      }),
+    );
+
     group(
       'reports licenses',
       () {
@@ -81,9 +89,14 @@ void main() {
               [...commandArguments, tempDirectory.path],
             );
 
-            const report =
-                '''Retrieved 1 license from 1 package of type: MIT.''';
-            verify(() => progress.complete(report)).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 0/1 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: MIT.''',
+              ),
+            ).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
@@ -108,9 +121,17 @@ void main() {
               [...commandArguments, tempDirectory.path],
             );
 
-            const report =
-                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''';
-            verify(() => progress.complete(report)).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 0/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 1/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''',
+              ),
+            ).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
