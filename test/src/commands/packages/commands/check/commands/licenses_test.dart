@@ -10,6 +10,8 @@ import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
 import '../../../../../../helpers/helpers.dart';
 
+class _MockProgress extends Mock implements Progress {}
+
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
   'Check packages licenses in a Dart or Flutter project.\n'
@@ -25,6 +27,20 @@ void main() {
     final commandArguments = UnmodifiableListView(
       ['packages', 'check', 'licenses'],
     );
+
+    late Progress progress;
+
+    setUpAll(() {
+      registerFallbackValue('');
+    });
+
+    setUp(() {
+      progress = _MockProgress();
+      // when(() => progress.cancel()).thenReturn(null);
+      // when(() => progress.update(any())).thenReturn(null);
+      // when(() => progress.fail(any())).thenReturn(null);
+      // when(() => progress.complete(any())).thenReturn(null);
+    });
 
     test(
       'help',
@@ -62,13 +78,15 @@ void main() {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validPubspecLockContent);
 
+            when(() => logger.progress(any())).thenReturn(progress);
+
             final result = await commandRunner.run(
               [...commandArguments, tempDirectory.path],
             );
 
             const report =
                 '''Retrieved 1 license from 1 package of type: MIT.''';
-            // TODO(alestiago): Check that the progress completes with report.
+            verify(() => progress.complete(report)).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
@@ -82,7 +100,9 @@ void main() {
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
             File(path.join(tempDirectory.path, pubspecLockBasename))
-                .writeAsStringSync(_validPubspecLockContent);
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
 
             when(() => pubLicense.getLicense(any()))
                 .thenAnswer((_) => Future.value({'MIT', 'BSD'}));
@@ -92,8 +112,8 @@ void main() {
             );
 
             const report =
-                '''Retrieved 4 licenses from 2 package of type: MIT and BSD.''';
-            // TODO(alestiago): Check that the progress completes with report.
+                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''';
+            verify(() => progress.complete(report)).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
@@ -102,14 +122,14 @@ void main() {
     );
 
     group('exits with error', () {
-      // TODO(alestiago): Verify process is cancelled.
-
       test(
         'when it did not find a pubspec.lock file at the target path',
         withRunner(
             (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          when(() => logger.progress(any())).thenReturn(progress);
 
           final result = await commandRunner.run(
             [...commandArguments, tempDirectory.path],
@@ -118,6 +138,8 @@ void main() {
           final errorMessage =
               'Could not find a $pubspecLockBasename in ${tempDirectory.path}';
           verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.noInput.code));
         }),
@@ -133,6 +155,8 @@ void main() {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync('');
 
+          when(() => logger.progress(any())).thenReturn(progress);
+
           final result = await commandRunner.run(
             [...commandArguments, tempDirectory.path],
           );
@@ -140,6 +164,8 @@ void main() {
           final errorMessage =
               'Could not parse $pubspecLockBasename in ${tempDirectory.path}';
           verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.noInput.code));
         }),
@@ -155,6 +181,8 @@ void main() {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_emptyPubspecLockContent);
 
+          when(() => logger.progress(any())).thenReturn(progress);
+
           final result = await commandRunner.run(
             [...commandArguments, tempDirectory.path],
           );
@@ -162,6 +190,8 @@ void main() {
           final errorMessage =
               'No hosted direct dependencies found in ${tempDirectory.path}';
           verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.usage.code));
         }),
@@ -176,6 +206,8 @@ void main() {
 
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
 
           const exception = PubLicenseException('message');
           when(() => pubLicense.getLicense('very_good_test_runner'))
@@ -192,6 +224,8 @@ void main() {
 
           final errorMessage = '[$packageName] ${exception.message}';
           verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.unavailable.code));
         }),
@@ -211,6 +245,8 @@ void main() {
           when(() => pubLicense.getLicense('very_good_test_runner'))
               .thenThrow(error);
 
+          when(() => logger.progress(any())).thenReturn(progress);
+
           final result = await commandRunner.run(
             [...commandArguments, tempDirectory.path],
           );
@@ -223,6 +259,8 @@ void main() {
           final errorMessage =
               '[$packageName] Unexpected failure with error: $error';
           verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.software.code));
         }),
