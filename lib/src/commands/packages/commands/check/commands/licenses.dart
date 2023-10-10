@@ -78,15 +78,16 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    final licenses = <String, Set<String>>{};
+    final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
         'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages',
       );
 
       final dependencyName = dependency.package();
+      Set<String>? rawLicense;
       try {
-        licenses[dependencyName] = await _pubLicense.getLicense(dependencyName);
+        rawLicense = await _pubLicense.getLicense(dependencyName);
       } on PubLicenseException catch (e) {
         final errorMessage = '[$dependencyName] ${e.message}';
         if (!ignoreFailures) {
@@ -95,7 +96,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
           return ExitCode.unavailable.code;
         }
 
-        _logger.err(errorMessage);
+        _logger.err('\n$errorMessage');
       } catch (e) {
         final errorMessage =
             '[$dependencyName] Unexpected failure with error: $e';
@@ -105,24 +106,30 @@ class PackagesCheckLicensesCommand extends Command<int> {
           return ExitCode.software.code;
         }
 
-        _logger.err(errorMessage);
+        _logger.err('\n$errorMessage');
+      } finally {
+        licenses[dependencyName] = rawLicense;
       }
     }
 
-    final licenseTypes = licenses.values.fold(
-      <String>{},
-      (previousValue, element) => previousValue..addAll(element),
-    );
-    final licenseCount = licenses.values.fold<int>(
-      0,
-      (previousValue, element) => previousValue + element.length,
-    );
+    final licenseTypes =
+        licenses.values.fold(<String>{}, (previousValue, element) {
+      if (element == null) return previousValue;
+      return previousValue..addAll(element);
+    });
+    final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
+      if (element == null) return previousValue;
+      return previousValue + element.length;
+    });
 
     final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
     final packageWord =
         filteredDependencies.length == 1 ? 'package' : 'packages';
+    final suffix = licenseTypes.isEmpty
+        ? ''
+        : ' of type: ${licenseTypes.toList().stringify()}';
     progress.complete(
-      '''Retrieved $licenseCount $licenseWord from ${filteredDependencies.length} $packageWord of type: ${licenseTypes.toList().stringify()}.''',
+      '''Retrieved $licenseCount $licenseWord from ${filteredDependencies.length} $packageWord$suffix.''',
     );
 
     return ExitCode.success.code;

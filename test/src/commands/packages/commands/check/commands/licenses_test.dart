@@ -147,12 +147,20 @@ void main() {
             );
 
             final errorMessage =
-                '''[$failedDependencyName] ${exception.message}''';
+                '''\n[$failedDependencyName] ${exception.message}''';
             verify(() => logger.err(errorMessage)).called(1);
 
-            const report =
-                '''Retrieved 1 license from 2 packages of type: MIT.''';
-            verify(() => progress.complete(report)).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 0/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 1/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                'Retrieved 1 license from 2 packages of type: MIT.',
+              ),
+            ).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
@@ -183,17 +191,75 @@ void main() {
             );
 
             const errorMessage =
-                '''[$failedDependencyName] Unexpected failure with error: $error''';
+                '''\n[$failedDependencyName] Unexpected failure with error: $error''';
             verify(() => logger.err(errorMessage)).called(1);
 
-            const report =
-                '''Retrieved 1 license from 2 packages of type: MIT.''';
-            verify(() => progress.complete(report)).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 0/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 1/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                'Retrieved 1 license from 2 packages of type: MIT.',
+              ),
+            ).called(1);
 
             expect(result, equals(ExitCode.success.code));
           }),
         );
       });
+
+      test(
+        'when all licenses fail to be retrieved',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validMultiplePubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const error = 'error';
+          when(() => pubLicense.getLicense(any())).thenThrow(error);
+
+          final result = await commandRunner.run(
+            [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+          );
+
+          final packageNames = verify(() => pubLicense.getLicense(captureAny()))
+              .captured
+              .cast<String>();
+
+          verify(
+            () => logger.err(
+              '''\n[${packageNames[0]}] Unexpected failure with error: $error''',
+            ),
+          ).called(1);
+          verify(
+            () => logger.err(
+              '''\n[${packageNames[1]}] Unexpected failure with error: $error''',
+            ),
+          ).called(1);
+
+          verify(
+            () => progress.update('Collecting licenses of 0/2 packages'),
+          ).called(1);
+          verify(
+            () => progress.update('Collecting licenses of 1/2 packages'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              'Retrieved 0 licenses from 2 packages.',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
     });
 
     group('exits with error', () {
