@@ -58,6 +58,17 @@ void main() {
       expect(command.hidden, isTrue);
     });
 
+    test(
+      '''throws usage exception when too many rest arguments are provided''',
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        final result = await commandRunner.run(
+          [...commandArguments, 'arg1', 'arg2'],
+        );
+        expect(result, equals(ExitCode.usage.code));
+      }),
+    );
+
     group(
       'reports licenses',
       () {

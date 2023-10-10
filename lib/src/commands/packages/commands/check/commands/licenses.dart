@@ -41,6 +41,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    if (_argResults.rest.length > 1) {
+      usageException('Too many arguments');
+    }
+
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
 
