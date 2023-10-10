@@ -52,14 +52,15 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
     if (!pubspecLockFile.existsSync()) {
+      progress.cancel();
       _logger.err('Could not find a $pubspecLockBasename in $targetPath');
       return ExitCode.noInput.code;
     }
 
     final pubspecLock = _tryParsePubspecLock(pubspecLockFile);
     if (pubspecLock == null) {
-      _logger.err('Could not parse $pubspecLockBasename in $targetPath');
       progress.cancel();
+      _logger.err('Could not parse $pubspecLockBasename in $targetPath');
       return ExitCode.noInput.code;
     }
 
