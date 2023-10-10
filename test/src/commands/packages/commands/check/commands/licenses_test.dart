@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:mason_logger/mason_logger.dart';
@@ -24,9 +23,7 @@ const _expectedPackagesCheckLicensesUsage = [
 
 void main() {
   group('packages check licenses', () {
-    final commandArguments = UnmodifiableListView(
-      ['packages', 'check', 'licenses'],
-    );
+    const commandArguments = ['packages', 'check', 'licenses'];
 
     late Progress progress;
 
