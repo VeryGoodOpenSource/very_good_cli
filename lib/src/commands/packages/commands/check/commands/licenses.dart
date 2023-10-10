@@ -50,7 +50,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     if (_argResults.rest.length > 1) {
       usageException('Too many arguments');
     }
-    
+
     final ignoreFailures = _argResults['ignore-failures'] as bool;
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
