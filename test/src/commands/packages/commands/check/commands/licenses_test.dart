@@ -288,7 +288,46 @@ void main() {
       );
     });
 
-    group('dependency-type', () {});
+    group('dependency-type', () {
+      const dependencyTypeArgument = '--dependency-type';
+      const dependencyTypeMainDirectOption = 'direct-main';
+      const dependencyTypeDevDirectOption = 'direct-dev';
+      const dependencyTypeTransitiveOption = 'transitive';
+
+      group('throws usage exception', () {
+        test(
+          'when no option is provided',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final result = await commandRunner.run(
+              [...commandArguments, dependencyTypeArgument],
+            );
+            expect(result, equals(ExitCode.usage.code));
+          }),
+        );
+
+        test(
+          'when invalid option is provided',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final result = await commandRunner.run(
+              [...commandArguments, dependencyTypeArgument, 'invalid'],
+            );
+            expect(result, equals(ExitCode.usage.code));
+          }),
+        );
+
+        group('reports licenses', () {
+          test('on developer main dependencies only', () {});
+
+          test('on developer dev dependencies only', () {});
+
+          test('on transitive dependencies only', () {});
+
+          test('on all dependencies', () {});
+        });
+      });
+    });
 
     group('exits with error', () {
       test(

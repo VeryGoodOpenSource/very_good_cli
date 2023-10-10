@@ -70,10 +70,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final ignoreFailures = _argResults['ignore-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
 
-    if (dependencyTypes.isEmpty) {
-      usageException('No dependency types specified');
-    }
-
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
 
