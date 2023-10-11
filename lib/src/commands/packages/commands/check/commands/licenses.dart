@@ -261,7 +261,7 @@ String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
   final suffix =
       bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
 
-  return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}''';
+  return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}.''';
 }
 
 /// Verifies that all [licenses] are valid license inputs.
