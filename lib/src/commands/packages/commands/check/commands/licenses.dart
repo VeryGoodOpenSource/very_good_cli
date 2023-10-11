@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:pubspec_lock/pubspec_lock.dart';
 import 'package:very_good_cli/src/pub_license/pub_license.dart';
+import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
 
 /// The basename of the pubspec lock file.
 @visibleForTesting
@@ -42,6 +43,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
           'transitive': 'Check for transitive dependencies.',
         },
         defaultsTo: ['direct-main'],
+      )
+      ..addMultiOption(
+        'allowed',
+        help: 'Whitelist of allowed licenses.',
       );
   }
 
@@ -69,6 +74,16 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final ignoreFailures = _argResults['ignore-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
+    final allowedLicenses = _argResults['allowed'] as List<String>;
+
+    final invalidLicenses = _invalidLicenses(allowedLicenses);
+    if (invalidLicenses.isNotEmpty) {
+      // TODO(alestiago): Link to documentation with a list of allowed license values.
+      _logger.err(
+        '''Some `allowed` licenses failed to be recognized: ${invalidLicenses.stringify()}.''',
+      );
+      return ExitCode.usage.code;
+    }
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
@@ -140,6 +155,18 @@ class PackagesCheckLicensesCommand extends Command<int> {
         _logger.err('\n$errorMessage');
       } finally {
         licenses[dependencyName] = rawLicense;
+
+        if (rawLicense != null && allowedLicenses.isNotEmpty) {
+          final bannedLicenses = rawLicense
+              .where((license) => !allowedLicenses.contains(license))
+              .toList();
+
+          if (bannedLicenses.isNotEmpty) {
+            final errorMessage =
+                _composeShortBannedLicenseReport(bannedLicenses);
+            _logger.err('\n[$dependencyName] $errorMessage');
+          }
+        }
       }
     }
 
@@ -181,6 +208,34 @@ String _composeReport(Map<String, Set<String>?> licenses) {
       : ' of type: ${licenseTypes.toList().stringify()}';
 
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
+}
+
+/// Composes a human friendly [String] to report the result of the recently
+/// retrieved banned licenses.
+String _composeShortBannedLicenseReport(
+  List<String> bannedLicenses,
+) {
+  final bannedLicenseWord = bannedLicenses.length == 1 ? 'license' : 'licenses';
+  return '''Found ${bannedLicenses.length} banned $bannedLicenseWord: ${bannedLicenses.stringify()}.''';
+}
+
+/// Verifies that all [licenses] are valid license inputs.
+///
+/// Valid license inputs are:
+/// - [SpdxLicense] values.
+///
+/// Returns a [List] of invalid licenses, if all licenses are valid the list
+/// will be empty.
+List<String> _invalidLicenses(List<String> licenses) {
+  final invalidLicenses = <String>[];
+  for (final license in licenses) {
+    final parsedLicense = SpdxLicense.tryParse(license);
+    if (parsedLicense == null) {
+      invalidLicenses.add(license);
+    }
+  }
+
+  return invalidLicenses;
 }
 
 extension on List<Object> {
