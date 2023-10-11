@@ -80,7 +80,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     if (invalidLicenses.isNotEmpty) {
       // TODO(alestiago): Link to documentation with a list of allowed license values.
       _logger.err(
-        '''Some `allowed` licenses failed to be recognized: ${invalidLicenses.stringify()}.''',
+        '''Some ${styleItalic.wrap('allowed')} licenses failed to be recognized: ${invalidLicenses.stringify()}.''',
       );
       return ExitCode.usage.code;
     }
@@ -155,22 +155,30 @@ class PackagesCheckLicensesCommand extends Command<int> {
         _logger.err('\n$errorMessage');
       } finally {
         licenses[dependencyName] = rawLicense;
+      }
+    }
 
-        if (rawLicense != null && allowedLicenses.isNotEmpty) {
-          final bannedLicenses = rawLicense
-              .where((license) => !allowedLicenses.contains(license))
-              .toList();
+    final allowedLicenseSet = allowedLicenses.toSet();
+    final bannedDependencies = <String, Set<String>>{};
+    if (allowedLicenseSet.isNotEmpty) {
+      for (final dependency in licenses.entries) {
+        final name = dependency.key;
+        final license = dependency.value;
+        if (license == null) continue;
 
-          if (bannedLicenses.isNotEmpty) {
-            final errorMessage =
-                _composeShortBannedLicenseReport(bannedLicenses);
-            _logger.err('\n[$dependencyName] $errorMessage');
-          }
+        final bannedLicenses = license.difference(allowedLicenseSet);
+        if (bannedLicenses.isNotEmpty) {
+          bannedDependencies[name] = bannedLicenses;
         }
       }
     }
 
-    progress.complete(_composeReport(licenses));
+    progress.complete(
+      _composeReport(
+        licenses: licenses,
+        bannedDependencies: bannedDependencies,
+      ),
+    );
 
     return ExitCode.success.code;
   }
@@ -190,12 +198,27 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
 
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
-String _composeReport(Map<String, Set<String>?> licenses) {
-  final licenseTypes =
-      licenses.values.fold(<String>{}, (previousValue, element) {
-    if (element == null) return previousValue;
-    return previousValue..addAll(element);
+String _composeReport({
+  required Map<String, Set<String>?> licenses,
+  required Map<String, Set<String>> bannedDependencies,
+}) {
+  final bannedLicenseTypes =
+      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+    if (licenses.isEmpty) return previousValue;
+    return previousValue..addAll(licenses);
   });
+  final licenseTypes =
+      licenses.values.fold(<String>{}, (previousValue, licenses) {
+    if (licenses == null) return previousValue;
+    final coloredLicenses = Set<String>.from(licenses).map((license) {
+      if (bannedLicenseTypes.contains(license)) {
+        return red.wrap(license)!;
+      }
+      return green.wrap(license)!;
+    });
+    return previousValue..addAll(coloredLicenses);
+  });
+
   final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
     if (element == null) return previousValue;
     return previousValue + element.length;
@@ -208,15 +231,6 @@ String _composeReport(Map<String, Set<String>?> licenses) {
       : ' of type: ${licenseTypes.toList().stringify()}';
 
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
-}
-
-/// Composes a human friendly [String] to report the result of the recently
-/// retrieved banned licenses.
-String _composeShortBannedLicenseReport(
-  List<String> bannedLicenses,
-) {
-  final bannedLicenseWord = bannedLicenses.length == 1 ? 'license' : 'licenses';
-  return '''Found ${bannedLicenses.length} banned $bannedLicenseWord: ${bannedLicenses.stringify()}.''';
 }
 
 /// Verifies that all [licenses] are valid license inputs.
