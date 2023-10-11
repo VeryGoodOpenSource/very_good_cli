@@ -84,10 +84,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final invalidLicenses = _invalidLicenses(allowedLicenses);
     if (invalidLicenses.isNotEmpty) {
       // TODO(alestiago): Link to documentation with a list of allowed license values.
-      _logger.err(
-        '''Some ${styleItalic.wrap('allowed')} licenses failed to be recognized: ${invalidLicenses.stringify()}.''',
+      _logger.warn(
+        '''Some ${styleItalic.wrap('allowed')} licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the documentation for a list of valid licenses.''',
       );
-      return ExitCode.usage.code;
     }
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
@@ -132,7 +131,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
-        'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages',
+        'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages.',
       );
 
       final dependencyName = dependency.package();
