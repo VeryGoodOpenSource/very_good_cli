@@ -180,6 +180,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ),
     );
 
+    if (bannedDependencies.isNotEmpty) {
+      _logger.err(_composeBannedReport(bannedDependencies));
+      return ExitCode.config.code;
+    }
+
     return ExitCode.success.code;
   }
 }
@@ -231,6 +236,32 @@ String _composeReport({
       : ' of type: ${licenseTypes.toList().stringify()}';
 
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
+}
+
+String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
+  final bannedDependenciesList = bannedDependencies.entries.fold(
+    <String>[],
+    (previousValue, element) {
+      final dependencyName = element.key;
+      final dependencyLicenses = element.value;
+
+      final text =
+          '$dependencyName (${dependencyLicenses.toList().stringify()})';
+      return previousValue..add(text);
+    },
+  );
+  final bannedLicenseTypes =
+      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+    if (licenses.isEmpty) return previousValue;
+    return previousValue..addAll(licenses);
+  });
+
+  final prefix =
+      bannedDependencies.length == 1 ? 'package has' : 'packages have';
+  final suffix =
+      bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
+
+  return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}''';
 }
 
 /// Verifies that all [licenses] are valid license inputs.
