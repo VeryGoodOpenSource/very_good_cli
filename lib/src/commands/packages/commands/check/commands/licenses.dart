@@ -24,7 +24,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         _pubLicense = pubLicense ?? PubLicense() {
     argParser.addFlag(
       'ignore-failures',
-      help: 'Avoids terminating whenever a license fails to be retrieved.',
+      help: 'Ignore any license that failed to be retrieved.',
       negatable: false,
     );
   }

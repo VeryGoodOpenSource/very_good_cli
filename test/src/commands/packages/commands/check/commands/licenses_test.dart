@@ -17,7 +17,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help               Print this usage information.\n'
-      '''    --ignore-failures    Avoids terminating whenever a license fails to be retrieved.\n'''
+      '''    --ignore-failures    Ignore any license that failed to be retrieved.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
