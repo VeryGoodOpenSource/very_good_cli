@@ -13,6 +13,11 @@ import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
 @visibleForTesting
 const pubspecLockBasename = 'pubspec.lock';
 
+/// The URI for the pub.dev license page for the given [packageName].
+@visibleForTesting
+Uri pubLicenseUri(String packageName) =>
+    Uri.parse('https://pub.dev/packages/$packageName/license');
+
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
 /// {@endtemplate}
@@ -245,8 +250,10 @@ String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
       final dependencyName = element.key;
       final dependencyLicenses = element.value;
 
-      final text =
-          '$dependencyName (${dependencyLicenses.toList().stringify()})';
+      final text = '$dependencyName (${link(
+        uri: pubLicenseUri(dependencyName),
+        message: dependencyLicenses.toList().stringify(),
+      )})';
       return previousValue..add(text);
     },
   );
