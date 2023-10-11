@@ -1,7 +1,7 @@
 /// Enables checking a package's license from pub.dev.
 ///
-/// This library is intented to be used by Very Good CLI to help extracting
-/// license information. The existance of this library is likely to be
+/// This library is intended to be used by Very Good CLI to help extracting
+/// license information. The existence of this library is likely to be
 /// ephemeral. It may be obsolete once [pub.dev](https://pub.dev/) exposes
 /// stable license information in their official API; you may track the
 /// progress [here](https://github.com/dart-lang/pub-dev/issues/4717).
