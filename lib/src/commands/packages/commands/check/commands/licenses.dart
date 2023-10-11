@@ -215,13 +215,13 @@ String _composeReport({
   final licenseTypes =
       licenses.values.fold(<String>{}, (previousValue, licenses) {
     if (licenses == null) return previousValue;
-    final coloredLicenses = Set<String>.from(licenses).map((license) {
-      if (bannedLicenseTypes.contains(license)) {
-        return red.wrap(license)!;
-      }
-      return green.wrap(license)!;
-    });
-    return previousValue..addAll(coloredLicenses);
+    return previousValue..addAll(licenses);
+  });
+  final coloredLicenseTypes = licenseTypes.map((license) {
+    if (bannedLicenseTypes.contains(license)) {
+      return red.wrap(license)!;
+    }
+    return green.wrap(license)!;
   });
 
   final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
@@ -231,9 +231,9 @@ String _composeReport({
 
   final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
   final packageWord = licenses.length == 1 ? 'package' : 'packages';
-  final suffix = licenseTypes.isEmpty
+  final suffix = coloredLicenseTypes.isEmpty
       ? ''
-      : ' of type: ${licenseTypes.toList().stringify()}';
+      : ' of type: ${coloredLicenseTypes.toList().stringify()}';
 
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
