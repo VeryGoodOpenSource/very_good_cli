@@ -18,7 +18,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'
-      '''    --ignore-failures                Avoids terminating whenever a license fails to be retrieved.\n'''
+      '''    --ignore-failures                Ignore any license that failed to be retrieved.\n'''
       '''    --dependency-type                The type of dependencies to check licenses for.\n'''
       '\n'
       '''          [direct-dev]               Check for direct dev dependencies.\n'''
