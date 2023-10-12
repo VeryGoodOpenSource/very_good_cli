@@ -21,7 +21,13 @@ class PackagesCheckLicensesCommand extends Command<int> {
     Logger? logger,
     PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
-        _pubLicense = pubLicense ?? PubLicense();
+        _pubLicense = pubLicense ?? PubLicense() {
+    argParser.addFlag(
+      'ignore-failures',
+      help: 'Ignore any license that failed to be retrieved.',
+      negatable: false,
+    );
+  }
 
   final Logger _logger;
 
@@ -44,6 +50,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
     if (_argResults.rest.length > 1) {
       usageException('Too many arguments');
     }
+
+    final ignoreFailures = _argResults['ignore-failures'] as bool;
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
@@ -73,44 +81,41 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    final licenses = <String, Set<String>>{};
+    final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
         'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages',
       );
 
       final dependencyName = dependency.package();
-      Set<String> rawLicense;
+      Set<String>? rawLicense;
       try {
         rawLicense = await _pubLicense.getLicense(dependencyName);
       } on PubLicenseException catch (e) {
-        progress.cancel();
-        _logger.err('[$dependencyName] ${e.message}');
-        return ExitCode.unavailable.code;
-      } catch (e) {
-        progress.cancel();
-        _logger.err('[$dependencyName] Unexpected failure with error: $e');
-        return ExitCode.software.code;
-      }
+        final errorMessage = '[$dependencyName] ${e.message}';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.unavailable.code;
+        }
 
-      licenses[dependencyName] = rawLicense;
+        _logger.err('\n$errorMessage');
+      } catch (e) {
+        final errorMessage =
+            '[$dependencyName] Unexpected failure with error: $e';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.software.code;
+        }
+
+        _logger.err('\n$errorMessage');
+      } finally {
+        licenses[dependencyName] = rawLicense;
+      }
     }
 
-    final licenseTypes = licenses.values.fold(
-      <String>{},
-      (previousValue, element) => previousValue..addAll(element),
-    );
-    final licenseCount = licenses.values.fold<int>(
-      0,
-      (previousValue, element) => previousValue + element.length,
-    );
-
-    final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
-    final packageWord =
-        filteredDependencies.length == 1 ? 'package' : 'packages';
-    progress.complete(
-      '''Retrieved $licenseCount $licenseWord from ${filteredDependencies.length} $packageWord of type: ${licenseTypes.toList().stringify()}.''',
-    );
+    progress.complete(_composeReport(licenses));
 
     return ExitCode.success.code;
   }
@@ -135,6 +140,28 @@ bool _isHostedDirectDependency(
   final isPubHostedDependency = dependency.hosted != null;
   final isDirectDependency = dependency.type() == DependencyType.direct;
   return isPubHostedDependency && isDirectDependency;
+}
+
+/// Composes a human friendly [String] to report the result of the retrieved
+/// licenses.
+String _composeReport(Map<String, Set<String>?> licenses) {
+  final licenseTypes =
+      licenses.values.fold(<String>{}, (previousValue, element) {
+    if (element == null) return previousValue;
+    return previousValue..addAll(element);
+  });
+  final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
+    if (element == null) return previousValue;
+    return previousValue + element.length;
+  });
+
+  final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
+  final packageWord = licenses.length == 1 ? 'package' : 'packages';
+  final suffix = licenseTypes.isEmpty
+      ? ''
+      : ' of type: ${licenseTypes.toList().stringify()}';
+
+  return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
 extension on List<Object> {

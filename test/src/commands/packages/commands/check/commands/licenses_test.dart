@@ -16,7 +16,8 @@ const _expectedPackagesCheckLicensesUsage = [
   'Check packages licenses in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
-      '-h, --help    Print this usage information.\n'
+      '-h, --help               Print this usage information.\n'
+      '''    --ignore-failures    Ignore any license that failed to be retrieved.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -137,6 +138,150 @@ void main() {
         );
       },
     );
+
+    group('ignore-failures', () {
+      const ignoreFailuresArgument = '--ignore-failures';
+
+      group('reports licenses', () {
+        test(
+          'when a PubLicenseException is thrown',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => pubLicense.getLicense(any())).thenAnswer(
+              (_) => Future.value({'MIT'}),
+            );
+            const failedDependencyName = 'very_good_test_runner';
+            const exception = PubLicenseException('message');
+            when(() => pubLicense.getLicense(failedDependencyName))
+                .thenThrow(exception);
+
+            final result = await commandRunner.run(
+              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            );
+
+            final errorMessage =
+                '''\n[$failedDependencyName] ${exception.message}''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update('Collecting licenses of 0/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 1/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                'Retrieved 1 license from 2 packages of type: MIT.',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when an unknown error is thrown',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => pubLicense.getLicense(any())).thenAnswer(
+              (_) => Future.value({'MIT'}),
+            );
+            const failedDependencyName = 'very_good_test_runner';
+            const error = 'error';
+            when(() => pubLicense.getLicense(failedDependencyName))
+                .thenThrow(error);
+
+            final result = await commandRunner.run(
+              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            );
+
+            const errorMessage =
+                '''\n[$failedDependencyName] Unexpected failure with error: $error''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update('Collecting licenses of 0/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.update('Collecting licenses of 1/2 packages'),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                'Retrieved 1 license from 2 packages of type: MIT.',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+      });
+
+      test(
+        'when all licenses fail to be retrieved',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validMultiplePubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const error = 'error';
+          when(() => pubLicense.getLicense(any())).thenThrow(error);
+
+          final result = await commandRunner.run(
+            [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+          );
+
+          final packageNames = verify(() => pubLicense.getLicense(captureAny()))
+              .captured
+              .cast<String>();
+
+          verify(
+            () => logger.err(
+              '''\n[${packageNames[0]}] Unexpected failure with error: $error''',
+            ),
+          ).called(1);
+          verify(
+            () => logger.err(
+              '''\n[${packageNames[1]}] Unexpected failure with error: $error''',
+            ),
+          ).called(1);
+
+          verify(
+            () => progress.update('Collecting licenses of 0/2 packages'),
+          ).called(1);
+          verify(
+            () => progress.update('Collecting licenses of 1/2 packages'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              'Retrieved 0 licenses from 2 packages.',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+    });
 
     group('exits with error', () {
       test(
