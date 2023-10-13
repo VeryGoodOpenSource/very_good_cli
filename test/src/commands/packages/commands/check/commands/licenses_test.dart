@@ -68,16 +68,29 @@ void main() {
       expect(command.hidden, isTrue);
     });
 
-    test(
-      '''throws usage exception when too many rest arguments are provided''',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-        final result = await commandRunner.run(
-          [...commandArguments, 'arg1', 'arg2'],
-        );
-        expect(result, equals(ExitCode.usage.code));
-      }),
-    );
+    group('throws usage exception', () {
+      test(
+        '''when too many rest arguments are provided''',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, 'arg1', 'arg2'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+
+      test(
+        '''when allowed and forbidden are used simultaneously''',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, '--allowed', 'MIT', '--forbidden', 'BSD'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+    });
 
     group(
       'reports licenses',
