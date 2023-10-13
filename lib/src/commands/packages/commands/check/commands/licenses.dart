@@ -161,9 +161,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    final allowedLicenseSet = allowedLicenses.toSet();
     final bannedDependencies = <String, Set<String>>{};
-    if (allowedLicenseSet.isNotEmpty) {
+
+    if (allowedLicenses.isNotEmpty) {
+      final allowedLicenseSet = allowedLicenses.toSet();
       for (final dependency in licenses.entries) {
         final name = dependency.key;
         final license = dependency.value;
