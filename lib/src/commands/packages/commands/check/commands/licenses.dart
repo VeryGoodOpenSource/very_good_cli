@@ -161,21 +161,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    final bannedDependencies = <String, Set<String>>{};
-
-    if (allowedLicenses.isNotEmpty) {
-      final allowedLicenseSet = allowedLicenses.toSet();
-      for (final dependency in licenses.entries) {
-        final name = dependency.key;
-        final license = dependency.value;
-        if (license == null) continue;
-
-        final bannedLicenses = license.difference(allowedLicenseSet);
-        if (bannedLicenses.isNotEmpty) {
-          bannedDependencies[name] = bannedLicenses;
-        }
-      }
-    }
+    final bannedDependencies = allowedLicenses.isNotEmpty
+        ? _notAllowedLicenses(allowedLicenses, licenses)
+        : null;
 
     progress.complete(
       _composeReport(
@@ -184,7 +172,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ),
     );
 
-    if (bannedDependencies.isNotEmpty) {
+    if (bannedDependencies != null) {
       _logger.err(_composeBannedReport(bannedDependencies));
       return ExitCode.config.code;
     }
@@ -224,14 +212,38 @@ List<String> _invalidLicenses(List<String> licenses) {
   return invalidLicenses;
 }
 
+/// Returns a [Map] of banned dependencies and their banned licenses.
+///
+/// A dependency is considered banned if it has a license that is not in the
+/// [allowed] set.
+Map<String, Set<String>> _notAllowedLicenses(
+  Iterable<String> allowed,
+  Map<String, Set<String>?> licenses,
+) {
+  final allowedSet = allowed.toSet();
+  final bannedDependencies = <String, Set<String>>{};
+  for (final dependency in licenses.entries) {
+    final name = dependency.key;
+    final license = dependency.value;
+    if (license == null) continue;
+
+    final bannedLicenses = license.difference(allowedSet);
+    if (bannedLicenses.isNotEmpty) {
+      bannedDependencies[name] = bannedLicenses;
+    }
+  }
+
+  return bannedDependencies;
+}
+
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
 String _composeReport({
   required Map<String, Set<String>?> licenses,
-  required Map<String, Set<String>> bannedDependencies,
+  required Map<String, Set<String>>? bannedDependencies,
 }) {
   final bannedLicenseTypes =
-      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+      bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
@@ -241,7 +253,7 @@ String _composeReport({
     return previousValue..addAll(licenses);
   });
   final coloredLicenseTypes = licenseTypes.map((license) {
-    if (bannedLicenseTypes.contains(license)) {
+    if (bannedLicenseTypes != null && bannedLicenseTypes.contains(license)) {
       return red.wrap(license)!;
     }
     return green.wrap(license)!;
