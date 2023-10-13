@@ -22,11 +22,27 @@ class PackagesCheckLicensesCommand extends Command<int> {
     PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
         _pubLicense = pubLicense ?? PubLicense() {
-    argParser.addFlag(
-      'ignore-failures',
-      help: 'Ignore any license that failed to be retrieved.',
-      negatable: false,
-    );
+    argParser
+      ..addFlag(
+        'ignore-failures',
+        help: 'Ignore any license that failed to be retrieved.',
+        negatable: false,
+      )
+      ..addMultiOption(
+        'dependency-type',
+        help: 'The type of dependencies to check licenses for.',
+        allowed: [
+          'direct-main',
+          'direct-dev',
+          'transitive',
+        ],
+        allowedHelp: {
+          'direct-main': 'Check for direct main dependencies.',
+          'direct-dev': 'Check for direct dev dependencies.',
+          'transitive': 'Check for transitive dependencies.',
+        },
+        defaultsTo: ['direct-main'],
+      );
   }
 
   final Logger _logger;
@@ -52,6 +68,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final ignoreFailures = _argResults['ignore-failures'] as bool;
+    final dependencyTypes = _argResults['dependency-type'] as List<String>;
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
@@ -72,12 +89,25 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
-    final filteredDependencies =
-        pubspecLock.packages.where(_isHostedDirectDependency);
+    final filteredDependencies = pubspecLock.packages.where((dependency) {
+      // ignore: invalid_use_of_protected_member
+      final isPubHosted = dependency.hosted != null;
+      if (!isPubHosted) return false;
+
+      final dependencyType = dependency.type();
+      return (dependencyTypes.contains('direct-main') &&
+              dependencyType == DependencyType.direct) ||
+          (dependencyTypes.contains('direct-dev') &&
+              dependencyType == DependencyType.development) ||
+          (dependencyTypes.contains('transitive') &&
+              dependencyType == DependencyType.transitive);
+    });
 
     if (filteredDependencies.isEmpty) {
       progress.cancel();
-      _logger.err('No hosted direct dependencies found in $targetPath');
+      _logger.err(
+        '''No hosted dependencies found in $targetPath of type: ${dependencyTypes.stringify()}.''',
+      );
       return ExitCode.usage.code;
     }
 
@@ -131,15 +161,6 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   } catch (e) {
     return null;
   }
-}
-
-bool _isHostedDirectDependency(
-  PackageDependency dependency,
-) {
-  // ignore: invalid_use_of_protected_member
-  final isPubHostedDependency = dependency.hosted != null;
-  final isDirectDependency = dependency.type() == DependencyType.direct;
-  return isPubHostedDependency && isDirectDependency;
 }
 
 /// Composes a human friendly [String] to report the result of the retrieved
