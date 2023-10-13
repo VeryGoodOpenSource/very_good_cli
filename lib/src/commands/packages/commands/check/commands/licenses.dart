@@ -18,9 +18,12 @@ const pubspecLockBasename = 'pubspec.lock';
 Uri pubLicenseUri(String packageName) =>
     Uri.parse('https://pub.dev/packages/$packageName/license');
 
+/// Defines a [Map] with dependencies as keys and their licenses as values.
+typedef _DependencyLicenseMap = Map<String, Set<String>?>;
+
 /// Defines a [Map] with banned dependencies as keys and their banned licenses
 /// as values.
-typedef _BannedDependenciesMap = Map<String, Set<String>>;
+typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
 
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
@@ -223,11 +226,11 @@ List<String> _invalidLicenses(List<String> licenses) {
 ///
 /// The [Map] is lazily computed, if no dependencies are banned `null` is
 /// returned.
-_BannedDependenciesMap? _bannedDependencies(
-  Map<String, Set<String>?> licenses,
+_BannedDependencyLicenseMap? _bannedDependencies(
+  _DependencyLicenseMap licenses,
   bool Function(String license) isAllowed,
 ) {
-  _BannedDependenciesMap? bannedDependencies;
+  _BannedDependencyLicenseMap? bannedDependencies;
   for (final dependency in licenses.entries) {
     final name = dependency.key;
     final license = dependency.value;
@@ -251,8 +254,8 @@ _BannedDependenciesMap? _bannedDependencies(
 /// If [bannedDependencies] is provided those banned licenses will be
 /// highlighted in red.
 String _composeReport({
-  required Map<String, Set<String>?> licenses,
-  required _BannedDependenciesMap? bannedDependencies,
+  required _DependencyLicenseMap licenses,
+  required _BannedDependencyLicenseMap? bannedDependencies,
 }) {
   final bannedLicenseTypes =
       bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
@@ -285,7 +288,7 @@ String _composeReport({
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
-String _composeBannedReport(_BannedDependenciesMap bannedDependencies) {
+String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
   final bannedDependenciesList = bannedDependencies.entries.fold(
     <String>[],
     (previousValue, element) {
