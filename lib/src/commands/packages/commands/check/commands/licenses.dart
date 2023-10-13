@@ -18,6 +18,15 @@ const pubspecLockBasename = 'pubspec.lock';
 Uri pubLicenseUri(String packageName) =>
     Uri.parse('https://pub.dev/packages/$packageName/license');
 
+/// Defines a [Map] with dependencies as keys and their licenses as values.
+///
+/// If a dependency's license failed to be retrieved its license will be `null`.
+typedef _DependencyLicenseMap = Map<String, Set<String>?>;
+
+/// Defines a [Map] with banned dependencies as keys and their banned licenses
+/// as values.
+typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
+
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
 /// {@endtemplate}
@@ -173,7 +182,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final bannedDependencies = allowedLicenses.isNotEmpty
-        ? _notAllowedLicenses(allowedLicenses, licenses)
+        ? _bannedDependencies(licenses, allowedLicenses.contains)
         : null;
 
     progress.complete(
@@ -225,22 +234,24 @@ List<String> _invalidLicenses(List<String> licenses) {
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
 ///
-/// A dependency is considered banned if it has a license that is not in the
-/// [allowed] set.
-Map<String, Set<String>> _notAllowedLicenses(
-  Iterable<String> allowed,
-  Map<String, Set<String>?> licenses,
+/// The [Map] is lazily computed, if no dependencies are banned `null` is
+/// returned.
+_BannedDependencyLicenseMap? _bannedDependencies(
+  _DependencyLicenseMap licenses,
+  bool Function(String license) isAllowed,
 ) {
-  final allowedSet = allowed.toSet();
-  final bannedDependencies = <String, Set<String>>{};
+  _BannedDependencyLicenseMap? bannedDependencies;
   for (final dependency in licenses.entries) {
     final name = dependency.key;
     final license = dependency.value;
     if (license == null) continue;
 
-    final bannedLicenses = license.difference(allowedSet);
-    if (bannedLicenses.isNotEmpty) {
-      bannedDependencies[name] = bannedLicenses;
+    for (final licenseType in license) {
+      if (isAllowed(licenseType)) continue;
+
+      bannedDependencies ??= <String, Set<String>>{};
+      bannedDependencies.putIfAbsent(name, () => <String>{});
+      bannedDependencies[name]!.add(licenseType);
     }
   }
 
@@ -253,8 +264,8 @@ Map<String, Set<String>> _notAllowedLicenses(
 /// If [bannedDependencies] is provided those banned licenses will be
 /// highlighted in red.
 String _composeReport({
-  required Map<String, Set<String>?> licenses,
-  required Map<String, Set<String>>? bannedDependencies,
+  required _DependencyLicenseMap licenses,
+  required _BannedDependencyLicenseMap? bannedDependencies,
 }) {
   final bannedLicenseTypes =
       bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
@@ -287,7 +298,7 @@ String _composeReport({
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
-String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
+String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
   final bannedDependenciesList = bannedDependencies.entries.fold(
     <String>[],
     (previousValue, element) {
