@@ -184,7 +184,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    _BannedDependencyLicenseMap? bannedDependencies;
+    late final _BannedDependencyLicenseMap? bannedDependencies;
     if (allowedLicenses.isNotEmpty) {
       bannedDependencies = _bannedDependencies(
         licenses: licenses,
