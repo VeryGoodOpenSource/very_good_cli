@@ -577,6 +577,48 @@ void main() {
       });
     });
 
+    group('allowed', () {
+      const allowedArgument = '--allowed';
+
+      test(
+        'warns when a license is not recognized',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const invalidLicense = 'not_a_valid_license';
+          await commandRunner.run(
+            [
+              ...commandArguments,
+              allowedArgument,
+              invalidLicense,
+              tempDirectory.path,
+            ],
+          );
+
+          const warningMessage =
+              '''Some allowed licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+          verify(
+            () => logger.warn(warningMessage),
+          ).called(1);
+        }),
+      );
+
+      test('exits when a license is not allowed', () {});
+
+      group('reports', () {
+        test('when a single license is not allowed', () {});
+
+        test('when more than a single license is allowed', () {});
+      });
+    });
+
     group('exits with error', () {
       test(
         'when it did not find a pubspec.lock file at the target path',
