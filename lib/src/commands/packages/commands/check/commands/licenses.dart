@@ -105,7 +105,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     if (filteredDependencies.isEmpty) {
       progress.cancel();
-      _logger.err('No hosted direct dependencies found in $targetPath');
+      _logger.err(
+        '''No hosted dependencies found in $targetPath of type: ${dependencyTypes.stringify()}.''',
+      );
       return ExitCode.usage.code;
     }
 

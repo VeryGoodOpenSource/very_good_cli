@@ -626,7 +626,7 @@ void main() {
       );
 
       test(
-        'when no hosted direct dependencies are found',
+        'when no dependencies of type are found',
         withRunner(
             (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
@@ -642,7 +642,7 @@ void main() {
           );
 
           final errorMessage =
-              'No hosted direct dependencies found in ${tempDirectory.path}';
+              '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
           verify(() => logger.err(errorMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
