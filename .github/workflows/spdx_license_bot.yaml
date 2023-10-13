@@ -31,7 +31,7 @@ jobs:
           dart pub global activate mason_cli
           mason get
 
-      - name: 🧱 Mason Make
+      - name: 🧱 Mason Make (tool/spdx_license/test)
         id: make
         run: if [[ $(mason make spdx_license -q --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed) =~ "0 files changed" ]]; then echo "did_change=false"; else echo "did_change=true"; fi >> $GITHUB_ENV
 
