@@ -162,7 +162,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final bannedDependencies = allowedLicenses.isNotEmpty
-        ? _notAllowedLicenses(allowedLicenses, licenses)
+        ? _bannedDependencies(licenses, allowedLicenses.contains)
         : null;
 
     progress.complete(
@@ -213,23 +213,21 @@ List<String> _invalidLicenses(List<String> licenses) {
 }
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
-///
-/// A dependency is considered banned if it has a license that is not in the
-/// [allowed] set.
-Map<String, Set<String>> _notAllowedLicenses(
-  Iterable<String> allowed,
+Map<String, Set<String>>? _bannedDependencies(
   Map<String, Set<String>?> licenses,
+  bool Function(String license) isAllowed,
 ) {
-  final allowedSet = allowed.toSet();
   final bannedDependencies = <String, Set<String>>{};
   for (final dependency in licenses.entries) {
     final name = dependency.key;
     final license = dependency.value;
     if (license == null) continue;
 
-    final bannedLicenses = license.difference(allowedSet);
-    if (bannedLicenses.isNotEmpty) {
-      bannedDependencies[name] = bannedLicenses;
+    for (final licenseType in license) {
+      if (isAllowed(licenseType)) continue;
+
+      bannedDependencies.putIfAbsent(name, () => <String>{});
+      bannedDependencies[name]!.add(licenseType);
     }
   }
 
