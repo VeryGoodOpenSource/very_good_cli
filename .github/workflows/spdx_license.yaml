@@ -50,7 +50,7 @@ jobs:
       - name: 🧪 Run Tests
         run: |
           dart pub global activate coverage 1.2.0
-          dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="pre_gen,post_gen"
+          dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="post_gen.dart pre_gen.dart"
 
       - name: 📊 Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
