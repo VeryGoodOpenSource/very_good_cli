@@ -205,6 +205,25 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   }
 }
 
+/// Verifies that all [licenses] are valid license inputs.
+///
+/// Valid license inputs are:
+/// - [SpdxLicense] values.
+///
+/// Returns a [List] of invalid licenses, if all licenses are valid the list
+/// will be empty.
+List<String> _invalidLicenses(List<String> licenses) {
+  final invalidLicenses = <String>[];
+  for (final license in licenses) {
+    final parsedLicense = SpdxLicense.tryParse(license);
+    if (parsedLicense == null) {
+      invalidLicenses.add(license);
+    }
+  }
+
+  return invalidLicenses;
+}
+
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
 String _composeReport({
@@ -268,25 +287,6 @@ String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
       bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
 
   return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}.''';
-}
-
-/// Verifies that all [licenses] are valid license inputs.
-///
-/// Valid license inputs are:
-/// - [SpdxLicense] values.
-///
-/// Returns a [List] of invalid licenses, if all licenses are valid the list
-/// will be empty.
-List<String> _invalidLicenses(List<String> licenses) {
-  final invalidLicenses = <String>[];
-  for (final license in licenses) {
-    final parsedLicense = SpdxLicense.tryParse(license);
-    if (parsedLicense == null) {
-      invalidLicenses.add(license);
-    }
-  }
-
-  return invalidLicenses;
 }
 
 extension on List<Object> {
