@@ -263,7 +263,7 @@ String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
   });
 
   final prefix =
-      bannedDependencies.length == 1 ? 'package has' : 'packages have';
+      bannedDependencies.length == 1 ? 'dependency has' : 'dependencies have';
   final suffix =
       bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
 

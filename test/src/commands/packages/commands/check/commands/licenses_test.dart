@@ -610,12 +610,122 @@ void main() {
         }),
       );
 
-      test('exits when a license is not allowed', () {});
+      test(
+        'exits when a license is not allowed',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => pubLicense.getLicense(any()))
+              .thenAnswer((_) => Future.value({'MIT'}));
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              allowedArgument,
+              'BSD',
+              tempDirectory.path,
+            ],
+          );
+
+          expect(result, ExitCode.config.code);
+        }),
+      );
 
       group('reports', () {
-        test('when a single license is not allowed', () {});
+        test(
+          'when a single license is not allowed',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        test('when more than a single license is allowed', () {});
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                allowedArgument,
+                'BSD',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
+
+        test(
+          'when more than a single license is not allowed',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+            final license2LinkedMessage = link(
+              uri: pubLicenseUri(dependency2Name),
+              message: 'BSD',
+            );
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                allowedArgument,
+                'Apache-2.0',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''2 dependencies have banned licenses: $dependency1Name ($license1LinkedMessage) and $dependency2Name ($license2LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
       });
     });
 
