@@ -41,6 +41,13 @@ jobs:
           git config user.name VGV Bot
           git config user.email vgvbot@users.noreply.github.com
 
+      - name: 🧱 Mason Make (lib/pub_license/spdx_license)
+        if: ${{ env.did_change == 'true' }}
+        run: |
+          cd ../..
+          mason make spdx_license -o lib/src/pub_license/ --on-conflict=overwrite
+          cd tool/spdx_license
+
       - name: 📝 Create Pull Request
         if: ${{ env.did_change == 'true' }}
         uses: peter-evans/create-pull-request@v5.0.2
