@@ -19,6 +19,8 @@ Uri pubLicenseUri(String packageName) =>
     Uri.parse('https://pub.dev/packages/$packageName/license');
 
 /// Defines a [Map] with dependencies as keys and their licenses as values.
+///
+/// If a dependency failed to be retrieved its license will be `null`.
 typedef _DependencyLicenseMap = Map<String, Set<String>?>;
 
 /// Defines a [Map] with banned dependencies as keys and their banned licenses
