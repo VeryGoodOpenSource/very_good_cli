@@ -171,10 +171,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final bannedDependencies = allowedLicenses.isNotEmpty
-        ? _bannedDependencies(
-            licenses,
-            allowedLicenses.contains,
-          )
+        ? _bannedDependencies(licenses, allowedLicenses.contains)
         : null;
 
     progress.complete(
