@@ -730,6 +730,20 @@ void main() {
       });
     });
 
+    group('forbidden', () {
+      const forbiddenArgument = '--forbidden';
+
+      test('warns when a license is not recognized', () {});
+
+      test('exits when a license is not allowed', () {});
+
+      group('report', () {
+        test('when a single license is not allowed', () {});
+
+        test('when more than a single license is not allowed', () {});
+      });
+    });
+
     group('exits with error', () {
       test(
         'when it did not find a pubspec.lock file at the target path',
