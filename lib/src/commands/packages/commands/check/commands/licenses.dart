@@ -52,6 +52,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'allowed',
         help: 'Whitelist of allowed licenses.',
+      )
+      ..addMultiOption(
+        'forbidden',
+        help: 'Block-list of not allowed licenses.',
       );
   }
 
@@ -80,6 +84,13 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final ignoreFailures = _argResults['ignore-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
+    final blockedLicenses = _argResults['forbidden'] as List<String>;
+
+    if (allowedLicenses.isNotEmpty && blockedLicenses.isNotEmpty) {
+      usageException(
+        '''Cannot specify both ${styleItalic.wrap('allowed')} and ${styleItalic.wrap('forbidden')} options.''',
+      );
+    }
 
     final invalidLicenses = _invalidLicenses(allowedLicenses);
     if (invalidLicenses.isNotEmpty) {
