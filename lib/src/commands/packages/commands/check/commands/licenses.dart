@@ -213,7 +213,7 @@ List<String> _invalidLicenses(List<String> licenses) {
 }
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
-Map<String, Set<String>>? _bannedDependencies(
+Map<String, Set<String>> _bannedDependencies(
   Map<String, Set<String>?> licenses,
   bool Function(String license) isAllowed,
 ) {
