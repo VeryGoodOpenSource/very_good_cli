@@ -83,7 +83,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final invalidLicenses = _invalidLicenses(allowedLicenses);
     if (invalidLicenses.isNotEmpty) {
-      // TODO(alestiago): Link to documentation with a list of allowed license values.
       _logger.warn(
         '''Some ${styleItalic.wrap('allowed')} licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the documentation for a list of valid licenses.''',
       );
