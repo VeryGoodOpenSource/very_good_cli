@@ -238,6 +238,9 @@ Map<String, Set<String>> _notAllowedLicenses(
 
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
+///
+/// If [bannedDependencies] is provided those banned licenses will be
+/// highlighted in red.
 String _composeReport({
   required Map<String, Set<String>?> licenses,
   required Map<String, Set<String>>? bannedDependencies,
