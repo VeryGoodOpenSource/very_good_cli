@@ -162,7 +162,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final bannedDependencies = allowedLicenses.isNotEmpty
-        ? _bannedDependencies(licenses, allowedLicenses.contains)
+        ? _bannedDependencies(
+            licenses,
+            allowedLicenses.contains,
+          )
         : null;
 
     progress.complete(
@@ -213,11 +216,14 @@ List<String> _invalidLicenses(List<String> licenses) {
 }
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
-Map<String, Set<String>> _bannedDependencies(
+///
+/// The [Map] is lazily computed, if no dependencies are banned `null` is
+/// returned.
+Map<String, Set<String>>? _bannedDependencies(
   Map<String, Set<String>?> licenses,
   bool Function(String license) isAllowed,
 ) {
-  final bannedDependencies = <String, Set<String>>{};
+  Map<String, Set<String>>? bannedDependencies;
   for (final dependency in licenses.entries) {
     final name = dependency.key;
     final license = dependency.value;
@@ -226,6 +232,7 @@ Map<String, Set<String>> _bannedDependencies(
     for (final licenseType in license) {
       if (isAllowed(licenseType)) continue;
 
+      bannedDependencies ??= <String, Set<String>>{};
       bannedDependencies.putIfAbsent(name, () => <String>{});
       bannedDependencies[name]!.add(licenseType);
     }
