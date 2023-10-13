@@ -18,6 +18,10 @@ const pubspecLockBasename = 'pubspec.lock';
 Uri pubLicenseUri(String packageName) =>
     Uri.parse('https://pub.dev/packages/$packageName/license');
 
+/// Defines a [Map] with banned dependencies as keys and their banned licenses
+/// as values.
+typedef _BannedDependenciesMap = Map<String, Set<String>>;
+
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
 /// {@endtemplate}
@@ -219,11 +223,11 @@ List<String> _invalidLicenses(List<String> licenses) {
 ///
 /// The [Map] is lazily computed, if no dependencies are banned `null` is
 /// returned.
-Map<String, Set<String>>? _bannedDependencies(
+_BannedDependenciesMap? _bannedDependencies(
   Map<String, Set<String>?> licenses,
   bool Function(String license) isAllowed,
 ) {
-  Map<String, Set<String>>? bannedDependencies;
+  _BannedDependenciesMap? bannedDependencies;
   for (final dependency in licenses.entries) {
     final name = dependency.key;
     final license = dependency.value;
@@ -248,7 +252,7 @@ Map<String, Set<String>>? _bannedDependencies(
 /// highlighted in red.
 String _composeReport({
   required Map<String, Set<String>?> licenses,
-  required Map<String, Set<String>>? bannedDependencies,
+  required _BannedDependenciesMap? bannedDependencies,
 }) {
   final bannedLicenseTypes =
       bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
@@ -281,7 +285,7 @@ String _composeReport({
   return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
-String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
+String _composeBannedReport(_BannedDependenciesMap bannedDependencies) {
   final bannedDependenciesList = bannedDependencies.entries.fold(
     <String>[],
     (previousValue, element) {
