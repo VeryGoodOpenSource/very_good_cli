@@ -25,7 +25,8 @@ const _expectedPackagesCheckLicensesUsage = [
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
-      '    --allowed                        Whitelist of allowed licenses.\n'
+      '''    --allowed                        Whitelist of allowed licenses.\n'''
+      '''    --forbidden                      Block-list of not allowed licenses.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];

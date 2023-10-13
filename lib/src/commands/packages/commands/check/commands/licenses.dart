@@ -181,9 +181,20 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    final bannedDependencies = allowedLicenses.isNotEmpty
-        ? _bannedDependencies(licenses, allowedLicenses.contains)
-        : null;
+    late final _BannedDependencyLicenseMap? bannedDependencies;
+    if (allowedLicenses.isNotEmpty) {
+      bannedDependencies = _bannedDependencies(
+        licenses,
+        allowedLicenses.contains,
+      );
+    } else if (blockedLicenses.isNotEmpty) {
+      bannedDependencies = _bannedDependencies(
+        licenses,
+        (license) => !blockedLicenses.contains(license),
+      );
+    } else {
+      bannedDependencies = null;
+    }
 
     progress.complete(
       _composeReport(
