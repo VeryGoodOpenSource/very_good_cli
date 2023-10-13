@@ -93,18 +93,21 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final ignoreFailures = _argResults['ignore-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
-    final blockedLicenses = _argResults['forbidden'] as List<String>;
+    final forbiddenLicenses = _argResults['forbidden'] as List<String>;
 
-    if (allowedLicenses.isNotEmpty && blockedLicenses.isNotEmpty) {
+    if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
       usageException(
         '''Cannot specify both ${styleItalic.wrap('allowed')} and ${styleItalic.wrap('forbidden')} options.''',
       );
     }
 
-    final invalidLicenses = _invalidLicenses(allowedLicenses);
+    final invalidLicenses = _invalidLicenses([
+      ...allowedLicenses,
+      ...forbiddenLicenses,
+    ]);
     if (invalidLicenses.isNotEmpty) {
       _logger.warn(
-        '''Some ${styleItalic.wrap('allowed')} licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the documentation for a list of valid licenses.''',
+        '''Some licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the documentation for a list of valid licenses.''',
       );
     }
 
@@ -181,16 +184,16 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    late final _BannedDependencyLicenseMap? bannedDependencies;
+    _BannedDependencyLicenseMap? bannedDependencies;
     if (allowedLicenses.isNotEmpty) {
       bannedDependencies = _bannedDependencies(
-        licenses,
-        allowedLicenses.contains,
+        licenses: licenses,
+        isAllowed: allowedLicenses.contains,
       );
-    } else if (blockedLicenses.isNotEmpty) {
+    } else if (forbiddenLicenses.isNotEmpty) {
       bannedDependencies = _bannedDependencies(
-        licenses,
-        (license) => !blockedLicenses.contains(license),
+        licenses: licenses,
+        isAllowed: (license) => !forbiddenLicenses.contains(license),
       );
     } else {
       bannedDependencies = null;
@@ -247,10 +250,10 @@ List<String> _invalidLicenses(List<String> licenses) {
 ///
 /// The [Map] is lazily computed, if no dependencies are banned `null` is
 /// returned.
-_BannedDependencyLicenseMap? _bannedDependencies(
-  _DependencyLicenseMap licenses,
-  bool Function(String license) isAllowed,
-) {
+_BannedDependencyLicenseMap? _bannedDependencies({
+  required _DependencyLicenseMap licenses,
+  required bool Function(String license) isAllowed,
+}) {
   _BannedDependencyLicenseMap? bannedDependencies;
   for (final dependency in licenses.entries) {
     final name = dependency.key;

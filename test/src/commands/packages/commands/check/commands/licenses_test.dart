@@ -604,7 +604,7 @@ void main() {
           );
 
           const warningMessage =
-              '''Some allowed licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
           verify(
             () => logger.warn(warningMessage),
           ).called(1);
@@ -733,14 +733,154 @@ void main() {
     group('forbidden', () {
       const forbiddenArgument = '--forbidden';
 
-      test('warns when a license is not recognized', () {});
+      test(
+        'warns when a license is not recognized',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      test('exits when a license is not allowed', () {});
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const invalidLicense = 'not_a_valid_license';
+          await commandRunner.run(
+            [
+              ...commandArguments,
+              forbiddenArgument,
+              invalidLicense,
+              tempDirectory.path,
+            ],
+          );
+
+          const warningMessage =
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+          verify(
+            () => logger.warn(warningMessage),
+          ).called(1);
+        }),
+      );
+
+      test(
+        'exits when a license is forbidden',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => pubLicense.getLicense(any()))
+              .thenAnswer((_) => Future.value({'BSD'}));
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              forbiddenArgument,
+              'BSD',
+              tempDirectory.path,
+            ],
+          );
+
+          expect(result, ExitCode.config.code);
+        }),
+      );
 
       group('report', () {
-        test('when a single license is not allowed', () {});
+        test(
+          'when a single license is forbidden',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        test('when more than a single license is not allowed', () {});
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                forbiddenArgument,
+                'MIT',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
+
+        test(
+          'when more than a single license is forbidden',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+            final license2LinkedMessage = link(
+              uri: pubLicenseUri(dependency2Name),
+              message: 'BSD',
+            );
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                forbiddenArgument,
+                'BSD',
+                forbiddenArgument,
+                'MIT',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''2 dependencies have banned licenses: $dependency1Name ($license1LinkedMessage) and $dependency2Name ($license2LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
       });
     });
 
