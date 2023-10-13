@@ -95,7 +95,7 @@ Future<List<String>> _downloadLicenses({
   @visibleForTesting ZipDecoder? zipDecoder,
 }) async {
   final progress = logger.progress(
-    'Starting to download the SPDX license list, this might take some time...',
+    'Starting to download the SPDX license list, this might take some time',
   );
 
   final httpClient = client ?? http.Client();
