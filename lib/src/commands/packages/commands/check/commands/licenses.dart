@@ -172,20 +172,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
     }
 
-    final allowedLicenseSet = allowedLicenses.toSet();
-    final bannedDependencies = <String, Set<String>>{};
-    if (allowedLicenseSet.isNotEmpty) {
-      for (final dependency in licenses.entries) {
-        final name = dependency.key;
-        final license = dependency.value;
-        if (license == null) continue;
-
-        final bannedLicenses = license.difference(allowedLicenseSet);
-        if (bannedLicenses.isNotEmpty) {
-          bannedDependencies[name] = bannedLicenses;
-        }
-      }
-    }
+    final bannedDependencies = allowedLicenses.isNotEmpty
+        ? _notAllowedLicenses(allowedLicenses, licenses)
+        : null;
 
     progress.complete(
       _composeReport(
@@ -194,7 +183,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ),
     );
 
-    if (bannedDependencies.isNotEmpty) {
+    if (bannedDependencies != null) {
       _logger.err(_composeBannedReport(bannedDependencies));
       return ExitCode.config.code;
     }
@@ -215,14 +204,60 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   }
 }
 
+/// Verifies that all [licenses] are valid license inputs.
+///
+/// Valid license inputs are:
+/// - [SpdxLicense] values.
+///
+/// Returns a [List] of invalid licenses, if all licenses are valid the list
+/// will be empty.
+List<String> _invalidLicenses(List<String> licenses) {
+  final invalidLicenses = <String>[];
+  for (final license in licenses) {
+    final parsedLicense = SpdxLicense.tryParse(license);
+    if (parsedLicense == null) {
+      invalidLicenses.add(license);
+    }
+  }
+
+  return invalidLicenses;
+}
+
+/// Returns a [Map] of banned dependencies and their banned licenses.
+///
+/// A dependency is considered banned if it has a license that is not in the
+/// [allowed] set.
+Map<String, Set<String>> _notAllowedLicenses(
+  Iterable<String> allowed,
+  Map<String, Set<String>?> licenses,
+) {
+  final allowedSet = allowed.toSet();
+  final bannedDependencies = <String, Set<String>>{};
+  for (final dependency in licenses.entries) {
+    final name = dependency.key;
+    final license = dependency.value;
+    if (license == null) continue;
+
+    final bannedLicenses = license.difference(allowedSet);
+    if (bannedLicenses.isNotEmpty) {
+      bannedDependencies[name] = bannedLicenses;
+    }
+  }
+
+  return bannedDependencies;
+}
+
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
+///
+/// If [bannedDependencies] is provided those banned licenses will be
+/// highlighted in red.
 String _composeReport({
   required Map<String, Set<String>?> licenses,
-  required Map<String, Set<String>> bannedDependencies,
+  required Map<String, Set<String>>? bannedDependencies,
 }) {
   final bannedLicenseTypes =
-      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+      bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
@@ -232,7 +267,7 @@ String _composeReport({
     return previousValue..addAll(licenses);
   });
   final coloredLicenseTypes = licenseTypes.map((license) {
-    if (bannedLicenseTypes.contains(license)) {
+    if (bannedLicenseTypes != null && bannedLicenseTypes.contains(license)) {
       return red.wrap(license)!;
     }
     return green.wrap(license)!;
@@ -278,25 +313,6 @@ String _composeBannedReport(Map<String, Set<String>> bannedDependencies) {
       bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
 
   return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}.''';
-}
-
-/// Verifies that all [licenses] are valid license inputs.
-///
-/// Valid license inputs are:
-/// - [SpdxLicense] values.
-///
-/// Returns a [List] of invalid licenses, if all licenses are valid the list
-/// will be empty.
-List<String> _invalidLicenses(List<String> licenses) {
-  final invalidLicenses = <String>[];
-  for (final license in licenses) {
-    final parsedLicense = SpdxLicense.tryParse(license);
-    if (parsedLicense == null) {
-      invalidLicenses.add(license);
-    }
-  }
-
-  return invalidLicenses;
 }
 
 extension on List<Object> {
