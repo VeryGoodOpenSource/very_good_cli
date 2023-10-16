@@ -898,6 +898,40 @@ void main() {
       });
     });
 
+    group('skip-packages', () {
+      const skipPackagesArgument = '--skip-packages';
+
+      test(
+        'skips a package by name',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validMultiplePubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              skipPackagesArgument,
+              'cli_completion',
+              tempDirectory.path,
+            ],
+          );
+
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT.''',
+            ),
+          ).called(1);
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+    });
+
     group('exits with error', () {
       test(
         'when it did not find a pubspec.lock file at the target path',
