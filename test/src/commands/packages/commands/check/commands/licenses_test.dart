@@ -848,7 +848,7 @@ void main() {
         );
 
         test(
-          'when more than a single license is forbidden',
+          'when multiple licenses are forbidden',
           withRunner(
               (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
