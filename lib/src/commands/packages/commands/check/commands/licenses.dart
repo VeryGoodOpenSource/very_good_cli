@@ -225,7 +225,7 @@ List<String> _invalidLicenses(List<String> licenses) {
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
 ///
-/// The [Map] is lazily computed, if no dependencies are banned `null` is
+/// The [Map] is lazily initialized, if no dependencies are banned `null` is
 /// returned.
 _BannedDependencyLicenseMap? _bannedDependencies(
   _DependencyLicenseMap licenses,
