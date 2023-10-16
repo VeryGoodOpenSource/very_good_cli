@@ -682,7 +682,7 @@ void main() {
         );
 
         test(
-          'when more than a single license is not allowed',
+          'when multiple licenses are not allowed',
           withRunner(
               (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
