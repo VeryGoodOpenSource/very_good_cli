@@ -109,7 +109,7 @@ void main() {
         await pre_gen.preGen(context, client: client);
 
         const message =
-            '''Starting to download the SPDX license list, this might take some time...''';
+            '''Starting to download the SPDX license list, this might take some time''';
         verify(() => logger.progress(message)).called(1);
       });
 

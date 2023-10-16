@@ -146,7 +146,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     if (filteredDependencies.isEmpty) {
       progress.cancel();
-      _logger.err('No hosted direct dependencies found in $targetPath');
+      _logger.err(
+        '''No hosted dependencies found in $targetPath of type: ${dependencyTypes.stringify()}.''',
+      );
       return ExitCode.usage.code;
     }
 
@@ -248,7 +250,7 @@ List<String> _invalidLicenses(List<String> licenses) {
 
 /// Returns a [Map] of banned dependencies and their banned licenses.
 ///
-/// The [Map] is lazily computed, if no dependencies are banned `null` is
+/// The [Map] is lazily initialized, if no dependencies are banned `null` is
 /// returned.
 _BannedDependencyLicenseMap? _bannedDependencies({
   required _DependencyLicenseMap licenses,
