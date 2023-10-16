@@ -64,7 +64,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       )
       ..addMultiOption(
         'forbidden',
-        help: 'Block-list of not allowed licenses.',
+        help: 'Blacklist of not allowed licenses.',
       )
       ..addMultiOption(
         'skip-packages',

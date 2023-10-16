@@ -26,7 +26,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
       '    --allowed                        Whitelist of allowed licenses.\n'
-      '''    --forbidden                      Block-list of not allowed licenses.\n'''
+      '''    --forbidden                      Blacklist of not allowed licenses.\n'''
       '''    --skip-packages                  Skip packages from having their licenses checked.\n'''
       '\n'
       'Run "very_good help" to see global options.'
@@ -955,6 +955,9 @@ void main() {
               ],
             );
 
+            verify(
+              () => progress.update('Collecting licenses of 0/1 packages.'),
+            ).called(1);
             verify(
               () => progress.complete(
                 '''Retrieved 1 license from 1 package of type: MIT.''',
