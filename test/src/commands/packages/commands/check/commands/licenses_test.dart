@@ -956,7 +956,9 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/1 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
