@@ -25,7 +25,8 @@ const _expectedPackagesCheckLicensesUsage = [
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
-      '    --allowed                        Whitelist of allowed licenses.\n'
+      '''    --allowed                        Whitelist of allowed licenses.\n'''
+      '''    --forbidden                      Blacklist of not allowed licenses.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -67,16 +68,29 @@ void main() {
       expect(command.hidden, isTrue);
     });
 
-    test(
-      '''throws usage exception when too many rest arguments are provided''',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-        final result = await commandRunner.run(
-          [...commandArguments, 'arg1', 'arg2'],
-        );
-        expect(result, equals(ExitCode.usage.code));
-      }),
-    );
+    group('throws usage exception', () {
+      test(
+        '''when too many rest arguments are provided''',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, 'arg1', 'arg2'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+
+      test(
+        '''when allowed and forbidden are used simultaneously''',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, '--allowed', 'MIT', '--forbidden', 'BSD'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+    });
 
     group(
       'reports licenses',
@@ -603,7 +617,7 @@ void main() {
           );
 
           const warningMessage =
-              '''Some allowed licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
           verify(
             () => logger.warn(warningMessage),
           ).called(1);
@@ -714,6 +728,160 @@ void main() {
                 ...commandArguments,
                 allowedArgument,
                 'Apache-2.0',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''2 dependencies have banned licenses: $dependency1Name ($license1LinkedMessage) and $dependency2Name ($license2LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
+      });
+    });
+
+    group('forbidden', () {
+      const forbiddenArgument = '--forbidden';
+
+      test(
+        'warns when a license is not recognized',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const invalidLicense = 'not_a_valid_license';
+          await commandRunner.run(
+            [
+              ...commandArguments,
+              forbiddenArgument,
+              invalidLicense,
+              tempDirectory.path,
+            ],
+          );
+
+          const warningMessage =
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+          verify(
+            () => logger.warn(warningMessage),
+          ).called(1);
+        }),
+      );
+
+      test(
+        'exits when a license is forbidden',
+        withRunner(
+            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => pubLicense.getLicense(any()))
+              .thenAnswer((_) => Future.value({'BSD'}));
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              forbiddenArgument,
+              'BSD',
+              tempDirectory.path,
+            ],
+          );
+
+          expect(result, ExitCode.config.code);
+        }),
+      );
+
+      group('report', () {
+        test(
+          'when a single license is forbidden',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                forbiddenArgument,
+                'MIT',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+
+            verify(
+              () => logger.err(errorMessage),
+            ).called(1);
+          }),
+        );
+
+        test(
+          'when multiple licenses are forbidden',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const dependency1Name = 'very_good_test_runner';
+            when(() => pubLicense.getLicense(dependency1Name))
+                .thenAnswer((_) => Future.value({'MIT'}));
+            final license1LinkedMessage = link(
+              uri: pubLicenseUri(dependency1Name),
+              message: 'MIT',
+            );
+
+            const dependency2Name = 'cli_completion';
+            when(() => pubLicense.getLicense(dependency2Name))
+                .thenAnswer((_) => Future.value({'BSD'}));
+            final license2LinkedMessage = link(
+              uri: pubLicenseUri(dependency2Name),
+              message: 'BSD',
+            );
+
+            await commandRunner.run(
+              [
+                ...commandArguments,
+                forbiddenArgument,
+                'BSD',
+                forbiddenArgument,
+                'MIT',
                 tempDirectory.path,
               ],
             );
