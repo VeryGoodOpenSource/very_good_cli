@@ -901,68 +901,70 @@ void main() {
     group('skip-packages', () {
       const skipPackagesArgument = '--skip-packages';
 
-      test(
-        'skips a package by name',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      group('skips', () {
+        test(
+          'a single package by name',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(path.join(tempDirectory.path, pubspecLockBasename))
-              .writeAsStringSync(_validMultiplePubspecLockContent);
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
 
-          when(() => logger.progress(any())).thenReturn(progress);
+            when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              skipPackagesArgument,
-              'cli_completion',
-              tempDirectory.path,
-            ],
-          );
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                skipPackagesArgument,
+                'cli_completion',
+                tempDirectory.path,
+              ],
+            );
 
-          verify(
-            () => progress.complete(
-              '''Retrieved 1 license from 1 package of type: MIT.''',
-            ),
-          ).called(1);
-          expect(result, equals(ExitCode.success.code));
-        }),
-      );
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: MIT.''',
+              ),
+            ).called(1);
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
 
-      test(
-        'skips multiple packages by name',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        test(
+          'multiple packages by name',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(path.join(tempDirectory.path, pubspecLockBasename))
-              .writeAsStringSync(_validMultiplePubspecLockContent);
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
 
-          when(() => logger.progress(any())).thenReturn(progress);
+            when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              skipPackagesArgument,
-              'cli_completion',
-              skipPackagesArgument,
-              'very_good_test_runner',
-              tempDirectory.path,
-            ],
-          );
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                skipPackagesArgument,
+                'cli_completion',
+                skipPackagesArgument,
+                'very_good_test_runner',
+                tempDirectory.path,
+              ],
+            );
 
-          final errorMessage =
-              '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
-          verify(() => logger.err(errorMessage)).called(1);
+            final errorMessage =
+                '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
+            verify(() => logger.err(errorMessage)).called(1);
 
-          verify(() => progress.cancel()).called(1);
+            verify(() => progress.cancel()).called(1);
 
-          expect(result, equals(ExitCode.usage.code));
-        }),
-      );
+            expect(result, equals(ExitCode.usage.code));
+          }),
+        );
+      });
     });
 
     group('exits with error', () {
