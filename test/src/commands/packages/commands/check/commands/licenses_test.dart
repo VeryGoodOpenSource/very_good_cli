@@ -924,6 +924,9 @@ void main() {
             );
 
             verify(
+              () => progress.update('Collecting licenses of 0/1 packages.'),
+            ).called(1);
+            verify(
               () => progress.complete(
                 '''Retrieved 1 license from 1 package of type: MIT.''',
               ),
