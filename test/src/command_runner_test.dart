@@ -16,11 +16,11 @@ class _MockPubUpdater extends Mock implements PubUpdater {}
 
 class _MockProgress extends Mock implements Progress {}
 
-class MockDirectory extends Mock implements Directory {}
+class _MockDirectory extends Mock implements Directory {}
 
-class MockFile extends Mock implements File {}
+class _MockFile extends Mock implements File {}
 
-class MockStdout extends Mock implements Stdout {}
+class _MockStdout extends Mock implements Stdout {}
 
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n'
@@ -192,13 +192,13 @@ void main() {
         late Stdout stdout;
 
         setUp(() {
-          cliCache = MockDirectory();
+          cliCache = _MockDirectory();
           when(() => cliCache.path).thenReturn('/users/test');
 
-          versionFile = MockFile();
+          versionFile = _MockFile();
           when(() => versionFile.readAsStringSync()).thenReturn('0.0.0');
 
-          stdout = MockStdout();
+          stdout = _MockStdout();
           when(() => stdout.supportsAnsiEscapes).thenReturn(true);
           when(() => stdout.terminalColumns).thenReturn(30);
         });
@@ -252,7 +252,7 @@ void main() {
             'XDG_CONFIG_HOME': '/users/test/.xdg',
           };
 
-          final xdgCache = MockDirectory();
+          final xdgCache = _MockDirectory();
           when(() => xdgCache.path).thenReturn('/users/test/.xdg');
 
           await IOOverrides.runZoned(
@@ -275,7 +275,7 @@ void main() {
             ..environmentOverride = {'LOCALAPPDATA': '/C/Users/test'}
             ..isWindowsOverride = true;
 
-          final windowsCache = MockDirectory();
+          final windowsCache = _MockDirectory();
           when(() => windowsCache.path).thenReturn('/C/Users/test');
 
           await IOOverrides.runZoned(
