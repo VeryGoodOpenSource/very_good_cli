@@ -65,6 +65,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'forbidden',
         help: 'Deny the use of certain licenses.',
+      )
+      ..addMultiOption(
+        'skip-packages',
+        help: 'Skip packages from having their licenses checked.',
       );
   }
 
@@ -94,6 +98,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
+    final skippedPackages = _argResults['skip-packages'] as List<String>;
 
     if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
       usageException(
@@ -134,6 +139,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
       // ignore: invalid_use_of_protected_member
       final isPubHosted = dependency.hosted != null;
       if (!isPubHosted) return false;
+
+      if (skippedPackages.contains(dependency.package())) return false;
 
       final dependencyType = dependency.type();
       return (dependencyTypes.contains('direct-main') &&
