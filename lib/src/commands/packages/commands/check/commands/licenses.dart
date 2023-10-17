@@ -288,30 +288,39 @@ String _composeReport({
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
+
   final licenseTypes =
-      licenses.values.fold(<String>{}, (previousValue, licenses) {
+      licenses.values.fold(<String>[], (previousValue, licenses) {
     if (licenses == null) return previousValue;
     return previousValue..addAll(licenses);
   });
-  final coloredLicenseTypes = licenseTypes.map((license) {
-    if (bannedLicenseTypes != null && bannedLicenseTypes.contains(license)) {
-      return red.wrap(license)!;
-    }
-    return green.wrap(license)!;
+
+  final licenseCount = <String, int>{};
+  for (final license in licenseTypes) {
+    licenseCount.update(license, (value) => value + 1, ifAbsent: () => 1);
+  }
+  final totalLicenseCount = licenseCount.values
+      .fold(0, (previousValue, count) => previousValue + count);
+
+  final formattedLicenseTypes = licenseTypes.toSet().map((license) {
+    final colorWrapper =
+        bannedLicenseTypes != null && bannedLicenseTypes.contains(license)
+            ? red.wrap
+            : green.wrap;
+
+    final count = licenseCount[license];
+    final formattedCount = darkGray.wrap('($count)');
+
+    return '${colorWrapper(license)} $formattedCount';
   });
 
-  final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
-    if (element == null) return previousValue;
-    return previousValue + element.length;
-  });
-
-  final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
+  final licenseWord = totalLicenseCount == 1 ? 'license' : 'licenses';
   final packageWord = licenses.length == 1 ? 'package' : 'packages';
-  final suffix = coloredLicenseTypes.isEmpty
+  final suffix = formattedLicenseTypes.isEmpty
       ? ''
-      : ' of type: ${coloredLicenseTypes.toList().stringify()}';
+      : ' of type: ${formattedLicenseTypes.toList().stringify()}';
 
-  return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
+  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
