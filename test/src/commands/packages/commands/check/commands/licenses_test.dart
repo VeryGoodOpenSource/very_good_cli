@@ -25,8 +25,8 @@ const _expectedPackagesCheckLicensesUsage = [
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
-      '    --allowed                        Whitelist of allowed licenses.\n'
-      '''    --forbidden                      Blacklist of not allowed licenses.\n'''
+      '''    --allowed                        Only allow the use of certain licenses.\n'''
+      '    --forbidden                      Deny the use of certain licenses.\n'
       '''    --skip-packages                  Skip packages from having their licenses checked.\n'''
       '\n'
       'Run "very_good help" to see global options.'
@@ -117,7 +117,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT.''',
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
               ),
             ).called(1);
 
@@ -152,7 +152,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''',
+                '''Retrieved 4 licenses from 2 packages of type: MIT (2) and BSD (2).''',
               ),
             ).called(1);
 
@@ -203,7 +203,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -248,7 +248,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -386,7 +386,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -435,7 +435,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -485,7 +485,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -534,7 +534,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -593,7 +593,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 3 licenses from 3 packages of type: MIT.',
+                  'Retrieved 3 licenses from 3 packages of type: MIT (3).',
                 ),
               ).called(1);
 
@@ -940,7 +940,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT.''',
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
               ),
             ).called(1);
             expect(result, equals(ExitCode.success.code));
