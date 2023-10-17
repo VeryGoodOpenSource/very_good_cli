@@ -60,11 +60,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
       )
       ..addMultiOption(
         'allowed',
-        help: 'Whitelist of allowed licenses.',
+        help: 'Only allow the use of certain licenses.',
       )
       ..addMultiOption(
         'forbidden',
-        help: 'Blacklist of not allowed licenses.',
+        help: 'Deny the use of certain licenses.',
       );
   }
 
