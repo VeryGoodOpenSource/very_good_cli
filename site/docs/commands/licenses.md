@@ -1,10 +1,10 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 ---
 
 # License checking 💳🕵️‍♂️
 
-Very Good CLI offers a simple, fast and efficient license checker for dependencies hosted by [Dart's package manager][pub]. Allowing developers to easily keep track of the rights and restrictions external dependencies might pose on their projects.
+Very Good CLI offers a fast, simple and efficient license checker for dependencies hosted by [Dart's package manager][pub]. Allowing developers to easily keep track of the rights and restrictions external dependencies might pose on their projects.
 
 ## Quick Start 🚀
 
@@ -39,7 +39,7 @@ A comprehensive list of all the licenses allowed as options is available within 
 
 ### `forbidden`
 
-Deny the use of certain licenses. The command will exit with an error and log the list of all the dependencies that have an blocked license.
+Deny the use of certain licenses. The command will exit with an error and log the list of all the dependencies that have a blocked license.
 
 #### Example usage:
 
@@ -73,10 +73,20 @@ very_good packages check licenses --dependency-type=direct-main,transitive
 ```
 
 :::info
-The license checker only requires a [lockfile](https://dart.dev/tools/pub/glossary#lockfile). The lockfile is generated automatically for you by [pub][pub] when you run `pub get`, `pub upgrade`, or `pub downgrade`.
+The license checker only requires a [lockfile](https://dart.dev/tools/pub/glossary#lockfile) to gather dependencies. The lockfile is generated automatically for you by [pub][pub] when you run `pub get`, `pub upgrade`, or `pub downgrade`.
 :::
 
 ### `skip-packages`
+
+Skips packages from having there licenses checked.
+
+#### Example usage:
+
+```sh
+very_good packages check licenses --skip-packages=html,universal_io
+
+# ✓ Retrieved 83 licenses from 82 packages of type: BSD-3-Clause (65), MIT (15), unknown (1), BSD-2-Clause (1) and Apache-2.0 (1).
+```
 
 ### `[no]-offline`
 
