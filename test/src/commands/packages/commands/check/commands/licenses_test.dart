@@ -116,7 +116,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT.''',
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
               ),
             ).called(1);
 
@@ -151,7 +151,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''',
+                '''Retrieved 4 licenses from 2 packages of type: MIT (2) and BSD (2).''',
               ),
             ).called(1);
 
@@ -198,7 +198,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -239,7 +239,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -373,7 +373,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -422,7 +422,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -472,7 +472,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -521,7 +521,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -580,7 +580,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 3 licenses from 3 packages of type: MIT.',
+                  'Retrieved 3 licenses from 3 packages of type: MIT (3).',
                 ),
               ).called(1);
 
