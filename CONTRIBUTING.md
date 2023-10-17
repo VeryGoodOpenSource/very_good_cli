@@ -33,7 +33,7 @@ To develop for Very Good CLI you will need to become familiar with Very Good Ven
 
 ### Setting up your local development environment
 
-1. Install a valid [Dart SDK](https://dart.dev/get-dart) in your local environment. Compatible Dart SDK versions with test optimizer can be found [here](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/pubspec.yaml). If you have Flutter installed, you likely have a valid Dart SDK version already installed.
+1. Install a valid [Flutter SDK](https://docs.flutter.dev/get-started/install) in your local environment. Compatible Flutter SDK versions with Very Good CLI can be found [here](https://docs.flutter.dev/release/archive), ensure it has a Dart version compatible with [Very Good CLI's Dart version constraint](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/pubspec.yaml).
 
 2. Install all Very Good CLI's dependencies:
 
@@ -48,8 +48,8 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 3. Run all Very Good CLI tests:
 
 ```sh
-# 💻 Run Very Good CLI's unit tests
-dart test
+# 🧪 Run Very Good CLI's unit test (from project root)
+flutter test -x pull-request-only
 ```
 
 If some tests do not pass out of the box, please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose).
@@ -92,15 +92,15 @@ dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
 5. Ensure the existing test suite passes locally:
 
 ```sh
-# 🧪 Run Very Good CLI's unit test
-dart test
+# 🧪 Run Very Good CLI's unit test (from project root)
+flutter test -x pull-request-only
 ```
 
 6. Format your code:
 
 ```sh
 # 🧼 Run Dart's formatter
-dart format .
+dart format lib test
 ```
 
 7. Analyze your code:

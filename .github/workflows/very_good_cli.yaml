@@ -31,7 +31,7 @@ jobs:
         run: flutter pub get
 
       - name: Format
-        run: dart format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed lib test
 
       - name: Analyze
         run: flutter analyze lib test
@@ -46,6 +46,8 @@ jobs:
 
       - name: Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
+        with:
+          exclude: "**/*.gen.dart"
 
   pana:
     runs-on: ubuntu-latest

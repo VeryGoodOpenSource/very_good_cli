@@ -1,0 +1,97 @@
+name: spdx_license
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    paths:
+      - .github/workflows/spdx_license.yaml
+      - "tool/spdx_license/**"
+    branches:
+      - main
+  pull_request:
+    paths:
+      - .github/workflows/spdx_license.yaml
+      - "tool/spdx_license/**"
+    branches:
+      - main
+
+jobs:
+  build_hooks:
+    defaults:
+      run:
+        working-directory: tool/spdx_license/hooks
+
+    runs-on: ubuntu-latest
+
+    # This job can be replaced by VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v1,
+    # once the following issue is resolved:
+    # https://github.com/VeryGoodOpenSource/very_good_workflows/issues/150
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.1.0
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: ✨ Check Formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: 🕵️ Analyze
+        run: dart analyze --fatal-infos --fatal-warnings
+
+      - name: 🧪 Run Tests
+        run: |
+          dart pub global activate coverage 1.2.0
+          dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="pre_gen,post_gen"
+
+      - name: 📊 Check Code Coverage
+        uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
+        with:
+          path: tool/spdx_license/hooks/coverage/lcov.info
+
+  build_brick:
+    defaults:
+      run:
+        working-directory: tool/spdx_license
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.1.0
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 🧱 Mason make
+        # If this step fails, you may need to run the following command (from tool/spdx_license):
+        # ```sh
+        # mason make spdx_license --licenses "[]" -o test --on-conflict overwrite
+        # ```
+        # This will build the brick and generate the latest files for testing.
+        run: |
+          dart pub global activate mason_cli
+          mason get
+          mason make spdx_license --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed
+
+      - name: ✨ Check Formatting
+        run: dart format --set-exit-if-changed test/**_test.dart
+
+      - name: 🕵️ Analyze
+        run: dart analyze --fatal-infos --fatal-warnings test/**_test.dart
+
+      - name: 🧪 Run Tests
+        run: dart test -j 4 --run-skipped --test-randomize-ordering-seed random

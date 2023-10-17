@@ -9,17 +9,19 @@ import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator {}
 
-class MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockArgResults extends Mock implements ArgResults {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
 
-class FakeLogger extends Fake implements Logger {}
+class _MockArgResults extends Mock implements ArgResults {}
 
-class FakeDirectoryGeneratorTarget extends Fake
+class _FakeLogger extends Fake implements Logger {}
+
+class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
@@ -46,14 +48,14 @@ void main() {
   late Logger logger;
 
   setUpAll(() {
-    registerFallbackValue(FakeDirectoryGeneratorTarget());
-    registerFallbackValue(FakeLogger());
+    registerFallbackValue(_FakeDirectoryGeneratorTarget());
+    registerFallbackValue(_FakeLogger());
   });
 
   setUp(() {
-    logger = MockLogger();
+    logger = _MockLogger();
 
-    final progress = MockProgress();
+    final progress = _MockProgress();
 
     when(() => logger.progress(any())).thenReturn(progress);
   });
@@ -81,7 +83,8 @@ void main() {
   group('create dart_package', () {
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result =
             await commandRunner.run(['create', 'dart_package', '--help']);
         expect(printLogs, equals(expectedUsage));
@@ -104,8 +107,8 @@ void main() {
       late MasonGenerator generator;
 
       setUp(() {
-        hooks = MockGeneratorHooks();
-        generator = MockMasonGenerator();
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
 
         when(() => generator.hooks).thenReturn(hooks);
         when(
@@ -155,7 +158,7 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        final argResults = MockArgResults();
+        final argResults = _MockArgResults();
         final command = CreateDartPackage(
           logger: logger,
           generatorFromBundle: (_) async => throw Exception('oops'),

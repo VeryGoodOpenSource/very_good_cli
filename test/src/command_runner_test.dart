@@ -10,11 +10,11 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
 class MockDirectory extends Mock implements Directory {}
 
@@ -66,13 +66,13 @@ void main() {
     late VeryGoodCommandRunner commandRunner;
 
     setUp(() {
-      pubUpdater = MockPubUpdater();
+      pubUpdater = _MockPubUpdater();
 
       when(
         () => pubUpdater.getLatestVersion(any()),
       ).thenAnswer((_) async => packageVersion);
 
-      logger = MockLogger();
+      logger = _MockLogger();
 
       commandRunner = VeryGoodCommandRunner(
         logger: logger,
@@ -114,7 +114,7 @@ void main() {
               currentVersion: any(named: 'currentVersion'),
             ),
           ).thenAnswer((_) => Future.value(true));
-          final progress = MockProgress();
+          final progress = _MockProgress();
           final progressLogs = <String>[];
           when(() => progress.complete(any())).thenAnswer((_) {
             final message = _.positionalArguments.elementAt(0) as String?;

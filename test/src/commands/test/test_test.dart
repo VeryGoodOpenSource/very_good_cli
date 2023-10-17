@@ -10,6 +10,12 @@ import 'package:very_good_cli/src/commands/test/test.dart';
 
 import '../../../helpers/helpers.dart';
 
+class _MockLogger extends Mock implements Logger {}
+
+class _MockArgResults extends Mock implements ArgResults {}
+
+class _MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
+
 const expectedTestUsage = [
   // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
@@ -52,12 +58,6 @@ abstract class FlutterTestCommand {
   });
 }
 
-class MockLogger extends Mock implements Logger {}
-
-class MockArgResults extends Mock implements ArgResults {}
-
-class MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
-
 void main() {
   group('test', () {
     final cwd = Directory.current;
@@ -71,10 +71,10 @@ void main() {
     late TestCommand testCommand;
 
     setUp(() {
-      logger = MockLogger();
+      logger = _MockLogger();
       isFlutterInstalled = true;
-      argResults = MockArgResults();
-      flutterTest = MockFlutterTestCommand();
+      argResults = _MockArgResults();
+      flutterTest = _MockFlutterTestCommand();
       testCommand = TestCommand(
         logger: logger,
         flutterInstalled: ({required Logger logger}) async =>
@@ -111,7 +111,8 @@ void main() {
 
     test(
       'help',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final result = await commandRunner.run(['test', '--help']);
         expect(printLogs, equals(expectedTestUsage));
         expect(result, equals(ExitCode.success.code));
@@ -127,7 +128,8 @@ void main() {
     test(
       'throws pubspec not found exception '
       'when no pubspec.yaml exists',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -142,7 +144,8 @@ void main() {
 
     test(
       'completes normally when no pubspec.yaml exists (recursive)',
-      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+      withRunner(
+          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -498,6 +501,48 @@ void main() {
           stdout: logger.write,
           stderr: logger.err,
           forceAnsi: true,
+        ),
+      ).called(1);
+    });
+
+    test(
+        '''disables optimizePerformance when rest arguement is not an option''',
+        () async {
+      when(() => argResults.rest).thenReturn(['my-test.dart']);
+
+      final result = await testCommand.run();
+
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: [
+            ...defaultArguments,
+            ...argResults.rest,
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('enables optimizePerformance when rest arguement is an option',
+        () async {
+      when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+
+      final result = await testCommand.run();
+
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: [
+            ...defaultArguments,
+            ...argResults.rest,
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
         ),
       ).called(1);
     });

@@ -1,0 +1,63 @@
+name: spdx_license_bot
+
+on:
+  # This should ideally trigger whenever there is a commit to the [SPDX License repository](https://github.com/spdx/license-list-data).
+  # However, this is not yet possible see: https://github.com/orgs/community/discussions/26323
+  schedule:
+    # At 08:04 on every day-of-week from Monday through Friday.
+    - cron: "4 8 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: tool/spdx_license
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: 💻 Install Mason
+        run: |
+          dart pub global activate mason_cli
+          mason get
+
+      - name: 🧱 Mason Make (tool/spdx_license/test)
+        id: make
+        run: if [[ $(mason make spdx_license -q --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed) =~ "0 files changed" ]]; then echo "did_change=false"; else echo "did_change=true"; fi >> $GITHUB_ENV
+
+      - name: 🔑 Config Git User
+        if: ${{ env.did_change == 'true' }}
+        run: |
+          git config user.name VGV Bot
+          git config user.email vgvbot@users.noreply.github.com
+
+      - name: 🧱 Mason Make (lib/pub_license/spdx_license)
+        if: ${{ env.did_change == 'true' }}
+        run: |
+          cd ../..
+          mason make spdx_license -o lib/src/pub_license/ --on-conflict=overwrite
+          cd tool/spdx_license
+
+      - name: 📝 Create Pull Request
+        if: ${{ env.did_change == 'true' }}
+        uses: peter-evans/create-pull-request@v5.0.2
+        with:
+          base: main
+          branch: chore/update-spdx-license
+          commit-message: "chore: update SPDX licenses"
+          title: "chore: update SPDX licenses"
+          body: Please squash and merge me!
+          labels: bot
+          author: VGV Bot <vgvbot@users.noreply.github.com>
+          assignees: vgvbot
+          committer: VGV Bot <vgvbot@users.noreply.github.com>

@@ -8,6 +8,7 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
+import 'package:very_good_cli/src/pub_license/pub_license.dart';
 import 'package:very_good_cli/src/version.dart';
 
 /// The package name.
@@ -22,6 +23,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     Logger? logger,
     PubUpdater? pubUpdater,
     Map<String, String>? environment,
+    @visibleForTesting PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         _environment = environment ?? Platform.environment,
@@ -37,7 +39,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
         help: 'Noisy logging, including all shell commands executed.',
       );
     addCommand(CreateCommand(logger: _logger));
-    addCommand(PackagesCommand(logger: _logger));
+    addCommand(PackagesCommand(logger: _logger, pubLicense: pubLicense));
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
   }

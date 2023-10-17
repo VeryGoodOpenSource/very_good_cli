@@ -4,12 +4,15 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
-class MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger {}
 
-class MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress {}
 
-class MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater {}
+
+class _MockPubLicense extends Mock implements PubLicense {}
 
 void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
@@ -31,18 +34,21 @@ void Function() withRunner(
     VeryGoodCommandRunner commandRunner,
     Logger logger,
     PubUpdater pubUpdater,
+    PubLicense pubLicense,
     List<String> printLogs,
   ) runnerFn,
 ) {
   return _overridePrint((printLogs) async {
-    final logger = MockLogger();
-    final progress = MockProgress();
-    final pubUpdater = MockPubUpdater();
+    final logger = _MockLogger();
+    final progress = _MockProgress();
+    final pubUpdater = _MockPubUpdater();
+    final pubLicense = _MockPubLicense();
     final progressLogs = <String>[];
     final commandRunner = VeryGoodCommandRunner(
       logger: logger,
       pubUpdater: pubUpdater,
       environment: {'CI': 'true'},
+      pubLicense: pubLicense,
     );
 
     when(() => progress.complete(any())).thenAnswer((_) {
@@ -56,7 +62,9 @@ void Function() withRunner(
         currentVersion: any(named: 'currentVersion'),
       ),
     ).thenAnswer((_) => Future.value(true));
+    when(() => pubLicense.getLicense(any()))
+        .thenAnswer((_) => Future.value({'MIT'}));
 
-    await runnerFn(commandRunner, logger, pubUpdater, printLogs);
+    await runnerFn(commandRunner, logger, pubUpdater, pubLicense, printLogs);
   });
 }
