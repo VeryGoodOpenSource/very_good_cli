@@ -39,8 +39,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
         _pubLicense = pubLicense ?? PubLicense() {
     argParser
       ..addFlag(
-        'ignore-failures',
-        help: 'Ignore any license that failed to be retrieved.',
+        'ignore-retrieval-failures',
+        help: 'Disregard licenses that failed to be retrieved.',
         negatable: false,
       )
       ..addMultiOption(
@@ -94,7 +94,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       usageException('Too many arguments');
     }
 
-    final ignoreFailures = _argResults['ignore-failures'] as bool;
+    final ignoreFailures = _argResults['ignore-retrieval-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;

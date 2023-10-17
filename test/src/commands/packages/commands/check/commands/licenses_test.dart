@@ -18,7 +18,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'
-      '''    --ignore-failures                Ignore any license that failed to be retrieved.\n'''
+      '''    --ignore-retrieval-failures      Disregard licenses that failed to be retrieved.\n'''
       '''    --dependency-type                The type of dependencies to check licenses for.\n'''
       '\n'
       '''          [direct-dev]               Check for direct dev dependencies.\n'''
@@ -162,8 +162,8 @@ void main() {
       },
     );
 
-    group('ignore-failures', () {
-      const ignoreFailuresArgument = '--ignore-failures';
+    group('ignore-retrieval-failures', () {
+      const ignoreRetrievalFailuresArgument = '--ignore-retrieval-failures';
 
       group('reports licenses', () {
         test(
@@ -184,7 +184,11 @@ void main() {
                 .thenThrow(exception);
 
             final result = await commandRunner.run(
-              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                tempDirectory.path,
+              ],
             );
 
             final errorMessage =
@@ -225,7 +229,11 @@ void main() {
                 .thenThrow(error);
 
             final result = await commandRunner.run(
-              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                tempDirectory.path,
+              ],
             );
 
             const errorMessage =
@@ -265,7 +273,11 @@ void main() {
           when(() => pubLicense.getLicense(any())).thenThrow(error);
 
           final result = await commandRunner.run(
-            [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            [
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              tempDirectory.path,
+            ],
           );
 
           final packageNames = verify(() => pubLicense.getLicense(captureAny()))
