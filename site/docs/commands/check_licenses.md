@@ -102,7 +102,7 @@ very_good packages check licenses --ignore-retrieval-failures
 
 ## Supported licenses 💳
 
-The license detection is processed by [Dart's package analyzer](https://pub.dev/packages/pana), which reports commonly found licenses (SPDX licenses). Hence, when specifying a license within arguments it must strictly match with the SPDX license name. The list of accepted licenses can be seen in the [SPDX GitHub repository](https://github.com/spdx/license-list-data/tree/main/text) or in the [SPDX License enumeration](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/lib/src/pub_license/spdx_license.gen.dart).
+The license detection is processed by [Dart's package analyzer](https://pub.dev/packages/pana), which reports commonly found licenses (SPDX licenses). The list of accepted licenses can be seen in the [SPDX GitHub repository](https://github.com/spdx/license-list-data/tree/main/text) or in the [SPDX License enumeration](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/lib/src/pub_license/spdx_license.gen.dart). Therefore, when specifying a license within arguments it must strictly match with the SPDX license name.
 
 If a license file is incorrectly formatted or is not a commonly found license, then it might be reported as `unknown`. If the former is true, we suggest notifying the package maintainer about the issue.
 
