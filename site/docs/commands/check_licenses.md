@@ -18,7 +18,7 @@ very_good packages check licenses
 The license checker requires an internet connection to fetch the data from [Dart's package manager][pub].
 :::
 
-## Options ⚙️
+## Arguments ⚙️
 
 ### `allowed`
 
