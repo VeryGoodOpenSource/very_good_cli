@@ -85,7 +85,7 @@ Skips packages from having their licenses checked. Skipped packages will not be 
 ```sh
 very_good packages check licenses --skip-packages=html,universal_io
 
-# ✓ Retrieved 4 licenses from 4 packages of type: BSD-3-Clause (3) and MIT (1). 
+# ✓ Retrieved 4 licenses from 4 packages of type: BSD-3-Clause (3) and MIT (1).
 ```
 
 ### `ignore-retrieval-failures`
