@@ -162,7 +162,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
-        'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages.',
+        '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
       );
 
       final dependencyName = dependency.package();

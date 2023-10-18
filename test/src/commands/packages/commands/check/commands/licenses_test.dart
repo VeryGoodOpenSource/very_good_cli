@@ -113,7 +113,9 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/1 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -145,10 +147,14 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -196,10 +202,14 @@ void main() {
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -241,10 +251,14 @@ void main() {
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -296,10 +310,14 @@ void main() {
           ).called(1);
 
           verify(
-            () => progress.update('Collecting licenses of 0/2 packages.'),
+            () => progress.update(
+              'Collecting licenses from 1 out of 2 packages',
+            ),
           ).called(1);
           verify(
-            () => progress.update('Collecting licenses of 1/2 packages.'),
+            () => progress.update(
+              'Collecting licenses from 2 out of 2 packages',
+            ),
           ).called(1);
           verify(
             () => progress.complete(
@@ -382,7 +400,9 @@ void main() {
                 );
 
                 verify(
-                  () => progress.update('Collecting licenses of 0/1 packages.'),
+                  () => progress.update(
+                    'Collecting licenses from 1 out of 1 package',
+                  ),
                 ).called(1);
                 verify(
                   () => progress.complete(
@@ -431,7 +451,9 @@ void main() {
                 );
 
                 verify(
-                  () => progress.update('Collecting licenses of 0/1 packages.'),
+                  () => progress.update(
+                    'Collecting licenses from 1 out of 1 package',
+                  ),
                 ).called(1);
                 verify(
                   () => progress.complete(
@@ -481,7 +503,9 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/1 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -530,7 +554,9 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/1 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -583,13 +609,19 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 3 packages',
+                ),
               ).called(1);
               verify(
-                () => progress.update('Collecting licenses of 1/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 2 out of 3 packages',
+                ),
               ).called(1);
               verify(
-                () => progress.update('Collecting licenses of 2/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 3 out of 3 packages',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -936,7 +968,9 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/1 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
