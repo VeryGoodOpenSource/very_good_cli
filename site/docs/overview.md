@@ -24,6 +24,20 @@ Very Good CLI requires Dart `">=3.1.0 <4.0.0"`
 dart pub global activate very_good_cli
 ```
 
+Or install a [specific version](https://pub.dev/packages/very_good_cli/versions) using:
+
+```sh
+dart pub global activate very_good_cli <version>
+```
+
+If you haven't already, you might need to [set up your path][path_setup_link].
+
+When that is not possible (eg: CI environments), run `very_good` commands via:
+
+```sh
+dart pub global run very_good_cli:very_good <command> <args>
+```
+
 ## Commands
 
 ### `very_good create`
@@ -47,10 +61,6 @@ Available subcommands:
 
 Run "very_good help" to see global options.
 ```
-
-#### Syntax changes in 0.10.0
-
-⚠️ v0.10.0 changed the syntax of the `very_good create` command. Learn about the changes [here][new_syntax_link].
 
 ### `very_good packages get`
 
