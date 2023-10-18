@@ -39,8 +39,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
         _pubLicense = pubLicense ?? PubLicense() {
     argParser
       ..addFlag(
-        'ignore-failures',
-        help: 'Ignore any license that failed to be retrieved.',
+        'ignore-retrieval-failures',
+        help: 'Disregard licenses that failed to be retrieved.',
         negatable: false,
       )
       ..addMultiOption(
@@ -60,11 +60,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
       )
       ..addMultiOption(
         'allowed',
-        help: 'Whitelist of allowed licenses.',
+        help: 'Only allow the use of certain licenses.',
       )
       ..addMultiOption(
         'forbidden',
-        help: 'Blacklist of not allowed licenses.',
+        help: 'Deny the use of certain licenses.',
       )
       ..addMultiOption(
         'skip-packages',
@@ -94,7 +94,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       usageException('Too many arguments');
     }
 
-    final ignoreFailures = _argResults['ignore-failures'] as bool;
+    final ignoreFailures = _argResults['ignore-retrieval-failures'] as bool;
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
@@ -295,30 +295,39 @@ String _composeReport({
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
+
   final licenseTypes =
-      licenses.values.fold(<String>{}, (previousValue, licenses) {
+      licenses.values.fold(<String>[], (previousValue, licenses) {
     if (licenses == null) return previousValue;
     return previousValue..addAll(licenses);
   });
-  final coloredLicenseTypes = licenseTypes.map((license) {
-    if (bannedLicenseTypes != null && bannedLicenseTypes.contains(license)) {
-      return red.wrap(license)!;
-    }
-    return green.wrap(license)!;
+
+  final licenseCount = <String, int>{};
+  for (final license in licenseTypes) {
+    licenseCount.update(license, (value) => value + 1, ifAbsent: () => 1);
+  }
+  final totalLicenseCount = licenseCount.values
+      .fold(0, (previousValue, count) => previousValue + count);
+
+  final formattedLicenseTypes = licenseTypes.toSet().map((license) {
+    final colorWrapper =
+        bannedLicenseTypes != null && bannedLicenseTypes.contains(license)
+            ? red.wrap
+            : green.wrap;
+
+    final count = licenseCount[license];
+    final formattedCount = darkGray.wrap('($count)');
+
+    return '${colorWrapper(license)} $formattedCount';
   });
 
-  final licenseCount = licenses.values.fold<int>(0, (previousValue, element) {
-    if (element == null) return previousValue;
-    return previousValue + element.length;
-  });
-
-  final licenseWord = licenseCount == 1 ? 'license' : 'licenses';
+  final licenseWord = totalLicenseCount == 1 ? 'license' : 'licenses';
   final packageWord = licenses.length == 1 ? 'package' : 'packages';
-  final suffix = coloredLicenseTypes.isEmpty
+  final suffix = formattedLicenseTypes.isEmpty
       ? ''
-      : ' of type: ${coloredLicenseTypes.toList().stringify()}';
+      : ' of type: ${formattedLicenseTypes.toList().stringify()}';
 
-  return '''Retrieved $licenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
+  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {

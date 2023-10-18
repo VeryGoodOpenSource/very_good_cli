@@ -18,15 +18,15 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'
-      '''    --ignore-failures                Ignore any license that failed to be retrieved.\n'''
+      '''    --ignore-retrieval-failures      Disregard licenses that failed to be retrieved.\n'''
       '''    --dependency-type                The type of dependencies to check licenses for.\n'''
       '\n'
       '''          [direct-dev]               Check for direct dev dependencies.\n'''
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
-      '    --allowed                        Whitelist of allowed licenses.\n'
-      '''    --forbidden                      Blacklist of not allowed licenses.\n'''
+      '''    --allowed                        Only allow the use of certain licenses.\n'''
+      '    --forbidden                      Deny the use of certain licenses.\n'
       '''    --skip-packages                  Skip packages from having their licenses checked.\n'''
       '\n'
       'Run "very_good help" to see global options.'
@@ -119,7 +119,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT.''',
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
               ),
             ).called(1);
 
@@ -158,7 +158,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 4 licenses from 2 packages of type: MIT and BSD.''',
+                '''Retrieved 4 licenses from 2 packages of type: MIT (2) and BSD (2).''',
               ),
             ).called(1);
 
@@ -168,8 +168,8 @@ void main() {
       },
     );
 
-    group('ignore-failures', () {
-      const ignoreFailuresArgument = '--ignore-failures';
+    group('ignore-retrieval-failures', () {
+      const ignoreRetrievalFailuresArgument = '--ignore-retrieval-failures';
 
       group('reports licenses', () {
         test(
@@ -190,7 +190,11 @@ void main() {
                 .thenThrow(exception);
 
             final result = await commandRunner.run(
-              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                tempDirectory.path,
+              ],
             );
 
             final errorMessage =
@@ -209,7 +213,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -235,7 +239,11 @@ void main() {
                 .thenThrow(error);
 
             final result = await commandRunner.run(
-              [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                tempDirectory.path,
+              ],
             );
 
             const errorMessage =
@@ -254,7 +262,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT.',
+                'Retrieved 1 license from 2 packages of type: MIT (1).',
               ),
             ).called(1);
 
@@ -279,7 +287,11 @@ void main() {
           when(() => pubLicense.getLicense(any())).thenThrow(error);
 
           final result = await commandRunner.run(
-            [...commandArguments, ignoreFailuresArgument, tempDirectory.path],
+            [
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              tempDirectory.path,
+            ],
           );
 
           final packageNames = verify(() => pubLicense.getLicense(captureAny()))
@@ -394,7 +406,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -445,7 +457,7 @@ void main() {
                 ).called(1);
                 verify(
                   () => progress.complete(
-                    'Retrieved 1 license from 1 package of type: MIT.',
+                    'Retrieved 1 license from 1 package of type: MIT (1).',
                   ),
                 ).called(1);
 
@@ -497,7 +509,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -548,7 +560,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 1 license from 1 package of type: MIT.',
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
                 ),
               ).called(1);
 
@@ -613,7 +625,7 @@ void main() {
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 3 licenses from 3 packages of type: MIT.',
+                  'Retrieved 3 licenses from 3 packages of type: MIT (3).',
                 ),
               ).called(1);
 
@@ -962,7 +974,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT.''',
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
               ),
             ).called(1);
             expect(result, equals(ExitCode.success.code));
