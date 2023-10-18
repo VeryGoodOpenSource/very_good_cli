@@ -51,7 +51,7 @@ very_good packages check licenses --forbidden=unknown,Apache-2.0
 ```
 
 :::warning
-The `allowed` and `forbidden` options can't be used specified together.
+The `allowed` and `forbidden` options can't be used at the same time. Typical organization usage dictates which licenses are allowed or forbidden, hence optimizing for that use case.
 :::
 
 ### `dependency-type`
@@ -78,7 +78,7 @@ The license checker only requires a [lockfile](https://dart.dev/tools/pub/glossa
 
 ### `skip-packages`
 
-Skips packages from having there licenses checked. Skipped packages will not be checked against `allowed` or `forbidden` licenses.
+Skips packages from having their licenses checked. Skipped packages will not be checked against `allowed` or `forbidden` licenses.
 
 #### Example usage:
 
