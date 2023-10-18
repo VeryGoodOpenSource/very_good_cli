@@ -34,6 +34,14 @@ Or install a [specific version](https://pub.dev/packages/very_good_cli/versions)
 dart pub global activate very_good_cli <version>
 ```
 
+If you haven't already, you might need to [set up your path][path_setup_link].
+
+When that is not possible (eg: CI environments), run `very_good` commands via:
+
+```sh
+dart pub global run very_good_cli:very_good <command> <args>
+```
+
 ### Commands ✨
 
 ### `very_good create`
@@ -194,3 +202,4 @@ Run "very_good help <command>" for more information about a command.
 [new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
+[path_setup_link]: https://dart.dev/tools/pub/cmd/pub-global#running-a-script-from-your-path
