@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# License checking 💳🕵️‍♂️
+# Check licenses 👨‍⚖️
 
 Very Good CLI offers a fast, simple and efficient license checker for dependencies hosted by [Dart's package manager][pub]. Allowing developers to easily keep track of the rights and restrictions external dependencies might pose on their projects.
 
@@ -78,20 +78,30 @@ The license checker only requires a [lockfile](https://dart.dev/tools/pub/glossa
 
 ### `skip-packages`
 
-Skips packages from having there licenses checked.
+Skips packages from having there licenses checked. Skipped packages will not be checked against `allowed` or `forbidden` licenses.
 
 #### Example usage:
 
 ```sh
 very_good packages check licenses --skip-packages=html,universal_io
 
-# ✓ Retrieved 83 licenses from 82 packages of type: BSD-3-Clause (65), MIT (15), unknown (1), BSD-2-Clause (1) and Apache-2.0 (1).
+# ✓ Retrieved 4 licenses from 4 packages of type: BSD-3-Clause (3) and MIT (1). 
 ```
-
-### `[no]-offline`
 
 ### `ignore-retrieval-failures`
 
+Disregard licenses that failed to be retrieved. Avoids terminating if the license of a dependency could not be retrieved; this may happen if something went wrong when fetching information from [pub][pub].
+
+#### Example usage:
+
+```sh
+very_good packages check licenses --ignore-retrieval-failures
+
+# ✓ Retrieved 6 licenses from 6 packages of type: BSD-3-Clause (3), MIT (1), unknown (1) and Apache-2.0 (1).
+```
+
 ## Supported licenses 💳
 
+The license detection is processed by [Dart's package analyzer](https://pub.dev/packages/pana), which reports commonly found licenses (SPDX licenses). Hence, when specifying a license within arguments it must strictly match with the SPDX license name. The list of accepted licenses can be seen in the [SPDX GitHub repository](https://github.com/spdx/license-list-data/tree/main/text) or in the [SPDX License enumeration](https://github.com/VeryGoodOpenSource/very_good_cli/tree/main/lib/pub_license/spdx_license.gen.dart).
 
+If a license file is incorrectly formatted or is not a commonly found license, then it might be reported as `unknown`. If the former is true, we suggest notifying the package maintainer about the issue.
