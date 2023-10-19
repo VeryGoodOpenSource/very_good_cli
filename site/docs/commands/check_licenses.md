@@ -34,7 +34,7 @@ very_good packages check licenses --allowed=MIT,BSD-3-Clause
 ```
 
 :::info
-A comprehensive list of all the licenses allowed as options is available within the [_Supported licenses_](#supported-licenses-💳) section of this document.
+A comprehensive list of all the licenses allowed as options is available within the [_Supported licenses_](#supported-licenses-) section of this document.
 :::
 
 ### `forbidden`
