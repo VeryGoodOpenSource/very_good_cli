@@ -28,6 +28,7 @@
     "verygoodcore",
     "xcassets",
     "gradlew",
-    "fluttium"
+    "fluttium",
+    "clsx"
   ]
 }
