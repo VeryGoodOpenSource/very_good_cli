@@ -89,9 +89,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
   @override
   String get name => 'licenses';
 
-  @override
-  bool get hidden => true;
-
   ArgResults get _argResults => argResults!;
 
   @override

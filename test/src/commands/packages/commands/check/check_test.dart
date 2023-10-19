@@ -45,7 +45,7 @@ void main() {
 
     test('is hidden', () {
       final command = PackagesCheckCommand();
-      expect(command.hidden, isTrue);
+      expect(command.hidden, isFalse);
     });
   });
 }
