@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Check licenses 👨‍⚖️
 
-Very Good CLI offers a fast, simple and efficient license checker for dependencies hosted by [Dart's package manager][pub]. Allowing developers to easily keep track of the rights and restrictions external dependencies might impose on their projects.
+Very Good CLI offers a simple and straightforward license checker for dependencies hosted by [Dart's package manager][pub]. Allowing developers to easily keep track of the rights and restrictions external dependencies might impose on their projects.
 
 ## Quick Start 🚀
 
