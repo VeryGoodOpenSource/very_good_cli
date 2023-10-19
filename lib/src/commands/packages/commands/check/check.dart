@@ -23,7 +23,4 @@ class PackagesCheckCommand extends Command<int> {
 
   @override
   String get name => 'check';
-
-  @override
-  bool get hidden => true;
 }

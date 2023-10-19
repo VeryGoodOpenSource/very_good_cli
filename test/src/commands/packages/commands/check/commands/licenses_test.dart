@@ -64,9 +64,9 @@ void main() {
       }),
     );
 
-    test('is hidden', () {
+    test('is not hidden', () {
       final command = PackagesCheckLicensesCommand();
-      expect(command.hidden, isTrue);
+      expect(command.hidden, isFalse);
     });
 
     group('throws usage exception', () {

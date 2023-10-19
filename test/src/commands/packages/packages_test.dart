@@ -11,7 +11,8 @@ const _expectedPackagesUsage = [
       '-h, --help    Print this usage information.\n'
       '\n'
       'Available subcommands:\n'
-      '  get   Get packages in a Dart or Flutter project.\n'
+      '  check   Perform checks in a Dart or Flutter project.\n'
+      '  get     Get packages in a Dart or Flutter project.\n'
       '\n'
       'Run "very_good help" to see global options.'
 ];
