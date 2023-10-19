@@ -43,7 +43,7 @@ void main() {
       }),
     );
 
-    test('is hidden', () {
+    test('is not hidden', () {
       final command = PackagesCheckCommand();
       expect(command.hidden, isFalse);
     });

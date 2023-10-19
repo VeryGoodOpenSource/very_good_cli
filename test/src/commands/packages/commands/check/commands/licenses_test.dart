@@ -64,7 +64,7 @@ void main() {
       }),
     );
 
-    test('is hidden', () {
+    test('is not hidden', () {
       final command = PackagesCheckLicensesCommand();
       expect(command.hidden, isFalse);
     });
