@@ -71,6 +71,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'forbidden',
         help: 'Deny the use of certain licenses.',
+      )
+      ..addMultiOption(
+        'skip-packages',
+        help: 'Skip packages from having their licenses checked.',
       );
   }
 
@@ -100,6 +104,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final dependencyTypes = _argResults['dependency-type'] as List<String>;
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
+    final skippedPackages = _argResults['skip-packages'] as List<String>;
 
     if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
       usageException(
@@ -145,6 +150,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
       final isPubHosted = dependency.hosted != null;
       if (!isPubHosted) return false;
 
+      if (skippedPackages.contains(dependency.package())) return false;
+
       final dependencyType = dependency.type();
       return (dependencyTypes.contains('direct-main') &&
               dependencyType == DependencyType.direct) ||
@@ -165,7 +172,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
-        'Collecting licenses of ${licenses.length}/${filteredDependencies.length} packages.',
+        '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
       );
 
       final dependencyName = dependency.package();

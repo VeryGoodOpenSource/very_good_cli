@@ -26,7 +26,8 @@ const _expectedPackagesCheckLicensesUsage = [
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
       '''    --allowed                        Only allow the use of certain licenses.\n'''
-      '''    --forbidden                      Deny the use of certain licenses.\n'''
+      '    --forbidden                      Deny the use of certain licenses.\n'
+      '''    --skip-packages                  Skip packages from having their licenses checked.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -112,7 +113,9 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/1 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -144,10 +147,14 @@ void main() {
             );
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -195,10 +202,14 @@ void main() {
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -240,10 +251,14 @@ void main() {
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
-              () => progress.update('Collecting licenses of 0/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
             ).called(1);
             verify(
-              () => progress.update('Collecting licenses of 1/2 packages.'),
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
             ).called(1);
             verify(
               () => progress.complete(
@@ -295,10 +310,14 @@ void main() {
           ).called(1);
 
           verify(
-            () => progress.update('Collecting licenses of 0/2 packages.'),
+            () => progress.update(
+              'Collecting licenses from 1 out of 2 packages',
+            ),
           ).called(1);
           verify(
-            () => progress.update('Collecting licenses of 1/2 packages.'),
+            () => progress.update(
+              'Collecting licenses from 2 out of 2 packages',
+            ),
           ).called(1);
           verify(
             () => progress.complete(
@@ -381,7 +400,9 @@ void main() {
                 );
 
                 verify(
-                  () => progress.update('Collecting licenses of 0/1 packages.'),
+                  () => progress.update(
+                    'Collecting licenses from 1 out of 1 package',
+                  ),
                 ).called(1);
                 verify(
                   () => progress.complete(
@@ -430,7 +451,9 @@ void main() {
                 );
 
                 verify(
-                  () => progress.update('Collecting licenses of 0/1 packages.'),
+                  () => progress.update(
+                    'Collecting licenses from 1 out of 1 package',
+                  ),
                 ).called(1);
                 verify(
                   () => progress.complete(
@@ -480,7 +503,9 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/1 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -529,7 +554,9 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/1 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -582,13 +609,19 @@ void main() {
               );
 
               verify(
-                () => progress.update('Collecting licenses of 0/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 1 out of 3 packages',
+                ),
               ).called(1);
               verify(
-                () => progress.update('Collecting licenses of 1/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 2 out of 3 packages',
+                ),
               ).called(1);
               verify(
-                () => progress.update('Collecting licenses of 2/3 packages.'),
+                () => progress.update(
+                  'Collecting licenses from 3 out of 3 packages',
+                ),
               ).called(1);
               verify(
                 () => progress.complete(
@@ -912,6 +945,80 @@ void main() {
             verify(
               () => logger.err(errorMessage),
             ).called(1);
+          }),
+        );
+      });
+    });
+
+    group('skip-packages', () {
+      const skipPackagesArgument = '--skip-packages';
+
+      group('skips', () {
+        test(
+          'a single package by name',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                skipPackagesArgument,
+                'cli_completion',
+                tempDirectory.path,
+              ],
+            );
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: MIT (1).''',
+              ),
+            ).called(1);
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'multiple packages by name',
+          withRunner(
+              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                skipPackagesArgument,
+                'cli_completion',
+                skipPackagesArgument,
+                'very_good_test_runner',
+                tempDirectory.path,
+              ],
+            );
+
+            final errorMessage =
+                '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(() => progress.cancel()).called(1);
+
+            expect(result, equals(ExitCode.usage.code));
           }),
         );
       });
