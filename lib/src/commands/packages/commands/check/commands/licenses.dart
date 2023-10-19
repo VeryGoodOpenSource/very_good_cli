@@ -18,6 +18,12 @@ const pubspecLockBasename = 'pubspec.lock';
 Uri pubLicenseUri(String packageName) =>
     Uri.parse('https://pub.dev/packages/$packageName/license');
 
+/// The URI for the very_good_cli license documentation page.
+@visibleForTesting
+final licenseDocumentationUri = Uri.parse(
+  'https://cli.vgv.dev/docs/commands/check_licenses',
+);
+
 /// Defines a [Map] with dependencies as keys and their licenses as values.
 ///
 /// If a dependency's license failed to be retrieved its license will be `null`.
@@ -111,8 +117,12 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ...forbiddenLicenses,
     ]);
     if (invalidLicenses.isNotEmpty) {
+      final documentationLink = link(
+        uri: licenseDocumentationUri,
+        message: 'documentation',
+      );
       _logger.warn(
-        '''Some licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the documentation for a list of valid licenses.''',
+        '''Some licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the $documentationLink for a list of valid licenses.''',
       );
     }
 

@@ -661,8 +661,12 @@ void main() {
             ],
           );
 
-          const warningMessage =
-              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+          final documentationLink = link(
+            uri: licenseDocumentationUri,
+            message: 'documentation',
+          );
+          final warningMessage =
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the $documentationLink for a list of valid licenses.''';
           verify(
             () => logger.warn(warningMessage),
           ).called(1);
@@ -813,8 +817,12 @@ void main() {
             ],
           );
 
-          const warningMessage =
-              '''Some licenses failed to be recognized: $invalidLicense. Refer to the documentation for a list of valid licenses.''';
+          final documentationLink = link(
+            uri: licenseDocumentationUri,
+            message: 'documentation',
+          );
+          final warningMessage =
+              '''Some licenses failed to be recognized: $invalidLicense. Refer to the $documentationLink for a list of valid licenses.''';
           verify(
             () => logger.warn(warningMessage),
           ).called(1);
