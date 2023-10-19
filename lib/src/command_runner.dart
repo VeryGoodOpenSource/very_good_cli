@@ -3,8 +3,11 @@ import 'package:args/command_runner.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
 import 'package:pub_updater/pub_updater.dart';
+import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
+import 'package:very_good_cli/src/logger_extension.dart';
 import 'package:very_good_cli/src/pub_license/pub_license.dart';
 import 'package:very_good_cli/src/version.dart';
 
@@ -19,9 +22,11 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   VeryGoodCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
+    Map<String, String>? environment,
     @visibleForTesting PubLicense? pubLicense,
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
+        _environment = environment ?? Platform.environment,
         super('very_good', '🦄 A Very Good Command-Line Interface') {
     argParser
       ..addFlag(
@@ -44,6 +49,16 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
 
   final Logger _logger;
   final PubUpdater _pubUpdater;
+
+  /// Map of environments information.
+  Map<String, String> get environment => environmentOverride ?? _environment;
+  final Map<String, String> _environment;
+
+  /// Boolean for checking if windows, which can be overridden for
+  /// testing purposes.
+  @visibleForTesting
+  bool? isWindowsOverride;
+  bool get _isWindows => isWindowsOverride ?? Platform.isWindows;
 
   @override
   void printUsage() => _logger.info(usage);
@@ -115,6 +130,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     if (topLevelResults.command?.name != UpdateCommand.commandName) {
       await _checkForUpdates();
     }
+    _showThankYou();
     return exitCode;
   }
 
@@ -133,5 +149,40 @@ Run ${lightCyan.wrap('very_good update')} to update''',
           );
       }
     } catch (_) {}
+  }
+
+  void _showThankYou() {
+    if (environment.containsKey('CI')) return;
+
+    final versionFile = File(
+      path.join(_configDir.path, 'version'),
+    )..createSync(recursive: true);
+
+    if (versionFile.readAsStringSync() == packageVersion) return;
+    versionFile.writeAsStringSync(packageVersion);
+
+    _logger.wrap(
+      lightMagenta.wrap('''
+
+Thank you for using Very Good Ventures open source tools!
+Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/open-source/cli/subscribe-latest-tool-updates')))}'''),
+      print: _logger.info,
+    );
+  }
+
+  Directory get _configDir {
+    if (_isWindows) {
+      // Use localappdata on windows
+      final localAppData = environment['LOCALAPPDATA']!;
+      return Directory(path.join(localAppData, 'VeryGoodCLI'));
+    } else {
+      // Try using XDG config folder
+      var dirPath = environment['XDG_CONFIG_HOME'];
+      // Fallback to $HOME if not following XDG specification
+      if (dirPath == null || dirPath.isEmpty) {
+        dirPath = environment['HOME'];
+      }
+      return Directory(path.join(dirPath!, '.very_good_cli'));
+    }
   }
 }
