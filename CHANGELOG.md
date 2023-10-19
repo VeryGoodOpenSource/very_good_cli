@@ -27,7 +27,7 @@
 - chore: request code ownership ([#839](https://github.com/VeryGoodOpenSource/very_good_cli/pull/839))
 - chore: update SPDX licenses ([#837](https://github.com/VeryGoodOpenSource/very_good_cli/pull/837))
 - feat: defined PubLicense to get packages' licenses ([#818](https://github.com/VeryGoodOpenSource/very_good_cli/pull/818))
-- docs: documented sdpx build_hooks workflow ([#833](https://github.com/VeryGoodOpenSource/very_good_cli/pull/833))
+- docs: documented SPDX build_hooks workflow ([#833](https://github.com/VeryGoodOpenSource/very_good_cli/pull/833))
 - feat: include hidden check licenses command ([#841](https://github.com/VeryGoodOpenSource/very_good_cli/pull/841))
 - docs: documented very_good test argument terminator ([#840](https://github.com/VeryGoodOpenSource/very_good_cli/pull/840))
 - refactor: make all mock class to private ([#838](https://github.com/VeryGoodOpenSource/very_good_cli/pull/838))
