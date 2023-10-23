@@ -2,7 +2,7 @@ import 'package:mason_logger/mason_logger.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
 
-/// The default number of columns for the terminal.
+/// The default number of columns of the terminal.
 ///
 /// Used when the terminal width cannot be determined. For example, when running
 /// in Azure DevOps, see relevant issue:
