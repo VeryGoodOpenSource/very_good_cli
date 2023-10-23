@@ -52,7 +52,7 @@ void main() {
       });
 
       test(
-        '''defaults to `defaultStdoutTerminalColumns` when failed to read `stdout.terminalColumns`''',
+        '''defaults to `fallbackStdoutTerminalColumns` when failed to read `stdout.terminalColumns`''',
         () async {
           await IOOverrides.runZoned(
             stdout: () => stdout,
@@ -61,7 +61,7 @@ void main() {
               when(() => stdout.terminalColumns).thenThrow(stdoutException);
 
               final longWord = Iterable.generate(
-                defaultStdoutTerminalColumns,
+                fallbackStdoutTerminalColumns,
                 (_) => '1',
               ).join();
               const shortWord = '1';
