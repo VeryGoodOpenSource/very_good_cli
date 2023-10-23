@@ -114,24 +114,6 @@ very_good create docs_site my_docs_site
 
 ---
 
-### `very_good packages get`
-
-Get packages in a Dart or Flutter project.
-
-```sh
-# Install packages in the current directory
-very_good packages get
-
-# Install packages in ./some/other/directory
-very_good packages get ./some/other/directory
-
-# Install packages recursively
-very_good packages get --recursive
-
-# Install packages recursively (shorthand)
-very_good packages get -r
-```
-
 ### `very_good test`
 
 Run tests in a Dart or Flutter project.
@@ -154,6 +136,44 @@ very_good test --recursive
 
 # Run tests recursively (shorthand)
 very_good test -r
+```
+
+### `very_good packages get`
+
+Get packages in a Dart or Flutter project.
+
+```sh
+# Install packages in the current directory
+very_good packages get
+
+# Install packages in ./some/other/directory
+very_good packages get ./some/other/directory
+
+# Install packages recursively
+very_good packages get --recursive
+
+# Install packages recursively (shorthand)
+very_good packages get -r
+```
+
+### `very_good packages check licenses`
+
+[Relevant documentation](https://cli.vgv.dev/docs/commands/check_licenses)
+
+Check packages' licenses in a Dart or Flutter project.
+
+```sh
+# Check licenses in the current directory
+very_good packages check licenses
+
+# Only allow the use of certain licenses
+very_good packages check licenses --allowed="MIT,BSD-3-Clause,BSD-2-Clause,Apache-2.0"
+
+# Deny the use of certain licenses
+very_good packages check licenses --forbidden="unknown"
+
+# Check licenses for different dependencies
+very_good packages check licenses --dependency-type="direct-main,transitive"
 ```
 
 ### `very_good --help`

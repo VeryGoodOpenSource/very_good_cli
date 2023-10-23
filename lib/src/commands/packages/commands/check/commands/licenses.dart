@@ -84,7 +84,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
   @override
   String get description =>
-      'Check packages licenses in a Dart or Flutter project.';
+      "Check packages' licenses in a Dart or Flutter project.";
 
   @override
   String get name => 'licenses';
