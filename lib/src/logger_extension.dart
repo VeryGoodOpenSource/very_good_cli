@@ -20,9 +20,11 @@ extension LoggerX on Logger {
   /// Wrap the [text] to fit perfectly within the width of the terminal when
   /// [print]ed.
   ///
-  /// To overwrite the width you can use [length]; otherwise, it defaults to the
-  /// width of the terminal, or to [defaultStdoutTerminalColumns] if the width
-  /// cannot be determined.
+  /// The text will wrap around the terminal width, and will not break words. If
+  /// the terminal width cannot be determined, the text will wrap around the
+  /// [defaultStdoutTerminalColumns].
+  ///
+  /// To completely overwrite the width you can use [length].
   void wrap(
     String? text, {
     required void Function(String?) print,
