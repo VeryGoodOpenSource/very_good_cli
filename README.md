@@ -46,6 +46,8 @@ dart pub global run very_good_cli:very_good <command> <args>
 
 ### `very_good create`
 
+[Full documentation](https://cli.vgv.dev/docs/category/templates)
+
 Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command (e.g.,`very_good create flutter_app` will generate a Flutter starter app).
 
 ![Very Good Create][very_good_create]
@@ -116,6 +118,8 @@ very_good create docs_site my_docs_site
 
 ### `very_good test`
 
+[Full documentation](https://cli.vgv.dev/docs/commands/test)
+
 Run tests in a Dart or Flutter project.
 
 ```sh
@@ -140,6 +144,8 @@ very_good test -r
 
 ### `very_good packages get`
 
+[Full documentation](https://cli.vgv.dev/docs/commands/get_pkgs)
+
 Get packages in a Dart or Flutter project.
 
 ```sh
@@ -158,7 +164,7 @@ very_good packages get -r
 
 ### `very_good packages check licenses`
 
-[Relevant documentation](https://cli.vgv.dev/docs/commands/check_licenses)
+[Full documentation](https://cli.vgv.dev/docs/commands/check_licenses)
 
 Check packages' licenses in a Dart or Flutter project.
 
@@ -177,6 +183,8 @@ very_good packages check licenses --dependency-type="direct-main,transitive"
 ```
 
 ### `very_good --help`
+
+[Full documentation](https://cli.vgv.dev/docs/overview)
 
 See the complete list of commands and usage information.
 
