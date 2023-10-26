@@ -56,11 +56,10 @@ void main() {
       test(
         '''defaults to `fallbackStdoutTerminalColumns` when there is no terminal''',
         () async {
-          when(() => stdout.hasTerminal).thenReturn(false);
-
           await IOOverrides.runZoned(
             stdout: () => stdout,
             () async {
+              when(() => stdout.hasTerminal).thenReturn(false);
               const stdoutException = StdoutException('');
               when(() => stdout.terminalColumns).thenThrow(stdoutException);
 
