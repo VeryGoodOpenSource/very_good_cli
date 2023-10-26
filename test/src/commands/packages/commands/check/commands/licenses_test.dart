@@ -14,7 +14,7 @@ class _MockProgress extends Mock implements Progress {}
 
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
-  'Check packages licenses in a Dart or Flutter project.\n'
+  "Check packages' licenses in a Dart or Flutter project.\n"
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'

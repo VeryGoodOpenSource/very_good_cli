@@ -80,6 +80,24 @@ very_good packages get --recursive
 very_good packages get -r
 ```
 
+### `very_good packages check licenses`
+
+Check packages' licenses in a Dart or Flutter project.
+
+```sh
+# Check licenses in the current directory
+very_good packages check licenses
+
+# Only allow the use of certain licenses
+very_good packages check licenses --allowed="MIT,BSD-3-Clause,BSD-2-Clause,Apache-2.0"
+
+# Deny the use of certain licenses
+very_good packages check licenses --forbidden="unknown"
+
+# Check licenses for certain dependencies types
+very_good packages check licenses --dependency-type="direct-main,transitive"
+```
+
 ### `very_good test`
 
 Run tests in a Dart or Flutter project.

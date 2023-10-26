@@ -14,7 +14,7 @@ const _expectedPackagesCheckUsage = [
       '-h, --help    Print this usage information.\n'
       '\n'
       'Available subcommands:\n'
-      '  licenses   Check packages licenses in a Dart or Flutter project.\n'
+      "  licenses   Check packages' licenses in a Dart or Flutter project.\n"
       '\n'
       'Run "very_good help" to see global options.'
 ];
