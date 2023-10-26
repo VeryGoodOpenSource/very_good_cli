@@ -31,14 +31,11 @@ extension LoggerX on Logger {
     required void Function(String?) print,
     int? length,
   }) {
-    late final int maxLength;
-    if (length != null) {
-      maxLength = length;
-    } else if (stdout.hasTerminal) {
-      maxLength = stdout.terminalColumns;
-    } else {
-      maxLength = fallbackStdoutTerminalColumns;
-    }
+    final maxLength = switch (length) {
+      == null when stdout.hasTerminal => stdout.terminalColumns,
+      == null when !stdout.hasTerminal => fallbackStdoutTerminalColumns,
+      _ => length!
+    };
 
     for (final sentence in text?.split('/n') ?? <String>[]) {
       final words = sentence.split(' ');
