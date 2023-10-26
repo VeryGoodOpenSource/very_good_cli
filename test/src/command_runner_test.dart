@@ -199,6 +199,7 @@ void main() {
           when(() => versionFile.readAsStringSync()).thenReturn('0.0.0');
 
           stdout = _MockStdout();
+          when(() => stdout.hasTerminal).thenReturn(true);
           when(() => stdout.supportsAnsiEscapes).thenReturn(true);
           when(() => stdout.terminalColumns).thenReturn(30);
         });
