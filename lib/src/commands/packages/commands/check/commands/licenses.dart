@@ -103,6 +103,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
     final skippedPackages = _argResults['skip-packages'] as List<String>;
 
+    allowedLicenses.removeWhere((license) => license.trim().isEmpty);
+    forbiddenLicenses.removeWhere((license) => license.trim().isEmpty);
+
     if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
       usageException(
         '''Cannot specify both ${styleItalic.wrap('allowed')} and ${styleItalic.wrap('forbidden')} options.''',
