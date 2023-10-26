@@ -170,7 +170,7 @@ very_good packages check licenses --allowed="MIT,BSD-3-Clause,BSD-2-Clause,Apach
 # Deny the use of certain licenses
 very_good packages check licenses --forbidden="unknown"
 
-# Check licenses for different dependencies
+# Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
 ```
 
