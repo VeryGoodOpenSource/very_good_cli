@@ -16,6 +16,8 @@ void main() {
     setUp(() {
       logger = _MockLogger();
       stdout = _MockStdout();
+
+      when(() => stdout.hasTerminal).thenReturn(true);
     });
 
     test('created', () {
@@ -52,8 +54,10 @@ void main() {
       });
 
       test(
-        '''defaults to `fallbackStdoutTerminalColumns` when failed to read `stdout.terminalColumns`''',
+        '''defaults to `fallbackStdoutTerminalColumns` when there is no terminal''',
         () async {
+          when(() => stdout.hasTerminal).thenReturn(false);
+
           await IOOverrides.runZoned(
             stdout: () => stdout,
             () async {

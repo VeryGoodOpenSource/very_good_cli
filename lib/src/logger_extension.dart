@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
@@ -31,10 +32,11 @@ extension LoggerX on Logger {
     int? length,
   }) {
     late final int maxLength;
-    try {
-      maxLength = length ?? stdout.terminalColumns;
-    } on StdoutException catch (_) {
-      // Not all terminals have a width, so we fallback to a reasonable value.
+    if (length != null) {
+      maxLength = length;
+    } else if (stdout.hasTerminal) {
+      maxLength = stdout.terminalColumns;
+    } else {
       maxLength = fallbackStdoutTerminalColumns;
     }
 
