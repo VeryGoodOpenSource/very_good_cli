@@ -1,3 +1,13 @@
+# 0.17.1 
+
+ - docs: update supported licenses reference ([#863](https://github.com/VeryGoodOpenSource/very_good_cli/pull/863))
+- chore(deps-dev): bump eslint from 8.51.0 to 8.52.0 in /site ([#870](https://github.com/VeryGoodOpenSource/very_good_cli/pull/870))
+- chore(deps-dev): bump @tsconfig/docusaurus from 2.0.1 to 2.0.2 in /site ([#853](https://github.com/VeryGoodOpenSource/very_good_cli/pull/853))
+- chore(deps): bump actions/setup-node from 3 to 4 ([#871](https://github.com/VeryGoodOpenSource/very_good_cli/pull/871))
+- feat: ignore empty allowed or forbidden ([#868](https://github.com/VeryGoodOpenSource/very_good_cli/pull/868))
+- fix: avoid failure when terminal has no columns ([#869](https://github.com/VeryGoodOpenSource/very_good_cli/pull/869))
+- docs: add license checking documentation to commands' overview ([#867](https://github.com/VeryGoodOpenSource/very_good_cli/pull/867))
+
 # 0.17.0 
 
 - chore: add release ready script ([#799](https://github.com/VeryGoodOpenSource/very_good_cli/pull/799))
