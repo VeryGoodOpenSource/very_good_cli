@@ -65,6 +65,7 @@ void main() {
     late package_config.Package veryGoodTestRunnerConfigPackage;
     late package_config.Package cliCompletionConfigPackage;
     late package_config.Package yamlConfigPackage;
+    late package_config.Package veryGoodAnalysisConfigPackage;
 
     setUpAll(() {
       registerFallbackValue('');
@@ -101,6 +102,7 @@ void main() {
             _MockPackage(),
         'cli_completion': cliCompletionConfigPackage = _MockPackage(),
         'yaml': yamlConfigPackage = _MockPackage(),
+        'very_good_analysis': veryGoodAnalysisConfigPackage = _MockPackage(),
       };
       for (final package in packages.entries) {
         final name = package.key;
@@ -455,6 +457,11 @@ void main() {
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
 
+                when(() => packageConfig.packages)
+                    .thenReturn({veryGoodTestRunnerConfigPackage});
+                when(() => detectorResult.matches)
+                    .thenReturn([mitLicenseMatch]);
+
                 when(() => logger.progress(any())).thenReturn(progress);
 
                 final result = await commandRunner.run(
@@ -495,6 +502,11 @@ void main() {
               ) async {
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
+
+                when(() => packageConfig.packages)
+                    .thenReturn({veryGoodTestRunnerConfigPackage});
+                when(() => detectorResult.matches)
+                    .thenReturn([mitLicenseMatch]);
 
                 when(() => logger.progress(any())).thenReturn(progress);
 
@@ -543,6 +555,10 @@ void main() {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
 
+              when(() => packageConfig.packages)
+                  .thenReturn({veryGoodAnalysisConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
               when(() => logger.progress(any())).thenReturn(progress);
 
               final result = await commandRunner.run(
@@ -589,6 +605,10 @@ void main() {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
 
+              when(() => packageConfig.packages)
+                  .thenReturn({yamlConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
               when(() => logger.progress(any())).thenReturn(progress);
 
               final result = await commandRunner.run(
@@ -634,6 +654,13 @@ void main() {
             ) async {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages).thenReturn({
+                veryGoodTestRunnerConfigPackage,
+                veryGoodAnalysisConfigPackage,
+                yamlConfigPackage,
+              });
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
               when(() => logger.progress(any())).thenReturn(progress);
 
@@ -694,6 +721,10 @@ void main() {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
           when(() => logger.progress(any())).thenReturn(progress);
 
           const invalidLicense = 'not_a_valid_license';
@@ -726,8 +757,9 @@ void main() {
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          // when(() => pubLicense.getLicense(any()))
-          //     .thenAnswer((_) => Future.value({'MIT'}));
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           final result = await commandRunner.run(
             [
@@ -751,17 +783,25 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenDependencyName = 'very_good_test_runner';
+            final forbiddenDependencyLinkedMessage = link(
+              uri: pubLicenseUri(forbiddenDependencyName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -773,7 +813,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -789,17 +829,25 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenDependencyName = 'very_good_test_runner';
+            final forbiddenDependencyLinkedMessage = link(
+              uri: pubLicenseUri(forbiddenDependencyName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -813,7 +861,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -829,17 +877,27 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
             const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
             final license1LinkedMessage = link(
               uri: pubLicenseUri(dependency1Name),
               message: 'MIT',
             );
 
             const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
             final license2LinkedMessage = link(
               uri: pubLicenseUri(dependency2Name),
               message: 'BSD',
@@ -874,6 +932,10 @@ void main() {
 
           when(() => logger.progress(any())).thenReturn(progress);
 
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
           const invalidLicense = 'not_a_valid_license';
           await commandRunner.run(
             [
@@ -904,8 +966,9 @@ void main() {
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          // when(() => pubLicense.getLicense(any()))
-          //     .thenAnswer((_) => Future.value({'BSD'}));
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([bsdLicenseMatch]);
 
           final result = await commandRunner.run(
             [
