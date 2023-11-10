@@ -2,8 +2,12 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
+import 'package:package_config/package_config.dart';
+// ignore: implementation_imports
+import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_lock/pubspec_lock.dart';
 import 'package:very_good_cli/src/pub_license/pub_license.dart';
@@ -128,6 +132,13 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
+    final targetDirectory = Directory(targetPath);
+    if (!targetDirectory.existsSync()) {
+      _logger.err(
+        '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''',
+      );
+      return ExitCode.noInput.code;
+    }
 
     final progress = _logger.progress('Checking licenses on $targetPath');
 
@@ -169,6 +180,17 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
+    late PackageConfig packageConfig;
+    try {
+      packageConfig = (await findPackageConfig(targetDirectory))!;
+    } catch (e) {
+      progress.cancel();
+      _logger.warn(
+        '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''',
+      );
+      return ExitCode.noInput.code;
+    }
+
     final licenses = <String, Set<String>?>{};
     for (final dependency in filteredDependencies) {
       progress.update(
@@ -176,31 +198,57 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
 
       final dependencyName = dependency.package();
-      Set<String>? rawLicense;
-      try {
-        rawLicense = await _pubLicense.getLicense(dependencyName);
-      } on PubLicenseException catch (e) {
-        final errorMessage = '[$dependencyName] ${e.message}';
-        if (!ignoreFailures) {
-          progress.cancel();
-          _logger.err(errorMessage);
-          return ExitCode.unavailable.code;
-        }
-
-        _logger.err('\n$errorMessage');
-      } catch (e) {
+      final cachePackageEntry = packageConfig.packages
+          .firstWhereOrNull((package) => package.name == dependencyName);
+      if (cachePackageEntry == null) {
         final errorMessage =
-            '[$dependencyName] Unexpected failure with error: $e';
+            '''[$dependencyName] Could not find cached package path.''';
         if (!ignoreFailures) {
           progress.cancel();
           _logger.err(errorMessage);
-          return ExitCode.software.code;
+          return ExitCode.noInput.code;
         }
 
         _logger.err('\n$errorMessage');
-      } finally {
-        licenses[dependencyName] = rawLicense;
+        continue;
       }
+
+      final packagePath = path.normalize(cachePackageEntry.root.path);
+      final packageDirectory = Directory(packagePath);
+      if (!packageDirectory.existsSync()) {
+        final errorMessage =
+            '''[$dependencyName] Could not find package directory at $packagePath.''';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.noInput.code;
+        }
+
+        _logger.err('\n$errorMessage');
+      }
+
+      final licenseFile = File(path.join(packagePath, 'LICENSE'));
+      if (!licenseFile.existsSync()) {
+        final errorMessage =
+            '''[$dependencyName] Could not find a LICENSE file in $packagePath.''';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.noInput.code;
+        }
+
+        _logger.err('\n$errorMessage');
+      }
+
+      final licenseFileContent = licenseFile.readAsStringSync();
+
+      final licenseMatches =
+          await detector.detectLicense(licenseFileContent, 0.9);
+      final rawLicense = licenseMatches.matches
+          // ignore: invalid_use_of_visible_for_testing_member
+          .map((match) => match.license.identifier)
+          .toSet();
+      licenses[dependencyName] = rawLicense;
     }
 
     late final _BannedDependencyLicenseMap? bannedDependencies;
