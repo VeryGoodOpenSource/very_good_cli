@@ -256,7 +256,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         if (!ignoreFailures) {
           progress.cancel();
           _logger.err(errorMessage);
-          return ExitCode.noInput.code;
+          return ExitCode.software.code;
         }
 
         _logger.err('\n$errorMessage');

@@ -1214,14 +1214,18 @@ void main() {
       );
 
       test(
-        'when PubLicense throws an unknown error',
+        'when detectLicense throws an unknown error',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+          });
+
           const error = 'error';
-          // when(() => pubLicense.getLicense('very_good_test_runner'))
-          //     .thenThrow(error);
+          // ignore: only_throw_errors
+          detectLicenseOverride = (_, __) => throw error;
 
           when(() => logger.progress(any())).thenReturn(progress);
 
@@ -1229,14 +1233,11 @@ void main() {
             [...commandArguments, tempDirectory.path],
           );
 
-          // final packageName = verify(() => pubLicense.getLicense(captureAny()))
-          //     .captured
-          //     .cast<String>()
-          //     .first;
-          final packageName = '';
-
+          final packageName = packageConfig.packages.first.name;
+          final packagePath = path.join(tempDirectory.path, packageName);
           final errorMessage =
-              '[$packageName] Unexpected failure with error: $error';
+              '''[$packageName] Failed to detect license from $packagePath: $error''';
+
           verify(() => logger.err(errorMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
