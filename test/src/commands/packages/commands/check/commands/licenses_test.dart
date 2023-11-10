@@ -1175,36 +1175,6 @@ void main() {
         }),
       );
 
-      // test(
-      //   'when PubLicense throws a PubLicenseException',
-      //   withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-      //     File(path.join(tempDirectory.path, pubspecLockBasename))
-      //         .writeAsStringSync(_validPubspecLockContent);
-
-      //     when(() => logger.progress(any())).thenReturn(progress);
-
-      //     const exception = PubLicenseException('message');
-      //     when(() => pubLicense.getLicense('very_good_test_runner'))
-      //         .thenThrow(exception);
-
-      //     final result = await commandRunner.run(
-      //       [...commandArguments, tempDirectory.path],
-      //     );
-
-      //     final packageName = verify(() => pubLicense.getLicense(captureAny()))
-      //         .captured
-      //         .cast<String>()
-      //         .first;
-
-      //     final errorMessage = '[$packageName] ${exception.message}';
-      //     verify(() => logger.err(errorMessage)).called(1);
-
-      //     verify(() => progress.cancel()).called(1);
-
-      //     expect(result, equals(ExitCode.unavailable.code));
-      //   }),
-      // );
-
       test(
         'when PubLicense throws an unknown error',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
