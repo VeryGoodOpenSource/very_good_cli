@@ -94,8 +94,7 @@ void main() {
   group('create flutter_plugin', () {
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result =
             await commandRunner.run(['create', 'flutter_plugin', '--help']);
         expect(printLogs, equals(expectedUsage));

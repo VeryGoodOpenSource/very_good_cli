@@ -10,7 +10,6 @@ import 'package:package_config/package_config.dart';
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_lock/pubspec_lock.dart';
-import 'package:very_good_cli/src/pub_license/pub_license.dart';
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
 
 /// The basename of the pubspec lock file.
@@ -44,9 +43,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
   PackagesCheckLicensesCommand({
     Logger? logger,
-    PubLicense? pubLicense,
-  })  : _logger = logger ?? Logger(),
-        _pubLicense = pubLicense ?? PubLicense() {
+  }) : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',
@@ -83,8 +80,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
   }
 
   final Logger _logger;
-
-  final PubLicense _pubLicense;
 
   @override
   String get description =>

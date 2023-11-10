@@ -51,8 +51,7 @@ void main() {
 
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(
           [...commandArguments, '--help'],
         );
@@ -75,8 +74,7 @@ void main() {
     group('throws usage exception', () {
       test(
         '''when too many rest arguments are provided''',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(
             [...commandArguments, 'arg1', 'arg2'],
           );
@@ -86,8 +84,7 @@ void main() {
 
       test(
         '''when allowed and forbidden are used simultaneously''',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(
             [...commandArguments, '--allowed', 'MIT', '--forbidden', 'BSD'],
           );
@@ -101,8 +98,7 @@ void main() {
       () {
         test(
           '''when there is a single hosted direct dependency and license''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -132,8 +128,7 @@ void main() {
 
         test(
           '''when there are multiple hosted direct dependency and licenses''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -171,8 +166,7 @@ void main() {
 
         test(
           '''when both allowed and forbidden are specified but left empty''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -215,8 +209,7 @@ void main() {
       group('reports licenses', () {
         test(
           'when a PubLicenseException is thrown',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -264,8 +257,7 @@ void main() {
 
         test(
           'when an unknown error is thrown',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -314,8 +306,7 @@ void main() {
 
       test(
         'when all licenses fail to be retrieved',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -380,8 +371,7 @@ void main() {
       group('throws usage exception', () {
         test(
           'when no option is provided',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final result = await commandRunner.run(
               [...commandArguments, dependencyTypeArgument],
             );
@@ -391,8 +381,7 @@ void main() {
 
         test(
           'when invalid option is provided',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final result = await commandRunner.run(
               [...commandArguments, dependencyTypeArgument, 'invalid'],
             );
@@ -415,7 +404,6 @@ void main() {
                 commandRunner,
                 logger,
                 pubUpdater,
-                pubLicense,
                 printLogs,
               ) async {
                 final tempDirectory = Directory.systemTemp.createTempSync();
@@ -461,7 +449,6 @@ void main() {
                 commandRunner,
                 logger,
                 pubUpdater,
-                pubLicense,
                 printLogs,
               ) async {
                 final tempDirectory = Directory.systemTemp.createTempSync();
@@ -513,7 +500,6 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               final tempDirectory = Directory.systemTemp.createTempSync();
@@ -564,7 +550,6 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               final tempDirectory = Directory.systemTemp.createTempSync();
@@ -615,7 +600,6 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               final tempDirectory = Directory.systemTemp.createTempSync();
@@ -680,8 +664,7 @@ void main() {
     group('allowed', () {
       test(
         'warns when a license is not recognized',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -714,8 +697,7 @@ void main() {
 
       test(
         'exits when a license is not allowed',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -743,8 +725,7 @@ void main() {
       group('reports', () {
         test(
           'when a single license is not allowed',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -785,8 +766,7 @@ void main() {
 
         test(
           'when a single license is not allowed and forbidden is left empty',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -829,8 +809,7 @@ void main() {
 
         test(
           'when multiple licenses are not allowed',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -878,8 +857,7 @@ void main() {
     group('forbidden', () {
       test(
         'warns when a license is not recognized',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -912,8 +890,7 @@ void main() {
 
       test(
         'exits when a license is forbidden',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -941,8 +918,7 @@ void main() {
       group('report', () {
         test(
           'when a single license is forbidden',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -983,8 +959,7 @@ void main() {
 
         test(
           'when a single license is forbidden and allowed is left empty',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1027,8 +1002,7 @@ void main() {
 
         test(
           'when multiple licenses are forbidden',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1081,8 +1055,7 @@ void main() {
       group('skips', () {
         test(
           'a single package by name',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1116,8 +1089,7 @@ void main() {
 
         test(
           'multiple packages by name',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1152,8 +1124,7 @@ void main() {
     group('exits with error', () {
       test(
         'when it did not find a pubspec.lock file at the target path',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1175,8 +1146,7 @@ void main() {
 
       test(
         'when it failed to parse a pubspec.lock file at the target path',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1201,8 +1171,7 @@ void main() {
 
       test(
         'when no dependencies of type are found',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1227,8 +1196,7 @@ void main() {
 
       test(
         'when PubLicense throws a PubLicenseException',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -1261,8 +1229,7 @@ void main() {
 
       test(
         'when PubLicense throws an unknown error',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
