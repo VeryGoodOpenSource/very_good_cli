@@ -1089,6 +1089,12 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
             final result = await commandRunner.run(
               [
                 ...commandArguments,
