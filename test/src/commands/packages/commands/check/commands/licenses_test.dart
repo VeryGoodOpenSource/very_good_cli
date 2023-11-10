@@ -64,6 +64,7 @@ void main() {
 
     late package_config.Package veryGoodTestRunnerConfigPackage;
     late package_config.Package cliCompletionConfigPackage;
+    late package_config.Package yamlConfigPackage;
 
     setUpAll(() {
       registerFallbackValue('');
@@ -95,28 +96,22 @@ void main() {
       when(() => bsdLicenseMatch.license).thenReturn(bsdLicenseWithNGrams);
       when(() => bsdLicenseWithNGrams.identifier).thenReturn('BSD');
 
-      const veryGoodTestRunnerName = 'very_good_test_runner';
-      final veryGoodTestRunnerNameLicenseFile =
-          File(path.join(tempDirectory.path, veryGoodTestRunnerName, 'LICENSE'))
-            ..createSync(recursive: true)
-            ..writeAsStringSync(veryGoodTestRunnerName);
+      final packages = {
+        'very_good_test_runner': veryGoodTestRunnerConfigPackage =
+            _MockPackage(),
+        'cli_completion': cliCompletionConfigPackage = _MockPackage(),
+        'yaml': yamlConfigPackage = _MockPackage(),
+      };
+      for (final package in packages.entries) {
+        final name = package.key;
+        final packageConfig = package.value;
 
-      veryGoodTestRunnerConfigPackage = _MockPackage();
-      when(() => veryGoodTestRunnerConfigPackage.name)
-          .thenReturn(veryGoodTestRunnerName);
-      when(() => veryGoodTestRunnerConfigPackage.root)
-          .thenReturn(veryGoodTestRunnerNameLicenseFile.parent.uri);
-
-      const cliCompletionName = 'cli_completion';
-      final cliCompletionLicenseFile =
-          File(path.join(tempDirectory.path, cliCompletionName, 'LICENSE'))
-            ..createSync(recursive: true)
-            ..writeAsStringSync(cliCompletionName);
-
-      cliCompletionConfigPackage = _MockPackage();
-      when(() => cliCompletionConfigPackage.name).thenReturn(cliCompletionName);
-      when(() => cliCompletionConfigPackage.root)
-          .thenReturn(cliCompletionLicenseFile.parent.uri);
+        final licenseFile = File(path.join(tempDirectory.path, name, 'LICENSE'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(name);
+        when(() => packageConfig.name).thenReturn(name);
+        when(() => packageConfig.root).thenReturn(licenseFile.parent.uri);
+      }
     });
 
     test(
@@ -280,51 +275,6 @@ void main() {
       const ignoreRetrievalFailuresArgument = '--ignore-retrieval-failures';
 
       group('reports licenses', () {
-        // test(
-        //   'when a PubLicenseException is thrown',
-        //   withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        //     File(path.join(tempDirectory.path, pubspecLockBasename))
-        //         .writeAsStringSync(_validMultiplePubspecLockContent);
-
-        //     when(() => logger.progress(any())).thenReturn(progress);
-
-        //     const failedDependencyName = 'very_good_test_runner';
-        //     const exception = PubLicenseException('message');
-        //     when(() => pubLicense.getLicense(failedDependencyName))
-        //         .thenThrow(exception);
-
-        //     final result = await commandRunner.run(
-        //       [
-        //         ...commandArguments,
-        //         ignoreRetrievalFailuresArgument,
-        //         tempDirectory.path,
-        //       ],
-        //     );
-
-        //     final errorMessage =
-        //         '''\n[$failedDependencyName] ${exception.message}''';
-        //     verify(() => logger.err(errorMessage)).called(1);
-
-        //     verify(
-        //       () => progress.update(
-        //         'Collecting licenses from 1 out of 2 packages',
-        //       ),
-        //     ).called(1);
-        //     verify(
-        //       () => progress.update(
-        //         'Collecting licenses from 2 out of 2 packages',
-        //       ),
-        //     ).called(1);
-        //     verify(
-        //       () => progress.complete(
-        //         'Retrieved 1 license from 2 packages of type: MIT (1).',
-        //       ),
-        //     ).called(1);
-
-        //     expect(result, equals(ExitCode.success.code));
-        //   }),
-        // );
-
         test(
           'when an unknown error is thrown',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
@@ -511,11 +461,9 @@ void main() {
                   [...commandArguments, tempDirectory.path],
                 );
 
-                // final packageNames =
-                //     verify(() => pubLicense.getLicense(captureAny()))
-                //         .captured
-                //         .cast<String>();
-                final packageNames = '';
+                final packageNames = packageConfig.packages.map((package) {
+                  return package.name;
+                }).toList();
 
                 expect(
                   packageNames,
@@ -559,11 +507,9 @@ void main() {
                   ],
                 );
 
-                // final packageNames =
-                //     verify(() => pubLicense.getLicense(captureAny()))
-                //         .captured
-                //         .cast<String>();
-                final packageNames = '';
+                final packageNames = packageConfig.packages.map((package) {
+                  return package.name;
+                }).toList();
 
                 expect(
                   packageNames,
@@ -608,11 +554,9 @@ void main() {
                 ],
               );
 
-              // final packageNames =
-              //     verify(() => pubLicense.getLicense(captureAny()))
-              //         .captured
-              //         .cast<String>();
-              final packageNames = '';
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
@@ -656,11 +600,9 @@ void main() {
                 ],
               );
 
-              // final packageNames =
-              //     verify(() => pubLicense.getLicense(captureAny()))
-              //         .captured
-              //         .cast<String>();
-              final packageNames = '';
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
@@ -708,11 +650,9 @@ void main() {
                 ],
               );
 
-              // final packageNames =
-              //     verify(() => pubLicense.getLicense(captureAny()))
-              //         .captured
-              //         .cast<String>();
-              final packageNames = '';
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
