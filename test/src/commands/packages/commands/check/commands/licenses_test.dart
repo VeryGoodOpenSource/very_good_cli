@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:package_config/package_config.dart' as package_config;
+// ignore: implementation_imports
+import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
@@ -10,6 +13,12 @@ import 'package:very_good_cli/src/commands/packages/commands/check/commands/comm
 import '../../../../../../helpers/helpers.dart';
 
 class _MockProgress extends Mock implements Progress {}
+
+class _MockResult extends Mock implements detector.Result {}
+
+class _MockPackageConfig extends Mock implements package_config.PackageConfig {}
+
+class _MockPackage extends Mock implements package_config.Package {}
 
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
@@ -39,6 +48,9 @@ void main() {
     const allowedArgument = '--allowed';
 
     late Progress progress;
+    late detector.Result result;
+    late package_config.PackageConfig packageConfig;
+    late Directory tempDirectory;
 
     setUpAll(() {
       registerFallbackValue('');
@@ -46,6 +58,23 @@ void main() {
 
     setUp(() {
       progress = _MockProgress();
+
+      result = _MockResult();
+
+      detectLicenseOverride = (_, __) async => result;
+      addTearDown(() => detectLicenseOverride = null);
+
+      packageConfig = _MockPackageConfig();
+
+      findPackageConfigOverride = (_) async => packageConfig;
+      addTearDown(() => findPackageConfigOverride = null);
+
+      tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+      File(path.join(tempDirectory.path, 'LICENSE'))
+        ..createSync(recursive: true)
+        ..writeAsStringSync('');
     });
 
     test(
@@ -98,11 +127,14 @@ void main() {
         test(
           '''when there is a single hosted direct dependency and license''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validPubspecLockContent);
+
+            final package = _MockPackage();
+            when(() => package.name).thenReturn('very_good_test_runner');
+            when(() => package.root).thenReturn(tempDirectory.uri);
+
+            when(() => packageConfig.packages).thenReturn([]);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
@@ -128,9 +160,6 @@ void main() {
         test(
           '''when there are multiple hosted direct dependency and licenses''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -166,9 +195,6 @@ void main() {
         test(
           '''when both allowed and forbidden are specified but left empty''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validPubspecLockContent);
 
@@ -209,9 +235,6 @@ void main() {
         test(
           'when a PubLicenseException is thrown',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -257,9 +280,6 @@ void main() {
         test(
           'when an unknown error is thrown',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -306,9 +326,6 @@ void main() {
       test(
         'when all licenses fail to be retrieved',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -405,9 +422,6 @@ void main() {
                 pubUpdater,
                 printLogs,
               ) async {
-                final tempDirectory = Directory.systemTemp.createTempSync();
-                addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
 
@@ -450,9 +464,6 @@ void main() {
                 pubUpdater,
                 printLogs,
               ) async {
-                final tempDirectory = Directory.systemTemp.createTempSync();
-                addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
 
@@ -501,9 +512,6 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
-              final tempDirectory = Directory.systemTemp.createTempSync();
-              addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
 
@@ -551,9 +559,6 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
-              final tempDirectory = Directory.systemTemp.createTempSync();
-              addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
 
@@ -601,9 +606,6 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
-              final tempDirectory = Directory.systemTemp.createTempSync();
-              addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
 
@@ -664,9 +666,6 @@ void main() {
       test(
         'warns when a license is not recognized',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
@@ -697,9 +696,6 @@ void main() {
       test(
         'exits when a license is not allowed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
@@ -725,9 +721,6 @@ void main() {
         test(
           'when a single license is not allowed',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -766,9 +759,6 @@ void main() {
         test(
           'when a single license is not allowed and forbidden is left empty',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -809,9 +799,6 @@ void main() {
         test(
           'when multiple licenses are not allowed',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -857,9 +844,6 @@ void main() {
       test(
         'warns when a license is not recognized',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
@@ -890,9 +874,6 @@ void main() {
       test(
         'exits when a license is forbidden',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
@@ -918,9 +899,6 @@ void main() {
         test(
           'when a single license is forbidden',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -959,9 +937,6 @@ void main() {
         test(
           'when a single license is forbidden and allowed is left empty',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -1002,9 +977,6 @@ void main() {
         test(
           'when multiple licenses are forbidden',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -1055,9 +1027,6 @@ void main() {
         test(
           'a single package by name',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -1089,9 +1058,6 @@ void main() {
         test(
           'multiple packages by name',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final tempDirectory = Directory.systemTemp.createTempSync();
-            addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -1124,9 +1090,6 @@ void main() {
       test(
         'when it did not find a pubspec.lock file at the target path',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           when(() => logger.progress(any())).thenReturn(progress);
 
           final result = await commandRunner.run(
@@ -1146,9 +1109,6 @@ void main() {
       test(
         'when it failed to parse a pubspec.lock file at the target path',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync('');
 
@@ -1171,9 +1131,6 @@ void main() {
       test(
         'when no dependencies of type are found',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_emptyPubspecLockContent);
 
@@ -1196,9 +1153,6 @@ void main() {
       test(
         'when PubLicense throws a PubLicenseException',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
@@ -1229,9 +1183,6 @@ void main() {
       test(
         'when PubLicense throws an unknown error',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 

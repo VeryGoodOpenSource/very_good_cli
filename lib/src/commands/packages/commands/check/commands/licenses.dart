@@ -5,12 +5,22 @@ import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
-import 'package:package_config/package_config.dart';
+import 'package:package_config/package_config.dart' as package_config;
 // ignore: implementation_imports
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_lock/pubspec_lock.dart';
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+
+/// Overrides the [package_config.findPackageConfig] function for testing.
+@visibleForTesting
+Future<package_config.PackageConfig?> Function(
+  Directory directory,
+)? findPackageConfigOverride;
+
+/// Overrides the [detector.detectLicense] function for testing.
+@visibleForTesting
+Future<detector.Result> Function(String, double)? detectLicenseOverride;
 
 /// The basename of the pubspec lock file.
 @visibleForTesting
@@ -101,6 +111,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
     final skippedPackages = _argResults['skip-packages'] as List<String>;
+    // TODO(alestiago): Add support for threshold.
 
     allowedLicenses.removeWhere((license) => license.trim().isEmpty);
     forbiddenLicenses.removeWhere((license) => license.trim().isEmpty);
@@ -175,10 +186,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    late PackageConfig packageConfig;
-    try {
-      packageConfig = (await findPackageConfig(targetDirectory))!;
-    } catch (e) {
+    final packageConfig = await _tryFindPackageConfig(targetDirectory);
+    if (packageConfig == null) {
       progress.cancel();
       _logger.warn(
         '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''',
@@ -187,6 +196,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final licenses = <String, Set<String>?>{};
+    final detectLicense = detectLicenseOverride ?? detector.detectLicense;
     for (final dependency in filteredDependencies) {
       progress.update(
         '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
@@ -237,8 +247,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       final licenseFileContent = licenseFile.readAsStringSync();
 
-      final licenseMatches =
-          await detector.detectLicense(licenseFileContent, 0.9);
+      final licenseMatches = await detectLicense(licenseFileContent, 0.9);
       final rawLicense = licenseMatches.matches
           // ignore: invalid_use_of_visible_for_testing_member
           .map((match) => match.license.identifier)
@@ -284,6 +293,23 @@ class PackagesCheckLicensesCommand extends Command<int> {
 PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   try {
     return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
+  } catch (e) {
+    return null;
+  }
+}
+
+/// Attempts to find a [package_config.PackageConfig] using
+/// [package_config.findPackageConfig].
+///
+/// If [package_config.findPackageConfig] fails to find a package config `null`
+/// is returned.
+Future<package_config.PackageConfig?> _tryFindPackageConfig(
+  Directory directory,
+) async {
+  try {
+    final findPackageConfig =
+        findPackageConfigOverride ?? package_config.findPackageConfig;
+    return findPackageConfig(directory);
   } catch (e) {
     return null;
   }
