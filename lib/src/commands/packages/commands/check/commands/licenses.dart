@@ -247,8 +247,24 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       final licenseFileContent = licenseFile.readAsStringSync();
 
-      final licenseMatches = await detectLicense(licenseFileContent, 0.9);
-      final rawLicense = licenseMatches.matches
+      late final detector.Result detectorResult;
+      try {
+        detectorResult = await detectLicense(licenseFileContent, 0.9);
+      } catch (e) {
+        final errorMessage =
+            '''[$dependencyName] Failed to detect license from $packagePath: $e''';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.noInput.code;
+        }
+
+        _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {};
+        continue;
+      }
+
+      final rawLicense = detectorResult.matches
           // ignore: invalid_use_of_visible_for_testing_member
           .map((match) => match.license.identifier)
           .toSet();

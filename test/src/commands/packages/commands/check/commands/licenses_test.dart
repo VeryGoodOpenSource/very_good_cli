@@ -109,7 +109,7 @@ void main() {
 
       const cliCompletionName = 'cli_completion';
       final cliCompletionLicenseFile =
-          File(path.join(tempDirectory.path, veryGoodTestRunnerName, 'LICENSE'))
+          File(path.join(tempDirectory.path, cliCompletionName, 'LICENSE'))
             ..createSync(recursive: true)
             ..writeAsStringSync(cliCompletionName);
 
@@ -207,7 +207,6 @@ void main() {
 
             when(() => detectorResult.matches)
                 .thenReturn([mitLicenseMatch, bsdLicenseMatch]);
-
             when(() => packageConfig.packages).thenReturn({
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
@@ -336,8 +335,22 @@ void main() {
 
             const failedDependencyName = 'very_good_test_runner';
             const error = 'error';
-            // when(() => pubLicense.getLicense(failedDependencyName))
-            //     .thenThrow(error);
+
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+
+            detectLicenseOverride = (name, __) async {
+              if (name == failedDependencyName) {
+                // ignore: only_throw_errors
+                throw error;
+              }
+
+              final detectorResult = _MockResult();
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+              return detectorResult;
+            };
 
             final result = await commandRunner.run(
               [
@@ -347,8 +360,12 @@ void main() {
               ],
             );
 
-            const errorMessage =
-                '''\n[$failedDependencyName] Unexpected failure with error: $error''';
+            final packagePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+            );
+            final errorMessage =
+                '''\n[$failedDependencyName] Failed to detect license from $packagePath: $error''';
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
@@ -381,7 +398,14 @@ void main() {
           when(() => logger.progress(any())).thenReturn(progress);
 
           const error = 'error';
-          // when(() => pubLicense.getLicense(any())).thenThrow(error);
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+          });
+          detectLicenseOverride = (name, __) async {
+            // ignore: only_throw_errors
+            throw error;
+          };
 
           final result = await commandRunner.run(
             [
@@ -391,19 +415,25 @@ void main() {
             ],
           );
 
-          // final packageNames = verify(() => pubLicense.getLicense(captureAny()))
-          //     .captured
-          //     .cast<String>();
-          final packageNames = '';
+          final packageNames = packageConfig.packages.map((package) {
+            return package.name;
+          }).toList();
 
+          final firstPackageName = packageNames[0];
+          final firstPackagePath =
+              path.join(tempDirectory.path, firstPackageName);
           verify(
             () => logger.err(
-              '''\n[${packageNames[0]}] Unexpected failure with error: $error''',
+              '''\n[$firstPackageName] Failed to detect license from $firstPackagePath: $error''',
             ),
           ).called(1);
+
+          final secondPackageName = packageNames[1];
+          final secondPackagePath =
+              path.join(tempDirectory.path, secondPackageName);
           verify(
             () => logger.err(
-              '''\n[${packageNames[1]}] Unexpected failure with error: $error''',
+              '''\n[$secondPackageName] Failed to detect license from $secondPackagePath: $error''',
             ),
           ).called(1);
 
