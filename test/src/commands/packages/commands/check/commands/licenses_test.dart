@@ -6,7 +6,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
-import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
 import '../../../../../../helpers/helpers.dart';
 

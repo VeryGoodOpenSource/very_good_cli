@@ -15,8 +15,6 @@ dependencies:
   cli_completion: ^0.4.0
   collection: ^1.17.1
   glob: ^2.0.2
-  html: ^0.15.4 # This dependency is temporary and should be removed once pub_license is obsolete.
-  http: ^1.1.0 # This dependency is temporary and should be removed once pub_license is obsolete.
   lcov_parser: ^0.1.2
   mason: 0.1.0-dev.51
   mason_logger: ^0.2.2
