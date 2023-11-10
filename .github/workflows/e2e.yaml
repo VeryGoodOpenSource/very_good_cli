@@ -47,6 +47,10 @@ jobs:
           - test/commands/create/flutter_package/flutter_pkg_test.dart
           - test/commands/create/flutter_plugin/flutter_plugin_test.dart
 
+          # E2E tests for the `packages check licenses` command
+          - test/commands/packages/check/licenses/licenses_allowed_test.dart
+          - test/commands/packages/check/licenses/licenses_forbidden_test.dart
+
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v4
