@@ -85,10 +85,6 @@ void main() {
       tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      File(path.join(tempDirectory.path, 'LICENSE'))
-        ..createSync(recursive: true)
-        ..writeAsStringSync('');
-
       mitLicenseMatch = _MockLicenseMatch();
       final mitLicenseWithNGrams = _MockLicenseWithNGrams();
       when(() => mitLicenseMatch.license).thenReturn(mitLicenseWithNGrams);
@@ -99,15 +95,28 @@ void main() {
       when(() => bsdLicenseMatch.license).thenReturn(bsdLicenseWithNGrams);
       when(() => bsdLicenseWithNGrams.identifier).thenReturn('BSD');
 
+      const veryGoodTestRunnerName = 'very_good_test_runner';
+      final veryGoodTestRunnerNameLicenseFile =
+          File(path.join(tempDirectory.path, veryGoodTestRunnerName, 'LICENSE'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync(veryGoodTestRunnerName);
+
       veryGoodTestRunnerConfigPackage = _MockPackage();
       when(() => veryGoodTestRunnerConfigPackage.name)
-          .thenReturn('very_good_test_runner');
+          .thenReturn(veryGoodTestRunnerName);
       when(() => veryGoodTestRunnerConfigPackage.root)
-          .thenReturn(tempDirectory.uri);
+          .thenReturn(veryGoodTestRunnerNameLicenseFile.parent.uri);
+
+      const cliCompletionName = 'cli_completion';
+      final cliCompletionLicenseFile =
+          File(path.join(tempDirectory.path, veryGoodTestRunnerName, 'LICENSE'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync(cliCompletionName);
 
       cliCompletionConfigPackage = _MockPackage();
-      when(() => cliCompletionConfigPackage.name).thenReturn('cli_completion');
-      when(() => cliCompletionConfigPackage.root).thenReturn(tempDirectory.uri);
+      when(() => cliCompletionConfigPackage.name).thenReturn(cliCompletionName);
+      when(() => cliCompletionConfigPackage.root)
+          .thenReturn(cliCompletionLicenseFile.parent.uri);
     });
 
     test(
