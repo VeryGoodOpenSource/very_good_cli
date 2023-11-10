@@ -929,17 +929,27 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenLicenseName = 'very_good_test_runner';
+            final forbiddenLicenseLinkMessage = link(
+              uri: pubLicenseUri(forbiddenLicenseName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -951,7 +961,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -967,17 +977,27 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenLicenseName = 'very_good_test_runner';
+            final forbiddenLicenseLinkMessage = link(
+              uri: pubLicenseUri(forbiddenLicenseName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -991,7 +1011,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -1007,17 +1027,29 @@ void main() {
 
             when(() => logger.progress(any())).thenReturn(progress);
 
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
             const dependency1Name = 'very_good_test_runner';
-            // when(() => pubLicense.getLicense(dependency1Name))
-            //     .thenAnswer((_) => Future.value({'MIT'}));
             final license1LinkedMessage = link(
               uri: pubLicenseUri(dependency1Name),
               message: 'MIT',
             );
 
             const dependency2Name = 'cli_completion';
-            // when(() => pubLicense.getLicense(dependency2Name))
-            //     .thenAnswer((_) => Future.value({'BSD'}));
             final license2LinkedMessage = link(
               uri: pubLicenseUri(dependency2Name),
               message: 'BSD',
