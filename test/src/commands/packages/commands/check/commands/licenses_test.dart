@@ -270,6 +270,42 @@ void main() {
             expect(result, equals(ExitCode.success.code));
           }),
         );
+
+        test(
+          'unknown when no license file is found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => packageConfig.packages)
+                .thenReturn([veryGoodTestRunnerConfigPackage]);
+            final licenseFilePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+              'LICENSE',
+            );
+            File(licenseFilePath).deleteSync();
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            final result = await commandRunner.run(
+              [...commandArguments, tempDirectory.path],
+            );
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
       },
     );
 
@@ -332,7 +368,158 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT (1).',
+                '''Retrieved 2 licenses from 2 packages of type: unknown (1) and MIT (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when cached package path cannot be found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => packageConfig.packages).thenReturn({});
+
+            final targetPath = tempDirectory.path;
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                targetPath,
+              ],
+            );
+
+            final errorMessage =
+                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path.''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when cached package directory cannot be found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => packageConfig.packages)
+                .thenReturn({veryGoodTestRunnerConfigPackage});
+
+            final packagePath =
+                path.join(tempDirectory.path, 'inexistent', 'nothing');
+            when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
+              Uri.parse(packagePath),
+            );
+
+            final targetPath = tempDirectory.path;
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                targetPath,
+              ],
+            );
+
+            final errorMessage =
+                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when all licenses fail to be retrieved',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validMultiplePubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            const error = 'error';
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (name, __) async {
+              // ignore: only_throw_errors
+              throw error;
+            };
+
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                tempDirectory.path,
+              ],
+            );
+
+            final packageNames = packageConfig.packages.map((package) {
+              return package.name;
+            }).toList();
+
+            final firstPackageName = packageNames[0];
+            final firstPackagePath =
+                path.join(tempDirectory.path, firstPackageName);
+            verify(
+              () => logger.err(
+                '''\n[$firstPackageName] Failed to detect license from $firstPackagePath: $error''',
+              ),
+            ).called(1);
+
+            final secondPackageName = packageNames[1];
+            final secondPackagePath =
+                path.join(tempDirectory.path, secondPackageName);
+            verify(
+              () => logger.err(
+                '''\n[$secondPackageName] Failed to detect license from $secondPackagePath: $error''',
+              ),
+            ).called(1);
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 2 packages',
+              ),
+            ).called(1);
+            verify(
+              () => progress.update(
+                'Collecting licenses from 2 out of 2 packages',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 2 licenses from 2 packages of type: unknown (2).''',
               ),
             ).called(1);
 
@@ -340,74 +527,6 @@ void main() {
           }),
         );
       });
-
-      test(
-        'when all licenses fail to be retrieved',
-        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          File(path.join(tempDirectory.path, pubspecLockBasename))
-              .writeAsStringSync(_validMultiplePubspecLockContent);
-
-          when(() => logger.progress(any())).thenReturn(progress);
-
-          const error = 'error';
-          when(() => packageConfig.packages).thenReturn({
-            veryGoodTestRunnerConfigPackage,
-            cliCompletionConfigPackage,
-          });
-          detectLicenseOverride = (name, __) async {
-            // ignore: only_throw_errors
-            throw error;
-          };
-
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              ignoreRetrievalFailuresArgument,
-              tempDirectory.path,
-            ],
-          );
-
-          final packageNames = packageConfig.packages.map((package) {
-            return package.name;
-          }).toList();
-
-          final firstPackageName = packageNames[0];
-          final firstPackagePath =
-              path.join(tempDirectory.path, firstPackageName);
-          verify(
-            () => logger.err(
-              '''\n[$firstPackageName] Failed to detect license from $firstPackagePath: $error''',
-            ),
-          ).called(1);
-
-          final secondPackageName = packageNames[1];
-          final secondPackagePath =
-              path.join(tempDirectory.path, secondPackageName);
-          verify(
-            () => logger.err(
-              '''\n[$secondPackageName] Failed to detect license from $secondPackagePath: $error''',
-            ),
-          ).called(1);
-
-          verify(
-            () => progress.update(
-              'Collecting licenses from 1 out of 2 packages',
-            ),
-          ).called(1);
-          verify(
-            () => progress.update(
-              'Collecting licenses from 2 out of 2 packages',
-            ),
-          ).called(1);
-          verify(
-            () => progress.complete(
-              'Retrieved 0 licenses from 2 packages.',
-            ),
-          ).called(1);
-
-          expect(result, equals(ExitCode.success.code));
-        }),
-      );
     });
 
     group('dependency-type', () {
@@ -1214,6 +1333,22 @@ void main() {
 
     group('exits with error', () {
       test(
+        'when target path does not exist',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final targetPath = path.join(tempDirectory.path, 'inexistent');
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
         'when it did not find a pubspec.lock file at the target path',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           when(() => logger.progress(any())).thenReturn(progress);
@@ -1306,6 +1441,90 @@ void main() {
           verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.software.code));
+        }),
+      );
+
+      test(
+        'when there is no package config file',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const error = 'error';
+          // ignore: only_throw_errors
+          findPackageConfigOverride = (_) async => throw error;
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
+        'when cached package path cannot be found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages).thenReturn({});
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
+        'when cached package directory cannot be found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+
+          final packagePath =
+              path.join(tempDirectory.path, 'inexistent', 'nothing');
+          when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
+            Uri.parse(packagePath),
+          );
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
         }),
       );
     });
