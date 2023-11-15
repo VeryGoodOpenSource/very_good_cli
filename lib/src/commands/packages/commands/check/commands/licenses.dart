@@ -6,6 +6,16 @@ import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:package_config/package_config.dart' as package_config;
+
+// We rely on PANA's license detection algorithm to retrieve licenses from
+// packages.
+//
+// This license detection algorithm is not exposed as a public API, so we have
+// to import it directly.
+//
+// See also:
+//
+// * [PANA's faster license detection GitHub issue](https://github.com/dart-lang/pana/issues/1277)
 // ignore: implementation_imports
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
