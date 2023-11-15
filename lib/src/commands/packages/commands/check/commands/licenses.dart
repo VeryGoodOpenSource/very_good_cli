@@ -37,6 +37,16 @@ final licenseDocumentationUri = Uri.parse(
   'https://cli.vgv.dev/docs/commands/check_licenses',
 );
 
+/// The detection threshold used by [detector.detectLicense].
+///
+/// This value is used to determine the confidence threshold for detecting
+/// licenses. The value should match the default value used by PANA.
+///
+/// See also:
+///
+/// * [PANA's default threshold value](https://github.com/dart-lang/pana/blob/b598d45051ba4e028e9021c2aeb9c04e4335de76/lib/src/license.dart#L48)
+const _defaultDetectionThreshold = 0.95;
+
 /// Defines a [Map] with dependencies as keys and their licenses as values.
 ///
 /// If a dependency's license failed to be retrieved its license will be `null`.
@@ -245,7 +255,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       late final detector.Result detectorResult;
       try {
-        detectorResult = await detectLicense(licenseFileContent, 0.9);
+        detectorResult =
+            await detectLicense(licenseFileContent, _defaultDetectionThreshold);
       } catch (e) {
         final errorMessage =
             '''[$dependencyName] Failed to detect license from $packagePath: $e''';
