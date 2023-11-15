@@ -189,7 +189,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final packageConfig = await _tryFindPackageConfig(targetDirectory);
     if (packageConfig == null) {
       progress.cancel();
-      _logger.warn(
+      _logger.err(
         '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''',
       );
       return ExitCode.noInput.code;
@@ -215,6 +215,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         }
 
         _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
         continue;
       }
 
@@ -230,19 +231,14 @@ class PackagesCheckLicensesCommand extends Command<int> {
         }
 
         _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
       }
 
       final licenseFile = File(path.join(packagePath, 'LICENSE'));
       if (!licenseFile.existsSync()) {
-        final errorMessage =
-            '''[$dependencyName] Could not find a LICENSE file in $packagePath.''';
-        if (!ignoreFailures) {
-          progress.cancel();
-          _logger.err(errorMessage);
-          return ExitCode.noInput.code;
-        }
-
-        _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
       }
 
       final licenseFileContent = licenseFile.readAsStringSync();
@@ -260,7 +256,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         }
 
         _logger.err('\n$errorMessage');
-        licenses[dependencyName] = {};
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
         continue;
       }
 
@@ -325,8 +321,8 @@ Future<package_config.PackageConfig?> _tryFindPackageConfig(
   try {
     final findPackageConfig =
         findPackageConfigOverride ?? package_config.findPackageConfig;
-    return findPackageConfig(directory);
-  } catch (e) {
+    return await findPackageConfig(directory);
+  } catch (error) {
     return null;
   }
 }
