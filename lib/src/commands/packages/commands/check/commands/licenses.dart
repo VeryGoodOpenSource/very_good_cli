@@ -227,7 +227,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
           .firstWhereOrNull((package) => package.name == dependencyName);
       if (cachePackageEntry == null) {
         final errorMessage =
-            '''[$dependencyName] Could not find cached package path.''';
+            '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
         if (!ignoreFailures) {
           progress.cancel();
           _logger.err(errorMessage);

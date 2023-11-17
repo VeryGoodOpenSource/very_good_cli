@@ -396,7 +396,7 @@ void main() {
             );
 
             final errorMessage =
-                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path.''';
+                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
@@ -1487,7 +1487,7 @@ void main() {
           );
 
           final errorMessage =
-              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path.''';
+              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
           verify(() => logger.err(errorMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
