@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 599 SPDX licenses.
+/// A list of all 607 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -32,6 +32,7 @@ enum SpdxLicense {
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
+  $AML_glslang._('AML-glslang'),
   $AMPAS._('AMPAS'),
   $ANTLR_PD._('ANTLR-PD'),
   $ANTLR_PD_fallback._('ANTLR-PD-fallback'),
@@ -46,6 +47,7 @@ enum SpdxLicense {
   $Abstyles._('Abstyles'),
   $AdaCore_doc._('AdaCore-doc'),
   $Adobe_2006._('Adobe-2006'),
+  $Adobe_Display_PostScript._('Adobe-Display-PostScript'),
   $Adobe_Glyph._('Adobe-Glyph'),
   $Adobe_Utopia._('Adobe-Utopia'),
   $Afmparse._('Afmparse'),
@@ -73,7 +75,8 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._(
+      'BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -197,10 +200,12 @@ enum SpdxLicense {
   $CrystalStacker._('CrystalStacker'),
   $Cube._('Cube'),
   $D_FSL_1_0._('D-FSL-1.0'),
+  $DEC_3_Clause._('DEC-3-Clause'),
   $DL_DE_BY_2_0._('DL-DE-BY-2.0'),
   $DL_DE_ZERO_2_0._('DL-DE-ZERO-2.0'),
   $DOC._('DOC'),
   $DRL_1_0._('DRL-1.0'),
+  $DRL_1_1._('DRL-1.1'),
   $DSDP._('DSDP'),
   $Dotseqn._('Dotseqn'),
   $ECL_1_0._('ECL-1.0'),
@@ -231,6 +236,7 @@ enum SpdxLicense {
   $FreeBSD_DOC._('FreeBSD-DOC'),
   $FreeImage._('FreeImage'),
   $Furuseth._('Furuseth'),
+  $GCR_docs._('GCR-docs'),
   $GD._('GD'),
   $GFDL_1_1._('GFDL-1.1'),
   $GFDL_1_1_invariants_only._('GFDL-1.1-invariants-only'),
@@ -289,6 +295,7 @@ enum SpdxLicense {
   $HPND_doc_sell._('HPND-doc-sell'),
   $HPND_export_US._('HPND-export-US'),
   $HPND_export_US_modify._('HPND-export-US-modify'),
+  $HPND_sell_MIT_disclaimer_xserver._('HPND-sell-MIT-disclaimer-xserver'),
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
@@ -470,6 +477,7 @@ enum SpdxLicense {
   $PSF_2_0._('PSF-2.0'),
   $Parity_6_0_0._('Parity-6.0.0'),
   $Parity_7_0_0._('Parity-7.0.0'),
+  $Pixar._('Pixar'),
   $Plexus._('Plexus'),
   $PolyForm_Noncommercial_1_0_0._('PolyForm-Noncommercial-1.0.0'),
   $PolyForm_Small_Business_1_0_0._('PolyForm-Small-Business-1.0.0'),
@@ -554,7 +562,8 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._(
+      'X11-distribute-modifications-variant'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
@@ -590,6 +599,7 @@ enum SpdxLicense {
   $fwlw._('fwlw'),
   $gSOAP_1_3b._('gSOAP-1.3b'),
   $gnuplot._('gnuplot'),
+  $hdparm._('hdparm'),
   $iMatix._('iMatix'),
   $libpng_2_0._('libpng-2.0'),
   $libselinux_1_0._('libselinux-1.0'),
@@ -638,8 +648,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-    .asNameMap()
-    .map((key, value) => MapEntry(value.value, value));
+      .asNameMap()
+      .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }
