@@ -15,7 +15,7 @@ very_good packages check licenses
 ```
 
 :::info
-The license checker requires an internet connection to fetch the data from [Dart's package manager][pub].
+ We do not collect any information about your project or dependencies. The license checker doesn't require an internet connection, it detects licenses locally using [Dart's package analyzer][https://pub.dev/packages/pana] license detector.
 :::
 
 ## Arguments ⚙️
@@ -90,7 +90,7 @@ very_good packages check licenses --skip-packages=html,universal_io
 
 ### `ignore-retrieval-failures`
 
-Disregard licenses that failed to be retrieved. Avoids terminating if the license of a dependency could not be retrieved; this may happen if something went wrong when fetching information from [pub][pub].
+Avoids terminating if the license of a dependency could not be retrieved; this may happen if something went wrong when retrieving the license for a package. When enabled, those packages' licenses will fallback to unknown.
 
 #### Example usage:
 
