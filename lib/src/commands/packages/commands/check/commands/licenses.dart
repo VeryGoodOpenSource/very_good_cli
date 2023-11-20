@@ -131,7 +131,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
     final skippedPackages = _argResults['skip-packages'] as List<String>;
-    // TODO(alestiago): Add support for threshold.
 
     allowedLicenses.removeWhere((license) => license.trim().isEmpty);
     forbiddenLicenses.removeWhere((license) => license.trim().isEmpty);
