@@ -53,7 +53,7 @@ jobs:
           dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="pre_gen,post_gen"
 
       - name: 📊 Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v2.1.0
+        uses: VeryGoodOpenSource/very_good_coverage@v2.2.0
         with:
           path: tool/spdx_license/hooks/coverage/lcov.info
 
