@@ -15,7 +15,7 @@ very_good packages check licenses
 ```
 
 :::info
- We do not collect any information about your project or dependencies. The license checker doesn't require an internet connection, it detects licenses locally using [Dart's package analyzer][https://pub.dev/packages/pana] license detector.
+We do not collect any information about your project or dependencies. The license checker doesn't require an internet connection, it detects licenses locally using [Dart's package analyzer][https://pub.dev/packages/pana] license detector.
 :::
 
 ## Arguments ⚙️
