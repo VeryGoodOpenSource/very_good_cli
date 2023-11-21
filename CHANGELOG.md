@@ -1,4 +1,14 @@
-# 0.17.1 
+# 0.18.0
+
+- docs: add missing path_setup_link ([#879](https://github.com/VeryGoodOpenSource/very_good_cli/pull/879))
+- test: setUp tempDirectory ([#880](https://github.com/VeryGoodOpenSource/very_good_cli/pull/880))
+- test: add e2e test for licenses check ([#882](https://github.com/VeryGoodOpenSource/very_good_cli/pull/882))
+- chore(deps-dev): bump @babel/eslint-parser in /site ([#885](https://github.com/VeryGoodOpenSource/very_good_cli/pull/885))
+- chore: generate new SPDX licenses ([#893](https://github.com/VeryGoodOpenSource/very_good_cli/pull/893))
+- feat!: detect licenses locally ([#883](https://github.com/VeryGoodOpenSource/very_good_cli/pull/883))
+- chore(deps): bump pana from 0.21.42 to 0.21.43 ([#895](https://github.com/VeryGoodOpenSource/very_good_cli/pull/895))
+
+# 0.17.1
 
 - docs: update supported licenses reference ([#863](https://github.com/VeryGoodOpenSource/very_good_cli/pull/863))
 - chore(deps-dev): bump eslint from 8.51.0 to 8.52.0 in /site ([#870](https://github.com/VeryGoodOpenSource/very_good_cli/pull/870))
@@ -8,7 +18,7 @@
 - fix: avoid failure when terminal has no columns ([#869](https://github.com/VeryGoodOpenSource/very_good_cli/pull/869))
 - docs: add license checking documentation to commands' overview ([#867](https://github.com/VeryGoodOpenSource/very_good_cli/pull/867))
 
-# 0.17.0 
+# 0.17.0
 
 - chore: add release ready script ([#799](https://github.com/VeryGoodOpenSource/very_good_cli/pull/799))
 - fix: Prefer delegation implementation to allow comparator extension ([#742](https://github.com/VeryGoodOpenSource/very_good_cli/pull/742))
@@ -72,55 +82,55 @@
 - chore: finish updating Very Good Analysis to 5.1.0 ([#792](https://github.com/VeryGoodOpenSource/very_good_cli/pull/792))
 - docs: update docs ([#798](https://github.com/VeryGoodOpenSource/very_good_cli/pull/798))
 - **Very Good Core**:
-    - feat!: bump min Dart SDK to 3.1.0
-    - feat!: update to Flutter 3.13.2
-    - fix: added RunnerTests iOS Schema
-    - feat: update to Material 3
-    - docs: update l10n README documentation
-    - docs: translation generation in README.md
-    - fix: very_good create flutter_app doesn't create .gradlew files
-    - feat: upgrade to `very_good_analysis ^5.1.0`
+  - feat!: bump min Dart SDK to 3.1.0
+  - feat!: update to Flutter 3.13.2
+  - fix: added RunnerTests iOS Schema
+  - feat: update to Material 3
+  - docs: update l10n README documentation
+  - docs: translation generation in README.md
+  - fix: very_good create flutter_app doesn't create .gradlew files
+  - feat: upgrade to `very_good_analysis ^5.1.0`
 - **Very Good Wear App**
-    - feat!: update to Flutter 3.13.2
-    - feat: update to Material 3
-    - fix: project doesn't build due to Kotlin gradle plugin incompatibility
-    - fix: very_good create flutter_app doesn't create .gradlew files
-    - feat: upgrade to `very_good_analysis ^5.1.0`
+  - feat!: update to Flutter 3.13.2
+  - feat: update to Material 3
+  - fix: project doesn't build due to Kotlin gradle plugin incompatibility
+  - fix: very_good create flutter_app doesn't create .gradlew files
+  - feat: upgrade to `very_good_analysis ^5.1.0`
 - **Very Good Flame Game**
-    - feat!: update to Flame 1.8.2
-    - feat!: bump min Dart SDK to 3.1.0
-    - feat!: update to Flutter 3.13.2
-    - fix: added RunnerTests iOS Schema
-    - fix: very_good create flutter_app doesn't create .gradlew files
-    - feat: upgrade to `very_good_analysis ^5.1.0`
-    - fix: text style tests for `CounterComponent`
+  - feat!: update to Flame 1.8.2
+  - feat!: bump min Dart SDK to 3.1.0
+  - feat!: update to Flutter 3.13.2
+  - fix: added RunnerTests iOS Schema
+  - fix: very_good create flutter_app doesn't create .gradlew files
+  - feat: upgrade to `very_good_analysis ^5.1.0`
+  - fix: text style tests for `CounterComponent`
 - **Very Good Flutter Package**
-    - feat: upgrade to very_good_analysis ^5.1.0
-    - docs: update README.md install instructions
+  - feat: upgrade to very_good_analysis ^5.1.0
+  - docs: update README.md install instructions
 - **Very Good Dart Package**
-    - feat: upgrade to very_good_analysis ^5.1.0
-    - docs: update README.md install instructions
+  - feat: upgrade to very_good_analysis ^5.1.0
+  - docs: update README.md install instructions
 - **Very Good Dart CLI**
-    - feat: update very good analysis to v5 and fix patch
-    - feat: bump Dart SDK to >=3.0.0 <4.0.0
+  - feat: update very good analysis to v5 and fix patch
+  - feat: bump Dart SDK to >=3.0.0 <4.0.0
 - **Very Good Flutter Plugin**
-    - fix: flaky integrated tests
-    - feat: upgrade to `very_good_analysis ^5.1.0`
-    - feat: add fluttium test workflow
-    - docs: add docs for integration tests
+  - fix: flaky integrated tests
+  - feat: upgrade to `very_good_analysis ^5.1.0`
+  - feat: add fluttium test workflow
+  - docs: add docs for integration tests
 - **Very Good Docs Site**
-    - build(deps): various dependency updates
+  - build(deps): various dependency updates
 
 # [0.15.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.14.0...v0.15.0) (2023-05-23)
 
 ### Bug Fixes
 
-- do not  crash on test compilation error ([#739](https://github.com/VeryGoodOpenSource/very_good_cli/issues/739)) ([f19411c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f19411c5c49e374783b553debb485583d60b5310))
+- do not crash on test compilation error ([#739](https://github.com/VeryGoodOpenSource/very_good_cli/issues/739)) ([f19411c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f19411c5c49e374783b553debb485583d60b5310))
 
 ### Features
 
 - increase min sdk constraint to 3.0.0 ([#744](https://github.com/VeryGoodOpenSource/very_good_cli/issues/744)) ([464696c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/464696cb1440d67959db85c312e5a5a7bcdd8351))
-- remove deprecated legacy  syntax ([#693](https://github.com/VeryGoodOpenSource/very_good_cli/issues/693)) ([af9b283](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af9b2830b804e951568079f3ae9321737ff9aa02))
+- remove deprecated legacy syntax ([#693](https://github.com/VeryGoodOpenSource/very_good_cli/issues/693)) ([af9b283](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af9b2830b804e951568079f3ae9321737ff9aa02))
 
 # [0.14.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.1...v0.14.0) (2023-05-10)
 
