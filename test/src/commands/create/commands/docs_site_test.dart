@@ -82,8 +82,7 @@ void main() {
   group('create docs_site', () {
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result =
             await commandRunner.run(['create', 'docs_site', '--help']);
         expect(printLogs, equals(expectedUsage));

@@ -111,8 +111,7 @@ void main() {
 
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(['test', '--help']);
         expect(printLogs, equals(expectedTestUsage));
         expect(result, equals(ExitCode.success.code));
@@ -128,8 +127,7 @@ void main() {
     test(
       'throws pubspec not found exception '
       'when no pubspec.yaml exists',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -144,8 +142,7 @@ void main() {
 
     test(
       'completes normally when no pubspec.yaml exists (recursive)',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 

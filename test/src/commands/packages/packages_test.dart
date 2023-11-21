@@ -21,8 +21,7 @@ void main() {
   group('packages', () {
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(['packages', '--help']);
         expect(printLogs, equals(_expectedPackagesUsage));
         expect(result, equals(ExitCode.success.code));

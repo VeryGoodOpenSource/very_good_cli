@@ -3,14 +3,29 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:package_config/package_config.dart' as package_config;
+// ignore: implementation_imports
+import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
-import 'package:very_good_cli/src/pub_license/pub_license.dart';
 
 import '../../../../../../helpers/helpers.dart';
 
 class _MockProgress extends Mock implements Progress {}
+
+class _MockResult extends Mock implements detector.Result {}
+
+// ignore: subtype_of_sealed_class
+class _MockLicenseMatch extends Mock implements detector.LicenseMatch {}
+
+// ignore: subtype_of_sealed_class
+class _MockLicenseWithNGrams extends Mock
+    implements detector.LicenseWithNGrams {}
+
+class _MockPackageConfig extends Mock implements package_config.PackageConfig {}
+
+class _MockPackage extends Mock implements package_config.Package {}
 
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
@@ -40,7 +55,17 @@ void main() {
     const allowedArgument = '--allowed';
 
     late Progress progress;
+    late detector.Result detectorResult;
+    late package_config.PackageConfig packageConfig;
     late Directory tempDirectory;
+
+    late detector.LicenseMatch mitLicenseMatch;
+    late detector.LicenseMatch bsdLicenseMatch;
+
+    late package_config.Package veryGoodTestRunnerConfigPackage;
+    late package_config.Package cliCompletionConfigPackage;
+    late package_config.Package yamlConfigPackage;
+    late package_config.Package veryGoodAnalysisConfigPackage;
 
     setUpAll(() {
       registerFallbackValue('');
@@ -49,14 +74,51 @@ void main() {
     setUp(() {
       progress = _MockProgress();
 
+      detectorResult = _MockResult();
+
+      detectLicenseOverride = (_, __) async => detectorResult;
+      addTearDown(() => detectLicenseOverride = null);
+
+      packageConfig = _MockPackageConfig();
+
+      findPackageConfigOverride = (_) async => packageConfig;
+      addTearDown(() => findPackageConfigOverride = null);
+
       tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+      mitLicenseMatch = _MockLicenseMatch();
+      final mitLicenseWithNGrams = _MockLicenseWithNGrams();
+      when(() => mitLicenseMatch.license).thenReturn(mitLicenseWithNGrams);
+      when(() => mitLicenseWithNGrams.identifier).thenReturn('MIT');
+
+      bsdLicenseMatch = _MockLicenseMatch();
+      final bsdLicenseWithNGrams = _MockLicenseWithNGrams();
+      when(() => bsdLicenseMatch.license).thenReturn(bsdLicenseWithNGrams);
+      when(() => bsdLicenseWithNGrams.identifier).thenReturn('BSD');
+
+      final packages = {
+        'very_good_test_runner': veryGoodTestRunnerConfigPackage =
+            _MockPackage(),
+        'cli_completion': cliCompletionConfigPackage = _MockPackage(),
+        'yaml': yamlConfigPackage = _MockPackage(),
+        'very_good_analysis': veryGoodAnalysisConfigPackage = _MockPackage(),
+      };
+      for (final package in packages.entries) {
+        final name = package.key;
+        final packageConfig = package.value;
+
+        final licenseFile = File(path.join(tempDirectory.path, name, 'LICENSE'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync(name);
+        when(() => packageConfig.name).thenReturn(name);
+        when(() => packageConfig.root).thenReturn(licenseFile.parent.uri);
+      }
     });
 
     test(
       'help',
-      withRunner(
-          (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run(
           [...commandArguments, '--help'],
         );
@@ -79,8 +141,7 @@ void main() {
     group('throws usage exception', () {
       test(
         '''when too many rest arguments are provided''',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(
             [...commandArguments, 'arg1', 'arg2'],
           );
@@ -90,8 +151,7 @@ void main() {
 
       test(
         '''when allowed and forbidden are used simultaneously''',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final result = await commandRunner.run(
             [...commandArguments, '--allowed', 'MIT', '--forbidden', 'BSD'],
           );
@@ -105,10 +165,13 @@ void main() {
       () {
         test(
           '''when there is a single hosted direct dependency and license''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => packageConfig.packages)
+                .thenReturn([veryGoodTestRunnerConfigPackage]);
+            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
@@ -133,15 +196,18 @@ void main() {
 
         test(
           '''when there are multiple hosted direct dependency and licenses''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            when(() => pubLicense.getLicense(any()))
-                .thenAnswer((_) => Future.value({'MIT', 'BSD'}));
+            when(() => detectorResult.matches)
+                .thenReturn([mitLicenseMatch, bsdLicenseMatch]);
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
 
             final result = await commandRunner.run(
               [...commandArguments, tempDirectory.path],
@@ -169,10 +235,13 @@ void main() {
 
         test(
           '''when both allowed and forbidden are specified but left empty''',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => packageConfig.packages)
+                .thenReturn([veryGoodTestRunnerConfigPackage]);
+            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
@@ -201,6 +270,42 @@ void main() {
             expect(result, equals(ExitCode.success.code));
           }),
         );
+
+        test(
+          'unknown when no license file is found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => packageConfig.packages)
+                .thenReturn([veryGoodTestRunnerConfigPackage]);
+            final licenseFilePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+              'LICENSE',
+            );
+            File(licenseFilePath).deleteSync();
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            final result = await commandRunner.run(
+              [...commandArguments, tempDirectory.path],
+            );
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
       },
     );
 
@@ -209,18 +314,31 @@ void main() {
 
       group('reports licenses', () {
         test(
-          'when a PubLicenseException is thrown',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          'when an unknown error is thrown',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
             const failedDependencyName = 'very_good_test_runner';
-            const exception = PubLicenseException('message');
-            when(() => pubLicense.getLicense(failedDependencyName))
-                .thenThrow(exception);
+            const error = 'error';
+
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+
+            detectLicenseOverride = (name, __) async {
+              if (name == failedDependencyName) {
+                // ignore: only_throw_errors
+                throw error;
+              }
+
+              final detectorResult = _MockResult();
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+              return detectorResult;
+            };
 
             final result = await commandRunner.run(
               [
@@ -230,8 +348,12 @@ void main() {
               ],
             );
 
+            final packagePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+            );
             final errorMessage =
-                '''\n[$failedDependencyName] ${exception.message}''';
+                '''\n[$failedDependencyName] Failed to detect license from $packagePath: $error''';
             verify(() => logger.err(errorMessage)).called(1);
 
             verify(
@@ -246,7 +368,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT (1).',
+                '''Retrieved 2 licenses from 2 packages of type: unknown (1) and MIT (1).''',
               ),
             ).called(1);
 
@@ -255,18 +377,105 @@ void main() {
         );
 
         test(
-          'when an unknown error is thrown',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          'when cached package path cannot be found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => packageConfig.packages).thenReturn({});
+
+            final targetPath = tempDirectory.path;
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                targetPath,
+              ],
+            );
+
+            final errorMessage =
+                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when cached package directory cannot be found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(path.join(tempDirectory.path, pubspecLockBasename))
+                .writeAsStringSync(_validPubspecLockContent);
+
+            when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => packageConfig.packages)
+                .thenReturn({veryGoodTestRunnerConfigPackage});
+
+            final packagePath =
+                path.join(tempDirectory.path, 'inexistent', 'nothing');
+            when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
+              Uri.parse(packagePath),
+            );
+
+            final targetPath = tempDirectory.path;
+            final result = await commandRunner.run(
+              [
+                ...commandArguments,
+                ignoreRetrievalFailuresArgument,
+                targetPath,
+              ],
+            );
+
+            final errorMessage =
+                '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';
+            verify(() => logger.err(errorMessage)).called(1);
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'when all licenses fail to be retrieved',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const failedDependencyName = 'very_good_test_runner';
             const error = 'error';
-            when(() => pubLicense.getLicense(failedDependencyName))
-                .thenThrow(error);
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (name, __) async {
+              // ignore: only_throw_errors
+              throw error;
+            };
 
             final result = await commandRunner.run(
               [
@@ -276,9 +485,27 @@ void main() {
               ],
             );
 
-            const errorMessage =
-                '''\n[$failedDependencyName] Unexpected failure with error: $error''';
-            verify(() => logger.err(errorMessage)).called(1);
+            final packageNames = packageConfig.packages.map((package) {
+              return package.name;
+            }).toList();
+
+            final firstPackageName = packageNames[0];
+            final firstPackagePath =
+                path.join(tempDirectory.path, firstPackageName);
+            verify(
+              () => logger.err(
+                '''\n[$firstPackageName] Failed to detect license from $firstPackagePath: $error''',
+              ),
+            ).called(1);
+
+            final secondPackageName = packageNames[1];
+            final secondPackagePath =
+                path.join(tempDirectory.path, secondPackageName);
+            verify(
+              () => logger.err(
+                '''\n[$secondPackageName] Failed to detect license from $secondPackagePath: $error''',
+              ),
+            ).called(1);
 
             verify(
               () => progress.update(
@@ -292,7 +519,7 @@ void main() {
             ).called(1);
             verify(
               () => progress.complete(
-                'Retrieved 1 license from 2 packages of type: MIT (1).',
+                '''Retrieved 2 licenses from 2 packages of type: unknown (2).''',
               ),
             ).called(1);
 
@@ -300,61 +527,6 @@ void main() {
           }),
         );
       });
-
-      test(
-        'when all licenses fail to be retrieved',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-          File(path.join(tempDirectory.path, pubspecLockBasename))
-              .writeAsStringSync(_validMultiplePubspecLockContent);
-
-          when(() => logger.progress(any())).thenReturn(progress);
-
-          const error = 'error';
-          when(() => pubLicense.getLicense(any())).thenThrow(error);
-
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              ignoreRetrievalFailuresArgument,
-              tempDirectory.path,
-            ],
-          );
-
-          final packageNames = verify(() => pubLicense.getLicense(captureAny()))
-              .captured
-              .cast<String>();
-
-          verify(
-            () => logger.err(
-              '''\n[${packageNames[0]}] Unexpected failure with error: $error''',
-            ),
-          ).called(1);
-          verify(
-            () => logger.err(
-              '''\n[${packageNames[1]}] Unexpected failure with error: $error''',
-            ),
-          ).called(1);
-
-          verify(
-            () => progress.update(
-              'Collecting licenses from 1 out of 2 packages',
-            ),
-          ).called(1);
-          verify(
-            () => progress.update(
-              'Collecting licenses from 2 out of 2 packages',
-            ),
-          ).called(1);
-          verify(
-            () => progress.complete(
-              'Retrieved 0 licenses from 2 packages.',
-            ),
-          ).called(1);
-
-          expect(result, equals(ExitCode.success.code));
-        }),
-      );
     });
 
     group('dependency-type', () {
@@ -366,8 +538,7 @@ void main() {
       group('throws usage exception', () {
         test(
           'when no option is provided',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final result = await commandRunner.run(
               [...commandArguments, dependencyTypeArgument],
             );
@@ -377,8 +548,7 @@ void main() {
 
         test(
           'when invalid option is provided',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             final result = await commandRunner.run(
               [...commandArguments, dependencyTypeArgument, 'invalid'],
             );
@@ -401,11 +571,15 @@ void main() {
                 commandRunner,
                 logger,
                 pubUpdater,
-                pubLicense,
                 printLogs,
               ) async {
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
+
+                when(() => packageConfig.packages)
+                    .thenReturn({veryGoodTestRunnerConfigPackage});
+                when(() => detectorResult.matches)
+                    .thenReturn([mitLicenseMatch]);
 
                 when(() => logger.progress(any())).thenReturn(progress);
 
@@ -413,10 +587,9 @@ void main() {
                   [...commandArguments, tempDirectory.path],
                 );
 
-                final packageNames =
-                    verify(() => pubLicense.getLicense(captureAny()))
-                        .captured
-                        .cast<String>();
+                final packageNames = packageConfig.packages.map((package) {
+                  return package.name;
+                }).toList();
 
                 expect(
                   packageNames,
@@ -444,11 +617,15 @@ void main() {
                 commandRunner,
                 logger,
                 pubUpdater,
-                pubLicense,
                 printLogs,
               ) async {
                 File(path.join(tempDirectory.path, pubspecLockBasename))
                     .writeAsStringSync(_validPubspecLockContent);
+
+                when(() => packageConfig.packages)
+                    .thenReturn({veryGoodTestRunnerConfigPackage});
+                when(() => detectorResult.matches)
+                    .thenReturn([mitLicenseMatch]);
 
                 when(() => logger.progress(any())).thenReturn(progress);
 
@@ -461,10 +638,9 @@ void main() {
                   ],
                 );
 
-                final packageNames =
-                    verify(() => pubLicense.getLicense(captureAny()))
-                        .captured
-                        .cast<String>();
+                final packageNames = packageConfig.packages.map((package) {
+                  return package.name;
+                }).toList();
 
                 expect(
                   packageNames,
@@ -493,11 +669,14 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages)
+                  .thenReturn({veryGoodAnalysisConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
               when(() => logger.progress(any())).thenReturn(progress);
 
@@ -510,10 +689,9 @@ void main() {
                 ],
               );
 
-              final packageNames =
-                  verify(() => pubLicense.getLicense(captureAny()))
-                      .captured
-                      .cast<String>();
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
@@ -541,11 +719,14 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages)
+                  .thenReturn({yamlConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
               when(() => logger.progress(any())).thenReturn(progress);
 
@@ -558,10 +739,9 @@ void main() {
                 ],
               );
 
-              final packageNames =
-                  verify(() => pubLicense.getLicense(captureAny()))
-                      .captured
-                      .cast<String>();
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
@@ -589,11 +769,17 @@ void main() {
               commandRunner,
               logger,
               pubUpdater,
-              pubLicense,
               printLogs,
             ) async {
               File(path.join(tempDirectory.path, pubspecLockBasename))
                   .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages).thenReturn({
+                veryGoodTestRunnerConfigPackage,
+                veryGoodAnalysisConfigPackage,
+                yamlConfigPackage,
+              });
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
               when(() => logger.progress(any())).thenReturn(progress);
 
@@ -610,10 +796,9 @@ void main() {
                 ],
               );
 
-              final packageNames =
-                  verify(() => pubLicense.getLicense(captureAny()))
-                      .captured
-                      .cast<String>();
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
 
               expect(
                 packageNames,
@@ -651,10 +836,13 @@ void main() {
     group('allowed', () {
       test(
         'warns when a license is not recognized',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           when(() => logger.progress(any())).thenReturn(progress);
 
@@ -682,15 +870,15 @@ void main() {
 
       test(
         'exits when a license is not allowed',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          when(() => pubLicense.getLicense(any()))
-              .thenAnswer((_) => Future.value({'MIT'}));
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           final result = await commandRunner.run(
             [
@@ -708,24 +896,31 @@ void main() {
       group('reports', () {
         test(
           'when a single license is not allowed',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenDependencyName = 'very_good_test_runner';
+            final forbiddenDependencyLinkedMessage = link(
+              uri: pubLicenseUri(forbiddenDependencyName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -737,7 +932,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -747,24 +942,31 @@ void main() {
 
         test(
           'when a single license is not allowed and forbidden is left empty',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenDependencyName = 'very_good_test_runner';
+            final forbiddenDependencyLinkedMessage = link(
+              uri: pubLicenseUri(forbiddenDependencyName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -778,7 +980,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -788,24 +990,33 @@ void main() {
 
         test(
           'when multiple licenses are not allowed',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
+                  ? [mitLicenseMatch]
+                  : [bsdLicenseMatch];
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
             const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
             final license1LinkedMessage = link(
               uri: pubLicenseUri(dependency1Name),
               message: 'MIT',
             );
 
             const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
             final license2LinkedMessage = link(
               uri: pubLicenseUri(dependency2Name),
               message: 'BSD',
@@ -834,12 +1045,15 @@ void main() {
     group('forbidden', () {
       test(
         'warns when a license is not recognized',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
           when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           const invalidLicense = 'not_a_valid_license';
           await commandRunner.run(
@@ -865,15 +1079,15 @@ void main() {
 
       test(
         'exits when a license is forbidden',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          when(() => pubLicense.getLicense(any()))
-              .thenAnswer((_) => Future.value({'BSD'}));
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([bsdLicenseMatch]);
 
           final result = await commandRunner.run(
             [
@@ -891,24 +1105,33 @@ void main() {
       group('report', () {
         test(
           'when a single license is forbidden',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenLicenseName = 'very_good_test_runner';
+            final forbiddenLicenseLinkMessage = link(
+              uri: pubLicenseUri(forbiddenLicenseName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -920,7 +1143,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -930,24 +1153,33 @@ void main() {
 
         test(
           'when a single license is forbidden and allowed is left empty',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
-            final license1LinkedMessage = link(
-              uri: pubLicenseUri(dependency1Name),
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
+            const forbiddenLicenseName = 'very_good_test_runner';
+            final forbiddenLicenseLinkMessage = link(
+              uri: pubLicenseUri(forbiddenLicenseName),
               message: 'MIT',
             );
-
-            const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
 
             await commandRunner.run(
               [
@@ -961,7 +1193,7 @@ void main() {
             );
 
             final errorMessage =
-                '''1 dependency has a banned license: $dependency1Name ($license1LinkedMessage).''';
+                '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
             verify(
               () => logger.err(errorMessage),
@@ -971,24 +1203,35 @@ void main() {
 
         test(
           'when multiple licenses are forbidden',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
 
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            final packageLicenseMatch = {
+              veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
+              cliCompletionConfigPackage.name: [bsdLicenseMatch],
+            };
+            detectLicenseOverride = (String name, _) async {
+              final detectorResult = _MockResult();
+              final licenseMatch = packageLicenseMatch[name]!;
+
+              when(() => detectorResult.matches).thenReturn(licenseMatch);
+              return detectorResult;
+            };
+
             const dependency1Name = 'very_good_test_runner';
-            when(() => pubLicense.getLicense(dependency1Name))
-                .thenAnswer((_) => Future.value({'MIT'}));
             final license1LinkedMessage = link(
               uri: pubLicenseUri(dependency1Name),
               message: 'MIT',
             );
 
             const dependency2Name = 'cli_completion';
-            when(() => pubLicense.getLicense(dependency2Name))
-                .thenAnswer((_) => Future.value({'BSD'}));
             final license2LinkedMessage = link(
               uri: pubLicenseUri(dependency2Name),
               message: 'BSD',
@@ -1022,12 +1265,17 @@ void main() {
       group('skips', () {
         test(
           'a single package by name',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
             when(() => logger.progress(any())).thenReturn(progress);
+
+            when(() => packageConfig.packages).thenReturn({
+              veryGoodTestRunnerConfigPackage,
+              cliCompletionConfigPackage,
+            });
+            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
             final result = await commandRunner.run(
               [
@@ -1054,8 +1302,7 @@ void main() {
 
         test(
           'multiple packages by name',
-          withRunner(
-              (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
             File(path.join(tempDirectory.path, pubspecLockBasename))
                 .writeAsStringSync(_validMultiplePubspecLockContent);
 
@@ -1086,9 +1333,24 @@ void main() {
 
     group('exits with error', () {
       test(
+        'when target path does not exist',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final targetPath = path.join(tempDirectory.path, 'inexistent');
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
         'when it did not find a pubspec.lock file at the target path',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           when(() => logger.progress(any())).thenReturn(progress);
 
           final result = await commandRunner.run(
@@ -1107,8 +1369,7 @@ void main() {
 
       test(
         'when it failed to parse a pubspec.lock file at the target path',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync('');
 
@@ -1130,8 +1391,7 @@ void main() {
 
       test(
         'when no dependencies of type are found',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_emptyPubspecLockContent);
 
@@ -1152,46 +1412,18 @@ void main() {
       );
 
       test(
-        'when PubLicense throws a PubLicenseException',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
+        'when detectLicense throws an unknown error',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))
               .writeAsStringSync(_validPubspecLockContent);
 
-          when(() => logger.progress(any())).thenReturn(progress);
-
-          const exception = PubLicenseException('message');
-          when(() => pubLicense.getLicense('very_good_test_runner'))
-              .thenThrow(exception);
-
-          final result = await commandRunner.run(
-            [...commandArguments, tempDirectory.path],
-          );
-
-          final packageName = verify(() => pubLicense.getLicense(captureAny()))
-              .captured
-              .cast<String>()
-              .first;
-
-          final errorMessage = '[$packageName] ${exception.message}';
-          verify(() => logger.err(errorMessage)).called(1);
-
-          verify(() => progress.cancel()).called(1);
-
-          expect(result, equals(ExitCode.unavailable.code));
-        }),
-      );
-
-      test(
-        'when PubLicense throws an unknown error',
-        withRunner(
-            (commandRunner, logger, pubUpdater, pubLicense, printLogs) async {
-          File(path.join(tempDirectory.path, pubspecLockBasename))
-              .writeAsStringSync(_validPubspecLockContent);
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+          });
 
           const error = 'error';
-          when(() => pubLicense.getLicense('very_good_test_runner'))
-              .thenThrow(error);
+          // ignore: only_throw_errors
+          detectLicenseOverride = (_, __) => throw error;
 
           when(() => logger.progress(any())).thenReturn(progress);
 
@@ -1199,18 +1431,100 @@ void main() {
             [...commandArguments, tempDirectory.path],
           );
 
-          final packageName = verify(() => pubLicense.getLicense(captureAny()))
-              .captured
-              .cast<String>()
-              .first;
-
+          final packageName = packageConfig.packages.first.name;
+          final packagePath = path.join(tempDirectory.path, packageName);
           final errorMessage =
-              '[$packageName] Unexpected failure with error: $error';
+              '''[$packageName] Failed to detect license from $packagePath: $error''';
+
           verify(() => logger.err(errorMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.software.code));
+        }),
+      );
+
+      test(
+        'when there is no package config file',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          const error = 'error';
+          // ignore: only_throw_errors
+          findPackageConfigOverride = (_) async => throw error;
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
+        'when cached package path cannot be found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages).thenReturn({});
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+
+      test(
+        'when cached package directory cannot be found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+
+          final packagePath =
+              path.join(tempDirectory.path, 'inexistent', 'nothing');
+          when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
+            Uri.parse(packagePath),
+          );
+
+          final targetPath = tempDirectory.path;
+          final result = await commandRunner.run(
+            [...commandArguments, targetPath],
+          );
+
+          final errorMessage =
+              '''[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';
+          verify(() => logger.err(errorMessage)).called(1);
+
+          verify(() => progress.cancel()).called(1);
+
+          expect(result, equals(ExitCode.noInput.code));
         }),
       );
     });
