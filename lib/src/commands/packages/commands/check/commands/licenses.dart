@@ -2,12 +2,35 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
+import 'package:package_config/package_config.dart' as package_config;
+
+// We rely on PANA's license detection algorithm to retrieve licenses from
+// packages.
+//
+// This license detection algorithm is not exposed as a public API, so we have
+// to import it directly.
+//
+// See also:
+//
+// * [PANA's faster license detection GitHub issue](https://github.com/dart-lang/pana/issues/1277)
+// ignore: implementation_imports
+import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:pubspec_lock/pubspec_lock.dart';
-import 'package:very_good_cli/src/pub_license/pub_license.dart';
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+
+/// Overrides the [package_config.findPackageConfig] function for testing.
+@visibleForTesting
+Future<package_config.PackageConfig?> Function(
+  Directory directory,
+)? findPackageConfigOverride;
+
+/// Overrides the [detector.detectLicense] function for testing.
+@visibleForTesting
+Future<detector.Result> Function(String, double)? detectLicenseOverride;
 
 /// The basename of the pubspec lock file.
 @visibleForTesting
@@ -23,6 +46,16 @@ Uri pubLicenseUri(String packageName) =>
 final licenseDocumentationUri = Uri.parse(
   'https://cli.vgv.dev/docs/commands/check_licenses',
 );
+
+/// The detection threshold used by [detector.detectLicense].
+///
+/// This value is used to determine the confidence threshold for detecting
+/// licenses. The value should match the default value used by PANA.
+///
+/// See also:
+///
+/// * [PANA's default threshold value](https://github.com/dart-lang/pana/blob/b598d45051ba4e028e9021c2aeb9c04e4335de76/lib/src/license.dart#L48)
+const _defaultDetectionThreshold = 0.95;
 
 /// Defines a [Map] with dependencies as keys and their licenses as values.
 ///
@@ -40,9 +73,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
   PackagesCheckLicensesCommand({
     Logger? logger,
-    PubLicense? pubLicense,
-  })  : _logger = logger ?? Logger(),
-        _pubLicense = pubLicense ?? PubLicense() {
+  }) : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',
@@ -79,8 +110,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
   }
 
   final Logger _logger;
-
-  final PubLicense _pubLicense;
 
   @override
   String get description =>
@@ -128,6 +157,13 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
+    final targetDirectory = Directory(targetPath);
+    if (!targetDirectory.existsSync()) {
+      _logger.err(
+        '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''',
+      );
+      return ExitCode.noInput.code;
+    }
 
     final progress = _logger.progress('Checking licenses on $targetPath');
 
@@ -169,28 +205,70 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
+    final packageConfig = await _tryFindPackageConfig(targetDirectory);
+    if (packageConfig == null) {
+      progress.cancel();
+      _logger.err(
+        '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''',
+      );
+      return ExitCode.noInput.code;
+    }
+
     final licenses = <String, Set<String>?>{};
+    final detectLicense = detectLicenseOverride ?? detector.detectLicense;
     for (final dependency in filteredDependencies) {
       progress.update(
         '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
       );
 
       final dependencyName = dependency.package();
-      Set<String>? rawLicense;
-      try {
-        rawLicense = await _pubLicense.getLicense(dependencyName);
-      } on PubLicenseException catch (e) {
-        final errorMessage = '[$dependencyName] ${e.message}';
+      final cachePackageEntry = packageConfig.packages
+          .firstWhereOrNull((package) => package.name == dependencyName);
+      if (cachePackageEntry == null) {
+        final errorMessage =
+            '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
         if (!ignoreFailures) {
           progress.cancel();
           _logger.err(errorMessage);
-          return ExitCode.unavailable.code;
+          return ExitCode.noInput.code;
         }
 
         _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
+      }
+
+      final packagePath = path.normalize(cachePackageEntry.root.path);
+      final packageDirectory = Directory(packagePath);
+      if (!packageDirectory.existsSync()) {
+        final errorMessage =
+            '''[$dependencyName] Could not find package directory at $packagePath.''';
+        if (!ignoreFailures) {
+          progress.cancel();
+          _logger.err(errorMessage);
+          return ExitCode.noInput.code;
+        }
+
+        _logger.err('\n$errorMessage');
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
+      }
+
+      final licenseFile = File(path.join(packagePath, 'LICENSE'));
+      if (!licenseFile.existsSync()) {
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
+      }
+
+      final licenseFileContent = licenseFile.readAsStringSync();
+
+      late final detector.Result detectorResult;
+      try {
+        detectorResult =
+            await detectLicense(licenseFileContent, _defaultDetectionThreshold);
       } catch (e) {
         final errorMessage =
-            '[$dependencyName] Unexpected failure with error: $e';
+            '''[$dependencyName] Failed to detect license from $packagePath: $e''';
         if (!ignoreFailures) {
           progress.cancel();
           _logger.err(errorMessage);
@@ -198,9 +276,15 @@ class PackagesCheckLicensesCommand extends Command<int> {
         }
 
         _logger.err('\n$errorMessage');
-      } finally {
-        licenses[dependencyName] = rawLicense;
+        licenses[dependencyName] = {SpdxLicense.$unknown.value};
+        continue;
       }
+
+      final rawLicense = detectorResult.matches
+          // ignore: invalid_use_of_visible_for_testing_member
+          .map((match) => match.license.identifier)
+          .toSet();
+      licenses[dependencyName] = rawLicense;
     }
 
     late final _BannedDependencyLicenseMap? bannedDependencies;
@@ -242,6 +326,23 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
   try {
     return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
   } catch (e) {
+    return null;
+  }
+}
+
+/// Attempts to find a [package_config.PackageConfig] using
+/// [package_config.findPackageConfig].
+///
+/// If [package_config.findPackageConfig] fails to find a package config `null`
+/// is returned.
+Future<package_config.PackageConfig?> _tryFindPackageConfig(
+  Directory directory,
+) async {
+  try {
+    final findPackageConfig =
+        findPackageConfigOverride ?? package_config.findPackageConfig;
+    return await findPackageConfig(directory);
+  } catch (error) {
     return null;
   }
 }
