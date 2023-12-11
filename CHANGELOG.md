@@ -13,7 +13,7 @@
   - build(deps): bump @docusaurus/core in /src/very_good_docs_site ([#140](https://github.com/VeryGoodOpenSource/very_good_docs_site/pull/140))
   - build(deps): bump @docusaurus/preset-classic in /src/very_good_docs_site ([#137](https://github.com/VeryGoodOpenSource/very_good_docs_site/pull/137))
   - build(deps): bump actions/setup-node from 3 to 4 ([#145](https://github.com/VeryGoodOpenSource/very_good_docs_site/pull/145))
-  - feat: update to docusaurs 3.0 ([#152](https://github.com/VeryGoodOpenSource/very_good_docs_site/pull/152))
+  - feat: update to docusaurus 3.0 ([#152](https://github.com/VeryGoodOpenSource/very_good_docs_site/pull/152))
 - **Very Good Flame Game**
   - build(deps): bump google_fonts in /src/very_good_flame_game ([#118](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/118))
   - build(deps): bump actions/checkout from 4.0.0 to 4.1.0 ([#121](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/121))
