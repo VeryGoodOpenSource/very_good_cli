@@ -18,4 +18,4 @@ do
     mason bundle --source hosted $brick --type dart --output-dir "lib/src/commands/create/templates/$brick/"
 done
 
-dart format .
+dart format lib/src/commands/create/templates
