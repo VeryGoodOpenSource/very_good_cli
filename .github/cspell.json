@@ -29,6 +29,7 @@
     "xcassets",
     "gradlew",
     "fluttium",
-    "clsx"
+    "clsx",
+    "mockingjay"
   ]
 }
