@@ -2,9 +2,6 @@
 
 - docs: update check licenses retrieval documentation ([#894](https://github.com/VeryGoodOpenSource/very_good_cli/pull/894))
 - docs: fix check_licenses.md pana link ([#897](https://github.com/VeryGoodOpenSource/very_good_cli/pull/897))
-- chore: add .pubignore ([#898](https://github.com/VeryGoodOpenSource/very_good_cli/pull/898))
-- chore(deps-dev): bump eslint from 8.54.0 to 8.55.0 in /site ([#903](https://github.com/VeryGoodOpenSource/very_good_cli/pull/903))
-- fix: update generate_bundles.sh to only format bundles ([#913](https://github.com/VeryGoodOpenSource/very_good_cli/pull/913))
 - feat: bump template bundles ([#914](https://github.com/VeryGoodOpenSource/very_good_cli/pull/914))
 - **Very Good Core**:
   - feat: change launchMode on Android to singleTask (#297)
