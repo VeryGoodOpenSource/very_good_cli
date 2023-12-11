@@ -1,3 +1,36 @@
+# 0.19.0
+
+- docs: update check licenses retrieval documentation ([#894](https://github.com/VeryGoodOpenSource/very_good_cli/pull/894))
+- docs: fix check_licenses.md pana link ([#897](https://github.com/VeryGoodOpenSource/very_good_cli/pull/897))
+- chore: add .pubignore ([#898](https://github.com/VeryGoodOpenSource/very_good_cli/pull/898))
+- chore(deps-dev): bump eslint from 8.54.0 to 8.55.0 in /site ([#903](https://github.com/VeryGoodOpenSource/very_good_cli/pull/903))
+- fix: update generate_bundles.sh to only format bundles ([#913](https://github.com/VeryGoodOpenSource/very_good_cli/pull/913))
+- feat: bump template bundles ([#914](https://github.com/VeryGoodOpenSource/very_good_cli/pull/914))
+- **Very Good Core**:
+  - feat: change launchMode on Android to singleTask (#297)
+  - feat: add macOS platform support (#299)
+  - refactor: remove generator script (#306)
+  - docs: update semantic commit link (#313)
+  - fix: regenerate ios directory (#310)
+- **Very Good Docs Site**
+  - feat!: update to Flutter 3.13.2
+  - chore: generate template (#136)
+  - build(deps): bump @docusaurus/core in /src/very_good_docs_site (#140)
+  - build(deps): bump @docusaurus/preset-classic in /src/very_good_docs_site (#137)
+  - build(deps): bump actions/setup-node from 3 to 4 (#145)
+  - feat: update to docusaurs 3.0 (#152)
+- **Very Good Flame Game**
+  - feat!: update to Flutter 3.13.2
+  - build(deps): bump google_fonts in /src/very_good_flame_game (#118)
+  - build(deps): bump actions/checkout from 4.0.0 to 4.1.0 (#121)
+  - build(deps): bump actions/checkout from 4.1.0 to 4.1.1 (#123)
+  - feat: add macOS platform support (#125)
+  - fix: replace VeryGoodFlameGame with template (#130)
+  - feat: update to flame 1.10 (#129)
+  - build(deps): bump mockingjay from 0.4.0 to 0.5.0 in /src/very_good_flame_game (#133)
+  - fix: regenerate ios platform dir (#134)
+  - chore: minify assets (#139)
+
 # 0.18.0
 
 - docs: add missing path_setup_link ([#879](https://github.com/VeryGoodOpenSource/very_good_cli/pull/879))
