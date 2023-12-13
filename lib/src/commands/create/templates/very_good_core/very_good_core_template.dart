@@ -19,14 +19,19 @@ class VeryGoodCoreTemplate extends Template {
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     await installFlutterPackages(logger, outputDir);
     await applyDartFixes(logger, outputDir);
-    _logSummary(logger);
+    _logSummary(logger, outputDir);
   }
 
-  void _logSummary(Logger logger) {
+  void _logSummary(Logger logger, Directory outputDir) {
     logger
       ..info('\n')
       ..created('Created a Very Good App! 🦄')
       ..info('\n')
+      ..info('In order to open your project, type:')
+      ..info('\n')
+      ..info('  \$ cd ${outputDir.path}')
+      ..info('\n')
+      ..info(r'  $ code .')
       ..info(
         lightGray.wrap(
           '''
