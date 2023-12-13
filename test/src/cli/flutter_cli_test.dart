@@ -216,7 +216,7 @@ void main() {
                 any(
                   that: contains(
                     'Running "flutter packages get" in '
-                    '$nestedRelativePath',
+                    '.${p.context.separator}$nestedRelativePath',
                   ),
                 ),
               );
@@ -232,7 +232,7 @@ void main() {
                 any(
                   that: contains(
                     'Running "flutter packages get" in '
-                    '$ignoredRelativePath',
+                    './$ignoredRelativePath',
                   ),
                 ),
               );

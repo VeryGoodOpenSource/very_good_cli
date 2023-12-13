@@ -91,7 +91,7 @@ class Flutter {
         final diff = p.relative(cwd, from: initialCwd);
 
         final installProgress = logger.progress(
-          'Running "flutter packages get" in $diff',
+          'Running "flutter packages get" in .${p.context.separator}$diff',
         );
 
         try {

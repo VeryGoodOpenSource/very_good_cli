@@ -348,6 +348,7 @@ void main() {
             any(
               that: contains(
                 'Running "flutter packages get" in '
+                '.${path.context.separator}'
                 '${path.relative(directoryA.path, from: tempDirectory.path)}',
               ),
             ),
@@ -358,6 +359,7 @@ void main() {
             any(
               that: contains(
                 'Running "flutter packages get" in '
+                '.${path.context.separator}'
                 '${path.relative(directoryB.path, from: tempDirectory.path)}',
               ),
             ),
