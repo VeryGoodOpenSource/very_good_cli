@@ -153,6 +153,8 @@ class Flutter {
     FlutterTestRunner testRunner = flutterTest,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
   }) async {
+    final initialCwd = cwd;
+
     return _runCommand<int>(
       cmd: (cwd) async {
         final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
@@ -165,14 +167,15 @@ class Flutter {
         void noop(String? _) {}
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
+        final diff = p.relative(workingDirectory, from: initialCwd);
 
         stdout?.call(
-          'Running "flutter test" in ${p.dirname(workingDirectory)}...\n',
+          'Running "flutter test" in .${p.context.separator}$diff...\n',
         );
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
           stdout?.call(
-            'No test folder found in ${target.dir.absolute.path}\n',
+            'No test folder found in .${p.context.separator}$diff\n',
           );
           return ExitCode.success.code;
         }
