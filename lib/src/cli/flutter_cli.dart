@@ -88,10 +88,11 @@ class Flutter {
 
     await _runCommand(
       cmd: (cwd) async {
-        final diff = p.relative(cwd, from: initialCwd);
+        final relativePath = p.relative(cwd, from: initialCwd);
 
         final installProgress = logger.progress(
-          'Running "flutter packages get" in .${p.context.separator}$diff',
+          'Running "flutter packages get" in '
+          '.${p.context.separator}$relativePath',
         );
 
         try {
