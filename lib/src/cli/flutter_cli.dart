@@ -167,15 +167,15 @@ class Flutter {
         void noop(String? _) {}
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
-        final diff = p.relative(workingDirectory, from: initialCwd);
+        final relativePath = p.relative(workingDirectory, from: initialCwd);
 
         stdout?.call(
-          'Running "flutter test" in .${p.context.separator}$diff...\n',
+          'Running "flutter test" in .${p.context.separator}$relativePath...\n',
         );
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
           stdout?.call(
-            'No test folder found in .${p.context.separator}$diff\n',
+            'No test folder found in .${p.context.separator}$relativePath\n',
           );
           return ExitCode.success.code;
         }
