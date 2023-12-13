@@ -347,7 +347,8 @@ void main() {
           logger.progress(
             any(
               that: contains(
-                'Running "flutter packages get" in ${directoryA.path}',
+                'Running "flutter packages get" in '
+                '${path.relative(directoryA.path, from: tempDirectory.path)}',
               ),
             ),
           );
@@ -356,7 +357,8 @@ void main() {
           logger.progress(
             any(
               that: contains(
-                'Running "flutter packages get" in ${directoryB.path}',
+                'Running "flutter packages get" in '
+                '${path.relative(directoryB.path, from: tempDirectory.path)}',
               ),
             ),
           );

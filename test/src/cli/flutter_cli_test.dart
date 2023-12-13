@@ -209,23 +209,30 @@ void main() {
             ),
             runProcess: process.run,
           ).whenComplete(() {
+            final nestedRelativePath =
+                p.relative(nestedDirectory.path, from: tempDirectory.path);
             verify(() {
               logger.progress(
                 any(
                   that: contains(
                     'Running "flutter packages get" in '
-                    '${nestedDirectory.path}',
+                    '$nestedRelativePath',
                   ),
                 ),
               );
             }).called(1);
 
             verifyNever(() {
+              final ignoredRelativePath = p.relative(
+                ignoredDirectory.path,
+                from: tempDirectory.path,
+              );
+
               logger.progress(
                 any(
                   that: contains(
                     'Running "flutter packages get" in '
-                    '${ignoredDirectory.path}',
+                    '$ignoredRelativePath',
                   ),
                 ),
               );
