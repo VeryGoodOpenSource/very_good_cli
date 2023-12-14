@@ -394,8 +394,8 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
-            'No test folder found in .${p.context.separator}.\n',
+            'Running "flutter test" in . ...\n',
+            'No test folder found in .\n',
           ]),
         );
       });
@@ -431,7 +431,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             '\x1B[2K\r00:00 ...',
             contains('All tests passed!'),
           ]),
@@ -462,7 +462,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             '\x1B[2K\r00:02 +1: CounterCubit initial state is 0',
             '''\x1B[2K\r00:02 +2: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:02 +3: CounterCubit emits [-1] when decrement is called''',
@@ -504,7 +504,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+1\x1B[0m: CounterCubit initial state is 0''',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+2\x1B[0m: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+3\x1B[0m: CounterCubit emits [-1] when decrement is called''',
@@ -544,7 +544,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             '\x1B[2K\r00:11 -1: CounterCubit initial state is 0',
             '''\x1B[2K\r00:11 +1 -1: CounterCubit emits [1] when increment is called''',
             '''\x1B[2K\r00:11 +2 -1: CounterCubit emits [-1] when decrement is called''',
@@ -599,7 +599,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
             '\x1B[2K\r(suite) ${tempDirectory.path}/test/counter/view/other_test.dart (SKIPPED)\n',
             '\x1B[2K\r00:00 ~1: (suite)',
@@ -846,7 +846,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -882,7 +882,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             'Shuffling test order with --test-randomize-ordering-seed=$seed\n',
             contains('All tests passed!'),
           ]),
@@ -928,7 +928,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -969,7 +969,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -1016,7 +1016,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -1061,7 +1061,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
@@ -1118,14 +1118,15 @@ void main() {
             tempNestedDirectory.path,
             from: tempDirectory.path,
           );
+          final relativePathPrefix = '.${p.context.separator}';
 
           expect(
             stdoutLogs,
             unorderedEquals([
               'Running "flutter test" in '
-                  '.${p.context.separator}$nestedRelativePath...\n',
+                  '$relativePathPrefix$nestedRelativePath ...\n',
               contains('All tests passed!'),
-              'Running "flutter test" in .${p.context.separator}....\n',
+              'Running "flutter test" in . ...\n',
               contains('All tests passed!'),
             ]),
           );
@@ -1188,15 +1189,16 @@ void main() {
             tempNestedDirectory.path,
             from: tempDirectory.path,
           );
+          final relativePathPrefix = '.${p.context.separator}';
 
           expect(
             stdoutLogs,
             unorderedEquals([
               'Running "flutter test" in '
-                  '.${p.context.separator}....\n',
+                  '. ...\n',
               contains('All tests passed!'),
               'Running "flutter test" in '
-                  '.${p.context.separator}$nestedRelativePath...\n',
+                  '$relativePathPrefix$nestedRelativePath ...\n',
               contains('All tests passed!'),
             ]),
           );
@@ -1252,7 +1254,7 @@ void main() {
         expect(
           stdoutLogs,
           equals([
-            'Running "flutter test" in .${p.context.separator}....\n',
+            'Running "flutter test" in . ...\n',
             contains('All tests passed!'),
           ]),
         );
