@@ -342,13 +342,16 @@ void main() {
             tempDirectory.path,
           ],
         );
+
+        final relativePathPrefix = '.${path.context.separator}';
+
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
             any(
               that: contains(
                 'Running "flutter packages get" in '
-                '.${path.context.separator}'
+                '$relativePathPrefix'
                 '${path.relative(directoryA.path, from: tempDirectory.path)}',
               ),
             ),
@@ -359,7 +362,7 @@ void main() {
             any(
               that: contains(
                 'Running "flutter packages get" in '
-                '.${path.context.separator}'
+                '$relativePathPrefix'
                 '${path.relative(directoryB.path, from: tempDirectory.path)}',
               ),
             ),
