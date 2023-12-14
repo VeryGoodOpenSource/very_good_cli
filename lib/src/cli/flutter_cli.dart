@@ -168,9 +168,8 @@ class Flutter {
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
         final relativePath = p.relative(workingDirectory, from: initialCwd);
-        final relativePathPrefix = '.${p.context.separator}';
         final path =
-            relativePath == '.' ? '.' : '$relativePathPrefix$relativePath';
+            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
 
         stdout?.call(
           'Running "flutter test" in $path ...\n',
