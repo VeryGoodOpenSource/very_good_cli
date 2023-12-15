@@ -23,7 +23,6 @@ class VeryGoodCoreTemplate extends Template {
   }
 
   void _logSummary(Logger logger, Directory outputDir) {
-    
     logger
       ..info('\n')
       ..created('Created a Very Good App! 🦄')
