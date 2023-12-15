@@ -1,4 +1,5 @@
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
@@ -23,15 +24,14 @@ class VeryGoodCoreTemplate extends Template {
   }
 
   void _logSummary(Logger logger, Directory outputDir) {
+    
     logger
       ..info('\n')
       ..created('Created a Very Good App! 🦄')
       ..info('\n')
-      ..info('In order to open your project, type:')
+      ..info('To get started refer to ${outputDir.path}\\README.md')
       ..info('\n')
-      ..info('  \$ cd ${outputDir.path}')
-      ..info('\n')
-      ..info(r'  $ code .')
+      ..info('Your project code is in ${Directory.current.path}.')
       ..info(
         lightGray.wrap(
           '''
