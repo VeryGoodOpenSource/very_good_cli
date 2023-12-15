@@ -215,8 +215,8 @@ void main() {
               logger.progress(
                 any(
                   that: contains(
-                    'Running "flutter packages get" in '
-                    '.${p.context.separator}$nestedRelativePath',
+                    '''
+Running "flutter packages get" in .${p.context.separator}$nestedRelativePath''',
                   ),
                 ),
               );
@@ -231,8 +231,7 @@ void main() {
               logger.progress(
                 any(
                   that: contains(
-                    'Running "flutter packages get" in '
-                    './$ignoredRelativePath',
+                    'Running "flutter packages get" in ./$ignoredRelativePath',
                   ),
                 ),
               );
@@ -1130,8 +1129,8 @@ void main() {
           expect(
             stdoutLogs,
             unorderedEquals([
-              'Running "flutter test" in '
-                  '$relativePathPrefix$nestedRelativePath ...\n',
+              '''
+Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
               'Running "flutter test" in . ...\n',
               contains('All tests passed!'),
@@ -1204,8 +1203,8 @@ void main() {
               'Running "flutter test" in '
                   '. ...\n',
               contains('All tests passed!'),
-              'Running "flutter test" in '
-                  '$relativePathPrefix$nestedRelativePath ...\n',
+              '''
+Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
             ]),
           );
