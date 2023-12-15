@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 607 SPDX licenses.
+/// A list of all 611 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -225,6 +225,7 @@ enum SpdxLicense {
   $FBM._('FBM'),
   $FDK_AAC._('FDK-AAC'),
   $FSFAP._('FSFAP'),
+  $FSFAP_no_warranty_disclaimer._('FSFAP-no-warranty-disclaimer'),
   $FSFUL._('FSFUL'),
   $FSFULLR._('FSFULLR'),
   $FSFULLRWD._('FSFULLRWD'),
@@ -495,6 +496,7 @@ enum SpdxLicense {
   $Rdisc._('Rdisc'),
   $Ruby._('Ruby'),
   $SAX_PD._('SAX-PD'),
+  $SAX_PD_2_0._('SAX-PD-2.0'),
   $SCEA._('SCEA'),
   $SGI_B_1_0._('SGI-B-1.0'),
   $SGI_B_1_1._('SGI-B-1.1'),
@@ -613,6 +615,7 @@ enum SpdxLicense {
   $psfrag._('psfrag'),
   $psutils._('psutils'),
   $python_ldap._('python-ldap'),
+  $radvd._('radvd'),
   $snprintf._('snprintf'),
   $ssh_keyscan._('ssh-keyscan'),
   $swrule._('swrule'),
@@ -620,6 +623,7 @@ enum SpdxLicense {
   $w3m._('w3m'),
   $wxWindows._('wxWindows'),
   $xinetd._('xinetd'),
+  $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
   $xlock._('xlock'),
   $xpp._('xpp'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
