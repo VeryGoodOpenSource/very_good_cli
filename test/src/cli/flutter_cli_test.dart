@@ -226,11 +226,12 @@ void main() {
                 ignoredDirectory.path,
                 from: tempDirectory.path,
               );
+              final relativePathPrefix = '.${p.context.separator}';
 
               logger.progress(
                 any(
                   that: contains(
-                    'Running "flutter packages get" in ./$ignoredRelativePath',
+                    '''Running "flutter packages get" in $relativePathPrefix$ignoredRelativePath''',
                   ),
                 ),
               );
