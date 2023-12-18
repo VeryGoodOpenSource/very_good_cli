@@ -152,26 +152,72 @@ void main() {
       });
 
       group('templates', () {
-        test('core', () async {
-          await testMultiTemplateCommand(
-            multiTemplatesCommand: CreateFlutterApp(
+        group('core', () {
+          test('generates successfully', () async {
+            await testMultiTemplateCommand(
+              multiTemplatesCommand: CreateFlutterApp(
+                logger: logger,
+                generatorFromBundle: (_) async => throw Exception('oops'),
+                generatorFromBrick: (_) async => generator,
+              ),
               logger: logger,
-              generatorFromBundle: (_) async => throw Exception('oops'),
-              generatorFromBrick: (_) async => generator,
-            ),
-            logger: logger,
-            hooks: hooks,
-            generator: generator,
-            templateName: 'core',
-            mockArgs: {'application-id': 'xyz.app.my_app'},
-            expectedVars: {
-              'project_name': 'my_app',
-              'description': '',
-              'org_name': 'com.example.verygoodcore',
-              'application_id': 'xyz.app.my_app',
-            },
-            expectedLogSummary: 'Created a Very Good App! 🦄',
-          );
+              hooks: hooks,
+              generator: generator,
+              templateName: 'core',
+              mockArgs: {'application-id': 'xyz.app.my_app'},
+              expectedVars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': 'com.example.verygoodcore',
+                'application_id': 'xyz.app.my_app',
+              },
+              expectedLogSummary: 'Created a Very Good App! 🦄',
+            );
+          });
+
+          test('logs getting started information', () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            await testMultiTemplateCommand(
+              outputDirectoryOverride: tempDirectory,
+              multiTemplatesCommand: CreateFlutterApp(
+                logger: logger,
+                generatorFromBundle: (_) async => throw Exception('oops'),
+                generatorFromBrick: (_) async => generator,
+              ),
+              logger: logger,
+              hooks: hooks,
+              generator: generator,
+              templateName: 'core',
+              mockArgs: {'application-id': 'xyz.app.my_app'},
+              expectedVars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': 'com.example.verygoodcore',
+                'application_id': 'xyz.app.my_app',
+              },
+              expectedLogSummary: 'Created a Very Good App! 🦄',
+            );
+
+            final outputPath = path.join(tempDirectory.path, 'my_app');
+            final relativePath =
+                path.relative(outputPath, from: Directory.current.path);
+
+            final projectPath = relativePath;
+            final projectPathLink =
+                link(uri: Uri.parse(projectPath), message: projectPath);
+
+            final readmePath = path.join(relativePath, 'README.md');
+            final readmePathLink =
+                link(uri: Uri.parse(readmePath), message: readmePath);
+
+            final details = '''
+  • To get started refer to $readmePathLink
+  • Your project code is in $projectPathLink
+''';
+            verify(() => logger.info(details)).called(1);
+          });
         });
 
         test('wear', () async {

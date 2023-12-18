@@ -37,12 +37,15 @@ class VeryGoodCoreTemplate extends Template {
     final readmePathLink =
         link(uri: Uri.parse(readmePath), message: readmePath);
 
+    final details = '''
+  • To get started refer to $readmePathLink
+  • Your project code is in $projectPathLink
+''';
+
     logger
       ..info('\n')
       ..created('Created a Very Good App! 🦄')
-      ..info('  • To get started refer to $readmePathLink')
-      ..info('  • Your project code is in $projectPathLink')
-      ..info('')
+      ..info(details)
       ..info(
         lightGray.wrap(
           '''
