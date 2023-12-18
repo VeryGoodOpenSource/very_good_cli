@@ -347,23 +347,28 @@ void main() {
 
         expect(result, equals(ExitCode.success.code));
         verify(() {
+          final relativePath = path.relative(
+            directoryA.path,
+            from: tempDirectory.path,
+          );
           logger.progress(
             any(
               that: contains(
-                'Running "flutter packages get" in '
-                '$relativePathPrefix'
-                '${path.relative(directoryA.path, from: tempDirectory.path)}',
+                '''Running "flutter packages get" in $relativePathPrefix$relativePath''',
               ),
             ),
           );
         }).called(1);
         verifyNever(() {
+          final relativePath = path.relative(
+            directoryB.path,
+            from: tempDirectory.path,
+          );
+
           logger.progress(
             any(
               that: contains(
-                'Running "flutter packages get" in '
-                '$relativePathPrefix'
-                '${path.relative(directoryB.path, from: tempDirectory.path)}',
+                '''Running "flutter packages get" in $relativePathPrefix$relativePath''',
               ),
             ),
           );
