@@ -211,11 +211,13 @@ void main() {
           ).whenComplete(() {
             final nestedRelativePath =
                 p.relative(nestedDirectory.path, from: tempDirectory.path);
+            final relativePathPrefix = '.${p.context.separator}';
+
             verify(() {
               logger.progress(
                 any(
                   that: contains(
-                    '''Running "flutter packages get" in .${p.context.separator}$nestedRelativePath''',
+                    '''Running "flutter packages get" in $relativePathPrefix$nestedRelativePath''',
                   ),
                 ),
               );
