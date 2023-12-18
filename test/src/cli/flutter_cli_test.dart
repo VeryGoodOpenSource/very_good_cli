@@ -194,6 +194,8 @@ void main() {
           File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
 
+          final relativePathPrefix = '.${p.context.separator}';
+
           ProcessOverrides.runZoned(
             () => expectLater(
               Flutter.packagesGet(
@@ -211,7 +213,6 @@ void main() {
           ).whenComplete(() {
             final nestedRelativePath =
                 p.relative(nestedDirectory.path, from: tempDirectory.path);
-            final relativePathPrefix = '.${p.context.separator}';
 
             verify(() {
               logger.progress(
@@ -228,7 +229,6 @@ void main() {
                 ignoredDirectory.path,
                 from: tempDirectory.path,
               );
-              final relativePathPrefix = '.${p.context.separator}';
 
               logger.progress(
                 any(
