@@ -84,10 +84,16 @@ class Flutter {
     bool recursive = false,
     Set<String> ignore = const {},
   }) async {
+    final initialCwd = cwd;
+
     await _runCommand(
       cmd: (cwd) async {
+        final relativePath = p.relative(cwd, from: initialCwd);
+        final path =
+            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
+
         final installProgress = logger.progress(
-          'Running "flutter packages get" in $cwd',
+          'Running "flutter packages get" in $path ',
         );
 
         try {

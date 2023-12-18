@@ -16,20 +16,24 @@ Future<void> testMultiTemplateCommand({
   required MasonGenerator generator,
   required Logger logger,
   required GeneratorHooks hooks,
-
-  // expected
   required Map<String, dynamic> expectedVars,
   required String expectedLogSummary,
+  Directory? outputDirectoryOverride,
 }) async {
-  final tempDirectory = Directory.systemTemp.createTempSync();
-  addTearDown(() => tempDirectory.deleteSync(recursive: true));
+  late final Directory outputDirectory;
+  if (outputDirectoryOverride == null) {
+    outputDirectory = Directory.systemTemp.createTempSync();
+    addTearDown(() => outputDirectory.deleteSync(recursive: true));
+  } else {
+    outputDirectory = outputDirectoryOverride;
+  }
 
   final argResults = _MockArgResults();
   final command = multiTemplatesCommand..argResultOverrides = argResults;
 
   when(() => argResults['template'] as String?).thenReturn(templateName);
   when(() => argResults['output-directory'] as String?)
-      .thenReturn(tempDirectory.path);
+      .thenReturn(outputDirectory.path);
 
   for (final entry in mockArgs.entries) {
     when(() => argResults[entry.key]).thenReturn(entry.value);
