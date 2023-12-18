@@ -215,8 +215,7 @@ void main() {
               logger.progress(
                 any(
                   that: contains(
-                    '''
-Running "flutter packages get" in .${p.context.separator}$nestedRelativePath''',
+                    '''Running "flutter packages get" in .${p.context.separator}$nestedRelativePath''',
                   ),
                 ),
               );
@@ -1129,8 +1128,7 @@ Running "flutter packages get" in .${p.context.separator}$nestedRelativePath''',
           expect(
             stdoutLogs,
             unorderedEquals([
-              '''
-Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
               'Running "flutter test" in . ...\n',
               contains('All tests passed!'),
@@ -1203,8 +1201,7 @@ Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               'Running "flutter test" in '
                   '. ...\n',
               contains('All tests passed!'),
-              '''
-Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
             ]),
           );
