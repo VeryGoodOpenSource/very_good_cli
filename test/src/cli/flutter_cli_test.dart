@@ -194,6 +194,8 @@ void main() {
           File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
               .writeAsStringSync(_pubspec);
 
+          final relativePathPrefix = '.${p.context.separator}';
+
           ProcessOverrides.runZoned(
             () => expectLater(
               Flutter.packagesGet(
@@ -209,23 +211,29 @@ void main() {
             ),
             runProcess: process.run,
           ).whenComplete(() {
+            final nestedRelativePath =
+                p.relative(nestedDirectory.path, from: tempDirectory.path);
+
             verify(() {
               logger.progress(
                 any(
                   that: contains(
-                    'Running "flutter packages get" in '
-                    '${nestedDirectory.path}',
+                    '''Running "flutter packages get" in $relativePathPrefix$nestedRelativePath''',
                   ),
                 ),
               );
             }).called(1);
 
             verifyNever(() {
+              final ignoredRelativePath = p.relative(
+                ignoredDirectory.path,
+                from: tempDirectory.path,
+              );
+
               logger.progress(
                 any(
                   that: contains(
-                    'Running "flutter packages get" in '
-                    '${ignoredDirectory.path}',
+                    '''Running "flutter packages get" in $relativePathPrefix$ignoredRelativePath''',
                   ),
                 ),
               );
@@ -1123,8 +1131,7 @@ void main() {
           expect(
             stdoutLogs,
             unorderedEquals([
-              'Running "flutter test" in '
-                  '$relativePathPrefix$nestedRelativePath ...\n',
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
               'Running "flutter test" in . ...\n',
               contains('All tests passed!'),
@@ -1197,8 +1204,7 @@ void main() {
               'Running "flutter test" in '
                   '. ...\n',
               contains('All tests passed!'),
-              'Running "flutter test" in '
-                  '$relativePathPrefix$nestedRelativePath ...\n',
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
             ]),
           );
