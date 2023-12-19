@@ -20,7 +20,7 @@ dependencies:
   mason_logger: ^0.2.2
   meta: ^1.3.0
   package_config: ^2.1.0
-  pana: 0.21.44 # Very Good CLI is using private PANA's license detector that might break in a minor version update.
+  pana: 0.21.45 # Very Good CLI is using private PANA's license detector that might break in a minor version update.
   path: ^1.8.0
   pub_updater: ">=0.3.1 <0.5.0"
   pubspec_lock: ^3.0.2
