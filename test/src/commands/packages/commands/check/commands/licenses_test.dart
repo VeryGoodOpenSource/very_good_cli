@@ -1643,17 +1643,3 @@ sdks:
   dart: ">=3.1.0 <4.0.0"
 
 ''';
-
-const _validDependencyOverridenPubspecLockContent = '''
-packages:
-  path:
-    dependency: "direct overridden"
-    description:
-      name: path
-      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.9.0"
-sdks:
-  dart: ">=3.1.0 <4.0.0"
-''';
