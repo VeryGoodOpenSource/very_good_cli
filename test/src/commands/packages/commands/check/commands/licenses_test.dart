@@ -65,6 +65,7 @@ void main() {
     late package_config.Package veryGoodTestRunnerConfigPackage;
     late package_config.Package cliCompletionConfigPackage;
     late package_config.Package yamlConfigPackage;
+    late package_config.Package pathConfigPackage;
     late package_config.Package veryGoodAnalysisConfigPackage;
 
     setUpAll(() {
@@ -103,6 +104,7 @@ void main() {
         'cli_completion': cliCompletionConfigPackage = _MockPackage(),
         'yaml': yamlConfigPackage = _MockPackage(),
         'very_good_analysis': veryGoodAnalysisConfigPackage = _MockPackage(),
+        'path': pathConfigPackage = _MockPackage(),
       };
       for (final package in packages.entries) {
         final name = package.key;
@@ -534,6 +536,7 @@ void main() {
       const dependencyTypeMainDirectOption = 'direct-main';
       const dependencyTypeDevDirectOption = 'direct-dev';
       const dependencyTypeTransitiveOption = 'transitive';
+      const dependencyTypeOverriddenDirectOption = 'direct-overridden';
 
       group('throws usage exception', () {
         test(
@@ -562,6 +565,7 @@ void main() {
             dependencyTypeMainDirectOption: ['very_good_test_runner'],
             dependencyTypeDevDirectOption: ['very_good_analysis'],
             dependencyTypeTransitiveOption: ['yaml'],
+            dependencyTypeOverriddenDirectOption: ['path'],
           };
 
           group('on developer main dependencies only', () {
@@ -764,6 +768,58 @@ void main() {
           );
 
           test(
+            'on direct overridden dependencies only',
+            withRunner((
+              commandRunner,
+              logger,
+              pubUpdater,
+              printLogs,
+            ) async {
+              File(path.join(tempDirectory.path, pubspecLockBasename))
+                  .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages)
+                  .thenReturn({pathConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+              when(() => logger.progress(any())).thenReturn(progress);
+
+              final result = await commandRunner.run(
+                [
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeOverriddenDirectOption,
+                  tempDirectory.path,
+                ],
+              );
+
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
+
+              expect(
+                packageNames,
+                equals(
+                  dependenciesByType[dependencyTypeOverriddenDirectOption],
+                ),
+              );
+
+              verify(
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
+              ).called(1);
+              verify(
+                () => progress.complete(
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
+                ),
+              ).called(1);
+
+              expect(result, equals(ExitCode.success.code));
+            }),
+          );
+
+          test(
             'on all dependencies',
             withRunner((
               commandRunner,
@@ -778,6 +834,7 @@ void main() {
                 veryGoodTestRunnerConfigPackage,
                 veryGoodAnalysisConfigPackage,
                 yamlConfigPackage,
+                pathConfigPackage,
               });
               when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
@@ -792,6 +849,8 @@ void main() {
                   dependencyTypeTransitiveOption,
                   dependencyTypeArgument,
                   dependencyTypeMainDirectOption,
+                  dependencyTypeArgument,
+                  dependencyTypeOverriddenDirectOption,
                   tempDirectory.path,
                 ],
               );
@@ -807,22 +866,27 @@ void main() {
 
               verify(
                 () => progress.update(
-                  'Collecting licenses from 1 out of 3 packages',
+                  'Collecting licenses from 1 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.update(
-                  'Collecting licenses from 2 out of 3 packages',
+                  'Collecting licenses from 2 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.update(
-                  'Collecting licenses from 3 out of 3 packages',
+                  'Collecting licenses from 3 out of 4 packages',
+                ),
+              ).called(1);
+              verify(
+                () => progress.update(
+                  'Collecting licenses from 4 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 3 licenses from 3 packages of type: MIT (3).',
+                  'Retrieved 4 licenses from 4 packages of type: MIT (4).',
                 ),
               ).called(1);
 

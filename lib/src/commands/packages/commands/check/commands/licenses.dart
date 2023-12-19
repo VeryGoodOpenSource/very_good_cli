@@ -86,6 +86,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         allowed: [
           'direct-main',
           'direct-dev',
+          'direct-overridden',
           'transitive',
         ],
         allowedHelp: {
@@ -194,7 +195,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
           (dependencyTypes.contains('direct-dev') &&
               dependencyType == DependencyType.development) ||
           (dependencyTypes.contains('transitive') &&
-              dependencyType == DependencyType.transitive);
+              dependencyType == DependencyType.transitive) ||
+          (dependencyTypes.contains('direct-overridden') &&
+              dependencyType == DependencyType.overridden);
     });
 
     if (filteredDependencies.isEmpty) {
