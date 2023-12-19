@@ -37,5 +37,13 @@ dev_dependencies:
   test: ^1.24.3
   very_good_analysis: ^5.1.0
 
+dependency_overrides:
+  pubspec_lock:
+    # Override to support "direct overridden" dependency parsing, remove
+    # once the issue is fixed: https://github.com/alexei-sintotski/pubspec_lock/issues/33
+    git:
+      url: https://github.com/PieterAelse/pubspec_lock
+      ref: 93ecf65e537f6202dc28c694143bc6a176d603ef
+
 executables:
   very_good:
