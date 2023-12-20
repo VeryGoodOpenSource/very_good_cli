@@ -19,8 +19,8 @@ import 'package:package_config/package_config.dart' as package_config;
 // ignore: implementation_imports
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
-import 'package:pubspec_lock/pubspec_lock.dart';
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting
@@ -93,6 +93,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
           'direct-main': 'Check for direct main dependencies.',
           'direct-dev': 'Check for direct dev dependencies.',
           'transitive': 'Check for transitive dependencies.',
+          'direct-overridden': 'Check for direct overridden dependencies.',
         },
         defaultsTo: ['direct-main'],
       )
@@ -183,21 +184,20 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final filteredDependencies = pubspecLock.packages.where((dependency) {
-      // ignore: invalid_use_of_protected_member
-      final isPubHosted = dependency.hosted != null;
-      if (!isPubHosted) return false;
+      if (!dependency.isPubHosted) return false;
 
-      if (skippedPackages.contains(dependency.package())) return false;
+      if (skippedPackages.contains(dependency.name)) return false;
 
-      final dependencyType = dependency.type();
+      final dependencyType = dependency.type;
       return (dependencyTypes.contains('direct-main') &&
-              dependencyType == DependencyType.direct) ||
+              dependencyType == PubspecLockPackageDependencyType.directMain) ||
           (dependencyTypes.contains('direct-dev') &&
-              dependencyType == DependencyType.development) ||
+              dependencyType == PubspecLockPackageDependencyType.directDev) ||
           (dependencyTypes.contains('transitive') &&
-              dependencyType == DependencyType.transitive) ||
+              dependencyType == PubspecLockPackageDependencyType.transitive) ||
           (dependencyTypes.contains('direct-overridden') &&
-              dependencyType == DependencyType.overridden);
+              dependencyType ==
+                  PubspecLockPackageDependencyType.directOverridden);
     });
 
     if (filteredDependencies.isEmpty) {
@@ -224,7 +224,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
       );
 
-      final dependencyName = dependency.package();
+      final dependencyName = dependency.name;
       final cachePackageEntry = packageConfig.packages
           .firstWhereOrNull((package) => package.name == dependencyName);
       if (cachePackageEntry == null) {
@@ -326,11 +326,14 @@ class PackagesCheckLicensesCommand extends Command<int> {
 /// If [pubspecLockFile] is not readable or fails to be parsed, `null` is
 /// returned.
 PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
-  try {
-    return pubspecLockFile.readAsStringSync().loadPubspecLockFromYaml();
-  } catch (e) {
-    return null;
+  if (pubspecLockFile.existsSync()) {
+    final content = pubspecLockFile.readAsStringSync();
+    try {
+      return PubspecLock.fromString(content);
+    } catch (_) {}
   }
+
+  return null;
 }
 
 /// Attempts to find a [package_config.PackageConfig] using

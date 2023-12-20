@@ -29,7 +29,7 @@ class _MockPackage extends Mock implements package_config.Package {}
 
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
-  "Check packages' licenses in a Dart or Flutter project.\n"
+  '''Check packages' licenses in a Dart or Flutter project.\n'''
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'
@@ -38,6 +38,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       '''          [direct-dev]               Check for direct dev dependencies.\n'''
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
+      '''          [direct-overridden]        Check for direct overridden dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
       '''    --allowed                        Only allow the use of certain licenses.\n'''
@@ -1601,6 +1602,7 @@ void main() {
 /// - one hosted direct dependency
 /// - one hosted direct dev dependency
 /// - one hosted transitive dependency
+/// - one hosted overridden dependency
 const _validPubspecLockContent = '''
 packages:
   very_good_test_runner:
