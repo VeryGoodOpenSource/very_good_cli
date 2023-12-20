@@ -16,11 +16,3 @@ dev_dependencies:
   very_good_analysis: ^5.1.0
   very_good_cli:
     path: ../
-
-dependency_overrides:
-  pubspec_lock:
-    # Override to support "direct overridden" dependency parsing, remove
-    # once the issue is fixed: https://github.com/alexei-sintotski/pubspec_lock/issues/33
-    git:
-      url: https://github.com/alestiago/pubspec_lock
-      ref: 927ee77351aad84cda381cb5b9606265cf1fe52d
