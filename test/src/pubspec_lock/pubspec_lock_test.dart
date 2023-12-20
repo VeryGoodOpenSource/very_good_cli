@@ -96,6 +96,45 @@ void main() {
       expect(package2, isNot(equals(package3)));
     });
   });
+
+  group('$PubspecLockPackageDependencyType', () {
+    group('parse', () {
+      test('parses successfully `direct main`', () {
+        expect(
+          PubspecLockPackageDependencyType.parse('direct main'),
+          equals(PubspecLockPackageDependencyType.directMain),
+        );
+      });
+
+      test('parses successfully `direct dev`', () {
+        expect(
+          PubspecLockPackageDependencyType.parse('direct dev'),
+          equals(PubspecLockPackageDependencyType.directDev),
+        );
+      });
+
+      test('parses successfully `direct overridden`', () {
+        expect(
+          PubspecLockPackageDependencyType.parse('direct overridden'),
+          equals(PubspecLockPackageDependencyType.directOverridden),
+        );
+      });
+
+      test('parses successfully `transitive`', () {
+        expect(
+          PubspecLockPackageDependencyType.parse('transitive'),
+          equals(PubspecLockPackageDependencyType.transitive),
+        );
+      });
+
+      test('throws a $ArgumentError when type is invalid', () {
+        expect(
+          () => PubspecLockPackageDependencyType.parse('invalid'),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+    });
+  });
 }
 
 /// An example pubspec.lock content used to test the [PubspecLock] class.
