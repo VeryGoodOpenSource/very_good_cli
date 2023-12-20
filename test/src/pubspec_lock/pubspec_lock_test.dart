@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 void main() {
-  group('PubspecLock', () {
+  group('$PubspecLock', () {
     group('fromString', () {
       test('parses correctly', () {
         final pubspecLock = PubspecLock.fromString(_pubspecLockContent);
@@ -62,7 +62,7 @@ void main() {
     });
   });
 
-  group('PubspecLockPackage', () {
+  group('$PubspecLockPackage', () {
     test('can be instantiated', () {
       expect(
         PubspecLockPackage(
