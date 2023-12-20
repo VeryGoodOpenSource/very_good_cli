@@ -38,6 +38,11 @@ void main() {
                 type: PubspecLockPackageDependencyType.directMain,
                 isPubHosted: false,
               ),
+              PubspecLockPackage(
+                name: 'yaml2',
+                type: PubspecLockPackageDependencyType.transitive,
+                isPubHosted: false,
+              ),
             ],
           ),
         );
@@ -96,11 +101,12 @@ void main() {
 /// An example pubspec.lock content used to test the [PubspecLock] class.
 ///
 /// It has been artificially crafted to include:
-/// - one hosted direct package entry
-/// - one hosted direct dev package entry
-/// - one hosted transitive package entry
-/// - one hosted overridden package entry
+/// - one pub hosted direct package entry
+/// - one pub hosted direct dev package entry
+/// - one pub hosted transitive package entry
+/// - one pub hosted overridden package entry
 /// - one invalid package entry
+/// - one not pub hosted transitive package entry
 const _pubspecLockContent = '''
 packages:
   very_good_test_runner:
@@ -142,6 +148,14 @@ packages:
       relative: true
     source: path
     version: "1.0.0+1"
+  yaml2:
+    dependency: transitive
+    description:
+      name: yaml
+      sha256: "75769501ea3489fca56601ff33454fe45507ea3bfb014161abc3b43ae25989d5"
+      url: "https://not-pub.dev"
+    source: hosted
+    version: "3.1.2"
   bad_package:
     not_dependency: "bad"
 sdks:
