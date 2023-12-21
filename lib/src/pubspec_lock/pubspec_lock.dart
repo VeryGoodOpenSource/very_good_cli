@@ -1,7 +1,7 @@
 /// A simple parser for pubspec.lock files.
 ///
 /// This is used by the `packages check license` command to check the type and
-/// source of the dependencies to analyze. Hence it is not a complete parser,
+/// source of the dependencies to analyze. Hence, it is not a complete parser,
 /// it only parses the information that is needed for the
 /// `packages check license` command.
 library pubspec_lock;
