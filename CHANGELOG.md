@@ -1,3 +1,17 @@
+# 0.19.1
+
+- chore(deps): bump pana from 0.21.43 to 0.21.44 ([#912](https://github.com/VeryGoodOpenSource/very_good_cli/pull/912))
+- chore(deps): bump test from 1.24.9 to 1.25.0 in /e2e ([#923](https://github.com/VeryGoodOpenSource/very_good_cli/pull/923))
+- chore(deps): bump test from 1.24.9 to 1.25.0 in /tool/spdx_license/hooks ([#924](https://github.com/VeryGoodOpenSource/very_good_cli/pull/924))
+- feat: Use relative path instead of absolute when running `test` ([#920](https://github.com/VeryGoodOpenSource/very_good_cli/pull/920))
+- chore(deps): bump test from 1.24.9 to 1.25.0 in /bricks/test_optimizer/hooks ([#926](https://github.com/VeryGoodOpenSource/very_good_cli/pull/926))
+- feat: Use relative path instead of absolute when running `packages get` ([#919](https://github.com/VeryGoodOpenSource/very_good_cli/pull/919))
+- feat: update create flutter_app output text for clarity ([#922](https://github.com/VeryGoodOpenSource/very_good_cli/pull/922))
+- fix: avoid failing with 'direct overridden' dependencies ([#930](https://github.com/VeryGoodOpenSource/very_good_cli/pull/930))
+- chore(deps): bump pana from 0.21.44 to 0.21.45 ([#929](https://github.com/VeryGoodOpenSource/very_good_cli/pull/929))
+- feat: support 'direct-overridden' dependency type when checking licenses ([#931](https://github.com/VeryGoodOpenSource/very_good_cli/pull/931))
+- docs: include 'direct-overridden' in check licenses ([#932](https://github.com/VeryGoodOpenSource/very_good_cli/pull/932))
+
 # 0.19.0
 
 - docs: update check licenses retrieval documentation ([#894](https://github.com/VeryGoodOpenSource/very_good_cli/pull/894))
