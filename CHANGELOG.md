@@ -10,6 +10,7 @@
 - fix: avoid failing with 'direct overridden' dependencies ([#930](https://github.com/VeryGoodOpenSource/very_good_cli/pull/930))
 - chore(deps): bump pana from 0.21.44 to 0.21.45 ([#929](https://github.com/VeryGoodOpenSource/very_good_cli/pull/929))
 - feat: support 'direct-overridden' dependency type when checking licenses ([#931](https://github.com/VeryGoodOpenSource/very_good_cli/pull/931))
+- docs: include 'direct-overridden' in check licenses ([#932](https://github.com/VeryGoodOpenSource/very_good_cli/pull/932))
 
 # 0.19.0
 
