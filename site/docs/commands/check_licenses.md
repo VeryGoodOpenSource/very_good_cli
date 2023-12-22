@@ -60,6 +60,7 @@ The type of dependencies to check licenses for. There are three available types:
 
 - [`direct-dev`](https://dart.dev/tools/pub/dependencies#dev-dependencies): Another package that your package needs during development.
 - [`direct-main`](https://dart.dev/tools/pub/dependencies): Another package that your package needs to work.
+- [`direct-overridden`](https://dart.dev/tools/pub/dependencies#dependency-overrides): A dependency that your package overrides that is not already a `direct-main` or `direct-dev` dependency.
 - [`transitive`](https://dart.dev/tools/pub/glossary#transitive-dependency): A dependency that your package indirectly uses because one of its dependencies requires it.
 
 When unspecified, it defaults to `direct-main`.
