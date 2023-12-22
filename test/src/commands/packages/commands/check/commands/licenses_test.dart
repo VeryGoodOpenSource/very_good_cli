@@ -29,7 +29,7 @@ class _MockPackage extends Mock implements package_config.Package {}
 
 const _expectedPackagesCheckLicensesUsage = [
   // ignore: no_adjacent_strings_in_list
-  "Check packages' licenses in a Dart or Flutter project.\n"
+  '''Check packages' licenses in a Dart or Flutter project.\n'''
       '\n'
       'Usage: very_good packages check licenses [arguments]\n'
       '-h, --help                           Print this usage information.\n'
@@ -38,6 +38,7 @@ const _expectedPackagesCheckLicensesUsage = [
       '\n'
       '''          [direct-dev]               Check for direct dev dependencies.\n'''
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
+      '''          [direct-overridden]        Check for direct overridden dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
       '\n'
       '''    --allowed                        Only allow the use of certain licenses.\n'''
@@ -65,6 +66,7 @@ void main() {
     late package_config.Package veryGoodTestRunnerConfigPackage;
     late package_config.Package cliCompletionConfigPackage;
     late package_config.Package yamlConfigPackage;
+    late package_config.Package pathConfigPackage;
     late package_config.Package veryGoodAnalysisConfigPackage;
 
     setUpAll(() {
@@ -103,6 +105,7 @@ void main() {
         'cli_completion': cliCompletionConfigPackage = _MockPackage(),
         'yaml': yamlConfigPackage = _MockPackage(),
         'very_good_analysis': veryGoodAnalysisConfigPackage = _MockPackage(),
+        'path': pathConfigPackage = _MockPackage(),
       };
       for (final package in packages.entries) {
         final name = package.key;
@@ -534,6 +537,7 @@ void main() {
       const dependencyTypeMainDirectOption = 'direct-main';
       const dependencyTypeDevDirectOption = 'direct-dev';
       const dependencyTypeTransitiveOption = 'transitive';
+      const dependencyTypeOverriddenDirectOption = 'direct-overridden';
 
       group('throws usage exception', () {
         test(
@@ -562,6 +566,7 @@ void main() {
             dependencyTypeMainDirectOption: ['very_good_test_runner'],
             dependencyTypeDevDirectOption: ['very_good_analysis'],
             dependencyTypeTransitiveOption: ['yaml'],
+            dependencyTypeOverriddenDirectOption: ['path'],
           };
 
           group('on developer main dependencies only', () {
@@ -764,6 +769,58 @@ void main() {
           );
 
           test(
+            'on direct overridden dependencies only',
+            withRunner((
+              commandRunner,
+              logger,
+              pubUpdater,
+              printLogs,
+            ) async {
+              File(path.join(tempDirectory.path, pubspecLockBasename))
+                  .writeAsStringSync(_validPubspecLockContent);
+
+              when(() => packageConfig.packages)
+                  .thenReturn({pathConfigPackage});
+              when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+              when(() => logger.progress(any())).thenReturn(progress);
+
+              final result = await commandRunner.run(
+                [
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeOverriddenDirectOption,
+                  tempDirectory.path,
+                ],
+              );
+
+              final packageNames = packageConfig.packages.map((package) {
+                return package.name;
+              }).toList();
+
+              expect(
+                packageNames,
+                equals(
+                  dependenciesByType[dependencyTypeOverriddenDirectOption],
+                ),
+              );
+
+              verify(
+                () => progress.update(
+                  'Collecting licenses from 1 out of 1 package',
+                ),
+              ).called(1);
+              verify(
+                () => progress.complete(
+                  'Retrieved 1 license from 1 package of type: MIT (1).',
+                ),
+              ).called(1);
+
+              expect(result, equals(ExitCode.success.code));
+            }),
+          );
+
+          test(
             'on all dependencies',
             withRunner((
               commandRunner,
@@ -778,6 +835,7 @@ void main() {
                 veryGoodTestRunnerConfigPackage,
                 veryGoodAnalysisConfigPackage,
                 yamlConfigPackage,
+                pathConfigPackage,
               });
               when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
@@ -792,6 +850,8 @@ void main() {
                   dependencyTypeTransitiveOption,
                   dependencyTypeArgument,
                   dependencyTypeMainDirectOption,
+                  dependencyTypeArgument,
+                  dependencyTypeOverriddenDirectOption,
                   tempDirectory.path,
                 ],
               );
@@ -807,22 +867,27 @@ void main() {
 
               verify(
                 () => progress.update(
-                  'Collecting licenses from 1 out of 3 packages',
+                  'Collecting licenses from 1 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.update(
-                  'Collecting licenses from 2 out of 3 packages',
+                  'Collecting licenses from 2 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.update(
-                  'Collecting licenses from 3 out of 3 packages',
+                  'Collecting licenses from 3 out of 4 packages',
+                ),
+              ).called(1);
+              verify(
+                () => progress.update(
+                  'Collecting licenses from 4 out of 4 packages',
                 ),
               ).called(1);
               verify(
                 () => progress.complete(
-                  'Retrieved 3 licenses from 3 packages of type: MIT (3).',
+                  'Retrieved 4 licenses from 4 packages of type: MIT (4).',
                 ),
               ).called(1);
 
@@ -1537,6 +1602,7 @@ void main() {
 /// - one hosted direct dependency
 /// - one hosted direct dev dependency
 /// - one hosted transitive dependency
+/// - one hosted overridden dependency
 const _validPubspecLockContent = '''
 packages:
   very_good_test_runner:
@@ -1563,6 +1629,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  path:
+    dependency: "direct overridden"
+    description:
+      name: path
+      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.9.0"
 sdks:
   dart: ">=3.1.0 <4.0.0"
 
