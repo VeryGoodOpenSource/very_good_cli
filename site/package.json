@@ -34,7 +34,7 @@
     "@docusaurus/tsconfig": "3.1.1",
     "@types/react": "^18.2.48",
     "eslint": "^8.56.0",
-    "prettier": "^3.2.4",
+    "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   },
   "browserslist": {
