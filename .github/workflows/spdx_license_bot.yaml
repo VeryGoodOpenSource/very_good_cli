@@ -50,7 +50,7 @@ jobs:
 
       - name: 📝 Create Pull Request
         if: ${{ env.did_change == 'true' }}
-        uses: peter-evans/create-pull-request@v5.0.2
+        uses: peter-evans/create-pull-request@v6.0.0
         with:
           base: main
           branch: chore/update-spdx-license
