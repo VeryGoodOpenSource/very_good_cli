@@ -27,14 +27,14 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.23.3",
+    "@babel/eslint-parser": "^7.23.10",
     "@docusaurus/eslint-plugin": "^3.1.1",
     "@docusaurus/module-type-aliases": "^3.1.1",
     "@docusaurus/types": "^3.1.1",
     "@docusaurus/tsconfig": "3.1.1",
-    "@types/react": "^18.2.48",
+    "@types/react": "^18.2.53",
     "eslint": "^8.56.0",
-    "prettier": "^3.2.4",
+    "prettier": "^3.2.5",
     "typescript": "^5.3.3"
   },
   "browserslist": {
