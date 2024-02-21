@@ -1,0 +1,22 @@
+name: ♻️ Sync Labels
+
+on:
+  push:
+    paths:
+      - .github/labels.yml
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  labels:
+    name: ♻️ Sync labels
+    runs-on: ubuntu-20.04
+    steps:
+      - name: ⤵️ Check out code from GitHub
+        uses: actions/checkout@v4
+
+      - name: 🚀 Run Label Sync
+        uses: srealmoreno/label-sync-action@v1
+        with:
+          config-file: https://raw.githubusercontent.com/VeryGoodOpenSource/.github/main/.github/labels.yml
