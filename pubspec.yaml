@@ -27,7 +27,7 @@ dependencies:
   pubspec_parse: ^1.2.0
   stack_trace: ^1.10.0
   universal_io: ^2.0.4
-  very_good_test_runner: ">=0.1.2 <0.3.0"
+  very_good_test_runner: ^0.2.0
   yaml: ^3.1.2
 
 dev_dependencies:
