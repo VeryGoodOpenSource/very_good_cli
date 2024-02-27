@@ -139,7 +139,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "{{project_name.snakeCase()}}/pubspec.yaml",
       "data":
-          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIj49My4wLjAgPDQuMC4wIgoKZGV2X2RlcGVuZGVuY2llczoKICBtb2NrdGFpbDogXjEuMC4wCiAgdGVzdDogXjEuMTkuMgogIHZlcnlfZ29vZF9hbmFseXNpczogXjUuMS4wCg==",
+          "bmFtZToge3twcm9qZWN0X25hbWUuc25ha2VDYXNlKCl9fQpkZXNjcmlwdGlvbjoge3t7ZGVzY3JpcHRpb259fX0KdmVyc2lvbjogMC4xLjArMQp7e15wdWJsaXNoYWJsZX19cHVibGlzaF90bzogbm9uZXt7L3B1Ymxpc2hhYmxlfX0KCmVudmlyb25tZW50OgogIHNkazogIl4zLjMuMCIKCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4xLjAuMwogIHRlc3Q6IF4xLjI1LjIKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF41LjEuMAo=",
       "type": "text"
     },
     {
@@ -165,9 +165,10 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "hooks": [],
   "name": "very_good_dart_package",
   "description": "A Very Good Dart package created by Very Good Ventures.",
-  "version": "0.4.1",
-  "environment": {"mason": ">=0.1.0-dev.50 <0.1.0"},
-  "repository": "https://github.com/VeryGoodOpenSource/very_good_dart_package",
+  "version": "0.5.0",
+  "environment": {"mason": ">=0.1.0-dev.52 <0.1.0"},
+  "repository":
+      "https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_dart_package",
   "readme": {
     "path": "README.md",
     "data":
@@ -177,7 +178,7 @@ final veryGoodDartPackageBundle = MasonBundle.fromJson(<String, dynamic>{
   "changelog": {
     "path": "CHANGELOG.md",
     "data":
-        "IyAwLjQuMQoKLSBmZWF0OiB1cGdyYWRlIHRvIHZlcnlfZ29vZF9hbmFseXNpcyBeNS4xLjAKLSBkb2NzOiB1cGRhdGUgUkVBRE1FLm1kIGluc3RhbGwgaW5zdHJ1Y3Rpb25zCgojIDAuNC4wCgotIGZlYXQhOiB1cGRhdGUgdG8gRGFydCAzCgojIDAuMy4wCgotIGZlYXQhOiBidW1wIG1pbiBEYXJ0IFNESyB0byAyLjE5LjAKCiMgMC4yLjUKCi0gZml4OiBwYXRjaCB2ZXJzaW9uIGRvd25ncmFkZQotIGNob3JlOiBzdXBwb3J0IGRhcnQgc2RrIDIuMTguMAoKIyAwLjIuNAoKLSBmaXg6IHVubmVjZXNzYXJ5IGlzc3VlL3ByIHRlbXBsYXRlcyBvbiB0ZW1wbGF0ZSBzcmMKLSBmZWF0OiB1cGRhdGUgd29ya2Zsb3dzLCBhZGQgc3BlbGxjaGVjawoKIyAwLjIuMwoKLSBmZWF0OiB1cGdyYWRlIHRvIGB2ZXJ5X2dvb2RfYW5hbHlzaXMgXjQuMC4wYAoKIyAwLjIuMgoKLSBmZWF0OiB1cGdyYWRlIHRvIERhcnQgMi4xOSBhbmQgZml4IGRlcGVuZGFib3QgZmlsZQoKIyAwLjIuMQoKLSBmaXg6IHdpbmRvd3MgcGF0aCByZXNvbHV0aW9uCi0gZml4OiBHaXRIdWIgd29ya2Zsb3cgY29uY3VycmVuY3kgZ3JvdXAKCiMgMC4yLjAKCi0gKipCUkVBS0lORyoqIGZlYXQ6IGFkZCBgcHVibGlzaGFibGVgIGZsYWcgKGRlZmF1bHRzIHRvIGBmYWxzZWApCgojIDAuMS4yCgotIGRvY3M6IHJlbW92ZSBjb3B5cmlnaHQgaGVhZGVyIGFuZCBsaWNlbnNlIGZyb20gZ2VuZXJhdGVkIGNvZGUKCiMgMC4xLjEKCi0gZmVhdDogdXBncmFkZSB0byB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4xLjAKCiMgMC4xLjAKCi0gZmVhdDogdXBncmFkZSB0byBEYXJ0IDIuMTggYW5kIHZlcnlfZ29vZF9hbmFseXNpcyAzLjAuMgoKIyAwLjAuMQoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2Ug8J+OiQo=",
+        "IyAwLjUuMAoKLSByZWZhY3RvcjogcmVtb3ZlIGdlbmVyYXRvciBzY3JpcHQgKFsjNzFdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX2RhcnRfcGFja2FnZS9wdWxsLzcxKSkKLSBmZWF0ITogdXBkYXRlIHRvIERhcnQgMy4zLjAgKFsjMTZdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3RlbXBsYXRlcy9wdWxsLzE2KSkKLSBjaG9yZTogdXBkYXRlIGJyaWNrcyB0byBNYXNvbiAwLjEuMC1kZXYuNTIgKFsjMjhdKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3RlbXBsYXRlcy9wdWxsLzI4KSkKCiMgMC40LjEKCi0gZmVhdDogdXBncmFkZSB0byB2ZXJ5X2dvb2RfYW5hbHlzaXMgXjUuMS4wCi0gZG9jczogdXBkYXRlIFJFQURNRS5tZCBpbnN0YWxsIGluc3RydWN0aW9ucwoKIyAwLjQuMAoKLSBmZWF0ITogdXBkYXRlIHRvIERhcnQgMwoKIyAwLjMuMAoKLSBmZWF0ITogYnVtcCBtaW4gRGFydCBTREsgdG8gMi4xOS4wCgojIDAuMi41CgotIGZpeDogcGF0Y2ggdmVyc2lvbiBkb3duZ3JhZGUKLSBjaG9yZTogc3VwcG9ydCBkYXJ0IHNkayAyLjE4LjAKCiMgMC4yLjQKCi0gZml4OiB1bm5lY2Vzc2FyeSBpc3N1ZS9wciB0ZW1wbGF0ZXMgb24gdGVtcGxhdGUgc3JjCi0gZmVhdDogdXBkYXRlIHdvcmtmbG93cywgYWRkIHNwZWxsY2hlY2sKCiMgMC4yLjMKCi0gZmVhdDogdXBncmFkZSB0byBgdmVyeV9nb29kX2FuYWx5c2lzIF40LjAuMGAKCiMgMC4yLjIKCi0gZmVhdDogdXBncmFkZSB0byBEYXJ0IDIuMTkgYW5kIGZpeCBkZXBlbmRhYm90IGZpbGUKCiMgMC4yLjEKCi0gZml4OiB3aW5kb3dzIHBhdGggcmVzb2x1dGlvbgotIGZpeDogR2l0SHViIHdvcmtmbG93IGNvbmN1cnJlbmN5IGdyb3VwCgojIDAuMi4wCgotICoqQlJFQUtJTkcqKiBmZWF0OiBhZGQgYHB1Ymxpc2hhYmxlYCBmbGFnIChkZWZhdWx0cyB0byBgZmFsc2VgKQoKIyAwLjEuMgoKLSBkb2NzOiByZW1vdmUgY29weXJpZ2h0IGhlYWRlciBhbmQgbGljZW5zZSBmcm9tIGdlbmVyYXRlZCBjb2RlCgojIDAuMS4xCgotIGZlYXQ6IHVwZ3JhZGUgdG8gdmVyeV9nb29kX2FuYWx5c2lzIDMuMS4wCgojIDAuMS4wCgotIGZlYXQ6IHVwZ3JhZGUgdG8gRGFydCAyLjE4IGFuZCB2ZXJ5X2dvb2RfYW5hbHlzaXMgMy4wLjIKCiMgMC4wLjEKCi0gZmVhdDogaW5pdGlhbCByZWxlYXNlIPCfjokK",
     "type": "text"
   },
   "license": {
