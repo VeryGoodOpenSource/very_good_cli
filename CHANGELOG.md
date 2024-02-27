@@ -5,11 +5,11 @@
 - chore(deps): bump cli_completion from 0.4.0 to 0.5.0 ([#961](https://github.com/VeryGoodOpenSource/very_good_cli/pull/961))
 - chore(deps): bump very_good_test_runner from 0.1.2 to 0.2.0 ([#967](https://github.com/VeryGoodOpenSource/very_good_cli/pull/967))
 - feat: bump template bundles ([#974](https://github.com/VeryGoodOpenSource/very_good_cli/pull/974))
-- **Very Good Core**:
+- [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.6.0):
   - chore: migrate very_good_core ([#1](https://github.com/VeryGoodOpenSource/very_good_templates/pull/1))
   - feat!: update to Flutter 3.19.0 ([#24](https://github.com/VeryGoodOpenSource/very_good_templates/pull/24))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
-- **Very Good Dart CLI**:
+- [**Very Good Dart CLI**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_cli-v0.6.0):
   - build(deps): bump pub_updater from 0.3.1 to 0.4.0 ([#116](https://github.com/VeryGoodOpenSource/very_good_dart_cli/pull/116))
   - build(deps): bump cli_completion from 0.3.0 to 0.4.0 ([#115](https://github.com/VeryGoodOpenSource/very_good_dart_cli/pull/115))
   - fix: sort directive ordering on post generation ([#122](https://github.com/VeryGoodOpenSource/very_good_dart_cli/pull/122))
@@ -18,25 +18,25 @@
   - chore: migrate very_good_dart_cli ([#3](https://github.com/VeryGoodOpenSource/very_good_templates/pull/3))
   - feat!: update to Dart 3.3.0 ([#22](https://github.com/VeryGoodOpenSource/very_good_templates/pull/22))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
-- **Very Good Dart Package**:
+- [**Very Good Dart Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_package-v0.5.0):
   - refactor: remove generator script ([#71](https://github.com/VeryGoodOpenSource/very_good_dart_package/pull/71))
   - feat!: update to Dart 3.3.0 ([#16](https://github.com/VeryGoodOpenSource/very_good_templates/pull/16))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
-- **Very Good Docs Site**:
+- [**Very Good Docs Site**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_docs_site-v0.0.3):
   - chore: migrate very_good_docs_site ([#6](https://github.com/VeryGoodOpenSource/very_good_templates/pull/6))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
-- **Very Good Flame Game**:
+- [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flame_game-v0.6.0):
   - docs: fixed copy format and command ([#146](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/146))
   - fix: resolve image caching issue on flame_game template ([#143](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/143))
   - chore: migrate very_good_flame_game to very_good_templates ([#7](https://github.com/VeryGoodOpenSource/very_good_templates/pull/7))
   - feat!: update to Flutter 3.19.0 ([#20](https://github.com/VeryGoodOpenSource/very_good_templates/pull/20))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/commit/9dca472fb8c97a2fd08dbeea10eaf93d320ac550))
-- **Very Good Flutter Package**:
+- [**Very Good Flutter Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_package-v0.5.0):
   - refactor: remove generator script ([#72](https://github.com/VeryGoodOpenSource/very_good_flutter_package/pull/72))
   - chore: migrate very_good_flutter_package ([#5](https://github.com/VeryGoodOpenSource/very_good_templates/pull/5))
   - feat!: update to Flutter 3.19.0 ([#18](https://github.com/VeryGoodOpenSource/very_good_templates/pull/18))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
-- **Very Good Flutter Plugin**:
+- [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_plugin-v0.7.0):
   - test: add pre generation tests ([#138](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/138))
   - feat: allow optionally fixing template output ([#151](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/151))
   - fix: add support for platform testing ([#155](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/155))
@@ -49,7 +49,7 @@
   - chore: tighten hook dependencies ([#51](https://github.com/VeryGoodOpenSource/very_good_templates/pull/51))
   - chore: update brick to Mason 0.1.0-dev.52 ([#52](https://github.com/VeryGoodOpenSource/very_good_templates/pull/52))
   - chore: tighten dependencies ([#53](https://github.com/VeryGoodOpenSource/very_good_templates/pull/53))
-- **Very Good Wear App**:
+- [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.4.0):
   - test: add tests for pre generation hook ([#41](https://github.com/VeryGoodOpenSource/very_good_wear_app/pull/41))
   - refactor: remove generator script ([#39](https://github.com/VeryGoodOpenSource/very_good_wear_app/pull/39))
   - chore: migrate very_good_wear_app ([#2](https://github.com/VeryGoodOpenSource/very_good_templates/pull/2))
