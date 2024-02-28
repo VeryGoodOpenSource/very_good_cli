@@ -4,6 +4,7 @@
 - chore(deps): bump pana from 0.21.45 to 0.22.1 ([#962](https://github.com/VeryGoodOpenSource/very_good_cli/pull/962))
 - chore(deps): bump cli_completion from 0.4.0 to 0.5.0 ([#961](https://github.com/VeryGoodOpenSource/very_good_cli/pull/961))
 - chore(deps): bump very_good_test_runner from 0.1.2 to 0.2.0 ([#967](https://github.com/VeryGoodOpenSource/very_good_cli/pull/967))
+- chore: generate new SPDX licenses ([#979](https://github.com/VeryGoodOpenSource/very_good_cli/pull/979))
 - feat: bump template bundles ([#974](https://github.com/VeryGoodOpenSource/very_good_cli/pull/974))
 - [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.6.0):
   - chore: migrate very_good_core ([#1](https://github.com/VeryGoodOpenSource/very_good_templates/pull/1))
