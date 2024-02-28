@@ -45,7 +45,7 @@ jobs:
         if: ${{ env.did_change == 'true' }}
         run: |
           cd ../..
-          mason make spdx_license -o lib/src/pub_license/ --on-conflict=overwrite
+          mason make spdx_license -o lib/src/pub_license/ --on-conflict=overwrite --licenses "[]"
           cd tool/spdx_license
 
       - name: 📝 Create Pull Request
