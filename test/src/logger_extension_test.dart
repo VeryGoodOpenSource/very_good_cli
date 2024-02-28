@@ -87,6 +87,39 @@ void main() {
       );
 
       test(
+        '''defaults to `terminalColumns` when there is no length''',
+        () async {
+          await IOOverrides.runZoned(
+            stdout: () => stdout,
+            () async {
+              when(() => stdout.hasTerminal).thenReturn(true);
+              const terminalColumns = 50;
+              when(() => stdout.terminalColumns).thenReturn(terminalColumns);
+
+              final longWord = Iterable.generate(
+                terminalColumns,
+                (_) => '1',
+              ).join();
+              const shortWord = '1';
+
+              logger.wrap('$longWord $shortWord', print: logger.info);
+
+              verifyInOrder([
+                () => logger.info(
+                      any(
+                        that: equals('$longWord '),
+                      ),
+                    ),
+                () => logger.info(
+                      any(that: equals('$shortWord ')),
+                    ),
+              ]);
+            },
+          );
+        },
+      );
+
+      test(
         '''throws when an unknown exception occurs when reading `stdout.terminalColumns`''',
         () async {
           await IOOverrides.runZoned(
