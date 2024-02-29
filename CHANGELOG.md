@@ -23,6 +23,7 @@
   - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
 - [**Very Good Dart Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_package-v0.5.0):
   - refactor: remove generator script ([#71](https://github.com/VeryGoodOpenSource/very_good_dart_package/pull/71))
+  - chore: migrate very_good_dart_package ([#4](https://github.com/VeryGoodOpenSource/very_good_templates/pull/4))
   - feat!: update to Dart 3.3.0 ([#16](https://github.com/VeryGoodOpenSource/very_good_templates/pull/16))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
   - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
@@ -47,6 +48,7 @@
   - feat: allow optionally fixing template output ([#151](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/151))
   - fix: add support for platform testing ([#155](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/155))
   - feat: remove generator script ([#141](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/commit/78c1a6fb7619fa80d824e97065d00a87293bb7b5))
+  - chore: migrate very_good_flutter_plugin ([#36](https://github.com/VeryGoodOpenSource/very_good_templates/pull/41))
   - chore: update repository url ([#41](https://github.com/VeryGoodOpenSource/very_good_templates/pull/41))
   - refactor: template dartSdkVersionBounds ([#47](https://github.com/VeryGoodOpenSource/very_good_templates/pull/47))
   - refactor: template flutterVersion ([#48](https://github.com/VeryGoodOpenSource/very_good_templates/pull/48))
