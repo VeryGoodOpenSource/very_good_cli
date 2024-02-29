@@ -10,6 +10,7 @@
   - chore: migrate very_good_core ([#1](https://github.com/VeryGoodOpenSource/very_good_templates/pull/1))
   - feat!: update to Flutter 3.19.0 ([#24](https://github.com/VeryGoodOpenSource/very_good_templates/pull/24))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
+  - fix: deprecated imperative apply of Flutter's Gradle plugins ([#70](https://github.com/VeryGoodOpenSource/very_good_templates/pull/70))
 - [**Very Good Dart CLI**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_cli-v0.6.0):
   - build(deps): bump pub_updater from 0.3.1 to 0.4.0 ([#116](https://github.com/VeryGoodOpenSource/very_good_dart_cli/pull/116))
   - build(deps): bump cli_completion from 0.3.0 to 0.4.0 ([#115](https://github.com/VeryGoodOpenSource/very_good_dart_cli/pull/115))
@@ -19,10 +20,12 @@
   - chore: migrate very_good_dart_cli ([#3](https://github.com/VeryGoodOpenSource/very_good_templates/pull/3))
   - feat!: update to Dart 3.3.0 ([#22](https://github.com/VeryGoodOpenSource/very_good_templates/pull/22))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
+  - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
 - [**Very Good Dart Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_package-v0.5.0):
   - refactor: remove generator script ([#71](https://github.com/VeryGoodOpenSource/very_good_dart_package/pull/71))
   - feat!: update to Dart 3.3.0 ([#16](https://github.com/VeryGoodOpenSource/very_good_templates/pull/16))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
+  - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
 - [**Very Good Docs Site**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_docs_site-v0.0.3):
   - chore: migrate very_good_docs_site ([#6](https://github.com/VeryGoodOpenSource/very_good_templates/pull/6))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
@@ -32,11 +35,13 @@
   - chore: migrate very_good_flame_game to very_good_templates ([#7](https://github.com/VeryGoodOpenSource/very_good_templates/pull/7))
   - feat!: update to Flutter 3.19.0 ([#20](https://github.com/VeryGoodOpenSource/very_good_templates/pull/20))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/commit/9dca472fb8c97a2fd08dbeea10eaf93d320ac550))
+  - fix: deprecated imperative apply of Flutter's Gradle plugins ([#78](https://github.com/VeryGoodOpenSource/very_good_templates/pull/78))
 - [**Very Good Flutter Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_package-v0.5.0):
   - refactor: remove generator script ([#72](https://github.com/VeryGoodOpenSource/very_good_flutter_package/pull/72))
   - chore: migrate very_good_flutter_package ([#5](https://github.com/VeryGoodOpenSource/very_good_templates/pull/5))
   - feat!: update to Flutter 3.19.0 ([#18](https://github.com/VeryGoodOpenSource/very_good_templates/pull/18))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
+  - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
 - [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_plugin-v0.7.0):
   - test: add pre generation tests ([#138](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/138))
   - feat: allow optionally fixing template output ([#151](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin/pull/151))
@@ -56,6 +61,7 @@
   - chore: migrate very_good_wear_app ([#2](https://github.com/VeryGoodOpenSource/very_good_templates/pull/2))
   - feat!: update to Flutter 3.19.0 ([#27](https://github.com/VeryGoodOpenSource/very_good_templates/pull/27))
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
+  - fix: deprecated imperative apply of Flutter's Gradle plugins ([#79](https://github.com/VeryGoodOpenSource/very_good_templates/pull/79))
 
 # 0.19.1
 
