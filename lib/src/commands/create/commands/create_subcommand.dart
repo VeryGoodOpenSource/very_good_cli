@@ -121,12 +121,23 @@ abstract class CreateSubCommand extends Command<int> {
     return Directory(directory);
   }
 
-  /// Gets the project name.
-  String get projectName {
+  /// The project name that the user provided.
+  ///
+  /// Since the project name could be user provided as either:
+  /// 1. A valid package name
+  /// 2. '.', the current working directory (the project assumes the cwd's name)
+  /// this needs to exist to provide a fallback value for [outputDirectory] and
+  /// [projectName].
+  String get _projectName {
     final args = argResults.rest;
     _validateProjectName(args);
     return args.first;
   }
+
+  /// Gets the project name.
+  String get projectName => _projectName == '.'
+      ? path.basename(Directory.current.path)
+      : _projectName;
 
   /// Gets the description for the project.
   String get projectDescription => argResults['description'] as String? ?? '';
@@ -159,6 +170,15 @@ abstract class CreateSubCommand extends Command<int> {
     }
 
     final name = args.first;
+
+    if (name == '.') {
+      logger.detail(
+        'Since the project name is ".", the current directory will'
+        ' be used as the project name.',
+      );
+      return;
+    }
+
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
       usageException(
@@ -211,7 +231,12 @@ abstract class CreateSubCommand extends Command<int> {
 
     await template.onGenerateComplete(
       logger,
-      Directory(path.join(target.dir.path, projectName)),
+      Directory(
+        [
+          target.dir.path,
+          if (_projectName != '.') projectName,
+        ].join(Platform.pathSeparator),
+      ),
     );
 
     return ExitCode.success.code;
