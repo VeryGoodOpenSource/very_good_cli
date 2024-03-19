@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-//
-// If you need to make changes, please refer to the SPDX License brick
+// 
+// If you need to make changes, please refer to the SPDX License brick 
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 607 SPDX licenses.
+/// A list of all 640 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -63,6 +63,7 @@ enum SpdxLicense {
   $Artistic_2_0._('Artistic-2.0'),
   $BSD_1_Clause._('BSD-1-Clause'),
   $BSD_2_Clause._('BSD-2-Clause'),
+  $BSD_2_Clause_Darwin._('BSD-2-Clause-Darwin'),
   $BSD_2_Clause_FreeBSD._('BSD-2-Clause-FreeBSD'),
   $BSD_2_Clause_NetBSD._('BSD-2-Clause-NetBSD'),
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
@@ -75,11 +76,11 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._(
-      'BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
+  $BSD_3_Clause_acpica._('BSD-3-Clause-acpica'),
   $BSD_3_Clause_flex._('BSD-3-Clause-flex'),
   $BSD_4_Clause._('BSD-4-Clause'),
   $BSD_4_Clause_Shortened._('BSD-4-Clause-Shortened'),
@@ -91,7 +92,9 @@ enum SpdxLicense {
   $BSD_Inferno_Nettverk._('BSD-Inferno-Nettverk'),
   $BSD_Protection._('BSD-Protection'),
   $BSD_Source_Code._('BSD-Source-Code'),
+  $BSD_Source_beginning_file._('BSD-Source-beginning-file'),
   $BSD_Systemics._('BSD-Systemics'),
+  $BSD_Systemics_W3Works._('BSD-Systemics-W3Works'),
   $BSL_1_0._('BSL-1.0'),
   $BUSL_1_1._('BUSL-1.1'),
   $Baekmuk._('Baekmuk'),
@@ -105,6 +108,7 @@ enum SpdxLicense {
   $BlueOak_1_0_0._('BlueOak-1.0.0'),
   $Boehm_GC._('Boehm-GC'),
   $Borceux._('Borceux'),
+  $Brian_Gladman_2_Clause._('Brian-Gladman-2-Clause'),
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
@@ -116,6 +120,7 @@ enum SpdxLicense {
   $CC_BY_2_5_AU._('CC-BY-2.5-AU'),
   $CC_BY_3_0._('CC-BY-3.0'),
   $CC_BY_3_0_AT._('CC-BY-3.0-AT'),
+  $CC_BY_3_0_AU._('CC-BY-3.0-AU'),
   $CC_BY_3_0_DE._('CC-BY-3.0-DE'),
   $CC_BY_3_0_IGO._('CC-BY-3.0-IGO'),
   $CC_BY_3_0_NL._('CC-BY-3.0-NL'),
@@ -181,6 +186,7 @@ enum SpdxLicense {
   $CERN_OHL_W_2_0._('CERN-OHL-W-2.0'),
   $CFITSIO._('CFITSIO'),
   $CMU_Mach._('CMU-Mach'),
+  $CMU_Mach_nodoc._('CMU-Mach-nodoc'),
   $CNRI_Jython._('CNRI-Jython'),
   $CNRI_Python._('CNRI-Python'),
   $CNRI_Python_GPL_Compatible._('CNRI-Python-GPL-Compatible'),
@@ -190,6 +196,7 @@ enum SpdxLicense {
   $CPOL_1_02._('CPOL-1.02'),
   $CUA_OPL_1_0._('CUA-OPL-1.0'),
   $Caldera._('Caldera'),
+  $Caldera_no_preamble._('Caldera-no-preamble'),
   $ClArtistic._('ClArtistic'),
   $Clips._('Clips'),
   $Community_Spec_1_0._('Community-Spec-1.0'),
@@ -226,6 +233,7 @@ enum SpdxLicense {
   $FBM._('FBM'),
   $FDK_AAC._('FDK-AAC'),
   $FSFAP._('FSFAP'),
+  $FSFAP_no_warranty_disclaimer._('FSFAP-no-warranty-disclaimer'),
   $FSFUL._('FSFUL'),
   $FSFULLR._('FSFULLR'),
   $FSFULLRWD._('FSFULLRWD'),
@@ -288,6 +296,10 @@ enum SpdxLicense {
   $HP_1989._('HP-1989'),
   $HPND._('HPND'),
   $HPND_DEC._('HPND-DEC'),
+  $HPND_Fenneberg_Livingston._('HPND-Fenneberg-Livingston'),
+  $HPND_INRIA_IMAG._('HPND-INRIA-IMAG'),
+  $HPND_Kevlin_Henney._('HPND-Kevlin-Henney'),
+  $HPND_MIT_disclaimer._('HPND-MIT-disclaimer'),
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
   $HPND_UC._('HPND-UC'),
@@ -310,6 +322,7 @@ enum SpdxLicense {
   $IPA._('IPA'),
   $IPL_1_0._('IPL-1.0'),
   $ISC._('ISC'),
+  $ISC_Veillard._('ISC-Veillard'),
   $ImageMagick._('ImageMagick'),
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
@@ -341,6 +354,7 @@ enum SpdxLicense {
   $LGPL_3_0_or_later._('LGPL-3.0-or-later'),
   $LGPLLR._('LGPLLR'),
   $LOOP._('LOOP'),
+  $LPD_document._('LPD-document'),
   $LPL_1_0._('LPL-1.0'),
   $LPL_1_02._('LPL-1.02'),
   $LPPL_1_0._('LPPL-1.0'),
@@ -367,6 +381,7 @@ enum SpdxLicense {
   $MIT_0._('MIT-0'),
   $MIT_CMU._('MIT-CMU'),
   $MIT_Festival._('MIT-Festival'),
+  $MIT_Khronos_old._('MIT-Khronos-old'),
   $MIT_Modern_Variant._('MIT-Modern-Variant'),
   $MIT_Wu._('MIT-Wu'),
   $MIT_advertising._('MIT-advertising'),
@@ -385,6 +400,8 @@ enum SpdxLicense {
   $MS_PL._('MS-PL'),
   $MS_RL._('MS-RL'),
   $MTLL._('MTLL'),
+  $Mackerras_3_Clause._('Mackerras-3-Clause'),
+  $Mackerras_3_Clause_acknowledgment._('Mackerras-3-Clause-acknowledgment'),
   $MakeIndex._('MakeIndex'),
   $Martin_Birgmeier._('Martin-Birgmeier'),
   $McPhee_slideshow._('McPhee-slideshow'),
@@ -470,6 +487,8 @@ enum SpdxLicense {
   $OSL_3_0._('OSL-3.0'),
   $OpenPBS_2_3._('OpenPBS-2.3'),
   $OpenSSL._('OpenSSL'),
+  $OpenSSL_standalone._('OpenSSL-standalone'),
+  $OpenVision._('OpenVision'),
   $PADL._('PADL'),
   $PDDL_1_0._('PDDL-1.0'),
   $PHP_3_0._('PHP-3.0'),
@@ -496,6 +515,7 @@ enum SpdxLicense {
   $Rdisc._('Rdisc'),
   $Ruby._('Ruby'),
   $SAX_PD._('SAX-PD'),
+  $SAX_PD_2_0._('SAX-PD-2.0'),
   $SCEA._('SCEA'),
   $SGI_B_1_0._('SGI-B-1.0'),
   $SGI_B_1_1._('SGI-B-1.1'),
@@ -513,6 +533,7 @@ enum SpdxLicense {
   $SPL_1_0._('SPL-1.0'),
   $SSH_OpenSSH._('SSH-OpenSSH'),
   $SSH_short._('SSH-short'),
+  $SSLeay_standalone._('SSLeay-standalone'),
   $SSPL_1_0._('SSPL-1.0'),
   $SWL._('SWL'),
   $Saxpath._('Saxpath'),
@@ -527,11 +548,13 @@ enum SpdxLicense {
   $Spencer_99._('Spencer-99'),
   $StandardML_NJ._('StandardML-NJ'),
   $SugarCRM_1_1_3._('SugarCRM-1.1.3'),
+  $Sun_PPP._('Sun-PPP'),
   $SunPro._('SunPro'),
   $Symlinks._('Symlinks'),
   $TAPR_OHL_1_0._('TAPR-OHL-1.0'),
   $TCL._('TCL'),
   $TCP_wrappers._('TCP-wrappers'),
+  $TGPPL_1_0._('TGPPL-1.0'),
   $TMate._('TMate'),
   $TORQUE_1_1._('TORQUE-1.1'),
   $TOSL._('TOSL'),
@@ -544,8 +567,10 @@ enum SpdxLicense {
   $TermReadKey._('TermReadKey'),
   $UCAR._('UCAR'),
   $UCL_1_0._('UCL-1.0'),
+  $UMich_Merit._('UMich-Merit'),
   $UPL_1_0._('UPL-1.0'),
   $URT_RLE._('URT-RLE'),
+  $Unicode_3_0._('Unicode-3.0'),
   $Unicode_DFS_2015._('Unicode-DFS-2015'),
   $Unicode_DFS_2016._('Unicode-DFS-2016'),
   $Unicode_TOU._('Unicode-TOU'),
@@ -562,8 +587,7 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._(
-      'X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
@@ -581,6 +605,7 @@ enum SpdxLicense {
   $Zimbra_1_3._('Zimbra-1.3'),
   $Zimbra_1_4._('Zimbra-1.4'),
   $Zlib._('Zlib'),
+  $bcrypt_Solar_Designer._('bcrypt-Solar-Designer'),
   $blessing._('blessing'),
   $bzip2_1_0_5._('bzip2-1.0.5'),
   $bzip2_1_0_6._('bzip2-1.0.6'),
@@ -599,6 +624,7 @@ enum SpdxLicense {
   $fwlw._('fwlw'),
   $gSOAP_1_3b._('gSOAP-1.3b'),
   $gnuplot._('gnuplot'),
+  $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
   $iMatix._('iMatix'),
   $libpng_2_0._('libpng-2.0'),
@@ -607,6 +633,7 @@ enum SpdxLicense {
   $libutil_David_Nugent._('libutil-David-Nugent'),
   $lsof._('lsof'),
   $magaz._('magaz'),
+  $mailprio._('mailprio'),
   $metamail._('metamail'),
   $mpi_permissive._('mpi-permissive'),
   $mpich2._('mpich2'),
@@ -615,13 +642,17 @@ enum SpdxLicense {
   $psfrag._('psfrag'),
   $psutils._('psutils'),
   $python_ldap._('python-ldap'),
+  $radvd._('radvd'),
   $snprintf._('snprintf'),
+  $softSurfer._('softSurfer'),
   $ssh_keyscan._('ssh-keyscan'),
   $swrule._('swrule'),
+  $threeparttable._('threeparttable'),
   $ulem._('ulem'),
   $w3m._('w3m'),
   $wxWindows._('wxWindows'),
   $xinetd._('xinetd'),
+  $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
   $xlock._('xlock'),
   $xpp._('xpp'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
@@ -648,8 +679,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }
