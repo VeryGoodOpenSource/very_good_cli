@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
@@ -284,7 +285,61 @@ Run "runner help" to see global options.''';
                 that: isA<Directory>().having(
                   (d) => d.path,
                   'path',
-                  'test_dir/test_project',
+                  path.join('test_dir', 'test_project'),
+                ),
+              ),
+            ),
+          ).called(1);
+        });
+
+        test('allows projects to be cwd (.)', () async {
+          final expectedProjectName = path.basename(Directory.current.path);
+
+          final result = await runner.run([
+            'create_subcommand',
+            '.',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          verify(() => logger.progress('Bootstrapping')).called(1);
+
+          verify(
+            () => hooks.preGen(
+              vars: <String, dynamic>{
+                'project_name': expectedProjectName,
+                'description': 'A Very Good Project created by Very Good CLI.',
+              },
+              onVarsChanged: any(named: 'onVarsChanged'),
+            ),
+          );
+          verify(
+            () => generator.generate(
+              any(
+                that: isA<DirectoryGeneratorTarget>().having(
+                  (g) => g.dir.path,
+                  'dir',
+                  '.',
+                ),
+              ),
+              vars: <String, dynamic>{
+                'project_name': expectedProjectName,
+                'description': 'A Very Good Project created by Very Good CLI.',
+              },
+              logger: logger,
+            ),
+          ).called(1);
+          expect(
+            progressLogs,
+            equals(['Generated ${generatedFiles.length} file(s)']),
+          );
+          verify(
+            () => template.onGenerateComplete(
+              logger,
+              any(
+                that: isA<Directory>().having(
+                  (d) => d.path,
+                  'path',
+                  '.',
                 ),
               ),
             ),
