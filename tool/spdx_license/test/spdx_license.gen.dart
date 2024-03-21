@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 639 SPDX licenses.
+/// A list of all 640 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -647,6 +647,7 @@ enum SpdxLicense {
   $softSurfer._('softSurfer'),
   $ssh_keyscan._('ssh-keyscan'),
   $swrule._('swrule'),
+  $threeparttable._('threeparttable'),
   $ulem._('ulem'),
   $w3m._('w3m'),
   $wxWindows._('wxWindows'),
