@@ -136,7 +136,7 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+            any(that: contains('Running "flutter pub get" in')),
           );
         }).called(1);
       }),
@@ -184,7 +184,7 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+            any(that: contains('Running "flutter pub get" in')),
           );
         }).called(2);
       }),
@@ -235,7 +235,7 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+            any(that: contains('Running "flutter pub get" in')),
           );
         }).called(2);
       }),
@@ -284,7 +284,7 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(that: contains('Running "flutter packages get" in')),
+            any(that: contains('Running "flutter pub get" in')),
           );
         }).called(2);
         directory.deleteSync(recursive: true);
@@ -354,7 +354,7 @@ void main() {
           logger.progress(
             any(
               that: contains(
-                '''Running "flutter packages get" in $relativePathPrefix$relativePath''',
+                '''Running "flutter pub get" in $relativePathPrefix$relativePath''',
               ),
             ),
           );
@@ -368,7 +368,7 @@ void main() {
           logger.progress(
             any(
               that: contains(
-                '''Running "flutter packages get" in $relativePathPrefix$relativePath''',
+                '''Running "flutter pub get" in $relativePathPrefix$relativePath''',
               ),
             ),
           );

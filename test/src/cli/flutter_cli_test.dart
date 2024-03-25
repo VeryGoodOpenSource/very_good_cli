@@ -91,158 +91,6 @@ void main() {
       ).thenAnswer((_) async => successProcessResult);
     });
 
-    group('.packagesGet', () {
-      test('throws when there is no pubspec.yaml', () {
-        ProcessOverrides.runZoned(
-          () => expectLater(
-            Flutter.packagesGet(
-              cwd: Directory.systemTemp.path,
-              logger: logger,
-            ),
-            throwsA(isA<PubspecNotFound>()),
-          ),
-          runProcess: process.run,
-        );
-      });
-
-      test('throws when process fails', () {
-        when(
-          () => process.run(
-            'flutter',
-            any(),
-            runInShell: any(named: 'runInShell'),
-            workingDirectory: any(named: 'workingDirectory'),
-          ),
-        ).thenAnswer((_) async => softwareErrorProcessResult);
-
-        ProcessOverrides.runZoned(
-          () => expectLater(
-            Flutter.packagesGet(
-              cwd: Directory.systemTemp.path,
-              logger: logger,
-            ),
-            throwsException,
-          ),
-          runProcess: process.run,
-        );
-      });
-
-      test('throws when there is an unreachable git url', () {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-        File(p.join(tempDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_unreachableGitUrlPubspec);
-
-        when(
-          () => process.run(
-            'git',
-            any(that: contains('ls-remote')),
-            runInShell: any(named: 'runInShell'),
-            workingDirectory: any(named: 'workingDirectory'),
-          ),
-        ).thenAnswer((_) async => softwareErrorProcessResult);
-
-        ProcessOverrides.runZoned(
-          () => expectLater(
-            () => Flutter.packagesGet(cwd: tempDirectory.path, logger: logger),
-            throwsA(isA<UnreachableGitDependency>()),
-          ),
-          runProcess: process.run,
-        );
-      });
-
-      test('completes when the process succeeds', () {
-        ProcessOverrides.runZoned(
-          () => expectLater(Flutter.packagesGet(logger: logger), completes),
-          runProcess: process.run,
-        );
-      });
-
-      test('throws when there is no pubspec.yaml (recursive)', () {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-        ProcessOverrides.runZoned(
-          () => expectLater(
-            Flutter.packagesGet(
-              cwd: tempDirectory.path,
-              recursive: true,
-              logger: logger,
-            ),
-            throwsA(isA<PubspecNotFound>()),
-          ),
-          runProcess: process.run,
-        );
-      });
-
-      test(
-        'completes when there is a pubspec.yaml and '
-        'directory is ignored (recursive)',
-        () {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-          final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
-            ..createSync();
-          final ignoredDirectory = Directory(
-            p.join(tempDirectory.path, 'test_plugin'),
-          )..createSync();
-
-          File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
-          File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
-
-          final relativePathPrefix = '.${p.context.separator}';
-
-          ProcessOverrides.runZoned(
-            () => expectLater(
-              Flutter.packagesGet(
-                cwd: tempDirectory.path,
-                recursive: true,
-                ignore: {
-                  'test_plugin',
-                  '/**/test_plugin_two/**',
-                },
-                logger: logger,
-              ),
-              completes,
-            ),
-            runProcess: process.run,
-          ).whenComplete(() {
-            final nestedRelativePath =
-                p.relative(nestedDirectory.path, from: tempDirectory.path);
-
-            verify(() {
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "flutter packages get" in $relativePathPrefix$nestedRelativePath''',
-                  ),
-                ),
-              );
-            }).called(1);
-
-            verifyNever(() {
-              final ignoredRelativePath = p.relative(
-                ignoredDirectory.path,
-                from: tempDirectory.path,
-              );
-
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "flutter packages get" in $relativePathPrefix$ignoredRelativePath''',
-                  ),
-                ),
-              );
-            });
-          });
-        },
-      );
-    });
-
     group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(
@@ -289,6 +137,73 @@ void main() {
         );
       });
 
+      test(
+        'completes when there is a pubspec.yaml and '
+        'directory is ignored (recursive)',
+        () {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
+            ..createSync();
+          final ignoredDirectory = Directory(
+            p.join(tempDirectory.path, 'test_plugin'),
+          )..createSync();
+
+          File(p.join(nestedDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+          File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync(_pubspec);
+
+          final relativePathPrefix = '.${p.context.separator}';
+
+          ProcessOverrides.runZoned(
+            () => expectLater(
+              Dart.pubGet(
+                cwd: tempDirectory.path,
+                recursive: true,
+                ignore: {
+                  'test_plugin',
+                  '/**/test_plugin_two/**',
+                },
+                logger: logger,
+              ),
+              completes,
+            ),
+            runProcess: process.run,
+          ).whenComplete(() {
+            final nestedRelativePath =
+                p.relative(nestedDirectory.path, from: tempDirectory.path);
+            print('$relativePathPrefix$nestedRelativePath');
+
+            verify(() {
+              logger.progress(
+                any(
+                  that: contains(
+                    '''Running "dart pub get" in $relativePathPrefix$nestedRelativePath''',
+                  ),
+                ),
+              );
+            }).called(1);
+
+            verifyNever(() {
+              final ignoredRelativePath = p.relative(
+                ignoredDirectory.path,
+                from: tempDirectory.path,
+              );
+
+              logger.progress(
+                any(
+                  that: contains(
+                    '''Running "dart pub get" in $relativePathPrefix$ignoredRelativePath''',
+                  ),
+                ),
+              );
+            });
+          });
+        },
+      );
+
       test('throws when process fails', () {
         when(
           () => process.run(
@@ -319,6 +234,31 @@ void main() {
           () => expectLater(
             Flutter.pubGet(recursive: true, logger: logger),
             throwsException,
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws when there is an unreachable git url', () {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync(_unreachableGitUrlPubspec);
+
+        when(
+          () => process.run(
+            'git',
+            any(that: contains('ls-remote')),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            () => Flutter.pubGet(cwd: tempDirectory.path, logger: logger),
+            throwsA(isA<UnreachableGitDependency>()),
           ),
           runProcess: process.run,
         );
