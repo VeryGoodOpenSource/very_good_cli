@@ -174,7 +174,6 @@ void main() {
           ).whenComplete(() {
             final nestedRelativePath =
                 p.relative(nestedDirectory.path, from: tempDirectory.path);
-            print('$relativePathPrefix$nestedRelativePath');
 
             verify(() {
               logger.progress(
