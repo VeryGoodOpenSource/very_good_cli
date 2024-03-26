@@ -21,7 +21,7 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help                                                   Print this usage information.\n'
+      '''-h, --help                                                   Print this usage information.\n'''
       '''    --coverage                                               Whether to collect coverage information.\n'''
       '''-r, --recursive                                              Run tests recursively for all nested packages.\n'''
       '''    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'''
