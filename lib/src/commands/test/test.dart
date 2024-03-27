@@ -109,6 +109,18 @@ class TestCommand extends Command<int> {
             'Multiple defines can be passed by repeating '
             '"--dart-define" multiple times.',
         valueHelp: 'foo=bar',
+      )
+      ..addMultiOption(
+        'dart-define-from-file',
+        help: 'The path of a .json or .env file containing key-value pairs '
+            'that will be available as environment variables. '
+            'These can be accessed using the String.fromEnvironment, '
+            'bool.fromEnvironment, and int.fromEnvironment constructors. '
+            'Multiple defines can be passed by repeating '
+            '"--dart-define-from-file" multiple times. '
+            'Entries from "--dart-define" with identical keys take '
+            'precedence over entries from these files.',
+        valueHelp: 'use-define-config.json|.env',
       );
   }
 
@@ -161,6 +173,8 @@ This command should be run from the root of your Flutter project.''',
     final updateGoldens = _argResults['update-goldens'] as bool;
     final forceAnsi = _argResults['force-ansi'] as bool?;
     final dartDefine = _argResults['dart-define'] as List<String>?;
+    final dartDefineFromFile =
+        _argResults['dart-define-from-file'] as List<String>?;
     final rest = _argResults.rest;
 
     if (isFlutterInstalled) {
@@ -184,6 +198,9 @@ This command should be run from the root of your Flutter project.''',
             if (updateGoldens) '--update-goldens',
             if (dartDefine != null)
               for (final value in dartDefine) '--dart-define=$value',
+            if (dartDefineFromFile != null)
+              for (final value in dartDefineFromFile)
+                '--dart-define-from-file=$value',
             ...['-j', concurrency],
             '--no-pub',
             ...rest,
