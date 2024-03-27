@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 639 SPDX licenses.
+/// A list of all 643 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -30,6 +30,7 @@ enum SpdxLicense {
   $AGPL_3_0._('AGPL-3.0'),
   $AGPL_3_0_only._('AGPL-3.0-only'),
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
+  $AMD_newlib._('AMD-newlib'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
   $AML_glslang._('AML-glslang'),
@@ -440,6 +441,7 @@ enum SpdxLicense {
   $Noweb._('Noweb'),
   $Nunit._('Nunit'),
   $O_UDA_1_0._('O-UDA-1.0'),
+  $OAR._('OAR'),
   $OCCT_PL._('OCCT-PL'),
   $OCLC_2_0._('OCLC-2.0'),
   $ODC_By_1_0._('ODC-By-1.0'),
@@ -647,6 +649,7 @@ enum SpdxLicense {
   $softSurfer._('softSurfer'),
   $ssh_keyscan._('ssh-keyscan'),
   $swrule._('swrule'),
+  $threeparttable._('threeparttable'),
   $ulem._('ulem'),
   $w3m._('w3m'),
   $wxWindows._('wxWindows'),
@@ -654,6 +657,7 @@ enum SpdxLicense {
   $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
   $xlock._('xlock'),
   $xpp._('xpp'),
+  $xzoom._('xzoom'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
   $unknown._('unknown');
 
