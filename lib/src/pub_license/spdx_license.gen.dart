@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 640 SPDX licenses.
+/// A list of all 643 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -30,6 +30,7 @@ enum SpdxLicense {
   $AGPL_3_0._('AGPL-3.0'),
   $AGPL_3_0_only._('AGPL-3.0-only'),
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
+  $AMD_newlib._('AMD-newlib'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
   $AML_glslang._('AML-glslang'),
@@ -76,7 +77,8 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._(
+      'BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -440,6 +442,7 @@ enum SpdxLicense {
   $Noweb._('Noweb'),
   $Nunit._('Nunit'),
   $O_UDA_1_0._('O-UDA-1.0'),
+  $OAR._('OAR'),
   $OCCT_PL._('OCCT-PL'),
   $OCLC_2_0._('OCLC-2.0'),
   $ODC_By_1_0._('ODC-By-1.0'),
@@ -587,7 +590,8 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._(
+      'X11-distribute-modifications-variant'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
@@ -655,6 +659,7 @@ enum SpdxLicense {
   $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
   $xlock._('xlock'),
   $xpp._('xpp'),
+  $xzoom._('xzoom'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
   $unknown._('unknown');
 
@@ -679,8 +684,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-    .asNameMap()
-    .map((key, value) => MapEntry(value.value, value));
+      .asNameMap()
+      .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }
