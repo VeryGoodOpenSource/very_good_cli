@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'spdx_license.gen.dart';
 
 void main() {
-  group('SpdxLicense1', () {
+  group('SpdxLicense', () {
     const invalidLicenseSource = 'invalid';
 
     group('parse', () {
