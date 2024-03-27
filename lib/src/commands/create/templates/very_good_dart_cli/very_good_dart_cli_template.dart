@@ -18,8 +18,9 @@ class VeryGoodDartCLITemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    await installDartPackages(logger, outputDir);
-    await applyDartFixes(logger, outputDir);
+    if (await installDartPackages(logger, outputDir)) {
+      await applyDartFixes(logger, outputDir);
+    }
     _logSummary(logger);
   }
 

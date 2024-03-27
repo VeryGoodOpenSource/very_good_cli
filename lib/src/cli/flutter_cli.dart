@@ -2,8 +2,7 @@ part of 'cli.dart';
 
 const _testOptimizerFileName = '.test_optimizer.dart';
 
-/// Thrown when `flutter packages get` or `flutter pub get`
-/// is executed without a `pubspec.yaml`.
+/// Thrown when `flutter pub get` is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
 /// {@template coverage_not_met}
@@ -77,8 +76,8 @@ class Flutter {
     }
   }
 
-  /// Install flutter dependencies (`flutter packages get`).
-  static Future<void> packagesGet({
+  /// Install dart dependencies (`flutter pub get`).
+  static Future<bool> pubGet({
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
@@ -86,14 +85,14 @@ class Flutter {
   }) async {
     final initialCwd = cwd;
 
-    await _runCommand(
+    final result = await _runCommand(
       cmd: (cwd) async {
         final relativePath = p.relative(cwd, from: initialCwd);
         final path =
             relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
 
         final installProgress = logger.progress(
-          'Running "flutter packages get" in $path ',
+          'Running "flutter pub get" in $path ',
         );
 
         try {
@@ -104,9 +103,9 @@ class Flutter {
         }
 
         try {
-          await _Cmd.run(
+          return await _Cmd.run(
             'flutter',
-            ['packages', 'get'],
+            ['pub', 'get'],
             workingDirectory: cwd,
             logger: logger,
           );
@@ -118,26 +117,7 @@ class Flutter {
       recursive: recursive,
       ignore: ignore,
     );
-  }
-
-  /// Install dart dependencies (`flutter pub get`).
-  static Future<void> pubGet({
-    required Logger logger,
-    String cwd = '.',
-    bool recursive = false,
-    Set<String> ignore = const {},
-  }) async {
-    await _runCommand(
-      cmd: (cwd) => _Cmd.run(
-        'flutter',
-        ['pub', 'get'],
-        workingDirectory: cwd,
-        logger: logger,
-      ),
-      cwd: cwd,
-      recursive: recursive,
-      ignore: ignore,
-    );
+    return result.every((e) => e.exitCode == ExitCode.success.code);
   }
 
   /// Run tests (`flutter test`).

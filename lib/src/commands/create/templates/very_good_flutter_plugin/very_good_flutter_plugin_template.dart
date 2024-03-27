@@ -17,8 +17,9 @@ class FlutterPluginTemplate extends Template {
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
-    await installFlutterPackages(logger, outputDir, recursive: true);
-    await applyDartFixes(logger, outputDir, recursive: true);
+    if (await installFlutterPackages(logger, outputDir, recursive: true)) {
+      await applyDartFixes(logger, outputDir, recursive: true);
+    }
     _logSummary(logger);
   }
 
