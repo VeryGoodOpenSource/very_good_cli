@@ -3,6 +3,8 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Runs `dart pub get` in the [outputDir].
+///
+/// Completes with `true` is the execution was successful, `false` otherwise.
 Future<bool> installDartPackages(
   Logger logger,
   Directory outputDir, {
