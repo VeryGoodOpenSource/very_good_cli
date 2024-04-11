@@ -22,6 +22,8 @@ Future<bool> installDartPackages(
 }
 
 /// Runs `flutter pub get` in the [outputDir].
+///
+/// Completes with `true` is the execution was successful, `false` otherwise.
 Future<bool> installFlutterPackages(
   Logger logger,
   Directory outputDir, {
