@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 643 SPDX licenses.
+/// A list of all 646 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -69,6 +69,7 @@ enum SpdxLicense {
   $BSD_2_Clause_NetBSD._('BSD-2-Clause-NetBSD'),
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
+  $BSD_2_clause_first_lines._('BSD-2-clause-first-lines'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -551,6 +552,7 @@ enum SpdxLicense {
   $StandardML_NJ._('StandardML-NJ'),
   $SugarCRM_1_1_3._('SugarCRM-1.1.3'),
   $Sun_PPP._('Sun-PPP'),
+  $Sun_PPP_2000._('Sun-PPP-2000'),
   $SunPro._('SunPro'),
   $Symlinks._('Symlinks'),
   $TAPR_OHL_1_0._('TAPR-OHL-1.0'),
@@ -640,6 +642,7 @@ enum SpdxLicense {
   $mpi_permissive._('mpi-permissive'),
   $mpich2._('mpich2'),
   $mplus._('mplus'),
+  $pkgconf._('pkgconf'),
   $pnmstitch._('pnmstitch'),
   $psfrag._('psfrag'),
   $psutils._('psutils'),

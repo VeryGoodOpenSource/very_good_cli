@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-//
-// If you need to make changes, please refer to the SPDX License brick
+// 
+// If you need to make changes, please refer to the SPDX License brick 
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 643 SPDX licenses.
+/// A list of all 646 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -69,6 +69,7 @@ enum SpdxLicense {
   $BSD_2_Clause_NetBSD._('BSD-2-Clause-NetBSD'),
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
+  $BSD_2_clause_first_lines._('BSD-2-clause-first-lines'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -77,8 +78,7 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._(
-      'BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -552,6 +552,7 @@ enum SpdxLicense {
   $StandardML_NJ._('StandardML-NJ'),
   $SugarCRM_1_1_3._('SugarCRM-1.1.3'),
   $Sun_PPP._('Sun-PPP'),
+  $Sun_PPP_2000._('Sun-PPP-2000'),
   $SunPro._('SunPro'),
   $Symlinks._('Symlinks'),
   $TAPR_OHL_1_0._('TAPR-OHL-1.0'),
@@ -590,8 +591,7 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._(
-      'X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
@@ -642,6 +642,7 @@ enum SpdxLicense {
   $mpi_permissive._('mpi-permissive'),
   $mpich2._('mpich2'),
   $mplus._('mplus'),
+  $pkgconf._('pkgconf'),
   $pnmstitch._('pnmstitch'),
   $psfrag._('psfrag'),
   $psutils._('psutils'),
@@ -684,8 +685,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }
