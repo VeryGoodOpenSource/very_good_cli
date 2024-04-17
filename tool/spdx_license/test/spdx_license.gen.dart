@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 646 SPDX licenses.
+/// A list of all 648 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -305,6 +305,7 @@ enum SpdxLicense {
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
   $HPND_UC._('HPND-UC'),
+  $HPND_UC_export_US._('HPND-UC-export-US'),
   $HPND_doc._('HPND-doc'),
   $HPND_doc_sell._('HPND-doc-sell'),
   $HPND_export_US._('HPND-export-US'),
@@ -418,6 +419,7 @@ enum SpdxLicense {
   $NASA_1_3._('NASA-1.3'),
   $NBPL_1_0._('NBPL-1.0'),
   $NCGL_UK_2_0._('NCGL-UK-2.0'),
+  $NCL._('NCL'),
   $NCSA._('NCSA'),
   $NGPL._('NGPL'),
   $NICTA_1_0._('NICTA-1.0'),
