@@ -1,6 +1,6 @@
 name: very_good_cli
 description: A Very Good Command-Line Interface for Dart created by Very Good Ventures.
-version: 0.19.1
+version: 0.20.2
 homepage: https://cli.vgv.dev/
 repository: https://github.com/VeryGoodOpenSource/very_good_cli
 issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
@@ -18,7 +18,7 @@ dependencies:
   glob: ^2.0.2
   lcov_parser: ^0.1.2
   mason: 0.1.0-dev.51
-  mason_logger: ^0.2.2
+  mason_logger: 0.2.12
   meta: ^1.3.0
   package_config: ^2.1.0
   pana: 0.21.45 # Very Good CLI is using private PANA's license detector that might break in a minor version update.
