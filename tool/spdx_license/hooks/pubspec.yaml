@@ -9,13 +9,13 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  archive: ^3.4.2
-  http: ^1.1.0
-  mason: ^0.1.0-dev.51
-  meta: ^1.10.0
-  path: ^1.8.3
+  archive: ^3.4.10
+  http: ^1.2.1
+  mason: ^0.1.0-dev.52
+  meta: ^1.12.0
+  path: ^1.9.0
 
 dev_dependencies:
-  mocktail: ^1.0.0
-  test: ^1.25.0
+  mocktail: ^1.0.3
+  test: ^1.25.2
   very_good_analysis: ^5.1.0

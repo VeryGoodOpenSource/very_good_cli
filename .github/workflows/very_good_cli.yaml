@@ -25,7 +25,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2.8.0
         with:
-          flutter-version: 3.13.0
+          flutter-version: 3.19.0
 
       - name: Install Dependencies
         run: flutter pub get
@@ -45,7 +45,7 @@ jobs:
           flutter pub run test -j 1 -x pull-request-only -x e2e --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - name: Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v2.2.0
+        uses: VeryGoodOpenSource/very_good_coverage@v3.0.0
         with:
           exclude: "**/*.gen.dart"
 
