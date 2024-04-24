@@ -21,21 +21,22 @@ const expectedTestUsage = [
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '-h, --help                            Print this usage information.\n'
-      '''    --coverage                        Whether to collect coverage information.\n'''
-      '''-r, --recursive                       Run tests recursively for all nested packages.\n'''
-      '''    --[no-]optimization               Whether to apply optimizations for test performance.\n'''
-      '''                                      (defaults to on)\n'''
-      '''-j, --concurrency                     The number of concurrent test suites run.\n'''
-      '''                                      (defaults to "4")\n'''
-      '''-t, --tags                            Run only tests associated with the specified tags.\n'''
-      '''    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.\n'''
-      '''-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'''
-      '''    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'''
-      '''    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'''
-      '''    --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
-      '''    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'''
-      '''    --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
+      '''-h, --help                                                   Print this usage information.\n'''
+      '''    --coverage                                               Whether to collect coverage information.\n'''
+      '''-r, --recursive                                              Run tests recursively for all nested packages.\n'''
+      '''    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'''
+      '''                                                             (defaults to on)\n'''
+      '''-j, --concurrency                                            The number of concurrent test suites run.\n'''
+      '''                                                             (defaults to "4")\n'''
+      '''-t, --tags                                                   Run only tests associated with the specified tags.\n'''
+      '''    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage.\n'''
+      '''-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'''
+      '''    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'''
+      '''    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'''
+      '''    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
+      '''    --force-ansi                                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'''
+      '''    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
+      '''    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'''
       '\n'
       'Run "very_good help" to see global options.'
 ];
@@ -475,6 +476,27 @@ void main() {
           arguments: [
             '--dart-define=FOO=bar',
             '--dart-define=X=42',
+            ...defaultArguments,
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --dart-define-from-file', () async {
+      when<dynamic>(
+        () => argResults['dart-define-from-file'],
+      ).thenReturn(['defines/foo.json', 'bar.env']);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: [
+            '--dart-define-from-file=defines/foo.json',
+            '--dart-define-from-file=bar.env',
             ...defaultArguments,
           ],
           logger: logger,

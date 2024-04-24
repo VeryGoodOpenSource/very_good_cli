@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 640 SPDX licenses.
+/// A list of all 648 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -30,6 +30,7 @@ enum SpdxLicense {
   $AGPL_3_0._('AGPL-3.0'),
   $AGPL_3_0_only._('AGPL-3.0-only'),
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
+  $AMD_newlib._('AMD-newlib'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
   $AML_glslang._('AML-glslang'),
@@ -68,6 +69,7 @@ enum SpdxLicense {
   $BSD_2_Clause_NetBSD._('BSD-2-Clause-NetBSD'),
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
+  $BSD_2_clause_first_lines._('BSD-2-clause-first-lines'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -303,6 +305,7 @@ enum SpdxLicense {
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
   $HPND_UC._('HPND-UC'),
+  $HPND_UC_export_US._('HPND-UC-export-US'),
   $HPND_doc._('HPND-doc'),
   $HPND_doc_sell._('HPND-doc-sell'),
   $HPND_export_US._('HPND-export-US'),
@@ -416,6 +419,7 @@ enum SpdxLicense {
   $NASA_1_3._('NASA-1.3'),
   $NBPL_1_0._('NBPL-1.0'),
   $NCGL_UK_2_0._('NCGL-UK-2.0'),
+  $NCL._('NCL'),
   $NCSA._('NCSA'),
   $NGPL._('NGPL'),
   $NICTA_1_0._('NICTA-1.0'),
@@ -440,6 +444,7 @@ enum SpdxLicense {
   $Noweb._('Noweb'),
   $Nunit._('Nunit'),
   $O_UDA_1_0._('O-UDA-1.0'),
+  $OAR._('OAR'),
   $OCCT_PL._('OCCT-PL'),
   $OCLC_2_0._('OCLC-2.0'),
   $ODC_By_1_0._('ODC-By-1.0'),
@@ -549,6 +554,7 @@ enum SpdxLicense {
   $StandardML_NJ._('StandardML-NJ'),
   $SugarCRM_1_1_3._('SugarCRM-1.1.3'),
   $Sun_PPP._('Sun-PPP'),
+  $Sun_PPP_2000._('Sun-PPP-2000'),
   $SunPro._('SunPro'),
   $Symlinks._('Symlinks'),
   $TAPR_OHL_1_0._('TAPR-OHL-1.0'),
@@ -638,6 +644,7 @@ enum SpdxLicense {
   $mpi_permissive._('mpi-permissive'),
   $mpich2._('mpich2'),
   $mplus._('mplus'),
+  $pkgconf._('pkgconf'),
   $pnmstitch._('pnmstitch'),
   $psfrag._('psfrag'),
   $psutils._('psutils'),
@@ -655,6 +662,7 @@ enum SpdxLicense {
   $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
   $xlock._('xlock'),
   $xpp._('xpp'),
+  $xzoom._('xzoom'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
   $unknown._('unknown');
 
