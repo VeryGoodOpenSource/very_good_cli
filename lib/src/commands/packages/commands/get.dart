@@ -52,7 +52,7 @@ class PackagesGetCommand extends Command<int> {
     final isFlutterInstalled = await Flutter.installed(logger: _logger);
     if (isFlutterInstalled) {
       try {
-        await Flutter.packagesGet(
+        await Flutter.pubGet(
           cwd: targetPath,
           recursive: recursive,
           ignore: ignore,

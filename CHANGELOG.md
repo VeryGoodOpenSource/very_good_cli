@@ -1,3 +1,15 @@
+# 0.21.0 
+
+- chore(deps): bump pana from 0.22.1 to 0.22.2 ([#980](https://github.com/VeryGoodOpenSource/very_good_cli/pull/980))
+- chore: update SPDX licenses ([#994](https://github.com/VeryGoodOpenSource/very_good_cli/pull/994))
+- chore: update SPDX licenses ([#1003](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1003))
+- feat: add `--dart-define-from-file` support ([#984](https://github.com/VeryGoodOpenSource/very_good_cli/pull/984))
+- chore: update SPDX licenses ([#1017](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1017))
+- chore: update SPDX licenses ([#1021](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1021))
+- chore(deps): bump pana from 0.22.2 to 0.22.3 ([#1023](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1023))
+- chore(deps): bump mason from 0.1.0-dev.52 to 0.1.0-dev.53 ([#1027](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1027))
+- fix: flutter_gen breaks current template ([#1002](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1002))
+
 # 0.20.0
 
 - chore(deps): bump mason from 0.1.0-dev.51 to 0.1.0-dev.52 ([#942](https://github.com/VeryGoodOpenSource/very_good_cli/pull/942))

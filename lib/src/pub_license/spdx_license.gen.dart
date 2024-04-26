@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 648 SPDX licenses.
+/// A list of all 649 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -200,6 +200,7 @@ enum SpdxLicense {
   $CUA_OPL_1_0._('CUA-OPL-1.0'),
   $Caldera._('Caldera'),
   $Caldera_no_preamble._('Caldera-no-preamble'),
+  $Catharon._('Catharon'),
   $ClArtistic._('ClArtistic'),
   $Clips._('Clips'),
   $Community_Spec_1_0._('Community-Spec-1.0'),

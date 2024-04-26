@@ -2,35 +2,42 @@ import 'package:mason/mason.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
-/// Runs `flutter pub get` in the [outputDir].
-Future<void> installDartPackages(
+/// Runs `dart pub get` in the [outputDir].
+///
+/// Completes with `true` is the execution was successful, `false` otherwise.
+Future<bool> installDartPackages(
   Logger logger,
-  Directory outputDir,
-) async {
-  final isFlutterInstalled = await Flutter.installed(logger: logger);
-  if (isFlutterInstalled) {
-    final installDependenciesProgress = logger.progress(
-      'Running "flutter pub get" in ${outputDir.path}',
+  Directory outputDir, {
+  bool recursive = false,
+}) async {
+  final isDartInstalled = await Dart.installed(logger: logger);
+  if (isDartInstalled) {
+    return Dart.pubGet(
+      cwd: outputDir.path,
+      recursive: recursive,
+      logger: logger,
     );
-    await Flutter.pubGet(cwd: outputDir.path, logger: logger);
-    installDependenciesProgress.complete();
   }
+  return false;
 }
 
-/// Runs `flutter packages get` in the [outputDir].
-Future<void> installFlutterPackages(
+/// Runs `flutter pub get` in the [outputDir].
+///
+/// Completes with `true` is the execution was successful, `false` otherwise.
+Future<bool> installFlutterPackages(
   Logger logger,
   Directory outputDir, {
   bool recursive = false,
 }) async {
   final isFlutterInstalled = await Flutter.installed(logger: logger);
   if (isFlutterInstalled) {
-    await Flutter.packagesGet(
+    return Flutter.pubGet(
       cwd: outputDir.path,
       recursive: recursive,
       logger: logger,
     );
   }
+  return false;
 }
 
 /// Runs `dart fix --apply` in the [outputDir].
