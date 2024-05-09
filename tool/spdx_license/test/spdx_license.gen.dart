@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 649 SPDX licenses.
+/// A list of all 650 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -499,6 +499,7 @@ enum SpdxLicense {
   $PDDL_1_0._('PDDL-1.0'),
   $PHP_3_0._('PHP-3.0'),
   $PHP_3_01._('PHP-3.01'),
+  $PPL._('PPL'),
   $PSF_2_0._('PSF-2.0'),
   $Parity_6_0_0._('Parity-6.0.0'),
   $Parity_7_0_0._('Parity-7.0.0'),
