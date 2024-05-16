@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 649 SPDX licenses.
+/// A list of all 653 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -316,6 +316,8 @@ enum SpdxLicense {
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
+  $HPND_sell_variant_MIT_disclaimer_rev._(
+      'HPND-sell-variant-MIT-disclaimer-rev'),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -500,6 +502,7 @@ enum SpdxLicense {
   $PDDL_1_0._('PDDL-1.0'),
   $PHP_3_0._('PHP-3.0'),
   $PHP_3_01._('PHP-3.01'),
+  $PPL._('PPL'),
   $PSF_2_0._('PSF-2.0'),
   $Parity_6_0_0._('Parity-6.0.0'),
   $Parity_7_0_0._('Parity-7.0.0'),
@@ -614,6 +617,7 @@ enum SpdxLicense {
   $Zimbra_1_3._('Zimbra-1.3'),
   $Zimbra_1_4._('Zimbra-1.4'),
   $Zlib._('Zlib'),
+  $any_OSI._('any-OSI'),
   $bcrypt_Solar_Designer._('bcrypt-Solar-Designer'),
   $blessing._('blessing'),
   $bzip2_1_0_5._('bzip2-1.0.5'),
@@ -623,6 +627,7 @@ enum SpdxLicense {
   $copyleft_next_0_3_0._('copyleft-next-0.3.0'),
   $copyleft_next_0_3_1._('copyleft-next-0.3.1'),
   $curl._('curl'),
+  $cve_tou._('cve-tou'),
   $details._('details'),
   $diffmark._('diffmark'),
   $dtoa._('dtoa'),
