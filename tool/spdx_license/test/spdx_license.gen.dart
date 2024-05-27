@@ -11,12 +11,13 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 653 SPDX licenses.
+/// A list of all 660 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
 enum SpdxLicense {
   $0BSD._('0BSD'),
+  $3D_Slicer_1_0._('3D-Slicer-1.0'),
   $AAL._('AAL'),
   $ADSL._('ADSL'),
   $AFL_1_1._('AFL-1.1'),
@@ -69,7 +70,7 @@ enum SpdxLicense {
   $BSD_2_Clause_NetBSD._('BSD-2-Clause-NetBSD'),
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
-  $BSD_2_clause_first_lines._('BSD-2-clause-first-lines'),
+  $BSD_2_Clause_first_lines._('BSD-2-Clause-first-lines'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -295,12 +296,14 @@ enum SpdxLicense {
   $Glide._('Glide'),
   $Glulxe._('Glulxe'),
   $Graphics_Gems._('Graphics-Gems'),
+  $Gutmann._('Gutmann'),
   $HP_1986._('HP-1986'),
   $HP_1989._('HP-1989'),
   $HPND._('HPND'),
   $HPND_DEC._('HPND-DEC'),
   $HPND_Fenneberg_Livingston._('HPND-Fenneberg-Livingston'),
   $HPND_INRIA_IMAG._('HPND-INRIA-IMAG'),
+  $HPND_Intel._('HPND-Intel'),
   $HPND_Kevlin_Henney._('HPND-Kevlin-Henney'),
   $HPND_MIT_disclaimer._('HPND-MIT-disclaimer'),
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
@@ -310,7 +313,10 @@ enum SpdxLicense {
   $HPND_doc._('HPND-doc'),
   $HPND_doc_sell._('HPND-doc-sell'),
   $HPND_export_US._('HPND-export-US'),
+  $HPND_export_US_acknowledgement._('HPND-export-US-acknowledgement'),
   $HPND_export_US_modify._('HPND-export-US-modify'),
+  $HPND_export2_US._('HPND-export2-US'),
+  $HPND_merchantability_variant._('HPND-merchantability-variant'),
   $HPND_sell_MIT_disclaimer_xserver._('HPND-sell-MIT-disclaimer-xserver'),
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
@@ -420,6 +426,7 @@ enum SpdxLicense {
   $NAIST_2003._('NAIST-2003'),
   $NASA_1_3._('NASA-1.3'),
   $NBPL_1_0._('NBPL-1.0'),
+  $NCBI_PD._('NCBI-PD'),
   $NCGL_UK_2_0._('NCGL-UK-2.0'),
   $NCL._('NCL'),
   $NCSA._('NCSA'),
