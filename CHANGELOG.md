@@ -5,6 +5,25 @@
 - ci: update workflows to use Flutter 3.22 ([#1046](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1046))
 - feat!: update package and ecosystem to Dart 3.4 ([#1047](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1047))
 - chore(deps): bump pana from 0.22.3 to 0.22.4 ([#1048](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1048))
+- [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.7.0):
+  - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#97](https://github.com/VeryGoodOpenSource/very_good_templates/pull/97))
+  - fix: update index.html to support latest convention ([#106](https://github.com/VeryGoodOpenSource/very_good_templates/pull/106))
+- [**Very Good Dart CLI**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_cli-v0.7.0):
+  - feat!: ensure template uses Dart 3.4 ([#99](https://github.com/VeryGoodOpenSource/very_good_templates/pull/99))
+- [**Very Good Dart Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_package-v0.6.0):
+  - feat!: ensure template uses Dart 3.4 ([#100](https://github.com/VeryGoodOpenSource/very_good_templates/pull/100))
+- [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flame_game-v0.7.0):
+  - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#102](https://github.com/VeryGoodOpenSource/very_good_templates/pull/102))
+  - fix: update index.html to support latest convention ([#107](https://github.com/VeryGoodOpenSource/very_good_templates/pull/107))
+- [**Very Good Flutter Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_package-v0.6.0):
+  - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#101](https://github.com/VeryGoodOpenSource/very_good_templates/pull/101))
+- [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flutter_plugin-v0.8.0):
+  - refactor: remove explicitly named libraries ([#77](https://github.com/VeryGoodOpenSource/very_good_templates/pull/77))
+  - test: very_good_flutter_plugin doesn't have full code coverage ([#89](https://github.com/VeryGoodOpenSource/very_good_templates/pull/89))
+  - feat: update android plugin template with latest flutter changes ([#95](https://github.com/VeryGoodOpenSource/very_good_templates/pull/95))
+  - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#105](https://github.com/VeryGoodOpenSource/very_good_templates/pull/105))
+- [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.5.0):
+  - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#104](https://github.com/VeryGoodOpenSource/very_good_templates/pull/104))
 
 # 0.21.0
 
