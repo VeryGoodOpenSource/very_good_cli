@@ -1,3 +1,23 @@
+# 0.22.0 
+
+ - chore: update SPDX licenses ([#1030](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1030))
+- chore(deps): bump peter-evans/create-pull-request from 6.0.4 to 6.0.5 ([#1031](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1031))
+- chore(deps): bump react-dom from 18.2.0 to 18.3.1 in /site ([#1034](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1034))
+- chore(deps): bump clsx from 2.1.0 to 2.1.1 in /site ([#1033](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1033))
+- chore(deps-dev): bump @docusaurus/module-type-aliases in /site ([#1036](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1036))
+- chore(deps-dev): bump @babel/eslint-parser in /site ([#1037](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1037))
+- chore(deps): bump @docusaurus/core from 3.2.1 to 3.3.2 in /site ([#1038](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1038))
+- chore: update SPDX licenses ([#1040](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1040))
+- chore: update SPDX licenses ([#1041](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1041))
+- chore(deps-dev): bump @types/react from 18.2.79 to 18.3.2 in /site ([#1042](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1042))
+- feat: bump template bundles ([#1044](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1044))
+- ci: update workflows to use Flutter 3.22 ([#1046](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1046))
+- chore: update SPDX licenses ([#1043](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1043))
+- feat!: update package and ecosystem to Dart 3.4 ([#1047](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1047))
+- chore(deps-dev): bump @babel/eslint-parser in /site ([#1050](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1050))
+- chore(deps-dev): bump @types/react from 18.3.2 to 18.3.3 in /site ([#1049](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1049))
+- chore(deps): bump pana from 0.22.3 to 0.22.4 ([#1048](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1048))
+
 # 0.21.0 
 
 - chore(deps): bump pana from 0.22.1 to 0.22.2 ([#980](https://github.com/VeryGoodOpenSource/very_good_cli/pull/980))
