@@ -4,7 +4,8 @@
 - feat: bump template bundles ([#1044](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1044))
 - ci: update workflows to use Flutter 3.22 ([#1046](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1046))
 - feat!: update package and ecosystem to Dart 3.4 ([#1047](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1047))
-- chore(deps): bump pana from 0.22.3 to 0.22.4 ([#1048](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1048))
+- chore(deps): bump mason from 0.1.0-dev.53 to 0.1.0-dev.56 ([#1052](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1052))
+- chore(deps): bump pana from 0.22.4 to 0.22.5 ([#1054](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1054))
 - [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.7.0):
   - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#97](https://github.com/VeryGoodOpenSource/very_good_templates/pull/97))
   - fix: update index.html to support latest convention ([#106](https://github.com/VeryGoodOpenSource/very_good_templates/pull/106))
