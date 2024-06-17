@@ -8,14 +8,14 @@ Very Good CLI allows you to generate scalable templates and use helpful commands
 
 Templates have their own repositories, if you want to contribute to them please refer to their repositories:
 
-- [Dart CLI](https://github.com/VeryGoodOpenSource/very_good_dart_cli)
-- [Dart Package](https://github.com/VeryGoodOpenSource/very_good_dart_package)
-- [Docs Site](https://github.com/VeryGoodOpenSource/very_good_docs_site)
-- [Flame Game](https://github.com/VeryGoodOpenSource/very_good_flame_game)
-- [Flutter Starter App (Very Good Core)](https://github.com/VeryGoodOpenSource/very_good_core)
-- [Flutter Package](https://github.com/VeryGoodOpenSource/very_good_flutter_package)
-- [Flutter Plugin](https://github.com/VeryGoodOpenSource/very_good_flutter_plugin)
-- [Flutter Wear OS App](https://github.com/VeryGoodOpenSource/very_good_wear_app)
+- [Dart CLI](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_dart_cli)
+- [Dart Package](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_dart_package)
+- [Docs Site](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_docs_site)
+- [Flame Game](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_flame_game)
+- [Flutter Starter App (Very Good Core)](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_core)
+- [Flutter Package](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_flutter_package)
+- [Flutter Plugin](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_flutter_plugin)
+- [Flutter Wear OS App](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_wear_app)
 
 If there are additional templates you'd like to see, open an issue and tell us!
 
