@@ -178,8 +178,8 @@ abstract class CreateSubCommand extends Command<int> {
         '''Building generator from brick: ${brick.name} ${brick.location.version}''',
       );
       return await _generatorFromBrick(brick);
-    } catch (_) {
-      logger.detail('Building generator from brick failed: $_');
+    } catch (error) {
+      logger.detail('Building generator from brick failed: $error');
     }
     logger.detail(
       '''Building generator from bundle ${template.bundle.name} ${template.bundle.version}''',

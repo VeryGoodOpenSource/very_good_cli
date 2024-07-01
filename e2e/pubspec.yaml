@@ -4,7 +4,7 @@ version: 0.1.0+1
 publish_to: none
 
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: ^3.4.0
 
 dev_dependencies:
   mason: ^0.1.0-dev.50
@@ -13,6 +13,6 @@ dev_dependencies:
   pub_updater: ^0.4.0
   test: ^1.25.0
   universal_io: ^2.0.4
-  very_good_analysis: ^5.1.0
+  very_good_analysis: ^6.0.0
   very_good_cli:
     path: ../

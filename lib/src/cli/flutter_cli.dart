@@ -339,8 +339,10 @@ Future<int> _flutterTest({
     return result.join(' ');
   }
 
-  final timerSubscription =
-      Stream.periodic(const Duration(seconds: 1), (_) => _).listen(
+  final timerSubscription = Stream.periodic(
+    const Duration(seconds: 1),
+    (computationCount) => computationCount,
+  ).listen(
     (tick) {
       if (completer.isCompleted) return;
       final timeElapsed = Duration(seconds: tick).formatted();
