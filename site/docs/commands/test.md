@@ -53,4 +53,4 @@ Golden tests are tests that compare the output of a test to a "golden" file. If 
 
 [Very Good CLI](https://cli.vgv.dev/) supports golden tests out of the box, with and without a custom [`goldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). This means that **no change is required** to your test code to run them with `very_good test`.
 
-💡 **Note**: For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html).
+:::info For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). :::
