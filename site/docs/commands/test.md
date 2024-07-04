@@ -46,3 +46,11 @@ This is an optimization done by the CLI because dependency installation is usual
 If you need to install dependencies before running the tests with `very_good_cli`, be sure to run `very_good packages get` first.
 
 [cov_issue]: https://github.com/flutter/flutter/issues/90225
+
+### Golden tests
+
+Golden tests are tests that compare the output of a test to a "golden" file. If the output of the test does not match the golden file, the test will fail. These usually invoke the [`matchesGoldenFile`](https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html) matcher, which supports specifying a [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) to customize the comparison by setting the top-level property [`goldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html), for example to accept a certain amount of difference.
+
+[Very Good CLI](https://cli.vgv.dev/) supports golden tests out of the box, with and without a custom [`goldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). This means that **no change is required** to your test code to run them with `very_good test`.
+
+💡 **Note**: For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html).
