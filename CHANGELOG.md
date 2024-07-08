@@ -6,7 +6,7 @@
 - chore(deps): bump pana from 0.22.5 to 0.22.8 ([#1080](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1080), [#1072](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1072), [#1064](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1064))
 - feat: bump template bundles ([#1082](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1082))
 - [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.7.1):
-  - style: Adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
+  - style: adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
   - chore: update Java versions on Very Good Core ([#128](https://github.com/VeryGoodOpenSource/very_good_templates/pull/128))
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
@@ -17,7 +17,7 @@
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
 - [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flame_game-v0.7.1):
-  - style: Adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
+  - style: adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
   - chore: update Java version for Very Good Flame Game ([#129](https://github.com/VeryGoodOpenSource/very_good_templates/pull/129))
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
@@ -25,12 +25,12 @@
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
 - [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flutter_plugin-v0.8.1):
-  - style: Adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
+  - style: adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
   - chore(deps): bump very_good_analysis from 5.1.0 to 6.0.0 in /very_good_flutter_plugin/hooks ([#133](https://github.com/VeryGoodOpenSource/very_good_templates/pull/133))
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
 - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.5.1):
-  - style: Adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
+  - style: adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
 
