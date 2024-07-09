@@ -171,14 +171,6 @@ abstract class CreateSubCommand extends Command<int> {
 
     final name = args.first;
 
-    if (name == '.') {
-      logger.detail(
-        'Since the project name is ".", the current directory will'
-        ' be used as the project name.',
-      );
-      return;
-    }
-
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
       usageException(
