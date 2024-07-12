@@ -210,8 +210,23 @@ This command should be run from the root of your Flutter project.''',
           return ExitCode.unavailable.code;
         }
       } on MinCoverageNotMet catch (e) {
+        var decimalPlaces = 2;
+
+        double round(double x) {
+          final b = pow(10, decimalPlaces);
+          return (x * b).roundToDouble() / b;
+        }
+
+        if (e.coverage < minCoverage!) {
+          var rounded = round(e.coverage);
+          while (rounded == minCoverage) {
+            decimalPlaces++;
+            rounded = round(e.coverage);
+          }
+        }
+
         _logger.err(
-          '''Expected coverage >= ${minCoverage!.toStringAsFixed(2)}% but actual is ${e.coverage.toStringAsFixed(2)}%.''',
+          '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
         );
         return ExitCode.unavailable.code;
       } catch (error) {
