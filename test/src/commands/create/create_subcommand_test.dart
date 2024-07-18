@@ -411,8 +411,6 @@ Run "runner help" to see global options.''';
               any(
                 that: isA<Directory>().having(
                   (d) {
-                    print(Directory.current);
-                    print(d.absolute.path);
                     return d.path;
                   },
                   'path',
