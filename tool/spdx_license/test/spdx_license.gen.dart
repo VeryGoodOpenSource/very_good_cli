@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 660 SPDX licenses.
+/// A list of all 663 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -297,6 +297,7 @@ enum SpdxLicense {
   $Glulxe._('Glulxe'),
   $Graphics_Gems._('Graphics-Gems'),
   $Gutmann._('Gutmann'),
+  $HIDAPI._('HIDAPI'),
   $HP_1986._('HP-1986'),
   $HP_1989._('HP-1989'),
   $HPND._('HPND'),
@@ -529,6 +530,7 @@ enum SpdxLicense {
   $RSCPL._('RSCPL'),
   $Rdisc._('Rdisc'),
   $Ruby._('Ruby'),
+  $Ruby_pty._('Ruby-pty'),
   $SAX_PD._('SAX-PD'),
   $SAX_PD_2_0._('SAX-PD-2.0'),
   $SCEA._('SCEA'),
@@ -604,6 +606,7 @@ enum SpdxLicense {
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
   $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
   $Xdebug_1_03._('Xdebug-1.03'),
