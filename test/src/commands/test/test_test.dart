@@ -413,6 +413,44 @@ void main() {
       ).called(1);
     });
 
+    test('displays required precision see why coverage was not met', () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+      const exception = MinCoverageNotMet(99.999995);
+      when(
+        () => flutterTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          logger: any(named: 'logger'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+        ),
+      ).thenThrow(exception);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.unavailable.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          collectCoverage: true,
+          arguments: defaultArguments,
+          minCoverage: 100,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+      verify(
+        () => logger.err(
+          'Expected coverage >= 100.000000% but actual is 99.999995%.',
+        ),
+      ).called(1);
+    });
+
     test('exclude files from coverage when --exclude-coverage is used',
         () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
