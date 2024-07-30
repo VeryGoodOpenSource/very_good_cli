@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 663 SPDX licenses.
+/// A list of all 664 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -308,6 +308,7 @@ enum SpdxLicense {
   $HPND_Kevlin_Henney._('HPND-Kevlin-Henney'),
   $HPND_MIT_disclaimer._('HPND-MIT-disclaimer'),
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
+  $HPND_Netrek._('HPND-Netrek'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
   $HPND_UC._('HPND-UC'),
   $HPND_UC_export_US._('HPND-UC-export-US'),
