@@ -3,7 +3,8 @@ name: pub_publish
 on:
   push:
     tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+*' # tag pattern on pub.dev: 'v{{version}'
+      - "v[0-9]+.[0-9]+.[0-9]+*" # tag pattern on pub.dev: 'v{{version}'
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -17,7 +18,5 @@ jobs:
         uses: dart-lang/setup-dart@v1
       - name: 📦 Install Dependencies
         run: dart pub get
-      - name: 🌵 Dry Run
-        run: dart pub publish --dry-run
       - name: 📢 Publish
         run: dart pub publish --force
