@@ -1,3 +1,28 @@
+# 0.22.2 
+
+- chore(deps): bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
+- chore: update SPDX licenses ([#1089](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1089), [#1093](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1093))
+- fix: show a better message when coverage is really close to min coverage ([#1084](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1084))
+- feat: bump template bundles ([#1094](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1094))
+- [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.7.2):
+  - style: Adding extra space to the application opening tag ([#126](https://github.com/VeryGoodOpenSource/very_good_templates/pull/126))
+  - chore: update Java versions on Very Good Core ([#128](https://github.com/VeryGoodOpenSource/very_good_templates/pull/128))
+  - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
+  - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
+- [**Very Good Dart CLI**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_cli-v0.7.2):
+  - chore: tighten template dependencies ([#146](https://github.com/VeryGoodOpenSource/very_good_templates/pull/146), [#149](https://github.com/VeryGoodOpenSource/very_good_templates/pull/149))
+- [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flame_game-v0.7.3):
+  - fix: update usage of application_id var ([#157](https://github.com/VeryGoodOpenSource/very_good_templates/pull/157))
+  - chore: use git dependency over path dependency ([#171](https://github.com/VeryGoodOpenSource/very_good_templates/pull/171))
+- [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flutter_plugin-v0.8.2):
+  - chore: update gradle to 7.6.1 ([#150](https://github.com/VeryGoodOpenSource/very_good_templates/pull/150))
+  - chore: update example Kotlin and AGP ([#151](https://github.com/VeryGoodOpenSource/very_good_templates/pull/151))
+  - chore: deprecate imperative apply of Flutter's Gradle plugins ([#152](https://github.com/VeryGoodOpenSource/very_good_templates/pull/152))
+  - chore: remove legacy package tag in AndroidManifest.xml ([#160](https://github.com/VeryGoodOpenSource/very_good_templates/pull/160))
+  - chore: android flutter plugin to use recommended plugin DSL ([#153](https://github.com/VeryGoodOpenSource/very_good_templates/pull/153))
+- [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.5.2):
+  - chore: remove legacy package tag in AndroidManifest.xml ([#161](https://github.com/VeryGoodOpenSource/very_good_templates/pull/161))
+
 # 0.22.1
 
 - docs: update links to templates ([#1070](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1070))
