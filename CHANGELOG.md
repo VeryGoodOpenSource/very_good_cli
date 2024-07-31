@@ -1,6 +1,6 @@
 # 0.22.2 
 
-- chore(deps): bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
+- chore: bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
 - chore: update SPDX licenses ([#1089](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1089), [#1093](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1093))
 - fix: show a better message when coverage is really close to min coverage ([#1084](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1084))
 - feat: bump template bundles ([#1094](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1094))
