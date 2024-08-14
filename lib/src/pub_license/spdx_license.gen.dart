@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 664 SPDX licenses.
+/// A list of all 666 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -219,6 +219,8 @@ enum SpdxLicense {
   $DRL_1_0._('DRL-1.0'),
   $DRL_1_1._('DRL-1.1'),
   $DSDP._('DSDP'),
+  $DocBook_Schema._('DocBook-Schema'),
+  $DocBook_XML._('DocBook-XML'),
   $Dotseqn._('Dotseqn'),
   $ECL_1_0._('ECL-1.0'),
   $ECL_2_0._('ECL-2.0'),
