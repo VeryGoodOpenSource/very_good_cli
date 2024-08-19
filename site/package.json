@@ -18,8 +18,8 @@
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
-    "@docusaurus/core": "^3.4.0",
-    "@docusaurus/preset-classic": "^3.5.1",
+    "@docusaurus/core": "^3.5.2",
+    "@docusaurus/preset-classic": "^3.5.2",
     "@mdx-js/react": "^3.0.1",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.3.1",
@@ -28,10 +28,10 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
-    "@docusaurus/eslint-plugin": "^3.5.1",
-    "@docusaurus/module-type-aliases": "^3.4.0",
-    "@docusaurus/types": "^3.4.0",
-    "@docusaurus/tsconfig": "3.5.1",
+    "@docusaurus/eslint-plugin": "^3.5.2",
+    "@docusaurus/module-type-aliases": "^3.5.2",
+    "@docusaurus/types": "^3.5.2",
+    "@docusaurus/tsconfig": "3.5.2",
     "@types/react": "^18.3.3",
     "eslint": "^9.9.0",
     "prettier": "^3.3.3",
