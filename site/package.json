@@ -29,7 +29,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
     "@docusaurus/eslint-plugin": "^3.5.1",
-    "@docusaurus/module-type-aliases": "^3.4.0",
+    "@docusaurus/module-type-aliases": "^3.5.2",
     "@docusaurus/types": "^3.4.0",
     "@docusaurus/tsconfig": "3.5.1",
     "@types/react": "^18.3.3",
