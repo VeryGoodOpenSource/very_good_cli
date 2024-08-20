@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 666 SPDX licenses.
+/// A list of all 667 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -591,6 +591,7 @@ enum SpdxLicense {
   $UMich_Merit._('UMich-Merit'),
   $UPL_1_0._('UPL-1.0'),
   $URT_RLE._('URT-RLE'),
+  $Ubuntu_font_1_0._('Ubuntu-font-1.0'),
   $Unicode_3_0._('Unicode-3.0'),
   $Unicode_DFS_2015._('Unicode-DFS-2015'),
   $Unicode_DFS_2016._('Unicode-DFS-2016'),
