@@ -1,3 +1,26 @@
+# 0.23.0 
+
+- chore(deps): bump pana from 0.22.9 to 0.22.10 ([#1104](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1104), [#1119](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1119))
+- chore: update SPDX licenses ([#1111](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1111), [#1117](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1117))
+- chore: tighten dependencies ([#1121](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1121))
+- feat: bump template bundles ([#1122](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1122))
+- [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.8.0):
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+- [**Very Good Dart CLI**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_cli-v0.8.0):
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+  - chore: tighten template dependencies ([#173](https://github.com/VeryGoodOpenSource/very_good_templates/pull/173), [#178](https://github.com/VeryGoodOpenSource/very_good_templates/pull/178))
+- [**Very Good Dart Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_dart_package-v0.7.0):
+  - chore: tighten template dependencies ([#146](https://github.com/VeryGoodOpenSource/very_good_templates/pull/146))
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+- [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flame_game-v0.8.0):
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+- [**Very Good Flutter Package**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flutter_package-v0.7.0):
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+- [**Very Good Flutter Plugin**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/edit/very_good_flutter_plugin-v0.9.0):
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+- [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.6.0)
+  - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
+
 # 0.22.2 
 
 - chore: bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
