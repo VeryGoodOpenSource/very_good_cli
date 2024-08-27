@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 667 SPDX licenses.
+/// A list of all 668 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -588,6 +588,7 @@ enum SpdxLicense {
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
   $TermReadKey._('TermReadKey'),
+  $TrustedQSL._('TrustedQSL'),
   $UCAR._('UCAR'),
   $UCL_1_0._('UCL-1.0'),
   $UMich_Merit._('UMich-Merit'),
