@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 668 SPDX licenses.
+/// A list of all 670 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -219,6 +219,7 @@ enum SpdxLicense {
   $DRL_1_1._('DRL-1.1'),
   $DSDP._('DSDP'),
   $DocBook_Schema._('DocBook-Schema'),
+  $DocBook_Stylesheet._('DocBook-Stylesheet'),
   $DocBook_XML._('DocBook-XML'),
   $Dotseqn._('Dotseqn'),
   $ECL_1_0._('ECL-1.0'),
@@ -395,6 +396,7 @@ enum SpdxLicense {
   $MIT._('MIT'),
   $MIT_0._('MIT-0'),
   $MIT_CMU._('MIT-CMU'),
+  $MIT_Click._('MIT-Click'),
   $MIT_Festival._('MIT-Festival'),
   $MIT_Khronos_old._('MIT-Khronos-old'),
   $MIT_Modern_Variant._('MIT-Modern-Variant'),
