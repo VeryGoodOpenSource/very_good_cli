@@ -1,0 +1,29 @@
+name: Style
+description: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+title: "style: "
+labels: [style]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Clearly describe what you are looking to change and why.
+      placeholder: "Provide a description of the style changes."
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: The list of requirements that need to be met in order to consider the ticket to be completed. Please be as explicit as possible.
+      value: |
+        - [ ] All CI/CD checks are passing.
+        - [ ] There is no drop in the unit or widget test coverage percentage.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, including links/screenshots/video recordings/etc about the problem here.
+      placeholder: "Provide context here."

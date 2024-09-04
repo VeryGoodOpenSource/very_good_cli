@@ -1,0 +1,29 @@
+name: Build System
+description: Changes that affect the build system or external dependencies
+title: "build: "
+labels: [build]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe what changes need to be done to the build system and why
+      placeholder: "Describe the build system change."
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: The list of requirements that need to be met in order to consider the ticket to be completed. Please be as explicit as possible.
+      value: |
+        - [ ] All CI/CD checks are passing.
+        - [ ] There is no drop in the test coverage percentage.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, including links/screenshots/video recordings/etc about the problem here.
+      placeholder: "Provide context here."

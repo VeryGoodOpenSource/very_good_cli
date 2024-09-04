@@ -1,0 +1,29 @@
+name: Test
+description: Adding missing tests or correcting existing tests
+title: "test: "
+labels: [test]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: List out the tests that need to be added or changed. Please also include any information as to why this was not covered in the past.
+      placeholder: "Provide a description of the tests that need to be added or changed."
+    validations:
+      required: true
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: The list of requirements that need to be met in order to consider the ticket to be completed. Please be as explicit as possible.
+      value: |
+        - [ ] All CI/CD checks are passing.
+        - [ ] There is no drop in the test coverage percentage.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, including links/screenshots/video recordings/etc about the problem here.
+      placeholder: "Provide context here."
