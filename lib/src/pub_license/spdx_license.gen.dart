@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 670 SPDX licenses.
+/// A list of all 671 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -111,6 +111,7 @@ enum SpdxLicense {
   $Bitstream_Vera._('Bitstream-Vera'),
   $BlueOak_1_0_0._('BlueOak-1.0.0'),
   $Boehm_GC._('Boehm-GC'),
+  $Boehm_GC_without_fee._('Boehm-GC-without-fee'),
   $Borceux._('Borceux'),
   $Brian_Gladman_2_Clause._('Brian-Gladman-2-Clause'),
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
