@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 671 SPDX licenses.
+/// A list of all 672 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -565,6 +565,7 @@ enum SpdxLicense {
   $SchemeReport._('SchemeReport'),
   $Sendmail._('Sendmail'),
   $Sendmail_8_23._('Sendmail-8.23'),
+  $Sendmail_Open_Source_1_1._('Sendmail-Open-Source-1.1'),
   $SimPL_2_0._('SimPL-2.0'),
   $Sleepycat._('Sleepycat'),
   $Soundex._('Soundex'),
