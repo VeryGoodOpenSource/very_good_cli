@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
@@ -236,14 +237,139 @@ Run "runner help" to see global options.''';
       });
 
       group('parsing of options', () {
-        test('parses description, output dir and project name', () async {
+        group('for project name', () {
+          test('uses current directory basename as name if . provided',
+              () async {
+            final expectedProjectName = path.basename(Directory.current.path);
+
+            final result = await runner.run([
+              'create_subcommand',
+              '.',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': expectedProjectName,
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
+              ),
+            );
+          });
+
+          test('uses name if just a name is provided', () async {
+            final result = await runner.run([
+              'create_subcommand',
+              'name',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': 'name',
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
+              ),
+            );
+          });
+
+          test('uses last path segment if absolute path is provided', () async {
+            final result = await runner.run([
+              'create_subcommand',
+              '/path/to/name',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': 'name',
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
+              ),
+            );
+          });
+
+          test('uses last path segment if a relative path is provided',
+              () async {
+            final result = await runner.run([
+              'create_subcommand',
+              './name',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': 'name',
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
+              ),
+            );
+          });
+        });
+
+        group('for output directory', () {
+          test(
+            'uses directory provided in --output-directory instead of the '
+            'one parsed from project',
+            () async {
+              final result = await runner.run([
+                'create_subcommand',
+                'path/to/test_project',
+                '--output-directory',
+                'path/to/test_dir',
+                '--description',
+                'test_desc',
+              ]);
+
+              expect(result, equals(ExitCode.success.code));
+              verify(() => logger.progress('Bootstrapping')).called(1);
+
+              verify(
+                () => generator.generate(
+                  any(
+                    that: isA<DirectoryGeneratorTarget>().having(
+                      (g) => g.dir.path,
+                      'dir',
+                      'path/to/test_dir',
+                    ),
+                  ),
+                  vars: <String, dynamic>{
+                    'project_name': 'test_project',
+                    'description': 'test_desc',
+                  },
+                  logger: logger,
+                ),
+              ).called(1);
+            },
+          );
+        });
+
+        test('allows projects to be cwd (.)', () async {
+          final expectedProjectName = path.basename(Directory.current.path);
+
           final result = await runner.run([
             'create_subcommand',
-            'test_project',
-            '--description',
-            'test_desc',
-            '--output-directory',
-            'test_dir',
+            '.',
           ]);
 
           expect(result, equals(ExitCode.success.code));
@@ -252,8 +378,8 @@ Run "runner help" to see global options.''';
           verify(
             () => hooks.preGen(
               vars: <String, dynamic>{
-                'project_name': 'test_project',
-                'description': 'test_desc',
+                'project_name': expectedProjectName,
+                'description': 'A Very Good Project created by Very Good CLI.',
               },
               onVarsChanged: any(named: 'onVarsChanged'),
             ),
@@ -262,14 +388,16 @@ Run "runner help" to see global options.''';
             () => generator.generate(
               any(
                 that: isA<DirectoryGeneratorTarget>().having(
-                  (g) => g.dir.path,
+                  (g) {
+                    return g.dir.path;
+                  },
                   'dir',
-                  'test_dir',
+                  '.',
                 ),
               ),
               vars: <String, dynamic>{
-                'project_name': 'test_project',
-                'description': 'test_desc',
+                'project_name': expectedProjectName,
+                'description': 'A Very Good Project created by Very Good CLI.',
               },
               logger: logger,
             ),
@@ -283,9 +411,11 @@ Run "runner help" to see global options.''';
               logger,
               any(
                 that: isA<Directory>().having(
-                  (d) => d.path,
+                  (d) {
+                    return d.path;
+                  },
                   'path',
-                  'test_dir/test_project',
+                  '.',
                 ),
               ),
             ),
@@ -318,9 +448,11 @@ Run "runner help" to see global options.''';
             () => generator.generate(
               any(
                 that: isA<DirectoryGeneratorTarget>().having(
-                  (g) => g.dir.path,
+                  (g) {
+                    return g.dir.path;
+                  },
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{
@@ -336,9 +468,11 @@ Run "runner help" to see global options.''';
               logger,
               any(
                 that: isA<Directory>().having(
-                  (d) => d.path,
+                  (d) {
+                    return d.path;
+                  },
                   'path',
-                  './test_project',
+                  'test_project',
                 ),
               ),
             ),
