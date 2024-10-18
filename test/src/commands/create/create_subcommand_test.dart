@@ -1018,7 +1018,7 @@ Run "runner help" to see global options.''';
                     (e) => e.message,
                     'message',
                     '"template3" is not an allowed value for option '
-                        '"template".',
+                        '"--template".',
                   ),
             ),
           );
@@ -1231,7 +1231,7 @@ Run "runner help" to see global options.''';
                   .having(
                     (e) => e.message,
                     'message',
-                    'Cannot negate option "no-publishable".',
+                    'Cannot negate option "--no-publishable".',
                   ),
             ),
           );
