@@ -11,7 +11,7 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
-  args: ^2.5.0
+  args: ^2.6.0
   cli_completion: ^0.5.1
   collection: ^1.19.0
   equatable: ^2.0.5
