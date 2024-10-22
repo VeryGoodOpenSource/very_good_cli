@@ -11,19 +11,10 @@
     - chore: update copyright year in Windows Runner.rc ([#188](https://github.com/VeryGoodOpenSource/very_good_templates/pull/188))
     - refactor: move current_year out from configuration ([#193](https://github.com/VeryGoodOpenSource/very_good_templates/pull/193))
     - fix: update android build versions ([#205](https://github.com/VeryGoodOpenSource/very_good_templates/pull/205))
-- Housekeeping
-  - chore: update SPDX licenses ([#1145](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1145))
-  - chore: update SPDX licenses ([#1157](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1157))
-- Dependabot Updates
-  - chore(deps): bump mason from 0.1.0-dev.58 to 0.1.0-dev.59 ([#1129](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1129))
+- chore: update SPDX licenses ([#1145](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1145), [#1157](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1157))
+- Dependency updates:
+  - chore(deps): bump mason from 0.1.0-dev.58 to 0.1.0-dev.60 ([#1129](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1129), [#1139](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1139))
   - chore(deps): bump pub_updater from 0.4.0 to 0.5.0 ([#1133](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1133))
-  - chore(deps): bump peter-evans/create-pull-request from 6.1.0 to 7.0.0 ([#1137](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1137))
-  - chore(deps): bump mason from 0.1.0-dev.59 to 0.1.0-dev.60 ([#1139](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1139))
-  - chore(deps): bump peter-evans/create-pull-request from 7.0.0 to 7.0.1 ([#1140](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1140))
-  - chore(deps): bump peter-evans/create-pull-request from 7.0.1 to 7.0.2 ([#1144](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1144))
-  - chore(deps): bump peter-evans/create-pull-request from 7.0.2 to 7.0.3 ([#1148](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1148))
-  - chore(deps): bump peter-evans/create-pull-request from 7.0.3 to 7.0.5 ([#1149](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1149))
-  - chore(deps): bump srealmoreno/label-sync-action from 1 to 2 ([#1155](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1155))
   - chore(deps): bump pana from 0.22.12 to 0.22.13 ([#1166](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1166))
 
 # 0.23.1
