@@ -1,4 +1,23 @@
-# 0.23.1 
+# 0.24.0
+
+- feat: bump template bundles ([#1167](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1167))
+  - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.7.0)
+    - fix: update android build versions ([#205](https://github.com/VeryGoodOpenSource/very_good_templates/pull/205))
+  - [**Very Good Flame Game**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_flame_game-v0.9.0)
+    - fix: set current year copyright ([#192](https://github.com/VeryGoodOpenSource/very_good_templates/pull/192))
+    - chore: tighten template dependencies ([#204](https://github.com/VeryGoodOpenSource/very_good_templates/pull/204))
+    - fix: update android build versions ([#205](https://github.com/VeryGoodOpenSource/very_good_templates/pull/205))
+  - [**Very Good Core**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_core-v0.9.0)
+    - chore: update copyright year in Windows Runner.rc ([#188](https://github.com/VeryGoodOpenSource/very_good_templates/pull/188))
+    - refactor: move current_year out from configuration ([#193](https://github.com/VeryGoodOpenSource/very_good_templates/pull/193))
+    - fix: update android build versions ([#205](https://github.com/VeryGoodOpenSource/very_good_templates/pull/205))
+- chore: update SPDX licenses ([#1145](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1145), [#1157](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1157))
+- Dependency updates:
+  - chore(deps): bump mason from 0.1.0-dev.58 to 0.1.0-dev.60 ([#1129](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1129), [#1139](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1139))
+  - chore(deps): bump pub_updater from 0.4.0 to 0.5.0 ([#1133](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1133))
+  - chore(deps): bump pana from 0.22.12 to 0.22.13 ([#1166](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1166))
+
+# 0.23.1
 
 - chore: update SPDX licenses ([#1126](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1126), [#1128](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1128))
 - feat: bump template bundles ([#1131](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1131))
@@ -6,7 +25,7 @@
   - chore: tighten template dependencies ([#190](https://github.com/VeryGoodOpenSource/very_good_templates/pull/190))
   - fix: add closing } in build.gradle ([#189](https://github.com/VeryGoodOpenSource/very_good_templates/pull/189))
 
-# 0.23.0 
+# 0.23.0
 
 - chore(deps): bump pana from 0.22.9 to 0.22.10 ([#1104](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1104), [#1119](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1119))
 - chore: update SPDX licenses ([#1111](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1111), [#1117](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1117))
@@ -29,7 +48,7 @@
 - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.6.0)
   - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
 
-# 0.22.2 
+# 0.22.2
 
 - chore: bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
 - chore: update SPDX licenses ([#1089](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1089), [#1093](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1093))
