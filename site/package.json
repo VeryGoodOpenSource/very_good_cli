@@ -27,7 +27,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.25.8",
+    "@babel/eslint-parser": "^7.25.9",
     "@docusaurus/eslint-plugin": "^3.5.2",
     "@docusaurus/module-type-aliases": "^3.5.2",
     "@docusaurus/types": "^3.5.2",
