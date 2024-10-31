@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
-import 'package:very_good_cli/src/commands/packages/commands/check/check.dart';
-import 'package:very_good_cli/src/commands/packages/commands/commands.dart';
+import 'package:atmos_cli/src/commands/packages/commands/check/check.dart';
+import 'package:atmos_cli/src/commands/packages/commands/commands.dart';
 
 /// {@template packages_command}
 /// `very_good packages` command for managing packages.

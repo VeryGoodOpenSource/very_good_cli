@@ -6,8 +6,8 @@ import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:atmos_cli/src/commands/commands.dart';
+import 'package:atmos_cli/src/commands/create/templates/templates.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.

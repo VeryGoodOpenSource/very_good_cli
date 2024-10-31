@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
-import 'package:very_good_cli/src/commands/create/commands/commands.dart';
+import 'package:atmos_cli/src/commands/create/commands/commands.dart';
 
 /// {@template create_command}
 /// `very_good create` command creates code from various built-in templates.

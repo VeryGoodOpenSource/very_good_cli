@@ -1,17 +1,16 @@
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/commands/commands.dart';
+import 'package:atmos_cli/src/version.dart';
 import 'package:cli_completion/cli_completion.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
-import 'package:very_good_cli/src/version.dart';
 
 /// The package name.
-const packageName = 'very_good_cli';
+const packageName = 'atmos_cli';
 
 /// {@template very_good_command_runner}
 /// A [CommandRunner] for the Very Good CLI.
@@ -25,7 +24,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   })  : _logger = logger ?? Logger(),
         _pubUpdater = pubUpdater ?? PubUpdater(),
         _environment = environment ?? Platform.environment,
-        super('very_good', '🦄 A Very Good Command-Line Interface') {
+        super('atmos', "Avila Tek's Command-Line Interface ⛰️") {
     argParser
       ..addFlag(
         'version',
@@ -142,8 +141,8 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
           ..info(
             '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
-${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
-Run ${lightCyan.wrap('very_good update')} to update''',
+${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/andrespd99/atmos_cli/releases/tag/v$latestVersion')}
+Run ${lightCyan.wrap('atmos update')} to update''',
           );
       }
     } catch (_) {}
@@ -158,14 +157,6 @@ Run ${lightCyan.wrap('very_good update')} to update''',
 
     if (versionFile.readAsStringSync() == packageVersion) return;
     versionFile.writeAsStringSync(packageVersion);
-
-    _logger.wrap(
-      lightMagenta.wrap('''
-
-Thank you for using Very Good Ventures open source tools!
-Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/open-source/cli/subscribe-latest-tool-updates')))}'''),
-      print: _logger.info,
-    );
   }
 
   Directory get _configDir {

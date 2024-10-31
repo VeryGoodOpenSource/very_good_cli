@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:mason_logger/mason_logger.dart';
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/commands/packages/commands/check/check.dart';
+import 'package:atmos_cli/src/commands/packages/commands/check/check.dart';
 
 import '../../../../../helpers/helpers.dart';
 

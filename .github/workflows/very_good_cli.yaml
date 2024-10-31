@@ -1,4 +1,4 @@
-name: very_good_cli
+name: atmos_cli
 
 on:
   pull_request:

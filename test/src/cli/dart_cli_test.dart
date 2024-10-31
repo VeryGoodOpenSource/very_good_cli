@@ -3,7 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
 
 const _pubspec = '''
 name: example

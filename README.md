@@ -1,6 +1,6 @@
 [<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
 
-### Very Good CLI
+### Avila Tek Mobile Open Source (ATMOS) CLI
 
 <br clear="left"/>
 
@@ -12,9 +12,7 @@
 
 ---
 
-A Very Good Command-Line Interface for Dart.
-
-Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
+Customized version of the Very Good Command-Line Interface from ATMOS ⛰️.
 
 ## Documentation 📝
 

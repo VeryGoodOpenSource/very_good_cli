@@ -8,7 +8,7 @@ import 'package:package_config/package_config.dart' as package_config;
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
+import 'package:atmos_cli/src/commands/packages/commands/check/commands/commands.dart';
 
 import '../../../../../../helpers/helpers.dart';
 

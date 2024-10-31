@@ -19,8 +19,8 @@ import 'package:package_config/package_config.dart' as package_config;
 // ignore: implementation_imports
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
-import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
-import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
+import 'package:atmos_cli/src/pub_license/spdx_license.gen.dart';
+import 'package:atmos_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting

@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 import '../../fixtures/fixtures.dart';

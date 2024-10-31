@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:mason/mason.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
+import 'package:atmos_cli/src/commands/create/templates/templates.dart';
+import 'package:atmos_cli/src/logger_extension.dart';
 
 /// {@template dart_cli_template}
 /// A Dart CLI application template.

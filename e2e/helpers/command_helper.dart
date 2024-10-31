@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
-import 'package:very_good_cli/src/command_runner.dart';
+import 'package:atmos_cli/src/command_runner.dart';
 
 class _MockLogger extends Mock implements Logger {}
 

@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/command_runner.dart';
+import 'package:atmos_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:pub_updater/pub_updater.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/version.dart';
 
 /// {@template update_command}
-/// `very_good update` command which updates very_good cli.
+/// `atmos update` command which updates atmos cli.
 /// {@endtemplate}
 class UpdateCommand extends Command<int> {
   /// {@macro update_command}
@@ -21,7 +21,7 @@ class UpdateCommand extends Command<int> {
   final PubUpdater _pubUpdater;
 
   @override
-  String get description => 'Update Very Good CLI.';
+  String get description => 'Update ATMOS CLI.';
 
   /// The [name] of the command. But static.
   static const String commandName = 'update';
@@ -44,7 +44,7 @@ class UpdateCommand extends Command<int> {
 
     final isUpToDate = packageVersion == latestVersion;
     if (isUpToDate) {
-      _logger.info('Very Good CLI is already at the latest version.');
+      _logger.info('ATMOS CLI is already at the latest version.');
       return ExitCode.success.code;
     }
 
@@ -65,7 +65,7 @@ class UpdateCommand extends Command<int> {
 
     if (result.exitCode != ExitCode.success.code) {
       updateProgress.fail();
-      _logger.err('Error updating Very Good CLI: ${result.stderr}');
+      _logger.err('Error updating ATMOS CLI: ${result.stderr}');
       return ExitCode.software.code;
     }
 

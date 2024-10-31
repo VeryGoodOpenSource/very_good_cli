@@ -4,8 +4,8 @@ import 'package:args/args.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
+import 'package:atmos_cli/src/commands/commands.dart';
+import 'package:atmos_cli/src/logger_extension.dart';
 
 class _MockArgResults extends Mock implements ArgResults {}
 

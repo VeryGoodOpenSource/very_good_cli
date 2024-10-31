@@ -4,7 +4,7 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
 
 /// {@template packages_get_command}
 /// `very_good packages get` command for installing packages.

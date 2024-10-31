@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/test/templates/test_optimizer_bundle.dart';
+import 'package:atmos_cli/src/commands/test/templates/test_optimizer_bundle.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';

@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
+import 'package:atmos_cli/src/pubspec_lock/pubspec_lock.dart';
 
 void main() {
   group('$PubspecLock', () {

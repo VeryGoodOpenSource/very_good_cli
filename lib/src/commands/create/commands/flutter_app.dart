@@ -1,5 +1,5 @@
-import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:atmos_cli/src/commands/create/commands/create_subcommand.dart';
+import 'package:atmos_cli/src/commands/create/templates/templates.dart';
 
 /// {@template very_good_create_flutter_app_command}
 /// A [CreateSubCommand] for creating Flutter apps.

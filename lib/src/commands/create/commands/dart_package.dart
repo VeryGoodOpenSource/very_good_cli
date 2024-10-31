@@ -1,5 +1,5 @@
-import 'package:very_good_cli/src/commands/commands.dart';
-import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:atmos_cli/src/commands/commands.dart';
+import 'package:atmos_cli/src/commands/create/templates/templates.dart';
 
 /// {@template very_good_create_dart_package_command}
 /// A [CreateSubCommand] for creating Dart packages.

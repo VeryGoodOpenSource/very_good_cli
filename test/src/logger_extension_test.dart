@@ -2,7 +2,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/logger_extension.dart';
+import 'package:atmos_cli/src/logger_extension.dart';
 
 class _MockLogger extends Mock implements Logger {}
 

@@ -3,12 +3,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/command_runner.dart';
+import 'package:atmos_cli/src/version.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/version.dart';
 
 class _MockLogger extends Mock implements Logger {}
 
@@ -23,9 +23,9 @@ class _MockFile extends Mock implements File {}
 class _MockStdout extends Mock implements Stdout {}
 
 const expectedUsage = [
-  '🦄 A Very Good Command-Line Interface\n'
+  "Avila Tek's Command-Line Interface ⛰️\n"
       '\n'
-      'Usage: very_good <command> [arguments]\n'
+      'Usage: atmos <command> [arguments]\n'
       '\n'
       'Global options:\n'
       '-h, --help            Print this usage information.\n'
@@ -33,13 +33,13 @@ const expectedUsage = [
       '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
       '\n'
       'Available commands:\n'
-      '  create     very_good create <subcommand> <project-name> [arguments]\n'
+      '  create     atmos create <subcommand> <project-name> [arguments]\n'
       '''             Creates a new very good project in the specified directory.\n'''
       '  packages   Command for managing packages.\n'
       '  test       Run tests in a Dart or Flutter project.\n'
-      '  update     Update Very Good CLI.\n'
+      '  update     Update ATMOS CLI.\n'
       '\n'
-      'Run "very_good help <command>" for more information about a command.'
+      'Run "atmos help <command>" for more information about a command.'
 ];
 
 const responseBody =

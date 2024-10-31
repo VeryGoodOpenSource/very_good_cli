@@ -5,8 +5,8 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/commands/test/test.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
+import 'package:atmos_cli/src/commands/test/test.dart';
 
 import '../../../helpers/helpers.dart';
 

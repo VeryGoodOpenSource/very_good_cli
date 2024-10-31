@@ -2,9 +2,9 @@ import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/commands/update.dart';
-import 'package:very_good_cli/src/version.dart';
+import 'package:atmos_cli/src/command_runner.dart';
+import 'package:atmos_cli/src/commands/update.dart';
+import 'package:atmos_cli/src/version.dart';
 
 import '../../helpers/helpers.dart';
 

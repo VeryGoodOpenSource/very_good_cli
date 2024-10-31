@@ -1,6 +1,6 @@
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
-import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
+import 'package:atmos_cli/src/commands/packages/commands/check/commands/commands.dart';
 
 /// {@template packages_check_command}
 /// `very_good packages check` command for performing checks in a Dart or

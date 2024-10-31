@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
 
 class _FakeProcess {
   Future<ProcessResult> run(

@@ -1,5 +1,5 @@
-name: very_good_cli_e2e
-description: End to End tests for package:very_good_cli
+name: atmos_cli_e2e
+description: End to End tests for package:atmos_cli
 version: 0.1.0+1
 publish_to: none
 
@@ -7,6 +7,8 @@ environment:
   sdk: ^3.4.0
 
 dev_dependencies:
+  atmos_cli:
+    path: ../
   mason: ^0.1.0-dev.50
   mocktail: ^1.0.0
   path: ^1.8.0
@@ -14,5 +16,3 @@ dev_dependencies:
   test: ^1.25.0
   universal_io: ^2.0.4
   very_good_analysis: ^6.0.0
-  very_good_cli:
-    path: ../

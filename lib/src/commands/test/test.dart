@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/cli/cli.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
 typedef FlutterInstalledCommand = Future<bool> Function({
@@ -30,7 +30,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 });
 
 /// {@template test_command}
-/// `very_good test` command for running tests.
+/// `atmos test` command for running tests.
 /// {@endtemplate}
 class TestCommand extends Command<int> {
   /// {@macro test_command}
