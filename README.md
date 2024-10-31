@@ -1,7 +1,7 @@
 [<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
 
 ### Avila Tek Mobile Open Source (ATMOS) CLI
-
+v
 <br clear="left"/>
 
 [![ci][ci_badge]][ci_link]
@@ -23,35 +23,34 @@ For official documentation, please visit https://cli.vgv.dev.
 ### Installing 🧑‍💻
 
 ```sh
-dart pub global activate very_good_cli
+dart pub global activate atmos_cli
 ```
 
 Or install a [specific version](https://pub.dev/packages/very_good_cli/versions) using:
 
 ```sh
-dart pub global activate very_good_cli <version>
+dart pub global activate atmos_cli <version>
 ```
 
 If you haven't already, you might need to [set up your path][path_setup_link].
 
-When that is not possible (eg: CI environments), run `very_good` commands via:
+When that is not possible (eg: CI environments), run `atmos` commands via:
 
 ```sh
-dart pub global run very_good_cli:very_good <command> <args>
+dart pub global run atmos_cli:atmos <command> <args>
 ```
 
 ### Commands ✨
 
-### [`very_good create`](https://cli.vgv.dev/docs/category/templates)
+### [`atmos create`](https://cli.vgv.dev/docs/category/templates)
 
-Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command (e.g.,`very_good create flutter_app` will generate a Flutter starter app).
+Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command (e.g.,`atmos create flutter_app` will generate a Flutter starter app).
 
-![Very Good Create][very_good_create]
 
 ```sh
 Creates a new very good project in the specified directory.
 
-Usage: very_good create <subcommand> <project-name> [arguments]
+Usage: atmos create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
@@ -59,127 +58,127 @@ Available subcommands:
   dart_package      Generate a Very Good Dart package.
   docs_site         Generate a Very Good documentation site.
   flame_game        Generate a Very Good Flame game.
-  flutter_app       Generate a Very Good Flutter application.
+  flutter_app       Generate an **Avila Tek** Flutter application.
   flutter_package   Generate a Very Good Flutter package.
   flutter_plugin    Generate a Very Good Flutter plugin.
 
-Run "very_good help" to see global options.
+Run "atmos help" to see global options.
 ```
 
 #### Usage
 
 ```sh
 # Create a new Flutter app named my_app
-very_good create flutter_app my_app
+atmos create flutter_app my_app
 
 # Create a new Flutter app named my_app with a custom org
-very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
+atmos create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
 
 # Create a new Flutter app named my_app with a custom application id
-very_good create flutter_app my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
+atmos create flutter_app my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
 
 # Create a new Flame game named my_game
-very_good create flame_game my_game --desc "My new Flame game"
+atmos create flame_game my_game --desc "My new Flame game"
 
 # Create a new Wear OS app named my_wear_app
-very_good create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
+atmos create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
 
 # Create a new Flutter package named my_flutter_package
-very_good create flutter_package my_flutter_package --desc "My new Flutter package"
+atmos create flutter_package my_flutter_package --desc "My new Flutter package"
 
 # Create a new Dart package named my_dart_package
-very_good create dart_package my_dart_package --desc "My new Dart package"
+atmos create dart_package my_dart_package --desc "My new Dart package"
 
 # Create a new Dart package named my_dart_package that is publishable
-very_good create dart_package my_dart_package --desc "My new Dart package" --publishable
+atmos create dart_package my_dart_package --desc "My new Dart package" --publishable
 
 # Create a new Dart CLI application named my_dart_cli
-very_good create dart_cli my_dart_cli --desc "My new Dart CLI package"
+atmos create dart_cli my_dart_cli --desc "My new Dart CLI package"
 
 # Create a new Dart CLI application named my_dart_cli with a custom executable name
-very_good create dart_cli my_dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
+atmos create dart_cli my_dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
 
 # Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
-very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
+atmos create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 
 # Create a new Flutter plugin named my_flutter_plugin (some platforms only)
-very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --platforms android,ios,macos
+atmos create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --platforms android,ios,macos
 
 # Create a new docs site named my_docs_site
-very_good create docs_site my_docs_site
+atmos create docs_site my_docs_site
 
 ```
 
 ---
 
-### [`very_good test`](https://cli.vgv.dev/docs/commands/test)
+### [`atmos test`](https://cli.vgv.dev/docs/commands/test)
 
 Run tests in a Dart or Flutter project.
 
 ```sh
 # Run all tests
-very_good test
+atmos test
 
 # Run all tests and collect coverage
-very_good test --coverage
+atmos test --coverage
 
 # Run all tests and enforce 100% coverage
-very_good test --coverage --min-coverage 100
+atmos test --coverage --min-coverage 100
 
 # Run only tests in ./some/other/directory
-very_good test ./some/other/directory
+atmos test ./some/other/directory
 
 # Run tests recursively
-very_good test --recursive
+atmos test --recursive
 
 # Run tests recursively (shorthand)
-very_good test -r
+atmos test -r
 ```
 
-### [`very_good packages get`](https://cli.vgv.dev/docs/commands/get_pkgs)
+### [`atmos packages get`](https://cli.vgv.dev/docs/commands/get_pkgs)
 
 Get packages in a Dart or Flutter project.
 
 ```sh
 # Install packages in the current directory
-very_good packages get
+atmos packages get
 
 # Install packages in ./some/other/directory
-very_good packages get ./some/other/directory
+atmos packages get ./some/other/directory
 
 # Install packages recursively
-very_good packages get --recursive
+atmos packages get --recursive
 
 # Install packages recursively (shorthand)
-very_good packages get -r
+atmos packages get -r
 ```
 
-### [`very_good packages check licenses`](https://cli.vgv.dev/docs/commands/check_licenses)
+### [`atmos packages check licenses`](https://cli.vgv.dev/docs/commands/check_licenses)
 
 Check packages' licenses in a Dart or Flutter project.
 
 ```sh
 # Check licenses in the current directory
-very_good packages check licenses
+atmos packages check licenses
 
 # Only allow the use of certain licenses
-very_good packages check licenses --allowed="MIT,BSD-3-Clause,BSD-2-Clause,Apache-2.0"
+atmos packages check licenses --allowed="MIT,BSD-3-Clause,BSD-2-Clause,Apache-2.0"
 
 # Deny the use of certain licenses
-very_good packages check licenses --forbidden="unknown"
+atmos packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
-very_good packages check licenses --dependency-type="direct-main,transitive"
+atmos packages check licenses --dependency-type="direct-main,transitive"
 ```
 
-### [`very_good --help`](https://cli.vgv.dev/docs/overview)
-
+### [`atmos --help`](https://cli.vgv.dev/docs/overview)
+****
 See the complete list of commands and usage information.
 
 ```sh
 🦄 A Very Good Command-Line Interface
 
-Usage: very_good <command> [arguments]
+Usage: atmos <command> [arguments]
 
 Global options:
 -h, --help            Print this usage information.
@@ -187,13 +186,13 @@ Global options:
     --[no-]verbose    Noisy logging, including all shell commands executed.
 
 Available commands:
-  create     very_good create <subcommand> <project-name> [arguments]
+  create     atmos create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
   update     Update Very Good CLI.
 
-Run "very_good help <command>" for more information about a command.
+Run "atmos help <command>" for more information about a command.
 ```
 
 [bloc_link]: https://bloclibrary.dev
@@ -216,6 +215,5 @@ Run "very_good help <command>" for more information about a command.
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
 [very_good_core_link]: site/docs/templates/core.md
 [new_syntax_link]: site/docs/resources/syntax_changes_in_0_10_0.md
-[very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
 [path_setup_link]: https://dart.dev/tools/pub/cmd/pub-global#running-a-script-from-your-path
