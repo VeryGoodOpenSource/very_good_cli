@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 672 SPDX licenses.
+/// A list of all 673 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -634,6 +634,7 @@ enum SpdxLicense {
   $Zimbra_1_4._('Zimbra-1.4'),
   $Zlib._('Zlib'),
   $any_OSI._('any-OSI'),
+  $any_OSI_perl_modules._('any-OSI-perl-modules'),
   $bcrypt_Solar_Designer._('bcrypt-Solar-Designer'),
   $blessing._('blessing'),
   $bzip2_1_0_5._('bzip2-1.0.5'),
