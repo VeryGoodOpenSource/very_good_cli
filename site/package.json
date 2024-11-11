@@ -30,7 +30,7 @@
     "@babel/eslint-parser": "^7.25.9",
     "@docusaurus/eslint-plugin": "^3.5.2",
     "@docusaurus/module-type-aliases": "^3.5.2",
-    "@docusaurus/types": "^3.5.2",
+    "@docusaurus/types": "^3.6.1",
     "@docusaurus/tsconfig": "3.5.2",
     "@types/react": "^18.3.12",
     "eslint": "^9.14.0",
