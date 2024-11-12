@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 673 SPDX licenses.
+/// A list of all 674 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -170,6 +170,7 @@ enum SpdxLicense {
   $CC_BY_SA_3_0_IGO._('CC-BY-SA-3.0-IGO'),
   $CC_BY_SA_4_0._('CC-BY-SA-4.0'),
   $CC_PDDC._('CC-PDDC'),
+  $CC_SA_1_0._('CC-SA-1.0'),
   $CC0_1_0._('CC0-1.0'),
   $CDDL_1_0._('CDDL-1.0'),
   $CDDL_1_1._('CDDL-1.1'),
