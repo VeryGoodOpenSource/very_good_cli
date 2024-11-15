@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 674 SPDX licenses.
+/// A list of all 677 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -170,6 +170,7 @@ enum SpdxLicense {
   $CC_BY_SA_3_0_IGO._('CC-BY-SA-3.0-IGO'),
   $CC_BY_SA_4_0._('CC-BY-SA-4.0'),
   $CC_PDDC._('CC-PDDC'),
+  $CC_PDM_1_0._('CC-PDM-1.0'),
   $CC_SA_1_0._('CC-SA-1.0'),
   $CC0_1_0._('CC0-1.0'),
   $CDDL_1_0._('CDDL-1.0'),
@@ -345,6 +346,7 @@ enum SpdxLicense {
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
   $Inner_Net_2_0._('Inner-Net-2.0'),
+  $InnoSetup._('InnoSetup'),
   $Intel._('Intel'),
   $Intel_ACPI._('Intel-ACPI'),
   $Interbase_1_0._('Interbase-1.0'),
@@ -551,6 +553,7 @@ enum SpdxLicense {
   $SISSL._('SISSL'),
   $SISSL_1_2._('SISSL-1.2'),
   $SL._('SL'),
+  $SMAIL_GPL._('SMAIL-GPL'),
   $SMLNJ._('SMLNJ'),
   $SMPPL._('SMPPL'),
   $SNIA._('SNIA'),
