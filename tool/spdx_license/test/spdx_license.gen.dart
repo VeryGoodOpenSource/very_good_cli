@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 677 SPDX licenses.
+/// A list of all 679 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -658,6 +658,7 @@ enum SpdxLicense {
   $etalab_2_0._('etalab-2.0'),
   $fwlw._('fwlw'),
   $gSOAP_1_3b._('gSOAP-1.3b'),
+  $generic_xts._('generic-xts'),
   $gnuplot._('gnuplot'),
   $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
@@ -686,6 +687,7 @@ enum SpdxLicense {
   $threeparttable._('threeparttable'),
   $ulem._('ulem'),
   $w3m._('w3m'),
+  $wwl._('wwl'),
   $wxWindows._('wxWindows'),
   $xinetd._('xinetd'),
   $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),
