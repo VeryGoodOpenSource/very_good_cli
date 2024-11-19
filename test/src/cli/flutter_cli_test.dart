@@ -317,6 +317,53 @@ void main() {
         stderrLogs = [];
       });
 
+      test('cleanup the .test_optimizer file when SIGINT is emitted', () async {
+        final streamController = StreamController<ProcessSignal>();
+        await ProcessSignalOverrides.runZoned(
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final updatedVars = <String, dynamic>{
+              'package-root': tempDirectory.path,
+              'foo': 'bar',
+            };
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            when(
+              () => hooks.preGen(
+                vars: any(named: 'vars'),
+                onVarsChanged: any(named: 'onVarsChanged'),
+                workingDirectory: any(named: 'workingDirectory'),
+              ),
+            ).thenAnswer((invocation) async {
+              (invocation.namedArguments[#onVarsChanged] as void Function(
+                Map<String, dynamic> vars,
+              ))
+                  .call(updatedVars);
+            });
+            ProcessSignalOverrides.current?.addSIGINT();
+            await Flutter.test(
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              buildGenerator: generatorBuilder(),
+            );
+            final filePath = p.join(
+              tempDirectory.path,
+              'test',
+              '.test_optimizer.dart',
+            );
+            final testOptimizerFile = File(filePath);
+            expect(testOptimizerFile.existsSync(), isFalse);
+          },
+          sigintStream: streamController.stream,
+        );
+      });
+
       test('throws when pubspec not found', () async {
         await expectLater(
           () => Flutter.test(cwd: Directory.systemTemp.path, logger: logger),
