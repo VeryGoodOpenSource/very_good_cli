@@ -2,6 +2,59 @@ part of 'cli.dart';
 
 const _testOptimizerFileName = '.test_optimizer.dart';
 
+/// This class facilitates overriding `ProcessSignal` related behavior.
+/// It should be extended by another class in client code with overrides
+/// that construct a custom implementation.
+@visibleForTesting
+abstract class ProcessSignalOverrides {
+  static final _token = Object();
+  StreamController<ProcessSignal>? _sigintStreamController;
+
+  /// Returns the current [ProcessSignalOverrides] instance.
+  ///
+  /// This will return `null` if the current [Zone] does not contain
+  /// any [ProcessSignalOverrides].
+  ///
+  /// See also:
+  /// * [ProcessSignalOverrides.runZoned] to provide [ProcessSignalOverrides]
+  /// in a fresh [Zone].
+  static ProcessSignalOverrides? get current {
+    return Zone.current[_token] as ProcessSignalOverrides?;
+  }
+
+  /// Runs [body] in a fresh [Zone] using the provided overrides.
+  static R runZoned<R>(
+    R Function() body, {
+    Stream<ProcessSignal>? sigintStream,
+  }) {
+    final overrides = _ProcessSignalOverridesScope(sigintStream);
+    return _asyncRunZoned(body, zoneValues: {_token: overrides});
+  }
+
+  /// Provides a custom [Stream] of [ProcessSignal.sigint] events.
+  Stream<ProcessSignal>? get sigintWatch;
+
+  /// Emits a [ProcessSignal.sigint] event on the [sigintWatch] stream.
+  ///
+  /// If no custom [sigintWatch] stream is provided, this method does nothing.
+  void addSIGINT() {
+    _sigintStreamController?.add(ProcessSignal.sigint);
+  }
+}
+
+class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
+  _ProcessSignalOverridesScope(Stream<ProcessSignal>? mockSigintStream) {
+    if (mockSigintStream != null) {
+      _sigintStreamController = StreamController<ProcessSignal>();
+    }
+  }
+
+  @override
+  Stream<ProcessSignal>? get sigintWatch {
+    return _sigintStreamController?.stream;
+  }
+}
+
 /// Thrown when `flutter pub get` is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception {}
 
@@ -211,9 +264,7 @@ class Flutter {
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             if (optimizePerformance) {
-              File(p.join(cwd, 'test', _testOptimizerFileName))
-                  .delete()
-                  .ignore();
+              await _cleanupOptimizerFile(cwd);
             }
 
             if (collectCoverage) {
@@ -325,6 +376,8 @@ Future<int> _flutterTest({
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
   final failedTestErrorMessages = <String, List<String>>{};
+  final sigintWatch = ProcessSignalOverrides.current?.sigintWatch ??
+      ProcessSignal.sigint.watch();
 
   var successCount = 0;
   var skipCount = 0;
@@ -351,6 +404,15 @@ Future<int> _flutterTest({
   );
 
   late final StreamSubscription<TestEvent> subscription;
+  late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
+
+  sigintWatchSubscription = sigintWatch.listen((_) async {
+    await _cleanupOptimizerFile(cwd);
+    await subscription.cancel();
+    await sigintWatchSubscription.cancel();
+    return completer.complete(ExitCode.success.code);
+  });
+
   subscription = testRunner(
     workingDirectory: cwd,
     arguments: [
@@ -483,6 +545,8 @@ Future<int> _flutterTest({
       if (event is ExitTestEvent) {
         if (completer.isCompleted) return;
         subscription.cancel();
+        sigintWatchSubscription.cancel();
+
         completer.complete(
           event.exitCode == ExitCode.success.code
               ? ExitCode.success.code
@@ -505,6 +569,10 @@ bool _isOptimizationApplied(TestSuite suite) =>
 String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
+
+Future<void> _cleanupOptimizerFile(String cwd) async => File(
+      p.join(cwd, 'test', _testOptimizerFileName),
+    ).delete().ignore();
 
 final int _lineLength = () {
   try {
