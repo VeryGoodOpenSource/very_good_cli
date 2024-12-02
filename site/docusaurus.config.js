@@ -61,8 +61,8 @@ const config = {
             className: 'button nav-button',
           },
           {
-            label: 'VGV.DEV',
-            to: 'https://vgv.dev',
+            label: 'VGV Dev Tools',
+            to: 'https://verygood.ventures/dev',
             position: 'right',
           },
           {
