@@ -22,7 +22,7 @@ class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   String get name => 'flutter_app';
 
   @override
-  String get description => 'Generate a Very Good Flutter application.';
+  String get description => 'Generate an Avila Tek ⛰️ Flutter application.';
 
   @override
   Map<String, dynamic> getTemplateVars() {
@@ -38,7 +38,7 @@ class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
 
   @override
   final List<Template> templates = [
-    VeryGoodCoreTemplate(),
+    AvilaTekCoreTemplate(),
     VeryGoodWearAppTemplate(),
   ];
 }

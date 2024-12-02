@@ -22,11 +22,11 @@ fi
 # Get information
 old_version=""
 if [ -f "pubspec.yaml" ]; then
-  old_version=$(dart pub deps --json | pcregrep -o1 -i '"version": "(.*?)"' | head -1)
+  old_version=$(dart pub deps --json | pcre2grep -o1 -i '"version": "(.*?)"' | head -1)
 elif [ -f "brick.yaml" ]; then
-  old_version=$(cat brick.yaml | pcregrep 'version: (.*?)' | tr " " "\n" | tail -1)
+  old_version=$(cat brick.yaml | pcre2grep 'version: (.*?)' | tr " " "\n" | tail -1)
 elif [ -f "package.json" ]; then
-  old_version=$(cat package.json | pcregrep -o1 -i '"version": "(.*?)"' | head -1)
+  old_version=$(cat package.json | pcre2grep -o1 -i '"version": "(.*?)"' | head -1)
 fi
 
 if [ -z "$old_version" ]; then

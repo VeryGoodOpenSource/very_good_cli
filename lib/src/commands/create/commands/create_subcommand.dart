@@ -3,20 +3,21 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/commands/commands.dart';
+import 'package:atmos_cli/src/commands/create/templates/templates.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-import 'package:atmos_cli/src/commands/commands.dart';
-import 'package:atmos_cli/src/commands/create/templates/templates.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
-final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
+final RegExp _identifierRegExp = RegExp('[a-z][a-z0-9]*');
+final RegExp _orgNameRegExp =
+    RegExp(r'^[a-zA-Z][a-zA-Z0-9-]*(\.[a-zA-Z][a-zA-Z0-9-]*)+$');
 
-const _defaultOrgName = 'com.example.verygoodcore';
-const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
+const _defaultOrgName = 'com.avilatek';
+const _defaultDescription = 'An Avila Tek ⛰️ Project created by ATMOS CLI.';
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
@@ -137,7 +138,7 @@ abstract class CreateSubCommand extends Command<int> {
   Template get template;
 
   @override
-  String get invocation => 'very_good create $name <project-name> [arguments]';
+  String get invocation => 'atmos create $name <project-name> [arguments]';
 
   @override
   ArgResults get argResults => argResultOverrides ?? super.argResults!;
@@ -162,7 +163,8 @@ abstract class CreateSubCommand extends Command<int> {
     final isValidProjectName = _isValidPackageName(name);
     if (!isValidProjectName) {
       usageException(
-        '"$name" is not a valid package name.\n\n'
+        '"$name" is not a valid package name.\n'
+        "Make sure you don't use underscores or spaces in the package name.\n\n"
         'See https://dart.dev/tools/pub/pubspec#name for more information.',
       );
     }
@@ -259,9 +261,9 @@ mixin OrgName on CreateSubCommand {
         '"$name" is not a valid org name.\n\n'
         'A valid org name has at least 2 parts separated by "."\n'
         'Each part must start with a letter and only include '
-        'alphanumeric characters (A-Z, a-z, 0-9), underscores (_), '
+        'alphanumeric characters (A-Z, a-z, 0-9), '
         'and hyphens (-)\n'
-        '(ex. very.good.org)',
+        '(ex. avila.tek.org)',
       );
     }
   }

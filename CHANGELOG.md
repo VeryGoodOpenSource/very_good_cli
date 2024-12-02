@@ -1,3 +1,6 @@
+# 0.25.0
+- feat: create flutter_app now has a post processing script that sets up README, codemagic.yaml, routes, theme variables and configures Firebase projects automatically. This automated process saves hours of manual work.
+
 # 0.24.0
 
 - feat: bump template bundles ([#1167](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1167))

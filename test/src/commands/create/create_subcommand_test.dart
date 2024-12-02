@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/commands/create/commands/create_subcommand.dart';
+import 'package:atmos_cli/src/commands/create/templates/template.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-import 'package:atmos_cli/src/commands/create/commands/create_subcommand.dart';
-import 'package:atmos_cli/src/commands/create/templates/template.dart';
 
 class _MockTemplate extends Mock implements Template {}
 
@@ -511,7 +511,7 @@ Usage: very_good create create_subcommand <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --org-name            The organization for this new project.
-                          (defaults to "com.example.verygoodcore")
+                          (defaults to "com.avilatek")
 
 Run "runner help" to see global options.''';
 
@@ -548,7 +548,7 @@ Run "runner help" to see global options.''';
               .having(
                 (o) => o.defaultsTo,
                 'defaultsTo',
-                'com.example.verygoodcore',
+                'com.avilatek',
               )
               .having(
             (o) => o.aliases,

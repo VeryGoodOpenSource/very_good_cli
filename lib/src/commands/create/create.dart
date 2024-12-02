@@ -1,7 +1,7 @@
 import 'package:args/command_runner.dart';
+import 'package:atmos_cli/src/commands/create/commands/commands.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
-import 'package:atmos_cli/src/commands/create/commands/commands.dart';
 
 /// {@template create_command}
 /// `very_good create` command creates code from various built-in templates.
@@ -85,12 +85,12 @@ class CreateCommand extends Command<int> {
 
   @override
   String get description =>
-      'Creates a new very good project in the specified directory.';
+      'Creates a new Avila Tek ⛰️ project in the specified directory.';
 
   @override
   String get name => 'create';
 
   @override
   String get invocation =>
-      'very_good create <subcommand> <project-name> [arguments]';
+      'atmos create <subcommand> <project-name> [arguments]';
 }
