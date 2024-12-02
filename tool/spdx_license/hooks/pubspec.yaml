@@ -6,7 +6,7 @@ issue_tracker: https://github.com/VeryGoodOpenSource/very_good_cli/issues
 publish_to: none
 
 environment:
-  sdk: ^3.4.0
+  sdk: ^3.5.0
 
 dependencies:
   archive: ^3.4.10
