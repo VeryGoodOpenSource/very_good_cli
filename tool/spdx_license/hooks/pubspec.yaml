@@ -11,7 +11,7 @@ environment:
 dependencies:
   archive: ^3.4.10
   http: ^1.2.1
-  mason: ^0.1.0-dev.52
+  mason: ^0.1.0
   meta: ^1.12.0
   path: ^1.9.0
 
