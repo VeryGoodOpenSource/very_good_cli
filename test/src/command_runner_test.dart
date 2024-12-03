@@ -224,7 +224,7 @@ void main() {
                 () => logger.info(
                       any(
                         that: contains(
-                          'https://verygood.ventures/open-source/cli/subscribe-latest-tool-updates',
+                          'https://verygood.ventures/dev/tools/cli/subscribe',
                         ),
                       ),
                     ),
