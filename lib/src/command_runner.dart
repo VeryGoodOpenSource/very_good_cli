@@ -163,7 +163,7 @@ Run ${lightCyan.wrap('very_good update')} to update''',
       lightMagenta.wrap('''
 
 Thank you for using Very Good Ventures open source tools!
-Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/open-source/cli/subscribe-latest-tool-updates')))}'''),
+Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/dev/tools/cli/subscribe')))}'''),
       print: _logger.info,
     );
   }
