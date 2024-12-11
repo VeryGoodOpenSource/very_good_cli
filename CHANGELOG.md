@@ -1,7 +1,7 @@
 # 0.25.0
 
 - chore: update SPDX licenses ([#1178](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1178), [#1185](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1185), [#1186](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1186), [#1187](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1187))
-- fix: cleanup .test_optimizer.dart on SIGINT ([#1190](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1190))
+- fix: cleanup `.test_optimizer.dart` on SIGINT ([#1190](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1190))
 - chore: update subscribe URL ([#1201](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1201))
 - docs: update vgv dev URL ([#1202](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1202))
 - Dependency Updates
