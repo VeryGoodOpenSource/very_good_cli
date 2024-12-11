@@ -1,3 +1,16 @@
+# 0.25.0
+
+- chore: update SPDX licenses ([#1178](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1178), [#1185](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1185), [#1186](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1186), [#1187](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1187))
+- fix: cleanup `.test_optimizer.dart` on SIGINT ([#1190](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1190))
+- chore: update subscribe URL ([#1201](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1201))
+- docs: update vgv dev URL ([#1202](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1202))
+- Dependency Updates
+  - chore(deps): bump pana from 0.22.13 to 0.22.15 ([#1177](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1177))
+  - chore(deps): bump pana from 0.22.15 to 0.22.16 ([#1203](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1203))
+  - chore(deps): bump pana from 0.22.16 to 0.22.17 ([#1206](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1206))
+  - chore(deps): bump mason from 0.1.0-dev.60 to 0.1.0 ([#1197](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1197))
+  - chore(deps): bump mason from 0.1.0-dev.60 to 0.1.0 in /bricks/test_optimizer/hooks ([#1198](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1198))
+
 # 0.24.0
 
 - feat: bump template bundles ([#1167](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1167))
