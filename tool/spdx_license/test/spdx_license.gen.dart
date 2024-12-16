@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 679 SPDX licenses.
+/// A list of all 681 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -397,6 +397,7 @@ enum SpdxLicense {
   $Linux_man_pages_copyleft_2_para._('Linux-man-pages-copyleft-2-para'),
   $Linux_man_pages_copyleft_var._('Linux-man-pages-copyleft-var'),
   $Lucida_Bitmap_Fonts._('Lucida-Bitmap-Fonts'),
+  $MIPS._('MIPS'),
   $MIT._('MIT'),
   $MIT_0._('MIT-0'),
   $MIT_CMU._('MIT-CMU'),
@@ -594,6 +595,7 @@ enum SpdxLicense {
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
   $TermReadKey._('TermReadKey'),
+  $ThirdEye._('ThirdEye'),
   $TrustedQSL._('TrustedQSL'),
   $UCAR._('UCAR'),
   $UCL_1_0._('UCL-1.0'),
