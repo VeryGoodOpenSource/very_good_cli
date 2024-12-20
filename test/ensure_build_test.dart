@@ -1,5 +1,5 @@
 @Tags(['pull-request-only'])
-library;
+library ensure_build_test;
 
 import 'package:build_verify/build_verify.dart';
 import 'package:test/test.dart';

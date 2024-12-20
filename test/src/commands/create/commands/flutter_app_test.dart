@@ -66,8 +66,8 @@ void main() {
     logger = _MockLogger();
 
     final progress = _MockProgress();
-    when(() => progress.complete(any())).thenAnswer((a) {
-      final message = a.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((_) {
+      final message = _.positionalArguments.elementAt(0) as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);
@@ -141,9 +141,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((a) async {
+        ).thenAnswer((_) async {
           final target =
-              a.positionalArguments.first as DirectoryGeneratorTarget;
+              _.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_app', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);

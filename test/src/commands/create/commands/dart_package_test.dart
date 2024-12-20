@@ -143,9 +143,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((a) async {
+        ).thenAnswer((_) async {
           final target =
-              a.positionalArguments.first as DirectoryGeneratorTarget;
+              _.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_package', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);

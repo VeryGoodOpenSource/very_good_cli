@@ -35,7 +35,7 @@ class UpdateCommand extends Command<int> {
     late final String latestVersion;
     try {
       latestVersion = await _pubUpdater.getLatestVersion(packageName);
-    } on Exception catch (error) {
+    } catch (error) {
       updateCheckProgress.fail();
       _logger.err('$error');
       return ExitCode.software.code;
@@ -57,7 +57,7 @@ class UpdateCommand extends Command<int> {
         packageName: packageName,
         versionConstraint: latestVersion,
       );
-    } on Exception catch (error) {
+    } catch (error) {
       updateProgress.fail();
       _logger.err('$error');
       return ExitCode.software.code;

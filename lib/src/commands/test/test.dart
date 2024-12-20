@@ -229,7 +229,7 @@ This command should be run from the root of your Flutter project.''',
           '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
         );
         return ExitCode.unavailable.code;
-      } on Exception catch (error) {
+      } catch (error) {
         _logger.err('$error');
         return ExitCode.unavailable.code;
       }

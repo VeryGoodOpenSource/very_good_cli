@@ -146,7 +146,7 @@ ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodo
 Run ${lightCyan.wrap('very_good update')} to update''',
           );
       }
-    } on Exception catch (_) {}
+    } catch (_) {}
   }
 
   void _showThankYou() {
