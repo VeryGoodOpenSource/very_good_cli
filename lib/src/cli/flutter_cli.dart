@@ -112,7 +112,7 @@ typedef FlutterTestRunner = Stream<TestEvent> Function({
   bool runInShell,
 });
 
-/// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
+/// A method which returns a [`Future<MasonGenerator>`] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
 /// Flutter CLI
