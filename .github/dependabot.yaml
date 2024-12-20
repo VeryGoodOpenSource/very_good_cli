@@ -17,6 +17,10 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "pub"
+    directory: "/tool/spdx_license"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pub"
     directory: "/"
     schedule:
       interval: "daily"
