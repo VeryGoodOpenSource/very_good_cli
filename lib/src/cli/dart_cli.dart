@@ -9,7 +9,7 @@ class Dart {
     try {
       await _Cmd.run('dart', ['--version'], logger: logger);
       return true;
-    } catch (_) {
+    } on Exception catch (_) {
       return false;
     }
   }

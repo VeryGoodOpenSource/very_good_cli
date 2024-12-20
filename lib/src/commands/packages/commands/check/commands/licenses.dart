@@ -269,7 +269,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       try {
         detectorResult =
             await detectLicense(licenseFileContent, _defaultDetectionThreshold);
-      } catch (e) {
+      } on Exception catch (e) {
         final errorMessage =
             '''[$dependencyName] Failed to detect license from $packagePath: $e''';
         if (!ignoreFailures) {
@@ -330,7 +330,7 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
     final content = pubspecLockFile.readAsStringSync();
     try {
       return PubspecLock.fromString(content);
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   return null;
@@ -348,7 +348,7 @@ Future<package_config.PackageConfig?> _tryFindPackageConfig(
     final findPackageConfig =
         findPackageConfigOverride ?? package_config.findPackageConfig;
     return await findPackageConfig(directory);
-  } catch (error) {
+  } on Exception {
     return null;
   }
 }

@@ -141,9 +141,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
+        ).thenAnswer((a) async {
           final target =
-              _.positionalArguments.first as DirectoryGeneratorTarget;
+              a.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_flutter_package', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);

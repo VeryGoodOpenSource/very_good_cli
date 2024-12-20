@@ -124,7 +124,7 @@ class Flutter {
     try {
       await _Cmd.run('flutter', ['--version'], logger: logger);
       return true;
-    } catch (_) {
+    } on Exception catch (_) {
       return false;
     }
   }

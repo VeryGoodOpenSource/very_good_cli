@@ -7,4 +7,4 @@
 /// # see usage
 /// very_good --help
 /// ```
-library very_good_cli;
+library;
