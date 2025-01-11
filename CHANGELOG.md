@@ -1,3 +1,6 @@
+# 0.25.1
+- fix: tool version check up bug that read the wrong version was fixed. Now updating tool will stop the update message from appearing.
+  
 # 0.25.0
 - feat: create flutter_app now has a post processing script that sets up README, codemagic.yaml, routes, theme variables and configures Firebase projects automatically. This automated process saves hours of manual work.
 
