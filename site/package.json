@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "^3.7.0",
-    "@docusaurus/preset-classic": "^3.6.3",
+    "@docusaurus/preset-classic": "^3.7.0",
     "@mdx-js/react": "^3.1.0",
     "clsx": "^2.1.1",
     "prism-react-renderer": "^2.4.1",
@@ -28,10 +28,10 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.9",
-    "@docusaurus/eslint-plugin": "^3.6.3",
-    "@docusaurus/module-type-aliases": "^3.6.3",
-    "@docusaurus/types": "^3.6.3",
-    "@docusaurus/tsconfig": "3.6.3",
+    "@docusaurus/eslint-plugin": "^3.7.0",
+    "@docusaurus/module-type-aliases": "^3.7.0",
+    "@docusaurus/types": "^3.7.0",
+    "@docusaurus/tsconfig": "3.7.0",
     "@types/react": "^18.3.12",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
