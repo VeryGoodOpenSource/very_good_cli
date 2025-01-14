@@ -49,14 +49,13 @@ fi
 
 # Retrieving all the commits in the current directory since the last tag.
 previousTag="v${old_version}"
-raw_commits="$(git log --pretty=format:"%s" --no-merges --reverse $previousTag..HEAD -- .)"
-markdown_commits=$(echo "$raw_commits" | sed -En "s/\(#([0-9]+)\)/([#\1](https:\/\/github.com\/VeryGoodOpenSource\/very_good_cli\/pull\/\1))/p")
+raw_commits=$(git log --pretty=format:"%s" --no-merges --reverse $previousTag..HEAD)
 
-if [[ "$markdown_commits" == "" ]]; then
+if [[ "$raw_commits" == "" ]]; then
   echo "No commits since last tag, can't update."
   exit 0
 fi
-commits=$(echo "$markdown_commits" | sed -En "s/^/- /p")
+commits=$(echo "$raw_commits" | sed -E "s/^/- /")
 
 echo "Updating version to $new_version"
 if [ -f "pubspec.yaml" ]; then
@@ -77,10 +76,10 @@ if grep -q v$new_version "CHANGELOG.md"; then
 fi
 
 # Add a new version entry with the found commits to the CHANGELOG.md.
-echo "# ${new_version} \n\n ${commits}\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
+echo -e "# ${new_version}\n${commits}\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
 echo "CHANGELOG generated, validate entries here: $(pwd)/CHANGELOG.md"
 
-echo "Creating git branch for ver_good_cli@$new_version"
+echo "Creating git branch for atmos_cli@$new_version"
 git checkout -b "chore/$new_version" > /dev/null
 
 git add pubspec.yaml CHANGELOG.md 
