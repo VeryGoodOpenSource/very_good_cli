@@ -1,3 +1,8 @@
+# 0.25.2
+- Update README.md
+- feat: generated DefaultFirebaseConfig files are now renamed after each flavor
+- ci: release_ready.sh update
+
 # 0.25.1
 - fix: tool version check up bug that read the wrong version was fixed. Now updating tool will stop the update message from appearing.
   
