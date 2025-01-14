@@ -1,7 +1,6 @@
 [<img src="https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/site/static/img/cli_icon.svg" align="left" />](https://cli.vgv.dev/)
 
 ### Avila Tek Mobile Open Source (ATMOS) CLI
-v
 <br clear="left"/>
 
 [![ci][ci_badge]][ci_link]
