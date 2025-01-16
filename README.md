@@ -73,7 +73,7 @@ Available subcommands:
   dart_package      Generate a Very Good Dart package.
   docs_site         Generate a Very Good documentation site.
   flame_game        Generate a Very Good Flame game.
-  flutter_app       Generate an **Avila Tek** Flutter application.
+  flutter_app       Generate an Avila Tek ⛰️ Flutter application.
   flutter_package   Generate a Very Good Flutter package.
   flutter_plugin    Generate a Very Good Flutter plugin.
 
