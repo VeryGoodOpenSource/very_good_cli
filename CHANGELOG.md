@@ -1,3 +1,7 @@
+# 0.25.4
+- docs: README updated
+- docs: README update
+
 # 0.25.3
 - fix: atmos create flutter_app correctly validates minimum required mason version. Corrected brick name references in mason make instructions. Project now uses bootstrap_go_routes version 0.1.1
 

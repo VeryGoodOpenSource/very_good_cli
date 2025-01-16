@@ -1,6 +1,6 @@
 name: atmos_cli
 description: CLI tool fitted to Avila Tek projects.
-version: 0.25.3
+version: 0.25.4
 repository: https://github.com/andrespd99/atmos_cli
 issue_tracker: https://github.com/andrespd99/atmos_cli/issues
 topics: [cli, codegen, test, template, boilerplate]
