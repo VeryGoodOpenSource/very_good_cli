@@ -11,7 +11,23 @@
 
 ---
 
-Customized version of the Very Good Command-Line Interface from ATMOS ⛰️.
+Fork from `very_good_cli` with extra features for Avila Tek ⛰️ Mobile projects.
+
+
+## Special features in `atmos_cli`
+
+To this date, `atmos_cli` is almost identical to `very_good_cli`, but with the following extra features:
+
+The only command that is modified from the original CLI tool is `atmos create flutter_app`.
+
+First, it uses [atmos_core](https://github.com/andrespd99/atmos_templates/tree/main/atmos_core) template, a slightly different template from [very_good_core](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_core).
+
+Second, it has an extended setup process that does the following things:
+- Sets up FVM with the newest stable Flutter version.
+- Runs `mason get` and generates the base bricks used in our projects: [`avilatek_readme`](https://brickhub.dev/bricks/avilatek_readme/0.1.0), [`avila_codemagic`](https://brickhub.dev/bricks/avila_codemagic/0.1.0), [`bootstrap_go_routes`](https://brickhub.dev/bricks/bootstrap_go_routes/0.1.1) and [`avila_themes`](https://brickhub.dev/bricks/avila_themes/0.1.0).
+- Prompts the user to setup Firebase in the project. **This is the neatest feature in `atmos`!**. It will setup Firebase for all flavors (development, staging and production) for iOS and Android platforms. It also sets up the firebase config files in Dart, Android and iOS. In iOS, a config folder is created with every `GoogleService-Info.plist` file and adds a Build Phase script to use the correct file for each flavor. In Dart, it creates a `firebase_config.dart` file with the correct configuration for each flavor. This is a huge time saver for developers!
+- Finally, adds needed dependencies and fixes dart analysis issues.
+
 
 ## Documentation 📝
 
@@ -21,7 +37,7 @@ For official documentation, please visit https://cli.vgv.dev.
 
 ### Installing 🧑‍💻
 
-```sh
+```**sh**
 dart pub global activate atmos_cli
 ```
 
