@@ -6,7 +6,6 @@ import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:package_config/package_config.dart' as package_config;
-
 // We rely on PANA's license detection algorithm to retrieve licenses from
 // packages.
 //
@@ -241,7 +240,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         continue;
       }
 
-      final packagePath = path.normalize(cachePackageEntry.root.path);
+      final packagePath = path.normalize(cachePackageEntry.root.toFilePath());
       final packageDirectory = Directory(packagePath);
       if (!packageDirectory.existsSync()) {
         final errorMessage =
