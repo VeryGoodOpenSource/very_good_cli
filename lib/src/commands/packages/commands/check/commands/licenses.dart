@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:package_config/package_config.dart' as package_config;
+
 // We rely on PANA's license detection algorithm to retrieve licenses from
 // packages.
 //
