@@ -1,7 +1,7 @@
 /// A generator that creates the SPDX License enumeration.
 ///
 /// For more information, see the `README.md`.
-library spdx_license_pre_gen;
+library;
 
 import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
@@ -82,7 +82,7 @@ Future<void> preGen(
     };
   } on GenerateSpdxLicenseException catch (e) {
     context.logger.err(e.message);
-  } catch (e) {
+  } on Exception catch (e) {
     context.logger.err(
       '''[spdx_license] An unknown error occurred, received error: $e''',
     );
