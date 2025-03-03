@@ -9,7 +9,7 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
-  archive: ^3.4.10
+  archive: ^4.0.4
   http: ^1.2.1
   mason: ^0.1.0
   meta: ^1.12.0
