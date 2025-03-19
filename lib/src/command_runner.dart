@@ -22,16 +22,12 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     Logger? logger,
     PubUpdater? pubUpdater,
     Map<String, String>? environment,
-  })  : _logger = logger ?? Logger(),
-        _pubUpdater = pubUpdater ?? PubUpdater(),
-        _environment = environment ?? Platform.environment,
-        super('very_good', '🦄 A Very Good Command-Line Interface') {
+  }) : _logger = logger ?? Logger(),
+       _pubUpdater = pubUpdater ?? PubUpdater(),
+       _environment = environment ?? Platform.environment,
+       super('very_good', '🦄 A Very Good Command-Line Interface') {
     argParser
-      ..addFlag(
-        'version',
-        negatable: false,
-        help: 'Print the current version.',
-      )
+      ..addFlag('version', negatable: false, help: 'Print the current version.')
       ..addFlag(
         'verbose',
         help: 'Noisy logging, including all shell commands executed.',
@@ -139,12 +135,10 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
       if (!isUpToDate) {
         _logger
           ..info('')
-          ..info(
-            '''
+          ..info('''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
 ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
-Run ${lightCyan.wrap('very_good update')} to update''',
-          );
+Run ${lightCyan.wrap('very_good update')} to update''');
       }
     } catch (_) {}
   }
@@ -152,18 +146,19 @@ Run ${lightCyan.wrap('very_good update')} to update''',
   void _showThankYou() {
     if (environment.containsKey('CI')) return;
 
-    final versionFile = File(
-      path.join(_configDir.path, 'version'),
-    )..createSync(recursive: true);
+    final versionFile = File(path.join(_configDir.path, 'version'))
+      ..createSync(recursive: true);
 
     if (versionFile.readAsStringSync() == packageVersion) return;
     versionFile.writeAsStringSync(packageVersion);
 
     _logger.wrap(
-      lightMagenta.wrap('''
+      lightMagenta.wrap(
+        '''
 
 Thank you for using Very Good Ventures open source tools!
-Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/dev/tools/cli/subscribe')))}'''),
+Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/dev/tools/cli/subscribe')))}''',
+      ),
       print: _logger.info,
     );
   }

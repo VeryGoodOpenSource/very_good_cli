@@ -79,22 +79,22 @@ class _CoverageMetrics {
     String? excludeFromCoverage,
   ) {
     final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
-    return records.fold<_CoverageMetrics>(
-      const _CoverageMetrics._(),
-      (current, record) {
-        final found = record.lines?.found ?? 0;
-        final hit = record.lines?.hit ?? 0;
-        if (glob != null && record.file != null) {
-          if (glob.matches(record.file!)) {
-            return current;
-          }
+    return records.fold<_CoverageMetrics>(const _CoverageMetrics._(), (
+      current,
+      record,
+    ) {
+      final found = record.lines?.found ?? 0;
+      final hit = record.lines?.hit ?? 0;
+      if (glob != null && record.file != null) {
+        if (glob.matches(record.file!)) {
+          return current;
         }
-        return _CoverageMetrics._(
-          totalFound: current.totalFound + found,
-          totalHits: current.totalHits + hit,
-        );
-      },
-    );
+      }
+      return _CoverageMetrics._(
+        totalFound: current.totalFound + found,
+        totalHits: current.totalHits + hit,
+      );
+    });
   }
 
   final int totalHits;
@@ -105,12 +105,13 @@ class _CoverageMetrics {
 
 /// Type definition for the [flutterTest] command
 /// from 'package:very_good_test_runner`.
-typedef FlutterTestRunner = Stream<TestEvent> Function({
-  List<String>? arguments,
-  String? workingDirectory,
-  Map<String, String>? environment,
-  bool runInShell,
-});
+typedef FlutterTestRunner =
+    Stream<TestEvent> Function({
+      List<String>? arguments,
+      String? workingDirectory,
+      Map<String, String>? environment,
+      bool runInShell,
+    });
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -118,9 +119,7 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('flutter', ['--version'], logger: logger);
       return true;
@@ -210,14 +209,10 @@ class Flutter {
         final path =
             relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
 
-        stdout?.call(
-          'Running "flutter test" in $path ...\n',
-        );
+        stdout?.call('Running "flutter test" in $path ...\n');
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
-          stdout?.call(
-            'No test folder found in $path\n',
-          );
+          stdout?.call('No test folder found in $path\n');
           return ExitCode.success.code;
         }
 
@@ -312,22 +307,20 @@ Future<void> _verifyGitDependencies(
   final dependencies = pubspec.dependencies;
   final devDependencies = pubspec.devDependencies;
   final dependencyOverrides = pubspec.dependencyOverrides;
-  final gitDependencies = [
-    ...dependencies.entries,
-    ...devDependencies.entries,
-    ...dependencyOverrides.entries,
-  ]
-      .where((entry) => entry.value is GitDependency)
-      .map((entry) => entry.value)
-      .cast<GitDependency>()
-      .toList();
+  final gitDependencies =
+      [
+            ...dependencies.entries,
+            ...devDependencies.entries,
+            ...dependencyOverrides.entries,
+          ]
+          .where((entry) => entry.value is GitDependency)
+          .map((entry) => entry.value)
+          .cast<GitDependency>()
+          .toList();
 
   await Future.wait(
     gitDependencies.map(
-      (dependency) => Git.reachable(
-        dependency.url,
-        logger: logger,
-      ),
+      (dependency) => Git.reachable(dependency.url, logger: logger),
     ),
   );
 }
@@ -376,7 +369,8 @@ Future<int> _flutterTest({
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
   final failedTestErrorMessages = <String, List<String>>{};
-  final sigintWatch = ProcessSignalOverrides.current?.sigintWatch ??
+  final sigintWatch =
+      ProcessSignalOverrides.current?.sigintWatch ??
       ProcessSignal.sigint.watch();
 
   var successCount = 0;
@@ -395,13 +389,11 @@ Future<int> _flutterTest({
   final timerSubscription = Stream.periodic(
     const Duration(seconds: 1),
     (computationCount) => computationCount,
-  ).listen(
-    (tick) {
-      if (completer.isCompleted) return;
-      final timeElapsed = Duration(seconds: tick).formatted();
-      stdout('$clearLine$timeElapsed ...');
-    },
-  );
+  ).listen((tick) {
+    if (completer.isCompleted) return;
+    final timeElapsed = Duration(seconds: tick).formatted();
+    stdout('$clearLine$timeElapsed ...');
+  });
 
   late final StreamSubscription<TestEvent> subscription;
   late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
@@ -415,10 +407,7 @@ Future<int> _flutterTest({
 
   subscription = testRunner(
     workingDirectory: cwd,
-    arguments: [
-      if (collectCoverage) '--coverage',
-      ...?arguments,
-    ],
+    arguments: [if (collectCoverage) '--coverage', ...?arguments],
     runInShell: true,
   ).listen(
     (event) {
@@ -506,17 +495,18 @@ Future<int> _flutterTest({
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
         final truncatedTestName = testName.toSingleLine().truncated(
-              _lineLength - (timeElapsed.length + stats.length + 2),
-            );
+          _lineLength - (timeElapsed.length + stats.length + 2),
+        );
         stdout('''$clearLine$timeElapsed $stats: $truncatedTestName''');
       }
 
       if (event is DoneTestEvent) {
         final timeElapsed = Duration(milliseconds: event.time).formatted();
         final stats = computeStats();
-        final summary = event.success ?? false
-            ? lightGreen.wrap('All tests passed!')!
-            : lightRed.wrap('Some tests failed.')!;
+        final summary =
+            event.success ?? false
+                ? lightGreen.wrap('All tests passed!')!
+                : lightRed.wrap('Some tests failed.')!;
 
         stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
 
@@ -570,9 +560,8 @@ String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
 
-Future<void> _cleanupOptimizerFile(String cwd) async => File(
-      p.join(cwd, 'test', _testOptimizerFileName),
-    ).delete().ignore();
+Future<void> _cleanupOptimizerFile(String cwd) async =>
+    File(p.join(cwd, 'test', _testOptimizerFileName)).delete().ignore();
 
 final int _lineLength = () {
   try {

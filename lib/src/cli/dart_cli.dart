@@ -3,9 +3,7 @@ part of 'cli.dart';
 /// Dart CLI
 class Dart {
   /// Determine whether dart is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('dart', ['--version'], logger: logger);
       return true;
@@ -79,12 +77,13 @@ class Dart {
     }
 
     final processes = _Cmd.runWhere(
-      run: (entity) => _Cmd.run(
-        'dart',
-        ['fix', '--apply'],
-        workingDirectory: entity.parent.path,
-        logger: logger,
-      ),
+      run:
+          (entity) => _Cmd.run(
+            'dart',
+            ['fix', '--apply'],
+            workingDirectory: entity.parent.path,
+            logger: logger,
+          ),
       where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
       cwd: cwd,
     );

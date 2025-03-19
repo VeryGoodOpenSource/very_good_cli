@@ -13,7 +13,8 @@ class CreateFlutterPlugin extends CreateSubCommand with Publishable, OrgName {
   }) {
     argParser.addMultiOption(
       'platforms',
-      help: 'The platforms supported by the plugin. By default, all platforms '
+      help:
+          'The platforms supported by the plugin. By default, all platforms '
           'are enabled. Example: --platforms=android,ios',
       defaultsTo: ['android', 'ios', 'web', 'linux', 'macos', 'windows'],
       allowed: ['android', 'ios', 'web', 'linux', 'macos', 'windows'],

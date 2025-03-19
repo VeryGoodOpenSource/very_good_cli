@@ -51,8 +51,8 @@ abstract class CreateSubCommand extends Command<int> {
     required this.logger,
     @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
     @visibleForTesting required MasonGeneratorFromBrick? generatorFromBrick,
-  })  : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
-        _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
+  }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
+       _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
     argParser
       ..addOption(
         'output-directory',
@@ -293,9 +293,7 @@ mixin MultiTemplates on CreateSubCommand {
     final templateName =
         argResults['template'] as String? ?? defaultTemplateName;
 
-    return templates.firstWhere(
-      (element) => element.name == templateName,
-    );
+    return templates.firstWhere((element) => element.name == templateName);
   }
 }
 

@@ -64,16 +64,19 @@ void main() {
     });
 
     group('run', () {
-      test('downloads licenses successfully', tags: ['pull-request-only'],
-          () async {
-        await pre_gen.run(context);
+      test(
+        'downloads licenses successfully',
+        tags: ['pull-request-only'],
+        () async {
+          await pre_gen.run(context);
 
-        expect(context.vars['total'], greaterThan(0));
-        expect(
-          (context.vars['licenses'] as List).length,
-          equals(context.vars['total']),
-        );
-      });
+          expect(context.vars['total'], greaterThan(0));
+          expect(
+            (context.vars['licenses'] as List).length,
+            equals(context.vars['total']),
+          );
+        },
+      );
     });
 
     group('sets vars correctly', () {
@@ -119,11 +122,7 @@ void main() {
         when(() => zipDecoder.decodeBytes(bodyBytes)).thenReturn(archive);
         when(() => archive.files).thenReturn([]);
 
-        await pre_gen.preGen(
-          context,
-          client: client,
-          zipDecoder: zipDecoder,
-        );
+        await pre_gen.preGen(context, client: client, zipDecoder: zipDecoder);
 
         verify(() => progress.complete('Found 0 SPDX licenses')).called(1);
       });
@@ -142,11 +141,7 @@ void main() {
           when(() => response.bodyBytes).thenReturn(bodyBytes);
           when(() => zipDecoder.decodeBytes(bodyBytes)).thenThrow('error');
 
-          await pre_gen.preGen(
-            context,
-            client: client,
-            zipDecoder: zipDecoder,
-          );
+          await pre_gen.preGen(context, client: client, zipDecoder: zipDecoder);
 
           verify(() => progress.cancel()).called(1);
         });
@@ -171,11 +166,7 @@ void main() {
         const error = 'an error';
         when(() => zipDecoder.decodeBytes(bodyBytes)).thenThrow(error);
 
-        await pre_gen.preGen(
-          context,
-          client: client,
-          zipDecoder: zipDecoder,
-        );
+        await pre_gen.preGen(context, client: client, zipDecoder: zipDecoder);
 
         const errorMessage =
             '''[spdx_license] Failed to decode the SPDX license list, received error: $error''';

@@ -19,12 +19,13 @@ part 'git_cli.dart';
 const _asyncRunZoned = runZoned;
 
 /// Type definition for [Process.run].
-typedef RunProcess = Future<ProcessResult> Function(
-  String executable,
-  List<String> arguments, {
-  String? workingDirectory,
-  bool runInShell,
-});
+typedef RunProcess =
+    Future<ProcessResult> Function(
+      String executable,
+      List<String> arguments, {
+      String? workingDirectory,
+      bool runInShell,
+    });
 
 /// This class facilitates overriding [Process.run].
 /// It should be extended by another class in client code with overrides
@@ -47,10 +48,7 @@ abstract class ProcessOverrides {
   }
 
   /// Runs [body] in a fresh [Zone] using the provided overrides.
-  static R runZoned<R>(
-    R Function() body, {
-    RunProcess? runProcess,
-  }) {
+  static R runZoned<R>(R Function() body, {RunProcess? runProcess}) {
     final overrides = _ProcessOverridesScope(runProcess);
     return _asyncRunZoned(body, zoneValues: {_token: overrides});
   }
