@@ -13,7 +13,8 @@ class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   }) {
     argParser.addOption(
       'application-id',
-      help: 'The bundle identifier on iOS or application id on Android. '
+      help:
+          'The bundle identifier on iOS or application id on Android. '
           '(defaults to <org-name>.<project-name>)',
     );
   }

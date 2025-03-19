@@ -24,9 +24,8 @@ import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting
-Future<package_config.PackageConfig?> Function(
-  Directory directory,
-)? findPackageConfigOverride;
+Future<package_config.PackageConfig?> Function(Directory directory)?
+findPackageConfigOverride;
 
 /// Overrides the [detector.detectLicense] function for testing.
 @visibleForTesting
@@ -71,9 +70,8 @@ typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
 /// {@endtemplate}
 class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
-  PackagesCheckLicensesCommand({
-    Logger? logger,
-  }) : _logger = logger ?? Logger() {
+  PackagesCheckLicensesCommand({Logger? logger})
+    : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',
@@ -101,10 +99,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         'allowed',
         help: 'Only allow the use of certain licenses.',
       )
-      ..addMultiOption(
-        'forbidden',
-        help: 'Deny the use of certain licenses.',
-      )
+      ..addMultiOption('forbidden', help: 'Deny the use of certain licenses.')
       ..addMultiOption(
         'skip-packages',
         help: 'Skip packages from having their licenses checked.',
@@ -225,8 +220,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
 
       final dependencyName = dependency.name;
-      final cachePackageEntry = packageConfig.packages
-          .firstWhereOrNull((package) => package.name == dependencyName);
+      final cachePackageEntry = packageConfig.packages.firstWhereOrNull(
+        (package) => package.name == dependencyName,
+      );
       if (cachePackageEntry == null) {
         final errorMessage =
             '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
@@ -267,8 +263,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       late final detector.Result detectorResult;
       try {
-        detectorResult =
-            await detectLicense(licenseFileContent, _defaultDetectionThreshold);
+        detectorResult = await detectLicense(
+          licenseFileContent,
+          _defaultDetectionThreshold,
+        );
       } catch (e) {
         final errorMessage =
             '''[$dependencyName] Failed to detect license from $packagePath: $e''';
@@ -283,10 +281,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
         continue;
       }
 
-      final rawLicense = detectorResult.matches
-          // ignore: invalid_use_of_visible_for_testing_member
-          .map((match) => match.license.identifier)
-          .toSet();
+      final rawLicense =
+          detectorResult.matches
+              // ignore: invalid_use_of_visible_for_testing_member
+              .map((match) => match.license.identifier)
+              .toSet();
       licenses[dependencyName] = rawLicense;
     }
 
@@ -407,14 +406,18 @@ String _composeReport({
   required _DependencyLicenseMap licenses,
   required _BannedDependencyLicenseMap? bannedDependencies,
 }) {
-  final bannedLicenseTypes =
-      bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
+  final bannedLicenseTypes = bannedDependencies?.values.fold(<String>{}, (
+    previousValue,
+    licenses,
+  ) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
 
-  final licenseTypes =
-      licenses.values.fold(<String>[], (previousValue, licenses) {
+  final licenseTypes = licenses.values.fold(<String>[], (
+    previousValue,
+    licenses,
+  ) {
     if (licenses == null) return previousValue;
     return previousValue..addAll(licenses);
   });
@@ -423,8 +426,10 @@ String _composeReport({
   for (final license in licenseTypes) {
     licenseCount.update(license, (value) => value + 1, ifAbsent: () => 1);
   }
-  final totalLicenseCount = licenseCount.values
-      .fold(0, (previousValue, count) => previousValue + count);
+  final totalLicenseCount = licenseCount.values.fold(
+    0,
+    (previousValue, count) => previousValue + count,
+  );
 
   final formattedLicenseTypes = licenseTypes.toSet().map((license) {
     final colorWrapper =
@@ -440,29 +445,30 @@ String _composeReport({
 
   final licenseWord = totalLicenseCount == 1 ? 'license' : 'licenses';
   final packageWord = licenses.length == 1 ? 'package' : 'packages';
-  final suffix = formattedLicenseTypes.isEmpty
-      ? ''
-      : ' of type: ${formattedLicenseTypes.toList().stringify()}';
+  final suffix =
+      formattedLicenseTypes.isEmpty
+          ? ''
+          : ' of type: ${formattedLicenseTypes.toList().stringify()}';
 
   return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
-  final bannedDependenciesList = bannedDependencies.entries.fold(
-    <String>[],
-    (previousValue, element) {
-      final dependencyName = element.key;
-      final dependencyLicenses = element.value;
+  final bannedDependenciesList = bannedDependencies.entries.fold(<String>[], (
+    previousValue,
+    element,
+  ) {
+    final dependencyName = element.key;
+    final dependencyLicenses = element.value;
 
-      final text = '$dependencyName (${link(
-        uri: pubLicenseUri(dependencyName),
-        message: dependencyLicenses.toList().stringify(),
-      )})';
-      return previousValue..add(text);
-    },
-  );
-  final bannedLicenseTypes =
-      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+    final text =
+        '$dependencyName (${link(uri: pubLicenseUri(dependencyName), message: dependencyLicenses.toList().stringify())})';
+    return previousValue..add(text);
+  });
+  final bannedLicenseTypes = bannedDependencies.values.fold(<String>{}, (
+    previousValue,
+    licenses,
+  ) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });

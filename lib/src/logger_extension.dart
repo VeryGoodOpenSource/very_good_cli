@@ -46,9 +46,10 @@ extension LoggerX on Logger {
       final currentLine = StringBuffer();
       for (final word in words) {
         // Replace all ANSI sequences so we can get the true character length.
-        final charLength = word
-            .replaceAll(RegExp('\x1B(?:[@-Z\\-_]|[[0-?]*[ -/]*[@-~])'), '')
-            .length;
+        final charLength =
+            word
+                .replaceAll(RegExp('\x1B(?:[@-Z\\-_]|[[0-?]*[ -/]*[@-~])'), '')
+                .length;
 
         if (currentLine.length + charLength > maxLength) {
           print(currentLine.toString());

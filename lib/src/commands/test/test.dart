@@ -9,25 +9,25 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
-typedef FlutterInstalledCommand = Future<bool> Function({
-  required Logger logger,
-});
+typedef FlutterInstalledCommand =
+    Future<bool> Function({required Logger logger});
 
 /// Signature for the [Flutter.test] method.
-typedef FlutterTestCommand = Future<List<int>> Function({
-  required Logger logger,
-  String cwd,
-  bool recursive,
-  bool collectCoverage,
-  bool optimizePerformance,
-  double? minCoverage,
-  String? excludeFromCoverage,
-  String? randomSeed,
-  bool? forceAnsi,
-  List<String>? arguments,
-  void Function(String)? stdout,
-  void Function(String)? stderr,
-});
+typedef FlutterTestCommand =
+    Future<List<int>> Function({
+      required Logger logger,
+      String cwd,
+      bool recursive,
+      bool collectCoverage,
+      bool optimizePerformance,
+      double? minCoverage,
+      String? excludeFromCoverage,
+      String? randomSeed,
+      bool? forceAnsi,
+      List<String>? arguments,
+      void Function(String)? stdout,
+      void Function(String)? stderr,
+    });
 
 /// {@template test_command}
 /// `very_good test` command for running tests.
@@ -38,9 +38,9 @@ class TestCommand extends Command<int> {
     required Logger logger,
     @visibleForTesting FlutterInstalledCommand? flutterInstalled,
     @visibleForTesting FlutterTestCommand? flutterTest,
-  })  : _logger = logger,
-        _flutterInstalled = flutterInstalled ?? Flutter.installed,
-        _flutterTest = flutterTest ?? Flutter.test {
+  }) : _logger = logger,
+       _flutterInstalled = flutterInstalled ?? Flutter.installed,
+       _flutterTest = flutterTest ?? Flutter.test {
     argParser
       ..addFlag(
         'coverage',
@@ -71,7 +71,8 @@ class TestCommand extends Command<int> {
       )
       ..addOption(
         'exclude-coverage',
-        help: 'A glob which will be used to exclude files that match from the '
+        help:
+            'A glob which will be used to exclude files that match from the '
             'coverage.',
       )
       ..addOption(
@@ -85,25 +86,29 @@ class TestCommand extends Command<int> {
       )
       ..addOption(
         'test-randomize-ordering-seed',
-        help: 'The seed to randomize the execution order of test cases '
+        help:
+            'The seed to randomize the execution order of test cases '
             'within test files.',
       )
       ..addFlag(
         'update-goldens',
-        help: 'Whether "matchesGoldenFile()" calls within your test methods '
+        help:
+            'Whether "matchesGoldenFile()" calls within your test methods '
             'should update the golden files.',
         negatable: false,
       )
       ..addFlag(
         'force-ansi',
         defaultsTo: null,
-        help: 'Whether to force ansi output. If not specified, '
+        help:
+            'Whether to force ansi output. If not specified, '
             'it will maintain the default behavior based on stdout and stderr.',
         negatable: false,
       )
       ..addMultiOption(
         'dart-define',
-        help: 'Additional key-value pairs that will be available as constants '
+        help:
+            'Additional key-value pairs that will be available as constants '
             'from the String.fromEnvironment, bool.fromEnvironment, '
             'int.fromEnvironment, and double.fromEnvironment constructors. '
             'Multiple defines can be passed by repeating '
@@ -112,7 +117,8 @@ class TestCommand extends Command<int> {
       )
       ..addMultiOption(
         'dart-define-from-file',
-        help: 'The path of a .json or .env file containing key-value pairs '
+        help:
+            'The path of a .json or .env file containing key-value pairs '
             'that will be available as environment variables. '
             'These can be accessed using the String.fromEnvironment, '
             'bool.fromEnvironment, and int.fromEnvironment constructors. '
@@ -147,11 +153,9 @@ class TestCommand extends Command<int> {
     final recursive = _argResults['recursive'] as bool;
 
     if (!recursive && !pubspec.existsSync()) {
-      _logger.err(
-        '''
+      _logger.err('''
 Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''',
-      );
+This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
@@ -166,9 +170,10 @@ This command should be run from the root of your Flutter project.''',
     final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
     final randomOrderingSeed =
         _argResults['test-randomize-ordering-seed'] as String?;
-    final randomSeed = randomOrderingSeed == 'random'
-        ? Random().nextInt(4294967295).toString()
-        : randomOrderingSeed;
+    final randomSeed =
+        randomOrderingSeed == 'random'
+            ? Random().nextInt(4294967295).toString()
+            : randomOrderingSeed;
     final optimizePerformance = _argResults['optimization'] as bool;
     final updateGoldens = _argResults['update-goldens'] as bool;
     final forceAnsi = _argResults['force-ansi'] as bool?;
@@ -180,7 +185,8 @@ This command should be run from the root of your Flutter project.''',
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
-          optimizePerformance: optimizePerformance &&
+          optimizePerformance:
+              optimizePerformance &&
               !_isTargettingTestFiles(rest) &&
               !updateGoldens,
           recursive: recursive,
