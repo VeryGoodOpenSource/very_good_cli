@@ -32,10 +32,12 @@ Future<void> run(HookContext context) async {
 
   final identifierGenerator = DartIdentifierGenerator();
   final testIdentifierTable = <Map<String, String>>[];
-  for (final entity
-      in testDir.listSync(recursive: true).where((entity) => entity.isTest)) {
-    final relativePath =
-        path.relative(entity.path, from: testDir.path).replaceAll(r'\', '/');
+  for (final entity in testDir
+      .listSync(recursive: true)
+      .where((entity) => entity.isTest)) {
+    final relativePath = path
+        .relative(entity.path, from: testDir.path)
+        .replaceAll(r'\', '/');
     testIdentifierTable.add({
       'path': relativePath,
       'identifier': identifierGenerator.next(),
