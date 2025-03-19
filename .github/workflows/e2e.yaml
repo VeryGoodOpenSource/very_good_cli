@@ -27,7 +27,7 @@ jobs:
         flutter-version:
           # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
           # refer to https://docs.flutter.dev/development/tools/sdk/releases.
-          - "3.27.0"
+          - "3.29.3"
           - "3.x"
         test:
           # E2E tests for the test command

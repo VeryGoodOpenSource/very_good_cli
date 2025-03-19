@@ -43,7 +43,7 @@ Run "very_good help" to see global options.''',
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.7.2
 ''';
 
 void main() {
