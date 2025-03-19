@@ -62,22 +62,18 @@ void main() {
       await post_gen.run(context);
 
       expect(capturedCommand, 'dart');
-      expect(
-        capturedArgs,
-        ['format', path.join('test', 'spdx_license.gen.dart')],
-      );
+      expect(capturedArgs, [
+        'format',
+        path.join('test', 'spdx_license.gen.dart'),
+      ]);
       expect(capturedRunInShell, true);
     });
 
     group('progress', () {
       setUp(() {
-        post_gen.processOverride = (
-          command,
-          args, {
-          runInShell = true,
-          workingDirectory = '',
-        }) =>
-            Future.value(ProcessResult(0, ExitCode.success.code, '', ''));
+        post_gen.processOverride =
+            (command, args, {runInShell = true, workingDirectory = ''}) =>
+                Future.value(ProcessResult(0, ExitCode.success.code, '', ''));
       });
 
       tearDown(() {
