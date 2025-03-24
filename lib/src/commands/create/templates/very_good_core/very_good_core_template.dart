@@ -10,11 +10,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class VeryGoodCoreTemplate extends Template {
   /// {@macro very_good_core_template}
   VeryGoodCoreTemplate()
-      : super(
-          name: 'core',
-          bundle: veryGoodCoreBundle,
-          help: 'Generate a Very Good Flutter application.',
-        );
+    : super(
+        name: 'core',
+        bundle: veryGoodCoreBundle,
+        help: 'Generate a Very Good Flutter application.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
@@ -31,12 +31,16 @@ class VeryGoodCoreTemplate extends Template {
     );
 
     final projectPath = relativePath;
-    final projectPathLink =
-        link(uri: Uri.parse(projectPath), message: projectPath);
+    final projectPathLink = link(
+      uri: Uri.parse(projectPath),
+      message: projectPath,
+    );
 
     final readmePath = path.join(relativePath, 'README.md');
-    final readmePathLink =
-        link(uri: Uri.parse(readmePath), message: readmePath);
+    final readmePathLink = link(
+      uri: Uri.parse(readmePath),
+      message: readmePath,
+    );
 
     final details = '''
   • To get started refer to $readmePathLink
@@ -48,8 +52,7 @@ class VeryGoodCoreTemplate extends Template {
       ..created('Created a Very Good App! 🦄')
       ..info(details)
       ..info(
-        lightGray.wrap(
-          '''
+        lightGray.wrap('''
 +----------------------------------------------------+
 | Looking for more features?                         |
 | We have an enterprise-grade solution for companies |
@@ -57,8 +60,7 @@ class VeryGoodCoreTemplate extends Template {
 |                                                    |
 | For more info visit:                               |
 | https://verygood.ventures/solution/very-good-start |
-+----------------------------------------------------+''',
-        ),
++----------------------------------------------------+'''),
       );
   }
 }
