@@ -18,10 +18,10 @@ final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 const _defaultOrgName = 'com.example.verygoodcore';
 const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 
-/// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
+/// A method which returns a [`Future<MasonGenerator>`] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 
-/// A method which returns a [Future<MasonGenerator>] given a [Brick].
+/// A method which returns a [`Future<MasonGenerator>`] given a [Brick].
 typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
 
 /// {@template create_subcommand}
