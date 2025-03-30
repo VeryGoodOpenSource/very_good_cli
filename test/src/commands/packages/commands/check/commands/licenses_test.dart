@@ -36,10 +36,10 @@ const _expectedPackagesCheckLicensesUsage = [
       '''    --ignore-retrieval-failures      Disregard licenses that failed to be retrieved.\n'''
       '''    --dependency-type                The type of dependencies to check licenses for.\n'''
       '\n'
-      '''          [direct-dev]               Check for direct dev dependencies.\n'''
       '''          [direct-main] (default)    Check for direct main dependencies.\n'''
-      '''          [direct-overridden]        Check for direct overridden dependencies.\n'''
+      '''          [direct-dev]               Check for direct dev dependencies.\n'''
       '''          [transitive]               Check for transitive dependencies.\n'''
+      '''          [direct-overridden]        Check for direct overridden dependencies.\n'''
       '\n'
       '''    --allowed                        Only allow the use of certain licenses.\n'''
       '    --forbidden                      Deny the use of certain licenses.\n'
@@ -1384,13 +1384,13 @@ void main() {
               ],
             );
 
-            final errorMessage =
+            final expectedMessage =
                 '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
-            verify(() => logger.err(errorMessage)).called(1);
+            verify(() => logger.info(expectedMessage)).called(1);
 
             verify(() => progress.cancel()).called(1);
 
-            expect(result, equals(ExitCode.usage.code));
+            expect(result, equals(ExitCode.success.code));
           }),
         );
       });
@@ -1466,13 +1466,13 @@ void main() {
             [...commandArguments, tempDirectory.path],
           );
 
-          final errorMessage =
+          final expectedMessage =
               '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
-          verify(() => logger.err(errorMessage)).called(1);
+          verify(() => logger.info(expectedMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
 
-          expect(result, equals(ExitCode.usage.code));
+          expect(result, equals(ExitCode.success.code));
         }),
       );
 
