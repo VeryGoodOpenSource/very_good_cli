@@ -241,7 +241,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         continue;
       }
 
-      final packagePath = path.normalize(cachePackageEntry.root.path);
+      final packagePath = path.normalize(path.fromUri(cachePackageEntry.root));
       final packageDirectory = Directory(packagePath);
       if (!packageDirectory.existsSync()) {
         final errorMessage =
