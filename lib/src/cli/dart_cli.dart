@@ -3,9 +3,7 @@ part of 'cli.dart';
 /// Dart CLI
 class Dart {
   /// Determine whether dart is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('dart', ['--version'], logger: logger);
       return true;
@@ -26,8 +24,9 @@ class Dart {
     final result = await _runCommand(
       cmd: (cwd) async {
         final relativePath = p.relative(cwd, from: initialCwd);
-        final path =
-            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
+        final path = relativePath == '.'
+            ? '.'
+            : '.${p.context.separator}$relativePath';
 
         final installProgress = logger.progress(
           'Running "dart pub get" in $path',

@@ -11,11 +11,9 @@ import 'package:very_good_cli/src/version.dart';
 /// {@endtemplate}
 class UpdateCommand extends Command<int> {
   /// {@macro update_command}
-  UpdateCommand({
-    required Logger logger,
-    PubUpdater? pubUpdater,
-  })  : _logger = logger,
-        _pubUpdater = pubUpdater ?? PubUpdater();
+  UpdateCommand({required Logger logger, PubUpdater? pubUpdater})
+    : _logger = logger,
+      _pubUpdater = pubUpdater ?? PubUpdater();
 
   final Logger _logger;
   final PubUpdater _pubUpdater;

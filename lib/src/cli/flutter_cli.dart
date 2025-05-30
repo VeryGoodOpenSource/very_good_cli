@@ -79,22 +79,22 @@ class _CoverageMetrics {
     String? excludeFromCoverage,
   ) {
     final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
-    return records.fold<_CoverageMetrics>(
-      const _CoverageMetrics._(),
-      (current, record) {
-        final found = record.lines?.found ?? 0;
-        final hit = record.lines?.hit ?? 0;
-        if (glob != null && record.file != null) {
-          if (glob.matches(record.file!)) {
-            return current;
-          }
+    return records.fold<_CoverageMetrics>(const _CoverageMetrics._(), (
+      current,
+      record,
+    ) {
+      final found = record.lines?.found ?? 0;
+      final hit = record.lines?.hit ?? 0;
+      if (glob != null && record.file != null) {
+        if (glob.matches(record.file!)) {
+          return current;
         }
-        return _CoverageMetrics._(
-          totalFound: current.totalFound + found,
-          totalHits: current.totalHits + hit,
-        );
-      },
-    );
+      }
+      return _CoverageMetrics._(
+        totalFound: current.totalFound + found,
+        totalHits: current.totalHits + hit,
+      );
+    });
   }
 
   final int totalHits;
@@ -105,12 +105,13 @@ class _CoverageMetrics {
 
 /// Type definition for the [flutterTest] command
 /// from 'package:very_good_test_runner`.
-typedef FlutterTestRunner = Stream<TestEvent> Function({
-  List<String>? arguments,
-  String? workingDirectory,
-  Map<String, String>? environment,
-  bool runInShell,
-});
+typedef FlutterTestRunner =
+    Stream<TestEvent> Function({
+      List<String>? arguments,
+      String? workingDirectory,
+      Map<String, String>? environment,
+      bool runInShell,
+    });
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
@@ -118,9 +119,7 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('flutter', ['--version'], logger: logger);
       return true;
@@ -141,8 +140,9 @@ class Flutter {
     final result = await _runCommand(
       cmd: (cwd) async {
         final relativePath = p.relative(cwd, from: initialCwd);
-        final path =
-            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
+        final path = relativePath == '.'
+            ? '.'
+            : '.${p.context.separator}$relativePath';
 
         final installProgress = logger.progress(
           'Running "flutter pub get" in $path ',
@@ -207,17 +207,14 @@ class Flutter {
         final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
         final workingDirectory = target.dir.absolute.path;
         final relativePath = p.relative(workingDirectory, from: initialCwd);
-        final path =
-            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
+        final path = relativePath == '.'
+            ? '.'
+            : '.${p.context.separator}$relativePath';
 
-        stdout?.call(
-          'Running "flutter test" in $path ...\n',
-        );
+        stdout?.call('Running "flutter test" in $path ...\n');
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
-          stdout?.call(
-            'No test folder found in $path\n',
-          );
+          stdout?.call('No test folder found in $path\n');
           return ExitCode.success.code;
         }
 
@@ -248,40 +245,45 @@ class Flutter {
         }
         return _overrideAnsiOutput(
           forceAnsi,
-          () => _flutterTest(
-            cwd: cwd,
-            collectCoverage: collectCoverage,
-            testRunner: testRunner,
-            arguments: [
-              ...?arguments,
-              if (randomSeed != null) ...[
-                '--test-randomize-ordering-seed',
-                randomSeed,
-              ],
-              if (optimizePerformance) p.join('test', _testOptimizerFileName),
-            ],
-            stdout: stdout ?? noop,
-            stderr: stderr ?? noop,
-          ).whenComplete(() async {
-            if (optimizePerformance) {
-              await _cleanupOptimizerFile(cwd);
-            }
+          () =>
+              _flutterTest(
+                cwd: cwd,
+                collectCoverage: collectCoverage,
+                testRunner: testRunner,
+                arguments: [
+                  ...?arguments,
+                  if (randomSeed != null) ...[
+                    '--test-randomize-ordering-seed',
+                    randomSeed,
+                  ],
+                  if (optimizePerformance)
+                    p.join('test', _testOptimizerFileName),
+                ],
+                stdout: stdout ?? noop,
+                stderr: stderr ?? noop,
+              ).whenComplete(() async {
+                if (optimizePerformance) {
+                  await _cleanupOptimizerFile(cwd);
+                }
 
-            if (collectCoverage) {
-              assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
-            }
+                if (collectCoverage) {
+                  assert(
+                    lcovFile.existsSync(),
+                    'coverage/lcov.info must exist',
+                  );
+                }
 
-            if (minCoverage != null) {
-              final records = await Parser.parse(lcovPath);
-              final coverageMetrics = _CoverageMetrics.fromLcovRecords(
-                records,
-                excludeFromCoverage,
-              );
-              final coverage = coverageMetrics.percentage;
+                if (minCoverage != null) {
+                  final records = await Parser.parse(lcovPath);
+                  final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+                    records,
+                    excludeFromCoverage,
+                  );
+                  final coverage = coverageMetrics.percentage;
 
-              if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
-            }
-          }),
+                  if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
+                }
+              }),
         );
       },
       cwd: cwd,
@@ -292,8 +294,8 @@ class Flutter {
 
   static T _overrideAnsiOutput<T>(bool? enableAnsiOutput, T Function() body) =>
       enableAnsiOutput == null
-          ? body.call()
-          : overrideAnsiOutput(enableAnsiOutput, body);
+      ? body.call()
+      : overrideAnsiOutput(enableAnsiOutput, body);
 }
 
 /// Ensures all git dependencies are reachable for the pubspec
@@ -312,22 +314,20 @@ Future<void> _verifyGitDependencies(
   final dependencies = pubspec.dependencies;
   final devDependencies = pubspec.devDependencies;
   final dependencyOverrides = pubspec.dependencyOverrides;
-  final gitDependencies = [
-    ...dependencies.entries,
-    ...devDependencies.entries,
-    ...dependencyOverrides.entries,
-  ]
-      .where((entry) => entry.value is GitDependency)
-      .map((entry) => entry.value)
-      .cast<GitDependency>()
-      .toList();
+  final gitDependencies =
+      [
+            ...dependencies.entries,
+            ...devDependencies.entries,
+            ...dependencyOverrides.entries,
+          ]
+          .where((entry) => entry.value is GitDependency)
+          .map((entry) => entry.value)
+          .cast<GitDependency>()
+          .toList();
 
   await Future.wait(
     gitDependencies.map(
-      (dependency) => Git.reachable(
-        dependency.url,
-        logger: logger,
-      ),
+      (dependency) => Git.reachable(dependency.url, logger: logger),
     ),
   );
 }
@@ -376,7 +376,8 @@ Future<int> _flutterTest({
   final groups = <int, TestGroup>{};
   final tests = <int, Test>{};
   final failedTestErrorMessages = <String, List<String>>{};
-  final sigintWatch = ProcessSignalOverrides.current?.sigintWatch ??
+  final sigintWatch =
+      ProcessSignalOverrides.current?.sigintWatch ??
       ProcessSignal.sigint.watch();
 
   var successCount = 0;
@@ -384,24 +385,25 @@ Future<int> _flutterTest({
 
   String computeStats() {
     final passingTests = successCount.formatSuccess();
-    final failingTests =
-        failedTestErrorMessages.values.expand((e) => e).length.formatFailure();
+    final failingTests = failedTestErrorMessages.values
+        .expand((e) => e)
+        .length
+        .formatFailure();
     final skippedTests = skipCount.formatSkipped();
     final result = [passingTests, failingTests, skippedTests]
       ..removeWhere((element) => element.isEmpty);
     return result.join(' ');
   }
 
-  final timerSubscription = Stream.periodic(
-    const Duration(seconds: 1),
-    (computationCount) => computationCount,
-  ).listen(
-    (tick) {
-      if (completer.isCompleted) return;
-      final timeElapsed = Duration(seconds: tick).formatted();
-      stdout('$clearLine$timeElapsed ...');
-    },
-  );
+  final timerSubscription =
+      Stream.periodic(
+        const Duration(seconds: 1),
+        (computationCount) => computationCount,
+      ).listen((tick) {
+        if (completer.isCompleted) return;
+        final timeElapsed = Duration(seconds: tick).formatted();
+        stdout('$clearLine$timeElapsed ...');
+      });
 
   late final StreamSubscription<TestEvent> subscription;
   late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
@@ -413,152 +415,152 @@ Future<int> _flutterTest({
     return completer.complete(ExitCode.success.code);
   });
 
-  subscription = testRunner(
-    workingDirectory: cwd,
-    arguments: [
-      if (collectCoverage) '--coverage',
-      ...?arguments,
-    ],
-    runInShell: true,
-  ).listen(
-    (event) {
-      if (event.shouldCancelTimer()) timerSubscription.cancel();
-      if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
-      if (event is GroupTestEvent) groups[event.group.id] = event.group;
-      if (event is TestStartEvent) tests[event.test.id] = event.test;
+  subscription =
+      testRunner(
+        workingDirectory: cwd,
+        arguments: [if (collectCoverage) '--coverage', ...?arguments],
+        runInShell: true,
+      ).listen(
+        (event) {
+          if (event.shouldCancelTimer()) timerSubscription.cancel();
+          if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
+          if (event is GroupTestEvent) groups[event.group.id] = event.group;
+          if (event is TestStartEvent) tests[event.test.id] = event.test;
 
-      if (event is MessageTestEvent) {
-        if (event.message.startsWith('Skip:')) {
-          stdout('$clearLine${lightYellow.wrap(event.message)}\n');
-        } else if (event.message.contains('EXCEPTION')) {
-          stderr('$clearLine${event.message}');
-        } else {
-          stdout('$clearLine${event.message}\n');
-        }
-      }
-
-      if (event is ErrorTestEvent) {
-        stderr('$clearLine${event.error}');
-
-        if (event.stackTrace.trim().isNotEmpty) {
-          stderr('$clearLine${event.stackTrace}');
-        }
-
-        final test = tests[event.testID]!;
-        final suite = suites[test.suiteID]!;
-        final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
-
-        final optimizationApplied = _isOptimizationApplied(suite);
-
-        var testPath = suite.path!;
-        var testName = test.name;
-
-        // When there is a test error before any group is computed, it means
-        // that there is an error when compiling the test optimizer file.
-        if (optimizationApplied && groups.isNotEmpty) {
-          final topGroupName = _topGroupName(test, groups)!;
-
-          testPath = testPath.replaceFirst(
-            _testOptimizerFileName,
-            topGroupName,
-          );
-
-          testName = testName.replaceFirst(topGroupName, '').trim();
-        }
-
-        final relativeTestPath = p.relative(testPath, from: cwd);
-        failedTestErrorMessages[relativeTestPath] = [
-          ...failedTestErrorMessages[relativeTestPath] ?? [],
-          '$prefix $testName',
-        ];
-      }
-
-      if (event is TestDoneEvent) {
-        if (event.hidden) return;
-
-        final test = tests[event.testID]!;
-        final suite = suites[test.suiteID]!;
-        final optimizationApplied = _isOptimizationApplied(suite);
-
-        var testPath = suite.path!;
-        var testName = test.name;
-
-        if (optimizationApplied) {
-          final firstGroupName = _topGroupName(test, groups) ?? '';
-          testPath = testPath.replaceFirst(
-            _testOptimizerFileName,
-            firstGroupName,
-          );
-          testName = testName.replaceFirst(firstGroupName, '').trim();
-        }
-
-        if (event.skipped) {
-          stdout(
-            '''$clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
-          );
-          skipCount++;
-        } else if (event.result == TestResult.success) {
-          successCount++;
-        } else {
-          stderr('$clearLine$testName $testPath (FAILED)');
-        }
-
-        final timeElapsed = Duration(milliseconds: event.time).formatted();
-        final stats = computeStats();
-        final truncatedTestName = testName.toSingleLine().truncated(
-              _lineLength - (timeElapsed.length + stats.length + 2),
-            );
-        stdout('''$clearLine$timeElapsed $stats: $truncatedTestName''');
-      }
-
-      if (event is DoneTestEvent) {
-        final timeElapsed = Duration(milliseconds: event.time).formatted();
-        final stats = computeStats();
-        final summary = event.success ?? false
-            ? lightGreen.wrap('All tests passed!')!
-            : lightRed.wrap('Some tests failed.')!;
-
-        stdout('$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n');
-
-        if (event.success != true) {
-          assert(
-            failedTestErrorMessages.isNotEmpty,
-            'Invalid state: test event report as failed but no failed tests '
-            'were gathered',
-          );
-          final title = styleBold.wrap('Failing Tests:');
-
-          final lines = StringBuffer('$clearLine$title\n');
-          for (final testSuiteErrorMessages
-              in failedTestErrorMessages.entries) {
-            lines.writeln('$clearLine - ${testSuiteErrorMessages.key} ');
-
-            for (final errorMessage in testSuiteErrorMessages.value) {
-              lines.writeln('$clearLine \t- $errorMessage');
+          if (event is MessageTestEvent) {
+            if (event.message.startsWith('Skip:')) {
+              stdout('$clearLine${lightYellow.wrap(event.message)}\n');
+            } else if (event.message.contains('EXCEPTION')) {
+              stderr('$clearLine${event.message}');
+            } else {
+              stdout('$clearLine${event.message}\n');
             }
           }
 
-          stderr(lines.toString());
-        }
-      }
+          if (event is ErrorTestEvent) {
+            stderr('$clearLine${event.error}');
 
-      if (event is ExitTestEvent) {
-        if (completer.isCompleted) return;
-        subscription.cancel();
-        sigintWatchSubscription.cancel();
+            if (event.stackTrace.trim().isNotEmpty) {
+              stderr('$clearLine${event.stackTrace}');
+            }
 
-        completer.complete(
-          event.exitCode == ExitCode.success.code
-              ? ExitCode.success.code
-              : ExitCode.unavailable.code,
-        );
-      }
-    },
-    onError: (Object error, StackTrace stackTrace) {
-      stderr('$clearLine$error');
-      stderr('$clearLine$stackTrace');
-    },
-  );
+            final test = tests[event.testID]!;
+            final suite = suites[test.suiteID]!;
+            final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
+
+            final optimizationApplied = _isOptimizationApplied(suite);
+
+            var testPath = suite.path!;
+            var testName = test.name;
+
+            // When there is a test error before any group is computed, it means
+            // that there is an error when compiling the test optimizer file.
+            if (optimizationApplied && groups.isNotEmpty) {
+              final topGroupName = _topGroupName(test, groups)!;
+
+              testPath = testPath.replaceFirst(
+                _testOptimizerFileName,
+                topGroupName,
+              );
+
+              testName = testName.replaceFirst(topGroupName, '').trim();
+            }
+
+            final relativeTestPath = p.relative(testPath, from: cwd);
+            failedTestErrorMessages[relativeTestPath] = [
+              ...failedTestErrorMessages[relativeTestPath] ?? [],
+              '$prefix $testName',
+            ];
+          }
+
+          if (event is TestDoneEvent) {
+            if (event.hidden) return;
+
+            final test = tests[event.testID]!;
+            final suite = suites[test.suiteID]!;
+            final optimizationApplied = _isOptimizationApplied(suite);
+
+            var testPath = suite.path!;
+            var testName = test.name;
+
+            if (optimizationApplied) {
+              final firstGroupName = _topGroupName(test, groups) ?? '';
+              testPath = testPath.replaceFirst(
+                _testOptimizerFileName,
+                firstGroupName,
+              );
+              testName = testName.replaceFirst(firstGroupName, '').trim();
+            }
+
+            if (event.skipped) {
+              stdout(
+                '''$clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
+              );
+              skipCount++;
+            } else if (event.result == TestResult.success) {
+              successCount++;
+            } else {
+              stderr('$clearLine$testName $testPath (FAILED)');
+            }
+
+            final timeElapsed = Duration(milliseconds: event.time).formatted();
+            final stats = computeStats();
+            final truncatedTestName = testName.toSingleLine().truncated(
+              _lineLength - (timeElapsed.length + stats.length + 2),
+            );
+            stdout('''$clearLine$timeElapsed $stats: $truncatedTestName''');
+          }
+
+          if (event is DoneTestEvent) {
+            final timeElapsed = Duration(milliseconds: event.time).formatted();
+            final stats = computeStats();
+            final summary = event.success ?? false
+                ? lightGreen.wrap('All tests passed!')!
+                : lightRed.wrap('Some tests failed.')!;
+
+            stdout(
+              '$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n',
+            );
+
+            if (event.success != true) {
+              assert(
+                failedTestErrorMessages.isNotEmpty,
+                'Invalid state: test event report as failed but no failed tests '
+                'were gathered',
+              );
+              final title = styleBold.wrap('Failing Tests:');
+
+              final lines = StringBuffer('$clearLine$title\n');
+              for (final testSuiteErrorMessages
+                  in failedTestErrorMessages.entries) {
+                lines.writeln('$clearLine - ${testSuiteErrorMessages.key} ');
+
+                for (final errorMessage in testSuiteErrorMessages.value) {
+                  lines.writeln('$clearLine \t- $errorMessage');
+                }
+              }
+
+              stderr(lines.toString());
+            }
+          }
+
+          if (event is ExitTestEvent) {
+            if (completer.isCompleted) return;
+            subscription.cancel();
+            sigintWatchSubscription.cancel();
+
+            completer.complete(
+              event.exitCode == ExitCode.success.code
+                  ? ExitCode.success.code
+                  : ExitCode.unavailable.code,
+            );
+          }
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          stderr('$clearLine$error');
+          stderr('$clearLine$stackTrace');
+        },
+      );
 
   return completer.future;
 }
@@ -570,9 +572,8 @@ String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
 
-Future<void> _cleanupOptimizerFile(String cwd) async => File(
-      p.join(cwd, 'test', _testOptimizerFileName),
-    ).delete().ignore();
+Future<void> _cleanupOptimizerFile(String cwd) async =>
+    File(p.join(cwd, 'test', _testOptimizerFileName)).delete().ignore();
 
 final int _lineLength = () {
   try {
