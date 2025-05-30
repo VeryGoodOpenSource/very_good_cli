@@ -8,12 +8,8 @@ import 'package:very_good_cli/src/commands/packages/commands/check/commands/comm
 /// {@endtemplate}
 class PackagesCheckCommand extends Command<int> {
   /// {@macro packages_check_command}
-  PackagesCheckCommand({
-    Logger? logger,
-  }) {
-    addSubcommand(
-      PackagesCheckLicensesCommand(logger: logger),
-    );
+  PackagesCheckCommand({Logger? logger}) {
+    addSubcommand(PackagesCheckLicensesCommand(logger: logger));
   }
 
   @override

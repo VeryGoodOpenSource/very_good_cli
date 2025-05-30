@@ -9,11 +9,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class FlutterPluginTemplate extends Template {
   /// {@macro flutter_pkg_template}
   FlutterPluginTemplate()
-      : super(
-          name: 'flutter_plugin',
-          bundle: veryGoodFlutterPluginBundle,
-          help: 'Generate a Very Good Flutter plugin.',
-        );
+    : super(
+        name: 'flutter_plugin',
+        bundle: veryGoodFlutterPluginBundle,
+        help: 'Generate a Very Good Flutter plugin.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {

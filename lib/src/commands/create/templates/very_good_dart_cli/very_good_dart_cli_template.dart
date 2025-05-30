@@ -10,11 +10,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class VeryGoodDartCLITemplate extends Template {
   /// {@macro dart_cli_template}
   VeryGoodDartCLITemplate()
-      : super(
-          name: 'dart_cli',
-          bundle: veryGoodDartCliBundle,
-          help: 'Generate a Very Good Dart CLI application.',
-        );
+    : super(
+        name: 'dart_cli',
+        bundle: veryGoodDartCliBundle,
+        help: 'Generate a Very Good Dart CLI application.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
