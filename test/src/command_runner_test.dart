@@ -39,7 +39,7 @@ const expectedUsage = [
       '  test       Run tests in a Dart or Flutter project.\n'
       '  update     Update Very Good CLI.\n'
       '\n'
-      'Run "very_good help <command>" for more information about a command.'
+      'Run "very_good help <command>" for more information about a command.',
 ];
 
 const responseBody =
@@ -53,12 +53,7 @@ ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodo
 Run ${lightCyan.wrap('very_good update')} to update''';
 
 void main() {
-  final successProcessResult = ProcessResult(
-    42,
-    ExitCode.success.code,
-    '',
-    '',
-  );
+  final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');
 
   group('VeryGoodCommandRunner', () {
     late PubUpdater pubUpdater;
@@ -116,8 +111,8 @@ void main() {
           ).thenAnswer((_) => Future.value(true));
           final progress = _MockProgress();
           final progressLogs = <String>[];
-          when(() => progress.complete(any())).thenAnswer((_) {
-            final message = _.positionalArguments.elementAt(0) as String?;
+          when(() => progress.complete(any())).thenAnswer((invocation) {
+            final message = invocation.positionalArguments.first as String?;
             if (message != null) progressLogs.add(message);
           });
           when(() => logger.progress(any())).thenReturn(progress);
@@ -205,9 +200,7 @@ void main() {
         });
 
         test('shows message when version changed', () async {
-          commandRunner.environmentOverride = {
-            'HOME': '/users/test',
-          };
+          commandRunner.environmentOverride = {'HOME': '/users/test'};
 
           await IOOverrides.runZoned(
             () async {
@@ -222,12 +215,12 @@ void main() {
                 () => logger.info('information on future updates '),
                 () => logger.info('and releases here: '),
                 () => logger.info(
-                      any(
-                        that: contains(
-                          'https://verygood.ventures/dev/tools/cli/subscribe',
-                        ),
-                      ),
+                  any(
+                    that: contains(
+                      'https://verygood.ventures/dev/tools/cli/subscribe',
                     ),
+                  ),
+                ),
               ]);
 
               verify(
@@ -237,8 +230,9 @@ void main() {
               ).called(1);
               verify(() => versionFile.readAsStringSync()).called(1);
               verify(
-                () => versionFile
-                    .writeAsStringSync(any(that: equals(packageVersion))),
+                () => versionFile.writeAsStringSync(
+                  any(that: equals(packageVersion)),
+                ),
               ).called(1);
             },
             createDirectory: (path) => cliCache,
@@ -264,8 +258,8 @@ void main() {
               verifyNever(() => cliCache.path);
               verify(() => xdgCache.path).called(1);
             },
-            createDirectory: (path) =>
-                path.contains('.xdg') ? xdgCache : cliCache,
+            createDirectory:
+                (path) => path.contains('.xdg') ? xdgCache : cliCache,
             createFile: (path) => versionFile,
             stdout: () => stdout,
           );
@@ -287,8 +281,8 @@ void main() {
               verifyNever(() => cliCache.path);
               verify(() => windowsCache.path).called(1);
             },
-            createDirectory: (path) =>
-                path.startsWith('/C/') ? windowsCache : cliCache,
+            createDirectory:
+                (path) => path.startsWith('/C/') ? windowsCache : cliCache,
             createFile: (path) => versionFile,
             stdout: () => stdout,
           );

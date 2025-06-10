@@ -27,7 +27,7 @@ class Git {
         'ls-remote',
         '$remote',
         '--exit-code',
-      ], logger: logger);
+      ], logger: logger,);
     } catch (_) {
       throw UnreachableGitDependency(remote: remote);
     }
