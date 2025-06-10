@@ -32,7 +32,7 @@ const _spdxTargetPath = 'license-list-data-main/json/details';
 class GenerateSpdxLicenseException implements Exception {
   /// {@macro generate_spdx_license_exception}
   const GenerateSpdxLicenseException(String message)
-      : message = '[spdx_license] $message';
+    : message = '[spdx_license] $message';
 
   final String message;
 }
@@ -58,7 +58,7 @@ Future<void> preGen(
     final licensesVar = context.vars['licenses'];
     final shouldFetchLicenses =
         (licensesVar == null || (licensesVar is List && licensesVar.isEmpty)) &&
-            licensesVar is! List<String>;
+        licensesVar is! List<String>;
 
     final licenses = shouldFetchLicenses
         ? await _downloadLicenses(
@@ -76,10 +76,7 @@ Future<void> preGen(
         },
     ];
 
-    context.vars = {
-      'licenses': newLicensesVar,
-      'total': newLicensesVar.length,
-    };
+    context.vars = {'licenses': newLicensesVar, 'total': newLicensesVar.length};
   } on GenerateSpdxLicenseException catch (e) {
     context.logger.err(e.message);
   } catch (e) {
