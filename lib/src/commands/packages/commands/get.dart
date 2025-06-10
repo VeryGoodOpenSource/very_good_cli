@@ -50,21 +50,26 @@ class PackagesGetCommand extends Command<int> {
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
     final isFlutterInstalled = await Flutter.installed(logger: _logger);
-    if (isFlutterInstalled) {
-      try {
-        await Flutter.pubGet(
-          cwd: targetPath,
-          recursive: recursive,
-          ignore: ignore,
-          logger: _logger,
-        );
-      } on PubspecNotFound catch (_) {
-        _logger.err('Could not find a pubspec.yaml in $targetPath');
-        return ExitCode.noInput.code;
-      } catch (error) {
-        _logger.err('$error');
-        return ExitCode.unavailable.code;
-      }
+    if (!isFlutterInstalled) {
+      _logger.err(
+        'Could not find Flutter SDK. Please ensure it is installed and '
+        'available in your PATH.',
+      );
+      return ExitCode.unavailable.code;
+    }
+    try {
+      await Flutter.pubGet(
+        cwd: targetPath,
+        recursive: recursive,
+        ignore: ignore,
+        logger: _logger,
+      );
+    } on PubspecNotFound catch (_) {
+      _logger.err('Could not find a pubspec.yaml in $targetPath');
+      return ExitCode.noInput.code;
+    } catch (error) {
+      _logger.err('$error');
+      return ExitCode.unavailable.code;
     }
     return ExitCode.success.code;
   }
