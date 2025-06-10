@@ -8,7 +8,7 @@ documentation: https://cli.vgv.dev/docs/overview
 topics: [cli, codegen, test, template, boilerplate]
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 
 dependencies:
   args: ^2.6.0
@@ -36,7 +36,7 @@ dev_dependencies:
   build_version: ^2.1.1
   mocktail: ^1.0.4
   test: ^1.25.8
-  very_good_analysis: ^6.0.0
+  very_good_analysis: ^9.0.0
 
 executables:
   very_good:

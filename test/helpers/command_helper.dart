@@ -32,7 +32,8 @@ void Function() withRunner(
     Logger logger,
     PubUpdater pubUpdater,
     List<String> printLogs,
-  ) runnerFn,
+  )
+  runnerFn,
 ) {
   return _overridePrint((printLogs) async {
     final logger = _MockLogger();
@@ -45,8 +46,8 @@ void Function() withRunner(
       environment: {'CI': 'true'},
     );
 
-    when(() => progress.complete(any())).thenAnswer((_) {
-      final message = _.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final message = invocation.positionalArguments.first as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);

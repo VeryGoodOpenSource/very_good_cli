@@ -19,13 +19,13 @@ Available subcommands:
   flutter_package   Generate a Very Good Flutter package.
   flutter_plugin    Generate a Very Good Flutter plugin.
 
-Run "very_good help" to see global options.'''
+Run "very_good help" to see global options.''',
 ];
 
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 ''';
 
 void main() {

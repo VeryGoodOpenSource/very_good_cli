@@ -43,7 +43,7 @@ Run "very_good help" to see global options.''',
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 ''';
 
 void main() {
@@ -61,8 +61,8 @@ void main() {
     logger = _MockLogger();
 
     final progress = _MockProgress();
-    when(() => progress.complete(any())).thenAnswer((_) {
-      final message = _.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final message = invocation.positionalArguments.first as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);
@@ -77,10 +77,7 @@ void main() {
         generatorFromBrick: null,
       );
       expect(command.name, equals('flame_game'));
-      expect(
-        command.description,
-        equals('Generate a Very Good Flame game.'),
-      );
+      expect(command.description, equals('Generate a Very Good Flame game.'));
       expect(command.logger, equals(logger));
     });
   });
@@ -89,23 +86,31 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result =
-            await commandRunner.run(['create', 'flame_game', '--help']);
+        final result = await commandRunner.run([
+          'create',
+          'flame_game',
+          '--help',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr =
-            await commandRunner.run(['create', 'flame_game', '-h']);
+        final resultAbbr = await commandRunner.run([
+          'create',
+          'flame_game',
+          '-h',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
 
     group('running the command', () {
-      final generatedFiles =
-          List.filled(10, const GeneratedFile.created(path: ''));
+      final generatedFiles = List.filled(
+        10,
+        const GeneratedFile.created(path: ''),
+      );
 
       late GeneratorHooks hooks;
       late MasonGenerator generator;
@@ -148,9 +153,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
+        ).thenAnswer((invocation) async {
           final target =
-              _.positionalArguments.first as DirectoryGeneratorTarget;
+              invocation.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_app', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);
@@ -168,12 +173,13 @@ void main() {
           generatorFromBundle: (_) async => throw Exception('oops'),
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDirectory.path);
+        when(
+          () => argResults['output-directory'] as String?,
+        ).thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_app']);
-        when(() => argResults['application-id'] as String?).thenReturn(
-          'xyz.app.my_app',
-        );
+        when(
+          () => argResults['application-id'] as String?,
+        ).thenReturn('xyz.app.my_app');
 
         final result = await command.run();
 
