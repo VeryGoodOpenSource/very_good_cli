@@ -11,9 +11,7 @@ import 'package:very_good_cli/src/commands/test/templates/test_optimizer_bundle.
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';
-
 part 'flutter_cli.dart';
-
 part 'git_cli.dart';
 
 const R Function<R>(
