@@ -62,18 +62,16 @@ void main() {
 
     setUp(() {
       pubUpdater = _MockPubUpdater();
-
-      when(
-        () => pubUpdater.getLatestVersion(any()),
-      ).thenAnswer((_) async => packageVersion);
-
       logger = _MockLogger();
-
       commandRunner = VeryGoodCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
         environment: {'CI': 'true'},
       );
+
+      when(
+        () => pubUpdater.getLatestVersion(any()),
+      ).thenAnswer((_) async => packageVersion);
     });
 
     test('can be instantiated without optional parameters', () {

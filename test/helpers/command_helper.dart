@@ -58,6 +58,10 @@ void Function() withRunner(
       ),
     ).thenAnswer((_) => Future.value(true));
 
+    when(
+      () => pubUpdater.getLatestVersion(any()),
+    ).thenAnswer((_) async => '1.0.0');
+
     await runnerFn(commandRunner, logger, pubUpdater, printLogs);
   });
 }

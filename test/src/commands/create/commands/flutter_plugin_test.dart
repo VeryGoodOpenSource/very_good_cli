@@ -1,3 +1,7 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -25,27 +29,26 @@ class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
-  '''
-Generate a Very Good Flutter plugin.
-
-Usage: very_good create flutter_plugin <project-name> [arguments]
--h, --help                       Print this usage information.
--o, --output-directory           The desired output directory when creating a new project.
-    --description                The description for this new project.
-                                 (defaults to "A Very Good Project created by Very Good CLI.")
-    --org-name                   The organization for this new project.
-                                 (defaults to "com.example.verygoodcore")
-    --publishable                Whether the generated project is intended to be published.
-    --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios
-
-          [android] (default)    The plugin supports the Android platform.
-          [ios] (default)        The plugin supports the iOS platform.
-          [linux] (default)      The plugin supports the Linux platform.
-          [macos] (default)      The plugin supports the macOS platform.
-          [web] (default)        The plugin supports the Web platform.
-          [windows] (default)    The plugin supports the Windows platform.
-
-Run "very_good help" to see global options.''',
+  'Generate a Very Good Flutter plugin.\n'
+      '\n'
+      'Usage: very_good create flutter_plugin <project-name> [arguments]\n'
+      '-h, --help                       Print this usage information.\n'
+      '-o, --output-directory           The desired output directory when creating a new project.\n'
+      '    --description                The description for this new project.\n'
+      '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
+      '    --org-name                   The organization for this new project.\n'
+      '                                 (defaults to "com.example.verygoodcore")\n'
+      '    --publishable                Whether the generated project is intended to be published.\n'
+      '    --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios\n'
+      '\n'
+      '          [android] (default)    The plugin supports the Android platform.\n'
+      '          [ios] (default)        The plugin supports the iOS platform.\n'
+      '          [web] (default)        The plugin supports the Web platform.\n'
+      '          [linux] (default)      The plugin supports the Linux platform.\n'
+      '          [macos] (default)      The plugin supports the macOS platform.\n'
+      '          [windows] (default)    The plugin supports the Windows platform.\n'
+      '\n'
+      'Run "very_good help" to see global options.',
 ];
 
 const pubspec = '''

@@ -14,7 +14,7 @@ void main() {
         expect(
           pubspecLock.packages,
           equals(
-            const [
+            [
               PubspecLockPackage(
                 name: 'very_good_test_runner',
                 type: PubspecLockPackageDependencyType.directMain,
@@ -197,8 +197,6 @@ packages:
       url: "https://not-pub.dev"
     source: hosted
     version: "3.1.2"
-  bad_package:
-    not_dependency: "bad"
 sdks:
   dart: ">=3.1.0 <4.0.0"
 

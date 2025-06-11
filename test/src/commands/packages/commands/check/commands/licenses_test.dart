@@ -171,6 +171,10 @@ void main() {
         test(
           '''when there is a single hosted direct dependency and license''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validPubspecLockContent);
@@ -204,6 +208,10 @@ void main() {
         test(
           '''when there are multiple hosted direct dependency and licenses''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -245,6 +253,10 @@ void main() {
         test(
           '''when both allowed and forbidden are specified but left empty''',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validPubspecLockContent);
@@ -285,6 +297,10 @@ void main() {
         test(
           'unknown when no license file is found',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validPubspecLockContent);
@@ -329,6 +345,10 @@ void main() {
         test(
           'when an unknown error is thrown',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -392,6 +412,10 @@ void main() {
         test(
           'when cached package path cannot be found',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validPubspecLockContent);
@@ -431,6 +455,10 @@ void main() {
         test(
           'when cached package directory cannot be found',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validPubspecLockContent);
@@ -481,6 +509,10 @@ void main() {
         test(
           'when all licenses fail to be retrieved',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -598,6 +630,10 @@ void main() {
                 pubUpdater,
                 printLogs,
               ) async {
+                when(
+                  () => pubUpdater.getLatestVersion(any()),
+                ).thenAnswer((_) async => '1.0.0');
+
                 File(
                   path.join(tempDirectory.path, pubspecLockBasename),
                 ).writeAsStringSync(_validPubspecLockContent);
@@ -647,6 +683,10 @@ void main() {
                 pubUpdater,
                 printLogs,
               ) async {
+                when(
+                  () => pubUpdater.getLatestVersion(any()),
+                ).thenAnswer((_) async => '1.0.0');
+
                 File(
                   path.join(tempDirectory.path, pubspecLockBasename),
                 ).writeAsStringSync(_validPubspecLockContent);
@@ -702,6 +742,10 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
+              when(
+                () => pubUpdater.getLatestVersion(any()),
+              ).thenAnswer((_) async => '1.0.0');
+
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -754,6 +798,10 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
+              when(
+                () => pubUpdater.getLatestVersion(any()),
+              ).thenAnswer((_) async => '1.0.0');
+
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -806,6 +854,10 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
+              when(
+                () => pubUpdater.getLatestVersion(any()),
+              ).thenAnswer((_) async => '1.0.0');
+
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -860,6 +912,10 @@ void main() {
               pubUpdater,
               printLogs,
             ) async {
+              when(
+                () => pubUpdater.getLatestVersion(any()),
+              ).thenAnswer((_) async => '1.0.0');
+
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -935,6 +991,10 @@ void main() {
       test(
         'warns when a license is not recognized',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
@@ -971,6 +1031,10 @@ void main() {
       test(
         'exits when a license is not allowed',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
@@ -999,6 +1063,10 @@ void main() {
         test(
           'when a single license is not allowed',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1046,6 +1114,10 @@ void main() {
         test(
           'when a single license is not allowed and forbidden is left empty',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1095,6 +1167,10 @@ void main() {
         test(
           'when multiple licenses are not allowed',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1151,6 +1227,10 @@ void main() {
       test(
         'warns when a license is not recognized',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
@@ -1187,6 +1267,10 @@ void main() {
       test(
         'exits when a license is forbidden',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
@@ -1215,6 +1299,10 @@ void main() {
         test(
           'when a single license is forbidden',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1264,6 +1352,10 @@ void main() {
         test(
           'when a single license is forbidden and allowed is left empty',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1315,6 +1407,10 @@ void main() {
         test(
           'when multiple licenses are forbidden',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1378,6 +1474,10 @@ void main() {
         test(
           'a single package by name',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1416,6 +1516,10 @@ void main() {
         test(
           'multiple packages by name',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            when(
+              () => pubUpdater.getLatestVersion(any()),
+            ).thenAnswer((_) async => '1.0.0');
+
             File(
               path.join(tempDirectory.path, pubspecLockBasename),
             ).writeAsStringSync(_validMultiplePubspecLockContent);
@@ -1449,6 +1553,10 @@ void main() {
       test(
         'when target path does not exist',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           final targetPath = path.join(tempDirectory.path, 'inexistent');
           final result = await commandRunner.run(
             [...commandArguments, targetPath],
@@ -1467,6 +1575,10 @@ void main() {
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           when(() => logger.progress(any())).thenReturn(progress);
 
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           final result = await commandRunner.run(
             [...commandArguments, tempDirectory.path],
           );
@@ -1484,6 +1596,10 @@ void main() {
       test(
         'when it failed to parse a pubspec.lock file at the target path',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync('');
@@ -1507,6 +1623,10 @@ void main() {
       test(
         'when no dependencies of type are found',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          when(
+            () => pubUpdater.getLatestVersion(any()),
+          ).thenAnswer((_) async => '1.0.0');
+
           File(
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_emptyPubspecLockContent);

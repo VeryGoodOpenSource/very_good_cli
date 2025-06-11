@@ -1,3 +1,7 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
@@ -7,14 +11,14 @@ import 'package:universal_io/io.dart';
 import '../../../../helpers/helpers.dart';
 
 const _expectedPackagesGetUsage = [
-  'Get packages in a Dart or Flutter project.\n',
-  '\n',
-  'Usage: very_good packages get [arguments]\n',
-  '-h, --help         Print this usage information.\n',
-  '''-r, --recursive    Install dependencies recursively for all nested packages.\n''',
-  '    --ignore       Exclude packages from installing dependencies.\n',
-  '\n',
-  'Run "very_good help" to see global options.',
+  'Get packages in a Dart or Flutter project.\n'
+      '\n'
+      'Usage: very_good packages get [arguments]\n'
+      '-h, --help         Print this usage information.\n'
+      '-r, --recursive    Install dependencies recursively for all nested packages.\n'
+      '    --ignore       Exclude packages from installing dependencies.\n'
+      '\n'
+      'Run "very_good help" to see global options.',
 ];
 
 void main() {

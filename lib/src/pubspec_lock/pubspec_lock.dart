@@ -38,7 +38,9 @@ class PubspecLock {
     late final YamlMap yaml;
     try {
       yaml = loadYaml(content) as YamlMap;
-    } on Exception catch (_) {
+      // This method throws type error when it fails to parse the content.
+      // ignore: avoid_catching_errors
+    } on TypeError catch (_) {
       throw const PubspecLockParseException();
     }
 

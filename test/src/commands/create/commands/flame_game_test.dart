@@ -133,9 +133,7 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');

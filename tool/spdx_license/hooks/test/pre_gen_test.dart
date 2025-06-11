@@ -187,7 +187,7 @@ void main() {
       });
 
       test('when an unknown error is raised', () async {
-        const error = 'error';
+        final error = Exception('error');
         when(() => client.get(any())).thenThrow(error);
 
         await pre_gen.preGen(context, client: client);
