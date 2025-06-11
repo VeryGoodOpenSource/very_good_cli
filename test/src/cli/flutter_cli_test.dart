@@ -1,3 +1,6 @@
+// Expected usage of the plugin will need to be adjacent strings due to format.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'dart:async';
 
 import 'package:mason/mason.dart';
@@ -560,15 +563,15 @@ void main() {
           stderrLogs,
           equals(
             [
-              '\x1B[2K\rExpected: <1>\n',
-              '  Actual: <0>\n',
-              '''\x1B[2K\rpackage:test_api                                    expect\n''',
-              'package:flutter_test/src/widget_tester.dart 455:16  expect\n',
-              'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
+              '\x1B[2K\rExpected: <1>\n'
+                  '  Actual: <0>\n',
+              '''\x1B[2K\rpackage:test_api                                    expect\n'''
+                  'package:flutter_test/src/widget_tester.dart 455:16  expect\n'
+                  'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
               '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
-              '\x1B[2K\rFailing Tests:\n',
-              '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n',
-              '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
+              '\x1B[2K\rFailing Tests:\n'
+                  '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
+                  '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
         );
@@ -622,27 +625,27 @@ void main() {
         expect(
           stderrLogs,
           equals([
-            '''\x1B[2K\r══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════\n''',
-            'The following _Exception was thrown running a test:\n',
-            'Exception: oops\n',
-            '\n',
-            'When the exception was thrown, this was the stack:\n',
-            '#0      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:15:7)\n',
-            '#1      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:14:40)\n',
-            '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n',
-            '<asynchronous suspension>\n',
-            '<asynchronous suspension>\n',
-            '(elided one frame from package:stack_trace)\n',
-            '\n',
-            'The test description was:\n',
-            '  renders CounterPage\n',
-            '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
-            '\x1B[2K\rTest failed. See exception logs above.\n',
-            'The test description was: renders CounterPage',
+            '''\x1B[2K\r══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════\n'''
+                'The following _Exception was thrown running a test:\n'
+                'Exception: oops\n'
+                '\n'
+                'When the exception was thrown, this was the stack:\n'
+                '#0      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:15:7)\n'
+                '#1      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:14:40)\n'
+                '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n'
+                '<asynchronous suspension>\n'
+                '<asynchronous suspension>\n'
+                '(elided one frame from package:stack_trace)\n'
+                '\n'
+                'The test description was:\n'
+                '  renders CounterPage\n'
+                '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
+            '\x1B[2K\rTest failed. See exception logs above.\n'
+                'The test description was: renders CounterPage',
             '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
-            '\x1B[2K\rFailing Tests:\n',
-            '\x1B[2K\r - test/app/view/app_test.dart \n',
-            '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
       });
@@ -744,9 +747,9 @@ void main() {
           equals([
             '\x1B[2K\rerror',
             '\x1B[2K\rtest/example_test.dart 4  main\n',
-            '\x1B[2K\rFailing Tests:\n',
-            '\x1B[2K\r - test/app/view/app_test.dart \n',
-            '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
       });
@@ -785,13 +788,13 @@ void main() {
         expect(
           stderrLogs,
           containsAll([
-            '\x1B[2K\rFailed to load "test/.test_optimizer.dart":\n',
-            "test/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n",
-            '    expect(Thing(thing: true), isNull);\n',
-            '                 ^^^^^\n',
-            "lib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n",
-            '  const Thing();\n',
-            '        ^^^^^',
+            '\x1B[2K\rFailed to load "test/.test_optimizer.dart":\n'
+                "test/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n"
+                '    expect(Thing(thing: true), isNull);\n'
+                '                 ^^^^^\n'
+                "lib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n"
+                '  const Thing();\n'
+                '        ^^^^^',
           ]),
         );
       });
@@ -1200,8 +1203,8 @@ void main() {
           expect(
             stdoutLogs,
             unorderedEquals([
-              'Running "flutter test" in ',
-              '. ...\n',
+              'Running "flutter test" in '
+                  '. ...\n',
               contains('All tests passed!'),
               '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
               contains('All tests passed!'),
@@ -1364,9 +1367,9 @@ void main() {
           equals([
             '\x1B[2K\rerror',
             '\x1B[2K\rtest/example_test.dart 4  main\n',
-            '\x1B[2K\rFailing Tests:\n',
-            '\x1B[2K\r - test/app/view/app_test.dart \n',
-            '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
       });
