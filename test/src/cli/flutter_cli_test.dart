@@ -92,6 +92,44 @@ void main() {
       ).thenAnswer((_) async => successProcessResult);
     });
 
+    group('.installed', () {
+      test('returns true when flutter is installed', () {
+        when(
+          () => process.run(
+            'flutter',
+            ['--version'],
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => successProcessResult);
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.installed(logger: logger),
+            completion(isTrue),
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('returns false when flutter is not installed', () {
+        when(
+          () => process.run(
+            'flutter',
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenThrow(Exception('flutter not installed'));
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.installed(logger: logger),
+            completion(isFalse),
+          ),
+          runProcess: process.run,
+        );
+      });
+    });
+
     group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(

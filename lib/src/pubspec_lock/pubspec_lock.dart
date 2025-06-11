@@ -58,9 +58,9 @@ class PubspecLock {
           data: entry.value as YamlMap,
         );
         parsedPackages.add(package);
-      } on Exception catch (_) {
         // Ignore those packages that for some reason cannot be parsed.
-      }
+        // ignore: avoid_catches_without_on_clauses
+      } catch (_) {}
     }
 
     return PubspecLock._(
