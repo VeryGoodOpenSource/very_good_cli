@@ -57,6 +57,9 @@ void Function() withRunner(
         currentVersion: any(named: 'currentVersion'),
       ),
     ).thenAnswer((_) => Future.value(true));
+    when(
+      () => pubUpdater.getLatestVersion(any()),
+    ).thenAnswer((_) => Future.value('1.0.0'));
 
     await runnerFn(commandRunner, logger, pubUpdater, printLogs);
   });
