@@ -7,15 +7,14 @@ import 'package:universal_io/io.dart';
 import '../../../../helpers/helpers.dart';
 
 const _expectedPackagesGetUsage = [
-  // ignore: no_adjacent_strings_in_list
-  'Get packages in a Dart or Flutter project.\n'
-      '\n'
-      'Usage: very_good packages get [arguments]\n'
-      '-h, --help         Print this usage information.\n'
-      '''-r, --recursive    Install dependencies recursively for all nested packages.\n'''
-      '    --ignore       Exclude packages from installing dependencies.\n'
-      '\n'
-      'Run "very_good help" to see global options.',
+  'Get packages in a Dart or Flutter project.\n',
+  '\n',
+  'Usage: very_good packages get [arguments]\n',
+  '-h, --help         Print this usage information.\n',
+  '''-r, --recursive    Install dependencies recursively for all nested packages.\n''',
+  '    --ignore       Exclude packages from installing dependencies.\n',
+  '\n',
+  'Run "very_good help" to see global options.',
 ];
 
 void main() {

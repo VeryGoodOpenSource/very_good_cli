@@ -1,4 +1,3 @@
-// ignore_for_file: no_adjacent_strings_in_list
 import 'dart:async';
 import 'dart:io';
 
@@ -23,23 +22,23 @@ class _MockFile extends Mock implements File {}
 class _MockStdout extends Mock implements Stdout {}
 
 const expectedUsage = [
-  '🦄 A Very Good Command-Line Interface\n'
-      '\n'
-      'Usage: very_good <command> [arguments]\n'
-      '\n'
-      'Global options:\n'
-      '-h, --help            Print this usage information.\n'
-      '    --version         Print the current version.\n'
-      '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
-      '\n'
-      'Available commands:\n'
-      '  create     very_good create <subcommand> <project-name> [arguments]\n'
-      '''             Creates a new very good project in the specified directory.\n'''
-      '  packages   Command for managing packages.\n'
-      '  test       Run tests in a Dart or Flutter project.\n'
-      '  update     Update Very Good CLI.\n'
-      '\n'
-      'Run "very_good help <command>" for more information about a command.',
+  '🦄 A Very Good Command-Line Interface\n',
+  '\n',
+  'Usage: very_good <command> [arguments]\n',
+  '\n',
+  'Global options:\n',
+  '-h, --help            Print this usage information.\n',
+  '    --version         Print the current version.\n',
+  '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n''',
+  '\n',
+  'Available commands:\n',
+  '  create     very_good create <subcommand> <project-name> [arguments]\n',
+  '''             Creates a new very good project in the specified directory.\n''',
+  '  packages   Command for managing packages.\n',
+  '  test       Run tests in a Dart or Flutter project.\n',
+  '  update     Update Very Good CLI.\n',
+  '\n',
+  'Run "very_good help <command>" for more information about a command.',
 ];
 
 const responseBody =

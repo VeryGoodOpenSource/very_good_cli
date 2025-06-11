@@ -16,15 +16,22 @@ part 'flutter_cli.dart';
 
 part 'git_cli.dart';
 
-const _asyncRunZoned = runZoned;
+const R Function<R>(
+  R Function(), {
+  Function? onError,
+  ZoneSpecification? zoneSpecification,
+  Map<Object?, Object?>? zoneValues,
+})
+_asyncRunZoned = runZoned;
 
 /// Type definition for [Process.run].
-typedef RunProcess = Future<ProcessResult> Function(
-  String executable,
-  List<String> arguments, {
-  String? workingDirectory,
-  bool runInShell,
-});
+typedef RunProcess =
+    Future<ProcessResult> Function(
+      String executable,
+      List<String> arguments, {
+      String? workingDirectory,
+      bool runInShell,
+    });
 
 /// This class facilitates overriding [Process.run].
 /// It should be extended by another class in client code with overrides

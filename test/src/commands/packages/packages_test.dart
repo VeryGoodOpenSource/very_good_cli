@@ -4,17 +4,16 @@ import 'package:test/test.dart';
 import '../../../helpers/command_helper.dart';
 
 const _expectedPackagesUsage = [
-  // ignore: no_adjacent_strings_in_list
-  'Command for managing packages.\n'
-      '\n'
-      'Usage: very_good packages <subcommand> [arguments]\n'
-      '-h, --help    Print this usage information.\n'
-      '\n'
-      'Available subcommands:\n'
-      '  check   Perform checks in a Dart or Flutter project.\n'
-      '  get     Get packages in a Dart or Flutter project.\n'
-      '\n'
-      'Run "very_good help" to see global options.'
+  'Command for managing packages.\n',
+  '\n',
+  'Usage: very_good packages <subcommand> [arguments]\n',
+  '-h, --help    Print this usage information.\n',
+  '\n',
+  'Available subcommands:\n',
+  '  check   Perform checks in a Dart or Flutter project.\n',
+  '  get     Get packages in a Dart or Flutter project.\n',
+  '\n',
+  'Run "very_good help" to see global options.',
 ];
 
 void main() {

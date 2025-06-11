@@ -26,7 +26,8 @@ import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 @visibleForTesting
 Future<package_config.PackageConfig?> Function(
   Directory directory,
-)? findPackageConfigOverride;
+)?
+findPackageConfigOverride;
 
 /// Overrides the [detector.detectLicense] function for testing.
 @visibleForTesting
@@ -43,7 +44,7 @@ Uri pubLicenseUri(String packageName) =>
 
 /// The URI for the very_good_cli license documentation page.
 @visibleForTesting
-final licenseDocumentationUri = Uri.parse(
+final Uri licenseDocumentationUri = Uri.parse(
   'https://cli.vgv.dev/docs/commands/check_licenses',
 );
 
@@ -225,8 +226,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
 
       final dependencyName = dependency.name;
-      final cachePackageEntry = packageConfig.packages
-          .firstWhereOrNull((package) => package.name == dependencyName);
+      final cachePackageEntry = packageConfig.packages.firstWhereOrNull(
+        (package) => package.name == dependencyName,
+      );
       if (cachePackageEntry == null) {
         final errorMessage =
             '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
@@ -267,9 +269,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       late final detector.Result detectorResult;
       try {
-        detectorResult =
-            await detectLicense(licenseFileContent, _defaultDetectionThreshold);
-      } catch (e) {
+        detectorResult = await detectLicense(
+          licenseFileContent,
+          _defaultDetectionThreshold,
+        );
+      } on Exception catch (e) {
         final errorMessage =
             '''[$dependencyName] Failed to detect license from $packagePath: $e''';
         if (!ignoreFailures) {
@@ -284,6 +288,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       }
 
       final rawLicense = detectorResult.matches
+          // Accessing license is necessary to get the identifier of the license
           // ignore: invalid_use_of_visible_for_testing_member
           .map((match) => match.license.identifier)
           .toSet();
@@ -330,7 +335,7 @@ PubspecLock? _tryParsePubspecLock(File pubspecLockFile) {
     final content = pubspecLockFile.readAsStringSync();
     try {
       return PubspecLock.fromString(content);
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   return null;
@@ -348,7 +353,7 @@ Future<package_config.PackageConfig?> _tryFindPackageConfig(
     final findPackageConfig =
         findPackageConfigOverride ?? package_config.findPackageConfig;
     return await findPackageConfig(directory);
-  } catch (error) {
+  } on Exception catch (_) {
     return null;
   }
 }
@@ -407,14 +412,18 @@ String _composeReport({
   required _DependencyLicenseMap licenses,
   required _BannedDependencyLicenseMap? bannedDependencies,
 }) {
-  final bannedLicenseTypes =
-      bannedDependencies?.values.fold(<String>{}, (previousValue, licenses) {
+  final bannedLicenseTypes = bannedDependencies?.values.fold(<String>{}, (
+    previousValue,
+    licenses,
+  ) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
 
-  final licenseTypes =
-      licenses.values.fold(<String>[], (previousValue, licenses) {
+  final licenseTypes = licenses.values.fold(<String>[], (
+    previousValue,
+    licenses,
+  ) {
     if (licenses == null) return previousValue;
     return previousValue..addAll(licenses);
   });
@@ -423,14 +432,16 @@ String _composeReport({
   for (final license in licenseTypes) {
     licenseCount.update(license, (value) => value + 1, ifAbsent: () => 1);
   }
-  final totalLicenseCount = licenseCount.values
-      .fold(0, (previousValue, count) => previousValue + count);
+  final totalLicenseCount = licenseCount.values.fold(
+    0,
+    (previousValue, count) => previousValue + count,
+  );
 
   final formattedLicenseTypes = licenseTypes.toSet().map((license) {
     final colorWrapper =
         bannedLicenseTypes != null && bannedLicenseTypes.contains(license)
-            ? red.wrap
-            : green.wrap;
+        ? red.wrap
+        : green.wrap;
 
     final count = licenseCount[license];
     final formattedCount = darkGray.wrap('($count)');
@@ -454,23 +465,28 @@ String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
       final dependencyName = element.key;
       final dependencyLicenses = element.value;
 
-      final text = '$dependencyName (${link(
-        uri: pubLicenseUri(dependencyName),
-        message: dependencyLicenses.toList().stringify(),
-      )})';
+      final text =
+          '$dependencyName (${link(
+            uri: pubLicenseUri(dependencyName),
+            message: dependencyLicenses.toList().stringify(),
+          )})';
       return previousValue..add(text);
     },
   );
-  final bannedLicenseTypes =
-      bannedDependencies.values.fold(<String>{}, (previousValue, licenses) {
+  final bannedLicenseTypes = bannedDependencies.values.fold(<String>{}, (
+    previousValue,
+    licenses,
+  ) {
     if (licenses.isEmpty) return previousValue;
     return previousValue..addAll(licenses);
   });
 
-  final prefix =
-      bannedDependencies.length == 1 ? 'dependency has' : 'dependencies have';
-  final suffix =
-      bannedLicenseTypes.length == 1 ? 'a banned license' : 'banned licenses';
+  final prefix = bannedDependencies.length == 1
+      ? 'dependency has'
+      : 'dependencies have';
+  final suffix = bannedLicenseTypes.length == 1
+      ? 'a banned license'
+      : 'banned licenses';
 
   return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}.''';
 }

@@ -1,3 +1,5 @@
+// Ensures we don't have to use const constructors
+// and instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
 
 import 'package:test/test.dart';
