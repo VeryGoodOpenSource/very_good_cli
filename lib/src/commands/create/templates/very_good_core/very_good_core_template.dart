@@ -42,7 +42,8 @@ class VeryGoodCoreTemplate extends Template {
       message: readmePath,
     );
 
-    final details = '''
+    final details =
+        '''
   • To get started refer to $readmePathLink
   • Your project code is in $projectPathLink
 ''';

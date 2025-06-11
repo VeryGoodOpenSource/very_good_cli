@@ -64,16 +64,19 @@ void main() {
     });
 
     group('run', () {
-      test('downloads licenses successfully', tags: ['pull-request-only'],
-          () async {
-        await pre_gen.run(context);
+      test(
+        'downloads licenses successfully',
+        tags: ['pull-request-only'],
+        () async {
+          await pre_gen.run(context);
 
-        expect(context.vars['total'], greaterThan(0));
-        expect(
-          (context.vars['licenses'] as List).length,
-          equals(context.vars['total']),
-        );
-      });
+          expect(context.vars['total'], greaterThan(0));
+          expect(
+            (context.vars['licenses'] as List).length,
+            equals(context.vars['total']),
+          );
+        },
+      );
     });
 
     group('sets vars correctly', () {

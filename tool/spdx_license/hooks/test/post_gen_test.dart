@@ -47,17 +47,20 @@ void main() {
       late final String capturedCommand;
       late final List<String> capturedArgs;
       late final bool capturedRunInShell;
-      post_gen.processOverride = (
-        command,
-        args, {
-        runInShell = true,
-        workingDirectory = '',
-      }) {
-        capturedCommand = command;
-        capturedArgs = args;
-        capturedRunInShell = runInShell;
-        return Future.value(ProcessResult(0, ExitCode.success.code, '', ''));
-      };
+      post_gen.processOverride =
+          (
+            command,
+            args, {
+            runInShell = true,
+            workingDirectory = '',
+          }) {
+            capturedCommand = command;
+            capturedArgs = args;
+            capturedRunInShell = runInShell;
+            return Future.value(
+              ProcessResult(0, ExitCode.success.code, '', ''),
+            );
+          };
 
       await post_gen.run(context);
 
@@ -71,13 +74,13 @@ void main() {
 
     group('progress', () {
       setUp(() {
-        post_gen.processOverride = (
-          command,
-          args, {
-          runInShell = true,
-          workingDirectory = '',
-        }) =>
-            Future.value(ProcessResult(0, ExitCode.success.code, '', ''));
+        post_gen.processOverride =
+            (
+              command,
+              args, {
+              runInShell = true,
+              workingDirectory = '',
+            }) => Future.value(ProcessResult(0, ExitCode.success.code, '', ''));
       });
 
       tearDown(() {

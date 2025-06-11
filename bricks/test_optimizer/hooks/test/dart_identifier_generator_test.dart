@@ -34,14 +34,12 @@ void main() {
           ids.add(id);
         }
 
-        expect(
-          ids.where((id) => _dartReservedKeywords.contains(id)),
-          isEmpty,
-        );
+        expect(ids.where((id) => _dartReservedKeywords.contains(id)), isEmpty);
         expect(
           ids.every((id) {
             final idStart = id.codeUnitAt(0);
-            final isAlphabetic = (idStart >= 65 && idStart <= 90) ||
+            final isAlphabetic =
+                (idStart >= 65 && idStart <= 90) ||
                 (idStart >= 97 && idStart <= 122);
             final isUnderscore = idStart == 95;
             final isDollarSign = idStart == 36;
