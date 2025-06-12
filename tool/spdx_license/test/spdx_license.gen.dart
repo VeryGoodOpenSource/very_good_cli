@@ -3,7 +3,7 @@
 // If you need to make changes, please refer to the SPDX License brick 
 // CONTRIBUTING file.
 
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, lines_longer_than_80_chars
 
 /// List of all SPDX licenses.
 ///
