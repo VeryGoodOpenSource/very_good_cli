@@ -50,7 +50,6 @@ void main() {
 
       // collect coverage
       await expectSuccessfulProcessResult('dart', [
-        'pub',
         'run',
         'coverage:format_coverage',
         '--lcov',
