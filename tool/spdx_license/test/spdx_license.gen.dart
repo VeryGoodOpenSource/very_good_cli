@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-//
-// If you need to make changes, please refer to the SPDX License brick
+// 
+// If you need to make changes, please refer to the SPDX License brick 
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 681 SPDX licenses.
+/// A list of all 699 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -63,6 +63,8 @@ enum SpdxLicense {
   $Artistic_1_0_Perl._('Artistic-1.0-Perl'),
   $Artistic_1_0_cl8._('Artistic-1.0-cl8'),
   $Artistic_2_0._('Artistic-2.0'),
+  $Artistic_dist._('Artistic-dist'),
+  $Aspell_RU._('Aspell-RU'),
   $BSD_1_Clause._('BSD-1-Clause'),
   $BSD_2_Clause._('BSD-2-Clause'),
   $BSD_2_Clause_Darwin._('BSD-2-Clause-Darwin'),
@@ -71,6 +73,7 @@ enum SpdxLicense {
   $BSD_2_Clause_Patent._('BSD-2-Clause-Patent'),
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
   $BSD_2_Clause_first_lines._('BSD-2-Clause-first-lines'),
+  $BSD_2_Clause_pkgconf_disclaimer._('BSD-2-Clause-pkgconf-disclaimer'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -79,9 +82,7 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._(
-    'BSD-3-Clause-No-Nuclear-License-2014',
-  ),
+  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -213,6 +214,7 @@ enum SpdxLicense {
   $Cornell_Lossless_JPEG._('Cornell-Lossless-JPEG'),
   $Cronyx._('Cronyx'),
   $Crossword._('Crossword'),
+  $CryptoSwift._('CryptoSwift'),
   $CrystalStacker._('CrystalStacker'),
   $Cube._('Cube'),
   $D_FSL_1_0._('D-FSL-1.0'),
@@ -223,6 +225,7 @@ enum SpdxLicense {
   $DRL_1_0._('DRL-1.0'),
   $DRL_1_1._('DRL-1.1'),
   $DSDP._('DSDP'),
+  $DocBook_DTD._('DocBook-DTD'),
   $DocBook_Schema._('DocBook-Schema'),
   $DocBook_Stylesheet._('DocBook-Stylesheet'),
   $DocBook_XML._('DocBook-XML'),
@@ -248,7 +251,10 @@ enum SpdxLicense {
   $FSFAP_no_warranty_disclaimer._('FSFAP-no-warranty-disclaimer'),
   $FSFUL._('FSFUL'),
   $FSFULLR._('FSFULLR'),
+  $FSFULLRSD._('FSFULLRSD'),
   $FSFULLRWD._('FSFULLRWD'),
+  $FSL_1_1_ALv2._('FSL-1.1-ALv2'),
+  $FSL_1_1_MIT._('FSL-1.1-MIT'),
   $FTL._('FTL'),
   $Fair._('Fair'),
   $Ferguson_Twofish._('Ferguson-Twofish'),
@@ -300,11 +306,13 @@ enum SpdxLicense {
   $GPL_3_0_or_later._('GPL-3.0-or-later'),
   $GPL_3_0_with_GCC_exception._('GPL-3.0-with-GCC-exception'),
   $GPL_3_0_with_autoconf_exception._('GPL-3.0-with-autoconf-exception'),
+  $Game_Programming_Gems._('Game-Programming-Gems'),
   $Giftware._('Giftware'),
   $Glide._('Glide'),
   $Glulxe._('Glulxe'),
   $Graphics_Gems._('Graphics-Gems'),
   $Gutmann._('Gutmann'),
+  $HDF5._('HDF5'),
   $HIDAPI._('HIDAPI'),
   $HP_1986._('HP-1986'),
   $HP_1989._('HP-1989'),
@@ -331,9 +339,7 @@ enum SpdxLicense {
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
-  $HPND_sell_variant_MIT_disclaimer_rev._(
-    'HPND-sell-variant-MIT-disclaimer-rev',
-  ),
+  $HPND_sell_variant_MIT_disclaimer_rev._('HPND-sell-variant-MIT-disclaimer-rev'),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -458,6 +464,7 @@ enum SpdxLicense {
   $NPL_1_1._('NPL-1.1'),
   $NPOSL_3_0._('NPOSL-3.0'),
   $NRL._('NRL'),
+  $NTIA_PD._('NTIA-PD'),
   $NTP._('NTP'),
   $NTP_0._('NTP-0'),
   $Naumen._('Naumen'),
@@ -562,6 +569,7 @@ enum SpdxLicense {
   $SMLNJ._('SMLNJ'),
   $SMPPL._('SMPPL'),
   $SNIA._('SNIA'),
+  $SOFA._('SOFA'),
   $SPL_1_0._('SPL-1.0'),
   $SSH_OpenSSH._('SSH-OpenSSH'),
   $SSH_short._('SSH-short'),
@@ -613,6 +621,8 @@ enum SpdxLicense {
   $Unicode_TOU._('Unicode-TOU'),
   $UnixCrypt._('UnixCrypt'),
   $Unlicense._('Unlicense'),
+  $Unlicense_libtelnet._('Unlicense-libtelnet'),
+  $Unlicense_libwhirlpool._('Unlicense-libwhirlpool'),
   $VOSTROM._('VOSTROM'),
   $VSL_1_0._('VSL-1.0'),
   $Vim._('Vim'),
@@ -624,9 +634,7 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._(
-    'X11-distribute-modifications-variant',
-  ),
+  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
@@ -671,6 +679,8 @@ enum SpdxLicense {
   $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
   $iMatix._('iMatix'),
+  $jove._('jove'),
+  $libpng_1_6_35._('libpng-1.6.35'),
   $libpng_2_0._('libpng-2.0'),
   $libselinux_1_0._('libselinux-1.0'),
   $libtiff._('libtiff'),
@@ -678,10 +688,12 @@ enum SpdxLicense {
   $lsof._('lsof'),
   $magaz._('magaz'),
   $mailprio._('mailprio'),
+  $man2html._('man2html'),
   $metamail._('metamail'),
   $mpi_permissive._('mpi-permissive'),
   $mpich2._('mpich2'),
   $mplus._('mplus'),
+  $ngrep._('ngrep'),
   $pkgconf._('pkgconf'),
   $pnmstitch._('pnmstitch'),
   $psfrag._('psfrag'),
@@ -726,8 +738,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }

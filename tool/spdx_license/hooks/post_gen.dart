@@ -11,20 +11,18 @@ typedef ProcessRun =
       String workingDirectory,
     });
 
-@visibleForTesting
-ProcessRun? processOverride;
-
-Future<void> run(HookContext context) async {
-  final runProcess = processOverride ?? Process.run;
-
-  final progress = context.logger.progress('Formatting files');
+Future<void> run(
+  HookContext context, {
+  @visibleForTesting ProcessRun runProcess = Process.run,
+}) async {
+  final progress = context.logger.progress('Formatting files...');
 
   await runProcess(
     'dart',
     ['format', path.join('test', 'spdx_license.gen.dart')],
-    workingDirectory: Directory.current.path,
     runInShell: true,
+    workingDirectory: Directory.current.path,
   );
 
-  progress.complete();
+  progress.complete('Completed post generation');
 }
