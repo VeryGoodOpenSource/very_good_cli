@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
@@ -82,7 +82,9 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
+  $BSD_3_Clause_No_Nuclear_License_2014._(
+    'BSD-3-Clause-No-Nuclear-License-2014',
+  ),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -339,7 +341,9 @@ enum SpdxLicense {
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
-  $HPND_sell_variant_MIT_disclaimer_rev._('HPND-sell-variant-MIT-disclaimer-rev'),
+  $HPND_sell_variant_MIT_disclaimer_rev._(
+    'HPND-sell-variant-MIT-disclaimer-rev',
+  ),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -634,7 +638,9 @@ enum SpdxLicense {
   $Widget_Workshop._('Widget-Workshop'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_distribute_modifications_variant._(
+    'X11-distribute-modifications-variant',
+  ),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
@@ -738,8 +744,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-    .asNameMap()
-    .map((key, value) => MapEntry(value.value, value));
+      .asNameMap()
+      .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }

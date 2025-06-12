@@ -10,9 +10,7 @@ import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Signature for the [Flutter.installed] method.
 typedef FlutterInstalledCommand =
-    Future<bool> Function({
-      required Logger logger,
-    });
+    Future<bool> Function({required Logger logger});
 
 /// Signature for the [Flutter.test] method.
 typedef FlutterTestCommand =

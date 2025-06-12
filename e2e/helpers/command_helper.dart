@@ -15,7 +15,7 @@ void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
     final printLogs = <String>[];
     final spec = ZoneSpecification(
-      print: (_, __, ___, String msg) {
+      print: (_, _, _, String msg) {
         printLogs.add(msg);
       },
     );
