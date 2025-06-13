@@ -10,7 +10,9 @@
 - chore(deps): bump @docusaurus/core from 3.6.3 to 3.7.0 in /site ([#1223](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1223))
 - chore(deps-dev): bump typescript from 5.7.2 to 5.7.3 in /site ([#1234](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1234))
 - chore(deps-dev): bump eslint-plugin-jest in /site ([#1231](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1231))
-- chore: upgrade to flutter 3.32.0 ([#1286](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1286))\n\n# 0.25.0
+- chore: upgrade to flutter 3.32.0 ([#1286](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1286))
+
+# 0.25.0
 
 - chore: update SPDX licenses ([#1178](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1178), [#1185](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1185), [#1186](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1186), [#1187](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1187))
 - fix: cleanup `.test_optimizer.dart` on SIGINT ([#1190](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1190))
