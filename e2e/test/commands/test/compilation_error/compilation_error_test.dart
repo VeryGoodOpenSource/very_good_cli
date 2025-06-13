@@ -10,8 +10,9 @@ void main() {
     'fails when there is a compilation error, but does not crash',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
-      final tempDirectory =
-          Directory.systemTemp.createTempSync('compilation_error');
+      final tempDirectory = Directory.systemTemp.createTempSync(
+        'compilation_error',
+      );
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       await copyDirectory(
@@ -19,11 +20,10 @@ void main() {
         tempDirectory,
       );
 
-      await expectSuccessfulProcessResult(
-        'flutter',
-        ['pub', 'get'],
-        workingDirectory: tempDirectory.path,
-      );
+      await expectSuccessfulProcessResult('flutter', [
+        'pub',
+        'get',
+      ], workingDirectory: tempDirectory.path);
 
       final cwd = Directory.current;
       Directory.current = tempDirectory;

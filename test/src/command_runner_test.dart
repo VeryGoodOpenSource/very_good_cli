@@ -1,4 +1,3 @@
-// ignore_for_file: no_adjacent_strings_in_list
 import 'dart:async';
 import 'dart:io';
 
@@ -23,23 +22,23 @@ class _MockFile extends Mock implements File {}
 class _MockStdout extends Mock implements Stdout {}
 
 const expectedUsage = [
-  '🦄 A Very Good Command-Line Interface\n'
-      '\n'
-      'Usage: very_good <command> [arguments]\n'
-      '\n'
-      'Global options:\n'
-      '-h, --help            Print this usage information.\n'
-      '    --version         Print the current version.\n'
-      '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n'''
-      '\n'
-      'Available commands:\n'
-      '  create     very_good create <subcommand> <project-name> [arguments]\n'
-      '''             Creates a new very good project in the specified directory.\n'''
-      '  packages   Command for managing packages.\n'
-      '  test       Run tests in a Dart or Flutter project.\n'
-      '  update     Update Very Good CLI.\n'
-      '\n'
-      'Run "very_good help <command>" for more information about a command.'
+  '🦄 A Very Good Command-Line Interface\n',
+  '\n',
+  'Usage: very_good <command> [arguments]\n',
+  '\n',
+  'Global options:\n',
+  '-h, --help            Print this usage information.\n',
+  '    --version         Print the current version.\n',
+  '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n''',
+  '\n',
+  'Available commands:\n',
+  '  create     very_good create <subcommand> <project-name> [arguments]\n',
+  '''             Creates a new very good project in the specified directory.\n''',
+  '  packages   Command for managing packages.\n',
+  '  test       Run tests in a Dart or Flutter project.\n',
+  '  update     Update Very Good CLI.\n',
+  '\n',
+  'Run "very_good help <command>" for more information about a command.',
 ];
 
 const responseBody =
@@ -47,18 +46,14 @@ const responseBody =
 
 const latestVersion = '0.0.0';
 
-final updatePrompt = '''
+final updatePrompt =
+    '''
 ${lightYellow.wrap('Update available!')} ${lightCyan.wrap(packageVersion)} \u2192 ${lightCyan.wrap(latestVersion)}
 ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodopensource/very_good_cli/releases/tag/v$latestVersion')}
 Run ${lightCyan.wrap('very_good update')} to update''';
 
 void main() {
-  final successProcessResult = ProcessResult(
-    42,
-    ExitCode.success.code,
-    '',
-    '',
-  );
+  final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');
 
   group('VeryGoodCommandRunner', () {
     late PubUpdater pubUpdater;
@@ -67,18 +62,16 @@ void main() {
 
     setUp(() {
       pubUpdater = _MockPubUpdater();
-
-      when(
-        () => pubUpdater.getLatestVersion(any()),
-      ).thenAnswer((_) async => packageVersion);
-
       logger = _MockLogger();
-
       commandRunner = VeryGoodCommandRunner(
         logger: logger,
         pubUpdater: pubUpdater,
         environment: {'CI': 'true'},
       );
+
+      when(
+        () => pubUpdater.getLatestVersion(any()),
+      ).thenAnswer((_) async => packageVersion);
     });
 
     test('can be instantiated without optional parameters', () {
@@ -116,8 +109,8 @@ void main() {
           ).thenAnswer((_) => Future.value(true));
           final progress = _MockProgress();
           final progressLogs = <String>[];
-          when(() => progress.complete(any())).thenAnswer((_) {
-            final message = _.positionalArguments.elementAt(0) as String?;
+          when(() => progress.complete(any())).thenAnswer((invocation) {
+            final message = invocation.positionalArguments.first as String?;
             if (message != null) progressLogs.add(message);
           });
           when(() => logger.progress(any())).thenReturn(progress);
@@ -205,9 +198,7 @@ void main() {
         });
 
         test('shows message when version changed', () async {
-          commandRunner.environmentOverride = {
-            'HOME': '/users/test',
-          };
+          commandRunner.environmentOverride = {'HOME': '/users/test'};
 
           await IOOverrides.runZoned(
             () async {
@@ -222,12 +213,12 @@ void main() {
                 () => logger.info('information on future updates '),
                 () => logger.info('and releases here: '),
                 () => logger.info(
-                      any(
-                        that: contains(
-                          'https://verygood.ventures/dev/tools/cli/subscribe',
-                        ),
-                      ),
+                  any(
+                    that: contains(
+                      'https://verygood.ventures/dev/tools/cli/subscribe',
                     ),
+                  ),
+                ),
               ]);
 
               verify(
@@ -237,8 +228,9 @@ void main() {
               ).called(1);
               verify(() => versionFile.readAsStringSync()).called(1);
               verify(
-                () => versionFile
-                    .writeAsStringSync(any(that: equals(packageVersion))),
+                () => versionFile.writeAsStringSync(
+                  any(that: equals(packageVersion)),
+                ),
               ).called(1);
             },
             createDirectory: (path) => cliCache,

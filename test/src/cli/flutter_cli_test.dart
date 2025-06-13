@@ -1,4 +1,5 @@
-// ignore_for_file: no_adjacent_strings_in_list
+// Expected usage of the plugin will need to be adjacent strings due to format.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
 
 import 'dart:async';
 
@@ -91,6 +92,44 @@ void main() {
       ).thenAnswer((_) async => successProcessResult);
     });
 
+    group('.installed', () {
+      test('returns true when flutter is installed', () {
+        when(
+          () => process.run(
+            'flutter',
+            ['--version'],
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => successProcessResult);
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.installed(logger: logger),
+            completion(isTrue),
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('returns false when flutter is not installed', () {
+        when(
+          () => process.run(
+            'flutter',
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenThrow(Exception('flutter not installed'));
+        ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.installed(logger: logger),
+            completion(isFalse),
+          ),
+          runProcess: process.run,
+        );
+      });
+    });
+
     group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () {
         ProcessOverrides.runZoned(
@@ -150,10 +189,12 @@ void main() {
             p.join(tempDirectory.path, 'test_plugin'),
           )..createSync();
 
-          File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
-          File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
+          File(
+            p.join(nestedDirectory.path, 'pubspec.yaml'),
+          ).writeAsStringSync(_pubspec);
+          File(
+            p.join(ignoredDirectory.path, 'pubspec.yaml'),
+          ).writeAsStringSync(_pubspec);
 
           final relativePathPrefix = '.${p.context.separator}';
 
@@ -172,8 +213,10 @@ void main() {
             ),
             runProcess: process.run,
           ).whenComplete(() {
-            final nestedRelativePath =
-                p.relative(nestedDirectory.path, from: tempDirectory.path);
+            final nestedRelativePath = p.relative(
+              nestedDirectory.path,
+              from: tempDirectory.path,
+            );
 
             verify(() {
               logger.progress(
@@ -242,8 +285,9 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(p.join(tempDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_unreachableGitUrlPubspec);
+        File(
+          p.join(tempDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_unreachableGitUrlPubspec);
 
         when(
           () => process.run(
@@ -289,7 +333,8 @@ void main() {
         };
       }
 
-      GeneratorBuilder generatorBuilder() => (_) async => generator;
+      GeneratorBuilder generatorBuilder() =>
+          (_) async => generator;
 
       setUp(() {
         progress = _MockProgress();
@@ -338,9 +383,10 @@ void main() {
                 workingDirectory: any(named: 'workingDirectory'),
               ),
             ).thenAnswer((invocation) async {
-              (invocation.namedArguments[#onVarsChanged] as void Function(
-                Map<String, dynamic> vars,
-              ))
+              (invocation.namedArguments[#onVarsChanged]
+                      as void Function(
+                        Map<String, dynamic> vars,
+                      ))
                   .call(updatedVars);
             });
             ProcessSignalOverrides.current?.addSIGINT();
@@ -526,8 +572,9 @@ void main() {
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...failingJsonOutput(tempDirectory.path)
-                    .map(TestEvent.fromJson),
+                ...failingJsonOutput(
+                  tempDirectory.path,
+                ).map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
@@ -581,8 +628,9 @@ void main() {
             stderr: stderrLogs.add,
             testRunner: testRunner(
               Stream.fromIterable([
-                ...skipExceptionMessageJsonOutput(tempDirectory.path)
-                    .map(TestEvent.fromJson),
+                ...skipExceptionMessageJsonOutput(
+                  tempDirectory.path,
+                ).map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
@@ -718,9 +766,9 @@ void main() {
                 ErrorTestEvent(
                   testID: 0,
                   error: 'error',
-                  stackTrace:
-                      stack_trace.Trace.parse('test/example_test.dart 4 main')
-                          .toString(),
+                  stackTrace: stack_trace.Trace.parse(
+                    'test/example_test.dart 4 main',
+                  ).toString(),
                   isFailure: true,
                   time: 0,
                 ),
@@ -739,7 +787,7 @@ void main() {
             '\x1B[2K\rtest/example_test.dart 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
                 '\x1B[2K\r - test/app/view/app_test.dart \n'
-                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
       });
@@ -751,8 +799,9 @@ void main() {
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 
         final testEventStream = Stream.fromIterable([
-          ...compilationErrorJsonOutput(tempDirectory.path)
-              .map(TestEvent.fromJson),
+          ...compilationErrorJsonOutput(
+            tempDirectory.path,
+          ).map(TestEvent.fromJson),
           const ExitTestEvent(exitCode: 1, time: 0),
         ]);
 
@@ -891,8 +940,9 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        final lcovFile =
-            File(p.join(tempDirectory.path, 'coverage', 'lcov.info'));
+        final lcovFile = File(
+          p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+        );
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         lcovFile.createSync(recursive: true);
@@ -1018,50 +1068,52 @@ void main() {
         expect(testRunnerArgs, equals(['--coverage']));
       });
 
-      test('runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
-          () async {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      test(
+        'runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(tempDirectory.path, 'test')).createSync();
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-        await expectLater(
-          Flutter.test(
-            cwd: tempDirectory.path,
-            collectCoverage: true,
-            minCoverage: 100,
-            excludeFromCoverage:
-                '/bloc/packages/bloc/lib/src/bloc_observer.dart',
-            stdout: stdoutLogs.add,
-            stderr: stderrLogs.add,
-            testRunner: testRunner(
-              Stream.fromIterable(
-                [
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ],
+          await expectLater(
+            Flutter.test(
+              cwd: tempDirectory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              excludeFromCoverage:
+                  '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              testRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov95);
+                },
               ),
-              onStart: () {
-                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
-                  ..createSync(recursive: true)
-                  ..writeAsStringSync(lcov95);
-              },
+              logger: logger,
             ),
-            logger: logger,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        expect(
-          stdoutLogs,
-          equals([
-            'Running "flutter test" in . ...\n',
-            contains('All tests passed!'),
-          ]),
-        );
-        expect(stderrLogs, isEmpty);
-        expect(testRunnerArgs, equals(['--coverage']));
-      });
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(stderrLogs, isEmpty);
+          expect(testRunnerArgs, equals(['--coverage']));
+        },
+      );
 
       test(
         'runs tests w/coverage + min-coverage 100 + recursive (pass)',
@@ -1072,8 +1124,9 @@ void main() {
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final tempNestedDirectory =
-              Directory(p.join(tempDirectory.path, 'test'))..createSync();
+          final tempNestedDirectory = Directory(
+            p.join(tempDirectory.path, 'test'),
+          )..createSync();
           File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
@@ -1097,8 +1150,8 @@ void main() {
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                   File(
-                    p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
-                  )
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                    )
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                 },
@@ -1136,8 +1189,9 @@ void main() {
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final tempNestedDirectory =
-              Directory(p.join(tempDirectory.path, 'test'))..createSync();
+          final tempNestedDirectory = Directory(
+            p.join(tempDirectory.path, 'test'),
+          )..createSync();
           File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
@@ -1161,8 +1215,8 @@ void main() {
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov100);
                   File(
-                    p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
-                  )
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                    )
                     ..createSync(recursive: true)
                     ..writeAsStringSync(lcov95);
                 },
@@ -1219,9 +1273,10 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((invocation) async {
-          (invocation.namedArguments[#onVarsChanged] as void Function(
-            Map<String, dynamic> vars,
-          ))
+          (invocation.namedArguments[#onVarsChanged]
+                  as void Function(
+                    Map<String, dynamic> vars,
+                  ))
               .call(updatedVars);
         });
         await expectLater(
@@ -1331,9 +1386,9 @@ void main() {
                 ErrorTestEvent(
                   testID: 0,
                   error: 'error',
-                  stackTrace:
-                      stack_trace.Trace.parse('test/example_test.dart 4 main')
-                          .toString(),
+                  stackTrace: stack_trace.Trace.parse(
+                    'test/example_test.dart 4 main',
+                  ).toString(),
                   isFailure: true,
                   time: 0,
                 ),
@@ -1352,7 +1407,7 @@ void main() {
             '\x1B[2K\rtest/example_test.dart 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
                 '\x1B[2K\r - test/app/view/app_test.dart \n'
-                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n'''
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
       });
