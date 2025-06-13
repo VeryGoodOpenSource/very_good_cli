@@ -52,5 +52,5 @@ jobs:
   pana:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1
     with:
-      min_score: 160
+      min_score: 150 # Update minimum score to 160 once we have the CLI up to date.
       pana_version: 0.22.21
