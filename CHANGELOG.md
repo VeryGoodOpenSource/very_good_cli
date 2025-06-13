@@ -1,4 +1,6 @@
-# 0.26.0 \n\n - chore: update SPDX licenses ([#1209](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1209))
+# 0.26.0
+
+- chore: update SPDX licenses ([#1209](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1209))
 - chore(deps-dev): bump eslint from 9.16.0 to 9.17.0 in /site ([#1211](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1211))
 - chore(deps): bump prism-react-renderer from 2.4.0 to 2.4.1 in /site ([#1210](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1210))
 - chore(deps): bump very_good_analysis from 6.0.0 to 7.0.0 in /bricks/test_optimizer/hooks ([#1214](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1214))
