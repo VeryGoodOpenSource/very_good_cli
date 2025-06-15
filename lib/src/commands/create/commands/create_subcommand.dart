@@ -117,15 +117,43 @@ abstract class CreateSubCommand extends Command<int> {
 
   /// Gets the output [Directory].
   Directory get outputDirectory {
-    final directory = argResults['output-directory'] as String? ?? '.';
-    return Directory(directory);
+    final directory = argResults['output-directory'] as String?;
+
+    if (directory != null) {
+      return Directory(directory);
+    }
+
+    final args = argResults.rest;
+
+    return Directory(args.first);
   }
 
   /// Gets the project name.
   String get projectName {
     final args = argResults.rest;
-    _validateProjectName(args);
-    return args.first;
+
+    if (args.isEmpty) {
+      usageException('No option specified for the project name.');
+    }
+
+    if (args.length > 1) {
+      usageException('Multiple project names specified.');
+    }
+
+    final name = args.first == '.'
+        ? path.basename(Directory.current.path)
+        : path.basename(args.first);
+
+    final isValidPackageName = _isValidPackageName(name);
+
+    if (!isValidPackageName) {
+      usageException(
+        '"$name" is not a valid package name.\n\n'
+        'See https://dart.dev/tools/pub/pubspec#name for more information.',
+      );
+    }
+
+    return name;
   }
 
   /// Gets the description for the project.
@@ -145,27 +173,6 @@ abstract class CreateSubCommand extends Command<int> {
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
-  }
-
-  void _validateProjectName(List<String> args) {
-    logger.detail('Validating project name; args: $args');
-
-    if (args.isEmpty) {
-      usageException('No option specified for the project name.');
-    }
-
-    if (args.length > 1) {
-      usageException('Multiple project names specified.');
-    }
-
-    final name = args.first;
-    final isValidProjectName = _isValidPackageName(name);
-    if (!isValidProjectName) {
-      usageException(
-        '"$name" is not a valid package name.\n\n'
-        'See https://dart.dev/tools/pub/pubspec#name for more information.',
-      );
-    }
   }
 
   Future<MasonGenerator> _getGeneratorForTemplate() async {
@@ -211,7 +218,7 @@ abstract class CreateSubCommand extends Command<int> {
 
     await template.onGenerateComplete(
       logger,
-      Directory(path.join(target.dir.path, projectName)),
+      outputDirectory,
     );
 
     return ExitCode.success.code;
