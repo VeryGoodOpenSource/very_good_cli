@@ -46,7 +46,7 @@ Run "very_good help" to see global options.''',
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 ''';
 
 void main() {
@@ -66,8 +66,8 @@ void main() {
     logger = _MockLogger();
 
     final progress = _MockProgress();
-    when(() => progress.complete(any())).thenAnswer((_) {
-      final message = _.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final message = invocation.positionalArguments.first as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);
@@ -95,15 +95,21 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result =
-            await commandRunner.run(['create', 'flutter_app', '--help']);
+        final result = await commandRunner.run([
+          'create',
+          'flutter_app',
+          '--help',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr =
-            await commandRunner.run(['create', 'flutter_app', '-h']);
+        final resultAbbr = await commandRunner.run([
+          'create',
+          'flutter_app',
+          '-h',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
@@ -141,9 +147,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
+        ).thenAnswer((invocation) async {
           final target =
-              _.positionalArguments.first as DirectoryGeneratorTarget;
+              invocation.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_app', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);
@@ -201,18 +207,25 @@ void main() {
             );
 
             final outputPath = path.join(tempDirectory.path, 'my_app');
-            final relativePath =
-                path.relative(outputPath, from: Directory.current.path);
+            final relativePath = path.relative(
+              outputPath,
+              from: Directory.current.path,
+            );
 
             final projectPath = relativePath;
-            final projectPathLink =
-                link(uri: Uri.parse(projectPath), message: projectPath);
+            final projectPathLink = link(
+              uri: Uri.parse(projectPath),
+              message: projectPath,
+            );
 
             final readmePath = path.join(relativePath, 'README.md');
-            final readmePathLink =
-                link(uri: Uri.parse(readmePath), message: readmePath);
+            final readmePathLink = link(
+              uri: Uri.parse(readmePath),
+              message: readmePath,
+            );
 
-            final details = '''
+            final details =
+                '''
   • To get started refer to $readmePathLink
   • Your project code is in $projectPathLink
 ''';
@@ -231,9 +244,7 @@ void main() {
             hooks: hooks,
             generator: generator,
             templateName: 'wear',
-            mockArgs: {
-              'application-id': 'xyz.app.my_wear_app',
-            },
+            mockArgs: {'application-id': 'xyz.app.my_wear_app'},
             expectedVars: {
               'project_name': 'my_app',
               'description': '',

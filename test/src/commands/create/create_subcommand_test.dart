@@ -85,9 +85,8 @@ class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
 }
 
 class _TestCommandRunner extends CommandRunner<int> {
-  _TestCommandRunner({
-    required this.command,
-  }) : super('runner', 'Test command runner') {
+  _TestCommandRunner({required this.command})
+    : super('runner', 'Test command runner') {
     addCommand(command);
   }
 
@@ -113,8 +112,8 @@ void main() {
     logger = _MockLogger();
 
     progress = _MockProgress();
-    when(() => progress.complete(any())).thenAnswer((_) {
-      final message = _.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final message = invocation.positionalArguments.first as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);
@@ -141,9 +140,9 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(() => template.onGenerateComplete(any(), any())).thenAnswer(
-        (_) async {},
-      );
+      when(
+        () => template.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -301,18 +300,15 @@ Run "runner help" to see global options.''';
           expect(result, equals(ExitCode.success.code));
           verify(() => logger.progress('Bootstrapping')).called(1);
 
-          verify(
-            () {
-              return hooks.preGen(
-                vars: <String, dynamic>{
-                  'project_name': 'test_project',
-                  'description':
-                      'A Very Good Project created by Very Good CLI.',
-                },
-                onVarsChanged: any(named: 'onVarsChanged'),
-              );
-            },
-          );
+          verify(() {
+            return hooks.preGen(
+              vars: <String, dynamic>{
+                'project_name': 'test_project',
+                'description': 'A Very Good Project created by Very Good CLI.',
+              },
+              onVarsChanged: any(named: 'onVarsChanged'),
+            );
+          });
 
           verify(
             () => generator.generate(
@@ -346,66 +342,48 @@ Run "runner help" to see global options.''';
         });
 
         group('validates project name', () {
-          test(
-            'throws UsageException when project-name is omitted',
-            () async {
-              await expectLater(
-                () async {
-                  await runner.run(
-                    [
-                      'create_subcommand',
-                      '--description="some description"',
-                    ],
-                  );
-                },
-                throwsA(
-                  isA<UsageException>()
-                      .having((e) => e.usage, 'usage', expectedUsage)
-                      .having(
-                        (e) => e.message,
-                        'message',
-                        'No option specified for the project name.',
-                      ),
-                ),
-              );
-            },
-          );
+          test('throws UsageException when project-name is omitted', () async {
+            await expectLater(
+              () async {
+                await runner.run([
+                  'create_subcommand',
+                  '--description="some description"',
+                ]);
+              },
+              throwsA(
+                isA<UsageException>()
+                    .having((e) => e.usage, 'usage', expectedUsage)
+                    .having(
+                      (e) => e.message,
+                      'message',
+                      'No option specified for the project name.',
+                    ),
+              ),
+            );
+          });
 
-          test(
-            'throws UsageException when project-name is invalid',
-            () async {
-              await expectLater(
-                () async {
-                  await runner.run(['create_subcommand', 'invalid-name']);
-                },
-                throwsA(
-                  isA<UsageException>()
-                      .having((e) => e.usage, 'usage', expectedUsage)
-                      .having(
-                    (e) => e.message,
-                    'message',
-                    '''
+          test('throws UsageException when project-name is invalid', () async {
+            await expectLater(
+              () async {
+                await runner.run(['create_subcommand', 'invalid-name']);
+              },
+              throwsA(
+                isA<UsageException>()
+                    .having((e) => e.usage, 'usage', expectedUsage)
+                    .having((e) => e.message, 'message', '''
 "invalid-name" is not a valid package name.
 
-See https://dart.dev/tools/pub/pubspec#name for more information.''',
-                  ),
-                ),
-              );
-            },
-          );
+See https://dart.dev/tools/pub/pubspec#name for more information.'''),
+              ),
+            );
+          });
 
           test(
             'throws UsageException when multiple project names are provided',
             () async {
               await expectLater(
                 () async {
-                  await runner.run(
-                    [
-                      'create_subcommand',
-                      'name',
-                      'other_name',
-                    ],
-                  );
+                  await runner.run(['create_subcommand', 'name', 'other_name']);
                 },
                 throwsA(
                   isA<UsageException>()
@@ -460,46 +438,42 @@ See https://dart.dev/tools/pub/pubspec#name for more information.''',
           ).called(1);
         });
 
-        test(
-          'uses bundled brick when remote brick is unavailable',
-          () async {
-            final command = _TestCreateSubCommand(
-              template: template,
-              logger: logger,
-              generatorFromBundle: (_) async => generator,
-              generatorFromBrick: (_) async {
-                throw Exception('oh no, cannot retrieve remote brick 👀');
-              },
-            );
+        test('uses bundled brick when remote brick is unavailable', () async {
+          final command = _TestCreateSubCommand(
+            template: template,
+            logger: logger,
+            generatorFromBundle: (_) async => generator,
+            generatorFromBrick: (_) async {
+              throw Exception('oh no, cannot retrieve remote brick 👀');
+            },
+          );
 
-            runner = _TestCommandRunner(command: command);
+          runner = _TestCommandRunner(command: command);
 
-            final result = await runner.run([
-              'create_subcommand',
-              'test_project',
-            ]);
+          final result = await runner.run([
+            'create_subcommand',
+            'test_project',
+          ]);
 
-            expect(result, equals(ExitCode.success.code));
+          expect(result, equals(ExitCode.success.code));
 
-            verify(
-              () => generator.generate(
-                any(
-                  that: isA<DirectoryGeneratorTarget>().having(
-                    (g) => g.dir.path,
-                    'dir',
-                    '.',
-                  ),
+          verify(
+            () => generator.generate(
+              any(
+                that: isA<DirectoryGeneratorTarget>().having(
+                  (g) => g.dir.path,
+                  'dir',
+                  '.',
                 ),
-                vars: <String, dynamic>{
-                  'project_name': 'test_project',
-                  'description':
-                      'A Very Good Project created by Very Good CLI.',
-                },
-                logger: logger,
               ),
-            ).called(1);
-          },
-        );
+              vars: <String, dynamic>{
+                'project_name': 'test_project',
+                'description': 'A Very Good Project created by Very Good CLI.',
+              },
+              logger: logger,
+            ),
+          ).called(1);
+        });
       });
     });
   });
@@ -526,9 +500,9 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(() => template.onGenerateComplete(any(), any())).thenAnswer(
-        (_) async {},
-      );
+      when(
+        () => template.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -550,11 +524,7 @@ Run "runner help" to see global options.''';
                 'defaultsTo',
                 'com.example.verygoodcore',
               )
-              .having(
-            (o) => o.aliases,
-            'aliases',
-            ['org'],
-          ),
+              .having((o) => o.aliases, 'aliases', ['org']),
         );
         expect(command.argParser.commands, isEmpty);
       });
@@ -643,9 +613,7 @@ Run "runner help" to see global options.''';
 
         verify(
           () => generator.generate(
-            any(
-              that: isA<DirectoryGeneratorTarget>(),
-            ),
+            any(that: isA<DirectoryGeneratorTarget>()),
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
@@ -687,9 +655,7 @@ Run "runner help" to see global options.''';
 
         verify(
           () => generator.generate(
-            any(
-              that: isA<DirectoryGeneratorTarget>(),
-            ),
+            any(that: isA<DirectoryGeneratorTarget>()),
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
@@ -706,10 +672,7 @@ Run "runner help" to see global options.''';
       });
 
       test('uses default values for omitted options', () async {
-        final result = await runner.run([
-          'create_subcommand',
-          'test_project',
-        ]);
+        final result = await runner.run(['create_subcommand', 'test_project']);
 
         expect(result, equals(ExitCode.success.code));
 
@@ -729,9 +692,7 @@ Run "runner help" to see global options.''';
 
         verify(
           () => generator.generate(
-            any(
-              that: isA<DirectoryGeneratorTarget>(),
-            ),
+            any(that: isA<DirectoryGeneratorTarget>()),
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
@@ -748,35 +709,28 @@ Run "runner help" to see global options.''';
       });
 
       group('validates org name', () {
-        test(
-          'throws UsageException when org-name has no delimiters',
-          () async {
-            await expectLater(
-              () async {
-                await runner.run([
-                  'create_subcommand',
-                  'test_project',
-                  '--org-name',
-                  'invalid org name',
-                ]);
-              },
-              throwsA(
-                isA<UsageException>()
-                    .having((e) => e.usage, 'usage', expectedUsage)
-                    .having(
-                  (e) => e.message,
-                  'message',
-                  '''
+        test('throws UsageException when org-name has no delimiters', () async {
+          await expectLater(
+            () async {
+              await runner.run([
+                'create_subcommand',
+                'test_project',
+                '--org-name',
+                'invalid org name',
+              ]);
+            },
+            throwsA(
+              isA<UsageException>()
+                  .having((e) => e.usage, 'usage', expectedUsage)
+                  .having((e) => e.message, 'message', '''
 "invalid org name" is not a valid org name.
 
 A valid org name has at least 2 parts separated by "."
 Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)
-(ex. very.good.org)''',
-                ),
-              ),
-            );
-          },
-        );
+(ex. very.good.org)'''),
+            ),
+          );
+        });
 
         test(
           'throws UsageException when org-name has less than two levels',
@@ -793,16 +747,12 @@ Each part must start with a letter and only include alphanumeric characters (A-Z
               throwsA(
                 isA<UsageException>()
                     .having((e) => e.usage, 'usage', expectedUsage)
-                    .having(
-                  (e) => e.message,
-                  'message',
-                  '''
+                    .having((e) => e.message, 'message', '''
 "verybadtest" is not a valid org name.
 
 A valid org name has at least 2 parts separated by "."
 Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)
-(ex. very.good.org)''',
-                ),
+(ex. very.good.org)'''),
               ),
             );
           },
@@ -823,16 +773,12 @@ Each part must start with a letter and only include alphanumeric characters (A-Z
               throwsA(
                 isA<UsageException>()
                     .having((e) => e.usage, 'usage', expectedUsage)
-                    .having(
-                  (e) => e.message,
-                  'message',
-                  '''
+                    .having((e) => e.message, 'message', '''
 "very%.bad@.#test" is not a valid org name.
 
 A valid org name has at least 2 parts separated by "."
 Each part must start with a letter and only include alphanumeric characters (A-Z, a-z, 0-9), underscores (_), and hyphens (-)
-(ex. very.good.org)''',
-                ),
+(ex. very.good.org)'''),
               ),
             );
           },
@@ -867,17 +813,17 @@ Run "runner help" to see global options.''';
       when(() => template1.name).thenReturn('template1');
       when(() => template1.help).thenReturn('template1 help');
       when(() => template1.bundle).thenReturn(bundle);
-      when(() => template1.onGenerateComplete(any(), any())).thenAnswer(
-        (_) async {},
-      );
+      when(
+        () => template1.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
 
       final template2 = _MockTemplate();
       when(() => template2.name).thenReturn('template2');
       when(() => template2.help).thenReturn('template2 help');
       when(() => template2.bundle).thenReturn(bundle);
-      when(() => template2.onGenerateComplete(any(), any())).thenAnswer(
-        (_) async {},
-      );
+      when(
+        () => template2.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
 
       templates = [template1, template2];
     });
@@ -895,23 +841,12 @@ Run "runner help" to see global options.''';
           isA<Option>()
               .having((o) => o.isSingle, 'isSingle', true)
               .having((o) => o.abbr, 'abbr', 't')
-              .having(
-                (o) => o.defaultsTo,
-                'defaultsTo',
-                'template1',
-              )
-              .having(
-            (o) => o.allowed,
-            'allowed',
-            ['template1', 'template2'],
-          ).having(
-            (o) => o.allowedHelp,
-            'allowedHelp',
-            {
-              'template1': 'template1 help',
-              'template2': 'template2 help',
-            },
-          ),
+              .having((o) => o.defaultsTo, 'defaultsTo', 'template1')
+              .having((o) => o.allowed, 'allowed', ['template1', 'template2'])
+              .having((o) => o.allowedHelp, 'allowedHelp', {
+                'template1': 'template1 help',
+                'template2': 'template2 help',
+              }),
         );
         expect(command.argParser.commands, isEmpty);
       });
@@ -989,10 +924,7 @@ Run "runner help" to see global options.''';
       });
 
       test('selects the default template when omitted', () async {
-        final result = await runner.run([
-          'create_subcommand',
-          'test_project',
-        ]);
+        final result = await runner.run(['create_subcommand', 'test_project']);
         expect(result, equals(ExitCode.success.code));
         final template1 = templates[0];
         final template2 = templates[1];
@@ -1049,9 +981,9 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(() => template.onGenerateComplete(any(), any())).thenAnswer(
-        (_) async {},
-      );
+      when(
+        () => template.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -1157,9 +1089,7 @@ Run "runner help" to see global options.''';
 
         verify(
           () => generator.generate(
-            any(
-              that: isA<DirectoryGeneratorTarget>(),
-            ),
+            any(that: isA<DirectoryGeneratorTarget>()),
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
@@ -1176,10 +1106,7 @@ Run "runner help" to see global options.''';
       });
 
       test('uses default values for omitted options', () async {
-        final result = await runner.run([
-          'create_subcommand',
-          'test_project',
-        ]);
+        final result = await runner.run(['create_subcommand', 'test_project']);
 
         expect(result, equals(ExitCode.success.code));
 
@@ -1199,9 +1126,7 @@ Run "runner help" to see global options.''';
 
         verify(
           () => generator.generate(
-            any(
-              that: isA<DirectoryGeneratorTarget>(),
-            ),
+            any(that: isA<DirectoryGeneratorTarget>()),
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
