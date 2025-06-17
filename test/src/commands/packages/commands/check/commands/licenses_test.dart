@@ -1428,13 +1428,13 @@ void main() {
               ],
             );
 
-            final errorMessage =
+            final expectedMessage =
                 '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
-            verify(() => logger.err(errorMessage)).called(1);
+            verify(() => logger.info(expectedMessage)).called(1);
 
             verify(() => progress.cancel()).called(1);
 
-            expect(result, equals(ExitCode.usage.code));
+            expect(result, equals(ExitCode.success.code));
           }),
         );
       });
@@ -1512,13 +1512,13 @@ void main() {
             [...commandArguments, tempDirectory.path],
           );
 
-          final errorMessage =
+          final expectedMessage =
               '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
-          verify(() => logger.err(errorMessage)).called(1);
+          verify(() => logger.info(expectedMessage)).called(1);
 
           verify(() => progress.cancel()).called(1);
 
-          expect(result, equals(ExitCode.usage.code));
+          expect(result, equals(ExitCode.success.code));
         }),
       );
 
