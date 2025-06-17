@@ -108,12 +108,12 @@ void main() {
 
         File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
           '''
-          name: example
-          version: 0.1.0
-          
-          environment:
-            sdk: ^3.8.0
-          ''',
+name: example
+version: 0.1.0
+
+environment:
+sdk: ^3.8.0
+''',
         );
 
         // Mock flutter process to simulate flutter not being installed
