@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 
 import '../../../../helpers/helpers.dart';
 
@@ -96,6 +97,58 @@ void main() {
           tempDirectory.path,
         ]);
         expect(result, equals(ExitCode.unavailable.code));
+      }),
+    );
+
+    test(
+      'returns exit code unavailable when Flutter is not installed',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+          '''
+name: example
+version: 0.1.0
+
+environment:
+sdk: ^3.8.0
+''',
+        );
+
+        // Mock flutter process to simulate flutter not being installed
+        Future<ProcessResult> mockProcess(
+          String executable,
+          List<String> arguments, {
+          String? workingDirectory,
+          bool runInShell = false,
+        }) async {
+          if (executable == 'flutter') {
+            throw Exception('flutter not installed');
+          }
+          return ProcessResult(42, 0, '', '');
+        }
+
+        late int result;
+        await ProcessOverrides.runZoned(
+          () async {
+            result = await commandRunner.run([
+              'packages',
+              'get',
+              tempDirectory.path,
+            ]);
+          },
+          runProcess: mockProcess,
+        );
+
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(() {
+          logger.err(
+            'Could not find Flutter SDK. '
+            'Please ensure it is installed and added to your PATH. '
+            'For troubleshooting, see https://docs.flutter.dev/install/troubleshoot',
+          );
+        }).called(1);
       }),
     );
 
