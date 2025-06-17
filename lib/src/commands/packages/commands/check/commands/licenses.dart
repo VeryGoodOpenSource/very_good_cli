@@ -203,10 +203,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     if (filteredDependencies.isEmpty) {
       progress.cancel();
-      _logger.err(
+      _logger.info(
         '''No hosted dependencies found in $targetPath of type: ${dependencyTypes.stringify()}.''',
       );
-      return ExitCode.usage.code;
+      return ExitCode.success.code;
     }
 
     final packageConfig = await _tryFindPackageConfig(targetDirectory);
