@@ -13,19 +13,19 @@ void main() {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      final result = await commandRunner.run(
-        [
-          'create',
-          'docs_site',
-          'very_good_docs_site',
-          '-o',
-          tempDirectory.path,
-        ],
-      );
+      final result = await commandRunner.run([
+        'create',
+        'docs_site',
+        'very_good_docs_site',
+        '-o',
+        tempDirectory.path,
+      ]);
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory =
-          path.join(tempDirectory.path, 'very_good_docs_site');
+      final workingDirectory = path.join(
+        tempDirectory.path,
+        'very_good_docs_site',
+      );
 
       await expectSuccessfulProcessResult(
         'npm',
@@ -34,23 +34,20 @@ void main() {
         validateStderr: false,
       );
 
-      await expectSuccessfulProcessResult(
-        'npm',
-        ['run', 'format'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('npm', [
+        'run',
+        'format',
+      ], workingDirectory: workingDirectory);
 
-      await expectSuccessfulProcessResult(
-        'npm',
-        ['run', 'lint'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('npm', [
+        'run',
+        'lint',
+      ], workingDirectory: workingDirectory);
 
-      await expectSuccessfulProcessResult(
-        'npm',
-        ['run', 'build'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('npm', [
+        'run',
+        'build',
+      ], workingDirectory: workingDirectory);
     }),
   );
 }

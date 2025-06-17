@@ -51,8 +51,8 @@ abstract class CreateSubCommand extends Command<int> {
     required this.logger,
     @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
     @visibleForTesting required MasonGeneratorFromBrick? generatorFromBrick,
-  })  : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
-        _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
+  }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
+       _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
     argParser
       ..addOption(
         'output-directory',
@@ -178,7 +178,7 @@ abstract class CreateSubCommand extends Command<int> {
         '''Building generator from brick: ${brick.name} ${brick.location.version}''',
       );
       return await _generatorFromBrick(brick);
-    } catch (error) {
+    } on Exception catch (error) {
       logger.detail('Building generator from brick failed: $error');
     }
     logger.detail(

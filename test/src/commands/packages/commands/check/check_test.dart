@@ -1,3 +1,7 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'dart:collection';
 
 import 'package:mason_logger/mason_logger.dart';
@@ -7,7 +11,6 @@ import 'package:very_good_cli/src/commands/packages/commands/check/check.dart';
 import '../../../../../helpers/helpers.dart';
 
 const _expectedPackagesCheckUsage = [
-  // ignore: no_adjacent_strings_in_list
   'Perform checks in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages check <subcommand> [arguments]\n'
@@ -16,7 +19,7 @@ const _expectedPackagesCheckUsage = [
       'Available subcommands:\n'
       "  licenses   Check packages' licenses in a Dart or Flutter project.\n"
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "very_good help" to see global options.',
 ];
 
 void main() {

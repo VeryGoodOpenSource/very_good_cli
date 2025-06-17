@@ -17,11 +17,10 @@ void main() {
         tempDirectory,
       );
 
-      await expectSuccessfulProcessResult(
-        'flutter',
-        ['pub', 'get'],
-        workingDirectory: tempDirectory.path,
-      );
+      await expectSuccessfulProcessResult('flutter', [
+        'pub',
+        'get',
+      ], workingDirectory: tempDirectory.path);
 
       final cwd = Directory.current;
       Directory.current = tempDirectory;

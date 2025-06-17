@@ -1,3 +1,7 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -25,33 +29,34 @@ class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
+  // Exception made for enhanced readability.
   // ignore: no_adjacent_strings_in_list
   'Generate a Very Good Flutter plugin.\n'
       '\n'
       'Usage: very_good create flutter_plugin <project-name> [arguments]\n'
       '-h, --help                       Print this usage information.\n'
-      '''-o, --output-directory           The desired output directory when creating a new project.\n'''
+      '-o, --output-directory           The desired output directory when creating a new project.\n'
       '    --description                The description for this new project.\n'
-      '''                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'''
-      '''    --org-name                   The organization for this new project.\n'''
-      '''                                 (defaults to "com.example.verygoodcore")\n'''
-      '''    --publishable                Whether the generated project is intended to be published.\n'''
-      '''    --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios\n'''
+      '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
+      '    --org-name                   The organization for this new project.\n'
+      '                                 (defaults to "com.example.verygoodcore")\n'
+      '    --publishable                Whether the generated project is intended to be published.\n'
+      '    --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios\n'
       '\n'
-      '''          [android] (default)    The plugin supports the Android platform.\n'''
+      '          [android] (default)    The plugin supports the Android platform.\n'
       '          [ios] (default)        The plugin supports the iOS platform.\n'
       '          [web] (default)        The plugin supports the Web platform.\n'
-      '''          [linux] (default)      The plugin supports the Linux platform.\n'''
-      '''          [macos] (default)      The plugin supports the macOS platform.\n'''
-      '''          [windows] (default)    The plugin supports the Windows platform.\n'''
+      '          [linux] (default)      The plugin supports the Linux platform.\n'
+      '          [macos] (default)      The plugin supports the macOS platform.\n'
+      '          [windows] (default)    The plugin supports the Windows platform.\n'
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "very_good help" to see global options.',
 ];
 
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 ''';
 
 void main() {
@@ -81,9 +86,7 @@ void main() {
       expect(command.name, equals('flutter_plugin'));
       expect(
         command.description,
-        equals(
-          'Generate a Very Good Flutter plugin.',
-        ),
+        equals('Generate a Very Good Flutter plugin.'),
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());
@@ -95,23 +98,31 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result =
-            await commandRunner.run(['create', 'flutter_plugin', '--help']);
+        final result = await commandRunner.run([
+          'create',
+          'flutter_plugin',
+          '--help',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr =
-            await commandRunner.run(['create', 'flutter_plugin', '-h']);
+        final resultAbbr = await commandRunner.run([
+          'create',
+          'flutter_plugin',
+          '-h',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
 
     group('running the command', () {
-      final generatedFiles =
-          List.filled(10, const GeneratedFile.created(path: ''));
+      final generatedFiles = List.filled(
+        10,
+        const GeneratedFile.created(path: ''),
+      );
 
       late GeneratorHooks hooks;
       late MasonGenerator generator;
@@ -154,9 +165,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
+        ).thenAnswer((invocation) async {
           final target =
-              _.positionalArguments.first as DirectoryGeneratorTarget;
+              invocation.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_plugin', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);
@@ -174,11 +185,13 @@ void main() {
           generatorFromBundle: (_) async => throw Exception('oops'),
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDirectory.path);
+        when(
+          () => argResults['output-directory'] as String?,
+        ).thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_plugin']);
-        when(() => argResults['platforms'] as List<String>)
-            .thenReturn(['android', 'ios', 'windows']);
+        when(
+          () => argResults['platforms'] as List<String>,
+        ).thenReturn(['android', 'ios', 'windows']);
 
         final result = await command.run();
 

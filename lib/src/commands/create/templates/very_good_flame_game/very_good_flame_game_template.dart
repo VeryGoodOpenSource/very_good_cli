@@ -10,11 +10,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class VeryGoodFlameGameTemplate extends Template {
   /// {@macro flame_game_template}
   VeryGoodFlameGameTemplate()
-      : super(
-          name: 'flame_game',
-          bundle: veryGoodFlameGameBundle,
-          help: 'Generate a Very Good Flame game.',
-        );
+    : super(
+        name: 'flame_game',
+        bundle: veryGoodFlameGameBundle,
+        help: 'Generate a Very Good Flame game.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {

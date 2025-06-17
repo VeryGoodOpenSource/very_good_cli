@@ -61,7 +61,7 @@ class PackagesGetCommand extends Command<int> {
       } on PubspecNotFound catch (_) {
         _logger.err('Could not find a pubspec.yaml in $targetPath');
         return ExitCode.noInput.code;
-      } catch (error) {
+      } on Exception catch (error) {
         _logger.err('$error');
         return ExitCode.unavailable.code;
       }

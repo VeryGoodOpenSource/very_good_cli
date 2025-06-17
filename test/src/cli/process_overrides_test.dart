@@ -34,8 +34,7 @@ void main() {
         );
       });
 
-      test(
-          'uses current Process.run when not specified '
+      test('uses current Process.run when not specified '
           'and zone already contains a Process.run', () {
         final process = _FakeProcess();
         ProcessOverrides.runZoned(
@@ -49,8 +48,7 @@ void main() {
         );
       });
 
-      test(
-          'uses nested Process.run when specified '
+      test('uses nested Process.run when specified '
           'and zone already contains a Process.run', () {
         final rootProcess = _FakeProcess();
         ProcessOverrides.runZoned(
