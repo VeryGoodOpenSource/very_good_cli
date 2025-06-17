@@ -144,8 +144,9 @@ sdk: ^3.8.0
         expect(result, equals(ExitCode.unavailable.code));
         verify(() {
           logger.err(
-            'Could not find Flutter SDK. Please ensure it is installed and '
-            'available in your PATH.',
+            'Could not find Flutter SDK. '
+            'Please ensure it is installed and added to your PATH. '
+            'For troubleshooting, see https://docs.flutter.dev/install/troubleshoot',
           );
         }).called(1);
       }),
