@@ -52,8 +52,8 @@ class PackagesGetCommand extends Command<int> {
     final isFlutterInstalled = await Flutter.installed(logger: _logger);
     if (!isFlutterInstalled) {
       _logger.err(
-        'Could not find Flutter SDK. Please ensure it is installed and '
-        'available in your PATH.',
+        'Could not find Flutter SDK. Please ensure it is installed and added to your PATH.'
+        'For troubleshooting, see https://docs.flutter.dev/install/troubleshoot'
       );
       return ExitCode.unavailable.code;
     }
