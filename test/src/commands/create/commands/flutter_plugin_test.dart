@@ -29,8 +29,6 @@ class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
-  // Exception made for enhanced readability.
-  // ignore: no_adjacent_strings_in_list
   'Generate a Very Good Flutter plugin.\n'
       '\n'
       'Usage: very_good create flutter_plugin <project-name> [arguments]\n'
