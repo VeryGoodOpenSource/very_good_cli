@@ -1,3 +1,5 @@
+// Ensures we don't have to use const constructors
+// and instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
 
 import 'package:test/test.dart';
@@ -12,7 +14,7 @@ void main() {
         expect(
           pubspecLock.packages,
           equals(
-            const [
+            [
               PubspecLockPackage(
                 name: 'very_good_test_runner',
                 type: PubspecLockPackageDependencyType.directMain,
@@ -195,8 +197,6 @@ packages:
       url: "https://not-pub.dev"
     source: hosted
     version: "3.1.2"
-  bad_package:
-    not_dependency: "bad"
 sdks:
   dart: ">=3.1.0 <4.0.0"
 

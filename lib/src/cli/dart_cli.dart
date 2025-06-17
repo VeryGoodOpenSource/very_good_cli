@@ -9,7 +9,7 @@ class Dart {
     try {
       await _Cmd.run('dart', ['--version'], logger: logger);
       return true;
-    } catch (_) {
+    } on Exception catch (_) {
       return false;
     }
   }
@@ -26,8 +26,9 @@ class Dart {
     final result = await _runCommand(
       cmd: (cwd) async {
         final relativePath = p.relative(cwd, from: initialCwd);
-        final path =
-            relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
+        final path = relativePath == '.'
+            ? '.'
+            : '.${p.context.separator}$relativePath';
 
         final installProgress = logger.progress(
           'Running "dart pub get" in $path',

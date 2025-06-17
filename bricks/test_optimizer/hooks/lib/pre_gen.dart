@@ -1,3 +1,4 @@
+// No need for documentation in brick hooks
 // ignore_for_file: public_member_api_docs
 
 import 'dart:io';
@@ -33,8 +34,9 @@ Future<void> run(HookContext context) async {
   final testIdentifierTable = <Map<String, String>>[];
   for (final entity
       in testDir.listSync(recursive: true).where((entity) => entity.isTest)) {
-    final relativePath =
-        path.relative(entity.path, from: testDir.path).replaceAll(r'\', '/');
+    final relativePath = path
+        .relative(entity.path, from: testDir.path)
+        .replaceAll(r'\', '/');
     testIdentifierTable.add({
       'path': relativePath,
       'identifier': identifierGenerator.next(),

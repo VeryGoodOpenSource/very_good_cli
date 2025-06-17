@@ -13,15 +13,13 @@ void main() {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      final result = await commandRunner.run(
-        [
-          'create',
-          'flame_game',
-          'very_good_flame_game',
-          '-o',
-          tempDirectory.path,
-        ],
-      );
+      final result = await commandRunner.run([
+        'create',
+        'flame_game',
+        'very_good_flame_game',
+        '-o',
+        tempDirectory.path,
+      ]);
       expect(result, equals(ExitCode.success.code));
 
       final workingDirectory = path.join(
@@ -29,24 +27,23 @@ void main() {
         'very_good_flame_game',
       );
 
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['format'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'format',
+      ], workingDirectory: workingDirectory);
 
-      final analyzeResult = await expectSuccessfulProcessResult(
-        'flutter',
-        ['analyze', '.'],
-        workingDirectory: workingDirectory,
-      );
+      final analyzeResult = await expectSuccessfulProcessResult('flutter', [
+        'analyze',
+        '.',
+      ], workingDirectory: workingDirectory);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await expectSuccessfulProcessResult(
-        'flutter',
-        ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
-        workingDirectory: workingDirectory,
-      );
+      final testResult = await expectSuccessfulProcessResult('flutter', [
+        'test',
+        '--no-pub',
+        '--coverage',
+        '--reporter',
+        'compact',
+      ], workingDirectory: workingDirectory);
       expect(testResult.stdout, contains('All tests passed!'));
 
       final testCoverageResult = await expectSuccessfulProcessResult(

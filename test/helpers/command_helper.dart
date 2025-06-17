@@ -15,7 +15,7 @@ void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
     final printLogs = <String>[];
     final spec = ZoneSpecification(
-      print: (_, __, ___, String msg) {
+      print: (_, _, _, String msg) {
         printLogs.add(msg);
       },
     );
@@ -32,7 +32,8 @@ void Function() withRunner(
     Logger logger,
     PubUpdater pubUpdater,
     List<String> printLogs,
-  ) runnerFn,
+  )
+  runnerFn,
 ) {
   return _overridePrint((printLogs) async {
     final logger = _MockLogger();
@@ -45,8 +46,8 @@ void Function() withRunner(
       environment: {'CI': 'true'},
     );
 
-    when(() => progress.complete(any())).thenAnswer((_) {
-      final message = _.positionalArguments.elementAt(0) as String?;
+    when(() => progress.complete(any())).thenAnswer((invocation) {
+      final message = invocation.positionalArguments.first as String?;
       if (message != null) progressLogs.add(message);
     });
     when(() => logger.progress(any())).thenReturn(progress);
@@ -56,6 +57,10 @@ void Function() withRunner(
         currentVersion: any(named: 'currentVersion'),
       ),
     ).thenAnswer((_) => Future.value(true));
+
+    when(
+      () => pubUpdater.getLatestVersion(any()),
+    ).thenAnswer((_) async => '1.0.0');
 
     await runnerFn(commandRunner, logger, pubUpdater, printLogs);
   });

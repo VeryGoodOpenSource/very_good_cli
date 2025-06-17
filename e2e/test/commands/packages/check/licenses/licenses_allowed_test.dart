@@ -20,36 +20,33 @@ void main() {
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       const projectName = 'my_dart_project';
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['create', 'my_dart_project', '--no-pub'],
-        workingDirectory: tempDirectory.path,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'create',
+        'my_dart_project',
+        '--no-pub',
+      ], workingDirectory: tempDirectory.path);
       final projectPath = path.join(tempDirectory.path, projectName);
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['pub', 'add', 'formz'],
-        workingDirectory: projectPath,
-      );
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['pub', 'get'],
-        workingDirectory: projectPath,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'pub',
+        'add',
+        'formz',
+      ], workingDirectory: projectPath);
+      await expectSuccessfulProcessResult('dart', [
+        'pub',
+        'get',
+      ], workingDirectory: projectPath);
 
       final relativeProjectPath = path.relative(
         projectPath,
         from: Directory.current.path,
       );
-      final resultAllowed = await commandRunner.run(
-        [
-          'packages',
-          'check',
-          'licenses',
-          '--allowed=MIT',
-          relativeProjectPath,
-        ],
-      );
+      final resultAllowed = await commandRunner.run([
+        'packages',
+        'check',
+        'licenses',
+        '--allowed=MIT',
+        relativeProjectPath,
+      ]);
       expect(
         resultAllowed,
         equals(ExitCode.success.code),

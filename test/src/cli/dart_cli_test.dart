@@ -164,10 +164,12 @@ void main() {
             p.join(tempDirectory.path, 'test_plugin'),
           )..createSync();
 
-          File(p.join(nestedDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
-          File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
-              .writeAsStringSync(_pubspec);
+          File(
+            p.join(nestedDirectory.path, 'pubspec.yaml'),
+          ).writeAsStringSync(_pubspec);
+          File(
+            p.join(ignoredDirectory.path, 'pubspec.yaml'),
+          ).writeAsStringSync(_pubspec);
 
           final relativePathPrefix = '.${p.context.separator}';
 
@@ -186,8 +188,10 @@ void main() {
             ),
             runProcess: process.run,
           ).whenComplete(() {
-            final nestedRelativePath =
-                p.relative(nestedDirectory.path, from: tempDirectory.path);
+            final nestedRelativePath = p.relative(
+              nestedDirectory.path,
+              from: tempDirectory.path,
+            );
 
             verify(() {
               logger.progress(
@@ -256,8 +260,9 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(p.join(tempDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync(_unreachableGitUrlPubspec);
+        File(
+          p.join(tempDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_unreachableGitUrlPubspec);
 
         when(
           () => process.run(

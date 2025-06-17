@@ -4,7 +4,7 @@
 /// source of the dependencies to analyze. Hence, it is not a complete parser,
 /// it only parses the information that is needed for the
 /// `packages check license` command.
-library pubspec_lock;
+library;
 
 import 'dart:collection';
 
@@ -38,7 +38,9 @@ class PubspecLock {
     late final YamlMap yaml;
     try {
       yaml = loadYaml(content) as YamlMap;
-    } catch (_) {
+      // This method throws type error when it fails to parse the content.
+      // ignore: avoid_catching_errors
+    } on TypeError catch (_) {
       throw const PubspecLockParseException();
     }
 
@@ -56,9 +58,9 @@ class PubspecLock {
           data: entry.value as YamlMap,
         );
         parsedPackages.add(package);
-      } catch (_) {
         // Ignore those packages that for some reason cannot be parsed.
-      }
+        // ignore: avoid_catches_without_on_clauses
+      } catch (_) {}
     }
 
     return PubspecLock._(

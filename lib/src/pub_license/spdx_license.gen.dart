@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 672 SPDX licenses.
+/// A list of all 681 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -80,7 +80,8 @@ enum SpdxLicense {
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
   $BSD_3_Clause_No_Nuclear_License_2014._(
-      'BSD-3-Clause-No-Nuclear-License-2014'),
+    'BSD-3-Clause-No-Nuclear-License-2014',
+  ),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -171,6 +172,8 @@ enum SpdxLicense {
   $CC_BY_SA_3_0_IGO._('CC-BY-SA-3.0-IGO'),
   $CC_BY_SA_4_0._('CC-BY-SA-4.0'),
   $CC_PDDC._('CC-PDDC'),
+  $CC_PDM_1_0._('CC-PDM-1.0'),
+  $CC_SA_1_0._('CC-SA-1.0'),
   $CC0_1_0._('CC0-1.0'),
   $CDDL_1_0._('CDDL-1.0'),
   $CDDL_1_1._('CDDL-1.1'),
@@ -329,7 +332,8 @@ enum SpdxLicense {
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
   $HPND_sell_variant_MIT_disclaimer_rev._(
-      'HPND-sell-variant-MIT-disclaimer-rev'),
+    'HPND-sell-variant-MIT-disclaimer-rev',
+  ),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -346,6 +350,7 @@ enum SpdxLicense {
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
   $Inner_Net_2_0._('Inner-Net-2.0'),
+  $InnoSetup._('InnoSetup'),
   $Intel._('Intel'),
   $Intel_ACPI._('Intel-ACPI'),
   $Interbase_1_0._('Interbase-1.0'),
@@ -396,6 +401,7 @@ enum SpdxLicense {
   $Linux_man_pages_copyleft_2_para._('Linux-man-pages-copyleft-2-para'),
   $Linux_man_pages_copyleft_var._('Linux-man-pages-copyleft-var'),
   $Lucida_Bitmap_Fonts._('Lucida-Bitmap-Fonts'),
+  $MIPS._('MIPS'),
   $MIT._('MIT'),
   $MIT_0._('MIT-0'),
   $MIT_CMU._('MIT-CMU'),
@@ -552,6 +558,7 @@ enum SpdxLicense {
   $SISSL._('SISSL'),
   $SISSL_1_2._('SISSL-1.2'),
   $SL._('SL'),
+  $SMAIL_GPL._('SMAIL-GPL'),
   $SMLNJ._('SMLNJ'),
   $SMPPL._('SMPPL'),
   $SNIA._('SNIA'),
@@ -592,6 +599,7 @@ enum SpdxLicense {
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
   $TermReadKey._('TermReadKey'),
+  $ThirdEye._('ThirdEye'),
   $TrustedQSL._('TrustedQSL'),
   $UCAR._('UCAR'),
   $UCL_1_0._('UCL-1.0'),
@@ -617,7 +625,8 @@ enum SpdxLicense {
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
   $X11_distribute_modifications_variant._(
-      'X11-distribute-modifications-variant'),
+    'X11-distribute-modifications-variant',
+  ),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
@@ -637,6 +646,7 @@ enum SpdxLicense {
   $Zimbra_1_4._('Zimbra-1.4'),
   $Zlib._('Zlib'),
   $any_OSI._('any-OSI'),
+  $any_OSI_perl_modules._('any-OSI-perl-modules'),
   $bcrypt_Solar_Designer._('bcrypt-Solar-Designer'),
   $blessing._('blessing'),
   $bzip2_1_0_5._('bzip2-1.0.5'),
@@ -656,6 +666,7 @@ enum SpdxLicense {
   $etalab_2_0._('etalab-2.0'),
   $fwlw._('fwlw'),
   $gSOAP_1_3b._('gSOAP-1.3b'),
+  $generic_xts._('generic-xts'),
   $gnuplot._('gnuplot'),
   $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
@@ -684,6 +695,7 @@ enum SpdxLicense {
   $threeparttable._('threeparttable'),
   $ulem._('ulem'),
   $w3m._('w3m'),
+  $wwl._('wwl'),
   $wxWindows._('wxWindows'),
   $xinetd._('xinetd'),
   $xkeyboard_config_Zinoviev._('xkeyboard-config-Zinoviev'),

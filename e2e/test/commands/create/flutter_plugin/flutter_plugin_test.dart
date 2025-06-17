@@ -16,26 +16,27 @@ void main() {
       const pluginName = 'my_plugin';
       final pluginDirectory = path.join(tempDirectory.path, pluginName);
 
-      final result = await commandRunner.run(
-        ['create', 'flutter_plugin', pluginName, '-o', tempDirectory.path],
-      );
+      final result = await commandRunner.run([
+        'create',
+        'flutter_plugin',
+        pluginName,
+        '-o',
+        tempDirectory.path,
+      ]);
       expect(
         result,
         equals(ExitCode.success.code),
         reason: '`very_good create flutter_plugin` failed with $result',
       );
 
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['format'],
-        workingDirectory: pluginDirectory,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'format',
+      ], workingDirectory: pluginDirectory);
 
-      final analyzeResult = await expectSuccessfulProcessResult(
-        'flutter',
-        ['analyze', '.'],
-        workingDirectory: pluginDirectory,
-      );
+      final analyzeResult = await expectSuccessfulProcessResult('flutter', [
+        'analyze',
+        '.',
+      ], workingDirectory: pluginDirectory);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
       final packageDirectories = [
@@ -50,11 +51,13 @@ void main() {
       ];
 
       for (final packageDirectory in packageDirectories) {
-        final testResult = await expectSuccessfulProcessResult(
-          'flutter',
-          ['test', '--no-pub', '--coverage', '--reporter', 'compact'],
-          workingDirectory: packageDirectory,
-        );
+        final testResult = await expectSuccessfulProcessResult('flutter', [
+          'test',
+          '--no-pub',
+          '--coverage',
+          '--reporter',
+          'compact',
+        ], workingDirectory: packageDirectory);
         expect(testResult.stdout, contains('All tests passed!'));
 
         final testCoverageResult = await expectSuccessfulProcessResult(

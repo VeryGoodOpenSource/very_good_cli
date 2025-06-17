@@ -13,55 +13,52 @@ void main() {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      final result = await commandRunner.run(
-        ['create', 'dart_package', 'very_good_dart', '-o', tempDirectory.path],
-      );
+      final result = await commandRunner.run([
+        'create',
+        'dart_package',
+        'very_good_dart',
+        '-o',
+        tempDirectory.path,
+      ]);
       expect(result, equals(ExitCode.success.code));
 
       final workingDirectory = path.join(tempDirectory.path, 'very_good_dart');
 
       // add coverage to collect coverage on dart test
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['pub', 'add', 'coverage:1.2.0'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'pub',
+        'add',
+        'coverage:1.2.0',
+      ], workingDirectory: workingDirectory);
 
-      await expectSuccessfulProcessResult(
-        'dart',
-        ['format'],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'format',
+      ], workingDirectory: workingDirectory);
 
-      final analyzeResult = await expectSuccessfulProcessResult(
-        'flutter',
-        ['analyze', '.'],
-        workingDirectory: workingDirectory,
-      );
+      final analyzeResult = await expectSuccessfulProcessResult('flutter', [
+        'analyze',
+        '.',
+      ], workingDirectory: workingDirectory);
       expect(analyzeResult.stdout, contains('No issues found!'));
 
-      final testResult = await expectSuccessfulProcessResult(
-        'dart',
-        ['test', '--coverage=coverage', '--reporter=compact'],
-        workingDirectory: workingDirectory,
-      );
+      final testResult = await expectSuccessfulProcessResult('dart', [
+        'test',
+        '--coverage=coverage',
+        '--reporter=compact',
+      ], workingDirectory: workingDirectory);
       expect(testResult.stdout, contains('All tests passed!'));
 
       // collect coverage
-      await expectSuccessfulProcessResult(
-        'dart',
-        [
-          'pub',
-          'run',
-          'coverage:format_coverage',
-          '--lcov',
-          '--in=coverage',
-          '--out=coverage/lcov.info',
-          '--packages=.dart_tool/package_config.json',
-          '--report-on=lib',
-        ],
-        workingDirectory: workingDirectory,
-      );
+      await expectSuccessfulProcessResult('dart', [
+        'pub',
+        'run',
+        'coverage:format_coverage',
+        '--lcov',
+        '--in=coverage',
+        '--out=coverage/lcov.info',
+        '--packages=.dart_tool/package_config.json',
+        '--report-on=lib',
+      ], workingDirectory: workingDirectory);
 
       final testCoverageResult = await expectSuccessfulProcessResult(
         'genhtml',

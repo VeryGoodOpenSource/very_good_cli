@@ -32,8 +32,9 @@ Future<void> testMultiTemplateCommand({
   final command = multiTemplatesCommand..argResultOverrides = argResults;
 
   when(() => argResults['template'] as String?).thenReturn(templateName);
-  when(() => argResults['output-directory'] as String?)
-      .thenReturn(outputDirectory.path);
+  when(
+    () => argResults['output-directory'] as String?,
+  ).thenReturn(outputDirectory.path);
 
   for (final entry in mockArgs.entries) {
     when(() => argResults[entry.key]).thenReturn(entry.value);
