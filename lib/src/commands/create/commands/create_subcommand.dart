@@ -293,9 +293,7 @@ mixin MultiTemplates on CreateSubCommand {
     final templateName =
         argResults['template'] as String? ?? defaultTemplateName;
 
-    return templates.firstWhere(
-      (element) => element.name == templateName,
-    );
+    return templates.firstWhere((element) => element.name == templateName);
   }
 }
 
