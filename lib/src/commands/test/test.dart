@@ -153,11 +153,9 @@ class TestCommand extends Command<int> {
     final recursive = _argResults['recursive'] as bool;
 
     if (!recursive && !pubspec.existsSync()) {
-      _logger.err(
-        '''
+      _logger.err('''
 Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''',
-      );
+This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
