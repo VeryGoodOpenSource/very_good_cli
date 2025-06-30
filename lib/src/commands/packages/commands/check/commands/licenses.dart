@@ -459,9 +459,12 @@ String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
   ) {
     final dependencyName = element.key;
     final dependencyLicenses = element.value;
+    final hyperlink = link(
+      uri: pubLicenseUri(dependencyName),
+      message: dependencyLicenses.toList().stringify(),
+    );
 
-    final text =
-        '$dependencyName (${link(uri: pubLicenseUri(dependencyName), message: dependencyLicenses.toList().stringify())})';
+    final text = '$dependencyName ($hyperlink)';
     return previousValue..add(text);
   });
   final bannedLicenseTypes = bannedDependencies.values.fold(<String>{}, (
