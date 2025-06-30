@@ -52,10 +52,7 @@ abstract class ProcessOverrides {
   }
 
   /// Runs [body] in a fresh [Zone] using the provided overrides.
-  static R runZoned<R>(
-    R Function() body, {
-    RunProcess? runProcess,
-  }) {
+  static R runZoned<R>(R Function() body, {RunProcess? runProcess}) {
     final overrides = _ProcessOverridesScope(runProcess);
     return _asyncRunZoned(body, zoneValues: {_token: overrides});
   }

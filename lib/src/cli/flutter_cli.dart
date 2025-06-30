@@ -79,22 +79,22 @@ class _CoverageMetrics {
     String? excludeFromCoverage,
   ) {
     final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
-    return records.fold<_CoverageMetrics>(
-      const _CoverageMetrics._(),
-      (current, record) {
-        final found = record.lines?.found ?? 0;
-        final hit = record.lines?.hit ?? 0;
-        if (glob != null && record.file != null) {
-          if (glob.matches(record.file!)) {
-            return current;
-          }
+    return records.fold<_CoverageMetrics>(const _CoverageMetrics._(), (
+      current,
+      record,
+    ) {
+      final found = record.lines?.found ?? 0;
+      final hit = record.lines?.hit ?? 0;
+      if (glob != null && record.file != null) {
+        if (glob.matches(record.file!)) {
+          return current;
         }
-        return _CoverageMetrics._(
-          totalFound: current.totalFound + found,
-          totalHits: current.totalHits + hit,
-        );
-      },
-    );
+      }
+      return _CoverageMetrics._(
+        totalFound: current.totalFound + found,
+        totalHits: current.totalHits + hit,
+      );
+    });
   }
 
   final int totalHits;
@@ -119,9 +119,7 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('flutter', ['--version'], logger: logger);
       return true;
@@ -213,14 +211,10 @@ class Flutter {
             ? '.'
             : '.${p.context.separator}$relativePath';
 
-        stdout?.call(
-          'Running "flutter test" in $path ...\n',
-        );
+        stdout?.call('Running "flutter test" in $path ...\n');
 
         if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
-          stdout?.call(
-            'No test folder found in $path\n',
-          );
+          stdout?.call('No test folder found in $path\n');
           return ExitCode.success.code;
         }
 
@@ -333,10 +327,7 @@ Future<void> _verifyGitDependencies(
 
   await Future.wait(
     gitDependencies.map(
-      (dependency) => Git.reachable(
-        dependency.url,
-        logger: logger,
-      ),
+      (dependency) => Git.reachable(dependency.url, logger: logger),
     ),
   );
 }
@@ -408,13 +399,11 @@ Future<int> _flutterTest({
       Stream.periodic(
         const Duration(seconds: 1),
         (computationCount) => computationCount,
-      ).listen(
-        (tick) {
-          if (completer.isCompleted) return;
-          final timeElapsed = Duration(seconds: tick).formatted();
-          stdout('$clearLine$timeElapsed ...');
-        },
-      );
+      ).listen((tick) {
+        if (completer.isCompleted) return;
+        final timeElapsed = Duration(seconds: tick).formatted();
+        stdout('$clearLine$timeElapsed ...');
+      });
 
   late final StreamSubscription<TestEvent> subscription;
   late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
@@ -429,10 +418,7 @@ Future<int> _flutterTest({
   subscription =
       testRunner(
         workingDirectory: cwd,
-        arguments: [
-          if (collectCoverage) '--coverage',
-          ...?arguments,
-        ],
+        arguments: [if (collectCoverage) '--coverage', ...?arguments],
         runInShell: true,
       ).listen(
         (event) {
@@ -586,9 +572,8 @@ String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
 
-Future<void> _cleanupOptimizerFile(String cwd) async => File(
-  p.join(cwd, 'test', _testOptimizerFileName),
-).delete().ignore();
+Future<void> _cleanupOptimizerFile(String cwd) async =>
+    File(p.join(cwd, 'test', _testOptimizerFileName)).delete().ignore();
 
 final int _lineLength = () {
   try {

@@ -23,9 +23,7 @@ class PubspecLockParseException implements Exception {
 /// A representation of a pubspec.lock file.
 /// {@endtemplate}
 class PubspecLock {
-  const PubspecLock._({
-    required this.packages,
-  });
+  const PubspecLock._({required this.packages});
 
   /// Parses a [PubspecLock] from a string.
   ///
@@ -63,15 +61,11 @@ class PubspecLock {
       } catch (_) {}
     }
 
-    return PubspecLock._(
-      packages: UnmodifiableListView(parsedPackages),
-    );
+    return PubspecLock._(packages: UnmodifiableListView(parsedPackages));
   }
 
   /// An empty [PubspecLock].
-  static PubspecLock empty = PubspecLock._(
-    packages: UnmodifiableListView([]),
-  );
+  static PubspecLock empty = PubspecLock._(packages: UnmodifiableListView([]));
 
   /// All the dependencies in the pubspec.lock file.
   final UnmodifiableListView<PubspecLockPackage> packages;
