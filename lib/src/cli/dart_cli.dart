@@ -3,9 +3,7 @@ part of 'cli.dart';
 /// Dart CLI
 class Dart {
   /// Determine whether dart is installed.
-  static Future<bool> installed({
-    required Logger logger,
-  }) async {
+  static Future<bool> installed({required Logger logger}) async {
     try {
       await _Cmd.run('dart', ['--version'], logger: logger);
       return true;

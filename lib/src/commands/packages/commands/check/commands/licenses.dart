@@ -24,9 +24,7 @@ import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting
-Future<package_config.PackageConfig?> Function(
-  Directory directory,
-)?
+Future<package_config.PackageConfig?> Function(Directory directory)?
 findPackageConfigOverride;
 
 /// Overrides the [detector.detectLicense] function for testing.
@@ -72,9 +70,8 @@ typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
 /// {@endtemplate}
 class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
-  PackagesCheckLicensesCommand({
-    Logger? logger,
-  }) : _logger = logger ?? Logger() {
+  PackagesCheckLicensesCommand({Logger? logger})
+    : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',
@@ -102,10 +99,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         'allowed',
         help: 'Only allow the use of certain licenses.',
       )
-      ..addMultiOption(
-        'forbidden',
-        help: 'Deny the use of certain licenses.',
-      )
+      ..addMultiOption('forbidden', help: 'Deny the use of certain licenses.')
       ..addMultiOption(
         'skip-packages',
         help: 'Skip packages from having their licenses checked.',
@@ -243,7 +237,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
         continue;
       }
 
-      final packagePath = path.normalize(cachePackageEntry.root.path);
+      final packagePath = path.normalize(cachePackageEntry.root.toFilePath());
       final packageDirectory = Directory(packagePath);
       if (!packageDirectory.existsSync()) {
         final errorMessage =
@@ -459,20 +453,20 @@ String _composeReport({
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
-  final bannedDependenciesList = bannedDependencies.entries.fold(
-    <String>[],
-    (previousValue, element) {
-      final dependencyName = element.key;
-      final dependencyLicenses = element.value;
+  final bannedDependenciesList = bannedDependencies.entries.fold(<String>[], (
+    previousValue,
+    element,
+  ) {
+    final dependencyName = element.key;
+    final dependencyLicenses = element.value;
+    final hyperlink = link(
+      uri: pubLicenseUri(dependencyName),
+      message: dependencyLicenses.toList().stringify(),
+    );
 
-      final text =
-          '$dependencyName (${link(
-            uri: pubLicenseUri(dependencyName),
-            message: dependencyLicenses.toList().stringify(),
-          )})';
-      return previousValue..add(text);
-    },
-  );
+    final text = '$dependencyName ($hyperlink)';
+    return previousValue..add(text);
+  });
   final bannedLicenseTypes = bannedDependencies.values.fold(<String>{}, (
     previousValue,
     licenses,

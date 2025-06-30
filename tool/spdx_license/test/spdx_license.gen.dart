@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 699 SPDX licenses.
+/// A list of all 700 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -575,6 +575,7 @@ enum SpdxLicense {
   $SSH_short._('SSH-short'),
   $SSLeay_standalone._('SSLeay-standalone'),
   $SSPL_1_0._('SSPL-1.0'),
+  $SUL_1_0._('SUL-1.0'),
   $SWL._('SWL'),
   $Saxpath._('Saxpath'),
   $SchemeReport._('SchemeReport'),
