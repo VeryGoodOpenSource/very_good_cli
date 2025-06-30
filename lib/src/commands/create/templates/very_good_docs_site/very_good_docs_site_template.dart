@@ -10,11 +10,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class VeryGoodDocsSiteTemplate extends Template {
   /// {@macro docs_site_template}
   VeryGoodDocsSiteTemplate()
-      : super(
-          name: 'docs_site',
-          bundle: veryGoodDocsSiteBundle,
-          help: 'Generate a Very Good documentation site.',
-        );
+    : super(
+        name: 'docs_site',
+        bundle: veryGoodDocsSiteBundle,
+        help: 'Generate a Very Good documentation site.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {

@@ -1,3 +1,7 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -17,30 +21,31 @@ class _MockArgResults extends Mock implements ArgResults {}
 class _MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 
 const expectedTestUsage = [
-  // ignore: no_adjacent_strings_in_list
   'Run tests in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good test [arguments]\n'
-      '''-h, --help                                                   Print this usage information.\n'''
-      '''    --coverage                                               Whether to collect coverage information.\n'''
-      '''-r, --recursive                                              Run tests recursively for all nested packages.\n'''
-      '''    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'''
-      '''                                                             (defaults to on)\n'''
-      '''-j, --concurrency                                            The number of concurrent test suites run.\n'''
-      '''                                                             (defaults to "4")\n'''
-      '''-t, --tags                                                   Run only tests associated with the specified tags.\n'''
-      '''    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage.\n'''
-      '''-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'''
-      '''    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'''
-      '''    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'''
-      '''    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'''
-      '''    --force-ansi                                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'''
-      '''    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'''
-      '''    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'''
+      '-h, --help                                                   Print this usage information.\n'
+      '    --coverage                                               Whether to collect coverage information.\n'
+      '-r, --recursive                                              Run tests recursively for all nested packages.\n'
+      '    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'
+      '                                                             (defaults to on)\n'
+      '-j, --concurrency                                            The number of concurrent test suites run.\n'
+      '                                                             (defaults to "4")\n'
+      '-t, --tags                                                   Run only tests associated with the specified tags.\n'
+      '    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage.\n'
+      '-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'
+      '    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'
+      '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
+      '    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'
+      '    --force-ansi                                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
+      '    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "very_good help" to see global options.',
 ];
 
+// A concrete class should have methods with body
+// and we just want to mock this class for the test.
 // ignore: one_member_abstracts
 abstract class FlutterTestCommand {
   Future<List<int>> call({
@@ -275,25 +280,27 @@ void main() {
       ).called(1);
     });
 
-    test('completes normally --test-randomize-ordering-seed 2305182648',
-        () async {
-      const randomSeed = '2305182648';
-      when<dynamic>(
-        () => argResults['test-randomize-ordering-seed'],
-      ).thenReturn(randomSeed);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: defaultArguments,
-          randomSeed: randomSeed,
-          optimizePerformance: true,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
+    test(
+      'completes normally --test-randomize-ordering-seed 2305182648',
+      () async {
+        const randomSeed = '2305182648';
+        when<dynamic>(
+          () => argResults['test-randomize-ordering-seed'],
+        ).thenReturn(randomSeed);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: defaultArguments,
+            randomSeed: randomSeed,
+            optimizePerformance: true,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
 
     test('completes normally --coverage', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
@@ -359,23 +366,25 @@ void main() {
       ).called(1);
     });
 
-    test('enables coverage collection when --min-coverage is supplied',
-        () async {
-      when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          collectCoverage: true,
-          arguments: defaultArguments,
-          minCoverage: 0,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
+    test(
+      'enables coverage collection when --min-coverage is supplied',
+      () async {
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            arguments: defaultArguments,
+            minCoverage: 0,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
 
     test('fails when coverage not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
@@ -451,26 +460,28 @@ void main() {
       ).called(1);
     });
 
-    test('exclude files from coverage when --exclude-coverage is used',
-        () async {
-      when<dynamic>(() => argResults['coverage']).thenReturn(true);
-      when<dynamic>(
-        () => argResults['exclude-coverage'],
-      ).thenReturn('*.g.dart');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          collectCoverage: true,
-          excludeFromCoverage: '*.g.dart',
-          arguments: defaultArguments,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
+    test(
+      'exclude files from coverage when --exclude-coverage is used',
+      () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+        when<dynamic>(
+          () => argResults['exclude-coverage'],
+        ).thenReturn('*.g.dart');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            excludeFromCoverage: '*.g.dart',
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
 
     test('throws when exception occurs', () async {
       final exception = Exception('oops');
@@ -563,45 +574,48 @@ void main() {
     });
 
     test(
-        '''disables optimizePerformance when rest arguement is not an option''',
-        () async {
-      when(() => argResults.rest).thenReturn(['my-test.dart']);
+      '''disables optimizePerformance when rest arguement is not an option''',
+      () async {
+        when(() => argResults.rest).thenReturn(['my-test.dart']);
 
-      final result = await testCommand.run();
+        final result = await testCommand.run();
 
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: [
-            ...defaultArguments,
-            ...argResults.rest,
-          ],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: [
+              ...defaultArguments,
+              ...argResults.rest,
+            ],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
 
-    test('enables optimizePerformance when rest arguement is an option',
-        () async {
-      when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+    test(
+      'enables optimizePerformance when rest arguement is an option',
+      () async {
+        when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
 
-      final result = await testCommand.run();
+        final result = await testCommand.run();
 
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: [
-            ...defaultArguments,
-            ...argResults.rest,
-          ],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: [
+              ...defaultArguments,
+              ...argResults.rest,
+            ],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
   });
 }

@@ -7,24 +7,29 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/test/templates/test_optimizer_bundle.dart';
+import 'package:very_good_cli/src/commands/test/templates/templates.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';
-
 part 'flutter_cli.dart';
-
 part 'git_cli.dart';
 
-const _asyncRunZoned = runZoned;
+const R Function<R>(
+  R Function(), {
+  Function? onError,
+  ZoneSpecification? zoneSpecification,
+  Map<Object?, Object?>? zoneValues,
+})
+_asyncRunZoned = runZoned;
 
 /// Type definition for [Process.run].
-typedef RunProcess = Future<ProcessResult> Function(
-  String executable,
-  List<String> arguments, {
-  String? workingDirectory,
-  bool runInShell,
-});
+typedef RunProcess =
+    Future<ProcessResult> Function(
+      String executable,
+      List<String> arguments, {
+      String? workingDirectory,
+      bool runInShell,
+    });
 
 /// This class facilitates overriding [Process.run].
 /// It should be extended by another class in client code with overrides
@@ -86,8 +91,8 @@ class _Cmd {
     final result = await runProcess(
       cmd,
       args,
-      workingDirectory: workingDirectory,
       runInShell: true,
+      workingDirectory: workingDirectory,
     );
     logger
       ..detail('stdout:\n${result.stdout}')
@@ -165,11 +170,7 @@ bool _isPubspec(FileSystemEntity entity) {
   return p.basename(entity.path) == 'pubspec.yaml';
 }
 
-// The extension is intended to be unnamed, but it's not possible due to
-// an issue with Dart SDK 2.18.0.
-//
-// Once the min Dart SDK is bumped, this extension can be unnamed again.
-extension _Set on Set<String> {
+extension on Set<String> {
   bool excludes(FileSystemEntity entity) {
     final segments = p.split(entity.path).toSet();
     if (segments.intersection(_ignoredDirectories).isNotEmpty) return true;

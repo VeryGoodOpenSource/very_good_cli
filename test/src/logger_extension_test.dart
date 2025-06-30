@@ -73,13 +73,13 @@ void main() {
 
               verifyInOrder([
                 () => logger.info(
-                      any(
-                        that: equals('$longWord '),
-                      ),
-                    ),
+                  any(
+                    that: equals('$longWord '),
+                  ),
+                ),
                 () => logger.info(
-                      any(that: equals('$shortWord ')),
-                    ),
+                  any(that: equals('$shortWord ')),
+                ),
               ]);
             },
           );
@@ -106,13 +106,13 @@ void main() {
 
               verifyInOrder([
                 () => logger.info(
-                      any(
-                        that: equals('$longWord '),
-                      ),
-                    ),
+                  any(
+                    that: equals('$longWord '),
+                  ),
+                ),
                 () => logger.info(
-                      any(that: equals('$shortWord ')),
-                    ),
+                  any(that: equals('$shortWord ')),
+                ),
               ]);
             },
           );

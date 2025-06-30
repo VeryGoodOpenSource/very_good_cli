@@ -1,3 +1,28 @@
+# 0.26.1
+
+- chore(deps-dev): bump eslint from 9.17.0 to 9.29.0 in /site ([#1288](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1288))
+- fix!: license check should exit 0 when no dependencies found ([#1261](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1261))
+- chore(deps): bump archive in /tool/spdx_license/hooks ([#1269](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1269))
+- chore(deps-dev): bump prettier from 3.4.2 to 3.5.3 in /site ([#1248](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1248))
+- chore(deps-dev): bump typescript from 5.7.3 to 5.8.3 in /site ([#1263](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1263))
+- fix: reorder Flutter SDK check and pubGet execution in PackagesGetCommand ([#1285](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1285))
+- chore(deps-dev): bump @babel/eslint-parser in /site ([#1283](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1283))
+- chore(deps): bump peter-evans/create-pull-request from 7.0.6 to 7.0.8 ([#1250](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1250))
+
+# 0.26.0
+
+- chore: update SPDX licenses ([#1209](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1209))
+- chore(deps-dev): bump eslint from 9.16.0 to 9.17.0 in /site ([#1211](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1211))
+- chore(deps): bump prism-react-renderer from 2.4.0 to 2.4.1 in /site ([#1210](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1210))
+- chore(deps): bump very_good_analysis from 6.0.0 to 7.0.0 in /bricks/test_optimizer/hooks ([#1214](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1214))
+- chore(deps): bump very_good_analysis from 6.0.0 to 7.0.0 in /e2e ([#1212](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1212))
+- chore(deps-dev): bump eslint-plugin-jest from 28.9.0 to 28.10.0 in /site ([#1218](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1218))
+- chore(deps): bump peter-evans/create-pull-request from 7.0.5 to 7.0.6 ([#1219](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1219))
+- chore(deps): bump @docusaurus/core from 3.6.3 to 3.7.0 in /site ([#1223](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1223))
+- chore(deps-dev): bump typescript from 5.7.2 to 5.7.3 in /site ([#1234](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1234))
+- chore(deps-dev): bump eslint-plugin-jest in /site ([#1231](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1231))
+- chore: upgrade to flutter 3.32.0 ([#1286](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1286))
+
 # 0.25.0
 
 - chore: update SPDX licenses ([#1178](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1178), [#1185](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1185), [#1186](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1186), [#1187](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1187))

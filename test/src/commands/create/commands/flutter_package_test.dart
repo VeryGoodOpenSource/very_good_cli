@@ -41,7 +41,7 @@ Run "very_good help" to see global options.''',
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.8.0
 ''';
 
 void main() {
@@ -82,23 +82,31 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result =
-            await commandRunner.run(['create', 'flutter_package', '--help']);
+        final result = await commandRunner.run([
+          'create',
+          'flutter_package',
+          '--help',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(result, equals(ExitCode.success.code));
 
         printLogs.clear();
 
-        final resultAbbr =
-            await commandRunner.run(['create', 'flutter_pkg', '-h']);
+        final resultAbbr = await commandRunner.run([
+          'create',
+          'flutter_pkg',
+          '-h',
+        ]);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
 
     group('running the command', () {
-      final generatedFiles =
-          List.filled(10, const GeneratedFile.created(path: ''));
+      final generatedFiles = List.filled(
+        10,
+        const GeneratedFile.created(path: ''),
+      );
 
       late GeneratorHooks hooks;
       late MasonGenerator generator;
@@ -141,9 +149,9 @@ void main() {
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
+        ).thenAnswer((invocation) async {
           final target =
-              _.positionalArguments.first as DirectoryGeneratorTarget;
+              invocation.positionalArguments.first as DirectoryGeneratorTarget;
           File(path.join(target.dir.path, 'my_flutter_package', 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);
@@ -161,8 +169,9 @@ void main() {
           generatorFromBundle: (_) async => throw Exception('oops'),
           generatorFromBrick: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(() => argResults['output-directory'] as String?)
-            .thenReturn(tempDirectory.path);
+        when(
+          () => argResults['output-directory'] as String?,
+        ).thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_flutter_package']);
 
         final result = await command.run();

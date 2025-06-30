@@ -1,21 +1,25 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 
 import '../../../../helpers/helpers.dart';
 
 const _expectedPackagesGetUsage = [
-  // ignore: no_adjacent_strings_in_list
   'Get packages in a Dart or Flutter project.\n'
       '\n'
       'Usage: very_good packages get [arguments]\n'
       '-h, --help         Print this usage information.\n'
-      '''-r, --recursive    Install dependencies recursively for all nested packages.\n'''
+      '-r, --recursive    Install dependencies recursively for all nested packages.\n'
       '    --ignore       Exclude packages from installing dependencies.\n'
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "very_good help" to see global options.',
 ];
 
 void main() {
@@ -39,9 +43,12 @@ void main() {
       'throws usage exception '
       'when too many arguments are provided',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(
-          ['packages', 'get', 'arg1', 'arg2'],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          'arg1',
+          'arg2',
+        ]);
         expect(result, equals(ExitCode.usage.code));
       }),
     );
@@ -62,9 +69,12 @@ void main() {
       'throws pubspec not found exception '
       'when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(
-          ['packages', 'get', '-r', 'site'],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '-r',
+          'site',
+        ]);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -78,12 +88,67 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(path.join(tempDirectory.path, 'pubspec.yaml'))
-            .writeAsStringSync('');
-        final result = await commandRunner.run(
-          ['packages', 'get', tempDirectory.path],
-        );
+        File(
+          path.join(tempDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync('');
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          tempDirectory.path,
+        ]);
         expect(result, equals(ExitCode.unavailable.code));
+      }),
+    );
+
+    test(
+      'returns exit code unavailable when Flutter is not installed',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+          '''
+name: example
+version: 0.1.0
+
+environment:
+sdk: ^3.8.0
+''',
+        );
+
+        // Mock flutter process to simulate flutter not being installed
+        Future<ProcessResult> mockProcess(
+          String executable,
+          List<String> arguments, {
+          String? workingDirectory,
+          bool runInShell = false,
+        }) async {
+          if (executable == 'flutter') {
+            throw Exception('flutter not installed');
+          }
+          return ProcessResult(42, 0, '', '');
+        }
+
+        late int result;
+        await ProcessOverrides.runZoned(
+          () async {
+            result = await commandRunner.run([
+              'packages',
+              'get',
+              tempDirectory.path,
+            ]);
+          },
+          runProcess: mockProcess,
+        );
+
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(() {
+          logger.err(
+            'Could not find Flutter SDK. '
+            'Please ensure it is installed and added to your PATH. '
+            'For troubleshooting, see https://docs.flutter.dev/install/troubleshoot',
+          );
+        }).called(1);
       }),
     );
 
@@ -95,18 +160,19 @@ void main() {
 
         final directory = Directory(path.join(tempDirectory.path, '.fvm'))
           ..createSync();
-        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
+        File(path.join(directory.path, 'pubspec.yaml')).writeAsStringSync('''
           name: example
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-        );
-        final result = await commandRunner.run(
-          ['packages', 'get', '-r', tempDirectory.path],
-        );
+            sdk: ^3.8.0
+          ''');
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '-r',
+          tempDirectory.path,
+        ]);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -127,17 +193,17 @@ void main() {
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
+            sdk: ^3.8.0
           ''',
         );
-        final result = await commandRunner.run(
-          ['packages', 'get', tempDirectory.path],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          tempDirectory.path,
+        ]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter pub get" in')),
-          );
+          logger.progress(any(that: contains('Running "flutter pub get" in')));
         }).called(1);
       }),
     );
@@ -157,35 +223,32 @@ void main() {
         );
         pubspecA
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_a
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
         pubspecB
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_b
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
 
-        final result = await commandRunner.run(
-          ['packages', 'get', '--recursive', tempDirectory.path],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          tempDirectory.path,
+        ]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter pub get" in')),
-          );
+          logger.progress(any(that: contains('Running "flutter pub get" in')));
         }).called(2);
       }),
     );
@@ -208,35 +271,32 @@ void main() {
         );
         pubspecA
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_a
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
         pubspecB
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_b
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
 
-        final result = await commandRunner.run(
-          ['packages', 'get', '--recursive', directory.path],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          directory.path,
+        ]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter pub get" in')),
-          );
+          logger.progress(any(that: contains('Running "flutter pub get" in')));
         }).called(2);
       }),
     );
@@ -257,35 +317,33 @@ void main() {
         );
         pubspecA
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_a
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
         pubspecB
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_b
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
 
-        final result = await commandRunner.run(
-          ['packages', 'get', '--recursive', directory.path, '--ignore=""'],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          directory.path,
+          '--ignore=""',
+        ]);
         expect(result, equals(ExitCode.success.code));
         verify(() {
-          logger.progress(
-            any(that: contains('Running "flutter pub get" in')),
-          );
+          logger.progress(any(that: contains('Running "flutter pub get" in')));
         }).called(2);
         directory.deleteSync(recursive: true);
       }),
@@ -298,12 +356,8 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        final directoryA = Directory(
-          path.join(tempDirectory.path, 'plugin_a'),
-        );
-        final directoryB = Directory(
-          path.join(tempDirectory.path, 'plugin_b'),
-        );
+        final directoryA = Directory(path.join(tempDirectory.path, 'plugin_a'));
+        final directoryB = Directory(path.join(tempDirectory.path, 'plugin_b'));
         final pubspecA = File(
           path.join(directoryA.path, 'example_a', 'pubspec.yaml'),
         );
@@ -312,36 +366,30 @@ void main() {
         );
         pubspecA
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_a
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
         pubspecB
           ..createSync(recursive: true)
-          ..writeAsStringSync(
-            '''
+          ..writeAsStringSync('''
           name: example_b
           version: 0.1.0
           
           environment:
-            sdk: ^3.5.0
-          ''',
-          );
+            sdk: ^3.8.0
+          ''');
 
-        final result = await commandRunner.run(
-          [
-            'packages',
-            'get',
-            '--recursive',
-            '--ignore=plugin_b',
-            tempDirectory.path,
-          ],
-        );
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          '--ignore=plugin_b',
+          tempDirectory.path,
+        ]);
 
         final relativePathPrefix = '.${path.context.separator}';
 

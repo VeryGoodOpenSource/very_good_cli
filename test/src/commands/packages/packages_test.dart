@@ -1,10 +1,13 @@
+// Expected usage of the plugin will need to be adjacent strings due to format
+// and also be longer than 80 chars.
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+
 import 'package:mason/mason.dart';
 import 'package:test/test.dart';
 
 import '../../../helpers/command_helper.dart';
 
 const _expectedPackagesUsage = [
-  // ignore: no_adjacent_strings_in_list
   'Command for managing packages.\n'
       '\n'
       'Usage: very_good packages <subcommand> [arguments]\n'
@@ -14,7 +17,7 @@ const _expectedPackagesUsage = [
       '  check   Perform checks in a Dart or Flutter project.\n'
       '  get     Get packages in a Dart or Flutter project.\n'
       '\n'
-      'Run "very_good help" to see global options.'
+      'Run "very_good help" to see global options.',
 ];
 
 void main() {

@@ -22,10 +22,10 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     Logger? logger,
     PubUpdater? pubUpdater,
     Map<String, String>? environment,
-  })  : _logger = logger ?? Logger(),
-        _pubUpdater = pubUpdater ?? PubUpdater(),
-        _environment = environment ?? Platform.environment,
-        super('very_good', '🦄 A Very Good Command-Line Interface') {
+  }) : _logger = logger ?? Logger(),
+       _pubUpdater = pubUpdater ?? PubUpdater(),
+       _environment = environment ?? Platform.environment,
+       super('very_good', '🦄 A Very Good Command-Line Interface') {
     argParser
       ..addFlag(
         'version',
@@ -146,7 +146,7 @@ ${lightYellow.wrap('Changelog:')} ${lightCyan.wrap('https://github.com/verygoodo
 Run ${lightCyan.wrap('very_good update')} to update''',
           );
       }
-    } catch (_) {}
+    } on Exception catch (_) {}
   }
 
   void _showThankYou() {
@@ -160,10 +160,12 @@ Run ${lightCyan.wrap('very_good update')} to update''',
     versionFile.writeAsStringSync(packageVersion);
 
     _logger.wrap(
-      lightMagenta.wrap('''
+      lightMagenta.wrap(
+        '''
 
 Thank you for using Very Good Ventures open source tools!
-Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/dev/tools/cli/subscribe')))}'''),
+Don't forget to fill out this form to get information on future updates and releases here: ${lightBlue.wrap(link(uri: Uri.parse('https://verygood.ventures/dev/tools/cli/subscribe')))}''',
+      ),
       print: _logger.info,
     );
   }

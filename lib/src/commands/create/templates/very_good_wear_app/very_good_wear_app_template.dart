@@ -10,11 +10,11 @@ import 'package:very_good_cli/src/logger_extension.dart';
 class VeryGoodWearAppTemplate extends Template {
   /// {@macro wear_app_template}
   VeryGoodWearAppTemplate()
-      : super(
-          name: 'wear',
-          bundle: veryGoodWearAppBundle,
-          help: 'Generate a Very Good Flutter Wear OS application.',
-        );
+    : super(
+        name: 'wear',
+        bundle: veryGoodWearAppBundle,
+        help: 'Generate a Very Good Flutter Wear OS application.',
+      );
 
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
