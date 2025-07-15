@@ -423,5 +423,217 @@ sdk: ^3.8.0
         });
       }),
     );
+
+    test(
+      'completes normally '
+      'and ignores example by default (non-recursive)',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
+
+        File(
+            path.join(directoryA.path, 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: plugin
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        File(
+            path.join(directoryA.path, 'example', 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: example
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '${tempDirectory.path}/plugin',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in .''',
+              ),
+            ),
+          );
+        }).called(1);
+
+        verifyNever(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in example''',
+              ),
+            ),
+          );
+        });
+      }),
+    );
+
+    test(
+      'completes normally '
+      'and does not ignore example when is recursive',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
+
+        File(
+            path.join(directoryA.path, 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: plugin
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        File(
+            path.join(directoryA.path, 'example', 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: example
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          '${tempDirectory.path}/plugin',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in . ''',
+              ),
+            ),
+          );
+        }).called(1);
+
+        verify(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in ./example''',
+              ),
+            ),
+          );
+        }).called(1);
+      }),
+    );
+
+    test(
+      'completes normally '
+      'and ignores example when using --ignore=example (recursive)',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
+
+        File(
+            path.join(directoryA.path, 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: plugin
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        File(
+            path.join(directoryA.path, 'example', 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: example
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        File(
+            path.join(directoryA.path, 'my_sub_package', 'pubspec.yaml'),
+          )
+          ..createSync(recursive: true)
+          ..writeAsStringSync('''
+          name: my_sub_package
+          version: 0.1.0
+          
+          environment:
+            sdk: ^3.8.0
+          ''');
+
+        final result = await commandRunner.run([
+          'packages',
+          'get',
+          '--recursive',
+          '--ignore=example',
+          '${tempDirectory.path}/plugin',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+        verify(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in . ''',
+              ),
+            ),
+          );
+        }).called(1);
+
+        verify(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in ./my_sub_package''',
+              ),
+            ),
+          );
+        }).called(1);
+
+        verifyNever(() {
+          logger.progress(
+            any(
+              that: contains(
+                '''Running "flutter pub get" in example''',
+              ),
+            ),
+          );
+        });
+      }),
+    );
   });
 }
