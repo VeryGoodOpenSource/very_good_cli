@@ -42,7 +42,7 @@ class Dart {
         try {
           return await _Cmd.run(
             'dart',
-            ['pub', 'get'],
+            ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
           );

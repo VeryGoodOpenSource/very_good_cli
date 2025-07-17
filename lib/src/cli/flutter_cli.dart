@@ -158,7 +158,7 @@ class Flutter {
         try {
           return await _Cmd.run(
             'flutter',
-            ['pub', 'get'],
+            ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
           );
