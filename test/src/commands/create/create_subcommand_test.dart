@@ -237,29 +237,31 @@ Run "runner help" to see global options.''';
 
       group('parsing of options', () {
         group('for project name', () {
-          test('uses current directory basename as name if . provided',
-              () async {
-            final expectedProjectName = path.basename(Directory.current.path);
+          test(
+            'uses current directory basename as name if . provided',
+            () async {
+              final expectedProjectName = path.basename(Directory.current.path);
 
-            final result = await runner.run([
-              'create_subcommand',
-              '.',
-            ]);
+              final result = await runner.run([
+                'create_subcommand',
+                '.',
+              ]);
 
-            expect(result, equals(ExitCode.success.code));
-            verify(() => logger.progress('Bootstrapping')).called(1);
+              expect(result, equals(ExitCode.success.code));
+              verify(() => logger.progress('Bootstrapping')).called(1);
 
-            verify(
-              () => hooks.preGen(
-                vars: <String, dynamic>{
-                  'project_name': expectedProjectName,
-                  'description':
-                      'A Very Good Project created by Very Good CLI.',
-                },
-                onVarsChanged: any(named: 'onVarsChanged'),
-              ),
-            );
-          });
+              verify(
+                () => hooks.preGen(
+                  vars: <String, dynamic>{
+                    'project_name': expectedProjectName,
+                    'description':
+                        'A Very Good Project created by Very Good CLI.',
+                  },
+                  onVarsChanged: any(named: 'onVarsChanged'),
+                ),
+              );
+            },
+          );
 
           test('uses name if just a name is provided', () async {
             final result = await runner.run([
@@ -303,27 +305,29 @@ Run "runner help" to see global options.''';
             );
           });
 
-          test('uses last path segment if a relative path is provided',
-              () async {
-            final result = await runner.run([
-              'create_subcommand',
-              './name',
-            ]);
+          test(
+            'uses last path segment if a relative path is provided',
+            () async {
+              final result = await runner.run([
+                'create_subcommand',
+                './name',
+              ]);
 
-            expect(result, equals(ExitCode.success.code));
-            verify(() => logger.progress('Bootstrapping')).called(1);
+              expect(result, equals(ExitCode.success.code));
+              verify(() => logger.progress('Bootstrapping')).called(1);
 
-            verify(
-              () => hooks.preGen(
-                vars: <String, dynamic>{
-                  'project_name': 'name',
-                  'description':
-                      'A Very Good Project created by Very Good CLI.',
-                },
-                onVarsChanged: any(named: 'onVarsChanged'),
-              ),
-            );
-          });
+              verify(
+                () => hooks.preGen(
+                  vars: <String, dynamic>{
+                    'project_name': 'name',
+                    'description':
+                        'A Very Good Project created by Very Good CLI.',
+                  },
+                  onVarsChanged: any(named: 'onVarsChanged'),
+                ),
+              );
+            },
+          );
         });
 
         group('for output directory', () {
