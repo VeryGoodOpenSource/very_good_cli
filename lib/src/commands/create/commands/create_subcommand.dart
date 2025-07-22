@@ -117,13 +117,18 @@ abstract class CreateSubCommand extends Command<int> {
 
   /// Gets the output [Directory].
   Directory get outputDirectory {
-    final directory = argResults['output-directory'] as String?;
+    final directoryParameter = argResults['output-directory'] as String?;
+    final args = argResults.rest;
 
-    if (directory != null) {
-      return Directory(directory);
+    if (args.first == '.' && directoryParameter != null) {
+      usageException(
+        '''--output-directory cannot be specified when using "very_good create <template> ."''',
+      );
     }
 
-    final args = argResults.rest;
+    if (directoryParameter != null) {
+      return Directory('$directoryParameter/$projectName');
+    }
 
     return Directory(args.first);
   }
@@ -140,9 +145,14 @@ abstract class CreateSubCommand extends Command<int> {
       usageException('Multiple project names specified.');
     }
 
+    final projectName = args.first;
+    if (projectName.contains('/')) {
+      usageException('Project name cannot contain "/".');
+    }
+
     final name = args.first == '.'
         ? path.basename(Directory.current.path)
-        : path.basename(args.first);
+        : projectName;
 
     final isValidPackageName = _isValidPackageName(name);
 
@@ -210,6 +220,7 @@ abstract class CreateSubCommand extends Command<int> {
     var vars = getTemplateVars();
 
     final generateProgress = logger.progress('Bootstrapping');
+
     final target = DirectoryGeneratorTarget(outputDirectory);
 
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
@@ -218,7 +229,7 @@ abstract class CreateSubCommand extends Command<int> {
 
     await template.onGenerateComplete(
       logger,
-      outputDirectory,
+      Directory(path.join(target.dir.path, projectName)),
     );
 
     return ExitCode.success.code;

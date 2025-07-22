@@ -283,11 +283,16 @@ Run "runner help" to see global options.''';
               ),
             );
           });
+        });
 
-          test('uses last path segment if absolute path is provided', () async {
+        test(
+          'allows projects to be created in the current directory using .',
+          () async {
+            final expectedProjectName = path.basename(Directory.current.path);
+
             final result = await runner.run([
               'create_subcommand',
-              '/path/to/name',
+              '.',
             ]);
 
             expect(result, equals(ExitCode.success.code));
@@ -296,134 +301,56 @@ Run "runner help" to see global options.''';
             verify(
               () => hooks.preGen(
                 vars: <String, dynamic>{
-                  'project_name': 'name',
+                  'project_name': expectedProjectName,
                   'description':
                       'A Very Good Project created by Very Good CLI.',
                 },
                 onVarsChanged: any(named: 'onVarsChanged'),
               ),
             );
-          });
 
-          test(
-            'uses last path segment if a relative path is provided',
-            () async {
-              final result = await runner.run([
-                'create_subcommand',
-                './name',
-              ]);
-
-              expect(result, equals(ExitCode.success.code));
-              verify(() => logger.progress('Bootstrapping')).called(1);
-
-              verify(
-                () => hooks.preGen(
-                  vars: <String, dynamic>{
-                    'project_name': 'name',
-                    'description':
-                        'A Very Good Project created by Very Good CLI.',
-                  },
-                  onVarsChanged: any(named: 'onVarsChanged'),
-                ),
-              );
-            },
-          );
-        });
-
-        group('for output directory', () {
-          test(
-            'uses directory provided in --output-directory instead of the '
-            'one parsed from project',
-            () async {
-              final result = await runner.run([
-                'create_subcommand',
-                'path/to/test_project',
-                '--output-directory',
-                'path/to/test_dir',
-                '--description',
-                'test_desc',
-              ]);
-
-              expect(result, equals(ExitCode.success.code));
-              verify(() => logger.progress('Bootstrapping')).called(1);
-
-              verify(
-                () => generator.generate(
-                  any(
-                    that: isA<DirectoryGeneratorTarget>().having(
-                      (g) => g.dir.path,
-                      'dir',
-                      'path/to/test_dir',
-                    ),
+            verify(
+              () => generator.generate(
+                any(
+                  that: isA<DirectoryGeneratorTarget>().having(
+                    (g) {
+                      return g.dir.path;
+                    },
+                    'dir',
+                    '.',
                   ),
-                  vars: <String, dynamic>{
-                    'project_name': 'test_project',
-                    'description': 'test_desc',
-                  },
-                  logger: logger,
                 ),
-              ).called(1);
-            },
-          );
-        });
+                vars: <String, dynamic>{
+                  'project_name': expectedProjectName,
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                logger: logger,
+              ),
+            ).called(1);
 
-        test('allows projects to be cwd (.)', () async {
-          final expectedProjectName = path.basename(Directory.current.path);
+            expect(
+              progressLogs,
+              equals(['Generated ${generatedFiles.length} file(s)']),
+            );
 
-          final result = await runner.run([
-            'create_subcommand',
-            '.',
-          ]);
-
-          expect(result, equals(ExitCode.success.code));
-          verify(() => logger.progress('Bootstrapping')).called(1);
-
-          verify(
-            () => hooks.preGen(
-              vars: <String, dynamic>{
-                'project_name': expectedProjectName,
-                'description': 'A Very Good Project created by Very Good CLI.',
-              },
-              onVarsChanged: any(named: 'onVarsChanged'),
-            ),
-          );
-          verify(
-            () => generator.generate(
-              any(
-                that: isA<DirectoryGeneratorTarget>().having(
-                  (g) {
-                    return g.dir.path;
-                  },
-                  'dir',
-                  '.',
+            verify(
+              () => template.onGenerateComplete(
+                logger,
+                any(
+                  that: isA<Directory>().having(
+                    (d) {
+                      return d.path;
+                    },
+                    'path',
+                    // TODO(matiasleyba): change to . when updating the brick
+                    './very_good_cli',
+                  ),
                 ),
               ),
-              vars: <String, dynamic>{
-                'project_name': expectedProjectName,
-                'description': 'A Very Good Project created by Very Good CLI.',
-              },
-              logger: logger,
-            ),
-          ).called(1);
-          expect(
-            progressLogs,
-            equals(['Generated ${generatedFiles.length} file(s)']),
-          );
-          verify(
-            () => template.onGenerateComplete(
-              logger,
-              any(
-                that: isA<Directory>().having(
-                  (d) {
-                    return d.path;
-                  },
-                  'path',
-                  '.',
-                ),
-              ),
-            ),
-          ).called(1);
-        });
+            ).called(1);
+          },
+        );
 
         test('uses default values for omitted options', () async {
           final result = await runner.run([
@@ -472,7 +399,8 @@ Run "runner help" to see global options.''';
                     return d.path;
                   },
                   'path',
-                  'test_project',
+                  // TODO(matiasleyba): change path when updating the brick
+                  'test_project/test_project',
                 ),
               ),
             ),
@@ -480,6 +408,54 @@ Run "runner help" to see global options.''';
         });
 
         group('validates project name', () {
+          test(
+            'throws UsageException when project-name contains "/"',
+            () async {
+              await expectLater(
+                () async {
+                  await runner.run([
+                    'create_subcommand',
+                    'path/to/name',
+                  ]);
+                },
+                throwsA(
+                  isA<UsageException>()
+                      .having((e) => e.usage, 'usage', expectedUsage)
+                      .having(
+                        (e) => e.message,
+                        'message',
+                        'Project name cannot contain "/".',
+                      ),
+                ),
+              );
+            },
+          );
+
+          test(
+            'throws UsageException when project-name is . and '
+            '--output-directory is provided',
+            () async {
+              await expectLater(
+                () async {
+                  await runner.run([
+                    'create_subcommand',
+                    '.',
+                    '--output-directory',
+                    'path/to/name',
+                  ]);
+                },
+                throwsA(
+                  isA<UsageException>()
+                      .having((e) => e.usage, 'usage', expectedUsage)
+                      .having(
+                        (e) => e.message,
+                        'message',
+                        '''--output-directory cannot be specified when using "very_good create <template> ."''',
+                      ),
+                ),
+              );
+            },
+          );
           test('throws UsageException when project-name is omitted', () async {
             await expectLater(
               () async {
@@ -564,7 +540,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
                 that: isA<DirectoryGeneratorTarget>().having(
                   (g) => g.dir.path,
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{
@@ -601,7 +577,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
                 that: isA<DirectoryGeneratorTarget>().having(
                   (g) => g.dir.path,
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{

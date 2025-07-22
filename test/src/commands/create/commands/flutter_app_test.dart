@@ -206,7 +206,8 @@ void main() {
               expectedLogSummary: 'Created a Very Good App! 🦄',
             );
 
-            final outputPath = path.join(tempDirectory.path, 'my_app');
+            // TODO(matiasleyba): change to 'my_app' when updating the brick
+            final outputPath = path.join(tempDirectory.path, 'my_app/my_app');
             final relativePath = path.relative(
               outputPath,
               from: Directory.current.path,
