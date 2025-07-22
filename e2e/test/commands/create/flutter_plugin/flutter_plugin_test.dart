@@ -14,7 +14,11 @@ void main() {
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       const pluginName = 'my_plugin';
-      final pluginDirectory = path.join(tempDirectory.path, pluginName);
+      // TODO(matiasleyba): change path when updating the brick
+      final pluginDirectory = path.join(
+        tempDirectory.path,
+        '$pluginName/$pluginName',
+      );
 
       final result = await commandRunner.run([
         'create',
@@ -65,7 +69,7 @@ void main() {
           ['coverage/lcov.info', '-o', 'coverage'],
           workingDirectory: packageDirectory,
         );
-        expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+        expect(testCoverageResult.stdout, contains('lines.......: 100.0%'));
       }
     }),
   );

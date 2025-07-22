@@ -22,7 +22,8 @@ void main() {
       ]);
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(tempDirectory.path, 'my_cli');
+      // TODO(matiasleyba): change path when updating the brick
+      final workingDirectory = path.join(tempDirectory.path, 'my_cli/my_cli');
 
       // add coverage to collect coverage on dart test
       await expectSuccessfulProcessResult('dart', [
@@ -64,7 +65,7 @@ void main() {
         ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.stdout, contains('lines......: 100.0%'));
+      expect(testCoverageResult.stdout, contains('lines.......: 100.0%'));
     }),
   );
 }

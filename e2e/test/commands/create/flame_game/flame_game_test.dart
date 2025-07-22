@@ -24,7 +24,8 @@ void main() {
 
       final workingDirectory = path.join(
         tempDirectory.path,
-        'very_good_flame_game',
+        // TODO(matiasleyba): change path when updating the brick
+        'very_good_flame_game/very_good_flame_game',
       );
 
       await expectSuccessfulProcessResult('dart', [
@@ -51,7 +52,7 @@ void main() {
         ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.stdout, contains('lines......: 97.9%'));
+      expect(testCoverageResult.stdout, contains('lines.......: 97.8%'));
     }),
   );
 }
