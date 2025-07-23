@@ -1,3 +1,23 @@
+# 0.26.2
+
+* feat: bump template bundles ([#1308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1308))
+* feat: ignore example by default when getting dependencies ([#1310](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1310))
+* fix: remove leading slash on Windows ([#1230](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1230))
+* chore(**deps-dev**): bump @babel/eslint-parser in /site ([#1304](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1304))
+* chore(**deps-dev**): bump @docusaurus/eslint-plugin in /site ([#1295](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1295))
+* chore(**deps-dev**): bump @docusaurus/module-type-aliases in /site ([#1293](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1293))
+* chore(**deps-dev**): bump @docusaurus/tsconfig from 3.7.0 to 3.8.1 in /site ([#1292](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1292))
+* chore(**deps-dev**): bump eslint from 9.29.0 to 9.30.0 in /site ([#1299](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1299))
+* chore(**deps-dev**): bump eslint from 9.30.0 to 9.30.1 in /site ([#1305](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1305))
+* chore(**deps-dev**): bump eslint from 9.30.1 to 9.31.0 in /site ([#1309](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1309))
+* chore(**deps-dev**): bump eslint-plugin-jest from 28.11.0 to 29.0.1 in /site ([#1300](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1300)) 
+* chore(**deps-dev**): bump jest from 29.7.0 to 30.0.4 in /site ([#1306](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1306))
+* chore(**deps-dev**): bump prettier from 3.5.3 to 3.6.0 in /site ([#1294](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1294))
+* chore(**deps-dev**): bump prettier from 3.6.0 to 3.6.2 in /site ([#1307](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1307))
+* chore(**deps**): bump @docusaurus/preset-classic in /site ([#1298](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1298))
+* chore(**deps**): bump react, react-dom and @types/react in /site ([#1297](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1297))
+* chore(update SPDX licenses): ([#1296](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1296))
+
 # 0.26.1
 
 - chore(deps-dev): bump eslint from 9.17.0 to 9.29.0 in /site ([#1288](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1288))
