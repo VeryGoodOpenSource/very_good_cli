@@ -220,17 +220,13 @@ abstract class CreateSubCommand extends Command<int> {
     var vars = getTemplateVars();
 
     final generateProgress = logger.progress('Bootstrapping');
-
     final target = DirectoryGeneratorTarget(outputDirectory);
 
     await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
-    await template.onGenerateComplete(
-      logger,
-      Directory(path.join(target.dir.path, projectName)),
-    );
+    await template.onGenerateComplete(logger, outputDirectory);
 
     return ExitCode.success.code;
   }

@@ -22,7 +22,10 @@ void main() {
       ]);
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(tempDirectory.path, 'very_good_core');
+      final workingDirectory = path.join(
+        tempDirectory.path,
+        'very_good_core/very_good_core',
+      );
 
       await expectSuccessfulProcessResult('dart', [
         'format',
