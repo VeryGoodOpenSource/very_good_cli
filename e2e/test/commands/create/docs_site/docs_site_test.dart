@@ -24,7 +24,7 @@ void main() {
 
       final workingDirectory = path.join(
         tempDirectory.path,
-        'very_good_docs_site/very_good_docs_site',
+        'very_good_docs_site',
       );
 
       await expectSuccessfulProcessResult(
