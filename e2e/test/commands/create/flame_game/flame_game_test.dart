@@ -24,8 +24,7 @@ void main() {
 
       final workingDirectory = path.join(
         tempDirectory.path,
-        // TODO(matiasleyba): change path when updating the brick
-        'very_good_flame_game/very_good_flame_game',
+        'very_good_flame_game',
       );
 
       await expectSuccessfulProcessResult('dart', [

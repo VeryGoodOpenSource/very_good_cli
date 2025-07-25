@@ -14,11 +14,7 @@ void main() {
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
       const pluginName = 'my_plugin';
-      // TODO(matiasleyba): change path when updating the brick
-      final pluginDirectory = path.join(
-        tempDirectory.path,
-        '$pluginName/$pluginName',
-      );
+      final pluginDirectory = path.join(tempDirectory.path, pluginName);
 
       final result = await commandRunner.run([
         'create',

@@ -22,10 +22,9 @@ void main() {
       ]);
       expect(result, equals(ExitCode.success.code));
 
-      // TODO(matiasleyba): change path when updating the brick
       final workingDirectory = path.join(
         tempDirectory.path,
-        'very_good_core/very_good_core',
+        'very_good_core',
       );
 
       await expectSuccessfulProcessResult('dart', [

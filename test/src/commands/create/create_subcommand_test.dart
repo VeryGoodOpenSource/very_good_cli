@@ -343,8 +343,7 @@ Run "runner help" to see global options.''';
                       return d.path;
                     },
                     'path',
-                    // TODO(matiasleyba): change to . when updating the brick
-                    './very_good_cli',
+                    '.',
                   ),
                 ),
               ),
@@ -399,8 +398,7 @@ Run "runner help" to see global options.''';
                     return d.path;
                   },
                   'path',
-                  // TODO(matiasleyba): change path when updating the brick
-                  'test_project/test_project',
+                  'test_project',
                 ),
               ),
             ),
