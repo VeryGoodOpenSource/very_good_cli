@@ -5,7 +5,6 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 
@@ -209,10 +208,7 @@ abstract class CreateSubCommand extends Command<int> {
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
-    await template.onGenerateComplete(
-      logger,
-      Directory(path.join(target.dir.path, projectName)),
-    );
+    await template.onGenerateComplete(logger, outputDirectory);
 
     return ExitCode.success.code;
   }

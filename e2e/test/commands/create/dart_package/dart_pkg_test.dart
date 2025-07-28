@@ -22,7 +22,7 @@ void main() {
       ]);
       expect(result, equals(ExitCode.success.code));
 
-      final workingDirectory = path.join(tempDirectory.path, 'very_good_dart');
+      final workingDirectory = path.join(tempDirectory.path);
 
       // add coverage to collect coverage on dart test
       await expectSuccessfulProcessResult('dart', [
