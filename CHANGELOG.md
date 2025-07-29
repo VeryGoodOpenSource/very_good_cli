@@ -1,3 +1,9 @@
+## [0.26.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.26.3) (2025-07-29)
+
+
+### Miscellaneous Chores
+
+* automate releases ([444e35a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/444e35aae5954ec5bef072226fdfb4c6502956bd))
 
 ## 0.26.2
 
