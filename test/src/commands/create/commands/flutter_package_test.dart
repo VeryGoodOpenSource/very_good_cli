@@ -152,7 +152,7 @@ void main() {
         ).thenAnswer((invocation) async {
           final target =
               invocation.positionalArguments.first as DirectoryGeneratorTarget;
-          File(path.join(target.dir.path, 'my_flutter_package', 'pubspec.yaml'))
+          File(path.join(target.dir.path, 'pubspec.yaml'))
             ..createSync(recursive: true)
             ..writeAsStringSync(pubspec);
           return generatedFiles;
