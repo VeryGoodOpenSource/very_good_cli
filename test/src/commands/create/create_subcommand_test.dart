@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
@@ -235,61 +236,120 @@ Run "runner help" to see global options.''';
       });
 
       group('parsing of options', () {
-        test('parses description, output dir and project name', () async {
-          final result = await runner.run([
-            'create_subcommand',
-            'test_project',
-            '--description',
-            'test_desc',
-            '--output-directory',
-            'test_dir',
-          ]);
+        group('for project name', () {
+          test(
+            'uses current directory basename as name if . provided',
+            () async {
+              final expectedProjectName = path.basename(Directory.current.path);
 
-          expect(result, equals(ExitCode.success.code));
-          verify(() => logger.progress('Bootstrapping')).called(1);
+              final result = await runner.run([
+                'create_subcommand',
+                '.',
+              ]);
 
-          verify(
-            () => hooks.preGen(
-              vars: <String, dynamic>{
-                'project_name': 'test_project',
-                'description': 'test_desc',
-              },
-              onVarsChanged: any(named: 'onVarsChanged'),
-            ),
-          );
-          verify(
-            () => generator.generate(
-              any(
-                that: isA<DirectoryGeneratorTarget>().having(
-                  (g) => g.dir.path,
-                  'dir',
-                  'test_dir',
+              expect(result, equals(ExitCode.success.code));
+              verify(() => logger.progress('Bootstrapping')).called(1);
+
+              verify(
+                () => hooks.preGen(
+                  vars: <String, dynamic>{
+                    'project_name': expectedProjectName,
+                    'description':
+                        'A Very Good Project created by Very Good CLI.',
+                  },
+                  onVarsChanged: any(named: 'onVarsChanged'),
                 ),
-              ),
-              vars: <String, dynamic>{
-                'project_name': 'test_project',
-                'description': 'test_desc',
-              },
-              logger: logger,
-            ),
-          ).called(1);
-          expect(
-            progressLogs,
-            equals(['Generated ${generatedFiles.length} file(s)']),
+              );
+            },
           );
-          verify(
-            () => template.onGenerateComplete(
-              logger,
-              any(
-                that: isA<Directory>().having(
-                  (d) => d.path,
-                  'path',
-                  'test_dir/test_project',
-                ),
+
+          test('uses name if just a name is provided', () async {
+            final result = await runner.run([
+              'create_subcommand',
+              'name',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': 'name',
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
               ),
-            ),
-          ).called(1);
+            );
+          });
         });
+
+        test(
+          'allows projects to be created in the current directory using .',
+          () async {
+            final expectedProjectName = path.basename(Directory.current.path);
+
+            final result = await runner.run([
+              'create_subcommand',
+              '.',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            verify(() => logger.progress('Bootstrapping')).called(1);
+
+            verify(
+              () => hooks.preGen(
+                vars: <String, dynamic>{
+                  'project_name': expectedProjectName,
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                onVarsChanged: any(named: 'onVarsChanged'),
+              ),
+            );
+
+            verify(
+              () => generator.generate(
+                any(
+                  that: isA<DirectoryGeneratorTarget>().having(
+                    (g) {
+                      return g.dir.path;
+                    },
+                    'dir',
+                    '.',
+                  ),
+                ),
+                vars: <String, dynamic>{
+                  'project_name': expectedProjectName,
+                  'description':
+                      'A Very Good Project created by Very Good CLI.',
+                },
+                logger: logger,
+              ),
+            ).called(1);
+
+            expect(
+              progressLogs,
+              equals(['Generated ${generatedFiles.length} file(s)']),
+            );
+
+            verify(
+              () => template.onGenerateComplete(
+                logger,
+                any(
+                  that: isA<Directory>().having(
+                    (d) {
+                      return d.path;
+                    },
+                    'path',
+                    '.',
+                  ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
 
         test('uses default values for omitted options', () async {
           final result = await runner.run([
@@ -314,9 +374,11 @@ Run "runner help" to see global options.''';
             () => generator.generate(
               any(
                 that: isA<DirectoryGeneratorTarget>().having(
-                  (g) => g.dir.path,
+                  (g) {
+                    return g.dir.path;
+                  },
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{
@@ -332,9 +394,11 @@ Run "runner help" to see global options.''';
               logger,
               any(
                 that: isA<Directory>().having(
-                  (d) => d.path,
+                  (d) {
+                    return d.path;
+                  },
                   'path',
-                  './test_project',
+                  'test_project',
                 ),
               ),
             ),
@@ -342,6 +406,54 @@ Run "runner help" to see global options.''';
         });
 
         group('validates project name', () {
+          test(
+            'throws UsageException when project-name contains "/"',
+            () async {
+              await expectLater(
+                () async {
+                  await runner.run([
+                    'create_subcommand',
+                    'path/to/name',
+                  ]);
+                },
+                throwsA(
+                  isA<UsageException>()
+                      .having((e) => e.usage, 'usage', expectedUsage)
+                      .having(
+                        (e) => e.message,
+                        'message',
+                        'Project name cannot contain "/".',
+                      ),
+                ),
+              );
+            },
+          );
+
+          test(
+            'throws UsageException when project-name is . and '
+            '--output-directory is provided',
+            () async {
+              await expectLater(
+                () async {
+                  await runner.run([
+                    'create_subcommand',
+                    '.',
+                    '--output-directory',
+                    'path/to/name',
+                  ]);
+                },
+                throwsA(
+                  isA<UsageException>()
+                      .having((e) => e.usage, 'usage', expectedUsage)
+                      .having(
+                        (e) => e.message,
+                        'message',
+                        '''--output-directory cannot be specified when using "very_good create <template> ."''',
+                      ),
+                ),
+              );
+            },
+          );
           test('throws UsageException when project-name is omitted', () async {
             await expectLater(
               () async {
@@ -426,7 +538,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
                 that: isA<DirectoryGeneratorTarget>().having(
                   (g) => g.dir.path,
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{
@@ -463,7 +575,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
                 that: isA<DirectoryGeneratorTarget>().having(
                   (g) => g.dir.path,
                   'dir',
-                  '.',
+                  'test_project',
                 ),
               ),
               vars: <String, dynamic>{
