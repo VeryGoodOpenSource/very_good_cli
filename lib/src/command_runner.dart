@@ -35,6 +35,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     addCommand(CreateCommand(logger: _logger));
     addCommand(PackagesCommand(logger: _logger));
     addCommand(TestCommand(logger: _logger));
+    addCommand(FirebaseCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
   }
 
