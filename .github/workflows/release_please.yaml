@@ -9,6 +9,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "!.github/workflows/site.yaml"
+      - "!site/**"
 
 jobs:
   create_release_pr:

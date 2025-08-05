@@ -16,6 +16,9 @@ very_good create dart_cli my_dart_cli --desc "My new Dart CLI package"
 
 # Create a new Dart CLI application named my_dart_cli with a custom executable name
 very_good create dart_cli my_dart_cli --desc "My new Dart CLI package" --executable-name my_executable_name
+
+# Create a new Dart CLI named with the name of the current directory
+very_good create dart_cli . --desc "My new Dart CLI package"
 ```
 
 [dart_cli]: /img/dart_cli_hero.png

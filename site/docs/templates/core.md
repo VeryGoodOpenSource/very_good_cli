@@ -56,6 +56,9 @@ very_good create flutter_app my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
 very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
+
+# Create a new Flutter app named with the name of the current directory
+very_good create flutter_app . --desc "My new Flutter app"
 ```
 
 ### Running the Project ⚡
