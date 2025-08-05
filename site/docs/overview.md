@@ -42,7 +42,9 @@ dart pub global run very_good_cli:very_good <command> <args>
 
 ### `very_good create`
 
-Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command. Ex: `very_good create flutter_app` will generate a Flutter starter app.
+Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command. 
+
+Ex: `very_good create flutter_app my_app` will generate a Flutter starter app named `my_app`.
 
 ```sh
 Creates a new very good project in the specified directory.
@@ -61,6 +63,10 @@ Available subcommands:
 
 Run "very_good help" to see global options.
 ```
+
+:::tip
+You can use `.` as the project name to create the project in the current directory. The project will be named with the name of the current directory.
+:::
 
 ### `very_good packages get`
 

@@ -31,6 +31,9 @@ This template is powered by [Docusaurus][docusaurus_link] and comes with the fol
 ```sh
 # Create a new docs site named my_docs_site
 very_good create docs_site my_docs_site
+
+# Create a new docs site named with the name of the current directory
+very_good create docs_site .
 ```
 
 ## Preview 📝
