@@ -19,5 +19,9 @@
       "changelog-path": "CHANGELOG.md",
       "version-file": "pubspec.yaml"
     }
-  }
+  },
+  "exclude-paths": [
+    ".github",
+    "site"
+  ]
 }
