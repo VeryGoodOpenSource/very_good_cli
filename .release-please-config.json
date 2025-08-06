@@ -22,6 +22,9 @@
   },
   "exclude-paths": [
     ".github",
-    "site"
+    "site",
+    ".release-please-manifest.json",
+    ".release-please-config.json",
+    "tool"
   ]
 }
