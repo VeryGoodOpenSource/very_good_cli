@@ -1,3 +1,20 @@
+## [0.27.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.27.0) (2025-08-07)
+
+
+### Features
+
+* allow `very_good create .` ([#996](https://github.com/VeryGoodOpenSource/very_good_cli/issues/996)) ([287f751](https://github.com/VeryGoodOpenSource/very_good_cli/commit/287f751d5924472265f2930669b358ee1797c121))
+
+
+### Bug Fixes
+
+* exclude paths from automatic releases ([#1329](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1329)) ([68522ce](https://github.com/VeryGoodOpenSource/very_good_cli/commit/68522ceb2b8d1fe05291932f9ddc738ef9e49b3e))
+
+
+### Miscellaneous Chores
+
+* automate releases ([#1314](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1314)) ([1d08932](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1d0893242952a4b3c86af9b1793e3d6e9fa6d75d))
+* update SPDX licenses ([#1313](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1313)) ([142f3f2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/142f3f217d33c78a6896b3d9746bff8959e4e4fd))
 
 ## 0.26.2
 
