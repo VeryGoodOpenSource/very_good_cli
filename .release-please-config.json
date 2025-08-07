@@ -25,6 +25,7 @@
     "site",
     ".release-please-manifest.json",
     ".release-please-config.json",
+    "CONTRIBUTING.md",
     "tool"
   ]
 }
