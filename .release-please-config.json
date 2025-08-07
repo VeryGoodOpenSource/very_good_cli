@@ -19,5 +19,12 @@
       "changelog-path": "CHANGELOG.md",
       "version-file": "pubspec.yaml"
     }
-  }
+  },
+  "exclude-paths": [
+    ".github",
+    "site",
+    ".release-please-manifest.json",
+    ".release-please-config.json",
+    "tool"
+  ]
 }
