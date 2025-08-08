@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:glob/glob.dart';
 import 'package:lcov_parser/lcov_parser.dart';
@@ -7,12 +8,13 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/commands/test/templates/templates.dart';
+import 'package:very_good_cli/src/cli/templates/templates.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
 part 'git_cli.dart';
+part 'test_cli_runner.dart';
 
 const R Function<R>(
   R Function(), {
