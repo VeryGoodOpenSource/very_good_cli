@@ -21,8 +21,15 @@ class _MockProgress extends Mock implements Progress {}
 
 class _MockLogger extends Mock implements Logger {}
 
+class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
+
 void main() {
   group('TestCLIRunner', () {
+    setUpAll(() {
+      registerFallbackValue(_FakeGeneratorTarget());
+      registerFallbackValue(FileConflictResolution.prompt);
+    });
+
     group('.test', () {
       late Progress progress;
       late Logger logger;
