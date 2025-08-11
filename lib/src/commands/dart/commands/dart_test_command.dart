@@ -104,7 +104,7 @@ class DartTestCommand extends Command<int> {
   final DartInstalledCommand _dartInstalled;
 
   @override
-  String get description => 'Command for managing packages.';
+  String get description => 'Run tests in a Dart project.';
 
   @override
   String get name => 'test';
