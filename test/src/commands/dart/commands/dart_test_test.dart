@@ -133,7 +133,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         Directory.current = tempDirectory.path;
-        final result = await commandRunner.run(['test']);
+        final result = await commandRunner.run(['dart', 'test']);
         expect(result, equals(ExitCode.noInput.code));
         verify(() {
           logger.err(any(that: contains('Could not find a pubspec.yaml in')));
@@ -158,7 +158,7 @@ void main() {
           ),
         ).createSync();
 
-        final result = await commandRunner.run(['test', '-r']);
+        final result = await commandRunner.run(['dart', 'test', '-r']);
         expect(result, equals(ExitCode.success.code));
       }),
     );
