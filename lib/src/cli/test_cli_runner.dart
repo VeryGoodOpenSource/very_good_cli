@@ -78,10 +78,13 @@ class TestCLIRunner {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+    @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
 
-    final testRunner = testType == TestRunType.flutter ? flutterTest : dartTest;
+    final testRunner =
+        overrideTestRunner ??
+        (testType == TestRunType.flutter ? flutterTest : dartTest);
 
     return _runCommand<int>(
       cmd: (cwd) async {
