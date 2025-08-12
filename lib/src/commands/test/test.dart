@@ -8,6 +8,106 @@ import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
+/// Options for configuring the Flutter test command.
+class FlutterTestOptions {
+  FlutterTestOptions._({
+    required this.concurrency,
+    required this.collectCoverage,
+    required this.minCoverage,
+    required this.excludeTags,
+    required this.tags,
+    required this.excludeFromCoverage,
+    required this.randomSeed,
+    required this.optimizePerformance,
+    required this.updateGoldens,
+    required this.forceAnsi,
+    required this.dartDefine,
+    required this.dartDefineFromFile,
+    required this.rest,
+  });
+
+  /// Parses [ArgResults] into a [FlutterTestOptions] instance.
+  factory FlutterTestOptions.parse(ArgResults argResults) {
+    final concurrency = argResults['concurrency'] as String;
+    final collectCoverage = argResults['coverage'] as bool;
+    final minCoverage = double.tryParse(
+      argResults['min-coverage'] as String? ?? '',
+    );
+    final excludeTags = argResults['exclude-tags'] as String?;
+    final tags = argResults['tags'] as String?;
+    final excludeFromCoverage = argResults['exclude-coverage'] as String?;
+    final randomOrderingSeed =
+        argResults['test-randomize-ordering-seed'] as String?;
+    final randomSeed = randomOrderingSeed == 'random'
+        ? Random().nextInt(4294967295).toString()
+        : randomOrderingSeed;
+    final optimizePerformance = argResults['optimization'] as bool;
+    final updateGoldens = argResults['update-goldens'] as bool;
+    final forceAnsi = argResults['force-ansi'] as bool?;
+    final dartDefine = argResults['dart-define'] as List<String>?;
+    final dartDefineFromFile =
+        argResults['dart-define-from-file'] as List<String>?;
+    final rest = argResults.rest;
+
+    return FlutterTestOptions._(
+      concurrency: concurrency,
+      collectCoverage: collectCoverage,
+      minCoverage: minCoverage,
+      excludeTags: excludeTags,
+      tags: tags,
+      excludeFromCoverage: excludeFromCoverage,
+      randomSeed: randomSeed,
+      optimizePerformance: optimizePerformance,
+      updateGoldens: updateGoldens,
+      forceAnsi: forceAnsi,
+      dartDefine: dartDefine,
+      dartDefineFromFile: dartDefineFromFile,
+      rest: rest,
+    );
+  }
+
+  /// The number of concurrent test suites run.
+  final String concurrency;
+
+  /// Whether to collect coverage information.
+  final bool collectCoverage;
+
+  /// Whether to enforce a minimum coverage percentage.
+  final double? minCoverage;
+
+  /// Run only tests that do not have the specified tags.
+  final String? excludeTags;
+
+  /// Run only tests associated with the specified tags.
+  final String? tags;
+
+  /// A glob which will be used to exclude files that match from the coverage.
+  final String? excludeFromCoverage;
+
+  /// The seed to randomize the execution order of test cases within test files.
+  final String? randomSeed;
+
+  /// Whether to apply optimizations for test performance.
+  final bool optimizePerformance;
+
+  /// Whether "matchesGoldenFile()" calls within your test methods should update
+  /// the golden files.
+  final bool updateGoldens;
+
+  /// Whether to force ansi output. If not specified, it will maintain the
+  /// default behavior based on stdout and stderr.
+  final bool? forceAnsi;
+
+  /// Optional list of dart defines
+  final List<String>? dartDefine;
+
+  /// Optional list of dart define from files
+  final List<String>? dartDefineFromFile;
+
+  /// The remaining arguments passed to the test command.
+  final List<String> rest;
+}
+
 /// Signature for the [Flutter.installed] method.
 typedef FlutterInstalledCommand =
     Future<bool> Function({required Logger logger});
@@ -161,56 +261,39 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
-    final concurrency = _argResults['concurrency'] as String;
-    final collectCoverage = _argResults['coverage'] as bool;
-    final minCoverage = double.tryParse(
-      _argResults['min-coverage'] as String? ?? '',
-    );
-    final excludeTags = _argResults['exclude-tags'] as String?;
-    final tags = _argResults['tags'] as String?;
     final isFlutterInstalled = await _flutterInstalled(logger: _logger);
-    final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
-    final randomOrderingSeed =
-        _argResults['test-randomize-ordering-seed'] as String?;
-    final randomSeed = randomOrderingSeed == 'random'
-        ? Random().nextInt(4294967295).toString()
-        : randomOrderingSeed;
-    final optimizePerformance = _argResults['optimization'] as bool;
-    final updateGoldens = _argResults['update-goldens'] as bool;
-    final forceAnsi = _argResults['force-ansi'] as bool?;
-    final dartDefine = _argResults['dart-define'] as List<String>?;
-    final dartDefineFromFile =
-        _argResults['dart-define-from-file'] as List<String>?;
-    final rest = _argResults.rest;
+
+    final options = FlutterTestOptions.parse(_argResults);
 
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
           optimizePerformance:
-              optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(rest) &&
-              !updateGoldens,
+              options.optimizePerformance &&
+              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+              !options.updateGoldens,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
           stderr: _logger.err,
-          collectCoverage: collectCoverage || minCoverage != null,
-          minCoverage: minCoverage,
-          excludeFromCoverage: excludeFromCoverage,
-          randomSeed: randomSeed,
-          forceAnsi: forceAnsi,
+          collectCoverage:
+              options.collectCoverage || options.minCoverage != null,
+          minCoverage: options.minCoverage,
+          excludeFromCoverage: options.excludeFromCoverage,
+          randomSeed: options.randomSeed,
+          forceAnsi: options.forceAnsi,
           arguments: [
-            if (excludeTags != null) ...['-x', excludeTags],
-            if (tags != null) ...['-t', tags],
-            if (updateGoldens) '--update-goldens',
-            if (dartDefine != null)
-              for (final value in dartDefine) '--dart-define=$value',
-            if (dartDefineFromFile != null)
-              for (final value in dartDefineFromFile)
+            if (options.excludeTags != null) ...['-x', options.excludeTags!],
+            if (options.tags != null) ...['-t', options.tags!],
+            if (options.updateGoldens) '--update-goldens',
+            if (options.dartDefine != null)
+              for (final value in options.dartDefine!) '--dart-define=$value',
+            if (options.dartDefineFromFile != null)
+              for (final value in options.dartDefineFromFile!)
                 '--dart-define-from-file=$value',
-            ...['-j', concurrency],
+            ...['-j', options.concurrency],
             '--no-pub',
-            ...rest,
+            ...options.rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
@@ -219,7 +302,7 @@ This command should be run from the root of your Flutter project.''');
       } on MinCoverageNotMet catch (e) {
         TestCLIRunner.handleMinCoverageNotMet(
           logger: _logger,
-          minCoverage: minCoverage,
+          minCoverage: options.minCoverage,
           e: e,
         );
         return ExitCode.unavailable.code;
