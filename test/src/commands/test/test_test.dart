@@ -21,7 +21,7 @@ class _MockArgResults extends Mock implements ArgResults {}
 class _MockFlutterTestCommand extends Mock implements FlutterTestCommand {}
 
 const expectedTestUsage = [
-  'Run tests in a Dart or Flutter project.\n'
+  'Run `flutter test` in a project. (Check very_good dart test for running `dart test` instead.)\n'
       '\n'
       'Usage: very_good test [arguments]\n'
       '-h, --help                                                   Print this usage information.\n'

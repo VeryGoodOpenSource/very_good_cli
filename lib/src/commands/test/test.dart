@@ -135,7 +135,9 @@ class TestCommand extends Command<int> {
   final FlutterTestCommand _flutterTest;
 
   @override
-  String get description => 'Run tests in a Dart or Flutter project.';
+  String get description =>
+      'Run `flutter test` in a project. (Check '
+      'very_good dart test for running `dart test` instead.)';
 
   @override
   String get name => 'test';
