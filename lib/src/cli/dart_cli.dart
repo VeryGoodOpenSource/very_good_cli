@@ -93,7 +93,7 @@ class Dart {
     await Future.wait<void>(processes);
   }
 
-  /// Run tests (`flutter test`).
+  /// Run tests (`dart test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({
     required Logger logger,
