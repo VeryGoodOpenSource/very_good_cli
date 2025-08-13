@@ -92,4 +92,41 @@ class Dart {
 
     await Future.wait<void>(processes);
   }
+
+  /// Run tests (`dart test`).
+  /// Returns a list of exit codes for each test process.
+  static Future<List<int>> test({
+    required Logger logger,
+    String cwd = '.',
+    bool recursive = false,
+    bool collectCoverage = false,
+    bool optimizePerformance = false,
+    Set<String> ignore = const {},
+    double? minCoverage,
+    String? excludeFromCoverage,
+    String? randomSeed,
+    bool? forceAnsi,
+    List<String>? arguments,
+    void Function(String)? stdout,
+    void Function(String)? stderr,
+    GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+  }) async {
+    return TestCLIRunner.test(
+      logger: logger,
+      testType: TestRunType.dart,
+      cwd: cwd,
+      recursive: recursive,
+      collectCoverage: collectCoverage,
+      optimizePerformance: optimizePerformance,
+      ignore: ignore,
+      minCoverage: minCoverage,
+      excludeFromCoverage: excludeFromCoverage,
+      randomSeed: randomSeed,
+      forceAnsi: forceAnsi,
+      arguments: arguments,
+      stdout: stdout,
+      stderr: stderr,
+      buildGenerator: buildGenerator,
+    );
+  }
 }
