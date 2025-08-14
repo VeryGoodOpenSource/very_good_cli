@@ -142,6 +142,7 @@ class TestCLIRunner {
                 cwd: cwd,
                 collectCoverage: collectCoverage,
                 testRunner: testRunner,
+                testType: testType,
                 arguments: [
                   ...?arguments,
                   if (randomSeed != null) ...[
@@ -156,6 +157,38 @@ class TestCLIRunner {
               ).whenComplete(() async {
                 if (optimizePerformance) {
                   await _cleanupOptimizerFile(cwd);
+                }
+
+                // Dart don't directly generate lcov files, so we need
+                // to read the json that is generates and convert it to lcov.
+                if (testType == TestRunType.dart && collectCoverage) {
+                  final files = _dartCoverageFilesToProcess(
+                    p.join(cwd, 'coverage'),
+                  );
+
+                  final packagesPath = p.join(
+                    '.dart_tool',
+                    'package_config.json',
+                  );
+                  final hitmap = await coverage.HitMap.parseFiles(
+                    files,
+                    packagePath: packagesPath,
+                  );
+
+                  final resolver = await coverage.Resolver.create(
+                    packagesPath: packagesPath,
+                    packagePath: packagesPath,
+                  );
+
+                  final output = hitmap.formatLcov(
+                    resolver,
+                    reportOn: ['lib'],
+                    basePath: cwd,
+                  );
+
+                  // Write the lcov output to the file.
+                  await lcovFile.create(recursive: true);
+                  await lcovFile.writeAsString(output);
                 }
 
                 if (collectCoverage) {
@@ -214,12 +247,24 @@ class TestCLIRunner {
       '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
     );
   }
+
+  static List<File> _dartCoverageFilesToProcess(String absPath) {
+    if (FileSystemEntity.isDirectorySync(absPath)) {
+      return Directory(absPath)
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((e) => e.path.endsWith('.json'))
+          .toList();
+    }
+    return <File>[File(absPath)];
+  }
 }
 
 Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
+  required TestRunType testType,
   String cwd = '.',
   bool collectCoverage = false,
   List<String>? arguments,
@@ -273,7 +318,13 @@ Future<int> _testCommand({
   subscription =
       testRunner(
         workingDirectory: cwd,
-        arguments: [if (collectCoverage) '--coverage', ...?arguments],
+        arguments: [
+          if (collectCoverage)
+            testType == TestRunType.flutter
+                ? '--coverage'
+                : '--coverage=coverage',
+          ...?arguments,
+        ],
         runInShell: true,
       ).listen(
         (event) {
