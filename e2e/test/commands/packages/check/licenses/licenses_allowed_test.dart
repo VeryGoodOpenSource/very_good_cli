@@ -13,7 +13,7 @@ import '../../../../../helpers/helpers.dart';
 /// * Run `very_good packages check licenses --allowed="MIT"` and expect success
 void main() {
   test(
-    'packages check licenses --allowed="MIT"',
+    'packages check licenses --allowed="MIT.BSD-3-Clause"',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
