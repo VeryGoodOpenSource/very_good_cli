@@ -249,14 +249,11 @@ class TestCLIRunner {
   }
 
   static List<File> _dartCoverageFilesToProcess(String absPath) {
-    if (FileSystemEntity.isDirectorySync(absPath)) {
-      return Directory(absPath)
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((e) => e.path.endsWith('.json'))
-          .toList();
-    }
-    return <File>[File(absPath)];
+    return Directory(absPath)
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((e) => e.path.endsWith('.json'))
+        .toList();
   }
 }
 
