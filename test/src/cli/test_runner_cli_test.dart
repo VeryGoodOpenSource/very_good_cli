@@ -684,7 +684,7 @@ void main() {
         );
       });
 
-      test('runs tests w/coverage', () async {
+      test('runs flutter tests w/coverage', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -726,6 +726,50 @@ void main() {
           ]),
         );
         expect(testRunnerArgs, equals(['--coverage']));
+      });
+
+      test('runs flutter tests w/coverage', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final lcovFile = File(
+          p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+        );
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        lcovFile.createSync(recursive: true);
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.dart,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                expect(lcovFile.existsSync(), isFalse);
+                lcovFile.createSync(recursive: true);
+              },
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "dart test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage=coverage']));
       });
 
       test('runs tests w/coverage + min-coverage 100 (pass)', () async {
