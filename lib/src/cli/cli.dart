@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
 import 'package:lcov_parser/lcov_parser.dart';
 import 'package:mason/mason.dart';
