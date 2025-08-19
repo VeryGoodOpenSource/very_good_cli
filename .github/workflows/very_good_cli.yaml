@@ -2,21 +2,11 @@ name: very_good_cli
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/very_good_cli.yaml"
-      - "lib/**"
-      - "test/**"
-      - "pubspec.yaml"
-      - ".release-please-config.json"
+    branches:
+      - main
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/very_good_cli.yaml"
-      - "lib/**"
-      - "test/**"
-      - "pubspec.yaml"
-      - ".release-please-config.json"
 
 jobs:
   build:
