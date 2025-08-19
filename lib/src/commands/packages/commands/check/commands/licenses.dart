@@ -286,7 +286,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
           // ignore: invalid_use_of_visible_for_testing_member
           .map((match) => match.license.identifier)
           .toSet();
-      licenses[dependencyName] = rawLicense;
+      licenses[dependencyName] = {
+        ...rawLicense,
+        // If there are no matches, we add the unknown license
+        if (rawLicense.isEmpty) SpdxLicense.$unknown.value,
+      };
     }
 
     late final _BannedDependencyLicenseMap? bannedDependencies;
