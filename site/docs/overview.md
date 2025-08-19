@@ -128,6 +128,12 @@ very_good test --recursive
 very_good test -r
 ```
 
+:::tip
+For **Dart** projects, use **`very_good dart test`** instead.
+
+All test parameters and options work identically with this command.
+:::
+
 ### `very_good --help`
 
 See the complete list of commands and usage information.
