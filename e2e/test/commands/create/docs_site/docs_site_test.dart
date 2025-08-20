@@ -9,7 +9,7 @@ void main() {
   test(
     'create docs_site',
     timeout: const Timeout(Duration(minutes: 2)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
