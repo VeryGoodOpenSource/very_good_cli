@@ -8,7 +8,7 @@ import '../../../../helpers/helpers.dart';
 void main() {
   test(
     'fails if the project does not exist',
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync('no_project');
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
