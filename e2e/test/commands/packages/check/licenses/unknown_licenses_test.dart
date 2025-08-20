@@ -9,11 +9,12 @@ import '../../../../../helpers/helpers.dart';
 /// Objectives:
 ///
 /// * Generate a new Dart project using (`dart create`)
-/// * Add dependencies to `pubspec.yaml` with an MIT license
-/// * Run `very_good packages check licenses --allowed="MIT"` and expect success
+/// * Add dependencies to `pubspec.yaml` with an unknown license
+/// * Run `very_good packages check licenses` and expect it to
+///   report 1 unknown license
 void main() {
   test(
-    'packages check licenses --allowed="MIT,BSD-3-Clause"',
+    'packages check licenses (unknown license)',
     timeout: const Timeout(Duration(minutes: 2)),
     withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
@@ -29,7 +30,7 @@ void main() {
       await expectSuccessfulProcessResult('dart', [
         'pub',
         'add',
-        'formz',
+        'rxdart:0.27.7',
       ], workingDirectory: projectPath);
       await expectSuccessfulProcessResult('dart', [
         'pub',
@@ -40,22 +41,22 @@ void main() {
         projectPath,
         from: Directory.current.path,
       );
-      final resultAllowed = await commandRunner.run([
+
+      final result = await commandRunner.run([
         'packages',
         'check',
         'licenses',
-        '--allowed=MIT,BSD-3-Clause',
         relativeProjectPath,
       ]);
+
       expect(
-        resultAllowed,
+        result,
         equals(ExitCode.success.code),
-        reason: 'Should succeed when allowed licenses are used',
       );
 
       expect(
         progressLogs,
-        contains('Retrieved 1 license from 1 package of type: MIT (1).'),
+        contains('Retrieved 1 license from 1 package of type: unknown (1).'),
       );
     }),
   );
