@@ -43,6 +43,7 @@ jobs:
           # E2E tests for the `packages check licenses` command
           - test/commands/packages/check/licenses/licenses_allowed_test.dart
           - test/commands/packages/check/licenses/licenses_forbidden_test.dart
+          - test/commands/packages/check/licenses/unknown_licenses_test.dart
 
     steps:
       - name: 📚 Git Checkout

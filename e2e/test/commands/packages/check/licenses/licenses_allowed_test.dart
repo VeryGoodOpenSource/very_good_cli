@@ -55,7 +55,9 @@ void main() {
 
       expect(
         progressLogs,
-        contains('Retrieved 1 license from 1 package of type: MIT (1).'),
+        contains(
+          '''Retrieved 2 licenses from 2 packages of type: MIT (1) and BSD-3-Clause (1).''',
+        ),
       );
     }),
   );
