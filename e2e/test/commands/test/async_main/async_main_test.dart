@@ -9,7 +9,7 @@ void main() {
   test(
     'supports async main methods',
     timeout: const Timeout(Duration(minutes: 2)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync('async_main');
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
