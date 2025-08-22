@@ -3,7 +3,7 @@ name: update_templates
 on:
   schedule:
     # weekly on mondays at 8 am utc
-    - cron: '0 8 * * 1'
+    - cron: "0 8 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v5
 
       - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.9.0"
 
       - name: Install mason
         run: dart pub global activate mason_cli
