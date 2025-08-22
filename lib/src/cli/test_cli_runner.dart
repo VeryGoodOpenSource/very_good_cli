@@ -407,9 +407,7 @@ Future<int> _testCommand({
               stderr('$clearLine$testName $testPath (FAILED)');
             }
 
-            final timeElapsed = Duration(
-              milliseconds: event.time,
-            ).formatted();
+            final timeElapsed = Duration(milliseconds: event.time).formatted();
             final stats = computeStats();
             final truncatedTestName = testName.toSingleLine().truncated(
               _lineLength - (timeElapsed.length + stats.length + 2),
@@ -418,9 +416,7 @@ Future<int> _testCommand({
           }
 
           if (event is DoneTestEvent) {
-            final timeElapsed = Duration(
-              milliseconds: event.time,
-            ).formatted();
+            final timeElapsed = Duration(milliseconds: event.time).formatted();
             final stats = computeStats();
             final summary = event.success ?? false
                 ? lightGreen.wrap('All tests passed!')!
