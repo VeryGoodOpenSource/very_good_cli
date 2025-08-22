@@ -117,15 +117,53 @@ abstract class CreateSubCommand extends Command<int> {
 
   /// Gets the output [Directory].
   Directory get outputDirectory {
-    final directory = argResults['output-directory'] as String? ?? '.';
-    return Directory(directory);
+    final directoryParameter = argResults['output-directory'] as String?;
+    final args = argResults.rest;
+
+    if (args.first == '.' && directoryParameter != null) {
+      usageException(
+        '''--output-directory cannot be specified when using "very_good create <template> ."''',
+      );
+    }
+
+    if (directoryParameter != null) {
+      return Directory('$directoryParameter/$projectName');
+    }
+
+    return Directory(args.first);
   }
 
   /// Gets the project name.
   String get projectName {
     final args = argResults.rest;
-    _validateProjectName(args);
-    return args.first;
+
+    if (args.isEmpty) {
+      usageException('No option specified for the project name.');
+    }
+
+    if (args.length > 1) {
+      usageException('Multiple project names specified.');
+    }
+
+    final projectName = args.first;
+    if (projectName.contains('/')) {
+      usageException('Project name cannot contain "/".');
+    }
+
+    final name = args.first == '.'
+        ? path.basename(Directory.current.path)
+        : projectName;
+
+    final isValidPackageName = _isValidPackageName(name);
+
+    if (!isValidPackageName) {
+      usageException(
+        '"$name" is not a valid package name.\n\n'
+        'See https://dart.dev/tools/pub/pubspec#name for more information.',
+      );
+    }
+
+    return name;
   }
 
   /// Gets the description for the project.
@@ -145,27 +183,6 @@ abstract class CreateSubCommand extends Command<int> {
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
-  }
-
-  void _validateProjectName(List<String> args) {
-    logger.detail('Validating project name; args: $args');
-
-    if (args.isEmpty) {
-      usageException('No option specified for the project name.');
-    }
-
-    if (args.length > 1) {
-      usageException('Multiple project names specified.');
-    }
-
-    final name = args.first;
-    final isValidProjectName = _isValidPackageName(name);
-    if (!isValidProjectName) {
-      usageException(
-        '"$name" is not a valid package name.\n\n'
-        'See https://dart.dev/tools/pub/pubspec#name for more information.',
-      );
-    }
   }
 
   Future<MasonGenerator> _getGeneratorForTemplate() async {
@@ -209,10 +226,7 @@ abstract class CreateSubCommand extends Command<int> {
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
-    await template.onGenerateComplete(
-      logger,
-      Directory(path.join(target.dir.path, projectName)),
-    );
+    await template.onGenerateComplete(logger, outputDirectory);
 
     return ExitCode.success.code;
   }

@@ -29,6 +29,9 @@ Read more about this app template [in our blog][blog].
 ```sh
 # Create a new Wear OS app named my_wear_app
 very_good create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
+
+# Create a new Wear OS named with the name of the current directory
+very_good create flutter_app . --desc "My new Wear OS app" --template wear
 ```
 
 [blog]: https://verygood.ventures/blog/building-wear-os-apps-with-flutter-a-very-good-guide

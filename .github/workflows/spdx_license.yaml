@@ -31,7 +31,7 @@ jobs:
     # https://github.com/VeryGoodOpenSource/very_good_workflows/issues/150
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
@@ -66,7 +66,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1

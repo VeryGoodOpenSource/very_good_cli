@@ -28,6 +28,9 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --platforms=android,ios,web
 # or
 very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --platforms android --platforms ios --platforms web
+
+# Create a new Flutter plugin named with the name of the current directory
+very_good create flutter_plugin . --desc "My new Flutter plugin" --platforms android,ios,web
 ```
 
 [federated_plugin_docs]: https://docs.flutter.dev/development/packages-and-plugins/developing-packages#federated-plugins

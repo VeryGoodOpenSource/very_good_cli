@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: ⚙️ Setup Node
         uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: ⚙️ Setup Node
         uses: actions/setup-node@v4
@@ -80,7 +80,7 @@ jobs:
       - name: ☁️ Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site/build
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com

@@ -2,26 +2,18 @@ name: very_good_cli
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/very_good_cli.yaml"
-      - "lib/**"
-      - "test/**"
-      - "pubspec.yaml"
+    branches:
+      - main
   push:
     branches:
       - main
-    paths:
-      - ".github/workflows/very_good_cli.yaml"
-      - "lib/**"
-      - "test/**"
-      - "pubspec.yaml"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2.8.0
         with:

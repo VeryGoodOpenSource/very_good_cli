@@ -1,4 +1,50 @@
-# 0.26.1
+## [0.27.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.27.0) (2025-08-18)
+
+
+### Features
+
+* Adding the dart test command ([#1333](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1333)) ([d7ef095](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d7ef09542c0b68a8ee317dfa75527f01b189437d))
+* allow `very_good create .` ([#996](https://github.com/VeryGoodOpenSource/very_good_cli/issues/996)) ([287f751](https://github.com/VeryGoodOpenSource/very_good_cli/commit/287f751d5924472265f2930669b358ee1797c121))
+
+
+### Bug Fixes
+
+* coverage on dart test ([#1338](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1338)) ([3735ba4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3735ba4219c42c5c4a39f21a93f224e74d74cb2e))
+* exclude paths from automatic releases ([#1329](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1329)) ([68522ce](https://github.com/VeryGoodOpenSource/very_good_cli/commit/68522ceb2b8d1fe05291932f9ddc738ef9e49b3e))
+* Fixing CI on flutter 3.35 ([#1339](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1339)) ([d97a006](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d97a006050b5a9b67cf5e043b6b4a7780505a05b))
+
+
+### Miscellaneous Chores
+
+* automate releases ([#1314](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1314)) ([1d08932](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1d0893242952a4b3c86af9b1793e3d6e9fa6d75d))
+* update SPDX licenses ([#1313](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1313)) ([142f3f2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/142f3f217d33c78a6896b3d9746bff8959e4e4fd))
+
+
+### Docs
+
+* improve release process ([#1332](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1332)) ([cc83127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc831279e37218a248ac434b303c4e9011b36f7d))
+
+## 0.26.2
+
+* feat: bump template bundles ([#1308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1308))
+* feat: ignore example by default when getting dependencies ([#1310](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1310))
+* fix: remove leading slash on Windows ([#1230](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1230))
+* chore(**deps-dev**): bump @babel/eslint-parser in /site ([#1304](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1304))
+* chore(**deps-dev**): bump @docusaurus/eslint-plugin in /site ([#1295](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1295))
+* chore(**deps-dev**): bump @docusaurus/module-type-aliases in /site ([#1293](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1293))
+* chore(**deps-dev**): bump @docusaurus/tsconfig from 3.7.0 to 3.8.1 in /site ([#1292](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1292))
+* chore(**deps-dev**): bump eslint from 9.29.0 to 9.30.0 in /site ([#1299](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1299))
+* chore(**deps-dev**): bump eslint from 9.30.0 to 9.30.1 in /site ([#1305](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1305))
+* chore(**deps-dev**): bump eslint from 9.30.1 to 9.31.0 in /site ([#1309](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1309))
+* chore(**deps-dev**): bump eslint-plugin-jest from 28.11.0 to 29.0.1 in /site ([#1300](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1300)) 
+* chore(**deps-dev**): bump jest from 29.7.0 to 30.0.4 in /site ([#1306](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1306))
+* chore(**deps-dev**): bump prettier from 3.5.3 to 3.6.0 in /site ([#1294](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1294))
+* chore(**deps-dev**): bump prettier from 3.6.0 to 3.6.2 in /site ([#1307](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1307))
+* chore(**deps**): bump @docusaurus/preset-classic in /site ([#1298](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1298))
+* chore(**deps**): bump react, react-dom and @types/react in /site ([#1297](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1297))
+* chore(update SPDX licenses): ([#1296](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1296))
+
+## 0.26.1
 
 - chore(deps-dev): bump eslint from 9.17.0 to 9.29.0 in /site ([#1288](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1288))
 - fix!: license check should exit 0 when no dependencies found ([#1261](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1261))
@@ -9,7 +55,7 @@
 - chore(deps-dev): bump @babel/eslint-parser in /site ([#1283](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1283))
 - chore(deps): bump peter-evans/create-pull-request from 7.0.6 to 7.0.8 ([#1250](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1250))
 
-# 0.26.0
+## 0.26.0
 
 - chore: update SPDX licenses ([#1209](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1209))
 - chore(deps-dev): bump eslint from 9.16.0 to 9.17.0 in /site ([#1211](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1211))
@@ -23,7 +69,7 @@
 - chore(deps-dev): bump eslint-plugin-jest in /site ([#1231](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1231))
 - chore: upgrade to flutter 3.32.0 ([#1286](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1286))
 
-# 0.25.0
+## 0.25.0
 
 - chore: update SPDX licenses ([#1178](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1178), [#1185](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1185), [#1186](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1186), [#1187](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1187))
 - fix: cleanup `.test_optimizer.dart` on SIGINT ([#1190](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1190))
@@ -36,7 +82,7 @@
   - chore(deps): bump mason from 0.1.0-dev.60 to 0.1.0 ([#1197](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1197))
   - chore(deps): bump mason from 0.1.0-dev.60 to 0.1.0 in /bricks/test_optimizer/hooks ([#1198](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1198))
 
-# 0.24.0
+## 0.24.0
 
 - feat: bump template bundles ([#1167](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1167))
   - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.7.0)
@@ -55,7 +101,7 @@
   - chore(deps): bump pub_updater from 0.4.0 to 0.5.0 ([#1133](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1133))
   - chore(deps): bump pana from 0.22.12 to 0.22.13 ([#1166](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1166))
 
-# 0.23.1
+## 0.23.1
 
 - chore: update SPDX licenses ([#1126](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1126), [#1128](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1128))
 - feat: bump template bundles ([#1131](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1131))
@@ -63,7 +109,7 @@
   - chore: tighten template dependencies ([#190](https://github.com/VeryGoodOpenSource/very_good_templates/pull/190))
   - fix: add closing } in build.gradle ([#189](https://github.com/VeryGoodOpenSource/very_good_templates/pull/189))
 
-# 0.23.0
+## 0.23.0
 
 - chore(deps): bump pana from 0.22.9 to 0.22.10 ([#1104](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1104), [#1119](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1119))
 - chore: update SPDX licenses ([#1111](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1111), [#1117](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1117))
@@ -86,7 +132,7 @@
 - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.6.0)
   - feat: update to Flutter 3.24 and Dart 3.5 ([#177](https://github.com/VeryGoodOpenSource/very_good_templates/pull/177))
 
-# 0.22.2
+## 0.22.2
 
 - chore: bump pana from 0.22.8 to 0.22.9 ([#1088](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1088))
 - chore: update SPDX licenses ([#1089](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1089), [#1093](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1093))
@@ -111,7 +157,7 @@
 - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.5.2):
   - chore: remove legacy package tag in AndroidManifest.xml ([#161](https://github.com/VeryGoodOpenSource/very_good_templates/pull/161))
 
-# 0.22.1
+## 0.22.1
 
 - docs: update links to templates ([#1070](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1070))
 - docs: add Golden Test documentation for very_good test command ([#1079](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1079))
@@ -147,7 +193,7 @@
   - chore: update to Very Good Analysis 6.0.0 ([#135](https://github.com/VeryGoodOpenSource/very_good_templates/pull/135))
   - chore: tighten template dependencies ([#137](https://github.com/VeryGoodOpenSource/very_good_templates/pull/137))
 
-# 0.22.0
+## 0.22.0
 
 - chore: update SPDX licenses ([#1030](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1030), [#1040](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1040), [#1041](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1041), [#1043](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1043))
 - feat: bump template bundles ([#1044](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1044))
@@ -175,7 +221,7 @@
 - [**Very Good Wear App**](https://github.com/VeryGoodOpenSource/very_good_templates/releases/tag/very_good_wear_app-v0.5.0):
   - feat!: ensure template uses Flutter 3.22 with Dart 3.4 ([#104](https://github.com/VeryGoodOpenSource/very_good_templates/pull/104))
 
-# 0.21.0
+## 0.21.0
 
 - chore(deps): bump pana from 0.22.1 to 0.22.2 ([#980](https://github.com/VeryGoodOpenSource/very_good_cli/pull/980))
 - chore: update SPDX licenses ([#994](https://github.com/VeryGoodOpenSource/very_good_cli/pull/994))
@@ -187,7 +233,7 @@
 - chore(deps): bump mason from 0.1.0-dev.52 to 0.1.0-dev.53 ([#1027](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1027))
 - fix: flutter_gen breaks current template ([#1002](https://github.com/VeryGoodOpenSource/very_good_cli/pull/1002))
 
-# 0.20.0
+## 0.20.0
 
 - chore(deps): bump mason from 0.1.0-dev.51 to 0.1.0-dev.52 ([#942](https://github.com/VeryGoodOpenSource/very_good_cli/pull/942))
 - chore(deps): bump pana from 0.21.45 to 0.22.1 ([#962](https://github.com/VeryGoodOpenSource/very_good_cli/pull/962))
@@ -254,7 +300,7 @@
   - chore: update bricks to Mason 0.1.0-dev.52 ([#28](https://github.com/VeryGoodOpenSource/very_good_templates/pull/28))
   - fix: deprecated imperative apply of Flutter's Gradle plugins ([#79](https://github.com/VeryGoodOpenSource/very_good_templates/pull/79))
 
-# 0.19.1
+## 0.19.1
 
 - chore(deps): bump pana from 0.21.43 to 0.21.44 ([#912](https://github.com/VeryGoodOpenSource/very_good_cli/pull/912))
 - chore(deps): bump test from 1.24.9 to 1.25.0 in /e2e ([#923](https://github.com/VeryGoodOpenSource/very_good_cli/pull/923))
@@ -268,7 +314,7 @@
 - feat: support 'direct-overridden' dependency type when checking licenses ([#931](https://github.com/VeryGoodOpenSource/very_good_cli/pull/931))
 - docs: include 'direct-overridden' in check licenses ([#932](https://github.com/VeryGoodOpenSource/very_good_cli/pull/932))
 
-# 0.19.0
+## 0.19.0
 
 - docs: update check licenses retrieval documentation ([#894](https://github.com/VeryGoodOpenSource/very_good_cli/pull/894))
 - docs: fix check_licenses.md pana link ([#897](https://github.com/VeryGoodOpenSource/very_good_cli/pull/897))
@@ -295,7 +341,7 @@
   - fix: regenerate ios platform dir ([#134](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/134))
   - chore: minify assets [#139](https://github.com/VeryGoodOpenSource/very_good_flame_game/pull/139)
 
-# 0.18.0
+## 0.18.0
 
 - docs: add missing path_setup_link ([#879](https://github.com/VeryGoodOpenSource/very_good_cli/pull/879))
 - test: setUp tempDirectory ([#880](https://github.com/VeryGoodOpenSource/very_good_cli/pull/880))
@@ -305,7 +351,7 @@
 - feat!: detect licenses locally ([#883](https://github.com/VeryGoodOpenSource/very_good_cli/pull/883))
 - chore(deps): bump pana from 0.21.42 to 0.21.43 ([#895](https://github.com/VeryGoodOpenSource/very_good_cli/pull/895))
 
-# 0.17.1
+## 0.17.1
 
 - docs: update supported licenses reference ([#863](https://github.com/VeryGoodOpenSource/very_good_cli/pull/863))
 - chore(deps-dev): bump eslint from 8.51.0 to 8.52.0 in /site ([#870](https://github.com/VeryGoodOpenSource/very_good_cli/pull/870))
@@ -315,7 +361,7 @@
 - fix: avoid failure when terminal has no columns ([#869](https://github.com/VeryGoodOpenSource/very_good_cli/pull/869))
 - docs: add license checking documentation to commands' overview ([#867](https://github.com/VeryGoodOpenSource/very_good_cli/pull/867))
 
-# 0.17.0
+## 0.17.0
 
 - chore: add release ready script ([#799](https://github.com/VeryGoodOpenSource/very_good_cli/pull/799))
 - fix: Prefer delegation implementation to allow comparator extension ([#742](https://github.com/VeryGoodOpenSource/very_good_cli/pull/742))
@@ -368,7 +414,7 @@
 - docs: include license checking page ([#860](https://github.com/VeryGoodOpenSource/very_good_cli/pull/860))
 - feat: show `check licenses` command ([#862](https://github.com/VeryGoodOpenSource/very_good_cli/pull/862))
 
-# 0.16.0
+## 0.16.0
 
 - fix!: remove analytics ([#756](https://github.com/VeryGoodOpenSource/very_good_cli/pull/756))
 - chore: update pubspec meta info ([#778](https://github.com/VeryGoodOpenSource/very_good_cli/pull/778))
@@ -418,7 +464,7 @@
 - **Very Good Docs Site**
   - build(deps): various dependency updates
 
-# [0.15.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.14.0...v0.15.0) (2023-05-23)
+## [0.15.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.14.0...v0.15.0) (2023-05-23)
 
 ### Bug Fixes
 
@@ -429,7 +475,7 @@
 - increase min sdk constraint to 3.0.0 ([#744](https://github.com/VeryGoodOpenSource/very_good_cli/issues/744)) ([464696c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/464696cb1440d67959db85c312e5a5a7bcdd8351))
 - remove deprecated legacy syntax ([#693](https://github.com/VeryGoodOpenSource/very_good_cli/issues/693)) ([af9b283](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af9b2830b804e951568079f3ae9321737ff9aa02))
 
-# [0.14.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.1...v0.14.0) (2023-05-10)
+## [0.14.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.13.1...v0.14.0) (2023-05-10)
 
 ### Bug Fixes
 
@@ -445,7 +491,7 @@
 
 - support ignoring empty globs ([#703](https://github.com/VeryGoodOpenSource/very_good_cli/issues/703)) ([6a1a9df](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6a1a9df9394b53879084e36bf40566ae9ac2abc8))
 
-# [0.13.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3+1...v0.13.0) (2023-03-29)
+## [0.13.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.12.3+1...v0.13.0) (2023-03-29)
 
 ### Features
 
@@ -473,7 +519,7 @@
 
 - **test_optimizer:** set dart constraint to v2.18.0 ([#673](https://github.com/VeryGoodOpenSource/very_good_cli/issues/673)) ([491a78c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/491a78c69355de5bff3b693a223f305559b89ee9))
 
-# [0.12.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0+1...v0.12.0) (2023-02-28)
+## [0.12.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0+1...v0.12.0) (2023-02-28)
 
 ### Bug Fixes
 
@@ -489,9 +535,9 @@
 - bump template bundles ([#661](https://github.com/VeryGoodOpenSource/very_good_cli/issues/661)) ([af4eaf2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/af4eaf2e19899861acf4c624a882f3922b915c7d))
 - bump template bundles ([#663](https://github.com/VeryGoodOpenSource/very_good_cli/issues/663)) ([e10b59e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e10b59e585c7b6a2aa0c8d659be4c827d8deed20))
 
-# [v0.11.0+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0...v0.11.0+1) (2023-02-07)
+## [v0.11.0+1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.11.0...v0.11.0+1) (2023-02-07)
 
-# [0.11.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.10.0...v0.11.0) (2023-02-07)
+## [0.11.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.10.0...v0.11.0) (2023-02-07)
 
 ### Bug Fixes
 
@@ -507,7 +553,7 @@
 - update sdk constraints ([#628](https://github.com/VeryGoodOpenSource/very_good_cli/issues/628)) ([19f6ddf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/19f6ddfb7e348446fa36905c7a7c2e3cf0c48c7e))
 - update template bundles ([#637](https://github.com/VeryGoodOpenSource/very_good_cli/issues/637)) ([6450872](https://github.com/VeryGoodOpenSource/very_good_cli/commit/64508722ac79abc01b70eee2498dbbdf546cfc43))
 
-# [0.10.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.1...v0.10.0) (2023-01-17)
+## [0.10.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.9.1...v0.10.0) (2023-01-17)
 
 ### Features
 
@@ -529,7 +575,7 @@
 
 - add cli completion ([#600](https://github.com/VeryGoodOpenSource/very_good_cli/issues/600)) ([c33dadd](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c33daddc1d433e162a7890ffa4f0135eda369bad))
 
-# [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-07)
+## [0.9.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.8.6...v0.9.0) (2022-12-07)
 
 ### Bug Fixes
 
@@ -576,7 +622,7 @@
 - **create:** add docs_site template ([#513](https://github.com/VeryGoodOpenSource/very_good_cli/issues/513)) ([822829a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/822829a30a690d0cb588b0ac507ea0fa1e7b7e1f))
 - **test:** add --dart-define ([#492](https://github.com/VeryGoodOpenSource/very_good_cli/issues/492)) ([1efa5aa](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1efa5aa8eeaeb0347ac1bdbb223f90e0e1404dc2))
 
-# [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-14)
+## [0.8.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.7.13...v0.8.0) (2022-09-14)
 
 ### Features
 
@@ -689,7 +735,7 @@
 
 - **test:** report errors without throwing ([#393](https://github.com/VeryGoodOpenSource/very_good_cli/issues/393)) ([9c1e583](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9c1e58395f6857d61231bbe72c87cf3404291e98))
 
-# [0.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.12...v0.7.0) (2022-05-11)
+## [0.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.6.12...v0.7.0) (2022-05-11)
 
 ### Features
 
@@ -782,7 +828,7 @@
 - **test:** add --test-randomize-ordering-seed ([#326](https://github.com/VeryGoodOpenSource/very_good_cli/issues/326)) ([7487f21](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7487f21415c35d0b6044963b3f5ea3c6d9666ed0))
 - **test:** remove .test_runner.dart after run ([#323](https://github.com/VeryGoodOpenSource/very_good_cli/issues/323)) ([cc9f727](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc9f7273a6359ea3dd212dc556b6b21df088fc4c))
 
-# [0.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0) (2022-03-17)
+## [0.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.5.5...v0.6.0) (2022-03-17)
 
 ### Bug Fixes
 
@@ -835,7 +881,7 @@
 - **dart_package:** upgrade to Dart 2.16 ([#276](https://github.com/VeryGoodOpenSource/very_good_cli/issues/276)) ([9a880c6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9a880c69ea703072e4e3f5a5fb63c8fa2097b3d6))
 - **flutter_package:** upgrade to Dart 2.16 ([#277](https://github.com/VeryGoodOpenSource/very_good_cli/issues/277)) ([f1d14c8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f1d14c80995bf8d5de6def4a12cbd640d47036bc))
 
-# [0.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.17...v0.5.0) (2022-02-07)
+## [0.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.4.17...v0.5.0) (2022-02-07)
 
 ### Features
 
@@ -975,7 +1021,7 @@
 
 - **core:** upgrade to flutter_bloc v7.2.0 ([#172](https://github.com/VeryGoodOpenSource/very_good_cli/issues/172)) ([afb522d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/afb522db2fe71a60d0808bc4b5e91ff2d8e834b8))
 
-# [0.4.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.3...v0.4.0) (2021-08-20)
+## [0.4.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.3.3...v0.4.0) (2021-08-20)
 
 ### Features
 
@@ -999,7 +1045,7 @@
 
 - **create:** support custom description ([#158](https://github.com/VeryGoodOpenSource/very_good_cli/issues/158)) ([b163c49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b163c49a095aebde22370b37a6872ba54e6c16f1))
 
-# [0.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.5...v0.3.0) (2021-07-23)
+## [0.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.2.5...v0.3.0) (2021-07-23)
 
 ### Features
 
@@ -1042,7 +1088,7 @@
 
 - upgrade to very_good_analysis v2.1.0 ([#133](https://github.com/VeryGoodOpenSource/very_good_cli/issues/133)) ([9e2153c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9e2153c642169eb8581710e49d4e4bc71a9b4bb1))
 
-# [0.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.8...v0.2.0) (2021-05-25)
+## [0.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.8...v0.2.0) (2021-05-25)
 
 ### Features
 
@@ -1096,7 +1142,7 @@
 
 ## [0.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.1.0...v0.1.1) (2021-02-16)
 
-# [0.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/335ce42ba34880eb74fc4d4636e6399932f1e49f...v0.1.0) (2021-02-16)
+## [0.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/335ce42ba34880eb74fc4d4636e6399932f1e49f...v0.1.0) (2021-02-16)
 
 ### Bug Fixes
 

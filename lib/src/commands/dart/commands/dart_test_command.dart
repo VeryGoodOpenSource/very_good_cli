@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:args/args.dart';
@@ -5,12 +6,11 @@ import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
-import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
-/// Options for configuring the Flutter test command.
-class FlutterTestOptions {
-  FlutterTestOptions._({
+/// Options for configuring the Dart test command.
+class DartTestOptions {
+  DartTestOptions._({
     required this.concurrency,
     required this.collectCoverage,
     required this.minCoverage,
@@ -19,15 +19,12 @@ class FlutterTestOptions {
     required this.excludeFromCoverage,
     required this.randomSeed,
     required this.optimizePerformance,
-    required this.updateGoldens,
     required this.forceAnsi,
-    required this.dartDefine,
-    required this.dartDefineFromFile,
     required this.rest,
   });
 
-  /// Parses [ArgResults] into a [FlutterTestOptions] instance.
-  factory FlutterTestOptions.parse(ArgResults argResults) {
+  /// Parses [ArgResults] into a [DartTestOptions] instance.
+  factory DartTestOptions.parse(ArgResults argResults) {
     final concurrency = argResults['concurrency'] as String;
     final collectCoverage = argResults['coverage'] as bool;
     final minCoverage = double.tryParse(
@@ -42,14 +39,10 @@ class FlutterTestOptions {
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
-    final updateGoldens = argResults['update-goldens'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = argResults['dart-define'] as List<String>?;
-    final dartDefineFromFile =
-        argResults['dart-define-from-file'] as List<String>?;
     final rest = argResults.rest;
 
-    return FlutterTestOptions._(
+    return DartTestOptions._(
       concurrency: concurrency,
       collectCoverage: collectCoverage,
       minCoverage: minCoverage,
@@ -58,10 +51,7 @@ class FlutterTestOptions {
       excludeFromCoverage: excludeFromCoverage,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
-      updateGoldens: updateGoldens,
       forceAnsi: forceAnsi,
-      dartDefine: dartDefine,
-      dartDefineFromFile: dartDefineFromFile,
       rest: rest,
     );
   }
@@ -90,30 +80,19 @@ class FlutterTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
-  /// Whether "matchesGoldenFile()" calls within your test methods should update
-  /// the golden files.
-  final bool updateGoldens;
-
   /// Whether to force ansi output. If not specified, it will maintain the
   /// default behavior based on stdout and stderr.
   final bool? forceAnsi;
 
-  /// Optional list of dart defines
-  final List<String>? dartDefine;
-
-  /// Optional list of dart define from files
-  final List<String>? dartDefineFromFile;
-
-  /// The remaining arguments passed to the test command.
+  /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
 }
 
-/// Signature for the [Flutter.installed] method.
-typedef FlutterInstalledCommand =
-    Future<bool> Function({required Logger logger});
+/// Signature for the [Dart.installed] method.
+typedef DartInstalledCommand = Future<bool> Function({required Logger logger});
 
-/// Signature for the [Flutter.test] method.
-typedef FlutterTestCommand =
+/// Signature for the [Dart.test] method.
+typedef DartTestCommandCall =
     Future<List<int>> Function({
       required Logger logger,
       String cwd,
@@ -129,18 +108,18 @@ typedef FlutterTestCommand =
       void Function(String)? stderr,
     });
 
-/// {@template test_command}
-/// `very_good test` command for running tests.
+/// {@template dart_test_command}
+/// `very_good dart test` command for running dart tests.
 /// {@endtemplate}
-class TestCommand extends Command<int> {
-  /// {@macro test_command}
-  TestCommand({
+class DartTestCommand extends Command<int> {
+  /// {@macro packages_command}
+  DartTestCommand({
     required Logger logger,
-    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
-    @visibleForTesting FlutterTestCommand? flutterTest,
+    DartTestCommandCall? dartTest,
+    DartInstalledCommand? dartInstalled,
   }) : _logger = logger,
-       _flutterInstalled = flutterInstalled ?? Flutter.installed,
-       _flutterTest = flutterTest ?? Flutter.test {
+       _dartTest = dartTest ?? Dart.test,
+       _dartInstalled = dartInstalled ?? Dart.installed {
     argParser
       ..addFlag(
         'coverage',
@@ -191,53 +170,21 @@ class TestCommand extends Command<int> {
             'within test files.',
       )
       ..addFlag(
-        'update-goldens',
-        help:
-            'Whether "matchesGoldenFile()" calls within your test methods '
-            'should update the golden files.',
-        negatable: false,
-      )
-      ..addFlag(
         'force-ansi',
         defaultsTo: null,
         help:
             'Whether to force ansi output. If not specified, '
             'it will maintain the default behavior based on stdout and stderr.',
         negatable: false,
-      )
-      ..addMultiOption(
-        'dart-define',
-        help:
-            'Additional key-value pairs that will be available as constants '
-            'from the String.fromEnvironment, bool.fromEnvironment, '
-            'int.fromEnvironment, and double.fromEnvironment constructors. '
-            'Multiple defines can be passed by repeating '
-            '"--dart-define" multiple times.',
-        valueHelp: 'foo=bar',
-      )
-      ..addMultiOption(
-        'dart-define-from-file',
-        help:
-            'The path of a .json or .env file containing key-value pairs '
-            'that will be available as environment variables. '
-            'These can be accessed using the String.fromEnvironment, '
-            'bool.fromEnvironment, and int.fromEnvironment constructors. '
-            'Multiple defines can be passed by repeating '
-            '"--dart-define-from-file" multiple times. '
-            'Entries from "--dart-define" with identical keys take '
-            'precedence over entries from these files.',
-        valueHelp: 'use-define-config.json|.env',
       );
   }
 
   final Logger _logger;
-  final FlutterInstalledCommand _flutterInstalled;
-  final FlutterTestCommand _flutterTest;
+  final DartTestCommandCall _dartTest;
+  final DartInstalledCommand _dartInstalled;
 
   @override
-  String get description =>
-      'Run `flutter test` in a project. (Check '
-      'very_good dart test for running `dart test` instead.)';
+  String get description => 'Run tests in a Dart project.';
 
   @override
   String get name => 'test';
@@ -257,21 +204,20 @@ class TestCommand extends Command<int> {
     if (!recursive && !pubspec.existsSync()) {
       _logger.err('''
 Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''');
+This command should be run from the root of your Dart project.''');
       return ExitCode.noInput.code;
     }
 
-    final isFlutterInstalled = await _flutterInstalled(logger: _logger);
+    final isDartInstalled = await _dartInstalled(logger: _logger);
 
-    final options = FlutterTestOptions.parse(_argResults);
+    final options = DartTestOptions.parse(_argResults);
 
-    if (isFlutterInstalled) {
+    if (isDartInstalled) {
       try {
-        final results = await _flutterTest(
+        final results = await _dartTest(
           optimizePerformance:
               options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              !options.updateGoldens,
+              !TestCLIRunner.isTargettingTestFiles(options.rest),
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -285,14 +231,7 @@ This command should be run from the root of your Flutter project.''');
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
-            if (options.updateGoldens) '--update-goldens',
-            if (options.dartDefine != null)
-              for (final value in options.dartDefine!) '--dart-define=$value',
-            if (options.dartDefineFromFile != null)
-              for (final value in options.dartDefineFromFile!)
-                '--dart-define-from-file=$value',
             ...['-j', options.concurrency],
-            '--no-pub',
             ...options.rest,
           ],
         );
