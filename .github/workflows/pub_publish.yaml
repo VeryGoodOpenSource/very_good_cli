@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v5
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.9.0"
       - name: 📦 Install Dependencies
         run: dart pub get
       - name: 📢 Publish
