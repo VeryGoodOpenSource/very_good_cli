@@ -37,6 +37,7 @@ const expectedTestUsage = [
       '    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'
       '    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'
       '    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --report-on=<lib/>                An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -58,6 +59,7 @@ abstract class DartTestCommandCall {
     void Function(String)? stdout,
     void Function(String)? stderr,
     bool? forceAnsi,
+    String? reportOn,
   });
 }
 
@@ -97,6 +99,7 @@ void main() {
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
+          reportOn: any(named: 'reportOn'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -362,6 +365,28 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'reports on a different directory when --report-on is supplied',
+      () async {
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+        when<dynamic>(() => argResults['report-on']).thenReturn('routes');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => dartTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            arguments: defaultArguments,
+            minCoverage: 0,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+            reportOn: 'routes',
           ),
         ).called(1);
       },
