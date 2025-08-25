@@ -319,6 +319,97 @@ void main() {
             expect(result, equals(ExitCode.success.code));
           }),
         );
+
+        test(
+          'unknown when non-standard license file is found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(
+              path.join(tempDirectory.path, pubspecLockBasename),
+            ).writeAsStringSync(_validPubspecLockContent);
+
+            when(
+              () => packageConfig.packages,
+            ).thenReturn([veryGoodTestRunnerConfigPackage]);
+            final licenseFilePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+              'LICENSE',
+            );
+            File(licenseFilePath).writeAsStringSync('''
+Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License. You may
+obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied. See the License for the specific language governing permissions
+and limitations under the License.''');
+
+            when(() => logger.progress(any())).thenReturn(progress);
+            when(() => detectorResult.matches).thenReturn([]);
+
+            final result = await commandRunner.run(
+              [...commandArguments, tempDirectory.path],
+            );
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
+
+        test(
+          'unknown when invalid license file is found',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            File(
+              path.join(tempDirectory.path, pubspecLockBasename),
+            ).writeAsStringSync(_validPubspecLockContent);
+
+            when(
+              () => packageConfig.packages,
+            ).thenReturn([veryGoodTestRunnerConfigPackage]);
+            final licenseFilePath = path.join(
+              tempDirectory.path,
+              veryGoodTestRunnerConfigPackage.name,
+              'LICENSE',
+            );
+            File(
+              licenseFilePath,
+            ).writeAsStringSync('This is an invalid license file.');
+
+            when(() => logger.progress(any())).thenReturn(progress);
+            when(() => detectorResult.matches).thenReturn([]);
+
+            final result = await commandRunner.run(
+              [...commandArguments, tempDirectory.path],
+            );
+
+            verify(
+              () => progress.update(
+                'Collecting licenses from 1 out of 1 package',
+              ),
+            ).called(1);
+            verify(
+              () => progress.complete(
+                '''Retrieved 1 license from 1 package of type: unknown (1).''',
+              ),
+            ).called(1);
+
+            expect(result, equals(ExitCode.success.code));
+          }),
+        );
       },
     );
 
