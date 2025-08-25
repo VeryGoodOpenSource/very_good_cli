@@ -24,6 +24,18 @@
 
 * improve release process ([#1332](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1332)) ([cc83127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc831279e37218a248ac434b303c4e9011b36f7d))
 
+## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-08-25)
+
+
+### Features
+
+* upgrade to flutter 3.35.0 ([#1344](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1344)) ([215cbdb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/215cbdbe999afca470386398b2bdcd1aa50588af))
+
+
+### Miscellaneous Chores
+
+* update SPDX licenses ([#1341](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1341)) ([d0321e8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d0321e897dcae806d90b33b658e118787735db8d))
+
 ## 0.26.2
 
 * feat: bump template bundles ([#1308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1308))
