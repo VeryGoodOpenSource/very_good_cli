@@ -78,6 +78,7 @@ class TestCLIRunner {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+    String? reportOn,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
@@ -182,7 +183,7 @@ class TestCLIRunner {
 
                   final output = hitmap.formatLcov(
                     resolver,
-                    reportOn: ['lib'],
+                    reportOn: [reportOn ?? 'lib'],
                     basePath: cwd,
                   );
 
