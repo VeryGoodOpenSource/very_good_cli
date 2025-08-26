@@ -24,11 +24,6 @@ jobs:
 
     strategy:
       matrix:
-        flutter-version:
-          # The version of Flutter to use should use the minimum Dart SDK version supported by the package,
-          # refer to https://docs.flutter.dev/development/tools/sdk/releases.
-          - "3.32.0"
-          - "3.x"
         test:
           # E2E tests for the test command
           - test/commands/test/async_main/async_main_test.dart
@@ -41,9 +36,7 @@ jobs:
           - test/commands/create/dart_cli/dart_cli_test.dart
           - test/commands/create/dart_package/dart_pkg_test.dart
           - test/commands/create/docs_site/docs_site_test.dart
-          # FIXME(alestiago): Re-enable once the following issue has been solved:
-          # https://github.com/VeryGoodOpenSource/very_good_flame_game/issues/132
-          # - test/commands/create/flame_game/flame_game_test.dart
+          - test/commands/create/flame_game/flame_game_test.dart
           - test/commands/create/flutter_package/flutter_pkg_test.dart
           - test/commands/create/flutter_plugin/flutter_plugin_test.dart
 
@@ -58,7 +51,7 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ matrix.flutter-version }}
+          flutter-version: "3.35.x"
 
       - name: Install LCOV
         run: sudo apt-get install -y lcov

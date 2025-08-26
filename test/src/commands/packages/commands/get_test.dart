@@ -112,7 +112,7 @@ name: example
 version: 0.1.0
 
 environment:
-sdk: ^3.8.0
+sdk: ^3.9.0
 ''',
         );
 
@@ -165,7 +165,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
         final result = await commandRunner.run([
           'packages',
@@ -193,7 +193,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''',
         );
         final result = await commandRunner.run([
@@ -228,7 +228,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -237,7 +237,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -276,7 +276,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -285,7 +285,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -322,7 +322,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -331,7 +331,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -371,7 +371,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -380,7 +380,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -442,7 +442,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         File(
@@ -454,7 +454,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -504,7 +504,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         File(
@@ -516,7 +516,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
@@ -568,7 +568,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         File(
@@ -580,7 +580,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         File(
@@ -592,7 +592,7 @@ sdk: ^3.8.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.8.0
+            sdk: ^3.9.0
           ''');
 
         final result = await commandRunner.run([
