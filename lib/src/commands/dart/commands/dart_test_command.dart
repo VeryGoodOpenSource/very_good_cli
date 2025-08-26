@@ -21,6 +21,7 @@ class DartTestOptions {
     required this.optimizePerformance,
     required this.forceAnsi,
     required this.rest,
+    required this.reportOn,
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
@@ -40,6 +41,7 @@ class DartTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
+    final reportOn = argResults['report-on'] as String?;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -52,6 +54,7 @@ class DartTestOptions {
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       forceAnsi: forceAnsi,
+      reportOn: reportOn,
       rest: rest,
     );
   }
@@ -84,6 +87,9 @@ class DartTestOptions {
   /// default behavior based on stdout and stderr.
   final bool? forceAnsi;
 
+  /// An optional file path to report coverage information to.
+  final String? reportOn;
+
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
 }
@@ -106,6 +112,7 @@ typedef DartTestCommandCall =
       List<String>? arguments,
       void Function(String)? stdout,
       void Function(String)? stderr,
+      String? reportOn,
     });
 
 /// {@template dart_test_command}
@@ -176,6 +183,13 @@ class DartTestCommand extends Command<int> {
             'Whether to force ansi output. If not specified, '
             'it will maintain the default behavior based on stdout and stderr.',
         negatable: false,
+      )
+      ..addOption(
+        'report-on',
+        help:
+            'An optional file path to report coverage information to. '
+            'This should be a path relative to the current working directory.',
+        valueHelp: 'lib/',
       );
   }
 
@@ -234,6 +248,7 @@ This command should be run from the root of your Dart project.''');
             ...['-j', options.concurrency],
             ...options.rest,
           ],
+          reportOn: options.reportOn,
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;

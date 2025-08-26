@@ -110,6 +110,7 @@ class Dart {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+    String? reportOn,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
@@ -126,6 +127,7 @@ class Dart {
       arguments: arguments,
       stdout: stdout,
       stderr: stderr,
+      reportOn: reportOn,
       buildGenerator: buildGenerator,
     );
   }
