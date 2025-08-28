@@ -9,7 +9,7 @@ void main() {
   test(
     'fails when there is a compilation error, but does not crash',
     timeout: const Timeout(Duration(minutes: 2)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync(
         'compilation_error',
       );
