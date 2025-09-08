@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 704 SPDX licenses.
+/// A list of all 705 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -238,6 +238,7 @@ enum SpdxLicense {
   $EPICS._('EPICS'),
   $EPL_1_0._('EPL-1.0'),
   $EPL_2_0._('EPL-2.0'),
+  $ESA_PL_permissive_2_4._('ESA-PL-permissive-2.4'),
   $ESA_PL_weak_copyleft_2_4._('ESA-PL-weak-copyleft-2.4'),
   $EUDatagrid._('EUDatagrid'),
   $EUPL_1_0._('EUPL-1.0'),
