@@ -136,6 +136,9 @@ very_good test --recursive
 
 # Run tests recursively (shorthand)
 very_good test -r
+
+# Run tests on a specific platform
+very_good test --platform chrome
 ```
 
 ### [`very_good packages get`](https://cli.vgv.dev/docs/commands/get_pkgs)
