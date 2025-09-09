@@ -20,6 +20,7 @@ class DartTestOptions {
     required this.randomSeed,
     required this.optimizePerformance,
     required this.forceAnsi,
+    required this.platform,
     required this.rest,
     required this.reportOn,
   });
@@ -41,6 +42,7 @@ class DartTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
+    final platform = argResults['platform'] as String?;
     final reportOn = argResults['report-on'] as String?;
     final rest = argResults.rest;
 
@@ -54,6 +56,7 @@ class DartTestOptions {
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       forceAnsi: forceAnsi,
+      platform: platform,
       reportOn: reportOn,
       rest: rest,
     );
@@ -86,6 +89,9 @@ class DartTestOptions {
   /// Whether to force ansi output. If not specified, it will maintain the
   /// default behavior based on stdout and stderr.
   final bool? forceAnsi;
+
+  /// The platform to run tests on (e.g., 'chrome', 'vm').
+  final String? platform;
 
   /// An optional file path to report coverage information to.
   final String? reportOn;
@@ -190,6 +196,13 @@ class DartTestCommand extends Command<int> {
             'An optional file path to report coverage information to. '
             'This should be a path relative to the current working directory.',
         valueHelp: 'lib/',
+      )
+      ..addOption(
+        'platform',
+        help:
+            'The platform to run tests on. '
+            'For Dart tests, this can be "chrome", "vm", etc.',
+        valueHelp: 'chrome|vm',
       );
   }
 
@@ -245,6 +258,7 @@ This command should be run from the root of your Dart project.''');
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
+            if (options.platform != null) ...['--platform', options.platform!],
             ...['-j', options.concurrency],
             ...options.rest,
           ],

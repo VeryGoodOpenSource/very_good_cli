@@ -23,6 +23,7 @@ class FlutterTestOptions {
     required this.forceAnsi,
     required this.dartDefine,
     required this.dartDefineFromFile,
+    required this.platform,
     required this.rest,
   });
 
@@ -47,6 +48,7 @@ class FlutterTestOptions {
     final dartDefine = argResults['dart-define'] as List<String>?;
     final dartDefineFromFile =
         argResults['dart-define-from-file'] as List<String>?;
+    final platform = argResults['platform'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -62,6 +64,7 @@ class FlutterTestOptions {
       forceAnsi: forceAnsi,
       dartDefine: dartDefine,
       dartDefineFromFile: dartDefineFromFile,
+      platform: platform,
       rest: rest,
     );
   }
@@ -103,6 +106,9 @@ class FlutterTestOptions {
 
   /// Optional list of dart define from files
   final List<String>? dartDefineFromFile;
+
+  /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
+  final String? platform;
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
@@ -227,6 +233,14 @@ class TestCommand extends Command<int> {
             'Entries from "--dart-define" with identical keys take '
             'precedence over entries from these files.',
         valueHelp: 'use-define-config.json|.env',
+      )
+      ..addOption(
+        'platform',
+        help:
+            'The platform to run tests on. '
+            'For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. '
+            'For Dart tests, this can be "chrome", "vm", etc.',
+        valueHelp: 'chrome|vm|android|ios',
       );
   }
 
@@ -286,6 +300,7 @@ This command should be run from the root of your Flutter project.''');
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.updateGoldens) '--update-goldens',
+            if (options.platform != null) ...['--platform', options.platform!],
             if (options.dartDefine != null)
               for (final value in options.dartDefine!) '--dart-define=$value',
             if (options.dartDefineFromFile != null)

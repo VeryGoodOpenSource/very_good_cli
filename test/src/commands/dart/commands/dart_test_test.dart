@@ -37,6 +37,7 @@ const expectedTestUsage = [
       '    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'
       '    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'
       '    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --platform                        The platform to run tests on. For Dart tests, this can be "chrome", "vm", etc.\n'
       '    --report-on=<lib/>                An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '\n'
       'Run "very_good help" to see global options.',
@@ -239,6 +240,20 @@ void main() {
       verify(
         () => dartTest(
           arguments: defaultArguments,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --platform chrome', () async {
+      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          arguments: ['--platform', 'chrome', ...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,

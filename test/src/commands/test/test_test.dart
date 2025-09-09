@@ -38,6 +38,7 @@ const expectedTestUsage = [
       '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
       '    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'
       '    --force-ansi                                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --platform                                               The platform to run tests on. For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. For Dart tests, this can be "chrome", "vm", etc.\n'
       '    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'
       '\n'
@@ -255,6 +256,20 @@ void main() {
       verify(
         () => flutterTest(
           arguments: ['--update-goldens', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --platform chrome', () async {
+      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          arguments: ['--platform', 'chrome', ...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
