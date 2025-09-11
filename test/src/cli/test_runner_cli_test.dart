@@ -349,7 +349,7 @@ void main() {
                   'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
               '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
               '\x1B[2K\rFailing Tests:\n'
-                  '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
+                  '\x1B[2K\r - ${p.join('test', 'counter', 'cubit', 'counter_cubit_test.dart')} \n'
                   '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
@@ -424,7 +424,7 @@ void main() {
                 'The test description was: renders CounterPage',
             '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
@@ -481,7 +481,13 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${tempDirectory.path}/test/app/view/app_test.dart',
+                    path: p.join(
+                      tempDirectory.path,
+                      'test',
+                      'app',
+                      'view',
+                      'app_test.dart',
+                    ),
                   ),
                   time: 0,
                 ),
@@ -511,7 +517,7 @@ void main() {
                   testID: 0,
                   error: 'error',
                   stackTrace: stack_trace.Trace.parse(
-                    'test/example_test.dart 4 main',
+                    '${p.join('test', 'example_test.dart')} 4 main',
                   ).toString(),
                   isFailure: true,
                   time: 0,
@@ -528,9 +534,9 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
@@ -1144,7 +1150,11 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${tempDirectory.path}/test/.test_optimizer.dart',
+                    path: p.join(
+                      tempDirectory.path,
+                      'test',
+                      '.test_optimizer.dart',
+                    ),
                   ),
                   time: 0,
                 ),
@@ -1152,7 +1162,7 @@ void main() {
                   group: TestGroup(
                     id: 10,
                     suiteID: 4,
-                    name: 'app/view/app_test.dart',
+                    name: p.join('app', 'view', 'app_test.dart'),
                     metadata: TestMetadata(
                       skip: false,
                     ),
@@ -1164,7 +1174,8 @@ void main() {
                   group: TestGroup(
                     id: 99,
                     suiteID: 4,
-                    name: 'app/view/app_test.dart CounterCubit',
+                    name:
+                        '${p.join('app', 'view', 'app_test.dart')} CounterCubit',
                     metadata: TestMetadata(
                       skip: false,
                     ),
@@ -1176,7 +1187,7 @@ void main() {
                   test: Test(
                     id: 0,
                     name:
-                        'app/view/app_test.dart CounterCubit emits [1] when increment is called',
+                        '${p.join('app', 'view', 'app_test.dart')} CounterCubit emits [1] when increment is called',
                     suiteID: 4,
                     groupIDs: [10, 99],
                     metadata: TestMetadata(skip: false),
@@ -1187,7 +1198,7 @@ void main() {
                   testID: 0,
                   error: 'error',
                   stackTrace: stack_trace.Trace.parse(
-                    'test/example_test.dart 4 main',
+                    '${p.join('test', 'example_test.dart')} 4 main',
                   ).toString(),
                   isFailure: true,
                   time: 0,
@@ -1204,9 +1215,9 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );

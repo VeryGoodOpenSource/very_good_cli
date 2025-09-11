@@ -523,7 +523,7 @@ sdk: ^3.9.0
           'packages',
           'get',
           '--recursive',
-          '${tempDirectory.path}/plugin',
+          path.join(tempDirectory.path, 'plugin'),
         ]);
 
         expect(result, equals(ExitCode.success.code));
@@ -542,7 +542,7 @@ sdk: ^3.9.0
           logger.progress(
             any(
               that: contains(
-                '''Running "flutter pub get" in ./example''',
+                '''Running "flutter pub get" in ${path.join('.', 'example')}''',
               ),
             ),
           );
@@ -600,7 +600,7 @@ sdk: ^3.9.0
           'get',
           '--recursive',
           '--ignore=example',
-          '${tempDirectory.path}/plugin',
+          path.join(tempDirectory.path, 'plugin'),
         ]);
 
         expect(result, equals(ExitCode.success.code));
@@ -618,7 +618,7 @@ sdk: ^3.9.0
           logger.progress(
             any(
               that: contains(
-                '''Running "flutter pub get" in ./my_sub_package''',
+                '''Running "flutter pub get" in ${path.join('.', 'my_sub_package')}''',
               ),
             ),
           );

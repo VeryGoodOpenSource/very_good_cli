@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as path;
 import 'package:pub_updater/pub_updater.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
@@ -202,7 +203,11 @@ void main() {
         });
 
         test('shows message when version changed', () async {
-          commandRunner.environmentOverride = {'HOME': '/users/test'};
+          final folderPath = path.join('users', 'test');
+          commandRunner.environmentOverride = {
+            'HOME': folderPath,
+            'LOCALAPPDATA': folderPath,
+          };
 
           await IOOverrides.runZoned(
             () async {
@@ -265,30 +270,37 @@ void main() {
             createFile: (path) => versionFile,
             stdout: () => stdout,
           );
-        });
+        }, onPlatform: {'windows': const Skip()});
 
-        test('cache inside local APP_DATA on windows', () async {
-          commandRunner
-            ..environmentOverride = {'LOCALAPPDATA': '/C/Users/test'}
-            ..isWindowsOverride = true;
+        test(
+          'cache inside local APP_DATA on windows',
+          () async {
+            commandRunner
+              ..environmentOverride = {'LOCALAPPDATA': '/C/Users/test'}
+              ..isWindowsOverride = true;
 
-          final windowsCache = _MockDirectory();
-          when(() => windowsCache.path).thenReturn('/C/Users/test');
+            final windowsCache = _MockDirectory();
+            when(() => windowsCache.path).thenReturn('/C/Users/test');
 
-          await IOOverrides.runZoned(
-            () async {
-              final result = await commandRunner.run([]);
-              expect(result, equals(ExitCode.success.code));
+            await IOOverrides.runZoned(
+              () async {
+                final result = await commandRunner.run([]);
+                expect(result, equals(ExitCode.success.code));
 
-              verifyNever(() => cliCache.path);
-              verify(() => windowsCache.path).called(1);
-            },
-            createDirectory: (path) =>
-                path.startsWith('/C/') ? windowsCache : cliCache,
-            createFile: (path) => versionFile,
-            stdout: () => stdout,
-          );
-        });
+                verifyNever(() => cliCache.path);
+                verify(() => windowsCache.path).called(1);
+              },
+              createDirectory: (path) =>
+                  path.startsWith('/C/') ? windowsCache : cliCache,
+              createFile: (path) => versionFile,
+              stdout: () => stdout,
+            );
+          },
+          onPlatform: {
+            'mac-os': const Skip(),
+            'linux': const Skip(),
+          },
+        );
       });
 
       group('--help', () {

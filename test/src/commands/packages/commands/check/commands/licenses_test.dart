@@ -530,7 +530,6 @@ and limitations under the License.''');
             ).thenReturn({veryGoodTestRunnerConfigPackage});
 
             final packagePath = path.join(
-              tempDirectory.path,
               'inexistent',
               'nothing',
             );
@@ -1714,7 +1713,6 @@ and limitations under the License.''');
           ).thenReturn({veryGoodTestRunnerConfigPackage});
 
           final packagePath = path.join(
-            tempDirectory.path,
             'inexistent',
             'nothing',
           );
