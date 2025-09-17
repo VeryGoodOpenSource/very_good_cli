@@ -148,13 +148,17 @@ class DartTestCommand extends Command<int> {
       ..addFlag(
         'optimization',
         defaultsTo: true,
-        help: 'Whether to apply optimizations for test performance.',
+        help:
+            'Whether to apply optimizations for test performance. '
+            'Automatically disabled when --platform is specified.',
       )
       ..addOption(
         'concurrency',
         abbr: 'j',
         defaultsTo: '4',
-        help: 'The number of concurrent test suites run.',
+        help:
+            'The number of concurrent test suites run. '
+            'Automatically set to 1 when --platform is specified.',
       )
       ..addOption(
         'tags',
@@ -199,9 +203,7 @@ class DartTestCommand extends Command<int> {
       )
       ..addOption(
         'platform',
-        help:
-            'The platform to run tests on. '
-            'For Dart tests, this can be "chrome", "vm", etc.',
+        help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm',
       );
   }
@@ -244,7 +246,8 @@ This command should be run from the root of your Dart project.''');
         final results = await _dartTest(
           optimizePerformance:
               options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest),
+              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+              options.platform == null,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -259,7 +262,7 @@ This command should be run from the root of your Dart project.''');
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.platform != null) ...['--platform', options.platform!],
-            ...['-j', options.concurrency],
+            if (options.platform == null) ...['-j', options.concurrency],
             ...options.rest,
           ],
           reportOn: options.reportOn,

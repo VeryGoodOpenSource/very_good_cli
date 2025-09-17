@@ -162,13 +162,17 @@ class TestCommand extends Command<int> {
       ..addFlag(
         'optimization',
         defaultsTo: true,
-        help: 'Whether to apply optimizations for test performance.',
+        help:
+            'Whether to apply optimizations for test performance. '
+            'Automatically disabled when --platform is specified.',
       )
       ..addOption(
         'concurrency',
         abbr: 'j',
         defaultsTo: '4',
-        help: 'The number of concurrent test suites run.',
+        help:
+            'The number of concurrent test suites run. '
+            'Automatically set to 1 when --platform is specified.',
       )
       ..addOption(
         'tags',
@@ -236,10 +240,7 @@ class TestCommand extends Command<int> {
       )
       ..addOption(
         'platform',
-        help:
-            'The platform to run tests on. '
-            'For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. '
-            'For Dart tests, this can be "chrome", "vm", etc.',
+        help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm|android|ios',
       );
   }
@@ -285,7 +286,8 @@ This command should be run from the root of your Flutter project.''');
           optimizePerformance:
               options.optimizePerformance &&
               !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              !options.updateGoldens,
+              !options.updateGoldens &&
+              options.platform == null,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -306,7 +308,7 @@ This command should be run from the root of your Flutter project.''');
             if (options.dartDefineFromFile != null)
               for (final value in options.dartDefineFromFile!)
                 '--dart-define-from-file=$value',
-            ...['-j', options.concurrency],
+            if (options.platform == null) ...['-j', options.concurrency],
             '--no-pub',
             ...options.rest,
           ],
