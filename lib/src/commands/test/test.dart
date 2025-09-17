@@ -287,6 +287,8 @@ This command should be run from the root of your Flutter project.''');
               options.optimizePerformance &&
               !TestCLIRunner.isTargettingTestFiles(options.rest) &&
               !options.updateGoldens &&
+              // Disabled optimization when platform is specified
+              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
               options.platform == null,
           recursive: recursive,
           logger: _logger,
