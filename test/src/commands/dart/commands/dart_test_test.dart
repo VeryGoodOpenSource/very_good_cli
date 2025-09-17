@@ -27,9 +27,9 @@ const expectedTestUsage = [
       '-h, --help                            Print this usage information.\n'
       '    --coverage                        Whether to collect coverage information.\n'
       '-r, --recursive                       Run tests recursively for all nested packages.\n'
-      '    --[no-]optimization               Whether to apply optimizations for test performance.\n'
+      '    --[no-]optimization               Whether to apply optimizations for test performance. Automatically disabled when --platform is specified.\n'
       '                                      (defaults to on)\n'
-      '-j, --concurrency                     The number of concurrent test suites run.\n'
+      '-j, --concurrency                     The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                      (defaults to "4")\n'
       '-t, --tags                            Run only tests associated with the specified tags.\n'
       '    --exclude-coverage                A glob which will be used to exclude files that match from the coverage.\n'
@@ -37,8 +37,8 @@ const expectedTestUsage = [
       '    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'
       '    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'
       '    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
-      '    --platform                        The platform to run tests on. For Dart tests, this can be "chrome", "vm", etc.\n'
       '    --report-on=<lib/>                An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --platform=<chrome|vm>            The platform to run tests on. \n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -107,6 +107,7 @@ void main() {
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
+      when<dynamic>(() => argResults['platform']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -253,7 +254,35 @@ void main() {
       expect(result, equals(ExitCode.success.code));
       verify(
         () => dartTest(
-          arguments: ['--platform', 'chrome', ...defaultArguments],
+          arguments: ['--platform', 'chrome'],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('disables optimization when --platform is specified', () async {
+      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          arguments: ['--platform', 'chrome'],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('disables concurrency when --platform is specified', () async {
+      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          arguments: ['--platform', 'chrome'],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
