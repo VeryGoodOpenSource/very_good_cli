@@ -20,6 +20,7 @@ class DartTestOptions {
     required this.randomSeed,
     required this.optimizePerformance,
     required this.forceAnsi,
+    required this.platform,
     required this.rest,
     required this.reportOn,
   });
@@ -41,6 +42,7 @@ class DartTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
+    final platform = argResults['platform'] as String?;
     final reportOn = argResults['report-on'] as String?;
     final rest = argResults.rest;
 
@@ -54,6 +56,7 @@ class DartTestOptions {
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       forceAnsi: forceAnsi,
+      platform: platform,
       reportOn: reportOn,
       rest: rest,
     );
@@ -86,6 +89,9 @@ class DartTestOptions {
   /// Whether to force ansi output. If not specified, it will maintain the
   /// default behavior based on stdout and stderr.
   final bool? forceAnsi;
+
+  /// The platform to run tests on (e.g., 'chrome', 'vm').
+  final String? platform;
 
   /// An optional file path to report coverage information to.
   final String? reportOn;
@@ -142,13 +148,17 @@ class DartTestCommand extends Command<int> {
       ..addFlag(
         'optimization',
         defaultsTo: true,
-        help: 'Whether to apply optimizations for test performance.',
+        help:
+            'Whether to apply optimizations for test performance. '
+            'Automatically disabled when --platform is specified.',
       )
       ..addOption(
         'concurrency',
         abbr: 'j',
         defaultsTo: '4',
-        help: 'The number of concurrent test suites run.',
+        help:
+            'The number of concurrent test suites run. '
+            'Automatically set to 1 when --platform is specified.',
       )
       ..addOption(
         'tags',
@@ -190,6 +200,11 @@ class DartTestCommand extends Command<int> {
             'An optional file path to report coverage information to. '
             'This should be a path relative to the current working directory.',
         valueHelp: 'lib/',
+      )
+      ..addOption(
+        'platform',
+        help: 'The platform to run tests on. ',
+        valueHelp: 'chrome|vm',
       );
   }
 
@@ -231,7 +246,10 @@ This command should be run from the root of your Dart project.''');
         final results = await _dartTest(
           optimizePerformance:
               options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest),
+              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+              // Disabled optimization when platform is specified
+              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+              options.platform == null,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -245,7 +263,8 @@ This command should be run from the root of your Dart project.''');
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
-            ...['-j', options.concurrency],
+            if (options.platform != null) ...['--platform', options.platform!],
+            if (options.platform == null) ...['-j', options.concurrency],
             ...options.rest,
           ],
           reportOn: options.reportOn,

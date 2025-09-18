@@ -26,6 +26,7 @@ very_good test [arguments]
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
     --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.
     --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.
+    --platform                        The platform to run tests on. For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. For Dart tests, this can be "chrome", "vm", etc.
     --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.
 
 Run "very_good help" to see global options.
