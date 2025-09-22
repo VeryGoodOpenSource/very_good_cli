@@ -1,6 +1,3 @@
-// No need for documentation in brick hooks
-// ignore_for_file: public_member_api_docs
-
 import 'dart:io';
 
 import 'package:hooks/dart_identifier_generator.dart';
