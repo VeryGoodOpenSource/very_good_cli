@@ -24,6 +24,27 @@
 
 * improve release process ([#1332](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1332)) ([cc83127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc831279e37218a248ac434b303c4e9011b36f7d))
 
+## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-09-18)
+
+
+### Features
+
+* add support `--platform` in tests ([#1359](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1359)) ([a3c2fd9](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a3c2fd91624fe61bf53c5804f272f842c3382678))
+* Adding report-on flag to the dart test command ([#1348](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1348)) ([5cf1d27](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5cf1d27ae690343880532af6c388392805b7ae55))
+* upgrade to flutter 3.35.0 ([#1344](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1344)) ([215cbdb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/215cbdbe999afca470386398b2bdcd1aa50588af))
+
+
+### Bug Fixes
+
+* report malformed licenses as unknown ([#1342](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1342)) ([47aa776](https://github.com/VeryGoodOpenSource/very_good_cli/commit/47aa77697c4f551514c408a0ef9d1753bd8749d4))
+* update test optimizer bundle path and content ([#1358](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1358)) ([7f8c01b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7f8c01b732a47c9b038b249e695ff17b36473bde))
+
+
+### Miscellaneous Chores
+
+* update SPDX licenses ([#1341](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1341)) ([d0321e8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d0321e897dcae806d90b33b658e118787735db8d))
+* update SPDX licenses ([#1350](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1350)) ([76a8f10](https://github.com/VeryGoodOpenSource/very_good_cli/commit/76a8f101797ae2f494ce944308c56a9c0d529e71))
+
 ## 0.26.2
 
 * feat: bump template bundles ([#1308](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1308))
