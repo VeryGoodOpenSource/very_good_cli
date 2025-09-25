@@ -1,6 +1,6 @@
 // Expected usage of the plugin will need to be adjacent strings due to format
 // and also be longer than 80 chars.
-// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars, implicit_call_tearoffs
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
 
 import 'dart:io';
 

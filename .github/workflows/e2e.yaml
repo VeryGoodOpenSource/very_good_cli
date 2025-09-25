@@ -21,7 +21,6 @@ on:
 jobs:
   e2e:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         test:

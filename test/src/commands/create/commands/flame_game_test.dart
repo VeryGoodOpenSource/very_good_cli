@@ -57,7 +57,6 @@ void main() {
 
   setUp(() {
     progressLogs = <String>[];
-
     logger = _MockLogger();
 
     final progress = _MockProgress();
