@@ -155,5 +155,65 @@ dependencies:
         expect(context.vars['isFlutter'], isNull);
       });
     });
+
+    group('skipVeryGoodOptimizationRegExp regex', () {
+      final regex = pre_gen.skipVeryGoodOptimizationRegExp;
+      test('matches single-line tag', () {
+        final content = "@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])";
+        expect(regex.hasMatch(content), isTrue);
+      });
+
+      test('matches single-line with multiple tags', () {
+        final content =
+            "@Tags(['${pre_gen.skipVeryGoodOptimizationTag}', 'chrome'])";
+        expect(regex.hasMatch(content), isTrue);
+      });
+
+      test('matches multi-line tag list', () {
+        final content =
+            '''
+      @Tags([
+        '${pre_gen.skipVeryGoodOptimizationTag}',
+        'chrome',
+        'test',
+      ])
+      ''';
+        expect(regex.hasMatch(content), isTrue);
+      });
+
+      test('matches multi-line where tag is not the first', () {
+        final content =
+            '''
+      @Tags([
+        'chrome',
+        '${pre_gen.skipVeryGoodOptimizationTag}',
+        'test',
+      ])
+      ''';
+        expect(regex.hasMatch(content), isTrue);
+      });
+
+      test('does not match when tag missing', () {
+        const content = "@Tags(['chrome', 'test'])";
+        expect(regex.hasMatch(content), isFalse);
+      });
+
+      test(
+        'does not match substring only (e.g. skip_very_good_optimization,test)',
+        () {
+          final content =
+              '''
+      @Tags([
+        '${pre_gen.skipVeryGoodOptimizationTag},test',
+        'chrome',
+      ])
+      ''';
+          expect(
+            regex.hasMatch(content),
+            isFalse,
+          ); // only exact tag should match
+        },
+      );
+    });
   });
 }
