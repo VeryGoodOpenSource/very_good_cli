@@ -37,12 +37,6 @@ jobs:
         id: make
         run: if [[ $(mason make spdx_license -q --licenses "[]" -o test --on-conflict overwrite --set-exit-if-changed) =~ "0 files changed" ]]; then echo "did_change=false"; else echo "did_change=true"; fi >> $GITHUB_ENV
 
-      - name: 🔑 Config Git User
-        if: ${{ env.did_change == 'true' }}
-        run: |
-          git config user.name VGV Bot
-          git config user.email vgvbot@users.noreply.github.com
-
       - name: 🧱 Mason Make (lib/pub_license/spdx_license)
         if: ${{ env.did_change == 'true' }}
         run: |
@@ -55,6 +49,7 @@ jobs:
         if: ${{ env.did_change == 'true' }}
         uses: peter-evans/create-pull-request@v7.0.8
         with:
+          token: ${{ secrets.VGV_BOT_TOKEN }}
           base: main
           branch: chore/update-spdx-license
           commit-message: "chore: update SPDX licenses"
