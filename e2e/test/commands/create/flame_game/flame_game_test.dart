@@ -9,7 +9,7 @@ void main() {
   test(
     'create flame_game',
     timeout: const Timeout(Duration(minutes: 5)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -48,7 +48,7 @@ void main() {
         ['coverage/lcov.info', '-o', 'coverage'],
         workingDirectory: workingDirectory,
       );
-      expect(testCoverageResult.stdout, contains('lines......: 97.9%'));
+      expect(testCoverageResult.stdout, contains('lines......: 97.8%'));
     }),
   );
 }

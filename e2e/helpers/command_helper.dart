@@ -32,6 +32,7 @@ void Function() withRunner(
     Logger logger,
     PubUpdater pubUpdater,
     List<String> printLogs,
+    List<String> progressLogs,
   )
   runnerFn,
 ) {
@@ -61,6 +62,12 @@ void Function() withRunner(
       () => pubUpdater.getLatestVersion(any()),
     ).thenAnswer((_) => Future.value('1.0.0'));
 
-    await runnerFn(commandRunner, logger, pubUpdater, printLogs);
+    await runnerFn(
+      commandRunner,
+      logger,
+      pubUpdater,
+      printLogs,
+      progressLogs,
+    );
   });
 }

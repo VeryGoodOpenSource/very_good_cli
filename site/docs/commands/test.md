@@ -26,20 +26,27 @@ very_good test [arguments]
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
     --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.
     --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.
+    --platform                        The platform to run tests on. For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. For Dart tests, this can be "chrome", "vm", etc.
     --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.
 
 Run "very_good help" to see global options.
 ```
 
+:::tip
+For **Dart** projects, use **`very_good dart test`** instead.
+
+All test parameters and options work identically with this command.
+:::
+
 ### Passing Flutter specific arguments
 
-The `flutter test` command exposes more arguments than those available through `very_good test`. Despite this, you can use the argument terminator `--` to signify the end of `very_good test` command options and the beginning of `flutter test` command options; making all `flutter test` arguments available!
+The `dart test` and `flutter test` commands expose more arguments than those available through `very_good dart test` or `very_good test`. However, you can use the argument terminator `--` to pass additional arguments directly to the underlying test commands. Any arguments after `--` will be forwarded to `dart test` or `flutter test`, making all their options available.
 
 For example, if you wish to run `flutter test --no-track-widget-creation` you can simply use `very_good test -- --no-track-widget-creation`.
 
 ### Tests without pub install
 
-Unlike `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
+Unlike `dart test` or `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
 
 This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:mason/mason.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
@@ -16,7 +17,7 @@ void main() {
   test(
     'packages check licenses --forbidden="MIT"',
     timeout: const Timeout(Duration(minutes: 2)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -54,6 +55,12 @@ void main() {
         equals(ExitCode.config.code),
         reason: 'Should fail when forbidden licenses are used',
       );
+
+      verify(
+        () => logger.err(
+          '1 dependency has a banned license: formz ([MIT](https://pub.dev/packages/formz/license)).',
+        ),
+      ).called(1);
     }),
   );
 }

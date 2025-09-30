@@ -29,6 +29,9 @@ Read more about this game template [in our blog][blog].
 ```sh
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
+
+# Create a new Flame game named with the name of the current directory
+very_good create flame_game . --desc "My new Flame game"
 ```
 
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template

@@ -13,9 +13,9 @@ import '../../../../../helpers/helpers.dart';
 /// * Run `very_good packages check licenses --allowed="MIT"` and expect success
 void main() {
   test(
-    'packages check licenses --allowed="MIT"',
+    'packages check licenses --allowed="MIT,BSD-3-Clause"',
     timeout: const Timeout(Duration(minutes: 2)),
-    withRunner((commandRunner, logger, updater, logs) async {
+    withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -44,13 +44,20 @@ void main() {
         'packages',
         'check',
         'licenses',
-        '--allowed=MIT',
+        '--allowed=MIT,BSD-3-Clause',
         relativeProjectPath,
       ]);
       expect(
         resultAllowed,
         equals(ExitCode.success.code),
         reason: 'Should succeed when allowed licenses are used',
+      );
+
+      expect(
+        progressLogs,
+        contains(
+          '''Retrieved 2 licenses from 2 packages of type: MIT (1) and BSD-3-Clause (1).''',
+        ),
       );
     }),
   );

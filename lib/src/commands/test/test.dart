@@ -8,6 +8,112 @@ import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
+/// Options for configuring the Flutter test command.
+class FlutterTestOptions {
+  FlutterTestOptions._({
+    required this.concurrency,
+    required this.collectCoverage,
+    required this.minCoverage,
+    required this.excludeTags,
+    required this.tags,
+    required this.excludeFromCoverage,
+    required this.randomSeed,
+    required this.optimizePerformance,
+    required this.updateGoldens,
+    required this.forceAnsi,
+    required this.dartDefine,
+    required this.dartDefineFromFile,
+    required this.platform,
+    required this.rest,
+  });
+
+  /// Parses [ArgResults] into a [FlutterTestOptions] instance.
+  factory FlutterTestOptions.parse(ArgResults argResults) {
+    final concurrency = argResults['concurrency'] as String;
+    final collectCoverage = argResults['coverage'] as bool;
+    final minCoverage = double.tryParse(
+      argResults['min-coverage'] as String? ?? '',
+    );
+    final excludeTags = argResults['exclude-tags'] as String?;
+    final tags = argResults['tags'] as String?;
+    final excludeFromCoverage = argResults['exclude-coverage'] as String?;
+    final randomOrderingSeed =
+        argResults['test-randomize-ordering-seed'] as String?;
+    final randomSeed = randomOrderingSeed == 'random'
+        ? Random().nextInt(4294967295).toString()
+        : randomOrderingSeed;
+    final optimizePerformance = argResults['optimization'] as bool;
+    final updateGoldens = argResults['update-goldens'] as bool;
+    final forceAnsi = argResults['force-ansi'] as bool?;
+    final dartDefine = argResults['dart-define'] as List<String>?;
+    final dartDefineFromFile =
+        argResults['dart-define-from-file'] as List<String>?;
+    final platform = argResults['platform'] as String?;
+    final rest = argResults.rest;
+
+    return FlutterTestOptions._(
+      concurrency: concurrency,
+      collectCoverage: collectCoverage,
+      minCoverage: minCoverage,
+      excludeTags: excludeTags,
+      tags: tags,
+      excludeFromCoverage: excludeFromCoverage,
+      randomSeed: randomSeed,
+      optimizePerformance: optimizePerformance,
+      updateGoldens: updateGoldens,
+      forceAnsi: forceAnsi,
+      dartDefine: dartDefine,
+      dartDefineFromFile: dartDefineFromFile,
+      platform: platform,
+      rest: rest,
+    );
+  }
+
+  /// The number of concurrent test suites run.
+  final String concurrency;
+
+  /// Whether to collect coverage information.
+  final bool collectCoverage;
+
+  /// Whether to enforce a minimum coverage percentage.
+  final double? minCoverage;
+
+  /// Run only tests that do not have the specified tags.
+  final String? excludeTags;
+
+  /// Run only tests associated with the specified tags.
+  final String? tags;
+
+  /// A glob which will be used to exclude files that match from the coverage.
+  final String? excludeFromCoverage;
+
+  /// The seed to randomize the execution order of test cases within test files.
+  final String? randomSeed;
+
+  /// Whether to apply optimizations for test performance.
+  final bool optimizePerformance;
+
+  /// Whether "matchesGoldenFile()" calls within your test methods should update
+  /// the golden files.
+  final bool updateGoldens;
+
+  /// Whether to force ansi output. If not specified, it will maintain the
+  /// default behavior based on stdout and stderr.
+  final bool? forceAnsi;
+
+  /// Optional list of dart defines
+  final List<String>? dartDefine;
+
+  /// Optional list of dart define from files
+  final List<String>? dartDefineFromFile;
+
+  /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
+  final String? platform;
+
+  /// The remaining arguments passed to the test command.
+  final List<String> rest;
+}
+
 /// Signature for the [Flutter.installed] method.
 typedef FlutterInstalledCommand =
     Future<bool> Function({required Logger logger});
@@ -56,13 +162,17 @@ class TestCommand extends Command<int> {
       ..addFlag(
         'optimization',
         defaultsTo: true,
-        help: 'Whether to apply optimizations for test performance.',
+        help:
+            'Whether to apply optimizations for test performance. '
+            'Automatically disabled when --platform is specified.',
       )
       ..addOption(
         'concurrency',
         abbr: 'j',
         defaultsTo: '4',
-        help: 'The number of concurrent test suites run.',
+        help:
+            'The number of concurrent test suites run. '
+            'Automatically set to 1 when --platform is specified.',
       )
       ..addOption(
         'tags',
@@ -127,6 +237,11 @@ class TestCommand extends Command<int> {
             'Entries from "--dart-define" with identical keys take '
             'precedence over entries from these files.',
         valueHelp: 'use-define-config.json|.env',
+      )
+      ..addOption(
+        'platform',
+        help: 'The platform to run tests on. ',
+        valueHelp: 'chrome|vm|android|ios',
       );
   }
 
@@ -135,7 +250,9 @@ class TestCommand extends Command<int> {
   final FlutterTestCommand _flutterTest;
 
   @override
-  String get description => 'Run tests in a Dart or Flutter project.';
+  String get description =>
+      'Run `flutter test` in a project. (Check '
+      'very_good dart test for running `dart test` instead.)';
 
   @override
   String get name => 'test';
@@ -159,79 +276,53 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
-    final concurrency = _argResults['concurrency'] as String;
-    final collectCoverage = _argResults['coverage'] as bool;
-    final minCoverage = double.tryParse(
-      _argResults['min-coverage'] as String? ?? '',
-    );
-    final excludeTags = _argResults['exclude-tags'] as String?;
-    final tags = _argResults['tags'] as String?;
     final isFlutterInstalled = await _flutterInstalled(logger: _logger);
-    final excludeFromCoverage = _argResults['exclude-coverage'] as String?;
-    final randomOrderingSeed =
-        _argResults['test-randomize-ordering-seed'] as String?;
-    final randomSeed = randomOrderingSeed == 'random'
-        ? Random().nextInt(4294967295).toString()
-        : randomOrderingSeed;
-    final optimizePerformance = _argResults['optimization'] as bool;
-    final updateGoldens = _argResults['update-goldens'] as bool;
-    final forceAnsi = _argResults['force-ansi'] as bool?;
-    final dartDefine = _argResults['dart-define'] as List<String>?;
-    final dartDefineFromFile =
-        _argResults['dart-define-from-file'] as List<String>?;
-    final rest = _argResults.rest;
+
+    final options = FlutterTestOptions.parse(_argResults);
 
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
           optimizePerformance:
-              optimizePerformance &&
-              !_isTargettingTestFiles(rest) &&
-              !updateGoldens,
+              options.optimizePerformance &&
+              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+              !options.updateGoldens &&
+              // Disabled optimization when platform is specified
+              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+              options.platform == null,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
           stderr: _logger.err,
-          collectCoverage: collectCoverage || minCoverage != null,
-          minCoverage: minCoverage,
-          excludeFromCoverage: excludeFromCoverage,
-          randomSeed: randomSeed,
-          forceAnsi: forceAnsi,
+          collectCoverage:
+              options.collectCoverage || options.minCoverage != null,
+          minCoverage: options.minCoverage,
+          excludeFromCoverage: options.excludeFromCoverage,
+          randomSeed: options.randomSeed,
+          forceAnsi: options.forceAnsi,
           arguments: [
-            if (excludeTags != null) ...['-x', excludeTags],
-            if (tags != null) ...['-t', tags],
-            if (updateGoldens) '--update-goldens',
-            if (dartDefine != null)
-              for (final value in dartDefine) '--dart-define=$value',
-            if (dartDefineFromFile != null)
-              for (final value in dartDefineFromFile)
+            if (options.excludeTags != null) ...['-x', options.excludeTags!],
+            if (options.tags != null) ...['-t', options.tags!],
+            if (options.updateGoldens) '--update-goldens',
+            if (options.platform != null) ...['--platform', options.platform!],
+            if (options.dartDefine != null)
+              for (final value in options.dartDefine!) '--dart-define=$value',
+            if (options.dartDefineFromFile != null)
+              for (final value in options.dartDefineFromFile!)
                 '--dart-define-from-file=$value',
-            ...['-j', concurrency],
+            if (options.platform == null) ...['-j', options.concurrency],
             '--no-pub',
-            ...rest,
+            ...options.rest,
           ],
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;
         }
       } on MinCoverageNotMet catch (e) {
-        var decimalPlaces = 2;
-
-        double round(double x) {
-          final b = pow(10, decimalPlaces);
-          return (x * b).roundToDouble() / b;
-        }
-
-        if (e.coverage < minCoverage!) {
-          var rounded = round(e.coverage);
-          while (rounded == minCoverage) {
-            decimalPlaces++;
-            rounded = round(e.coverage);
-          }
-        }
-
-        _logger.err(
-          '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
+        TestCLIRunner.handleMinCoverageNotMet(
+          logger: _logger,
+          minCoverage: options.minCoverage,
+          e: e,
         );
         return ExitCode.unavailable.code;
       } on Exception catch (error) {
@@ -241,25 +332,4 @@ This command should be run from the root of your Flutter project.''');
     }
     return ExitCode.success.code;
   }
-}
-
-/// Determines whether the user is targetting test files or not.
-///
-/// The user can only target test files by using the `--` option terminator.
-/// The additional options after the `--` are passed to the test runner which
-/// allows the user to target specific test files or directories.
-///
-/// The heuristics used to determine if the user is not targetting test files
-/// are:
-/// * No [rest] arguments are passed.
-/// * All [rest] arguments are options (i.e. they do not start with `-`).
-///
-/// See also:
-/// * [What does -- mean in Shell?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
-bool _isTargettingTestFiles(List<String> rest) {
-  if (rest.isEmpty) {
-    return false;
-  }
-
-  return rest.where((arg) => !arg.startsWith('-')).isNotEmpty;
 }

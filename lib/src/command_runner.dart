@@ -36,6 +36,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     addCommand(PackagesCommand(logger: _logger));
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
+    addCommand(DartCommand(logger: _logger));
   }
 
   /// Standard timeout duration for the CLI.

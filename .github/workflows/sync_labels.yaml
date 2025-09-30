@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: ⤵️ Check out code from GitHub
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🚀 Run Label Sync
         uses: srealmoreno/label-sync-action@v2

@@ -1,3 +1,6 @@
+// Ignoring for test
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:async';
 import 'dart:io';
 
@@ -34,8 +37,9 @@ const expectedUsage = [
   'Available commands:\n',
   '  create     very_good create <subcommand> <project-name> [arguments]\n',
   '''             Creates a new very good project in the specified directory.\n''',
+  '  dart       Command for running dart related commands.\n',
   '  packages   Command for managing packages.\n',
-  '  test       Run tests in a Dart or Flutter project.\n',
+  '  test       Run `flutter test` in a project. (Check very_good dart test for running `dart test` instead.)\n',
   '  update     Update Very Good CLI.\n',
   '\n',
   'Run "very_good help <command>" for more information about a command.',
