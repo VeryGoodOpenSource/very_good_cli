@@ -19,11 +19,11 @@ class CreateFlameGame extends CreateSubCommand with OrgName {
       defaultsTo: ['android', 'ios', 'web', 'macos', 'windows'],
       allowed: ['android', 'ios', 'web', 'macos', 'windows'],
       allowedHelp: {
-        'android': 'The plugin supports the Android platform.',
-        'ios': 'The plugin supports the iOS platform.',
-        'web': 'The plugin supports the Web platform.',
-        'macos': 'The plugin supports the macOS platform.',
-        'windows': 'The plugin supports the Windows platform.',
+        'android': 'The game supports the Android platform.',
+        'ios': 'The game supports the iOS platform.',
+        'web': 'The game supports the Web platform.',
+        'macos': 'The game supports the macOS platform.',
+        'windows': 'The game supports the Windows platform.',
       },
     );
   }
