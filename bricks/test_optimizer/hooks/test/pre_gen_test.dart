@@ -16,6 +16,26 @@ class _FakeContext extends Fake implements HookContext {
   Map<String, Object?> vars = {};
 }
 
+final notOptimizedTestContent =
+    '''
+@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])
+void main() {
+  test('test', () {
+    expect(1, 1);
+  });
+}
+''';
+
+final anotherNotOptimizedTestContent =
+    '''
+@Tags(['${pre_gen.skipVeryGoodOptimizationTag}', 'another_tag'])
+void main() {
+  test('another test', () {
+    expect(1, 1);
+  });
+}
+''';
+
 void main() {
   late Directory tempDirectory;
 
@@ -85,6 +105,57 @@ dependencies:
         await pre_gen.run(context);
 
         expect(context.vars['isFlutter'], true);
+      });
+
+      test('with proper not optimized tests identification', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        File(path.join(testDir.path, 'test1_test.dart')).createSync();
+        File(path.join(testDir.path, 'test2_test.dart')).createSync();
+        File(path.join(testDir.path, 'no_test_here.dart')).createSync();
+        File(
+          path.join(testDir.path, 'not_optimized_test.dart'),
+        ).writeAsStringSync(notOptimizedTestContent);
+        File(
+          path.join(testDir.path, 'another_not_optimized_test.dart'),
+        ).writeAsStringSync(anotherNotOptimizedTestContent);
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+
+        await pre_gen.run(context);
+
+        final tests = context.vars['tests'] as List<Map<String, String>>;
+        final testsMap = <String, String>{};
+        for (final test in tests) {
+          final path = test['path']!;
+          final identifier = test['identifier']!;
+          testsMap[path] = identifier;
+        }
+
+        final paths = testsMap.keys;
+        expect(paths, contains('test1_test.dart'));
+        expect(paths, contains('test2_test.dart'));
+        expect(paths, isNot(contains('no_test_here.dart')));
+        expect(paths, isNot(contains('not_optimized_test.dart')));
+        expect(paths, isNot(contains('another_not_optimized_test.dart')));
+
+        expect(
+          testsMap.values.toSet().length,
+          equals(tests.length),
+          reason: 'All tests files should have unique identifiers',
+        );
+        final notOptimizedTests =
+            context.vars['notOptimizedTests'] as List<String>;
+        expect(
+          notOptimizedTests,
+          contains('not_optimized_test.dart'),
+        );
+        expect(
+          notOptimizedTests,
+          contains('another_not_optimized_test.dart'),
+        );
       });
     });
 
