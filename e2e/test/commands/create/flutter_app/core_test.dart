@@ -43,6 +43,28 @@ void main() {
       ], workingDirectory: workingDirectory);
       expect(testResult.stdout, contains('All tests passed!'));
 
+      final lcovContents = await File(
+        path.join(workingDirectory, 'coverage', 'lcov.info'),
+      ).readAsString();
+      await expectSuccessfulProcessResult(
+        'echo',
+        [
+          lcovContents,
+        ],
+        workingDirectory: workingDirectory,
+      );
+
+      // In the context of a test using withRunner, print() output is typically
+      // captured and not shown in the console. To ensure output is visible,
+      // use the provided logger or logs list if available.
+      // For demonstration, we'll use logger.info (assuming logger is available):
+
+      logger.info(
+        '==== coverage/lcov.info ====\n$lcovContents\n==== end coverage/lcov.info ====',
+      );
+
+      expect(lcovContents, matches(RegExp('lines(.+) 100.0%')));
+
       final testCoverageResult = await expectSuccessfulProcessResult(
         'genhtml',
         ['coverage/lcov.info', '-o', 'coverage'],
