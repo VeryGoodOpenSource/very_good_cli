@@ -1,19 +1,13 @@
-name: site
+name: site_deploy
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/site.yaml"
-      - "site/**"
   push:
-    paths:
-      - ".github/workflows/site.yaml"
-      - "site/**"
-    branches:
-      - main
-
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+  
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     defaults:
@@ -27,7 +21,7 @@ jobs:
       - name: ⚙️ Setup Node
         uses: actions/setup-node@v5
         with:
-          node-version: 20.x
+          node-version: 18.x
           cache: npm
           cache-dependency-path: site/package-lock.json
 
@@ -42,3 +36,11 @@ jobs:
 
       - name: 👷 Build website
         run: npm run build
+
+      - name: ☁️ Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site/build
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
