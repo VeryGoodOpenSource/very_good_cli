@@ -45,9 +45,6 @@ const expectedUsage = [
   'Run "very_good help <command>" for more information about a command.',
 ];
 
-const responseBody =
-    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
-
 const latestVersion = '0.0.0';
 
 final updatePrompt =

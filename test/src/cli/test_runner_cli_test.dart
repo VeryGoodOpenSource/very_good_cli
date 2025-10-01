@@ -1,5 +1,5 @@
 // Expected usage of the plugin will need to be adjacent strings due to format.
-// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+// ignore_for_file: no_adjacent_strings_in_list
 
 import 'dart:async';
 import 'dart:io';

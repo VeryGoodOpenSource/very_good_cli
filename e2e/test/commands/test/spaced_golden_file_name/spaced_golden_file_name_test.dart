@@ -18,14 +18,17 @@ void main() {
         tempDirectory,
       );
 
-      await expectSuccessfulProcessResult('flutter', [
-        'pub',
-        'get',
-      ], workingDirectory: tempDirectory.path);
-      await expectSuccessfulProcessResult('flutter', [
-        'test',
-        '--update-goldens',
-      ], workingDirectory: tempDirectory.path);
+      await expectSuccessfulProcessResult(
+        'flutter',
+        ['pub', 'get'],
+        workingDirectory: tempDirectory.path,
+      );
+
+      await expectSuccessfulProcessResult(
+        'flutter',
+        ['test', '--update-goldens'],
+        workingDirectory: tempDirectory.path,
+      );
 
       Directory.current = tempDirectory;
       final result = await commandRunner.run(['test']);
