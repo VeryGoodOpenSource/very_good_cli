@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      # TODO(matiasleyba): Remove 
-      fail-fast: false
       matrix:
         test:
           # E2E tests for the test command
