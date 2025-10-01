@@ -12,16 +12,12 @@ const config = {
   url: 'https://cli.vgv.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'verygoodopensource',
   projectName: 'very_good_cli',
   trailingSlash: false,
-  markdown: {
-    hooks: {
-      onBrokenMarkdownLinks: 'warn',
-      onBrokenMarkdownImages: 'throw',
-    },
-  },
+
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
