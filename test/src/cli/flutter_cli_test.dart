@@ -1,5 +1,4 @@
 // Expected usage of the plugin will need to be adjacent strings due to format.
-// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
 
 import 'dart:async';
 
@@ -85,7 +84,7 @@ void main() {
     });
 
     group('.installed', () {
-      test('returns true when flutter is installed', () {
+      test('returns true when flutter is installed', () async {
         when(
           () => process.run(
             'flutter',
@@ -94,7 +93,8 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((_) async => successProcessResult);
-        ProcessOverrides.runZoned(
+
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.installed(logger: logger),
             completion(isTrue),
@@ -103,7 +103,7 @@ void main() {
         );
       });
 
-      test('returns false when flutter is not installed', () {
+      test('returns false when flutter is not installed', () async {
         when(
           () => process.run(
             'flutter',
@@ -112,7 +112,8 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenThrow(Exception('flutter not installed'));
-        ProcessOverrides.runZoned(
+
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.installed(logger: logger),
             completion(isFalse),
@@ -123,8 +124,8 @@ void main() {
     });
 
     group('.pubGet', () {
-      test('throws when there is no pubspec.yaml', () {
-        ProcessOverrides.runZoned(
+      test('throws when there is no pubspec.yaml', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsA(isA<PubspecNotFound>()),
@@ -133,7 +134,7 @@ void main() {
         );
       });
 
-      test('throws when process fails', () {
+      test('throws when process fails', () async {
         when(
           () => process.run(
             'flutter',
@@ -142,7 +143,8 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
-        ProcessOverrides.runZoned(
+
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsException,
@@ -151,15 +153,15 @@ void main() {
         );
       });
 
-      test('completes when the process succeeds', () {
-        ProcessOverrides.runZoned(
+      test('completes when the process succeeds', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(Flutter.pubGet(logger: logger), completes),
           runProcess: process.run,
         );
       });
 
-      test('completes when the process succeeds (recursive)', () {
-        ProcessOverrides.runZoned(
+      test('completes when the process succeeds (recursive)', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(recursive: true, logger: logger),
             completes,
@@ -171,7 +173,7 @@ void main() {
       test(
         'completes when there is a pubspec.yaml and '
         'directory is ignored (recursive)',
-        () {
+        () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -190,7 +192,7 @@ void main() {
 
           final relativePathPrefix = '.${p.context.separator}';
 
-          ProcessOverrides.runZoned(
+          await ProcessOverrides.runZoned(
             () => expectLater(
               Dart.pubGet(
                 cwd: tempDirectory.path,
@@ -238,7 +240,7 @@ void main() {
         },
       );
 
-      test('throws when process fails', () {
+      test('throws when process fails', () async {
         when(
           () => process.run(
             any(),
@@ -248,13 +250,13 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(Flutter.pubGet(logger: logger), throwsException),
           runProcess: process.run,
         );
       });
 
-      test('throws when process fails (recursive)', () {
+      test('throws when process fails (recursive)', () async {
         when(
           () => process.run(
             any(),
@@ -264,7 +266,7 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Flutter.pubGet(recursive: true, logger: logger),
             throwsException,
@@ -273,7 +275,7 @@ void main() {
         );
       });
 
-      test('throws when there is an unreachable git url', () {
+      test('throws when there is an unreachable git url', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -290,7 +292,7 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(
             () => Flutter.pubGet(cwd: tempDirectory.path, logger: logger),
             throwsA(isA<UnreachableGitDependency>()),

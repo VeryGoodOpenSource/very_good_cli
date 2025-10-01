@@ -73,14 +73,14 @@ void main() {
     });
 
     group('.installed', () {
-      test('returns true when dart is installed', () {
-        ProcessOverrides.runZoned(
+      test('returns true when dart is installed', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(Dart.installed(logger: logger), completion(isTrue)),
           runProcess: process.run,
         );
       });
 
-      test('returns false when dart is not installed', () {
+      test('returns false when dart is not installed', () async {
         final processResult = ProcessResult(
           42,
           ExitCode.software.code,
@@ -97,17 +97,19 @@ void main() {
           ),
         ).thenAnswer((_) async => processResult);
 
-        ProcessOverrides.runZoned(
-          () =>
-              expectLater(Dart.installed(logger: logger), completion(isFalse)),
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.installed(logger: logger),
+            completion(isFalse),
+          ),
           runProcess: process.run,
         );
       });
     });
 
     group('.pubGet', () {
-      test('throws when there is no pubspec.yaml', () {
-        ProcessOverrides.runZoned(
+      test('throws when there is no pubspec.yaml', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Dart.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsA(isA<PubspecNotFound>()),
@@ -116,7 +118,7 @@ void main() {
         );
       });
 
-      test('throws when process fails', () {
+      test('throws when process fails', () async {
         when(
           () => process.run(
             'flutter',
@@ -125,7 +127,8 @@ void main() {
             workingDirectory: any(named: 'workingDirectory'),
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
-        ProcessOverrides.runZoned(
+
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Dart.pubGet(cwd: Directory.systemTemp.path, logger: logger),
             throwsException,
@@ -134,15 +137,15 @@ void main() {
         );
       });
 
-      test('completes when the process succeeds', () {
-        ProcessOverrides.runZoned(
+      test('completes when the process succeeds', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(Dart.pubGet(logger: logger), completes),
           runProcess: process.run,
         );
       });
 
-      test('completes when the process succeeds (recursive)', () {
-        ProcessOverrides.runZoned(
+      test('completes when the process succeeds (recursive)', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Dart.pubGet(recursive: true, logger: logger),
             completes,
@@ -154,7 +157,7 @@ void main() {
       test(
         'completes when there is a pubspec.yaml and '
         'directory is ignored (recursive)',
-        () {
+        () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -173,7 +176,7 @@ void main() {
 
           final relativePathPrefix = '.${p.context.separator}';
 
-          ProcessOverrides.runZoned(
+          await ProcessOverrides.runZoned(
             () => expectLater(
               Dart.pubGet(
                 cwd: tempDirectory.path,
@@ -221,7 +224,7 @@ void main() {
         },
       );
 
-      test('throws when process fails', () {
+      test('throws when process fails', () async {
         when(
           () => process.run(
             any(),
@@ -231,13 +234,13 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(Dart.pubGet(logger: logger), throwsException),
           runProcess: process.run,
         );
       });
 
-      test('throws when process fails (recursive)', () {
+      test('throws when process fails (recursive)', () async {
         when(
           () => process.run(
             any(),
@@ -247,7 +250,7 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(
             Dart.pubGet(recursive: true, logger: logger),
             throwsException,
@@ -256,7 +259,7 @@ void main() {
         );
       });
 
-      test('throws when there is an unreachable git url', () {
+      test('throws when there is an unreachable git url', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
@@ -273,7 +276,7 @@ void main() {
           ),
         ).thenAnswer((_) async => softwareErrorProcessResult);
 
-        ProcessOverrides.runZoned(
+        await ProcessOverrides.runZoned(
           () => expectLater(
             () => Dart.pubGet(cwd: tempDirectory.path, logger: logger),
             throwsA(isA<UnreachableGitDependency>()),
@@ -284,8 +287,8 @@ void main() {
     });
 
     group('.applyFixes', () {
-      test('completes normally', () {
-        ProcessOverrides.runZoned(
+      test('completes normally', () async {
+        await ProcessOverrides.runZoned(
           () => expectLater(Dart.applyFixes(logger: logger), completes),
           runProcess: process.run,
         );

@@ -1,4 +1,4 @@
-// Expected usage of the game will need to be adjacent strings due to format
+// Expected usage of the game will need to be adjacent strings due to format.
 // ignore_for_file: lines_longer_than_80_chars, no_adjacent_strings_in_list
 
 import 'dart:io';
@@ -66,7 +66,6 @@ void main() {
 
   setUp(() {
     progressLogs = <String>[];
-
     logger = _MockLogger();
 
     final progress = _MockProgress();

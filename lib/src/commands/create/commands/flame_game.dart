@@ -40,11 +40,8 @@ class CreateFlameGame extends CreateSubCommand with OrgName {
   @override
   Map<String, dynamic> getTemplateVars() {
     final vars = super.getTemplateVars();
-
     final platforms = argResults['platforms'] as List<String>;
-
     vars['platforms'] = platforms;
-
     return vars;
   }
 }
