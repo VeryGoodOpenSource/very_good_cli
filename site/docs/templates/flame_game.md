@@ -45,7 +45,6 @@ very_good create flame_game . --desc "My new Flame game"
 very_good create flame_game my_game --platforms android,ios
 ```
 
-
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template
 [very_good_cli_link]: https://github.com/VeryGoodOpenSource/very_good_cli
 [mason_link]: https://github.com/felangel/mason
