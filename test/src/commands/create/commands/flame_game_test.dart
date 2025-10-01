@@ -1,3 +1,6 @@
+// Expected usage of the game will need to be adjacent strings due to format.
+// ignore_for_file: lines_longer_than_80_chars, no_adjacent_strings_in_list
+
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -26,18 +29,24 @@ class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
 
 final expectedUsage = [
-  '''
-Generate a Very Good Flame game.
-
-Usage: very_good create flame_game <project-name> [arguments]
--h, --help                Print this usage information.
--o, --output-directory    The desired output directory when creating a new project.
-    --description         The description for this new project.
-                          (defaults to "A Very Good Project created by Very Good CLI.")
-    --org-name            The organization for this new project.
-                          (defaults to "com.example.verygoodcore")
-
-Run "very_good help" to see global options.''',
+  'Generate a Very Good Flame game.\n'
+      '\n'
+      'Usage: very_good create flame_game <project-name> [arguments]\n'
+      '-h, --help                       Print this usage information.\n'
+      '-o, --output-directory           The desired output directory when creating a new project.\n'
+      '    --description                The description for this new project.\n'
+      '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
+      '    --org-name                   The organization for this new project.\n'
+      '                                 (defaults to "com.example.verygoodcore")\n'
+      '    --platforms                  The platforms supported by the plugin. By default, all platforms are enabled. Example: --platforms=android,ios\n'
+      '\n'
+      '          [android] (default)    The plugin supports the Android platform.\n'
+      '          [ios] (default)        The plugin supports the iOS platform.\n'
+      '          [web] (default)        The plugin supports the Web platform.\n'
+      '          [macos] (default)      The plugin supports the macOS platform.\n'
+      '          [windows] (default)    The plugin supports the Windows platform.\n'
+      '\n'
+      'Run "very_good help" to see global options.',
 ];
 
 const pubspec = '''
@@ -177,6 +186,9 @@ void main() {
         when(
           () => argResults['application-id'] as String?,
         ).thenReturn('xyz.app.my_app');
+        when(
+          () => argResults['platforms'] as List<String>,
+        ).thenReturn(['android', 'ios', 'web', 'macos', 'windows']);
 
         final result = await command.run();
 
@@ -190,6 +202,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             onVarsChanged: any(named: 'onVarsChanged'),
           ),
@@ -201,6 +214,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             logger: logger,
           ),
