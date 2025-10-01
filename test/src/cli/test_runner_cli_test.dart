@@ -1213,7 +1213,8 @@ void main() {
       });
 
       test(
-        'pass not optimized tests along with optimized tests when optimization is enabled but there are not optimized tests as well',
+        'pass not optimized tests along with optimized tests when optimization '
+        'is enabled but there are not optimized tests as well',
         () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
@@ -1279,7 +1280,8 @@ void main() {
       );
 
       test(
-        'do not pass not optimized tests along with optimized tests when optimization is enabled but there are no not optimized tests',
+        'do not pass not optimized tests along with optimized tests when '
+        'optimization is enabled but there are no not optimized tests',
         () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
