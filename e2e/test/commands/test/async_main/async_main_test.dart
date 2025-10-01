@@ -22,16 +22,15 @@ void main() {
 
       await copyDirectory(fixture, tempDirectory);
 
-      await expectSuccessfulProcessResult('flutter', [
-        'pub',
-        'get',
-      ], workingDirectory: tempDirectory.path);
+      await expectSuccessfulProcessResult(
+        'flutter',
+        ['pub', 'get'],
+        workingDirectory: tempDirectory.path,
+      );
 
       final cwd = Directory.current;
       Directory.current = tempDirectory;
-      addTearDown(() {
-        Directory.current = cwd;
-      });
+      addTearDown(() => Directory.current = cwd);
 
       final result = await commandRunner.run(['test']);
       expect(result, equals(ExitCode.success.code));

@@ -326,7 +326,7 @@ Future<int> _testCommand({
         runInShell: true,
       ).listen(
         (event) async {
-          if (event.shouldCancelTimer()) await timerSubscription.cancel();
+          if (event.shouldCancelTimer()) unawaited(timerSubscription.cancel());
           if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
           if (event is GroupTestEvent) groups[event.group.id] = event.group;
           if (event is TestStartEvent) tests[event.test.id] = event.test;
@@ -451,8 +451,8 @@ Future<int> _testCommand({
 
           if (event is ExitTestEvent) {
             if (completer.isCompleted) return;
-            await subscription.cancel();
-            await sigintWatchSubscription.cancel();
+            unawaited(subscription.cancel());
+            unawaited(sigintWatchSubscription.cancel());
 
             completer.complete(
               event.exitCode == ExitCode.success.code
