@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 705 SPDX licenses.
+/// A list of all 707 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -52,6 +52,7 @@ enum SpdxLicense {
   $Adobe_Display_PostScript._('Adobe-Display-PostScript'),
   $Adobe_Glyph._('Adobe-Glyph'),
   $Adobe_Utopia._('Adobe-Utopia'),
+  $Advanced_Cryptics_Dictionary._('Advanced-Cryptics-Dictionary'),
   $Afmparse._('Afmparse'),
   $Aladdin._('Aladdin'),
   $Apache_1_0._('Apache-1.0'),
@@ -97,6 +98,7 @@ enum SpdxLicense {
   $BSD_Advertising_Acknowledgement._('BSD-Advertising-Acknowledgement'),
   $BSD_Attribution_HPND_disclaimer._('BSD-Attribution-HPND-disclaimer'),
   $BSD_Inferno_Nettverk._('BSD-Inferno-Nettverk'),
+  $BSD_Mark_Modifications._('BSD-Mark-Modifications'),
   $BSD_Protection._('BSD-Protection'),
   $BSD_Source_Code._('BSD-Source-Code'),
   $BSD_Source_beginning_file._('BSD-Source-beginning-file'),
