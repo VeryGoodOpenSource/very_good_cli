@@ -116,12 +116,11 @@ class TestCLIRunner {
             '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
           );
         }
-
+        var vars = <String, dynamic>{'package-root': workingDirectory};
         if (optimizePerformance) {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
             final generator = await buildGenerator(testOptimizerBundle);
-            var vars = <String, dynamic>{'package-root': workingDirectory};
             await generator.hooks.preGen(
               vars: vars,
               onVarsChanged: (v) => vars = v,
@@ -136,6 +135,9 @@ class TestCLIRunner {
             optimizationProgress.complete();
           }
         }
+
+        final notOptimizedTests =
+            vars['notOptimizedTests'] as List<dynamic>? ?? [];
         return _overrideAnsiOutput(
           forceAnsi,
           () =>
@@ -152,6 +154,11 @@ class TestCLIRunner {
                   ],
                   if (optimizePerformance)
                     p.join('test', _testOptimizerFileName),
+                  // Include non-optimized tests that require separate execution
+                  if (notOptimizedTests.isNotEmpty && optimizePerformance)
+                    ...notOptimizedTests.map(
+                      (e) => p.join('test', e.toString()),
+                    ),
                 ],
                 stdout: stdout ?? noop,
                 stderr: stderr ?? noop,

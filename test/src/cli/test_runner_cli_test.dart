@@ -1211,6 +1211,133 @@ void main() {
           ]),
         );
       });
+
+      test(
+        'pass not optimized tests along with optimized tests when optimization '
+        'is enabled but there are not optimized tests as well',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': [
+              'app/view/app_test.dart',
+              'app/cubit/cubit_test.dart',
+            ],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              'test/app/view/app_test.dart',
+              'test/app/cubit/cubit_test.dart',
+            ]),
+          );
+        },
+      );
+
+      test(
+        'do not pass not optimized tests along with optimized tests when '
+        'optimization is enabled but there are no not optimized tests',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': <String>[],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([p.join('test', '.test_optimizer.dart')]),
+          );
+        },
+      );
     });
   });
 }
