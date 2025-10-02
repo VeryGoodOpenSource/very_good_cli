@@ -16,8 +16,9 @@ very_good test [arguments]
     --coverage                        Whether to collect coverage information.
 -r, --recursive                       Run tests recursively for all nested packages.
     --[no-]optimization               Whether to apply optimizations for test performance.
-                                      (defaults to on)
+                                      Automatically disabled when --platform is specified.
                                       Add the `skip_very_good_optimization` tag to specific test files to disable them individually.
+                                      (defaults to on)
 -j, --concurrency                     The number of concurrent test suites run.
                                       (defaults to "4")
 -t, --tags                            Run only tests associated with the specified tags.
