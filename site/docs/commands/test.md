@@ -17,6 +17,7 @@ very_good test [arguments]
 -r, --recursive                       Run tests recursively for all nested packages.
     --[no-]optimization               Whether to apply optimizations for test performance.
                                       (defaults to on)
+                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually.
 -j, --concurrency                     The number of concurrent test suites run.
                                       (defaults to "4")
 -t, --tags                            Run only tests associated with the specified tags.
@@ -61,3 +62,13 @@ Golden tests are tests that compare the output of a test to a "golden" file. If 
 [Very Good CLI](https://cli.vgv.dev/) supports golden tests out of the box, with and without a custom [`goldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). This means that **no change is required** to your test code to run them with `very_good test`.
 
 :::info For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). :::
+
+### Skip optimization for specific tests
+ 
+By default, all tests run with optimizations enabled; use the `--no-optimization` flag to disable globally, or add the `skip_very_good_optimization` tag to specific test files to disable them individually.
+
+```
+@Tags(['skip_very_good_optimization'])
+
+import 'package:test/test.dart';
+```

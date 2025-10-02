@@ -164,7 +164,8 @@ class TestCommand extends Command<int> {
         defaultsTo: true,
         help:
             'Whether to apply optimizations for test performance. '
-            'Automatically disabled when --platform is specified.',
+            'Automatically disabled when --platform is specified. '
+            '''Add the `skip_very_good_optimization` tag to specific test files to disable them individually.''',
       )
       ..addOption(
         'concurrency',
