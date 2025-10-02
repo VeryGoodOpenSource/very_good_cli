@@ -64,7 +64,7 @@ Golden tests are tests that compare the output of a test to a "golden" file. If 
 :::info For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html). :::
 
 ### Skip optimization for specific tests
- 
+
 By default, all tests run with optimizations enabled; use the `--no-optimization` flag to disable globally, or add the `skip_very_good_optimization` tag to specific test files to disable them individually.
 
 ```
