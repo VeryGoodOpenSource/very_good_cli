@@ -1,31 +1,5 @@
 # Changelog
 
-## [0.27.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.27.0) (2025-08-18)
-
-
-### Features
-
-* Adding the dart test command ([#1333](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1333)) ([d7ef095](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d7ef09542c0b68a8ee317dfa75527f01b189437d))
-* allow `very_good create .` ([#996](https://github.com/VeryGoodOpenSource/very_good_cli/issues/996)) ([287f751](https://github.com/VeryGoodOpenSource/very_good_cli/commit/287f751d5924472265f2930669b358ee1797c121))
-
-
-### Bug Fixes
-
-* coverage on dart test ([#1338](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1338)) ([3735ba4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3735ba4219c42c5c4a39f21a93f224e74d74cb2e))
-* exclude paths from automatic releases ([#1329](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1329)) ([68522ce](https://github.com/VeryGoodOpenSource/very_good_cli/commit/68522ceb2b8d1fe05291932f9ddc738ef9e49b3e))
-* Fixing CI on flutter 3.35 ([#1339](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1339)) ([d97a006](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d97a006050b5a9b67cf5e043b6b4a7780505a05b))
-
-
-### Miscellaneous Chores
-
-* automate releases ([#1314](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1314)) ([1d08932](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1d0893242952a4b3c86af9b1793e3d6e9fa6d75d))
-* update SPDX licenses ([#1313](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1313)) ([142f3f2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/142f3f217d33c78a6896b3d9746bff8959e4e4fd))
-
-
-### Docs
-
-* improve release process ([#1332](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1332)) ([cc83127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc831279e37218a248ac434b303c4e9011b36f7d))
-
 ## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-10-03)
 
 
@@ -56,6 +30,32 @@
 ### Docs
 
 * update docs for skip_very_good_optimization tag ([#1386](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1386)) ([b6da777](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b6da7775682a2b76d70cb12b13a9ba327c9ce1bd))
+
+## [0.27.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.27.0) (2025-08-18)
+
+
+### Features
+
+* Adding the dart test command ([#1333](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1333)) ([d7ef095](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d7ef09542c0b68a8ee317dfa75527f01b189437d))
+* allow `very_good create .` ([#996](https://github.com/VeryGoodOpenSource/very_good_cli/issues/996)) ([287f751](https://github.com/VeryGoodOpenSource/very_good_cli/commit/287f751d5924472265f2930669b358ee1797c121))
+
+
+### Bug Fixes
+
+* coverage on dart test ([#1338](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1338)) ([3735ba4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3735ba4219c42c5c4a39f21a93f224e74d74cb2e))
+* exclude paths from automatic releases ([#1329](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1329)) ([68522ce](https://github.com/VeryGoodOpenSource/very_good_cli/commit/68522ceb2b8d1fe05291932f9ddc738ef9e49b3e))
+* Fixing CI on flutter 3.35 ([#1339](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1339)) ([d97a006](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d97a006050b5a9b67cf5e043b6b4a7780505a05b))
+
+
+### Miscellaneous Chores
+
+* automate releases ([#1314](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1314)) ([1d08932](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1d0893242952a4b3c86af9b1793e3d6e9fa6d75d))
+* update SPDX licenses ([#1313](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1313)) ([142f3f2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/142f3f217d33c78a6896b3d9746bff8959e4e4fd))
+
+
+### Docs
+
+* improve release process ([#1332](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1332)) ([cc83127](https://github.com/VeryGoodOpenSource/very_good_cli/commit/cc831279e37218a248ac434b303c4e9011b36f7d))
 
 ## 0.26.2
 
