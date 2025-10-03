@@ -1,3 +1,5 @@
+# Changelog
+
 ## [0.27.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.26.2...v0.27.0) (2025-08-18)
 
 
