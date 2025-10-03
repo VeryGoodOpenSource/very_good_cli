@@ -177,6 +177,24 @@ very_good packages check licenses --forbidden="unknown"
 very_good packages check licenses --dependency-type="direct-main,transitive"
 ```
 
+### [`very_good mcp`](https://cli.vgv.dev/docs/commands/mcp)
+
+Start the MCP (Model Context Protocol) server for AI assistant integration.
+
+```sh
+# Start the MCP server
+very_good mcp
+```
+
+The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
+
+**Available MCP Tools:**
+- `create_project`: Create new Dart/Flutter projects
+- `run_tests`: Run tests with optional coverage and optimization
+- `check_packages`: Check packages for issues and licenses
+- `get_packages`: Get package information and dependencies
+- `update_cli`: Update Very Good CLI to the latest version
+
 ### [`very_good --help`](https://cli.vgv.dev/docs/overview)
 
 See the complete list of commands and usage information.
@@ -194,6 +212,7 @@ Global options:
 Available commands:
   create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
+  mcp        Start the MCP (Model Context Protocol) server
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
   update     Update Very Good CLI.

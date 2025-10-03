@@ -15,6 +15,7 @@ dependencies:
   cli_completion: ^0.5.1
   collection: ^1.19.0
   coverage: ^1.15.0
+  dart_mcp: ^0.3.3
   equatable: ^2.0.5
   glob: ^2.1.2
   lcov_parser: ^0.1.2
