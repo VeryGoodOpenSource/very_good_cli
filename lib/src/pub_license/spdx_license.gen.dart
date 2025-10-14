@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 707 SPDX licenses.
+/// A list of all 709 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -333,6 +333,7 @@ enum SpdxLicense {
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
   $HPND_Netrek._('HPND-Netrek'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
+  $HPND_SMC._('HPND-SMC'),
   $HPND_UC._('HPND-UC'),
   $HPND_UC_export_US._('HPND-UC-export-US'),
   $HPND_doc._('HPND-doc'),
@@ -568,6 +569,7 @@ enum SpdxLicense {
   $SGI_B_1_1._('SGI-B-1.1'),
   $SGI_B_2_0._('SGI-B-2.0'),
   $SGI_OpenGL._('SGI-OpenGL'),
+  $SGMLUG_PM._('SGMLUG-PM'),
   $SGP4._('SGP4'),
   $SHL_0_5._('SHL-0.5'),
   $SHL_0_51._('SHL-0.51'),
