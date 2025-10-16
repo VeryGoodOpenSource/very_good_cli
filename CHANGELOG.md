@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.28.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v0.28.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* update changelog ([#1388](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1388)) ([0a54323](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0a54323c11f5f4f6e0e93927862e76e822cd18da))
+
+
+### Miscellaneous Chores
+
+* update SPDX licenses ([#1395](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1395)) ([26613e0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/26613e087e84342d8b3ecbd5fef4f18c8360fb4a))
+* update SPDX licenses ([#1398](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1398)) ([e61180c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e61180cdea571b79c208162042ae29c3f9dd46ce))
+
 ## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-10-03)
 
 
