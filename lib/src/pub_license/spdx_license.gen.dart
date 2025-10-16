@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 709 SPDX licenses.
+/// A list of all 711 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -243,6 +243,7 @@ enum SpdxLicense {
   $EPL_1_0._('EPL-1.0'),
   $EPL_2_0._('EPL-2.0'),
   $ESA_PL_permissive_2_4._('ESA-PL-permissive-2.4'),
+  $ESA_PL_strong_copyleft_2_4._('ESA-PL-strong-copyleft-2.4'),
   $ESA_PL_weak_copyleft_2_4._('ESA-PL-weak-copyleft-2.4'),
   $EUDatagrid._('EUDatagrid'),
   $EUPL_1_0._('EUPL-1.0'),
@@ -531,6 +532,7 @@ enum SpdxLicense {
   $OSL_2_0._('OSL-2.0'),
   $OSL_2_1._('OSL-2.1'),
   $OSL_3_0._('OSL-3.0'),
+  $OSSP._('OSSP'),
   $OpenPBS_2_3._('OpenPBS-2.3'),
   $OpenSSL._('OpenSSL'),
   $OpenSSL_standalone._('OpenSSL-standalone'),
