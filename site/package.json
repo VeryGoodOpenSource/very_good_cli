@@ -33,7 +33,7 @@
     "@docusaurus/tsconfig": "3.9.2",
     "@docusaurus/types": "^3.7.0",
     "@types/react": "^19.2.2",
-    "eslint": "^9.37.0",
+    "eslint": "^8.57.0",
     "eslint-plugin-jest": "^29.0.1",
     "globals": "^16.4.0",
     "jest": "^30.2.0",
