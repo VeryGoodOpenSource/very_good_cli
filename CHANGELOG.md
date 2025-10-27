@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.28.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v0.28.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* update changelog ([#1388](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1388)) ([0a54323](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0a54323c11f5f4f6e0e93927862e76e822cd18da))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @docusaurus/tsconfig from 3.9.1 to 3.9.2 in /site ([#1403](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1403)) ([f15d6a8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f15d6a882e5c970c85952602810d72d76447a22c))
+* **deps:** bump pana from 0.22.24 to 0.23.0 ([#1404](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1404)) ([3deeb7d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3deeb7d62f866b852814c62cc5852c6988c75bb9))
+* update SPDX licenses ([#1395](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1395)) ([26613e0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/26613e087e84342d8b3ecbd5fef4f18c8360fb4a))
+* update SPDX licenses ([#1398](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1398)) ([e61180c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e61180cdea571b79c208162042ae29c3f9dd46ce))
+* update SPDX licenses ([#1405](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1405)) ([d5cddf6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d5cddf6022818794d13a42e404fcefffb3062fb0))
+
 ## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-10-03)
 
 
