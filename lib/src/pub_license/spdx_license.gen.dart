@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 711 SPDX licenses.
+/// A list of all 713 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -465,6 +465,7 @@ enum SpdxLicense {
   $NGPL._('NGPL'),
   $NICTA_1_0._('NICTA-1.0'),
   $NIST_PD._('NIST-PD'),
+  $NIST_PD_TNT._('NIST-PD-TNT'),
   $NIST_PD_fallback._('NIST-PD-fallback'),
   $NIST_Software._('NIST-Software'),
   $NLOD_1_0._('NLOD-1.0'),
@@ -696,6 +697,7 @@ enum SpdxLicense {
   $gnuplot._('gnuplot'),
   $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
+  $hyphen_bulgarian._('hyphen-bulgarian'),
   $iMatix._('iMatix'),
   $jove._('jove'),
   $libpng_1_6_35._('libpng-1.6.35'),
