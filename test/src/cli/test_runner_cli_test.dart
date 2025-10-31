@@ -11,6 +11,7 @@ import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
+
 import '../../fixtures/fixtures.dart';
 
 class _MockMasonGenerator extends Mock implements MasonGenerator {}
@@ -338,6 +339,14 @@ void main() {
             '\x1B[2K\r00:12 +7 -1: Some tests failed.\n',
           ]),
         );
+
+        final testPath = p.join(
+          'test',
+          'counter',
+          'cubit',
+          'counter_cubit_test.dart',
+        );
+
         expect(
           stderrLogs,
           equals(
@@ -349,7 +358,7 @@ void main() {
                   'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
               '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
               '\x1B[2K\rFailing Tests:\n'
-                  '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
+                  '\x1B[2K\r - $testPath \n'
                   '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
