@@ -199,7 +199,10 @@ void main() {
         });
 
         test('shows message when version changed', () async {
-          commandRunner.environmentOverride = {'HOME': '/users/test'};
+          commandRunner.environmentOverride = {
+            'HOME': '/users/test',
+            'LOCALAPPDATA': '/users/test',
+          };
 
           await IOOverrides.runZoned(
             () async {
@@ -241,10 +244,12 @@ void main() {
         });
 
         test('cache inside XDG directory', () async {
-          commandRunner.environmentOverride = {
-            'HOME': '/users/test',
-            'XDG_CONFIG_HOME': '/users/test/.xdg',
-          };
+          commandRunner
+            ..environmentOverride = {
+              'HOME': '/users/test',
+              'XDG_CONFIG_HOME': '/users/test/.xdg',
+            }
+            ..isWindowsOverride = false;
 
           final xdgCache = _MockDirectory();
           when(() => xdgCache.path).thenReturn('/users/test/.xdg');
