@@ -433,7 +433,7 @@ void main() {
                 'The test description was: renders CounterPage',
             '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
@@ -537,9 +537,9 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
@@ -1153,7 +1153,11 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${tempDirectory.path}/test/.test_optimizer.dart',
+                    path: p.join(
+                      tempDirectory.path,
+                      'test',
+                      '.test_optimizer.dart',
+                    ),
                   ),
                   time: 0,
                 ),
@@ -1213,9 +1217,9 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
@@ -1231,8 +1235,8 @@ void main() {
           final updatedVars = <String, dynamic>{
             'package-root': tempDirectory.path,
             'notOptimizedTests': [
-              'app/view/app_test.dart',
-              'app/cubit/cubit_test.dart',
+              p.join('app', 'view', 'app_test.dart'),
+              p.join('app', 'cubit', 'cubit_test.dart'),
             ],
           };
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
@@ -1281,8 +1285,8 @@ void main() {
             testRunnerArgs,
             equals([
               p.join('test', '.test_optimizer.dart'),
-              'test/app/view/app_test.dart',
-              'test/app/cubit/cubit_test.dart',
+              p.join('test', 'app', 'view', 'app_test.dart'),
+              p.join('test', 'app', 'cubit', 'cubit_test.dart'),
             ]),
           );
         },
