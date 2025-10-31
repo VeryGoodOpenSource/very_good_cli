@@ -433,7 +433,8 @@ void main() {
                 'The test description was: renders CounterPage',
             '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
@@ -539,7 +540,8 @@ void main() {
             '\x1B[2K\rerror',
             '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
@@ -1219,7 +1221,8 @@ void main() {
             '\x1B[2K\rerror',
             '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - ${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
