@@ -890,7 +890,7 @@ void main() {
               collectCoverage: true,
               minCoverage: 100,
               excludeFromCoverage:
-                  '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+                  'bloc/packages/bloc/lib/src/bloc_observer.dart',
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
               overrideTestRunner: testRunner(
