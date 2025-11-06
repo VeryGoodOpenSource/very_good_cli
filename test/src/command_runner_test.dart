@@ -194,8 +194,10 @@ void main() {
 
           stdout = _MockStdout();
           when(() => stdout.hasTerminal).thenReturn(true);
-          when(() => stdout.supportsAnsiEscapes).thenReturn(true);
+
           when(() => stdout.terminalColumns).thenReturn(30);
+
+          when(() => stdout.supportsAnsiEscapes).thenReturn(true);
         });
 
         test('shows message when version changed', () async {
@@ -264,6 +266,32 @@ void main() {
             },
             createDirectory: (path) =>
                 path.contains('.xdg') ? xdgCache : cliCache,
+            createFile: (path) => versionFile,
+            stdout: () => stdout,
+          );
+        });
+
+        test('fallback to HOME when XDG_CONFIG_HOME is null/empty', () async {
+          commandRunner
+            ..environmentOverride = {
+              'HOME': '/users/test',
+              'XDG_CONFIG_HOME': '',
+            }
+            ..isWindowsOverride = false;
+
+          final homeCache = _MockDirectory();
+          when(() => homeCache.path).thenReturn('/users/test');
+
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([]);
+              expect(result, equals(ExitCode.success.code));
+
+              verifyNever(() => cliCache.path);
+              verify(() => homeCache.path).called(1);
+            },
+            createDirectory: (path) =>
+                path.contains('test') ? homeCache : cliCache,
             createFile: (path) => versionFile,
             stdout: () => stdout,
           );
