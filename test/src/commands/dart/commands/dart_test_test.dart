@@ -137,7 +137,10 @@ void main() {
       'when no pubspec.yaml exists',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
 
         Directory.current = tempDirectory.path;
         final result = await commandRunner.run(['dart', 'test']);
@@ -152,7 +155,10 @@ void main() {
       'completes normally when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
 
         Directory.current = tempDirectory.path;
 
