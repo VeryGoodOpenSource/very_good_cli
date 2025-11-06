@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.29.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v0.29.0) (2025-11-06)
+## [1.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v1.0.0) (2025-11-06)
 
 
 ### Features
