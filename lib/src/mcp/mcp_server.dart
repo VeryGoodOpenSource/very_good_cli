@@ -76,15 +76,23 @@ flutter_plugin - Generate a Very Good Flutter plugin.
               ],
             ),
             'name': StringSchema(description: 'Project name'),
-            'description': StringSchema(description: 'Project description'),
+            'description': StringSchema(
+              description: '''
+The description for this new project.
+(defaults to "A Very Good Project created by Very Good CLI.")''',
+            ),
             'org_name': StringSchema(
-              description: 'Organization name (e.g., com.example)',
+              description: '''
+The organization for this new project.
+(defaults to "com.example.verygoodcore")''',
             ),
             'output_directory': StringSchema(
-              description: 'Output directory path',
+              description:
+                  '''The desired output directory when creating a new project.''',
             ),
             'application_id': StringSchema(
-              description: 'Application/bundle ID (flutter_app only)',
+              description:
+                  '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
             ),
             'platforms': StringSchema(
               description: '''
@@ -104,8 +112,12 @@ CLI custom executable name (dart_cli  only)''',
             ),
             'template': StringSchema(
               description: '''
-Create a new Wear OS app (flutter_app only). 
-The value must be: wear''',
+The template used to generate this new project.
+The values are:
+core - Generate a Very Good Flutter application.
+wear - Generate a Very Good Flutter Wear OS application.
+If is omitted, then core will be selected.
+''',
             ),
           },
           required: ['subcommand', 'name'],
@@ -274,7 +286,7 @@ Only one value can be selected.
       }
       if (args['output_directory'] != null) {
         cliArgs.addAll([
-          '--output-directory',
+          '-o',
           args['output_directory']! as String,
         ]);
       }
@@ -288,7 +300,7 @@ Only one value can be selected.
         cliArgs.add('--publishable');
       }
       if (args['template'] != null) {
-        cliArgs.addAll(['--template', args['template']! as String]);
+        cliArgs.addAll(['-t', args['template']! as String]);
       }
 
       final exitCode = await _runCommand(cliArgs);
