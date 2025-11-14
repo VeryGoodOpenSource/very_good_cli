@@ -119,15 +119,27 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'packages_get',
-        description: 'Get package dependencies',
+        description:
+            'Install or update Dart/Flutter package dependencies. '
+            'Use after creating a project or modifying pubspec.yaml. '
+            'Supports recursive installation and package exclusion.',
         inputSchema: ObjectSchema(
           properties: {
-            'directory': StringSchema(description: 'Project directory'),
+            'directory': StringSchema(
+              description:
+                  'Target directory path (defaults to current directory). '
+                  'Can be absolute or relative path to project root.',
+            ),
             'recursive': BooleanSchema(
-              description: 'Get packages recursively',
+              description:
+                  'Install dependencies for all nested packages recursively. '
+                  'Useful for monorepos or projects with multiple packages.',
             ),
             'ignore': StringSchema(
-              description: 'Comma-separated packages to ignore',
+              description:
+                  'Comma-separated list of package names to skip. '
+                  'Example: "package1,package2". '
+                  'Useful to avoid processing problematic packages.',
             ),
           },
         ),
@@ -139,14 +151,22 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'packages_check',
-        description: 'Check packages for issues',
+        description:
+            'Verify package licenses for compliance and validation. '
+            'Identifies license types (MIT, BSD, Apache, etc.) for all '
+            'dependencies. Use to ensure license compatibility.',
         inputSchema: ObjectSchema(
           properties: {
-            'directory': StringSchema(description: 'Project directory'),
+            'directory': StringSchema(
+              description:
+                  'Target directory path (defaults to current directory). '
+                  'Path to the project root containing pubspec.yaml.',
+            ),
             'licenses': BooleanSchema(
               description:
-                  'Check licenses (currently the only supported check, '
-                  'defaults to true)',
+                  'Verify all package licenses (defaults to true). '
+                  'Currently the only supported check type. '
+                  'Reports license types for all dependencies.',
             ),
           },
         ),
