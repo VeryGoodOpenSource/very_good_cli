@@ -49,19 +49,30 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
     registerTool(
       Tool(
         name: 'create',
-        description: 'Create a new Dart/Flutter project',
+        description: '''
+Create a very good project in seconds based on the provided template. Each template has a corresponding subcommand. 
+        ''',
         inputSchema: ObjectSchema(
           properties: {
-            'template': StringSchema(
-              description: 'Project template',
+            'subcommand': StringSchema(
+              description: '''
+The available subcommands to provide an specific template, are:
+dart_cli - Generate a Very Good Dart CLI application.
+dart_package - Generate a Very Good Dart package.
+docs_site - Generate a Very Good documentation site.
+flame_game - Generate a Very Good Flame game.
+flutter_app - Generate a Very Good Flutter application.
+flutter_package - Generate a Very Good Flutter package.
+flutter_plugin - Generate a Very Good Flutter plugin.
+''',
               enumValues: [
+                'flame_game',
                 'flutter_app',
-                'dart_package',
                 'flutter_package',
                 'flutter_plugin',
                 'dart_cli',
+                'dart_package',
                 'docs_site',
-                'flame_game',
               ],
             ),
             'name': StringSchema(description: 'Project name'),
@@ -76,15 +87,28 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
               description: 'Application/bundle ID (flutter_app only)',
             ),
             'platforms': StringSchema(
-              description:
-                  'Comma-separated platforms (flutter_plugin only). '
-                  'Example: "android,ios,web"',
+              description: '''
+Comma-separated platforms. 'Example: "android,ios,web".
+The values for platforms are: android, ios, web, macos, linux, and windows.
+If is omitted, then all platforms are enabled by default.
+Only available for subcommands: flutter_plugin with all values) and flame_game (only android and ios)
+                  ''',
             ),
             'publishable': BooleanSchema(
-              description: 'Whether package is intended for publishing',
+              description: '''
+Whether package is intended for publishing (flutter_package, dart_package  only)''',
+            ),
+            'executable-name': StringSchema(
+              description: '''
+CLI custom executable name (dart_cli  only)''',
+            ),
+            'template': StringSchema(
+              description: '''
+Create a new Wear OS app (flutter_app only). 
+The value must be: wear''',
             ),
           },
-          required: ['template', 'name'],
+          required: ['subcommand', 'name'],
         ),
       ),
       _handleCreate,
@@ -178,10 +202,10 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
     try {
       final args = request.arguments ?? {};
-      final template = args['template']! as String;
+      final subcommand = args['subcommand']! as String;
       final name = args['name']! as String;
 
-      final cliArgs = <String>['create', template, name];
+      final cliArgs = <String>['create', subcommand, name];
 
       if (args['description'] != null) {
         cliArgs.addAll(['--desc', args['description']! as String]);
@@ -203,6 +227,9 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
       }
       if (args['publishable'] == true) {
         cliArgs.add('--publishable');
+      }
+      if (args['template'] != null) {
+        cliArgs.addAll(['--template', args['template']! as String]);
       }
 
       final exitCode = await _runCommand(cliArgs);
