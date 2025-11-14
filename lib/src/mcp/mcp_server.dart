@@ -121,18 +121,77 @@ The value must be: wear''',
         description: 'Run tests for a Dart/Flutter project',
         inputSchema: ObjectSchema(
           properties: {
-            'directory': StringSchema(description: 'Project directory'),
-            'coverage': BooleanSchema(description: 'Collect coverage'),
-            'recursive': BooleanSchema(description: 'Run recursively'),
-            'optimization': BooleanSchema(description: 'Optimize performance'),
-            'concurrency': StringSchema(description: 'Concurrent test suites'),
-            'tags': StringSchema(description: 'Run tests with these tags'),
-            'exclude_tags': StringSchema(
-              description: 'Exclude tests with these tags',
+            'dart': BooleanSchema(
+              description:
+                  '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
             ),
-            'min_coverage': StringSchema(description: 'Minimum coverage %'),
-            'update_goldens': BooleanSchema(description: 'Update golden files'),
-            'platform': StringSchema(description: 'Platform (chrome, vm, etc)'),
+            'directory': StringSchema(description: 'Project directory'),
+            'coverage': BooleanSchema(
+              description: 'Whether to collect coverage information.',
+            ),
+            'recursive': BooleanSchema(
+              description: 'Run tests recursively for all nested packages.',
+            ),
+            'optimization': BooleanSchema(
+              description: '''
+Whether to apply optimizations for test performance.
+Automatically disabled when --platform is specified.
+Add the `skip_very_good_optimization` tag to specific test files to disable them individually.
+(defaults to on)''',
+            ),
+            'concurrency': StringSchema(
+              description: '''
+The number of concurrent test suites run. 
+Automatically set to 1 when --platform is specified.
+(defaults to "4")''',
+            ),
+            'tags': StringSchema(
+              description:
+                  '''Run only tests associated with the specified tags.''',
+            ),
+            'exclude_coverage': StringSchema(
+              description:
+                  '''A glob which will be used to exclude files that match from the coverage.''',
+            ),
+            'exclude_tags': StringSchema(
+              description:
+                  'Run only tests that do not have the specified tags.',
+            ),
+            'min_coverage': StringSchema(
+              description:
+                  '''Whether to enforce a minimum coverage percentage.''',
+            ),
+            'test_randomize_ordering_seed': StringSchema(
+              description:
+                  '''The seed to randomize the execution order of test cases within test files.''',
+            ),
+            'update_goldens': BooleanSchema(
+              description: '''
+Whether "matchesGoldenFile()" calls within your test methods should update the golden files.''',
+            ),
+            'force_ansi': BooleanSchema(
+              description: '''
+Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.''',
+            ),
+            'dart-define': StringSchema(
+              description: '''
+Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. 
+Multiple defines can be passed by repeating "--dart-define" multiple times.
+(e.g., foo=bar)
+''',
+            ),
+            'dart-define-from-file': StringSchema(
+              description: '''
+The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. 
+Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.''',
+            ),
+            'platform': StringSchema(
+              description: '''
+The platform to run tests on.
+The available values are: chrome, vm, android, ios.
+Only one value can be selected.
+  ''',
+            ),
           },
         ),
       ),
@@ -259,7 +318,10 @@ The value must be: wear''',
     try {
       final args = request.arguments ?? {};
 
-      final cliArgs = <String>['test'];
+      final cliArgs = <String>[
+        if (args['dart'] == true) 'dart',
+        'test',
+      ];
 
       if (args['directory'] != null) {
         cliArgs.add(args['directory']! as String);
@@ -268,9 +330,11 @@ The value must be: wear''',
         cliArgs.add('--coverage');
       }
       if (args['recursive'] == true) {
-        cliArgs.add('--recursive');
+        cliArgs.add('-r');
       }
-      if (args['optimization'] == false) {
+      if (args['optimization'] == true) {
+        cliArgs.add('--optimization');
+      } else {
         cliArgs.add('--no-optimization');
       }
       if (args['concurrency'] != null) {
@@ -279,14 +343,35 @@ The value must be: wear''',
       if (args['tags'] != null) {
         cliArgs.addAll(['-t', args['tags']! as String]);
       }
+      if (args['exclude_coverage'] == false) {
+        cliArgs.add('--exclude-coverage');
+      }
       if (args['exclude_tags'] != null) {
         cliArgs.addAll(['-x', args['exclude_tags']! as String]);
       }
       if (args['min_coverage'] != null) {
         cliArgs.addAll(['--min-coverage', args['min_coverage']! as String]);
       }
+      if (args['test_randomize_ordering_seed'] != null) {
+        cliArgs.addAll([
+          '--test-randomize-ordering-seed',
+          args['test_randomize_ordering_seed']! as String,
+        ]);
+      }
       if (args['update_goldens'] == true) {
         cliArgs.add('--update-goldens');
+      }
+      if (args['force_ansi'] == true) {
+        cliArgs.add('--force-ansi');
+      }
+      if (args['dart-define'] != null) {
+        cliArgs.addAll(['--dart-define', args['dart-define']! as String]);
+      }
+      if (args['dart-define-from-file'] != null) {
+        cliArgs.addAll([
+          '--dart-define-from-file',
+          args['dart-define-from-file']! as String,
+        ]);
       }
       if (args['platform'] != null) {
         cliArgs.addAll(['--platform', args['platform']! as String]);
