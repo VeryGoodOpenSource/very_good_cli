@@ -5,6 +5,8 @@ import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
 import 'package:mason/mason.dart';
+// Note: stream_channel is a transitive dependency via dart_mcp
+// ignore: depend_on_referenced_packages
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 

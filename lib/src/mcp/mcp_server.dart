@@ -21,7 +21,10 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
   VeryGoodMCPServer({
     required StreamChannel<String> channel,
     Logger? logger,
+    VeryGoodCommandRunner? commandRunner,
   }) : _logger = logger ?? Logger(),
+       _commandRunner =
+           commandRunner ?? VeryGoodCommandRunner(logger: logger ?? Logger()),
        super.fromStreamChannel(
          channel,
          implementation: Implementation(
@@ -34,6 +37,8 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
        );
 
   final Logger _logger;
+
+  final VeryGoodCommandRunner _commandRunner;
 
   @override
   FutureOr<InitializeResult> initialize(InitializeRequest request) async {
@@ -510,9 +515,7 @@ Only one value can be selected.
     try {
       _logger.detail('Running: very_good ${args.join(' ')}');
 
-      final runner = VeryGoodCommandRunner(logger: _logger);
-
-      final exitCode = await runner.run(args);
+      final exitCode = await _commandRunner.run(args);
 
       return exitCode;
     } on UsageException catch (e) {
