@@ -19,7 +19,6 @@ class _MockVeryGoodCommandRunner extends Mock
 
 int _idCounter = 1;
 
-// Helper function to create a JSON-RPC request string
 String _jsonRpcRequest(String method, Map<String, dynamic> params) {
   final id = _idCounter++;
   return jsonEncode({
@@ -30,7 +29,7 @@ String _jsonRpcRequest(String method, Map<String, dynamic> params) {
   });
 }
 
-// FIX: Helper function for params, as extension type is Map
+// Helper function for params, as extension type is Map
 // This helper casts the dynamic (which is really an extension type)
 // to the expected Map type.
 Map<String, Object?> _params(dynamic params) => params as Map<String, Object?>;
@@ -40,15 +39,14 @@ void main() {
     late Logger mockLogger;
     late VeryGoodCommandRunner mockCommandRunner;
     late StreamChannelController<String> channelController;
+    // ignore: unused_local_variable Server is not used directly, but needed to keep the channel open
     late VeryGoodMCPServer server;
     late Stream<Map<String, dynamic>> serverResponses;
 
-    // Reset the ID counter for each test run
     setUpAll(() {
       _idCounter = 1;
     });
 
-    // Helper to send a request and get the first matching response
     Future<Map<String, dynamic>> sendRequest(
       String method, [
       Map<String, Object?> params = const {},
@@ -83,8 +81,6 @@ void main() {
         commandRunner: mockCommandRunner,
       );
 
-      // Listen to the server's responses and decode them
-      // FIX: Added .asBroadcastStream() to allow multiple listeners
       serverResponses = channelController.local.stream
           .map((event) => jsonDecode(event) as Map<String, dynamic>)
           .asBroadcastStream();
@@ -103,7 +99,6 @@ void main() {
         ),
       );
 
-      // Default stubs
       when(
         () => mockCommandRunner.run(any()),
       ).thenAnswer((_) async => ExitCode.success.code);
@@ -115,7 +110,7 @@ void main() {
       // MUST happen before any other requests, to fix the timeout.
       final initResponse = await sendRequest(
         InitializeRequest.methodName,
-        // FIX: Use the helper to cast the extension type
+        // Use the helper to cast the extension type
         _params(
           InitializeRequest(
             protocolVersion: ProtocolVersion.latestSupported,
@@ -125,7 +120,6 @@ void main() {
         ),
       );
 
-      // Ensure initialization was successful
       expect(
         initResponse['error'],
         isNull,
@@ -147,7 +141,6 @@ void main() {
       // We can just send a 'tools/list' request directly.
       final response = await sendRequest(ListToolsRequest.methodName);
 
-      // Check for a successful response
       expect(response['error'], isNull);
       expect(response['result'], isA<Map<String, dynamic>>());
 
@@ -284,7 +277,7 @@ void main() {
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
-          contains('Error:'),
+          contains('Required property "name" is missing at path #root'),
         );
       });
     });
@@ -299,11 +292,10 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        // Default is --no-optimization
         expect(capturedArgs, ['test', '--no-optimization']);
       });
 
-      /*test('handles all arguments', () async {
+      test('handles all arguments', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
@@ -350,7 +342,7 @@ void main() {
           'c,d',
           '--min-coverage',
           '90',
-          '--test-randomize-ordering_seed',
+          '--test-randomize-ordering-seed',
           '123',
           '--update-goldens',
           '--force-ansi',
@@ -360,8 +352,8 @@ void main() {
           'my_file.json',
           '--platform',
           'chrome',
-        ])
-      });*/
+        ]);
+      });
 
       test('handles command failure', () async {
         when(
@@ -506,13 +498,13 @@ void main() {
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
-        // The handler returns its own error
+
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
           'Failed to create project',
         );
-        // But the server logs the specific usage error
+
         verify(() => mockLogger.err('Usage error: bad usage')).called(1);
       });
 
@@ -534,13 +526,13 @@ void main() {
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
-        // The handler returns its own error
+
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
           'Failed to create project',
         );
-        // But the server logs the specific exception
+
         verify(
           () => mockLogger.err('Command error: Exception: big bad'),
         ).called(1);

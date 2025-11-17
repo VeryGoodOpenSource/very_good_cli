@@ -170,7 +170,7 @@ Automatically set to 1 when --platform is specified.
               description:
                   '''A glob which will be used to exclude files that match from the coverage.''',
             ),
-            'exclude_tags': StringSchema(
+            'exclude_tags': BooleanSchema(
               description:
                   'Run only tests that do not have the specified tags.',
             ),
