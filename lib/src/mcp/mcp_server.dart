@@ -50,7 +50,7 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
       Tool(
         name: 'create',
         description: '''
-Create a very good project in seconds based on the provided template. Each template has a corresponding subcommand. 
+Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.
         ''',
         inputSchema: ObjectSchema(
           properties: {
@@ -130,7 +130,7 @@ If is omitted, then core will be selected.
     registerTool(
       Tool(
         name: 'test',
-        description: 'Run tests for a Dart/Flutter project',
+        description: 'Run tests in a Dart or Flutter project.',
         inputSchema: ObjectSchema(
           properties: {
             'dart': BooleanSchema(
@@ -214,10 +214,10 @@ Only one value can be selected.
     registerTool(
       Tool(
         name: 'packages_get',
-        description:
-            'Install or update Dart/Flutter package dependencies. '
-            'Use after creating a project or modifying pubspec.yaml. '
-            'Supports recursive installation and package exclusion.',
+        description: '''
+            Install or update a Dart/Flutter package dependencies.
+            Use after creating a project or modifying pubspec.yaml.
+            Supports recursive installation and package exclusion.''',
         inputSchema: ObjectSchema(
           properties: {
             'directory': StringSchema(
@@ -246,10 +246,10 @@ Only one value can be selected.
     registerTool(
       Tool(
         name: 'packages_check',
-        description:
-            'Verify package licenses for compliance and validation. '
-            'Identifies license types (MIT, BSD, Apache, etc.) for all '
-            'dependencies. Use to ensure license compatibility.',
+        description: '''
+            Verify package licenses for compliance and validation in a Dart or Flutter project.
+            Identifies license types (MIT, BSD, Apache, etc.) for all 
+            dependencies. Use to ensure license compatibility.''',
         inputSchema: ObjectSchema(
           properties: {
             'directory': StringSchema(

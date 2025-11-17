@@ -32,7 +32,7 @@ class MCPCommand extends Command<int> {
         ..info(
           'Server will listen on stdin/stdout for MCP protocol messages',
         );
-      
+
       // Create a channel from stdin/stdout using the stdio helper
       final channel = stdioChannel(
         input: stdin,
@@ -48,12 +48,22 @@ class MCPCommand extends Command<int> {
       _logger
         ..info('MCP Server started successfully')
         ..info('Available tools:')
-        ..info('  - create: Create new projects')
-        ..info('  - test: Run tests')
-        ..info('  - packages_get: Get package dependencies')
-        ..info('  - packages_check: Check packages for issues');
+        ..info('''
+  - create: Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.''')
+        ..info('  - test: Run tests in a Dart or Flutter project.')
+        ..info(
+          '  - packages_get: Install or update Dart/Flutter package dependencies. '
+          'Use after creating a project or modifying pubspec.yaml. '
+          'Supports recursive installation and package exclusion.',
+        )
+        ..info(
+          '''
+  - packages_check: Verify package licenses for compliance and validation in a Dart or Flutter project.
+            Identifies license types (MIT, BSD, Apache, etc.) for all 
+            dependencies. Use to ensure license compatibility.''',
+        );
 
-      // Wait for the server to complete 
+      // Wait for the server to complete
       // (this will block until the connection is closed)
       await server.done;
 
