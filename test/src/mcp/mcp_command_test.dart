@@ -88,6 +88,15 @@ void main() {
       );
     });
 
+    test('constructor uses default Logger when not provided', () {
+      final command = MCPCommand(
+        channelFactory: channelFactory.call,
+        serverFactory: serverFactory.call,
+      );
+
+      expect(command, isA<MCPCommand>());
+    });
+
     test('run() logs success messages and returns success exit code', () async {
       final command = MCPCommand(
         logger: logger,
@@ -152,6 +161,45 @@ void main() {
           logger: logger,
         ),
       ).called(1);
+    });
+
+    test('run() uses default channel factory when not provided', () async {
+      final defaultFactoryChannelController = StreamChannelController<String>();
+
+      when(
+        () => serverFactory(
+          channel: any(named: 'channel'),
+          logger: logger,
+        ),
+      ).thenAnswer((invocation) {
+        return VeryGoodMCPServer(
+          channel: defaultFactoryChannelController.foreign,
+          logger: logger,
+        );
+      });
+
+      final command = MCPCommand(
+        logger: logger,
+        serverFactory: serverFactory.call,
+      );
+
+      final runFuture = command.run();
+
+      await Future<void>.delayed(Duration.zero);
+
+      await defaultFactoryChannelController.local.sink.close();
+
+      final exitCode = await runFuture;
+      expect(exitCode, ExitCode.success.code);
+
+      verify(
+        () => serverFactory(
+          channel: any(named: 'channel'),
+          logger: logger,
+        ),
+      ).called(1);
+
+      verifyNever(channelFactory.call);
     });
 
     test(
