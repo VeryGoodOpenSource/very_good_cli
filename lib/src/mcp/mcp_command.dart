@@ -17,7 +17,7 @@ class MCPCommand extends Command<int> {
   static const String commandName = 'mcp';
 
   @override
-  String get description => 'Start the MCP (Model Context Protocol) server';
+  String get description => 'Start the MCP (Model Context Protocol) server.';
 
   @override
   String get name => commandName;

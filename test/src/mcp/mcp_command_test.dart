@@ -14,7 +14,7 @@ void main() {
       expect(
         command.description,
         'Start the MCP '
-        '(Model Context Protocol) server',
+        '(Model Context Protocol) server.',
       );
     });
   });
