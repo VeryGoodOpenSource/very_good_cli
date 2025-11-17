@@ -166,11 +166,11 @@ Automatically set to 1 when --platform is specified.
               description:
                   '''Run only tests associated with the specified tags.''',
             ),
-            'exclude_coverage': StringSchema(
+            'exclude_coverage': BooleanSchema(
               description:
                   '''A glob which will be used to exclude files that match from the coverage.''',
             ),
-            'exclude_tags': BooleanSchema(
+            'exclude_tags': StringSchema(
               description:
                   'Run only tests that do not have the specified tags.',
             ),
