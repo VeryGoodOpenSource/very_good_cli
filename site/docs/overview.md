@@ -68,6 +68,15 @@ Run "very_good help" to see global options.
 You can use `.` as the project name to create the project in the current directory. The project will be named with the name of the current directory.
 :::
 
+### `very_good mcp`
+
+Start the MCP (Model Context Protocol) server for AI assistant integration.
+
+```sh
+# Start the MCP server
+very_good mcp
+```
+
 ### `very_good packages get`
 
 Get packages in a Dart or Flutter project.
@@ -151,6 +160,7 @@ Global options:
 Available commands:
   create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
+  mcp        Start the MCP (Model Context Protocol) server.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
   update     Update Very Good CLI.

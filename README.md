@@ -212,7 +212,7 @@ Global options:
 Available commands:
   create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
-  mcp        Start the MCP (Model Context Protocol) server
+  mcp        Start the MCP (Model Context Protocol) server.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
   update     Update Very Good CLI.
