@@ -275,8 +275,7 @@ Only one value can be selected.
     );
   }
 
-  Future<CallToolResult> _handleCreate(CallToolRequest request) async {
-    final args = request.arguments ?? {};
+  List<String> _parseCreate(Map<String, Object?> args) {
     final subcommand = args['subcommand']! as String;
     final name = args['name']! as String;
 
@@ -307,23 +306,10 @@ Only one value can be selected.
       cliArgs.addAll(['-t', args['template']! as String]);
     }
 
-    final exitCode = await _runCommand(cliArgs);
-
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: exitCode == ExitCode.success.code
-              ? 'Project created successfully'
-              : 'Failed to create project',
-        ),
-      ],
-      isError: exitCode != ExitCode.success.code,
-    );
+    return cliArgs;
   }
 
-  Future<CallToolResult> _handleTest(CallToolRequest request) async {
-    final args = request.arguments ?? {};
-
+  List<String> _parseTest(Map<String, Object?> args) {
     final cliArgs = <String>[
       if (args['dart'] == true) 'dart',
       'test',
@@ -383,6 +369,58 @@ Only one value can be selected.
       cliArgs.addAll(['--platform', args['platform']! as String]);
     }
 
+    return cliArgs;
+  }
+
+  List<String> _parsePackagesGet(Map<String, Object?> args) {
+    final cliArgs = <String>['packages', 'get'];
+
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
+    }
+    if (args['recursive'] == true) {
+      cliArgs.add('--recursive');
+    }
+    if (args['ignore'] != null) {
+      final ignore = (args['ignore']! as String).split(',');
+      for (final pkg in ignore) {
+        cliArgs.addAll(['--ignore', pkg.trim()]);
+      }
+    }
+
+    return cliArgs;
+  }
+
+  List<String> _parsePackagesCheck(Map<String, Object?> args) {
+    final cliArgs = <String>['packages', 'check', 'licenses'];
+
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
+    }
+
+    return cliArgs;
+  }
+
+  Future<CallToolResult> _handleCreate(CallToolRequest request) async {
+    final args = request.arguments ?? {};
+    final cliArgs = _parseCreate(args);
+    final exitCode = await _runCommand(cliArgs);
+
+    return CallToolResult(
+      content: [
+        TextContent(
+          text: exitCode == ExitCode.success.code
+              ? 'Project created successfully'
+              : 'Failed to create project',
+        ),
+      ],
+      isError: exitCode != ExitCode.success.code,
+    );
+  }
+
+  Future<CallToolResult> _handleTest(CallToolRequest request) async {
+    final args = request.arguments ?? {};
+    final cliArgs = _parseTest(args);
     final exitCode = await _runCommand(cliArgs);
 
     return CallToolResult(
@@ -399,22 +437,7 @@ Only one value can be selected.
 
   Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
     final args = request.arguments ?? {};
-
-    final cliArgs = <String>['packages', 'get'];
-
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
-    if (args['recursive'] == true) {
-      cliArgs.add('--recursive');
-    }
-    if (args['ignore'] != null) {
-      final ignore = (args['ignore']! as String).split(',');
-      for (final pkg in ignore) {
-        cliArgs.addAll(['--ignore', pkg.trim()]);
-      }
-    }
-
+    final cliArgs = _parsePackagesGet(args);
     final exitCode = await _runCommand(cliArgs);
 
     return CallToolResult(
@@ -449,12 +472,7 @@ Only one value can be selected.
       );
     }
 
-    final cliArgs = <String>['packages', 'check', 'licenses'];
-
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
-
+    final cliArgs = _parsePackagesCheck(args);
     final exitCode = await _runCommand(cliArgs);
 
     return CallToolResult(
