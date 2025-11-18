@@ -46,9 +46,6 @@ const expectedUsage = [
   'Run "very_good help <command>" for more information about a command.',
 ];
 
-const responseBody =
-    '{"name": "very_good_cli", "versions": ["0.4.0", "0.3.3"]}';
-
 const latestVersion = '0.0.0';
 
 final updatePrompt =
@@ -198,12 +195,17 @@ void main() {
 
           stdout = _MockStdout();
           when(() => stdout.hasTerminal).thenReturn(true);
-          when(() => stdout.supportsAnsiEscapes).thenReturn(true);
+
           when(() => stdout.terminalColumns).thenReturn(30);
+
+          when(() => stdout.supportsAnsiEscapes).thenReturn(true);
         });
 
         test('shows message when version changed', () async {
-          commandRunner.environmentOverride = {'HOME': '/users/test'};
+          commandRunner.environmentOverride = {
+            'HOME': '/users/test',
+            'LOCALAPPDATA': '/users/test',
+          };
 
           await IOOverrides.runZoned(
             () async {
@@ -245,10 +247,12 @@ void main() {
         });
 
         test('cache inside XDG directory', () async {
-          commandRunner.environmentOverride = {
-            'HOME': '/users/test',
-            'XDG_CONFIG_HOME': '/users/test/.xdg',
-          };
+          commandRunner
+            ..environmentOverride = {
+              'HOME': '/users/test',
+              'XDG_CONFIG_HOME': '/users/test/.xdg',
+            }
+            ..isWindowsOverride = false;
 
           final xdgCache = _MockDirectory();
           when(() => xdgCache.path).thenReturn('/users/test/.xdg');
@@ -263,6 +267,32 @@ void main() {
             },
             createDirectory: (path) =>
                 path.contains('.xdg') ? xdgCache : cliCache,
+            createFile: (path) => versionFile,
+            stdout: () => stdout,
+          );
+        });
+
+        test('fallback to HOME when XDG_CONFIG_HOME is null/empty', () async {
+          commandRunner
+            ..environmentOverride = {
+              'HOME': '/users/test',
+              'XDG_CONFIG_HOME': '',
+            }
+            ..isWindowsOverride = false;
+
+          final homeCache = _MockDirectory();
+          when(() => homeCache.path).thenReturn('/users/test');
+
+          await IOOverrides.runZoned(
+            () async {
+              final result = await commandRunner.run([]);
+              expect(result, equals(ExitCode.success.code));
+
+              verifyNever(() => cliCache.path);
+              verify(() => homeCache.path).called(1);
+            },
+            createDirectory: (path) =>
+                path.contains('test') ? homeCache : cliCache,
             createFile: (path) => versionFile,
             stdout: () => stdout,
           );

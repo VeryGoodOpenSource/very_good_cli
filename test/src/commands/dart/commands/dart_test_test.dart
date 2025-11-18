@@ -1,6 +1,6 @@
 // Expected usage of the plugin will need to be adjacent strings due to format
 // and also be longer than 80 chars.
-// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars, implicit_call_tearoffs
+// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
 
 import 'dart:io';
 
@@ -27,7 +27,9 @@ const expectedTestUsage = [
       '-h, --help                            Print this usage information.\n'
       '    --coverage                        Whether to collect coverage information.\n'
       '-r, --recursive                       Run tests recursively for all nested packages.\n'
-      '    --[no-]optimization               Whether to apply optimizations for test performance. Automatically disabled when --platform is specified.\n'
+      '    --[no-]optimization               Whether to apply optimizations for test performance.\n'
+      '                                      Automatically disabled when --platform is specified.\n'
+      '                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
       '                                      (defaults to on)\n'
       '-j, --concurrency                     The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                      (defaults to "4")\n'
@@ -135,7 +137,10 @@ void main() {
       'when no pubspec.yaml exists',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
 
         Directory.current = tempDirectory.path;
         final result = await commandRunner.run(['dart', 'test']);
@@ -150,7 +155,10 @@ void main() {
       'completes normally when no pubspec.yaml exists (recursive)',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
 
         Directory.current = tempDirectory.path;
 

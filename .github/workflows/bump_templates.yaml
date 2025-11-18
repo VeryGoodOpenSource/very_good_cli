@@ -22,20 +22,13 @@ jobs:
       - name: Bump templates
         run: tool/generate_bundles.sh
 
-      - name: Config Git User
-        run: |
-          git config user.name VGV Bot
-          git config user.email vgvbot@users.noreply.github.com
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7.0.8
         with:
+          token: ${{ secrets.VGV_BOT_PAT }}
           base: main
           branch: feat/bump-template-bundles
           commit-message: "feat: bump template bundles"
           title: "feat: bump template bundles"
           body: Please squash and merge me!
           labels: bot
-          author: VGV Bot <vgvbot@users.noreply.github.com>
-          assignees: vgvbot
-          committer: VGV Bot <vgvbot@users.noreply.github.com>

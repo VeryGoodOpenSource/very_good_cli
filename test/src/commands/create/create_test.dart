@@ -22,12 +22,6 @@ Available subcommands:
 Run "very_good help" to see global options.''',
 ];
 
-const pubspec = '''
-name: example
-environment:
-  sdk: ^3.9.0
-''';
-
 void main() {
   group('create', () {
     test(

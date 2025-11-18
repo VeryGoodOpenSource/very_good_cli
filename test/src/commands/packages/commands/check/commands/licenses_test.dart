@@ -535,7 +535,7 @@ and limitations under the License.''');
               'nothing',
             );
             when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
-              Uri.parse(packagePath),
+              Uri.file(packagePath),
             );
 
             final targetPath = tempDirectory.path;
@@ -1719,7 +1719,7 @@ and limitations under the License.''');
             'nothing',
           );
           when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
-            Uri.parse(packagePath),
+            Uri.file(packagePath),
           );
 
           final targetPath = tempDirectory.path;

@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 705 SPDX licenses.
+/// A list of all 713 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -52,6 +52,7 @@ enum SpdxLicense {
   $Adobe_Display_PostScript._('Adobe-Display-PostScript'),
   $Adobe_Glyph._('Adobe-Glyph'),
   $Adobe_Utopia._('Adobe-Utopia'),
+  $Advanced_Cryptics_Dictionary._('Advanced-Cryptics-Dictionary'),
   $Afmparse._('Afmparse'),
   $Aladdin._('Aladdin'),
   $Apache_1_0._('Apache-1.0'),
@@ -97,6 +98,7 @@ enum SpdxLicense {
   $BSD_Advertising_Acknowledgement._('BSD-Advertising-Acknowledgement'),
   $BSD_Attribution_HPND_disclaimer._('BSD-Attribution-HPND-disclaimer'),
   $BSD_Inferno_Nettverk._('BSD-Inferno-Nettverk'),
+  $BSD_Mark_Modifications._('BSD-Mark-Modifications'),
   $BSD_Protection._('BSD-Protection'),
   $BSD_Source_Code._('BSD-Source-Code'),
   $BSD_Source_beginning_file._('BSD-Source-beginning-file'),
@@ -239,6 +241,7 @@ enum SpdxLicense {
   $EPL_1_0._('EPL-1.0'),
   $EPL_2_0._('EPL-2.0'),
   $ESA_PL_permissive_2_4._('ESA-PL-permissive-2.4'),
+  $ESA_PL_strong_copyleft_2_4._('ESA-PL-strong-copyleft-2.4'),
   $ESA_PL_weak_copyleft_2_4._('ESA-PL-weak-copyleft-2.4'),
   $EUDatagrid._('EUDatagrid'),
   $EUPL_1_0._('EUPL-1.0'),
@@ -329,6 +332,7 @@ enum SpdxLicense {
   $HPND_Markus_Kuhn._('HPND-Markus-Kuhn'),
   $HPND_Netrek._('HPND-Netrek'),
   $HPND_Pbmplus._('HPND-Pbmplus'),
+  $HPND_SMC._('HPND-SMC'),
   $HPND_UC._('HPND-UC'),
   $HPND_UC_export_US._('HPND-UC-export-US'),
   $HPND_doc._('HPND-doc'),
@@ -457,6 +461,7 @@ enum SpdxLicense {
   $NGPL._('NGPL'),
   $NICTA_1_0._('NICTA-1.0'),
   $NIST_PD._('NIST-PD'),
+  $NIST_PD_TNT._('NIST-PD-TNT'),
   $NIST_PD_fallback._('NIST-PD-fallback'),
   $NIST_Software._('NIST-Software'),
   $NLOD_1_0._('NLOD-1.0'),
@@ -524,6 +529,7 @@ enum SpdxLicense {
   $OSL_2_0._('OSL-2.0'),
   $OSL_2_1._('OSL-2.1'),
   $OSL_3_0._('OSL-3.0'),
+  $OSSP._('OSSP'),
   $OpenPBS_2_3._('OpenPBS-2.3'),
   $OpenSSL._('OpenSSL'),
   $OpenSSL_standalone._('OpenSSL-standalone'),
@@ -562,6 +568,7 @@ enum SpdxLicense {
   $SGI_B_1_1._('SGI-B-1.1'),
   $SGI_B_2_0._('SGI-B-2.0'),
   $SGI_OpenGL._('SGI-OpenGL'),
+  $SGMLUG_PM._('SGMLUG-PM'),
   $SGP4._('SGP4'),
   $SHL_0_5._('SHL-0.5'),
   $SHL_0_51._('SHL-0.51'),
@@ -684,6 +691,7 @@ enum SpdxLicense {
   $gnuplot._('gnuplot'),
   $gtkbook._('gtkbook'),
   $hdparm._('hdparm'),
+  $hyphen_bulgarian._('hyphen-bulgarian'),
   $iMatix._('iMatix'),
   $jove._('jove'),
   $libpng_1_6_35._('libpng-1.6.35'),

@@ -20,22 +20,23 @@ void main() {
         tempDirectory,
       );
 
-      await expectSuccessfulProcessResult('flutter', [
-        'pub',
-        'get',
-      ], workingDirectory: tempDirectory.path);
+      await expectSuccessfulProcessResult(
+        'flutter',
+        ['pub', 'get'],
+        workingDirectory: tempDirectory.path,
+      );
 
       final cwd = Directory.current;
       Directory.current = tempDirectory;
-      addTearDown(() {
-        Directory.current = cwd;
-      });
+      addTearDown(() => Directory.current = cwd);
 
       final result = await commandRunner.run(['test']);
 
       expect(result, equals(ExitCode.unavailable.code));
       verify(
-        () => logger.err(any(that: contains('- test/.test_optimizer.dart'))),
+        () => logger.err(
+          any(that: contains('- test/.test_optimizer.dart')),
+        ),
       ).called(1);
     }),
   );

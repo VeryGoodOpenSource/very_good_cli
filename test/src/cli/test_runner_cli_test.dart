@@ -1,5 +1,5 @@
 // Expected usage of the plugin will need to be adjacent strings due to format.
-// ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
+// ignore_for_file: no_adjacent_strings_in_list
 
 import 'dart:async';
 import 'dart:io';
@@ -11,6 +11,7 @@ import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
+
 import '../../fixtures/fixtures.dart';
 
 class _MockMasonGenerator extends Mock implements MasonGenerator {}
@@ -338,6 +339,14 @@ void main() {
             '\x1B[2K\r00:12 +7 -1: Some tests failed.\n',
           ]),
         );
+
+        final testPath = p.join(
+          'test',
+          'counter',
+          'cubit',
+          'counter_cubit_test.dart',
+        );
+
         expect(
           stderrLogs,
           equals(
@@ -349,7 +358,7 @@ void main() {
                   'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
               '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
               '\x1B[2K\rFailing Tests:\n'
-                  '\x1B[2K\r - test/counter/cubit/counter_cubit_test.dart \n'
+                  '\x1B[2K\r - $testPath \n'
                   '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
             ],
           ),
@@ -424,7 +433,8 @@ void main() {
                 'The test description was: renders CounterPage',
             '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
           ]),
         );
@@ -528,9 +538,10 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
@@ -879,7 +890,7 @@ void main() {
               collectCoverage: true,
               minCoverage: 100,
               excludeFromCoverage:
-                  '/bloc/packages/bloc/lib/src/bloc_observer.dart',
+                  'bloc/packages/bloc/lib/src/bloc_observer.dart',
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
               overrideTestRunner: testRunner(
@@ -1144,7 +1155,11 @@ void main() {
                   suite: TestSuite(
                     id: 4,
                     platform: 'vm',
-                    path: '${tempDirectory.path}/test/.test_optimizer.dart',
+                    path: p.join(
+                      tempDirectory.path,
+                      'test',
+                      '.test_optimizer.dart',
+                    ),
                   ),
                   time: 0,
                 ),
@@ -1204,13 +1219,141 @@ void main() {
           stderrLogs,
           equals([
             '\x1B[2K\rerror',
-            '\x1B[2K\rtest/example_test.dart 4  main\n',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
             '\x1B[2K\rFailing Tests:\n'
-                '\x1B[2K\r - test/app/view/app_test.dart \n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
                 '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
           ]),
         );
       });
+
+      test(
+        'pass not optimized tests along with optimized tests when optimization '
+        'is enabled but there are not optimized tests as well',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': [
+              p.join('app', 'view', 'app_test.dart'),
+              p.join('app', 'cubit', 'cubit_test.dart'),
+            ],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'app', 'view', 'app_test.dart'),
+              p.join('test', 'app', 'cubit', 'cubit_test.dart'),
+            ]),
+          );
+        },
+      );
+
+      test(
+        'do not pass not optimized tests along with optimized tests when '
+        'optimization is enabled but there are no not optimized tests',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': <String>[],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([p.join('test', '.test_optimizer.dart')]),
+          );
+        },
+      );
     });
   });
 }

@@ -1,5 +1,8 @@
-const lcov100 = '''
-SF:/bloc/packages/bloc/lib/src/bloc.dart
+import 'package:path/path.dart' as p;
+
+final lcov100 =
+    '''
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'bloc.dart')}
 DA:21,2
 DA:22,1
 DA:26,3
@@ -43,7 +46,7 @@ DA:250,1
 LF:40
 LH:40
 end_of_record
-SF:/bloc/packages/bloc/lib/src/bloc_observer.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'bloc_observer.dart')}
 DA:14,1
 DA:20,1
 DA:27,1
@@ -53,7 +56,7 @@ DA:51,1
 LF:6
 LH:6
 end_of_record
-SF:/bloc/packages/bloc/lib/src/change.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'change.dart')}
 DA:10,1
 DA:18,1
 DA:21,1
@@ -67,7 +70,7 @@ DA:31,3
 LF:10
 LH:10
 end_of_record
-SF:/bloc/packages/bloc/lib/src/cubit.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'cubit.dart')}
 DA:16,1
 DA:27,1
 DA:29,3
@@ -103,7 +106,7 @@ DA:179,2
 LF:32
 LH:32
 end_of_record
-SF:/bloc/packages/bloc/lib/src/transition.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'transition.dart')}
 DA:14,1
 DA:18,1
 DA:23,1
@@ -121,8 +124,9 @@ LH:12
 end_of_record
 ''';
 
-const lcov95 = '''
-SF:/bloc/packages/bloc/lib/src/bloc.dart
+final lcov95 =
+    '''
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'bloc.dart')}
 DA:21,2
 DA:22,1
 DA:26,3
@@ -166,7 +170,7 @@ DA:250,1
 LF:40
 LH:40
 end_of_record
-SF:/bloc/packages/bloc/lib/src/bloc_observer.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'bloc_observer.dart')}
 DA:14,1
 DA:20,0
 DA:27,0
@@ -176,7 +180,7 @@ DA:51,0
 LF:6
 LH:1
 end_of_record
-SF:/bloc/packages/bloc/lib/src/change.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'change.dart')}
 DA:10,1
 DA:18,1
 DA:21,1
@@ -190,7 +194,7 @@ DA:31,3
 LF:10
 LH:10
 end_of_record
-SF:/bloc/packages/bloc/lib/src/cubit.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'cubit.dart')}
 DA:16,1
 DA:27,1
 DA:29,3
@@ -226,7 +230,7 @@ DA:179,2
 LF:32
 LH:32
 end_of_record
-SF:/bloc/packages/bloc/lib/src/transition.dart
+SF:${p.join('bloc', 'packages', 'bloc', 'lib', 'src', 'transition.dart')}
 DA:14,1
 DA:18,1
 DA:23,1
