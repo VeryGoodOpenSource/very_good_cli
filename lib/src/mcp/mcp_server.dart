@@ -247,10 +247,10 @@ Only one value can be selected.
       _handlePackagesGet,
     );
 
-    // Packages check tool
+    // Packages check licenses tool
     registerTool(
       Tool(
-        name: 'packages_check',
+        name: 'packages_check_licenses',
         description: '''
             Verify package licenses for compliance and validation in a Dart or Flutter project.
             Identifies license types (MIT, BSD, Apache, etc.) for all 

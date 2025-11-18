@@ -154,7 +154,7 @@ void main() {
           'create',
           'test',
           'packages_get',
-          'packages_check',
+          'packages_check_licenses',
         ]),
       );
     });
@@ -420,13 +420,13 @@ void main() {
       });
     });
 
-    group('Tool: packages_check', () {
+    group('Tool: packages_check_licenses', () {
       test('handles basic case (licenses=true)', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
-              name: 'packages_check',
+              name: 'packages_check_licenses',
               arguments: {'licenses': true, 'directory': 'my_dir'},
             ),
           ),
@@ -443,7 +443,7 @@ void main() {
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
-              name: 'packages_check',
+              name: 'packages_check_licenses',
               arguments: {'directory': 'my_dir'},
             ),
           ),
@@ -460,7 +460,7 @@ void main() {
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
-              name: 'packages_check',
+              name: 'packages_check_licenses',
               arguments: {'licenses': false},
             ),
           ),
