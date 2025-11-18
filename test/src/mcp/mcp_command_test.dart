@@ -150,7 +150,7 @@ void main() {
       verify(
         () => logger.info(
           '''
-  - packages_check: Verify package licenses for compliance and validation in a Dart or Flutter project.
+  - packages_check_licenses: Verify package licenses for compliance and validation in a Dart or Flutter project.
             Identifies license types (MIT, BSD, Apache, etc.) for all 
             dependencies. Use to ensure license compatibility.''',
         ),
