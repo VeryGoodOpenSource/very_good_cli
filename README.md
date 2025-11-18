@@ -189,11 +189,10 @@ very_good mcp
 The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
 
 **Available MCP Tools:**
-- `create_project`: Create new Dart/Flutter projects
-- `run_tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
-- `check_packages`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
-- `get_packages`: Get package information and dependencies (https://cli.vgv.dev/docs/commands/get_pkgs)
-- `update_cli`: Update Very Good CLI to the latest version
+- `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
+- `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
+- `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
+- `packages_get`: Get package information and dependencies (https://cli.vgv.dev/docs/commands/get_pkgs)
 
 ### [`very_good --help`](https://cli.vgv.dev/docs/overview)
 
