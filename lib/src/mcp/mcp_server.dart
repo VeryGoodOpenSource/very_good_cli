@@ -276,237 +276,197 @@ Only one value can be selected.
   }
 
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
-    try {
-      final args = request.arguments ?? {};
-      final subcommand = args['subcommand']! as String;
-      final name = args['name']! as String;
+    final args = request.arguments ?? {};
+    final subcommand = args['subcommand']! as String;
+    final name = args['name']! as String;
 
-      final cliArgs = <String>['create', subcommand, name];
+    final cliArgs = <String>['create', subcommand, name];
 
-      if (args['description'] != null) {
-        cliArgs.addAll(['--desc', args['description']! as String]);
-      }
-      if (args['org_name'] != null) {
-        cliArgs.addAll(['--org-name', args['org_name']! as String]);
-      }
-      if (args['output_directory'] != null) {
-        cliArgs.addAll([
-          '-o',
-          args['output_directory']! as String,
-        ]);
-      }
-      if (args['application_id'] != null) {
-        cliArgs.addAll(['--application-id', args['application_id']! as String]);
-      }
-      if (args['platforms'] != null) {
-        cliArgs.addAll(['--platforms', args['platforms']! as String]);
-      }
-      if (args['publishable'] == true) {
-        cliArgs.add('--publishable');
-      }
-      if (args['template'] != null) {
-        cliArgs.addAll(['-t', args['template']! as String]);
-      }
-
-      final exitCode = await _runCommand(cliArgs);
-
-      return CallToolResult(
-        content: [
-          TextContent(
-            text: exitCode == ExitCode.success.code
-                ? 'Project created successfully'
-                : 'Failed to create project',
-          ),
-        ],
-        isError: exitCode != ExitCode.success.code,
-      );
-    } on Exception catch (e, stackTrace) {
-      return CallToolResult(
-        content: [
-          TextContent(text: 'Error: $e'),
-          TextContent(text: 'Stack trace: $stackTrace'),
-        ],
-        isError: true,
-      );
+    if (args['description'] != null) {
+      cliArgs.addAll(['--desc', args['description']! as String]);
     }
+    if (args['org_name'] != null) {
+      cliArgs.addAll(['--org-name', args['org_name']! as String]);
+    }
+    if (args['output_directory'] != null) {
+      cliArgs.addAll([
+        '-o',
+        args['output_directory']! as String,
+      ]);
+    }
+    if (args['application_id'] != null) {
+      cliArgs.addAll(['--application-id', args['application_id']! as String]);
+    }
+    if (args['platforms'] != null) {
+      cliArgs.addAll(['--platforms', args['platforms']! as String]);
+    }
+    if (args['publishable'] == true) {
+      cliArgs.add('--publishable');
+    }
+    if (args['template'] != null) {
+      cliArgs.addAll(['-t', args['template']! as String]);
+    }
+
+    final exitCode = await _runCommand(cliArgs);
+
+    return CallToolResult(
+      content: [
+        TextContent(
+          text: exitCode == ExitCode.success.code
+              ? 'Project created successfully'
+              : 'Failed to create project',
+        ),
+      ],
+      isError: exitCode != ExitCode.success.code,
+    );
   }
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
-    try {
-      final args = request.arguments ?? {};
+    final args = request.arguments ?? {};
 
-      final cliArgs = <String>[
-        if (args['dart'] == true) 'dart',
-        'test',
-      ];
+    final cliArgs = <String>[
+      if (args['dart'] == true) 'dart',
+      'test',
+    ];
 
-      if (args['directory'] != null) {
-        cliArgs.add(args['directory']! as String);
-      }
-      if (args['coverage'] == true) {
-        cliArgs.add('--coverage');
-      }
-      if (args['recursive'] == true) {
-        cliArgs.add('-r');
-      }
-      if (args['optimization'] == true) {
-        cliArgs.add('--optimization');
-      } else {
-        cliArgs.add('--no-optimization');
-      }
-      if (args['concurrency'] != null) {
-        cliArgs.addAll(['-j', args['concurrency']! as String]);
-      }
-      if (args['tags'] != null) {
-        cliArgs.addAll(['-t', args['tags']! as String]);
-      }
-      if (args['exclude_coverage'] == false) {
-        cliArgs.add('--exclude-coverage');
-      }
-      if (args['exclude_tags'] != null) {
-        cliArgs.addAll(['-x', args['exclude_tags']! as String]);
-      }
-      if (args['min_coverage'] != null) {
-        cliArgs.addAll(['--min-coverage', args['min_coverage']! as String]);
-      }
-      if (args['test_randomize_ordering_seed'] != null) {
-        cliArgs.addAll([
-          '--test-randomize-ordering-seed',
-          args['test_randomize_ordering_seed']! as String,
-        ]);
-      }
-      if (args['update_goldens'] == true) {
-        cliArgs.add('--update-goldens');
-      }
-      if (args['force_ansi'] == true) {
-        cliArgs.add('--force-ansi');
-      }
-      if (args['dart-define'] != null) {
-        cliArgs.addAll(['--dart-define', args['dart-define']! as String]);
-      }
-      if (args['dart-define-from-file'] != null) {
-        cliArgs.addAll([
-          '--dart-define-from-file',
-          args['dart-define-from-file']! as String,
-        ]);
-      }
-      if (args['platform'] != null) {
-        cliArgs.addAll(['--platform', args['platform']! as String]);
-      }
-
-      final exitCode = await _runCommand(cliArgs);
-
-      return CallToolResult(
-        content: [
-          TextContent(
-            text: exitCode == ExitCode.success.code
-                ? 'Tests completed successfully'
-                : 'Tests failed',
-          ),
-        ],
-        isError: exitCode != ExitCode.success.code,
-      );
-    } on Exception catch (e, stackTrace) {
-      return CallToolResult(
-        content: [
-          TextContent(text: 'Error: $e'),
-          TextContent(text: 'Stack trace: $stackTrace'),
-        ],
-        isError: true,
-      );
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
     }
+    if (args['coverage'] == true) {
+      cliArgs.add('--coverage');
+    }
+    if (args['recursive'] == true) {
+      cliArgs.add('-r');
+    }
+    if (args['optimization'] == true) {
+      cliArgs.add('--optimization');
+    } else {
+      cliArgs.add('--no-optimization');
+    }
+    if (args['concurrency'] != null) {
+      cliArgs.addAll(['-j', args['concurrency']! as String]);
+    }
+    if (args['tags'] != null) {
+      cliArgs.addAll(['-t', args['tags']! as String]);
+    }
+    if (args['exclude_coverage'] == false) {
+      cliArgs.add('--exclude-coverage');
+    }
+    if (args['exclude_tags'] != null) {
+      cliArgs.addAll(['-x', args['exclude_tags']! as String]);
+    }
+    if (args['min_coverage'] != null) {
+      cliArgs.addAll(['--min-coverage', args['min_coverage']! as String]);
+    }
+    if (args['test_randomize_ordering_seed'] != null) {
+      cliArgs.addAll([
+        '--test-randomize-ordering-seed',
+        args['test_randomize_ordering_seed']! as String,
+      ]);
+    }
+    if (args['update_goldens'] == true) {
+      cliArgs.add('--update-goldens');
+    }
+    if (args['force_ansi'] == true) {
+      cliArgs.add('--force-ansi');
+    }
+    if (args['dart-define'] != null) {
+      cliArgs.addAll(['--dart-define', args['dart-define']! as String]);
+    }
+    if (args['dart-define-from-file'] != null) {
+      cliArgs.addAll([
+        '--dart-define-from-file',
+        args['dart-define-from-file']! as String,
+      ]);
+    }
+    if (args['platform'] != null) {
+      cliArgs.addAll(['--platform', args['platform']! as String]);
+    }
+
+    final exitCode = await _runCommand(cliArgs);
+
+    return CallToolResult(
+      content: [
+        TextContent(
+          text: exitCode == ExitCode.success.code
+              ? 'Tests completed successfully'
+              : 'Tests failed',
+        ),
+      ],
+      isError: exitCode != ExitCode.success.code,
+    );
   }
 
   Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
-    try {
-      final args = request.arguments ?? {};
+    final args = request.arguments ?? {};
 
-      final cliArgs = <String>['packages', 'get'];
+    final cliArgs = <String>['packages', 'get'];
 
-      if (args['directory'] != null) {
-        cliArgs.add(args['directory']! as String);
-      }
-      if (args['recursive'] == true) {
-        cliArgs.add('--recursive');
-      }
-      if (args['ignore'] != null) {
-        final ignore = (args['ignore']! as String).split(',');
-        for (final pkg in ignore) {
-          cliArgs.addAll(['--ignore', pkg.trim()]);
-        }
-      }
-
-      final exitCode = await _runCommand(cliArgs);
-
-      return CallToolResult(
-        content: [
-          TextContent(
-            text: exitCode == ExitCode.success.code
-                ? 'Packages retrieved successfully'
-                : 'Failed to get packages',
-          ),
-        ],
-        isError: exitCode != ExitCode.success.code,
-      );
-    } on Exception catch (e, stackTrace) {
-      return CallToolResult(
-        content: [
-          TextContent(text: 'Error: $e'),
-          TextContent(text: 'Stack trace: $stackTrace'),
-        ],
-        isError: true,
-      );
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
     }
+    if (args['recursive'] == true) {
+      cliArgs.add('--recursive');
+    }
+    if (args['ignore'] != null) {
+      final ignore = (args['ignore']! as String).split(',');
+      for (final pkg in ignore) {
+        cliArgs.addAll(['--ignore', pkg.trim()]);
+      }
+    }
+
+    final exitCode = await _runCommand(cliArgs);
+
+    return CallToolResult(
+      content: [
+        TextContent(
+          text: exitCode == ExitCode.success.code
+              ? 'Packages retrieved successfully'
+              : 'Failed to get packages',
+        ),
+      ],
+      isError: exitCode != ExitCode.success.code,
+    );
   }
 
   Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
-    try {
-      final args = request.arguments ?? {};
+    final args = request.arguments ?? {};
 
-      // Currently, 'packages check' only has 'licenses' as a subcommand
-      // Default to checking licenses if not explicitly set to false
-      final checkLicenses = args['licenses'] as bool? ?? true;
+    // Currently, 'packages check' only has 'licenses' as a subcommand
+    // Default to checking licenses if not explicitly set to false
+    final checkLicenses = args['licenses'] as bool? ?? true;
 
-      if (!checkLicenses) {
-        return CallToolResult(
-          content: [
-            TextContent(
-              text:
-                  'No check specified. Currently only "licenses" check is '
-                  'supported. Set licenses=true to run license checks.',
-            ),
-          ],
-          isError: true,
-        );
-      }
-
-      final cliArgs = <String>['packages', 'check', 'licenses'];
-
-      if (args['directory'] != null) {
-        cliArgs.add(args['directory']! as String);
-      }
-
-      final exitCode = await _runCommand(cliArgs);
-
+    if (!checkLicenses) {
       return CallToolResult(
         content: [
           TextContent(
-            text: exitCode == ExitCode.success.code
-                ? 'Package license check completed successfully'
-                : 'Package license check failed',
+            text:
+                'No check specified. Currently only "licenses" check is '
+                'supported. Set licenses=true to run license checks.',
           ),
-        ],
-        isError: exitCode != ExitCode.success.code,
-      );
-    } on Exception catch (e, stackTrace) {
-      return CallToolResult(
-        content: [
-          TextContent(text: 'Error: $e'),
-          TextContent(text: 'Stack trace: $stackTrace'),
         ],
         isError: true,
       );
     }
+
+    final cliArgs = <String>['packages', 'check', 'licenses'];
+
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
+    }
+
+    final exitCode = await _runCommand(cliArgs);
+
+    return CallToolResult(
+      content: [
+        TextContent(
+          text: exitCode == ExitCode.success.code
+              ? 'Package license check completed successfully'
+              : 'Package license check failed',
+        ),
+      ],
+      isError: exitCode != ExitCode.success.code,
+    );
   }
 
   /// Runs CLI commands through the command runner.
