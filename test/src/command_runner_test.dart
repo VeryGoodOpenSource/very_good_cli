@@ -38,6 +38,7 @@ const expectedUsage = [
   '  create     very_good create <subcommand> <project-name> [arguments]\n',
   '''             Creates a new very good project in the specified directory.\n''',
   '  dart       Command for running dart related commands.\n',
+  '  mcp        Start the MCP (Model Context Protocol) server. WARNING: This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.\n',
   '  packages   Command for managing packages.\n',
   '  test       Run `flutter test` in a project. (Check very_good dart test for running `dart test` instead.)\n',
   '  update     Update Very Good CLI.\n',
