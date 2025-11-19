@@ -181,6 +181,9 @@ very_good packages check licenses --dependency-type="direct-main,transitive"
 
 Start the MCP (Model Context Protocol) server for AI assistant integration.
 
+> ℹ️ **Experimental**  
+> This command relies on the [Dart MCP Server](https://docs.flutter.dev/ai/mcp-server). This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.
+
 ```sh
 # Start the MCP server
 very_good mcp
