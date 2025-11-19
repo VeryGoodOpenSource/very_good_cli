@@ -83,8 +83,8 @@ void main() {
       );
       expect(
         command.description,
-        'Start the MCP '
-        '(Model Context Protocol) server.',
+        '''
+Start the MCP (Model Context Protocol) server. WARNING: This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.''',
       );
     });
 
