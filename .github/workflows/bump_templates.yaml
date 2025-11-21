@@ -25,10 +25,11 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7.0.8
         with:
-          token: ${{ secrets.VGV_BOT_PAT }}
           base: main
+          labels: bot
           branch: feat/bump-template-bundles
-          commit-message: "feat: bump template bundles"
           title: "feat: bump template bundles"
           body: Please squash and merge me!
-          labels: bot
+          commit-message: "feat: bump template bundles"
+          token: ${{ secrets.VGV_BOT_PAT }}
+          sign-commits: true
