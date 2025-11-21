@@ -11,7 +11,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 713 SPDX licenses.
+/// A list of all 716 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -120,6 +120,7 @@ enum SpdxLicense {
   $Borceux._('Borceux'),
   $Brian_Gladman_2_Clause._('Brian-Gladman-2-Clause'),
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
+  $Buddy._('Buddy'),
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
   $CAL_1_0_Combined_Work_Exception._('CAL-1.0-Combined-Work-Exception'),
@@ -422,6 +423,7 @@ enum SpdxLicense {
   $MIT_Festival._('MIT-Festival'),
   $MIT_Khronos_old._('MIT-Khronos-old'),
   $MIT_Modern_Variant._('MIT-Modern-Variant'),
+  $MIT_STK._('MIT-STK'),
   $MIT_Wu._('MIT-Wu'),
   $MIT_advertising._('MIT-advertising'),
   $MIT_enna._('MIT-enna'),
@@ -648,6 +650,7 @@ enum SpdxLicense {
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
   $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_no_permit_persons._('X11-no-permit-persons'),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
