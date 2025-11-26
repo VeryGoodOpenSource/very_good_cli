@@ -49,10 +49,11 @@ jobs:
         if: ${{ env.did_change == 'true' }}
         uses: peter-evans/create-pull-request@v7.0.9
         with:
-          token: ${{ secrets.VGV_BOT_PAT }}
           base: main
+          labels: bot
           branch: chore/update-spdx-license
-          commit-message: "chore: update SPDX licenses"
           title: "chore: update SPDX licenses"
           body: Please squash and merge me!
-          labels: bot
+          commit-message: "chore: update SPDX licenses"
+          token: ${{ secrets.VGV_BOT_PAT }}
+          sign-commits: true
