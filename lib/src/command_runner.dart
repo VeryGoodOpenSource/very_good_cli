@@ -8,6 +8,7 @@ import 'package:pub_updater/pub_updater.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
+import 'package:very_good_cli/src/mcp/mcp.dart';
 import 'package:very_good_cli/src/version.dart';
 
 /// The package name.
@@ -37,6 +38,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
     addCommand(DartCommand(logger: _logger));
+    addCommand(MCPCommand(logger: _logger));
   }
 
   /// Standard timeout duration for the CLI.
