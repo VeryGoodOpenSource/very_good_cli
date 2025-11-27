@@ -51,7 +51,7 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.35.x"
+          flutter-version: "3.38.x"
 
       - name: Install LCOV
         run: sudo apt-get install -y lcov

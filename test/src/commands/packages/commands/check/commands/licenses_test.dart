@@ -1782,7 +1782,7 @@ packages:
     source: hosted
     version: "1.9.0"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
 
@@ -1843,13 +1843,13 @@ packages:
     source: hosted
     version: "3.4.3"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
 
 /// A valid pubspec lock file with no dependencies.
 const _emptyPubspecLockContent = '''
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
