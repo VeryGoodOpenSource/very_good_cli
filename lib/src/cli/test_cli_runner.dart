@@ -256,13 +256,12 @@ class TestCLIRunner {
     );
   }
 
-  static List<File> _dartCoverageFilesToProcess(String absPath) {
-    return Directory(absPath)
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.endsWith('.json'))
-        .toList();
-  }
+  static List<File> _dartCoverageFilesToProcess(String absPath) =>
+      Directory(absPath)
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((e) => e.path.endsWith('.json'))
+          .toList();
 }
 
 Future<int> _testCommand({

@@ -130,12 +130,10 @@ Future<List<String>> _downloadLicenses({
 }
 
 extension on String {
-  String toDartIdentifier() {
-    return '\$$this'
-        .replaceAll('-', '_')
-        .replaceAll('.', '_')
-        .replaceAll(' ', '')
-        .replaceAll('+', 'plus')
-        .trim();
-  }
+  String toDartIdentifier() => '\$$this'
+      .replaceAll('-', '_')
+      .replaceAll('.', '_')
+      .replaceAll(' ', '')
+      .replaceAll('+', 'plus')
+      .trim();
 }

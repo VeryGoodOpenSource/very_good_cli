@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
@@ -50,9 +51,8 @@ abstract class ProcessOverrides {
   /// * [ProcessOverrides.runZoned] to provide [ProcessOverrides]
   /// in a fresh [Zone].
   ///
-  static ProcessOverrides? get current {
-    return Zone.current[_token] as ProcessOverrides?;
-  }
+  static ProcessOverrides? get current =>
+      Zone.current[_token] as ProcessOverrides?;
 
   /// Runs [body] in a fresh [Zone] using the provided overrides.
   static R runZoned<R>(R Function() body, {RunProcess? runProcess}) {
@@ -71,9 +71,8 @@ class _ProcessOverridesScope extends ProcessOverrides {
   final RunProcess? _runProcess;
 
   @override
-  RunProcess get runProcess {
-    return _runProcess ?? _previous?.runProcess ?? super.runProcess;
-  }
+  RunProcess get runProcess =>
+      _runProcess ?? _previous?.runProcess ?? super.runProcess;
 }
 
 /// Abstraction for running commands via command-line.

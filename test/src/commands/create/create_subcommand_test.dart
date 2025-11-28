@@ -201,9 +201,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
@@ -221,9 +219,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         final command = _TestCreateSubCommand(
           template: template,
@@ -313,9 +309,7 @@ Run "runner help" to see global options.''';
               () => generator.generate(
                 any(
                   that: isA<DirectoryGeneratorTarget>().having(
-                    (g) {
-                      return g.dir.path;
-                    },
+                    (g) => g.dir.path,
                     'dir',
                     '.',
                   ),
@@ -339,9 +333,7 @@ Run "runner help" to see global options.''';
                 logger,
                 any(
                   that: isA<Directory>().having(
-                    (d) {
-                      return d.path;
-                    },
+                    (d) => d.path,
                     'path',
                     '.',
                   ),
@@ -360,23 +352,21 @@ Run "runner help" to see global options.''';
           expect(result, equals(ExitCode.success.code));
           verify(() => logger.progress('Bootstrapping')).called(1);
 
-          verify(() {
-            return hooks.preGen(
+          verify(
+            () => hooks.preGen(
               vars: <String, dynamic>{
                 'project_name': 'test_project',
                 'description': 'A Very Good Project created by Very Good CLI.',
               },
               onVarsChanged: any(named: 'onVarsChanged'),
-            );
-          });
+            ),
+          );
 
           verify(
             () => generator.generate(
               any(
                 that: isA<DirectoryGeneratorTarget>().having(
-                  (g) {
-                    return g.dir.path;
-                  },
+                  (g) => g.dir.path,
                   'dir',
                   'test_project',
                 ),
@@ -394,9 +384,7 @@ Run "runner help" to see global options.''';
               logger,
               any(
                 that: isA<Directory>().having(
-                  (d) {
-                    return d.path;
-                  },
+                  (d) => d.path,
                   'path',
                   'test_project',
                 ),
@@ -665,9 +653,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
@@ -685,9 +671,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         final command = _TestCreateSubCommandWithOrgName(
           template: template,
@@ -729,9 +713,7 @@ Run "runner help" to see global options.''';
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
-                (vars) {
-                  return vars['org_name'];
-                },
+                (vars) => vars['org_name'],
                 'org_name',
                 'com.my.org',
               ),
@@ -771,9 +753,7 @@ Run "runner help" to see global options.''';
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
-                (vars) {
-                  return vars['org_name'];
-                },
+                (vars) => vars['org_name'],
                 'org_name',
                 'com.my.org',
               ),
@@ -808,9 +788,7 @@ Run "runner help" to see global options.''';
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
-                (vars) {
-                  return vars['org_name'];
-                },
+                (vars) => vars['org_name'],
                 'org_name',
                 'com.example.verygoodcore',
               ),
@@ -987,9 +965,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
@@ -1007,9 +983,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         final command = _TestCreateSubCommandMultiTemplate(
           templates: templates,
@@ -1142,9 +1116,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
@@ -1162,9 +1134,7 @@ Run "runner help" to see global options.''';
             vars: any(named: 'vars'),
             logger: any(named: 'logger'),
           ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
+        ).thenAnswer((_) async => generatedFiles);
 
         final command = _TestCreateSubCommandWithPublishable(
           template: template,
@@ -1205,9 +1175,7 @@ Run "runner help" to see global options.''';
             vars: any(
               named: 'vars',
               that: isA<Map<String, dynamic>>().having(
-                (vars) {
-                  return vars['publishable'];
-                },
+                (vars) => vars['publishable'],
                 'publishable',
                 true,
               ),

@@ -111,24 +111,22 @@ class Dart {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     String? reportOn,
-  }) async {
-    return TestCLIRunner.test(
-      logger: logger,
-      testType: TestRunType.dart,
-      cwd: cwd,
-      recursive: recursive,
-      collectCoverage: collectCoverage,
-      optimizePerformance: optimizePerformance,
-      ignore: ignore,
-      minCoverage: minCoverage,
-      excludeFromCoverage: excludeFromCoverage,
-      randomSeed: randomSeed,
-      forceAnsi: forceAnsi,
-      arguments: arguments,
-      stdout: stdout,
-      stderr: stderr,
-      reportOn: reportOn,
-      buildGenerator: buildGenerator,
-    );
-  }
+  }) async => TestCLIRunner.test(
+    logger: logger,
+    testType: TestRunType.dart,
+    cwd: cwd,
+    recursive: recursive,
+    collectCoverage: collectCoverage,
+    optimizePerformance: optimizePerformance,
+    ignore: ignore,
+    minCoverage: minCoverage,
+    excludeFromCoverage: excludeFromCoverage,
+    randomSeed: randomSeed,
+    forceAnsi: forceAnsi,
+    arguments: arguments,
+    stdout: stdout,
+    stderr: stderr,
+    reportOn: reportOn,
+    buildGenerator: buildGenerator,
+  );
 }

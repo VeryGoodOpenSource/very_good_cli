@@ -28,12 +28,10 @@ class CreateDocsSite extends CreateSubCommand {
   String get description => 'Generate a Very Good documentation site.';
 
   @override
-  Map<String, dynamic> getTemplateVars() {
-    return <String, dynamic>{
-      ...super.getTemplateVars(),
-      'org_name': argResults['org-name'],
-    };
-  }
+  Map<String, dynamic> getTemplateVars() => <String, dynamic>{
+    ...super.getTemplateVars(),
+    'org_name': argResults['org-name'],
+  };
 
   @override
   Template get template => VeryGoodDocsSiteTemplate();

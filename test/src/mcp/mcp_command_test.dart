@@ -171,12 +171,12 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
           channel: any(named: 'channel'),
           logger: logger,
         ),
-      ).thenAnswer((invocation) {
-        return VeryGoodMCPServer(
+      ).thenAnswer(
+        (invocation) => VeryGoodMCPServer(
           channel: defaultFactoryChannelController.foreign,
           logger: logger,
-        );
-      });
+        ),
+      );
 
       final command = MCPCommand(
         logger: logger,

@@ -18,9 +18,8 @@ abstract class ProcessSignalOverrides {
   /// See also:
   /// * [ProcessSignalOverrides.runZoned] to provide [ProcessSignalOverrides]
   /// in a fresh [Zone].
-  static ProcessSignalOverrides? get current {
-    return Zone.current[_token] as ProcessSignalOverrides?;
-  }
+  static ProcessSignalOverrides? get current =>
+      Zone.current[_token] as ProcessSignalOverrides?;
 
   /// Runs [body] in a fresh [Zone] using the provided overrides.
   static R runZoned<R>(
@@ -50,9 +49,7 @@ class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
   }
 
   @override
-  Stream<ProcessSignal>? get sigintWatch {
-    return _sigintStreamController?.stream;
-  }
+  Stream<ProcessSignal>? get sigintWatch => _sigintStreamController?.stream;
 }
 
 /// Thrown when `flutter pub get` is executed without a `pubspec.yaml`.
@@ -165,25 +162,23 @@ class Flutter {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
-  }) async {
-    return TestCLIRunner.test(
-      logger: logger,
-      testType: TestRunType.flutter,
-      cwd: cwd,
-      recursive: recursive,
-      collectCoverage: collectCoverage,
-      optimizePerformance: optimizePerformance,
-      ignore: ignore,
-      minCoverage: minCoverage,
-      excludeFromCoverage: excludeFromCoverage,
-      randomSeed: randomSeed,
-      forceAnsi: forceAnsi,
-      arguments: arguments,
-      stdout: stdout,
-      stderr: stderr,
-      buildGenerator: buildGenerator,
-    );
-  }
+  }) async => TestCLIRunner.test(
+    logger: logger,
+    testType: TestRunType.flutter,
+    cwd: cwd,
+    recursive: recursive,
+    collectCoverage: collectCoverage,
+    optimizePerformance: optimizePerformance,
+    ignore: ignore,
+    minCoverage: minCoverage,
+    excludeFromCoverage: excludeFromCoverage,
+    randomSeed: randomSeed,
+    forceAnsi: forceAnsi,
+    arguments: arguments,
+    stdout: stdout,
+    stderr: stderr,
+    buildGenerator: buildGenerator,
+  );
 }
 
 /// Ensures all git dependencies are reachable for the pubspec
@@ -274,17 +269,11 @@ extension on Duration {
 }
 
 extension on int {
-  String formatSuccess() {
-    return this > 0 ? lightGreen.wrap('+$this')! : '';
-  }
+  String formatSuccess() => this > 0 ? lightGreen.wrap('+$this')! : '';
 
-  String formatFailure() {
-    return this > 0 ? lightRed.wrap('-$this')! : '';
-  }
+  String formatFailure() => this > 0 ? lightRed.wrap('-$this')! : '';
 
-  String formatSkipped() {
-    return this > 0 ? lightYellow.wrap('~$this')! : '';
-  }
+  String formatSkipped() => this > 0 ? lightYellow.wrap('~$this')! : '';
 }
 
 extension on String {
@@ -294,7 +283,6 @@ extension on String {
     return '...$truncated';
   }
 
-  String toSingleLine() {
-    return replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
-  }
+  String toSingleLine() =>
+      replaceAll('\n', '').replaceAll(RegExp(r'\s\s+'), ' ');
 }

@@ -43,18 +43,17 @@ void main() {
       VeryGoodTestRunner testRunner(
         Stream<TestEvent> stream, {
         void Function()? onStart,
-      }) {
-        return ({
-          arguments,
-          environment,
-          runInShell = false,
-          workingDirectory,
-        }) {
-          onStart?.call();
-          if (arguments != null) testRunnerArgs.addAll(arguments);
-          return stream;
-        };
-      }
+      }) =>
+          ({
+            arguments,
+            environment,
+            runInShell = false,
+            workingDirectory,
+          }) {
+            onStart?.call();
+            if (arguments != null) testRunnerArgs.addAll(arguments);
+            return stream;
+          };
 
       GeneratorBuilder generatorBuilder() =>
           (_) async => generator;

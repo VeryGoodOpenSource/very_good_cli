@@ -63,9 +63,8 @@ Future<void> run(HookContext context) async {
 }
 
 extension on FileSystemEntity {
-  bool get isTest {
-    return this is File && path.basename(this.path).endsWith('_test.dart');
-  }
+  bool get isTest =>
+      this is File && path.basename(this.path).endsWith('_test.dart');
 }
 
 Future<List<String>> getNotOptimizedTests(
