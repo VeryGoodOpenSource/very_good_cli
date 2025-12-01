@@ -1,9 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
+// dart format off
 
 /// List of all SPDX licenses.
 ///
@@ -11,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 713 SPDX licenses.
+/// A list of all 719 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -31,6 +32,7 @@ enum SpdxLicense {
   $AGPL_3_0._('AGPL-3.0'),
   $AGPL_3_0_only._('AGPL-3.0-only'),
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
+  $ALGLIB_Documentation._('ALGLIB-Documentation'),
   $AMD_newlib._('AMD-newlib'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
@@ -120,6 +122,7 @@ enum SpdxLicense {
   $Borceux._('Borceux'),
   $Brian_Gladman_2_Clause._('Brian-Gladman-2-Clause'),
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
+  $Buddy._('Buddy'),
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
   $CAL_1_0_Combined_Work_Exception._('CAL-1.0-Combined-Work-Exception'),
@@ -359,6 +362,7 @@ enum SpdxLicense {
   $IPL_1_0._('IPL-1.0'),
   $ISC._('ISC'),
   $ISC_Veillard._('ISC-Veillard'),
+  $ISO_permission._('ISO-permission'),
   $ImageMagick._('ImageMagick'),
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
@@ -422,6 +426,7 @@ enum SpdxLicense {
   $MIT_Festival._('MIT-Festival'),
   $MIT_Khronos_old._('MIT-Khronos-old'),
   $MIT_Modern_Variant._('MIT-Modern-Variant'),
+  $MIT_STK._('MIT-STK'),
   $MIT_Wu._('MIT-Wu'),
   $MIT_advertising._('MIT-advertising'),
   $MIT_enna._('MIT-enna'),
@@ -617,6 +622,7 @@ enum SpdxLicense {
   $TTYP0._('TTYP0'),
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
+  $TekHVC._('TekHVC'),
   $TermReadKey._('TermReadKey'),
   $ThirdEye._('ThirdEye'),
   $TrustedQSL._('TrustedQSL'),
@@ -648,6 +654,7 @@ enum SpdxLicense {
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
   $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
+  $X11_no_permit_persons._('X11-no-permit-persons'),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
   $XSkat._('XSkat'),
