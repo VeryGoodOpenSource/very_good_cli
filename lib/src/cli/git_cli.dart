@@ -11,11 +11,10 @@ class UnreachableGitDependency implements Exception {
   final Uri remote;
 
   @override
-  String toString() {
-    return '''
+  String toString() =>
+      '''
 $remote is unreachable.
 Make sure the remote exists and you have the correct access rights.''';
-  }
 }
 
 /// Git CLI

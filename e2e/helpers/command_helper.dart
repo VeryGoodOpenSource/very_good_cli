@@ -11,20 +11,16 @@ class _MockProgress extends Mock implements Progress {}
 
 class _MockPubUpdater extends Mock implements PubUpdater {}
 
-void Function() _overridePrint(void Function(List<String>) fn) {
-  return () {
-    final printLogs = <String>[];
-    final spec = ZoneSpecification(
-      print: (_, _, _, String msg) {
-        printLogs.add(msg);
-      },
-    );
+void Function() _overridePrint(void Function(List<String>) fn) => () {
+  final printLogs = <String>[];
+  final spec = ZoneSpecification(
+    print: (_, _, _, msg) {
+      printLogs.add(msg);
+    },
+  );
 
-    return Zone.current
-        .fork(specification: spec)
-        .run<void>(() => fn(printLogs));
-  };
-}
+  return Zone.current.fork(specification: spec).run<void>(() => fn(printLogs));
+};
 
 void Function() withRunner(
   FutureOr<void> Function(
@@ -35,39 +31,37 @@ void Function() withRunner(
     List<String> progressLogs,
   )
   runnerFn,
-) {
-  return _overridePrint((printLogs) async {
-    final logger = _MockLogger();
-    final progress = _MockProgress();
-    final pubUpdater = _MockPubUpdater();
-    final progressLogs = <String>[];
-    final commandRunner = VeryGoodCommandRunner(
-      logger: logger,
-      pubUpdater: pubUpdater,
-      environment: {'CI': 'true'},
-    );
+) => _overridePrint((printLogs) async {
+  final logger = _MockLogger();
+  final progress = _MockProgress();
+  final pubUpdater = _MockPubUpdater();
+  final progressLogs = <String>[];
+  final commandRunner = VeryGoodCommandRunner(
+    logger: logger,
+    pubUpdater: pubUpdater,
+    environment: {'CI': 'true'},
+  );
 
-    when(() => progress.complete(any())).thenAnswer((invocation) {
-      final message = invocation.positionalArguments.first as String?;
-      if (message != null) progressLogs.add(message);
-    });
-    when(() => logger.progress(any())).thenReturn(progress);
-    when(
-      () => pubUpdater.isUpToDate(
-        packageName: any(named: 'packageName'),
-        currentVersion: any(named: 'currentVersion'),
-      ),
-    ).thenAnswer((_) => Future.value(true));
-    when(
-      () => pubUpdater.getLatestVersion(any()),
-    ).thenAnswer((_) => Future.value('1.0.0'));
-
-    await runnerFn(
-      commandRunner,
-      logger,
-      pubUpdater,
-      printLogs,
-      progressLogs,
-    );
+  when(() => progress.complete(any())).thenAnswer((invocation) {
+    final message = invocation.positionalArguments.first as String?;
+    if (message != null) progressLogs.add(message);
   });
-}
+  when(() => logger.progress(any())).thenReturn(progress);
+  when(
+    () => pubUpdater.isUpToDate(
+      packageName: any(named: 'packageName'),
+      currentVersion: any(named: 'currentVersion'),
+    ),
+  ).thenAnswer((_) => Future.value(true));
+  when(
+    () => pubUpdater.getLatestVersion(any()),
+  ).thenAnswer((_) => Future.value('1.0.0'));
+
+  await runnerFn(
+    commandRunner,
+    logger,
+    pubUpdater,
+    printLogs,
+    progressLogs,
+  );
+});

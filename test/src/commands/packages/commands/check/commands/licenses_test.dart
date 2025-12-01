@@ -590,9 +590,9 @@ and limitations under the License.''');
               ],
             );
 
-            final packageNames = packageConfig.packages.map((package) {
-              return package.name;
-            }).toList();
+            final packageNames = packageConfig.packages
+                .map((package) => package.name)
+                .toList();
 
             final firstPackageName = packageNames[0];
             final firstPackagePath = path.join(
@@ -701,9 +701,9 @@ and limitations under the License.''');
                   [...commandArguments, tempDirectory.path],
                 );
 
-                final packageNames = packageConfig.packages.map((package) {
-                  return package.name;
-                }).toList();
+                final packageNames = packageConfig.packages
+                    .map((package) => package.name)
+                    .toList();
 
                 expect(
                   packageNames,
@@ -755,9 +755,9 @@ and limitations under the License.''');
                   ],
                 );
 
-                final packageNames = packageConfig.packages.map((package) {
-                  return package.name;
-                }).toList();
+                final packageNames = packageConfig.packages
+                    .map((package) => package.name)
+                    .toList();
 
                 expect(
                   packageNames,
@@ -808,9 +808,9 @@ and limitations under the License.''');
                 ],
               );
 
-              final packageNames = packageConfig.packages.map((package) {
-                return package.name;
-              }).toList();
+              final packageNames = packageConfig.packages
+                  .map((package) => package.name)
+                  .toList();
 
               expect(
                 packageNames,
@@ -860,9 +860,9 @@ and limitations under the License.''');
                 ],
               );
 
-              final packageNames = packageConfig.packages.map((package) {
-                return package.name;
-              }).toList();
+              final packageNames = packageConfig.packages
+                  .map((package) => package.name)
+                  .toList();
 
               expect(
                 packageNames,
@@ -912,9 +912,9 @@ and limitations under the License.''');
                 ],
               );
 
-              final packageNames = packageConfig.packages.map((package) {
-                return package.name;
-              }).toList();
+              final packageNames = packageConfig.packages
+                  .map((package) => package.name)
+                  .toList();
 
               expect(
                 packageNames,
@@ -975,9 +975,9 @@ and limitations under the License.''');
                 ],
               );
 
-              final packageNames = packageConfig.packages.map((package) {
-                return package.name;
-              }).toList();
+              final packageNames = packageConfig.packages
+                  .map((package) => package.name)
+                  .toList();
 
               expect(
                 packageNames,
@@ -1095,7 +1095,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1142,7 +1142,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1191,7 +1191,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1315,7 +1315,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 
@@ -1364,7 +1364,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 
@@ -1415,7 +1415,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 

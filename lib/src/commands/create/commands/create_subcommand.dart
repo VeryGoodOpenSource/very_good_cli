@@ -280,9 +280,7 @@ mixin OrgName on CreateSubCommand {
     }
   }
 
-  bool _isValidOrgName(String name) {
-    return _orgNameRegExp.hasMatch(name);
-  }
+  bool _isValidOrgName(String name) => _orgNameRegExp.hasMatch(name);
 }
 
 /// Mixin for [CreateSubCommand] subclasses that receives multiple templates.

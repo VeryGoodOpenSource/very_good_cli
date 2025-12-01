@@ -19,9 +19,8 @@ typedef ServerFactory =
 typedef ChannelFactory = StreamChannel<String> Function();
 
 // Private default implementation for the channel factory
-StreamChannel<String> _defaultChannelFactory() {
-  return stdioChannel(input: stdin, output: stdout);
-}
+StreamChannel<String> _defaultChannelFactory() =>
+    stdioChannel(input: stdin, output: stdout);
 
 /// {@template mcp_command}
 /// `very_good mcp` command starts the MCP (Model Context Protocol) server.
