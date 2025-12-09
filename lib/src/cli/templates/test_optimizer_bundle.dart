@@ -35,7 +35,7 @@ final testOptimizerBundle = MasonBundle.fromJson(<String, dynamic>{
     {
       "path": "pubspec.yaml",
       "data":
-          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiBeMy4xMC4wCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246IF4wLjEuMAogIHBhdGg6IF4xLjguMQoKIyBCZXdhcmU6IG9uIGhvb2tzLCBldmVuIGRldiBkZXBlbmRlbmNpZXMgaGF2ZSB0byBiZSBjb21wYXRpYmxlIHRvIGFsbCBkYXJ0IHZlcnNpb25zIGNvdmVyZWQgYnkKIyB0aGUgc2RrIGNvbnN0cmFpbnRzIGFib3ZlCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4xLjAuMAogIHRlc3Q6IF4xLjI1LjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4xMC4wLjAK",
+          "bmFtZTogaG9va3MKcHVibGlzaF90bzogbm9uZQoKZW52aXJvbm1lbnQ6CiAgc2RrOiBeMy4xMC4wCgpkZXBlbmRlbmNpZXM6CiAgbWFzb246IF4wLjEuMAogIHBhdGg6IF4xLjguMQoKIyBCZXdhcmU6IG9uIGhvb2tzLCBldmVuIGRldiBkZXBlbmRlbmNpZXMgaGF2ZSB0byBiZSBjb21wYXRpYmxlIHRvIGFsbCBkYXJ0IHZlcnNpb25zIGNvdmVyZWQgYnkKIyB0aGUgc2RrIGNvbnN0cmFpbnRzIGFib3ZlCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4xLjAuMAogIHRlc3Q6IF4xLjI1LjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4xMC4xLjAK",
       "type": "text",
     },
     {
