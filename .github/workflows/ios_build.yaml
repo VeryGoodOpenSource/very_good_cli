@@ -1,0 +1,57 @@
+name: iOS Build Verification
+
+on:
+  pull_request:
+    paths:
+      - "lib/src/commands/create/templates/**"
+  push:
+    branches: [main]
+    paths:
+      - "lib/src/commands/create/templates/**"
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        template:
+          - very_good_core
+          - very_good_flame_game
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.x"
+          channel: stable
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Generate Test Project
+        run: |
+          if [ "${{ matrix.template }}" = "very_good_core" ]; then
+            dart run bin/very_good.dart create flutter_app test_app --template core -o /tmp
+          else
+            dart run bin/very_good.dart create flutter_app test_app --template ${{ matrix.template }} -o /tmp
+          fi
+
+      - name: Build iOS (no-codesign)
+        working-directory: /tmp/test_app
+        run: flutter build ios --no-codesign --debug
+
+      - name: Verify UIScene Configuration
+        run: |
+          echo "Checking for UIApplicationSceneManifest in Info.plist..."
+          grep -q "UIApplicationSceneManifest" /tmp/test_app/ios/Runner/Info.plist || (echo "FAILED: UIApplicationSceneManifest not found" && exit 1)
+
+          echo "Checking for SceneDelegate.swift..."
+          test -f /tmp/test_app/ios/Runner/SceneDelegate.swift || (echo "FAILED: SceneDelegate.swift not found" && exit 1)
+
+          echo "Checking for @main in AppDelegate.swift..."
+          grep -q "@main" /tmp/test_app/ios/Runner/AppDelegate.swift || (echo "FAILED: @main not found in AppDelegate.swift" && exit 1)
+
+          echo "Checking for FlutterImplicitEngineDelegate in AppDelegate.swift..."
+          grep -q "FlutterImplicitEngineDelegate" /tmp/test_app/ios/Runner/AppDelegate.swift || (echo "FAILED: FlutterImplicitEngineDelegate not found" && exit 1)
+
+          echo "All UIScene configuration checks passed!"

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* update iOS templates to use UIScene lifecycle for Flutter 3.38+ ([#1436](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1436))
+
+### Continuous Integration
+
+* add iOS build verification workflow ([#1436](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1436))
+
 ## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-10-03)
 
 
