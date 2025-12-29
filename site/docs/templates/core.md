@@ -262,6 +262,29 @@ When you create a new project, it has a default launcher icon. To customize this
 
 3. Verify the icon has been replaced by running your app using `flutter run`.
 
+## iOS Requirements 🍏
+
+Very Good Core uses Apple's UIScene lifecycle, which is required for all UIKit apps built with iOS 26+ SDK. This ensures your app is future-proof and follows Apple's current platform guidance.
+
+### Requirements
+
+- **Flutter**: 3.38.0 or later
+- **Xcode**: 15.0 or later
+
+### UIScene Architecture
+
+The generated iOS project includes:
+
+- **`SceneDelegate.swift`** - Extends `FlutterSceneDelegate` to handle scene lifecycle events
+- **`AppDelegate.swift`** - Implements `FlutterImplicitEngineDelegate` for plugin registration
+- **`Info.plist`** - Contains `UIApplicationSceneManifest` configuration
+
+This architecture follows [Flutter's official UIScene migration guide][flutter_uiscene_migration].
+
+:::note
+If you're migrating an existing project to the UIScene lifecycle, refer to [Flutter's breaking changes documentation][flutter_uiscene_migration].
+:::
+
 [android_application_element]: https://developer.android.com/guide/topics/manifest/application-element
 [android_configuration_qualifiers]: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
 [bloc_pub]: https://pub.dev/packages/bloc
@@ -279,5 +302,6 @@ When you create a new project, it has a default launcher icon. To customize this
 [material_design_product_icons]: https://material.io/design/iconography/
 [sentry_link]: https://sentry.io
 [very_good_coverage]: https://github.com/marketplace/actions/very-good-coverage
+[flutter_uiscene_migration]: https://docs.flutter.dev/release/breaking-changes/ios-flutterviewcontroller-scenedelegate
 [vga]: https://github.com/VeryGoodOpenSource/very_good_analysis
 [vgv]: https://verygood.ventures
