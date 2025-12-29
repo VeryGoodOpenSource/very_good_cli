@@ -20,6 +20,7 @@ import 'package:package_config/package_config.dart' as package_config;
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
@@ -34,6 +35,10 @@ Future<detector.Result> Function(String, double)? detectLicenseOverride;
 /// The basename of the pubspec lock file.
 @visibleForTesting
 const pubspecLockBasename = 'pubspec.lock';
+
+/// The basename of the pubspec file.
+@visibleForTesting
+const pubspecBasename = 'pubspec.yaml';
 
 /// The URI for the pub.dev license page for the given [packageName].
 @visibleForTesting
@@ -178,11 +183,48 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
+    // Check if this is a workspace root and collect dependencies accordingly
+    final pubspecFile = File(path.join(targetPath, pubspecBasename));
+    final pubspec = _tryParsePubspec(pubspecFile);
+
+    // Collect workspace dependencies if this is a workspace root
+    final workspaceDependencies = _collectWorkspaceDependencies(
+      pubspec: pubspec,
+      targetDirectory: targetDirectory,
+      dependencyTypes: dependencyTypes,
+    );
+
     final filteredDependencies = pubspecLock.packages.where((dependency) {
       if (!dependency.isPubHosted) return false;
 
       if (skippedPackages.contains(dependency.name)) return false;
 
+      // If we have workspace dependencies, use them for filtering direct deps
+      if (workspaceDependencies != null) {
+        // For direct-main and direct-dev, check against workspace dependencies
+        if (dependencyTypes.contains('direct-main') ||
+            dependencyTypes.contains('direct-dev')) {
+          if (workspaceDependencies.contains(dependency.name)) {
+            return true;
+          }
+        }
+
+        // For transitive and direct-overridden, still use pubspec.lock types
+        final dependencyType = dependency.type;
+        if (dependencyTypes.contains('transitive') &&
+            dependencyType == PubspecLockPackageDependencyType.transitive) {
+          return true;
+        }
+        if (dependencyTypes.contains('direct-overridden') &&
+            dependencyType ==
+                PubspecLockPackageDependencyType.directOverridden) {
+          return true;
+        }
+
+        return false;
+      }
+
+      // Non-workspace: use the original filtering logic
       final dependencyType = dependency.type;
       return (dependencyTypes.contains('direct-main') &&
               dependencyType == PubspecLockPackageDependencyType.directMain) ||
@@ -496,4 +538,70 @@ extension on List<Object> {
     final last = removeLast();
     return '${join(', ')} and $last';
   }
+}
+
+/// Attempts to parse a [Pubspec] from a file.
+///
+/// Returns `null` if the file doesn't exist or cannot be parsed.
+Pubspec? _tryParsePubspec(File pubspecFile) {
+  if (!pubspecFile.existsSync()) return null;
+  try {
+    return Pubspec.fromFile(pubspecFile);
+  } on PubspecParseException catch (_) {
+    return null;
+  }
+}
+
+/// Collects dependencies from a workspace.
+///
+/// If [pubspec] is not a workspace root, returns `null`.
+/// Otherwise, returns a set of dependency names collected from all workspace
+/// members based on the requested [dependencyTypes].
+Set<String>? _collectWorkspaceDependencies({
+  required Pubspec? pubspec,
+  required Directory targetDirectory,
+  required List<String> dependencyTypes,
+}) {
+  if (pubspec == null || !pubspec.isWorkspaceRoot) return null;
+
+  final dependencies = <String>{};
+
+  // Collect dependencies from the root pubspec itself
+  if (dependencyTypes.contains('direct-main')) {
+    dependencies.addAll(pubspec.dependencies);
+  }
+  if (dependencyTypes.contains('direct-dev')) {
+    dependencies.addAll(pubspec.devDependencies);
+  }
+
+  // Collect dependencies from workspace members
+  final members = pubspec.resolveWorkspaceMembers(targetDirectory);
+  for (final memberDirectory in members) {
+    final memberPubspecFile = File(
+      path.join(memberDirectory.path, pubspecBasename),
+    );
+    final memberPubspec = _tryParsePubspec(memberPubspecFile);
+    if (memberPubspec == null) continue;
+
+    if (dependencyTypes.contains('direct-main')) {
+      dependencies.addAll(memberPubspec.dependencies);
+    }
+    if (dependencyTypes.contains('direct-dev')) {
+      dependencies.addAll(memberPubspec.devDependencies);
+    }
+
+    // Handle nested workspaces recursively
+    if (memberPubspec.isWorkspaceRoot) {
+      final nestedDeps = _collectWorkspaceDependencies(
+        pubspec: memberPubspec,
+        targetDirectory: memberDirectory,
+        dependencyTypes: dependencyTypes,
+      );
+      if (nestedDeps != null) {
+        dependencies.addAll(nestedDeps);
+      }
+    }
+  }
+
+  return dependencies;
 }
