@@ -39,6 +39,7 @@ const expectedTestUsage = [
       '    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'
       '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
       '    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'
+      '    --fail-fast                                              Stop running tests after the first failure.\n'
       '    --force-ansi                                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
       '    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'
@@ -110,6 +111,7 @@ void main() {
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
+      when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
@@ -265,6 +267,21 @@ void main() {
       verify(
         () => flutterTest(
           arguments: ['--update-goldens', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --fail-fast', () async {
+      when<dynamic>(() => argResults['fail-fast']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['--fail-fast', ...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,

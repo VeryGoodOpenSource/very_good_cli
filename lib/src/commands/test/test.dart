@@ -20,6 +20,7 @@ class FlutterTestOptions {
     required this.randomSeed,
     required this.optimizePerformance,
     required this.updateGoldens,
+    required this.failFast,
     required this.forceAnsi,
     required this.dartDefine,
     required this.dartDefineFromFile,
@@ -44,6 +45,7 @@ class FlutterTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
     final updateGoldens = argResults['update-goldens'] as bool;
+    final failFast = argResults['fail-fast'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
     final dartDefine = argResults['dart-define'] as List<String>?;
     final dartDefineFromFile =
@@ -61,6 +63,7 @@ class FlutterTestOptions {
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       updateGoldens: updateGoldens,
+      failFast: failFast,
       forceAnsi: forceAnsi,
       dartDefine: dartDefine,
       dartDefineFromFile: dartDefineFromFile,
@@ -96,6 +99,9 @@ class FlutterTestOptions {
   /// Whether "matchesGoldenFile()" calls within your test methods should update
   /// the golden files.
   final bool updateGoldens;
+
+  /// Whether to stop running tests after the first failure.
+  final bool failFast;
 
   /// Whether to force ansi output. If not specified, it will maintain the
   /// default behavior based on stdout and stderr.
@@ -210,6 +216,11 @@ class TestCommand extends Command<int> {
         negatable: false,
       )
       ..addFlag(
+        'fail-fast',
+        help: 'Stop running tests after the first failure.',
+        negatable: false,
+      )
+      ..addFlag(
         'force-ansi',
         defaultsTo: null,
         help:
@@ -306,6 +317,7 @@ This command should be run from the root of your Flutter project.''');
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.updateGoldens) '--update-goldens',
+            if (options.failFast) '--fail-fast',
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.dartDefine != null)
               for (final value in options.dartDefine!) '--dart-define=$value',
