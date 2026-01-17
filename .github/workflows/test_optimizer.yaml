@@ -9,12 +9,14 @@ on:
     paths:
       - .github/workflows/test_optimizer.yaml
       - "bricks/test_optimizer/**"
+      - "lib/src/cli/templates/test_optimizer_bundle.dart"
     branches:
       - main
   pull_request:
     paths:
       - .github/workflows/test_optimizer.yaml
       - "bricks/test_optimizer/**"
+      - "lib/src/cli/templates/test_optimizer_bundle.dart"
     branches:
       - main
 
@@ -40,5 +42,27 @@ jobs:
       - name: Run bundle generate
         run: tool/generate_test_optimizer_bundle.sh
 
-      - name: Check for unbundled changes
-        run: git diff --exit-code --quiet || { echo "::error::Changes detected on the test_optimizer brick. Please run tool/generate_test_optimizer_bundle.sh to bundle these changes"; exit 1; }
+      - name: Verify bundle is up to date
+        run: |
+          # Check for modifications to the bundle file
+          if ! git diff --exit-code --quiet lib/src/cli/templates/test_optimizer_bundle.dart; then
+            echo "::error::test_optimizer_bundle.dart has uncommitted changes after regeneration"
+            echo "::error::The bundle is out of sync with the brick source in bricks/test_optimizer/"
+            echo "::error::Please run 'tool/generate_test_optimizer_bundle.sh' and commit the updated bundle"
+            echo ""
+            echo "Changes detected:"
+            git diff lib/src/cli/templates/test_optimizer_bundle.dart
+            exit 1
+          fi
+
+          # Check for untracked or deleted bundle files
+          if git status --porcelain lib/src/cli/templates/ | grep -q '^[?!].*test_optimizer_bundle.dart'; then
+            echo "::error::test_optimizer_bundle.dart has untracked or deleted changes"
+            echo "::error::The bundle file may be missing or newly created"
+            echo "::error::Please run 'tool/generate_test_optimizer_bundle.sh' and commit the updated bundle"
+            echo ""
+            git status lib/src/cli/templates/
+            exit 1
+          fi
+
+          echo "✅ Bundle verification passed - bundle is up to date with brick source"
