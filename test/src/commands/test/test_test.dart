@@ -34,7 +34,7 @@ const expectedTestUsage = [
       '-j, --concurrency                                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                                             (defaults to "4")\n'
       '-t, --tags                                                   Run only tests associated with the specified tags.\n'
-          "    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
+      "    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
       '-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'
       '    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'
       '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
