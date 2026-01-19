@@ -183,6 +183,25 @@ void main() {
 
         expect(members, isEmpty);
       });
+
+      test('resolves glob pattern matching pubspec.yaml files directly', () {
+        // Create workspace structure
+        final memberDir = Directory(
+          path.join(tempDirectory.path, 'packages/member'),
+        )..createSync(recursive: true);
+        File(
+          path.join(memberDir.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+        // Use a glob pattern that matches pubspec.yaml files directly
+        final pubspec = Pubspec.fromString(
+          _workspaceWithFileGlobPubspecContent,
+        );
+        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
+
+        expect(members.length, equals(1));
+        expect(path.basename(members.first.path), equals('member'));
+      });
     });
   });
 
@@ -286,4 +305,15 @@ name: no_deps
 
 environment:
   sdk: ^3.0.0
+''';
+
+/// A workspace pubspec.yaml with glob pattern that matches pubspec.yaml files.
+const _workspaceWithFileGlobPubspecContent = '''
+name: workspace_file_glob
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - packages/*/pubspec.yaml
 ''';
