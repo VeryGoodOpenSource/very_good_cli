@@ -1769,7 +1769,10 @@ and limitations under the License.''');
 
           when(
             () => packageConfig.packages,
-          ).thenReturn([veryGoodTestRunnerConfigPackage, cliCompletionConfigPackage]);
+          ).thenReturn([
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+          ]);
           when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           when(() => logger.progress(any())).thenReturn(progress);

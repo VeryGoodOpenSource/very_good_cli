@@ -136,14 +136,16 @@ void main() {
         // Create workspace structure
         final appDir = Directory(path.join(tempDirectory.path, 'packages/app'))
           ..createSync(recursive: true);
-        File(path.join(appDir.path, 'pubspec.yaml'))
-            .writeAsStringSync(_workspaceMemberPubspecContent);
+        File(
+          path.join(appDir.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
 
         final sharedDir = Directory(
           path.join(tempDirectory.path, 'packages/shared'),
         )..createSync(recursive: true);
-        File(path.join(sharedDir.path, 'pubspec.yaml'))
-            .writeAsStringSync(_workspaceMemberPubspecContent);
+        File(
+          path.join(sharedDir.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
 
         final pubspec = Pubspec.fromString(_workspaceRootPubspecContent);
         final members = pubspec.resolveWorkspaceMembers(tempDirectory);
@@ -158,12 +160,14 @@ void main() {
         final validDir = Directory(
           path.join(tempDirectory.path, 'packages/valid'),
         )..createSync(recursive: true);
-        File(path.join(validDir.path, 'pubspec.yaml'))
-            .writeAsStringSync(_workspaceMemberPubspecContent);
+        File(
+          path.join(validDir.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
 
         // Create a directory without pubspec.yaml
-        Directory(path.join(tempDirectory.path, 'packages/invalid'))
-            .createSync(recursive: true);
+        Directory(
+          path.join(tempDirectory.path, 'packages/invalid'),
+        ).createSync(recursive: true);
 
         final pubspec = Pubspec.fromString(_workspaceWithGlobPubspecContent);
         final members = pubspec.resolveWorkspaceMembers(tempDirectory);
