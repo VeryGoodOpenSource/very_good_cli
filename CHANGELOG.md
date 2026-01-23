@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.29.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v0.29.0) (2026-01-23)
+
+
+### Features
+
+* add --fail-fast flag to test commands ([#1453](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1453)) ([b48d569](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b48d569e31e40d3dde87a2e1e0ffa68ce8a3d0df))
+* add custom MCP ([#1416](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1416)) ([b63d5c0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b63d5c0114971469d01b4dc9bc37a0beea626622))
+* Run tests on a windows CI as well ([48b22bb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/48b22bbb76bd80747f07735ba1af98e3d0410971))
+* upgrade to flutter 3.38.1 ([#1424](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1424)) ([5473fac](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5473facfba91ae68355b17c8ebc42176d813cc72))
+
+
+### Bug Fixes
+
+* failing test on Windows ([#1407](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1407)) ([a3c7d37](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a3c7d37fb216da825c5cd3eb863a77ba07a2df56))
+* update changelog ([#1388](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1388)) ([0a54323](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0a54323c11f5f4f6e0e93927862e76e822cd18da))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump @docusaurus/tsconfig from 3.9.1 to 3.9.2 in /site ([#1403](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1403)) ([f15d6a8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f15d6a882e5c970c85952602810d72d76447a22c))
+* **deps:** bump pana from 0.22.24 to 0.23.0 ([#1404](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1404)) ([3deeb7d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3deeb7d62f866b852814c62cc5852c6988c75bb9))
+* update SPDX licenses ([#1395](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1395)) ([26613e0](https://github.com/VeryGoodOpenSource/very_good_cli/commit/26613e087e84342d8b3ecbd5fef4f18c8360fb4a))
+* update SPDX licenses ([#1398](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1398)) ([e61180c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e61180cdea571b79c208162042ae29c3f9dd46ce))
+* update SPDX licenses ([#1405](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1405)) ([d5cddf6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d5cddf6022818794d13a42e404fcefffb3062fb0))
+
+
+### Docs
+
+* add example glob pattern to --exclude-coverage help text ([#1452](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1452)) ([04e0847](https://github.com/VeryGoodOpenSource/very_good_cli/commit/04e0847a66c556163b7e3b0ca6a21e6ba51532ae))
+
 ## [0.28.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.27.0...v0.28.0) (2025-10-03)
 
 
