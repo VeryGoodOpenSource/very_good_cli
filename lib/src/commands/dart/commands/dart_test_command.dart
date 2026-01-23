@@ -177,7 +177,7 @@ class DartTestCommand extends Command<int> {
         'exclude-coverage',
         help:
             'A glob which will be used to exclude files that match from the '
-            'coverage.',
+            "coverage (e.g. '**/*.g.dart').",
       )
       ..addOption(
         'exclude-tags',
