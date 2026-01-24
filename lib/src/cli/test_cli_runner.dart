@@ -364,7 +364,7 @@ class TestCLIRunner {
       final dartFile = File(absolutePath);
       if (dartFile.existsSync()) {
         final lines = await dartFile.readAsLines();
-        buffer.writeln('SF:$file');
+        buffer.writeln('SF:${file.replaceAll(r'\', '/')}');
         // Mark non-trivial lines as uncovered
         for (var i = 1; i <= lines.length; i++) {
           final line = lines[i - 1].trim();
