@@ -1354,6 +1354,284 @@ void main() {
           );
         },
       );
+
+      group('collectCoverageFrom parameter', () {
+        test(
+          'passes through collectCoverageFrom to test runner',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            Directory(p.join(tempDirectory.path, 'lib')).createSync();
+            lcovFile.createSync(recursive: true);
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    expect(lcovFile.existsSync(), isFalse);
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync('end_of_record\n');
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+            expect(
+              stdoutLogs,
+              equals([
+                'Running "flutter test" in . ...\n',
+                contains('All tests passed!'),
+              ]),
+            );
+            expect(testRunnerArgs, equals(['--coverage']));
+          },
+        );
+
+        test(
+          'creates lcov for dart tests with collectCoverageFrom all',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final coverageDir = Directory(
+              p.join(tempDirectory.path, 'coverage'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            Directory(p.join(tempDirectory.path, 'lib')).createSync();
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.dart,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    final lcovDir = Directory(
+                      p.join(tempDirectory.path, 'coverage'),
+                    )..createSync(recursive: true);
+                    File(
+                      p.join(lcovDir.path, 'lcov.info'),
+                    ).writeAsStringSync('end_of_record\n');
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(coverageDir.existsSync(), isTrue);
+            expect(
+              stdoutLogs,
+              equals([
+                'Running "dart test" in . ...\n',
+                contains('All tests passed!'),
+              ]),
+            );
+          },
+        );
+
+        test(
+          'respects collectCoverageFrom imports mode (default)',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            lcovFile.createSync(recursive: true);
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    lcovFile.createSync(recursive: true);
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+            expect(testRunnerArgs, equals(['--coverage']));
+          },
+        );
+
+        test(
+          'enhances lcov with untested dart files for collectCoverageFrom all',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final libDir = Directory(p.join(tempDirectory.path, 'lib'))
+              ..createSync(recursive: true);
+            File(
+              p.join(libDir.path, 'tested.dart'),
+            ).writeAsStringSync('void tested() {}');
+            File(
+              p.join(libDir.path, 'untested.dart'),
+            ).writeAsStringSync('void unused() {}');
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+
+            // Use flutter test type because it doesn't overwrite the LCOV file
+            // (unlike dart test which uses formatLcov to generate it)
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    // Create LCOV file with coverage for tested.dart
+                    // This ensures the path comparison in line 349 is exercised
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync(
+                        'SF:lib/tested.dart\n'
+                        'DA:1,1\n'
+                        'LF:1\n'
+                        'LH:1\n'
+                        'end_of_record\n',
+                      );
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            // Verify LCOV file was enhanced with untested files
+            expect(lcovFile.existsSync(), isTrue);
+            final content = lcovFile.readAsStringSync();
+            expect(content, contains('SF:lib/tested.dart'));
+            // Verify tested file was correctly identified as covered
+            // (should have DA:1,1 from original LCOV, not DA:1,0 from enhance)
+            expect(content, contains('DA:1,1'));
+            // Verify untested file was added to coverage
+            expect(content, contains('SF:lib/untested.dart'));
+            // Verify untested file has DA:1,0 (uncovered)
+            expect(content, contains('DA:1,0'));
+          },
+        );
+
+        test(
+          'respects exclude-coverage pattern when enhancing lcov',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final libDir = Directory(p.join(tempDirectory.path, 'lib'))
+              ..createSync(recursive: true);
+            File(
+              p.join(libDir.path, 'main.dart'),
+            ).writeAsStringSync('void main() {}');
+            File(
+              p.join(libDir.path, 'main.g.dart'),
+            ).writeAsStringSync('// Generated code');
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.dart,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                excludeFromCoverage: '**/*.g.dart',
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    // Create LCOV with covered file for main.dart only
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync(
+                        'TN:test\n'
+                        'SF:lib/main.dart\n'
+                        'DA:1,1\n'
+                        'LH:1\n'
+                        'LF:1\n'
+                        'end_of_record\n',
+                      );
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(lcovFile.existsSync(), isTrue);
+          },
+        );
+      });
     });
   });
 }
