@@ -86,7 +86,7 @@ void main() {
       dartTest = _MockDartTestCommand();
       testCommand = DartTestCommand(
         logger: logger,
-        dartInstalled: ({required Logger logger}) async => isFlutterInstalled,
+        dartInstalled: ({required logger}) async => isFlutterInstalled,
         dartTest: dartTest.call,
       )..argResultOverrides = argResults;
       when(
