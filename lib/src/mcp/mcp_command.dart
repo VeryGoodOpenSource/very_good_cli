@@ -57,18 +57,13 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
     try {
       _logger
         ..info('Starting Very Good CLI MCP Server...')
-        ..info(
-          'Server will listen on stdin/stdout for MCP protocol messages',
-        );
+        ..info('Server will listen on stdin/stdout for MCP protocol messages');
 
       // Create a channel from stdin/stdout using the stdio helper
       final channel = _channelFactory();
 
       // Create and start the MCP server
-      final server = _serverFactory(
-        channel: channel,
-        logger: _logger,
-      );
+      final server = _serverFactory(channel: channel, logger: _logger);
 
       _logger
         ..info('MCP Server started successfully')
@@ -76,18 +71,14 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
         ..info('''
   - create: Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.''')
         ..info('  - test: Run tests in a Dart or Flutter project.')
-        ..info(
-          '''
+        ..info('''
            - packages_get: Install or update Dart/Flutter package dependencies.
           Use after creating a project or modifying pubspec.yaml.
-          Supports recursive installation and package exclusion.''',
-        )
-        ..info(
-          '''
+          Supports recursive installation and package exclusion.''')
+        ..info('''
   - packages_check_licenses: Verify package licenses for compliance and validation in a Dart or Flutter project.
             Identifies license types (MIT, BSD, Apache, etc.) for all 
-            dependencies. Use to ensure license compatibility.''',
-        );
+            dependencies. Use to ensure license compatibility.''');
 
       // Wait for the server to complete
       // (this will block until the connection is closed)
