@@ -19,6 +19,17 @@ Developed with 💙 by [Very Good Ventures][very_good_ventures_link] 🦄
 ## Documentation 📝
 
 For official documentation, please visit https://cli.vgv.dev.
+## Model Context Protocol (MCP) 🤖
+
+Very Good CLI includes experimental support for the Model Context Protocol (MCP),
+allowing AI-assisted developer tools such as Claude Desktop, Cursor, GitHub Copilot,
+and Windsurf to interact with the CLI programmatically.
+
+This enables workflows such as automated project creation, test execution,
+dependency management, and license checking through AI assistants.
+
+👉 See the full MCP documentation: [docs/mcp.md](docs/mcp.md)
+
 
 ## Quick Start 🚀
 

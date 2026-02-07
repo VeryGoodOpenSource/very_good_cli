@@ -11,6 +11,10 @@
 * Adding report-on flag to the dart test command ([#1348](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1348)) ([5cf1d27](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5cf1d27ae690343880532af6c388392805b7ae55))
 * bump template bundles ([#1385](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1385)) ([1f72e86](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1f72e86fa8925ab18be9ae3deca2344e5a74e771))
 * upgrade to flutter 3.35.0 ([#1344](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1344)) ([215cbdb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/215cbdbe999afca470386398b2bdcd1aa50588af))
+### Documentation
+
+* add experimental Model Context Protocol (MCP) documentation ([#1450])
+
 
 
 ### Bug Fixes
