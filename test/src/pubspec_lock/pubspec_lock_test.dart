@@ -198,13 +198,13 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
 
 /// A valid pubspec lock file with no packages.
 const _emptyPubspecLockContent = '''
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';

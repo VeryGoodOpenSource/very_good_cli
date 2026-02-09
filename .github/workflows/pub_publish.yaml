@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📚 Git Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: 🎯 Setup Dart
         uses: dart-lang/setup-dart@v1
         with:
-          sdk: "3.9.0"
+          sdk: "3.10.0"
       - name: 📦 Install Dependencies
         run: dart pub get
       - name: 📢 Publish

@@ -10,11 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: dart-lang/setup-dart@v1
         with:
-          sdk: "3.9.0"
+          sdk: "3.10.0"
 
       - name: Install mason
         run: dart pub global activate mason_cli
@@ -23,12 +23,13 @@ jobs:
         run: tool/generate_bundles.sh
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7.0.8
+        uses: peter-evans/create-pull-request@v8.1.0
         with:
-          token: ${{ secrets.VGV_BOT_PAT }}
           base: main
+          labels: bot
           branch: feat/bump-template-bundles
-          commit-message: "feat: bump template bundles"
           title: "feat: bump template bundles"
           body: Please squash and merge me!
-          labels: bot
+          commit-message: "feat: bump template bundles"
+          token: ${{ secrets.VGV_BOT_PAT }}
+          sign-commits: true

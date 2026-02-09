@@ -1,9 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
+// dart format off
 
 /// List of all SPDX licenses.
 ///

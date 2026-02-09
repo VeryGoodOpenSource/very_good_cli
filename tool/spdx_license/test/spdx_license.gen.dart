@@ -1,9 +1,10 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 
-// If you need to make changes, please refer to the SPDX License brick 
+//
+// If you need to make changes, please refer to the SPDX License brick
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
+// dart format off
 
 /// List of all SPDX licenses.
 ///
@@ -11,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 716 SPDX licenses.
+/// A list of all 726 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -31,6 +32,7 @@ enum SpdxLicense {
   $AGPL_3_0._('AGPL-3.0'),
   $AGPL_3_0_only._('AGPL-3.0-only'),
   $AGPL_3_0_or_later._('AGPL-3.0-or-later'),
+  $ALGLIB_Documentation._('ALGLIB-Documentation'),
   $AMD_newlib._('AMD-newlib'),
   $AMDPLPA._('AMDPLPA'),
   $AML._('AML'),
@@ -124,6 +126,7 @@ enum SpdxLicense {
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
   $CAL_1_0_Combined_Work_Exception._('CAL-1.0-Combined-Work-Exception'),
+  $CAPEC_tou._('CAPEC-tou'),
   $CATOSL_1_1._('CATOSL-1.1'),
   $CC_BY_1_0._('CC-BY-1.0'),
   $CC_BY_2_0._('CC-BY-2.0'),
@@ -348,6 +351,7 @@ enum SpdxLicense {
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
   $HPND_sell_variant_MIT_disclaimer_rev._('HPND-sell-variant-MIT-disclaimer-rev'),
+  $HPND_sell_variant_critical_systems._('HPND-sell-variant-critical-systems'),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -360,6 +364,7 @@ enum SpdxLicense {
   $IPL_1_0._('IPL-1.0'),
   $ISC._('ISC'),
   $ISC_Veillard._('ISC-Veillard'),
+  $ISO_permission._('ISO-permission'),
   $ImageMagick._('ImageMagick'),
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
@@ -432,6 +437,7 @@ enum SpdxLicense {
   $MIT_testregex._('MIT-testregex'),
   $MITNFA._('MITNFA'),
   $MMIXware._('MMIXware'),
+  $MMPL_1_0_1._('MMPL-1.0.1'),
   $MPEG_SSG._('MPEG-SSG'),
   $MPL_1_0._('MPL-1.0'),
   $MPL_1_1._('MPL-1.1'),
@@ -532,6 +538,7 @@ enum SpdxLicense {
   $OSL_2_1._('OSL-2.1'),
   $OSL_3_0._('OSL-3.0'),
   $OSSP._('OSSP'),
+  $OpenMDW_1_0._('OpenMDW-1.0'),
   $OpenPBS_2_3._('OpenPBS-2.3'),
   $OpenSSL._('OpenSSL'),
   $OpenSSL_standalone._('OpenSSL-standalone'),
@@ -542,6 +549,7 @@ enum SpdxLicense {
   $PHP_3_01._('PHP-3.01'),
   $PPL._('PPL'),
   $PSF_2_0._('PSF-2.0'),
+  $ParaType_Free_Font_1_3._('ParaType-Free-Font-1.3'),
   $Parity_6_0_0._('Parity-6.0.0'),
   $Parity_7_0_0._('Parity-7.0.0'),
   $Pixar._('Pixar'),
@@ -619,6 +627,7 @@ enum SpdxLicense {
   $TTYP0._('TTYP0'),
   $TU_Berlin_1_0._('TU-Berlin-1.0'),
   $TU_Berlin_2_0._('TU-Berlin-2.0'),
+  $TekHVC._('TekHVC'),
   $TermReadKey._('TermReadKey'),
   $ThirdEye._('ThirdEye'),
   $TrustedQSL._('TrustedQSL'),
@@ -628,6 +637,7 @@ enum SpdxLicense {
   $UPL_1_0._('UPL-1.0'),
   $URT_RLE._('URT-RLE'),
   $Ubuntu_font_1_0._('Ubuntu-font-1.0'),
+  $UnRAR._('UnRAR'),
   $Unicode_3_0._('Unicode-3.0'),
   $Unicode_DFS_2015._('Unicode-DFS-2015'),
   $Unicode_DFS_2016._('Unicode-DFS-2016'),
@@ -639,6 +649,7 @@ enum SpdxLicense {
   $VOSTROM._('VOSTROM'),
   $VSL_1_0._('VSL-1.0'),
   $Vim._('Vim'),
+  $Vixie_Cron._('Vixie-Cron'),
   $W3C._('W3C'),
   $W3C_19980720._('W3C-19980720'),
   $W3C_20150513._('W3C-20150513'),
