@@ -19,6 +19,7 @@ class DartTestOptions {
     required this.excludeFromCoverage,
     required this.randomSeed,
     required this.optimizePerformance,
+    required this.failFast,
     required this.forceAnsi,
     required this.platform,
     required this.rest,
@@ -41,6 +42,7 @@ class DartTestOptions {
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
     final optimizePerformance = argResults['optimization'] as bool;
+    final failFast = argResults['fail-fast'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
     final platform = argResults['platform'] as String?;
     final reportOn = argResults['report-on'] as String?;
@@ -55,6 +57,7 @@ class DartTestOptions {
       excludeFromCoverage: excludeFromCoverage,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
+      failFast: failFast,
       forceAnsi: forceAnsi,
       platform: platform,
       reportOn: reportOn,
@@ -85,6 +88,9 @@ class DartTestOptions {
 
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
+
+  /// Whether to stop running tests after the first failure.
+  final bool failFast;
 
   /// Whether to force ansi output. If not specified, it will maintain the
   /// default behavior based on stdout and stderr.
@@ -171,7 +177,7 @@ class DartTestCommand extends Command<int> {
         'exclude-coverage',
         help:
             'A glob which will be used to exclude files that match from the '
-            'coverage.',
+            "coverage (e.g. '**/*.g.dart').",
       )
       ..addOption(
         'exclude-tags',
@@ -187,6 +193,11 @@ class DartTestCommand extends Command<int> {
         help:
             'The seed to randomize the execution order of test cases '
             'within test files.',
+      )
+      ..addFlag(
+        'fail-fast',
+        help: 'Stop running tests after the first failure.',
+        negatable: false,
       )
       ..addFlag(
         'force-ansi',
@@ -265,6 +276,7 @@ This command should be run from the root of your Dart project.''');
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
+            if (options.failFast) '--fail-fast',
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.platform == null) ...['-j', options.concurrency],
             ...options.rest,

@@ -28,7 +28,7 @@ void main() {
       await expectSuccessfulProcessResult('dart', [
         'pub',
         'add',
-        'coverage:1.2.0',
+        'coverage:1.15.0',
       ], workingDirectory: workingDirectory);
 
       await expectSuccessfulProcessResult('dart', [
