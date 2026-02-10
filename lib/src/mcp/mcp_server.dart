@@ -286,10 +286,7 @@ Only one value can be selected.
       cliArgs.addAll(['--org-name', args['org_name']! as String]);
     }
     if (args['output_directory'] != null) {
-      cliArgs.addAll([
-        '-o',
-        args['output_directory']! as String,
-      ]);
+      cliArgs.addAll(['-o', args['output_directory']! as String]);
     }
     if (args['application_id'] != null) {
       cliArgs.addAll(['--application-id', args['application_id']! as String]);
@@ -308,10 +305,7 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
-    final cliArgs = <String>[
-      if (args['dart'] == true) 'dart',
-      'test',
-    ];
+    final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
     if (args['directory'] != null) {
       cliArgs.add(args['directory']! as String);
