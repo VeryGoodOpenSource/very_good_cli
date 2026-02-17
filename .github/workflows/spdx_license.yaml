@@ -47,15 +47,11 @@ jobs:
       - name: 🕵️ Analyze
         run: dart analyze --fatal-infos --fatal-warnings
 
+      # Coverage is temporarily disabled due to a known regression in
+      # test_core 0.6.15 where coverage is not collected for files outside
+      # of lib/. See: https://github.com/dart-lang/test/issues/2581
       - name: 🧪 Run Tests
-        run: |
-          dart pub global activate coverage 1.15.0
-          dart pub run test -j 4 --run-skipped --coverage=coverage --test-randomize-ordering-seed random && dart pub global run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on="pre_gen,post_gen"
-
-      - name: 📊 Check Code Coverage
-        uses: VeryGoodOpenSource/very_good_coverage@v3.0.0
-        with:
-          path: tool/spdx_license/hooks/coverage/lcov.info
+        run: dart test -j 4 --run-skipped --test-randomize-ordering-seed random
 
   build_brick:
     defaults:
