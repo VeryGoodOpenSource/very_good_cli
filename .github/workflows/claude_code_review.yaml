@@ -1,4 +1,4 @@
-name: Claude Code Review
+name: claude_code_review
 
 on:
   pull_request:
