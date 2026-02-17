@@ -366,6 +366,7 @@ class TestCLIRunner {
         final lines = await dartFile.readAsLines();
         buffer.writeln('SF:${file.replaceAll(r'\', '/')}');
         // Mark non-trivial lines as uncovered
+        var linesFound = 0;
         for (var i = 1; i <= lines.length; i++) {
           final line = lines[i - 1].trim();
           if (line.isNotEmpty &&
@@ -374,9 +375,13 @@ class TestCLIRunner {
               !line.startsWith('export') &&
               !line.startsWith('part')) {
             buffer.writeln('DA:$i,0');
+            linesFound++;
           }
         }
-        buffer.writeln('end_of_record');
+        buffer
+          ..writeln('LF:$linesFound')
+          ..writeln('LH:0')
+          ..writeln('end_of_record');
       }
     }
 

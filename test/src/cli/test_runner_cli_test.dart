@@ -1568,6 +1568,9 @@ void main() {
             expect(content, contains('SF:lib/untested.dart'));
             // Verify untested file has DA:1,0 (uncovered)
             expect(content, contains('DA:1,0'));
+            // Verify untested file has LF and LH summary lines
+            expect(content, contains('LF:1'));
+            expect(content, contains('LH:0'));
           },
         );
 
