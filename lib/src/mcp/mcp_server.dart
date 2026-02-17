@@ -164,9 +164,9 @@ Automatically set to 1 when --platform is specified.
               description:
                   '''Run only tests associated with the specified tags.''',
             ),
-            'exclude_coverage': BooleanSchema(
+            'exclude_coverage': StringSchema(
               description:
-                  '''A glob which will be used to exclude files that match from the coverage.''',
+                  '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
             ),
             'exclude_tags': StringSchema(
               description:
@@ -286,10 +286,7 @@ Only one value can be selected.
       cliArgs.addAll(['--org-name', args['org_name']! as String]);
     }
     if (args['output_directory'] != null) {
-      cliArgs.addAll([
-        '-o',
-        args['output_directory']! as String,
-      ]);
+      cliArgs.addAll(['-o', args['output_directory']! as String]);
     }
     if (args['application_id'] != null) {
       cliArgs.addAll(['--application-id', args['application_id']! as String]);
@@ -300,6 +297,9 @@ Only one value can be selected.
     if (args['publishable'] == true) {
       cliArgs.add('--publishable');
     }
+    if (args['executable-name'] != null) {
+      cliArgs.addAll(['--executable-name', args['executable-name']! as String]);
+    }
     if (args['template'] != null) {
       cliArgs.addAll(['-t', args['template']! as String]);
     }
@@ -308,10 +308,7 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
-    final cliArgs = <String>[
-      if (args['dart'] == true) 'dart',
-      'test',
-    ];
+    final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
     if (args['directory'] != null) {
       cliArgs.add(args['directory']! as String);
@@ -333,8 +330,11 @@ Only one value can be selected.
     if (args['tags'] != null) {
       cliArgs.addAll(['-t', args['tags']! as String]);
     }
-    if (args['exclude_coverage'] == false) {
-      cliArgs.add('--exclude-coverage');
+    if (args['exclude_coverage'] != null) {
+      cliArgs.addAll([
+        '--exclude-coverage',
+        args['exclude_coverage']! as String,
+      ]);
     }
     if (args['exclude_tags'] != null) {
       cliArgs.addAll(['-x', args['exclude_tags']! as String]);

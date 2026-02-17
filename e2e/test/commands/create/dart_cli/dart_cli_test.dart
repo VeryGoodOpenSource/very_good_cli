@@ -28,7 +28,7 @@ void main() {
       await expectSuccessfulProcessResult('dart', [
         'pub',
         'add',
-        'coverage:1.2.0',
+        'coverage:1.15.0',
       ], workingDirectory: workingDirectory);
 
       await expectSuccessfulProcessResult('dart', [
@@ -46,7 +46,7 @@ void main() {
         '--coverage=coverage',
         '--reporter=compact',
       ], workingDirectory: workingDirectory);
-      expect(testResult.stdout, contains('All tests passed!'));
+      expect(testResult.stdout, contains('All other tests passed!'));
 
       // collect coverage
       await expectSuccessfulProcessResult('dart', [
