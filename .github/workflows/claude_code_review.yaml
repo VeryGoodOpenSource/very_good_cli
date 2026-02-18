@@ -1,34 +1,44 @@
 name: claude_code_review
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
 
 jobs:
-  claude-review:
-    if: github.event.pull_request.user.login != 'dependabot[bot]'
+  review-with-tracking:
     runs-on: ubuntu-latest
     permissions:
-      issues: read
       contents: read
+      pull-requests: write
       id-token: write
-      pull-requests: read
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
           fetch-depth: 1
 
-      - name: Run Claude Code Review
-        id: claude-review
+      - name: PR Review
         uses: anthropics/claude-code-action@v1
         with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
-          plugins: "code-review@claude-code-plugins"
-          prompt: "/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Please review this pull request focusing on the changed files.
+
+            Note: The PR branch is already checked out in the current working directory.
+
+            Provide feedback on:
+            - Code quality and adherence to best practices
+            - Potential bugs or edge cases
+            - Performance considerations
+            - Security implications
+            - Suggestions for improvement
+
+            Since this PR touches critical source code paths, please be thorough
+            in your review and provide inline comments where appropriate.
+
           claude_args: |
-            --max-turns 5
-            --model claude-opus-4-6
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
