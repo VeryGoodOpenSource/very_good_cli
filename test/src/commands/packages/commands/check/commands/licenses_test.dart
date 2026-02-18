@@ -1737,6 +1737,400 @@ and limitations under the License.''');
         }),
       );
     });
+
+    group('workspace support', () {
+      test(
+        'collects dependencies from workspace members',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create workspace root pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create workspace member directories and pubspec.yaml files
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberAppPubspecContent,
+          );
+
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          // Create pubspec.lock at workspace root with all dependencies
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+          ]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [...commandArguments, tempDirectory.path],
+          );
+
+          // Should find dependencies from both workspace members
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 2 packages',
+            ),
+          ).called(1);
+          verify(
+            () => progress.update(
+              'Collecting licenses from 2 out of 2 packages',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 2 licenses from 2 packages of type: MIT (2).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'filters dev dependencies from workspace members correctly',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create workspace root pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create workspace member with dev dependencies
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberWithDevDepsPubspecContent,
+          );
+
+          // Create shared package directory
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          // Create pubspec.lock at workspace root
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockWithDevDepsContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodAnalysisConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              '--dependency-type',
+              'direct-dev',
+              tempDirectory.path,
+            ],
+          );
+
+          // Should find dev dependencies from workspace members
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'filters transitive dependencies in workspace correctly',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create workspace root pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create workspace member directories
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberAppPubspecContent,
+          );
+
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          // Create pubspec.lock with transitive dependencies
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockWithTransitiveContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([yamlConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              '--dependency-type',
+              'transitive',
+              tempDirectory.path,
+            ],
+          );
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'filters direct-overridden dependencies in workspace correctly',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create workspace root pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create workspace member directories
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberAppPubspecContent,
+          );
+
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          // Create pubspec.lock with direct-overridden dependencies
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockWithOverriddenContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([pathConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              '--dependency-type',
+              'direct-overridden',
+              tempDirectory.path,
+            ],
+          );
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'handles malformed workspace member pubspec gracefully',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create workspace root pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create workspace member with malformed pubspec
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            'invalid: yaml: content: [',
+          );
+
+          // Create valid shared package
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([cliCompletionConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [...commandArguments, tempDirectory.path],
+          );
+
+          // Should still work, just skipping the malformed member
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'handles nested workspaces recursively',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create root workspace pubspec.yaml
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // Create first-level workspace member that is also a workspace root
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _nestedWorkspaceRootPubspecContent,
+          );
+
+          // Create nested workspace member
+          final nestedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app', 'nested', 'pkg'),
+          )..createSync(recursive: true);
+          File(path.join(nestedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _nestedWorkspaceMemberPubspecContent,
+          );
+
+          // Create shared package
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_nestedWorkspacePubspecLockContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+            yamlConfigPackage,
+          ]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [...commandArguments, tempDirectory.path],
+          );
+
+          // Should collect dependencies from all levels including nested
+          verify(
+            () => progress.complete(
+              '''Retrieved 3 licenses from 3 packages of type: MIT (3).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'works with non-workspace projects (backwards compatibility)',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          // Create a regular pubspec.yaml (no workspace property)
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _regularPubspecContent,
+          );
+
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [...commandArguments, tempDirectory.path],
+          );
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+    });
   });
 }
 
@@ -1849,6 +2243,234 @@ sdks:
 
 /// A valid pubspec lock file with no dependencies.
 const _emptyPubspecLockContent = '''
+sdks:
+  dart: ">=3.10.0 <4.0.0"
+
+''';
+
+/// A workspace root pubspec.yaml content.
+const _workspaceRootPubspecContent = '''
+name: workspace_root
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - packages/app
+  - packages/shared
+''';
+
+/// A workspace member pubspec.yaml for app package.
+const _workspaceMemberAppPubspecContent = '''
+name: app
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  very_good_test_runner: ^0.1.0
+''';
+
+/// A workspace member pubspec.yaml for shared package.
+const _workspaceMemberSharedPubspecContent = '''
+name: shared
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  cli_completion: ^0.4.0
+''';
+
+/// A workspace member pubspec.yaml with dev dependencies.
+const _workspaceMemberWithDevDepsPubspecContent = '''
+name: app
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  http: ^1.0.0
+
+dev_dependencies:
+  very_good_analysis: ^5.0.0
+''';
+
+/// A pubspec.lock for workspace with dependencies from members.
+const _workspacePubspecLockContent = '''
+packages:
+  very_good_test_runner:
+    dependency: "direct main"
+    description:
+      name: very_good_test_runner
+      sha256: "4d41e5d7677d259b9a1599c78645ac2d36bc2bd6ff7773507bcb0bab41417fe2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  cli_completion:
+    dependency: "direct main"
+    description:
+      name: cli_completion
+      sha256: "1e87700c029c77041d836e57f9016b5c90d353151c43c2ca0c36deaadc05aa3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+sdks:
+  dart: ">=3.10.0 <4.0.0"
+
+''';
+
+/// A pubspec.lock for workspace with dev dependencies.
+const _workspacePubspecLockWithDevDepsContent = '''
+packages:
+  http:
+    dependency: "direct main"
+    description:
+      name: http
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0f97bf76e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  very_good_analysis:
+    dependency: "direct dev"
+    description:
+      name: very_good_analysis
+      sha256: "9ae7f3a3bd5764fb021b335ca28a34f040cd0ab6eec00a1b213b445dae58a4b8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
+  cli_completion:
+    dependency: "direct main"
+    description:
+      name: cli_completion
+      sha256: "1e87700c029c77041d836e57f9016b5c90d353151c43c2ca0c36deaadc05aa3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+sdks:
+  dart: ">=3.10.0 <4.0.0"
+
+''';
+
+/// A regular pubspec.yaml (non-workspace).
+const _regularPubspecContent = '''
+name: regular_package
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  very_good_test_runner: ^0.1.0
+''';
+
+/// A pubspec.lock for workspace with transitive dependencies.
+const _workspacePubspecLockWithTransitiveContent = '''
+packages:
+  very_good_test_runner:
+    dependency: "direct main"
+    description:
+      name: very_good_test_runner
+      sha256: "4d41e5d7677d259b9a1599c78645ac2d36bc2bd6ff7773507bcb0bab41417fe2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      sha256: "75769501ea3489fca56601ff33454fe45507ea3bfb014161abc3b43ae25989d5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
+sdks:
+  dart: ">=3.10.0 <4.0.0"
+
+''';
+
+/// A pubspec.lock for workspace with direct-overridden dependencies.
+const _workspacePubspecLockWithOverriddenContent = '''
+packages:
+  very_good_test_runner:
+    dependency: "direct main"
+    description:
+      name: very_good_test_runner
+      sha256: "4d41e5d7677d259b9a1599c78645ac2d36bc2bd6ff7773507bcb0bab41417fe2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  path:
+    dependency: "direct overridden"
+    description:
+      name: path
+      sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.9.0"
+sdks:
+  dart: ">=3.10.0 <4.0.0"
+
+''';
+
+/// A nested workspace root pubspec.yaml (workspace member that is also a root).
+const _nestedWorkspaceRootPubspecContent = '''
+name: app
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - nested/pkg
+
+dependencies:
+  very_good_test_runner: ^0.1.0
+''';
+
+/// A nested workspace member pubspec.yaml.
+const _nestedWorkspaceMemberPubspecContent = '''
+name: nested_pkg
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  yaml: ^3.1.0
+''';
+
+/// A pubspec.lock for nested workspace with dependencies from all levels.
+const _nestedWorkspacePubspecLockContent = '''
+packages:
+  very_good_test_runner:
+    dependency: "direct main"
+    description:
+      name: very_good_test_runner
+      sha256: "4d41e5d7677d259b9a1599c78645ac2d36bc2bd6ff7773507bcb0bab41417fe2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  cli_completion:
+    dependency: "direct main"
+    description:
+      name: cli_completion
+      sha256: "1e87700c029c77041d836e57f9016b5c90d353151c43c2ca0c36deaadc05aa3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  yaml:
+    dependency: "direct main"
+    description:
+      name: yaml
+      sha256: "75769501ea3489fca56601ff33454fe45507ea3bfb014161abc3b43ae25989d5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
 sdks:
   dart: ">=3.10.0 <4.0.0"
 
