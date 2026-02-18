@@ -175,6 +175,9 @@ very_good packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
+
+# Check and list licenses in the current directory
+very_good packages check licenses --reporter="csv"
 ```
 
 ### [`very_good mcp`](https://cli.vgv.dev/docs/commands/mcp)
@@ -192,6 +195,7 @@ very_good mcp
 The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
 
 **Available MCP Tools:**
+
 - `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
 - `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
 - `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
