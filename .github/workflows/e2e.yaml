@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - ".github/workflows/e2e.yaml"
-      - "**"
+      - "bin/**"
+      - "bricks/**"
+      - "e2e/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -13,7 +15,9 @@ on:
       - main
     paths:
       - ".github/workflows/e2e.yaml"
-      - "**"
+      - "bin/**"
+      - "bricks/**"
+      - "e2e/**"
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
@@ -51,7 +55,7 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.35.x"
+          flutter-version: "3.41.x"
 
       - name: Install LCOV
         run: sudo apt-get install -y lcov

@@ -46,6 +46,10 @@ const _expectedPackagesCheckLicensesUsage = [
       '    --allowed                        Only allow the use of certain licenses.\n'
       '    --forbidden                      Deny the use of certain licenses.\n'
       '    --skip-packages                  Skip packages from having their licenses checked.\n'
+      '    --reporter                       Lists all licenses.\n'
+      '\n'
+      '          [text]                     Lists licenses without a specific format.\n'
+      '          [csv]                      Lists licenses in a CSV format.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -1095,7 +1099,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1142,7 +1146,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1191,7 +1195,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage,
               cliCompletionConfigPackage,
             });
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = name == veryGoodTestRunnerConfigPackage.name
                   ? [mitLicenseMatch]
@@ -1315,7 +1319,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 
@@ -1364,7 +1368,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 
@@ -1415,7 +1419,7 @@ and limitations under the License.''');
               veryGoodTestRunnerConfigPackage.name: [mitLicenseMatch],
               cliCompletionConfigPackage.name: [bsdLicenseMatch],
             };
-            detectLicenseOverride = (String name, _) async {
+            detectLicenseOverride = (name, _) async {
               final detectorResult = _MockResult();
               final licenseMatch = packageLicenseMatch[name]!;
 
@@ -1455,6 +1459,105 @@ and limitations under the License.''');
           }),
         );
       });
+    });
+
+    group('reporter', () {
+      const reporterArgument = '--reporter';
+
+      test(
+        'when no option is provided',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, reporterArgument],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+
+      test(
+        'when invalid option is provided',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final result = await commandRunner.run(
+            [...commandArguments, reporterArgument, 'invalid'],
+          );
+          expect(result, equals(ExitCode.usage.code));
+        }),
+      );
+      test(
+        'text format prints packages with license separated by a dash',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
+
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+          });
+
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              reporterArgument,
+              'text',
+              tempDirectory.path,
+            ],
+          );
+
+          const expectedOutput =
+              '''Retrieved 1 license from 1 package of type: MIT (1).\nvery_good_test_runner - MIT\n''';
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(expectedOutput),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+      test(
+        'csv format prints packages with license in a CSV format.',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
+
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+          });
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              reporterArgument,
+              'csv',
+              tempDirectory.path,
+            ],
+          );
+
+          const expectedOutput =
+              '''Retrieved 1 license from 1 package of type: MIT (1).\nvery_good_test_runner,MIT\n''';
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(expectedOutput),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
     });
 
     group('skip-packages', () {
@@ -1782,7 +1885,7 @@ packages:
     source: hosted
     version: "1.9.0"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
 
@@ -1843,13 +1946,13 @@ packages:
     source: hosted
     version: "3.4.3"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';
 
 /// A valid pubspec lock file with no dependencies.
 const _emptyPubspecLockContent = '''
 sdks:
-  dart: ">=3.1.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
 
 ''';

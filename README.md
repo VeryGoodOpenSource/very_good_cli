@@ -175,7 +175,31 @@ very_good packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
+
+# Check and list licenses in the current directory
+very_good packages check licenses --reporter="csv"
 ```
+
+### [`very_good mcp`](https://cli.vgv.dev/docs/commands/mcp)
+
+Start the MCP (Model Context Protocol) server for AI assistant integration.
+
+> ℹ️ **Experimental**  
+> This command relies on the [Dart MCP Server](https://docs.flutter.dev/ai/mcp-server). This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.
+
+```sh
+# Start the MCP server
+very_good mcp
+```
+
+The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
+
+**Available MCP Tools:**
+
+- `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
+- `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
+- `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
+- `packages_get`: Get package information and dependencies (https://cli.vgv.dev/docs/commands/get_pkgs)
 
 ### [`very_good --help`](https://cli.vgv.dev/docs/overview)
 
@@ -194,6 +218,7 @@ Global options:
 Available commands:
   create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
+  mcp        Start the MCP (Model Context Protocol) server. WARNING: This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
   update     Update Very Good CLI.

@@ -112,7 +112,7 @@ name: example
 version: 0.1.0
 
 environment:
-sdk: ^3.9.0
+sdk: ^3.11.0
 ''',
         );
 
@@ -130,16 +130,13 @@ sdk: ^3.9.0
         }
 
         late int result;
-        await ProcessOverrides.runZoned(
-          () async {
-            result = await commandRunner.run([
-              'packages',
-              'get',
-              tempDirectory.path,
-            ]);
-          },
-          runProcess: mockProcess,
-        );
+        await ProcessOverrides.runZoned(() async {
+          result = await commandRunner.run([
+            'packages',
+            'get',
+            tempDirectory.path,
+          ]);
+        }, runProcess: mockProcess);
 
         expect(result, equals(ExitCode.unavailable.code));
         verify(() {
@@ -165,7 +162,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
         final result = await commandRunner.run([
           'packages',
@@ -193,7 +190,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''',
         );
         final result = await commandRunner.run([
@@ -228,7 +225,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -237,7 +234,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -276,7 +273,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -285,7 +282,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -322,7 +319,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -331,7 +328,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -371,7 +368,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -380,7 +377,7 @@ sdk: ^3.9.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -433,28 +430,24 @@ sdk: ^3.9.0
 
         final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
 
-        File(
-            path.join(directoryA.path, 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: plugin
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
-        File(
-            path.join(directoryA.path, 'example', 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: example
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -466,21 +459,13 @@ sdk: ^3.9.0
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(
-              that: contains(
-                '''Running "flutter pub get" in .''',
-              ),
-            ),
+            any(that: contains('''Running "flutter pub get" in .''')),
           );
         }).called(1);
 
         verifyNever(() {
           logger.progress(
-            any(
-              that: contains(
-                '''Running "flutter pub get" in example''',
-              ),
-            ),
+            any(that: contains('''Running "flutter pub get" in example''')),
           );
         });
       }),
@@ -495,28 +480,24 @@ sdk: ^3.9.0
 
         final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
 
-        File(
-            path.join(directoryA.path, 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: plugin
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
-        File(
-            path.join(directoryA.path, 'example', 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: example
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -530,11 +511,7 @@ sdk: ^3.9.0
 
         verify(() {
           logger.progress(
-            any(
-              that: contains(
-                '''Running "flutter pub get" in . ''',
-              ),
-            ),
+            any(that: contains('''Running "flutter pub get" in . ''')),
           );
         }).called(1);
 
@@ -559,40 +536,34 @@ sdk: ^3.9.0
 
         final directoryA = Directory(path.join(tempDirectory.path, 'plugin'));
 
-        File(
-            path.join(directoryA.path, 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: plugin
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
-        File(
-            path.join(directoryA.path, 'example', 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: example
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
-        File(
-            path.join(directoryA.path, 'my_sub_package', 'pubspec.yaml'),
-          )
+        File(path.join(directoryA.path, 'my_sub_package', 'pubspec.yaml'))
           ..createSync(recursive: true)
           ..writeAsStringSync('''
           name: my_sub_package
           version: 0.1.0
           
           environment:
-            sdk: ^3.9.0
+            sdk: ^3.11.0
           ''');
 
         final result = await commandRunner.run([
@@ -606,11 +577,7 @@ sdk: ^3.9.0
         expect(result, equals(ExitCode.success.code));
         verify(() {
           logger.progress(
-            any(
-              that: contains(
-                '''Running "flutter pub get" in . ''',
-              ),
-            ),
+            any(that: contains('''Running "flutter pub get" in . ''')),
           );
         }).called(1);
 
@@ -626,11 +593,7 @@ sdk: ^3.9.0
 
         verifyNever(() {
           logger.progress(
-            any(
-              that: contains(
-                '''Running "flutter pub get" in example''',
-              ),
-            ),
+            any(that: contains('''Running "flutter pub get" in example''')),
           );
         });
       }),
