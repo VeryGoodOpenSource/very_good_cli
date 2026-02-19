@@ -4,6 +4,7 @@
 // CONTRIBUTING file.
 
 // ignore_for_file: type=lint
+// dart format off
 
 /// List of all SPDX licenses.
 ///
@@ -11,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 719 SPDX licenses.
+/// A list of all 726 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -84,9 +85,7 @@ enum SpdxLicense {
   $BSD_3_Clause_Modification._('BSD-3-Clause-Modification'),
   $BSD_3_Clause_No_Military_License._('BSD-3-Clause-No-Military-License'),
   $BSD_3_Clause_No_Nuclear_License._('BSD-3-Clause-No-Nuclear-License'),
-  $BSD_3_Clause_No_Nuclear_License_2014._(
-    'BSD-3-Clause-No-Nuclear-License-2014',
-  ),
+  $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
@@ -127,6 +126,7 @@ enum SpdxLicense {
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
   $CAL_1_0_Combined_Work_Exception._('CAL-1.0-Combined-Work-Exception'),
+  $CAPEC_tou._('CAPEC-tou'),
   $CATOSL_1_1._('CATOSL-1.1'),
   $CC_BY_1_0._('CC-BY-1.0'),
   $CC_BY_2_0._('CC-BY-2.0'),
@@ -350,9 +350,8 @@ enum SpdxLicense {
   $HPND_sell_regexpr._('HPND-sell-regexpr'),
   $HPND_sell_variant._('HPND-sell-variant'),
   $HPND_sell_variant_MIT_disclaimer._('HPND-sell-variant-MIT-disclaimer'),
-  $HPND_sell_variant_MIT_disclaimer_rev._(
-    'HPND-sell-variant-MIT-disclaimer-rev',
-  ),
+  $HPND_sell_variant_MIT_disclaimer_rev._('HPND-sell-variant-MIT-disclaimer-rev'),
+  $HPND_sell_variant_critical_systems._('HPND-sell-variant-critical-systems'),
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
@@ -438,6 +437,7 @@ enum SpdxLicense {
   $MIT_testregex._('MIT-testregex'),
   $MITNFA._('MITNFA'),
   $MMIXware._('MMIXware'),
+  $MMPL_1_0_1._('MMPL-1.0.1'),
   $MPEG_SSG._('MPEG-SSG'),
   $MPL_1_0._('MPL-1.0'),
   $MPL_1_1._('MPL-1.1'),
@@ -538,6 +538,7 @@ enum SpdxLicense {
   $OSL_2_1._('OSL-2.1'),
   $OSL_3_0._('OSL-3.0'),
   $OSSP._('OSSP'),
+  $OpenMDW_1_0._('OpenMDW-1.0'),
   $OpenPBS_2_3._('OpenPBS-2.3'),
   $OpenSSL._('OpenSSL'),
   $OpenSSL_standalone._('OpenSSL-standalone'),
@@ -548,6 +549,7 @@ enum SpdxLicense {
   $PHP_3_01._('PHP-3.01'),
   $PPL._('PPL'),
   $PSF_2_0._('PSF-2.0'),
+  $ParaType_Free_Font_1_3._('ParaType-Free-Font-1.3'),
   $Parity_6_0_0._('Parity-6.0.0'),
   $Parity_7_0_0._('Parity-7.0.0'),
   $Pixar._('Pixar'),
@@ -635,6 +637,7 @@ enum SpdxLicense {
   $UPL_1_0._('UPL-1.0'),
   $URT_RLE._('URT-RLE'),
   $Ubuntu_font_1_0._('Ubuntu-font-1.0'),
+  $UnRAR._('UnRAR'),
   $Unicode_3_0._('Unicode-3.0'),
   $Unicode_DFS_2015._('Unicode-DFS-2015'),
   $Unicode_DFS_2016._('Unicode-DFS-2016'),
@@ -646,6 +649,7 @@ enum SpdxLicense {
   $VOSTROM._('VOSTROM'),
   $VSL_1_0._('VSL-1.0'),
   $Vim._('Vim'),
+  $Vixie_Cron._('Vixie-Cron'),
   $W3C._('W3C'),
   $W3C_19980720._('W3C-19980720'),
   $W3C_20150513._('W3C-20150513'),
@@ -656,9 +660,7 @@ enum SpdxLicense {
   $WordNet._('WordNet'),
   $Wsuipa._('Wsuipa'),
   $X11._('X11'),
-  $X11_distribute_modifications_variant._(
-    'X11-distribute-modifications-variant',
-  ),
+  $X11_distribute_modifications_variant._('X11-distribute-modifications-variant'),
   $X11_no_permit_persons._('X11-no-permit-persons'),
   $X11_swapped._('X11-swapped'),
   $XFree86_1_1._('XFree86-1.1'),
@@ -741,8 +743,7 @@ enum SpdxLicense {
   $xpp._('xpp'),
   $xzoom._('xzoom'),
   $zlib_acknowledgement._('zlib-acknowledgement'),
-  $unknown._('unknown')
-  ;
+  $unknown._('unknown');
 
   const SpdxLicense._(this.value);
 
@@ -765,8 +766,8 @@ enum SpdxLicense {
   static SpdxLicense? tryParse(String source) => _valueMap[source];
 
   static final Map<String, SpdxLicense> _valueMap = SpdxLicense.values
-      .asNameMap()
-      .map((key, value) => MapEntry(value.value, value));
+    .asNameMap()
+    .map((key, value) => MapEntry(value.value, value));
 
   final String value;
 }

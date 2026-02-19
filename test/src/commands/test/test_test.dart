@@ -37,6 +37,8 @@ const expectedTestUsage = [
       "    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
       '-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'
       '    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'
+      '    --collect-coverage-from=<imports|all>                    Whether to collect coverage from imported files only or all files.\n'
+      '                                                             [imports (default), all]\n'
       '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
       '    --update-goldens                                         Whether "matchesGoldenFile()" calls within your test methods should update the golden files.\n'
       '    --fail-fast                                              Stop running tests after the first failure.\n'
@@ -59,6 +61,7 @@ abstract class FlutterTestCommand {
     bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
+    CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
     List<String>? arguments,
     Logger? logger,
@@ -80,6 +83,10 @@ void main() {
     late FlutterTestCommand flutterTest;
     late TestCommand testCommand;
 
+    setUpAll(() {
+      registerFallbackValue(CoverageCollectionMode.imports);
+    });
+
     setUp(() {
       logger = _MockLogger();
       isFlutterInstalled = true;
@@ -87,8 +94,7 @@ void main() {
       flutterTest = _MockFlutterTestCommand();
       testCommand = TestCommand(
         logger: logger,
-        flutterInstalled: ({required Logger logger}) async =>
-            isFlutterInstalled,
+        flutterInstalled: ({required logger}) async => isFlutterInstalled,
         flutterTest: flutterTest.call,
       )..argResultOverrides = argResults;
       when(
@@ -99,6 +105,7 @@ void main() {
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -114,6 +121,9 @@ void main() {
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
+      when<dynamic>(
+        () => argResults['collect-coverage-from'],
+      ).thenReturn('imports');
       when(() => argResults.rest).thenReturn([]);
     });
 

@@ -24,24 +24,26 @@ const expectedTestUsage = [
   'Run tests in a Dart project.\n'
       '\n'
       'Usage: very_good dart test [arguments]\n'
-      '-h, --help                            Print this usage information.\n'
-      '    --coverage                        Whether to collect coverage information.\n'
-      '-r, --recursive                       Run tests recursively for all nested packages.\n'
-      '    --[no-]optimization               Whether to apply optimizations for test performance.\n'
-      '                                      Automatically disabled when --platform is specified.\n'
-      '                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
-      '                                      (defaults to on)\n'
-      '-j, --concurrency                     The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
-      '                                      (defaults to "4")\n'
-      '-t, --tags                            Run only tests associated with the specified tags.\n'
-      "    --exclude-coverage                A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
-      '-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'
-      '    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'
-      '    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'
-      '    --fail-fast                       Stop running tests after the first failure.\n'
-      '    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
-      '    --report-on=<lib/>                An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
-      '    --platform=<chrome|vm>            The platform to run tests on. \n'
+      '-h, --help                                   Print this usage information.\n'
+      '    --coverage                               Whether to collect coverage information.\n'
+      '-r, --recursive                              Run tests recursively for all nested packages.\n'
+      '    --[no-]optimization                      Whether to apply optimizations for test performance.\n'
+      '                                             Automatically disabled when --platform is specified.\n'
+      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
+      '                                             (defaults to on)\n'
+      '-j, --concurrency                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
+      '                                             (defaults to "4")\n'
+      '-t, --tags                                   Run only tests associated with the specified tags.\n'
+      "    --exclude-coverage                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
+      '-x, --exclude-tags                           Run only tests that do not have the specified tags.\n'
+      '    --min-coverage                           Whether to enforce a minimum coverage percentage.\n'
+      '    --collect-coverage-from=<imports|all>    Whether to collect coverage from imported files only or all files.\n'
+      '                                             [imports (default), all]\n'
+      '    --test-randomize-ordering-seed           The seed to randomize the execution order of test cases within test files.\n'
+      '    --fail-fast                              Stop running tests after the first failure.\n'
+      '    --force-ansi                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --platform=<chrome|vm>                   The platform to run tests on. \n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -57,6 +59,7 @@ abstract class DartTestCommandCall {
     bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
+    CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
     List<String>? arguments,
     Logger? logger,
@@ -79,6 +82,10 @@ void main() {
     late DartTestCommandCall dartTest;
     late DartTestCommand testCommand;
 
+    setUpAll(() {
+      registerFallbackValue(CoverageCollectionMode.imports);
+    });
+
     setUp(() {
       logger = _MockLogger();
       isFlutterInstalled = true;
@@ -86,7 +93,7 @@ void main() {
       dartTest = _MockDartTestCommand();
       testCommand = DartTestCommand(
         logger: logger,
-        dartInstalled: ({required Logger logger}) async => isFlutterInstalled,
+        dartInstalled: ({required logger}) async => isFlutterInstalled,
         dartTest: dartTest.call,
       )..argResultOverrides = argResults;
       when(
@@ -97,6 +104,7 @@ void main() {
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -112,6 +120,10 @@ void main() {
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
+      when<dynamic>(
+        () => argResults['collect-coverage-from'],
+      ).thenReturn('imports');
+      when<dynamic>(() => argResults['report-on']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
     });
 
