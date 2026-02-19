@@ -17,6 +17,7 @@ class DartTestOptions {
     required this.excludeTags,
     required this.tags,
     required this.excludeFromCoverage,
+    required this.collectCoverageFrom,
     required this.randomSeed,
     required this.optimizePerformance,
     required this.failFast,
@@ -36,6 +37,11 @@ class DartTestOptions {
     final excludeTags = argResults['exclude-tags'] as String?;
     final tags = argResults['tags'] as String?;
     final excludeFromCoverage = argResults['exclude-coverage'] as String?;
+    final collectCoverageFromString =
+        argResults['collect-coverage-from'] as String? ?? 'imports';
+    final collectCoverageFrom = CoverageCollectionMode.fromString(
+      collectCoverageFromString,
+    );
     final randomOrderingSeed =
         argResults['test-randomize-ordering-seed'] as String?;
     final randomSeed = randomOrderingSeed == 'random'
@@ -55,6 +61,7 @@ class DartTestOptions {
       excludeTags: excludeTags,
       tags: tags,
       excludeFromCoverage: excludeFromCoverage,
+      collectCoverageFrom: collectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       failFast: failFast,
@@ -82,6 +89,9 @@ class DartTestOptions {
 
   /// A glob which will be used to exclude files that match from the coverage.
   final String? excludeFromCoverage;
+
+  /// How to collect coverage.
+  final CoverageCollectionMode collectCoverageFrom;
 
   /// The seed to randomize the execution order of test cases within test files.
   final String? randomSeed;
@@ -119,6 +129,7 @@ typedef DartTestCommandCall =
       bool optimizePerformance,
       double? minCoverage,
       String? excludeFromCoverage,
+      CoverageCollectionMode collectCoverageFrom,
       String? randomSeed,
       bool? forceAnsi,
       List<String>? arguments,
@@ -187,6 +198,15 @@ class DartTestCommand extends Command<int> {
       ..addOption(
         'min-coverage',
         help: 'Whether to enforce a minimum coverage percentage.',
+      )
+      ..addOption(
+        'collect-coverage-from',
+        help:
+            'Whether to collect coverage from imported files only or all '
+            'files.',
+        allowed: ['imports', 'all'],
+        defaultsTo: 'imports',
+        valueHelp: 'imports|all',
       )
       ..addOption(
         'test-randomize-ordering-seed',
@@ -271,6 +291,7 @@ This command should be run from the root of your Dart project.''');
               options.collectCoverage || options.minCoverage != null,
           minCoverage: options.minCoverage,
           excludeFromCoverage: options.excludeFromCoverage,
+          collectCoverageFrom: options.collectCoverageFrom,
           randomSeed: options.randomSeed,
           forceAnsi: options.forceAnsi,
           arguments: [
