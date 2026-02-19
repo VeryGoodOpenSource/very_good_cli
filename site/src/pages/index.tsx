@@ -77,8 +77,9 @@ const FeatureList: FeatureItem[] = [
         <a href="/docs/templates/flame_game">Flame game</a>,{' '}
         <a href="/docs/templates/flutter_pkg">Flutter package</a>,{' '}
         <a href="/docs/templates/dart_pkg">Dart package</a>,{' '}
-        <a href="/docs/templates/federated_plugin">federated plugin</a>, or{' '}
-        <a href="/docs/templates/dart_cli">Dart CLI</a> with one command.
+        <a href="/docs/templates/federated_plugin">federated plugin</a>,{' '}
+        <a href="/docs/templates/dart_cli">Dart CLI</a>, or{' '}
+        <a href="/docs/templates/docs_site">docs site</a> with one command.
       </>
     ),
   },
