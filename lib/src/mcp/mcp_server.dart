@@ -118,7 +118,6 @@ CLI custom executable name (dart_cli  only)''',
 The template used to generate this new project.
 The values are:
 core - Generate a Very Good Flutter application.
-wear - Generate a Very Good Flutter Wear OS application.
 If is omitted, then core will be selected.
 ''',
             ),

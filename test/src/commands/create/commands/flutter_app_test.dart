@@ -34,7 +34,6 @@ Usage: very_good create flutter_app <project-name> [arguments]
 -t, --template                The template used to generate this new project.
 
           [core] (default)    Generate a Very Good Flutter application.
-          [wear]              Generate a Very Good Flutter Wear OS application.
 
     --org-name                The organization for this new project.
                               (defaults to "com.example.verygoodcore")
@@ -231,28 +230,6 @@ void main() {
 ''';
             verify(() => logger.info(details)).called(1);
           });
-        });
-
-        test('wear', () async {
-          await testMultiTemplateCommand(
-            multiTemplatesCommand: CreateFlutterApp(
-              logger: logger,
-              generatorFromBundle: (_) async => throw Exception('oops'),
-              generatorFromBrick: (_) async => generator,
-            ),
-            logger: logger,
-            hooks: hooks,
-            generator: generator,
-            templateName: 'wear',
-            mockArgs: {'application-id': 'xyz.app.my_wear_app'},
-            expectedVars: {
-              'project_name': 'my_app',
-              'description': '',
-              'org_name': 'com.example.verygoodcore',
-              'application_id': 'xyz.app.my_wear_app',
-            },
-            expectedLogSummary: 'Created a Very Good Wear OS app! ⌚️🦄',
-          );
         });
       });
     });

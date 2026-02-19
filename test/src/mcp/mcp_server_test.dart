@@ -200,7 +200,7 @@ void main() {
                 'application_id': 'com.test.my_app',
                 'platforms': 'ios,web',
                 'publishable': true,
-                'template': 'wear',
+                'template': 'core',
               },
             ),
           ),
@@ -225,7 +225,7 @@ void main() {
           'ios,web',
           '--publishable',
           '-t',
-          'wear',
+          'core',
         ]);
       });
 

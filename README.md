@@ -83,9 +83,6 @@ very_good create flutter_app my_app --desc "My new Flutter app" --application-id
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
 
-# Create a new Wear OS app named my_wear_app
-very_good create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
-
 # Create a new Flutter package named my_flutter_package
 very_good create flutter_package my_flutter_package --desc "My new Flutter package"
 
