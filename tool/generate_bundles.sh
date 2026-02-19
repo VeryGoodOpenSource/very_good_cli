@@ -9,7 +9,6 @@ bricks=(
     very_good_flutter_plugin
     very_good_flame_game
     very_good_docs_site
-    very_good_wear_app
 )
 
 for brick in "${bricks[@]}"

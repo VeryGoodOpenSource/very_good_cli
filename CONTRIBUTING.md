@@ -15,7 +15,6 @@ Templates have their own repositories, if you want to contribute to them please 
 - [Flutter Starter App (Very Good Core)](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_core)
 - [Flutter Package](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_flutter_package)
 - [Flutter Plugin](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_flutter_plugin)
-- [Flutter Wear OS App](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_wear_app)
 
 If there are additional templates you'd like to see, open an issue and tell us!
 
