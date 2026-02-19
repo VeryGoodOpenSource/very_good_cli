@@ -201,7 +201,7 @@ void main() {
                 'platforms': 'ios,web',
                 'publishable': true,
                 'executable-name': 'my_cli',
-                'template': 'wear',
+                'template': 'core',
               },
             ),
           ),
@@ -228,7 +228,7 @@ void main() {
           '--executable-name',
           'my_cli',
           '-t',
-          'wear',
+          'core',
         ]);
       });
 
