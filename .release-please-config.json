@@ -10,6 +10,7 @@
   "pull-request-header": ":rotating_light: There are changes ready for release :rocket:\n\nℹ Merge this PR once the team confirms the release is ready.\n",
   "pull-request-title-pattern": "chore: ${version}",
   "include-component-in-tag": false,
+  "separate-pull-requests": true,
   "extra-files": [
     "lib/src/version.dart"
   ],
@@ -17,12 +18,21 @@
     ".": {
       "release-type": "dart",
       "changelog-path": "CHANGELOG.md",
-      "version-file": "pubspec.yaml"
+      "version-file": "pubspec.yaml",
+      "exclude-paths": [
+        "site"
+      ]
+    },
+    "site": {
+      "release-type": "node",
+      "changelog-path": "CHANGELOG.md",
+      "component": "site",
+      "include-component-in-tag": true,
+      "pull-request-title-pattern": "chore(site): ${version}"
     }
   },
   "exclude-paths": [
     ".github",
-    "site",
     ".release-please-manifest.json",
     ".release-please-config.json",
     "CONTRIBUTING.md",
