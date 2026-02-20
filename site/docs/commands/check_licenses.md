@@ -56,7 +56,7 @@ The `allowed` and `forbidden` options can't be used at the same time. Typical or
 
 ### `dependency-type`
 
-The type of dependencies to check licenses for. There are three available types:
+The type of dependencies to check licenses for. There are four available types:
 
 - [`direct-dev`](https://dart.dev/tools/pub/dependencies#dev-dependencies): Another package that your package needs during development.
 - [`direct-main`](https://dart.dev/tools/pub/dependencies): Another package that your package needs to work.

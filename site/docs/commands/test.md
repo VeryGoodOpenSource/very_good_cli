@@ -48,7 +48,7 @@ For example, if you wish to run `flutter test --no-track-widget-creation` you ca
 
 ### Tests without pub install
 
-Unlike `dart test` or `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
+Unlike `dart test` or `flutter test`, `very_good test` will always run your tests without installing the project's dependencies (i.e. `--no-pub` flag).
 
 This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 
