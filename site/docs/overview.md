@@ -15,7 +15,7 @@ Very Good CLI is a Command-Line Interface that enables you to generate VGV-opini
 In order to use Very Good CLI you must have [Dart][dart_sdk] and [Flutter][flutter_sdk] installed on your machine.
 
 :::info
-Very Good CLI requires Dart `">=3.1.0 <4.0.0"`
+Very Good CLI requires Dart `">=3.11.0 <4.0.0"`
 :::
 
 ## Installing
@@ -111,6 +111,9 @@ very_good packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
+
+# Check and list licenses in the current directory
+very_good packages check licenses --reporter="csv"
 ```
 
 ### `very_good test`
@@ -135,6 +138,12 @@ very_good test --recursive
 
 # Run tests recursively (shorthand)
 very_good test -r
+
+# Run tests and stop after the first failure
+very_good test --fail-fast
+
+# Run tests and collect coverage from all files
+very_good test --coverage --collect-coverage-from all
 ```
 
 :::tip
@@ -160,6 +169,8 @@ Global options:
 Available commands:
   create     very_good create <subcommand> <project-name> [arguments]
              Creates a new very good project in the specified directory.
+  dart       very_good dart <subcommand> [arguments]
+             Run Dart CLI commands.
   mcp        Start the MCP (Model Context Protocol) server. WARNING: This is an experimental package and may change or become unstable without notice. Use it with caution at your own risk.
   packages   Command for managing packages.
   test       Run tests in a Dart or Flutter project.
