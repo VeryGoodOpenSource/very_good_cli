@@ -50,12 +50,19 @@ dart pub global activate very_good_cli
 
 Then, you can use the `very_good create flutter_app` command just like you would `flutter create`. If desired, can specify a custom org name at time of generation with the `--org` flag.
 
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
+
 ```sh
 # Create a new Flutter app named my_app
 very_good create flutter_app my_app --desc "My new Flutter app"
 
 # Create a new Flutter app named my_app with a custom org
 very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
+
+# Create a new Flutter app named my_app with a custom application id
+very_good create flutter_app my_app --application-id "com.custom.app.id"
 
 # Create a new Flutter app named with the name of the current directory
 very_good create flutter_app . --desc "My new Flutter app"

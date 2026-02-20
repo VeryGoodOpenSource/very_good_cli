@@ -101,6 +101,31 @@ very_good packages check licenses --ignore-retrieval-failures
 # ✓ Retrieved 6 licenses from 6 packages of type: BSD-3-Clause (3), MIT (1), unknown (1) and Apache-2.0 (1).
 ```
 
+### `reporter`
+
+Lists all packages with their licenses in a specific format. This is useful for generating reports or auditing dependencies.
+
+Available formats:
+
+- `text`: Lists licenses without a specific format (e.g., `package_name - MIT`).
+- `csv`: Lists licenses in a CSV format (e.g., `package_name,MIT`).
+
+#### Example usage:
+
+```sh
+very_good packages check licenses --reporter=text
+
+# package_a - MIT
+# package_b - BSD-3-Clause
+# package_c - Apache-2.0
+
+very_good packages check licenses --reporter=csv
+
+# package_a,MIT
+# package_b,BSD-3-Clause
+# package_c,Apache-2.0
+```
+
 ## Supported licenses 💳
 
 The license detection is processed by [Dart's package analyzer](https://pub.dev/packages/pana), which reports commonly found licenses (SPDX licenses). The list of accepted licenses can be seen in the [SPDX GitHub repository](https://github.com/spdx/license-list-data/tree/main/text) or in the [SPDX License enumeration](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/lib/src/pub_license/spdx_license.gen.dart). Therefore, when specifying a license within arguments it must strictly match with the SPDX license name.

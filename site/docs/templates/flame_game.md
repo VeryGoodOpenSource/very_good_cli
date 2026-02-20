@@ -34,6 +34,10 @@ The values for platforms are: `android`, `ios`, `web`, `macos`, and `windows`.
 
 ## Usage
 
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
+
 ```sh
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
