@@ -18,11 +18,17 @@
       "release-type": "dart",
       "changelog-path": "CHANGELOG.md",
       "version-file": "pubspec.yaml"
+    },
+    "site": {
+      "release-type": "node",
+      "changelog-path": "CHANGELOG.md",
+      "component": "site",
+      "include-component-in-tag": true,
+      "pull-request-title-pattern": "chore(site): ${version}"
     }
   },
   "exclude-paths": [
     ".github",
-    "site",
     ".release-please-manifest.json",
     ".release-please-config.json",
     "CONTRIBUTING.md",

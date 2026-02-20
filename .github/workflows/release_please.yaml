@@ -12,7 +12,6 @@ on:
     paths:
       - "**"
       - "!.github/workflows/site.yaml"
-      - "!site/**"
 
 jobs:
   create_release_pr:
