@@ -192,4 +192,3 @@ function HomepageBlogs() {
     </div>
   );
 }
-

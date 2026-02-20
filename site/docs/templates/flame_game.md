@@ -46,5 +46,4 @@ very_good create flame_game my_game --platforms android,ios
 ```
 
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template
-
 [flame_link]: https://flame-engine.org/
