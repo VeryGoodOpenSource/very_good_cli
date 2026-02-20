@@ -11,14 +11,14 @@
   "pull-request-title-pattern": "chore: ${version}",
   "include-component-in-tag": false,
   "separate-pull-requests": true,
-  "extra-files": [
-    "lib/src/version.dart"
-  ],
   "packages": {
     ".": {
       "release-type": "dart",
       "changelog-path": "CHANGELOG.md",
       "version-file": "pubspec.yaml",
+      "extra-files": [
+        "lib/src/version.dart"
+      ],
       "exclude-paths": [
         "site"
       ]
