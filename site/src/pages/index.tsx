@@ -26,7 +26,7 @@ function HomepageHeader() {
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home(): React.JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
@@ -64,7 +64,7 @@ function HomepageHeroImage() {
 type FeatureItem = {
   title: string;
   Svg: React.ComponentType<React.ComponentProps<'svg'>>;
-  description: JSX.Element;
+  description: React.JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
@@ -77,8 +77,9 @@ const FeatureList: FeatureItem[] = [
         <a href="/docs/templates/flame_game">Flame game</a>,{' '}
         <a href="/docs/templates/flutter_pkg">Flutter package</a>,{' '}
         <a href="/docs/templates/dart_pkg">Dart package</a>,{' '}
-        <a href="/docs/templates/federated_plugin">federated plugin</a>, or{' '}
-        <a href="/docs/templates/dart_cli">Dart CLI</a> with one command.
+        <a href="/docs/templates/federated_plugin">federated plugin</a>,{' '}
+        <a href="/docs/templates/dart_cli">Dart CLI</a>, or{' '}
+        <a href="/docs/templates/docs_site">docs site</a> with one command.
       </>
     ),
   },
@@ -118,7 +119,7 @@ function Feature({ title, Svg, description }: FeatureItem) {
   );
 }
 
-function HomepageFeatures(): JSX.Element {
+function HomepageFeatures(): React.JSX.Element {
   return (
     <section className={styles.features}>
       <div className="container">

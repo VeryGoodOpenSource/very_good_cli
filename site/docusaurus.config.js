@@ -12,7 +12,11 @@ const config = {
   url: 'https://cli.vgv.dev',
   baseUrl: '/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
   favicon: 'img/favicon.ico',
   organizationName: 'verygoodopensource',
   projectName: 'very_good_cli',
