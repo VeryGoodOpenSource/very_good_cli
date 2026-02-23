@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.0.0...v1.0.1) (2026-02-23)
+
+
+### Miscellaneous Chores
+
+* **site:** 1.0.1 ([#1498](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1498)) ([e9dacc1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e9dacc19404bbbe6bae717478637ae6944c718ec))
+
 ## [1.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v1.0.0) (2026-02-19)
 
 
