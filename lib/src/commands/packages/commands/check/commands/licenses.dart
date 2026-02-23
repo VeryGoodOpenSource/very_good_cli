@@ -107,10 +107,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addOption(
         'reporter',
         help: 'Lists all licenses.',
-        allowed: [
-          'text',
-          'csv',
-        ],
+        allowed: ['text', 'csv'],
         allowedHelp: {
           'text': 'Lists licenses without a specific format.',
           'csv': 'Lists licenses in a CSV format.',
