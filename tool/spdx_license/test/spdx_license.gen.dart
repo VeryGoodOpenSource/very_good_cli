@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 726 SPDX licenses.
+/// A list of all 728 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -68,6 +68,7 @@ enum SpdxLicense {
   $Artistic_2_0._('Artistic-2.0'),
   $Artistic_dist._('Artistic-dist'),
   $Aspell_RU._('Aspell-RU'),
+  $BOLA_1_1._('BOLA-1.1'),
   $BSD_1_Clause._('BSD-1-Clause'),
   $BSD_2_Clause._('BSD-2-Clause'),
   $BSD_2_Clause_Darwin._('BSD-2-Clause-Darwin'),
@@ -531,6 +532,7 @@ enum SpdxLicense {
   $OPL_1_0._('OPL-1.0'),
   $OPL_UK_3_0._('OPL-UK-3.0'),
   $OPUBL_1_0._('OPUBL-1.0'),
+  $OSC_1_0._('OSC-1.0'),
   $OSET_PL_2_1._('OSET-PL-2.1'),
   $OSL_1_0._('OSL-1.0'),
   $OSL_1_1._('OSL-1.1'),

@@ -25,8 +25,7 @@ enum CoverageCollectionMode {
   imports,
 
   /// Collect coverage from all files in the project.
-  all
-  ;
+  all;
 
   /// Parses a string value into a [CoverageCollectionMode].
   static CoverageCollectionMode fromString(String value) {
