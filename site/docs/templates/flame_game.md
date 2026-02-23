@@ -34,6 +34,10 @@ The values for platforms are: `android`, `ios`, `web`, `macos`, and `windows`.
 
 ## Usage
 
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
+
 ```sh
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
@@ -41,11 +45,9 @@ very_good create flame_game my_game --desc "My new Flame game"
 # Create a new Flame game named with the name of the current directory
 very_good create flame_game . --desc "My new Flame game"
 
-# Create a new Flutter plugin named my_flutter_plugin (supports only android and iOS)
+# Create a new Flame game named my_game (supports only android and iOS)
 very_good create flame_game my_game --platforms android,ios
 ```
 
 [blog]: https://verygood.ventures/blog/generate-a-game-with-our-new-template
-[very_good_cli_link]: https://github.com/VeryGoodOpenSource/very_good_cli
-[mason_link]: https://github.com/felangel/mason
 [flame_link]: https://flame-engine.org/

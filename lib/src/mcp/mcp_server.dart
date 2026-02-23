@@ -118,7 +118,6 @@ CLI custom executable name (dart_cli  only)''',
 The template used to generate this new project.
 The values are:
 core - Generate a Very Good Flutter application.
-wear - Generate a Very Good Flutter Wear OS application.
 If is omitted, then core will be selected.
 ''',
             ),
@@ -164,9 +163,9 @@ Automatically set to 1 when --platform is specified.
               description:
                   '''Run only tests associated with the specified tags.''',
             ),
-            'exclude_coverage': BooleanSchema(
+            'exclude_coverage': StringSchema(
               description:
-                  '''A glob which will be used to exclude files that match from the coverage.''',
+                  '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
             ),
             'exclude_tags': StringSchema(
               description:
@@ -297,6 +296,9 @@ Only one value can be selected.
     if (args['publishable'] == true) {
       cliArgs.add('--publishable');
     }
+    if (args['executable-name'] != null) {
+      cliArgs.addAll(['--executable-name', args['executable-name']! as String]);
+    }
     if (args['template'] != null) {
       cliArgs.addAll(['-t', args['template']! as String]);
     }
@@ -327,8 +329,11 @@ Only one value can be selected.
     if (args['tags'] != null) {
       cliArgs.addAll(['-t', args['tags']! as String]);
     }
-    if (args['exclude_coverage'] == false) {
-      cliArgs.add('--exclude-coverage');
+    if (args['exclude_coverage'] != null) {
+      cliArgs.addAll([
+        '--exclude-coverage',
+        args['exclude_coverage']! as String,
+      ]);
     }
     if (args['exclude_tags'] != null) {
       cliArgs.addAll(['-x', args['exclude_tags']! as String]);

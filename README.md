@@ -83,9 +83,6 @@ very_good create flutter_app my_app --desc "My new Flutter app" --application-id
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
 
-# Create a new Wear OS app named my_wear_app
-very_good create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
-
 # Create a new Flutter package named my_flutter_package
 very_good create flutter_package my_flutter_package --desc "My new Flutter package"
 
@@ -175,6 +172,9 @@ very_good packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
+
+# Check and list licenses in the current directory
+very_good packages check licenses --reporter="csv"
 ```
 
 ### [`very_good mcp`](https://cli.vgv.dev/docs/commands/mcp)
@@ -192,6 +192,7 @@ very_good mcp
 The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
 
 **Available MCP Tools:**
+
 - `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
 - `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
 - `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)

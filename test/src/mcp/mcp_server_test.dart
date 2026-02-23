@@ -200,7 +200,8 @@ void main() {
                 'application_id': 'com.test.my_app',
                 'platforms': 'ios,web',
                 'publishable': true,
-                'template': 'wear',
+                'executable-name': 'my_cli',
+                'template': 'core',
               },
             ),
           ),
@@ -224,8 +225,10 @@ void main() {
           '--platforms',
           'ios,web',
           '--publishable',
+          '--executable-name',
+          'my_cli',
           '-t',
-          'wear',
+          'core',
         ]);
       });
 
@@ -307,7 +310,7 @@ void main() {
                 'optimization': true,
                 'concurrency': '8',
                 'tags': 'a,b',
-                'exclude_coverage': false,
+                'exclude_coverage': '**/*.g.dart',
                 'exclude_tags': 'c,d',
                 'min_coverage': '90',
                 'test_randomize_ordering_seed': '123',
@@ -336,6 +339,7 @@ void main() {
           '-t',
           'a,b',
           '--exclude-coverage',
+          '**/*.g.dart',
           '-x',
           'c,d',
           '--min-coverage',

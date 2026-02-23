@@ -14,17 +14,15 @@ We liked the [starter app][counter_app_link] provided by the `flutter create` co
 
 ## App Features ✨
 
-- **Multi-Platform Support** - Support for iOS, Android, Web, and Windows (macOS and Linux coming soon!)
+- **Multi-Platform Support** - Support for iOS, Android, Web, Windows, macOS, and Linux
 
 - **Build Flavors** - Multiple flavor support for development, staging, and production
 
 - **Internationalization Support** - Internationalization support using synthetic code generation to streamline the development process
 
-- **Sound Null Safety** - No more null-dereference exceptions at runtime. Develop with a sound, static type system.
-
 - **[Bloc][bloc_pub]** - Layered architecture with `bloc` for scalable, testable code which offers a clear separation between business logic and presentation
 
-- **Testing** - Unit and widget tests with 100% line coverage (integration tests coming soon!)
+- **Testing** - Unit and widget tests with 100% line coverage
 
 - **Logging** - Extensible logging to capture uncaught Dart and Flutter exceptions
 
@@ -48,7 +46,11 @@ dart pub global activate very_good_cli
 
 ### Create a new Flutter Project 🆕
 
-Then, you can use the `very_good create flutter_app` command just like you would `flutter create`. If desired, can specify a custom org name at time of generation with the `--org` flag.
+Then, you can use the `very_good create flutter_app` command just like you would `flutter create`. If desired, you can specify a custom org name at time of generation with the `--org` flag.
+
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
 
 ```sh
 # Create a new Flutter app named my_app
@@ -57,17 +59,20 @@ very_good create flutter_app my_app --desc "My new Flutter app"
 # Create a new Flutter app named my_app with a custom org
 very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custom.org"
 
+# Create a new Flutter app named my_app with a custom application id
+very_good create flutter_app my_app --application-id "com.custom.app.id"
+
 # Create a new Flutter app named with the name of the current directory
 very_good create flutter_app . --desc "My new Flutter app"
 ```
 
 ### Running the Project ⚡
 
-Once you have finished running `very_good create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies
+Once you have finished running `very_good create` with the project directory of your choice, you can change directories into the new project directory and install the dependencies.
 
 ```sh
 cd my_app
-flutter packages get
+flutter pub get
 ```
 
 This project contains 3 flavors:

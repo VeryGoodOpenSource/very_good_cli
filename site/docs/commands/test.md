@@ -30,6 +30,15 @@ very_good test [arguments]
     --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.
     --platform                        The platform to run tests on. For Flutter tests, this can be "chrome", "vm", "android", "ios", etc. For Dart tests, this can be "chrome", "vm", etc.
     --dart-define=<foo=bar>           Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.
+    --dart-define-from-file=<use-define-config.json|.env>
+                                      The path of a .json or .env file containing key-value pairs that will be
+                                      available as environment variables. Multiple defines can be passed by
+                                      repeating "--dart-define-from-file" multiple times. Entries from
+                                      "--dart-define" with identical keys take precedence.
+    --collect-coverage-from=<imports|all>
+                                      Whether to collect coverage from imported files only or all files.
+                                      (defaults to "imports")
+    --fail-fast                       Stop running tests after the first failure.
 
 Run "very_good help" to see global options.
 ```
@@ -48,7 +57,7 @@ For example, if you wish to run `flutter test --no-track-widget-creation` you ca
 
 ### Tests without pub install
 
-Unlike `dart test` or `flutter test`, `very_good test` will always run your tests without installing the projects dependencies (i.e. `--no-pub` flag).
+Unlike `dart test` or `flutter test`, `very_good test` will always run your tests without installing the project's dependencies (i.e. `--no-pub` flag).
 
 This is an optimization done by the CLI because dependency installation is usually run once after cloning the repository. Conversely, running tests locally is usually done many times and it's often unnecessary to re-install dependencies prior to each test run.
 

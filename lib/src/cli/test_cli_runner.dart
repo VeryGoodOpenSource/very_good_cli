@@ -19,6 +19,24 @@ enum TestRunType {
   dart,
 }
 
+/// How to collect coverage.
+enum CoverageCollectionMode {
+  /// Collect coverage from imported files only (default behavior).
+  imports,
+
+  /// Collect coverage from all files in the project.
+  all
+  ;
+
+  /// Parses a string value into a [CoverageCollectionMode].
+  static CoverageCollectionMode fromString(String value) {
+    return CoverageCollectionMode.values.firstWhere(
+      (mode) => mode.name == value,
+      orElse: () => CoverageCollectionMode.imports,
+    );
+  }
+}
+
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
@@ -72,6 +90,7 @@ class TestCLIRunner {
     Set<String> ignore = const {},
     double? minCoverage,
     String? excludeFromCoverage,
+    CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
     bool? forceAnsi,
     List<String>? arguments,
@@ -197,6 +216,17 @@ class TestCLIRunner {
                   // Write the lcov output to the file.
                   await lcovFile.create(recursive: true);
                   await lcovFile.writeAsString(output);
+
+                  // If collectCoverageFrom is 'all', enhance with untested
+                  // files
+                  if (collectCoverageFrom == CoverageCollectionMode.all) {
+                    await _enhanceLcovWithUntestedFiles(
+                      lcovPath: lcovPath,
+                      cwd: cwd,
+                      reportOn: reportOn ?? 'lib',
+                      excludeFromCoverage: excludeFromCoverage,
+                    );
+                  }
                 }
 
                 if (collectCoverage) {
@@ -204,6 +234,18 @@ class TestCLIRunner {
                     lcovFile.existsSync(),
                     'coverage/lcov.info must exist',
                   );
+
+                  // For Flutter tests with collectCoverageFrom = all, enhance
+                  // lcov
+                  if (testType == TestRunType.flutter &&
+                      collectCoverageFrom == CoverageCollectionMode.all) {
+                    await _enhanceLcovWithUntestedFiles(
+                      lcovPath: lcovPath,
+                      cwd: cwd,
+                      reportOn: 'lib',
+                      excludeFromCoverage: excludeFromCoverage,
+                    );
+                  }
                 }
 
                 if (minCoverage != null) {
@@ -254,6 +296,96 @@ class TestCLIRunner {
     logger.err(
       '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
     );
+  }
+
+  /// Discovers all Dart files in the specified directory for coverage.
+  static List<String> _discoverDartFilesForCoverage({
+    required String cwd,
+    required String reportOn,
+    String? excludeFromCoverage,
+  }) {
+    final reportOnPath = p.join(cwd, reportOn);
+    final directory = Directory(reportOnPath);
+
+    if (!directory.existsSync()) return [];
+
+    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
+
+    return directory
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .where((file) => glob == null || !glob.matches(file.path))
+        .map((file) => p.relative(file.path, from: cwd))
+        .toList();
+  }
+
+  /// Enhances an existing lcov file by adding uncovered files with 0% coverage.
+  static Future<void> _enhanceLcovWithUntestedFiles({
+    required String lcovPath,
+    required String cwd,
+    required String reportOn,
+    String? excludeFromCoverage,
+  }) async {
+    final lcovFile = File(lcovPath);
+
+    final allDartFiles = _discoverDartFilesForCoverage(
+      cwd: cwd,
+      reportOn: reportOn,
+      excludeFromCoverage: excludeFromCoverage,
+    );
+
+    // Parse existing lcov to find covered files
+    final existingRecords = await Parser.parse(lcovPath);
+    final coveredFiles = existingRecords
+        .where((r) => r.file != null)
+        .map((r) => r.file!)
+        .toSet();
+
+    // Find uncovered files
+    final uncoveredFiles = allDartFiles.where((file) {
+      final normalizedFile = p.normalize(file);
+      for (final covered in coveredFiles) {
+        if (p.normalize(covered).endsWith(normalizedFile)) {
+          return false; // File is covered
+        }
+      }
+      return true; // File is uncovered
+    }).toList();
+
+    if (uncoveredFiles.isEmpty) return;
+
+    // Append uncovered files to lcov
+    final lcovContent = await lcovFile.readAsString();
+    final buffer = StringBuffer(lcovContent);
+
+    for (final file in uncoveredFiles) {
+      final absolutePath = p.join(cwd, file);
+      final dartFile = File(absolutePath);
+      if (dartFile.existsSync()) {
+        final lines = await dartFile.readAsLines();
+        buffer.writeln('SF:${file.replaceAll(r'\', '/')}');
+        // Mark non-trivial lines as uncovered
+        var linesFound = 0;
+        for (var i = 1; i <= lines.length; i++) {
+          final line = lines[i - 1].trim();
+          if (line.isNotEmpty &&
+              !line.startsWith('//') &&
+              !line.startsWith('import') &&
+              !line.startsWith('export') &&
+              !line.startsWith('part')) {
+            buffer.writeln('DA:$i,0');
+            linesFound++;
+          }
+        }
+        buffer
+          ..writeln('LF:$linesFound')
+          ..writeln('LH:0')
+          ..writeln('end_of_record');
+      }
+    }
+
+    await lcovFile.writeAsString(buffer.toString());
   }
 
   static List<File> _dartCoverageFilesToProcess(String absPath) {
