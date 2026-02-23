@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.0.0...v1.0.1) (2026-02-23)
+
+
+### Bug Fixes
+
+* exclude site releases from CLI ([#1500](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1500)) ([40cf53a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/40cf53a7385b7c0d78b3a496bceb6ea6b11c7c02))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.0.1 ([#1498](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1498)) ([e9dacc1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e9dacc19404bbbe6bae717478637ae6944c718ec))
+* **site:** 1.0.2 ([#1504](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1504)) ([00d0b49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/00d0b49f51ce420064f2ee5dfe9b9d49dda8f239))
+* update SPDX licenses ([#1501](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1501)) ([43cce45](https://github.com/VeryGoodOpenSource/very_good_cli/commit/43cce457bc5a40ff209adff46161321617261f8e))
+
 ## [1.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v1.0.0) (2026-02-19)
 
 
