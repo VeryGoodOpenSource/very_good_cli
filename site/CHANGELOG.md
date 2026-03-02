@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.0.2...site-v1.0.3) (2026-03-02)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.0.1 to 10.0.2 in /site ([#1509](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1509)) ([9da8772](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9da8772856d2ed20d350c58cf7668cf5648c72b3))
+* **deps-dev:** bump globals from 17.3.0 to 17.4.0 in /site ([#1510](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1510)) ([b01eb38](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b01eb386f56724c5d5dfe51375fcc369c4e36074))
+
 ## [1.0.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.0.1...site-v1.0.2) (2026-02-23)
 
 ### Miscellaneous Chores
