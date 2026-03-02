@@ -46,10 +46,15 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// {@endtemplate}
 class MinCoverageNotMet implements Exception {
   /// {@macro coverage_not_met}
-  const MinCoverageNotMet(this.coverage);
+  const MinCoverageNotMet(this.coverage, {this.uncoveredLines});
 
   /// The measured coverage percentage (total hits / total found * 100).
   final double coverage;
+
+  /// Lines not covered, keyed by file path, values are line numbers.
+  ///
+  /// Only populated when `--show-uncovered` is set.
+  final Map<String, List<int>>? uncoveredLines;
 }
 
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
@@ -89,6 +94,7 @@ class TestCLIRunner {
     bool optimizePerformance = false,
     Set<String> ignore = const {},
     double? minCoverage,
+    bool showUncovered = false,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
@@ -248,15 +254,33 @@ class TestCLIRunner {
                   }
                 }
 
-                if (minCoverage != null) {
+                if (minCoverage != null || showUncovered) {
                   final records = await Parser.parse(lcovPath);
-                  final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+                  final coverageMetrics = CoverageMetrics.fromLcovRecords(
                     records,
-                    excludeFromCoverage,
+                    excludeFromCoverage: excludeFromCoverage,
                   );
                   final coverage = coverageMetrics.percentage;
+                  final uncoveredLines =
+                      showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
+                      ? coverageMetrics.uncoveredLines
+                      : null;
 
-                  if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
+                  if (minCoverage != null && coverage < minCoverage) {
+                    throw MinCoverageNotMet(
+                      coverage,
+                      uncoveredLines: uncoveredLines,
+                    );
+                  }
+
+                  // When coverage passes but is below 100%, show uncovered
+                  // lines as informational output, matching the behavior of
+                  // the Very Good Coverage GitHub Action.
+                  if (showUncovered &&
+                      uncoveredLines != null &&
+                      uncoveredLines.isNotEmpty) {
+                    stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
+                  }
                 }
               }),
         );
@@ -272,7 +296,9 @@ class TestCLIRunner {
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
 
-  /// Handles the [MinCoverageNotMet] exception by logging the error message
+  /// Handles the [MinCoverageNotMet] exception by logging the error message.
+  ///
+  /// If [e] contains uncovered lines, they are logged after the error message.
   static void handleMinCoverageNotMet({
     required Logger logger,
     required MinCoverageNotMet e,
@@ -296,6 +322,30 @@ class TestCLIRunner {
     logger.err(
       '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
     );
+
+    final uncoveredLines = e.uncoveredLines;
+    if (uncoveredLines != null && uncoveredLines.isNotEmpty) {
+      logger.err(formatUncoveredLines(uncoveredLines));
+    }
+  }
+
+  /// Formats a map of uncovered lines into a human-readable string.
+  ///
+  /// The [uncoveredLines] map is keyed by file path, with values being lists
+  /// of uncovered line numbers.
+  ///
+  /// Example output:
+  /// ```dart
+  /// Lines not covered:
+  ///   - lib/src/foo.dart: 10, 20, 30
+  ///   - lib/src/bar.dart: 5
+  /// ```
+  static String formatUncoveredLines(Map<String, List<int>> uncoveredLines) {
+    final lines = uncoveredLines.entries.map((entry) {
+      final sortedLines = [...entry.value]..sort();
+      return '\t- ${entry.key}: ${sortedLines.join(', ')}';
+    });
+    return 'Lines not covered:\n${lines.join('\n')}';
   }
 
   /// Discovers all Dart files in the specified directory for coverage.

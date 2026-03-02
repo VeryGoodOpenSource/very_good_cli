@@ -37,6 +37,7 @@ const expectedTestUsage = [
       "    --exclude-coverage                                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
       '-x, --exclude-tags                                           Run only tests that do not have the specified tags.\n'
       '    --min-coverage                                           Whether to enforce a minimum coverage percentage.\n'
+      '    --show-uncovered                                         Whether to show uncovered lines when coverage is below 100%. Implicitly enables coverage collection when used alone.\n'
       '    --collect-coverage-from=<imports|all>                    Whether to collect coverage from imported files only or all files.\n'
       '                                                             [imports (default), all]\n'
       '    --test-randomize-ordering-seed                           The seed to randomize the execution order of test cases within test files.\n'
@@ -60,6 +61,7 @@ abstract class FlutterTestCommand {
     bool collectCoverage = false,
     bool optimizePerformance = false,
     double? minCoverage,
+    bool showUncovered = false,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
@@ -104,6 +106,7 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
@@ -117,6 +120,7 @@ void main() {
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
@@ -212,6 +216,7 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -476,6 +481,7 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -501,6 +507,48 @@ void main() {
       ).called(1);
     });
 
+    test(
+      'fails when coverage not met, shows uncovered lines',
+      () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+        const exception = MinCoverageNotMet(
+          95,
+          uncoveredLines: {
+            'lib/src/foo.dart': [10, 20, 30],
+          },
+        );
+        when(
+          () => flutterTest(
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
+          ),
+        ).thenThrow(exception);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(
+          () => logger.err(
+            'Expected coverage >= 100.00% but actual is 95.00%.',
+          ),
+        ).called(1);
+        verify(
+          () => logger.err(
+            'Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30',
+          ),
+        ).called(1);
+      },
+    );
+
     test('displays required precision see why coverage was not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
@@ -512,6 +560,7 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -562,6 +611,26 @@ void main() {
       },
     );
 
+    test(
+      'enables coverage collection when --show-uncovered is supplied',
+      () async {
+        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            showUncovered: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
+
     test('throws when exception occurs', () async {
       final exception = Exception('oops');
       when(
@@ -571,6 +640,7 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
