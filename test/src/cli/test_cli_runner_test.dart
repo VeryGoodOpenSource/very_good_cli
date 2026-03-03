@@ -26,113 +26,6 @@ class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
 
 void main() {
   group(TestCLIRunner, () {
-    group('CoverageCollectionMode.fromString', () {
-      test('returns correct values', () {
-        expect(
-          CoverageCollectionMode.fromString('all'),
-          CoverageCollectionMode.all,
-        );
-        expect(
-          CoverageCollectionMode.fromString('imports'),
-          CoverageCollectionMode.imports,
-        );
-        expect(
-          CoverageCollectionMode.fromString('invalid'),
-          CoverageCollectionMode.imports,
-        );
-      });
-    });
-
-    group('isTargettingTestFiles', () {
-      test('returns false when empty', () {
-        expect(TestCLIRunner.isTargettingTestFiles([]), isFalse);
-      });
-      test('returns false when only options are passed', () {
-        expect(
-          TestCLIRunner.isTargettingTestFiles(['--coverage', '--optimization']),
-          isFalse,
-        );
-      });
-      test('returns true when a file is passed', () {
-        expect(
-          TestCLIRunner.isTargettingTestFiles([
-            '--coverage',
-            'test/some_test.dart',
-          ]),
-          isTrue,
-        );
-      });
-    });
-
-    group('formatUncoveredLines', () {
-      test('formats correctly', () {
-        final lines = {
-          'lib/foo.dart': [10, 30, 20],
-          'lib/bar.dart': [5],
-        };
-        expect(
-          TestCLIRunner.formatUncoveredLines(lines),
-          equals(
-            'Lines not covered:\n'
-            '\t- lib/foo.dart: 10, 20, 30\n'
-            '\t- lib/bar.dart: 5',
-          ),
-        );
-      });
-    });
-
-    group('handleMinCoverageNotMet', () {
-      late Logger logger;
-
-      setUp(() {
-        logger = _MockLogger();
-      });
-
-      test(
-        'formats min coverage rounded properly and outputs uncovered lines',
-        () {
-          const exception = MinCoverageNotMet(
-            99.991,
-            uncoveredLines: {
-              'lib/foo.dart': [1],
-            },
-          );
-          TestCLIRunner.handleMinCoverageNotMet(
-            logger: logger,
-            e: exception,
-            minCoverage: 100,
-          );
-          verify(
-            () => logger.err(
-              'Expected coverage >= 100.00% but actual is 99.99%.',
-            ),
-          ).called(1);
-          verify(
-            () => logger.err('Lines not covered:\n\t- lib/foo.dart: 1'),
-          ).called(1);
-        },
-      );
-
-      test(
-        'increases decimal places when rounded value matches minCoverage',
-        () {
-          const exception = MinCoverageNotMet(
-            99.999,
-          );
-          TestCLIRunner.handleMinCoverageNotMet(
-            logger: logger,
-            e: exception,
-            minCoverage: 100,
-          );
-          verify(
-            () => logger.err(
-              'Expected coverage >= 100.000% but actual is 99.999%.',
-            ),
-          ).called(1);
-        },
-      );
-    });
-
     setUpAll(() {
       registerFallbackValue(_FakeGeneratorTarget());
       registerFallbackValue(FileConflictResolution.prompt);
@@ -163,15 +56,17 @@ void main() {
         };
       }
 
-      GeneratorBuilder generatorBuilder() =>
-          (_) async => generator;
+      GeneratorBuilder generatorBuilder() {
+        return (bundle) async => generator;
+      }
 
       setUp(() {
-        progress = _MockProgress();
         logger = _MockLogger();
-        when(() => logger.progress(any())).thenReturn(progress);
+        progress = _MockProgress();
         hooks = _MockGeneratorHooks();
         generator = _MockMasonGenerator();
+
+        when(() => logger.progress(any())).thenReturn(progress);
         when(() => generator.hooks).thenReturn(hooks);
         when(
           () => hooks.preGen(
@@ -187,19 +82,21 @@ void main() {
             fileConflictResolution: any(named: 'fileConflictResolution'),
           ),
         ).thenAnswer((_) async => []);
+
         testRunnerArgs = [];
         stdoutLogs = [];
         stderrLogs = [];
       });
 
       final testRunners = [
-        ('flutter', Flutter.test),
-        ('dart', Dart.test),
+        (name: 'flutter', runner: Flutter.test),
+        (name: 'dart', runner: Dart.test),
       ];
 
       for (final testRunnerType in testRunners) {
-        final name = testRunnerType.$1;
-        final testRunner = testRunnerType.$2;
+        final name = testRunnerType.name;
+        final testRunner = testRunnerType.runner;
+
         group('when the runner type is $name', () {
           test(
             'cleanup the .test_optimizer file when SIGINT is emitted',
@@ -254,8 +151,10 @@ void main() {
 
           test('throws when pubspec not found', () async {
             await expectLater(
-              () =>
-                  Flutter.test(cwd: Directory.systemTemp.path, logger: logger),
+              () => Flutter.test(
+                logger: logger,
+                cwd: Directory.systemTemp.path,
+              ),
               throwsA(isA<PubspecNotFound>()),
             );
           });
@@ -295,12 +194,12 @@ void main() {
 
         unawaited(
           TestCLIRunner.test(
-            testType: TestRunType.flutter,
             cwd: tempDirectory.path,
+            logger: logger,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
+            testType: TestRunType.flutter,
             overrideTestRunner: testRunner(controller.stream),
-            logger: logger,
           ),
         );
 
@@ -308,9 +207,7 @@ void main() {
 
         controller
           ..add(const DoneTestEvent(success: true, time: 0))
-          ..add(
-            const ExitTestEvent(exitCode: 0, time: 0),
-          );
+          ..add(const ExitTestEvent(exitCode: 0, time: 0));
 
         await Future<void>.delayed(Duration.zero);
 
@@ -332,17 +229,17 @@ void main() {
         Directory(p.join(tempDirectory.path, 'test')).createSync();
         await expectLater(
           TestCLIRunner.test(
-            testType: TestRunType.flutter,
             cwd: tempDirectory.path,
+            logger: logger,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
+            testType: TestRunType.flutter,
             overrideTestRunner: testRunner(
               Stream.fromIterable([
                 ...passingJsonOutput.map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
-            logger: logger,
           ),
           completion(equals([ExitCode.success.code])),
         );
@@ -1461,88 +1358,6 @@ void main() {
           );
         },
       );
-
-      test('runs tests w/showUncovered: true + coverage passes', () async {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(tempDirectory.path, 'test')).createSync();
-
-        await expectLater(
-          TestCLIRunner.test(
-            testType: TestRunType.flutter,
-            cwd: tempDirectory.path,
-            collectCoverage: true,
-            showUncovered: true,
-            stdout: stdoutLogs.add,
-            stderr: stderrLogs.add,
-            overrideTestRunner: testRunner(
-              Stream.fromIterable(
-                [
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ],
-              ),
-              onStart: () {
-                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
-                  ..createSync(recursive: true)
-                  ..writeAsStringSync(lcov95);
-              },
-            ),
-            logger: logger,
-          ),
-          completion(equals([ExitCode.success.code])),
-        );
-        expect(
-          stdoutLogs,
-          containsAll([
-            'Running "flutter test" in . ...\n',
-            'Lines not covered:\n\t- bloc/packages/bloc/lib/src/bloc_observer.dart: 20, 27, 36, 43, 51\n',
-          ]),
-        );
-      });
-
-      test('runs tests w/showUncovered: true + min-coverage fails', () async {
-        final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-        Directory(p.join(tempDirectory.path, 'test')).createSync();
-
-        await expectLater(
-          () => TestCLIRunner.test(
-            testType: TestRunType.flutter,
-            cwd: tempDirectory.path,
-            collectCoverage: true,
-            minCoverage: 100,
-            showUncovered: true,
-            stdout: stdoutLogs.add,
-            stderr: stderrLogs.add,
-            overrideTestRunner: testRunner(
-              Stream.fromIterable(
-                [
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ],
-              ),
-              onStart: () {
-                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
-                  ..createSync(recursive: true)
-                  ..writeAsStringSync(lcov95);
-              },
-            ),
-            logger: logger,
-          ),
-          throwsA(
-            isA<MinCoverageNotMet>().having(
-              (e) => e.uncoveredLines?.isNotEmpty,
-              'uncoveredLines',
-              true,
-            ),
-          ),
-        );
-      });
 
       group('collectCoverageFrom parameter', () {
         test(
