@@ -227,8 +227,8 @@ class TestCLIRunner {
                   // files
                   if (collectCoverageFrom == CoverageCollectionMode.all) {
                     await _enhanceLcovWithUntestedFiles(
-                      lcovPath: lcovPath,
                       cwd: cwd,
+                      lcovPath: lcovPath,
                       reportOn: reportOn ?? 'lib',
                       excludeFromCoverage: excludeFromCoverage,
                     );
@@ -241,8 +241,8 @@ class TestCLIRunner {
                     'coverage/lcov.info must exist',
                   );
 
-                  // For Flutter tests with collectCoverageFrom = all, enhance
-                  // lcov
+                  // For Flutter tests with collectCoverageFrom = all,
+                  // enhance lcov.
                   if (testType == TestRunType.flutter &&
                       collectCoverageFrom == CoverageCollectionMode.all) {
                     await _enhanceLcovWithUntestedFiles(
@@ -273,9 +273,8 @@ class TestCLIRunner {
                     );
                   }
 
-                  // When coverage passes but is below 100%, show uncovered
-                  // lines as informational output, matching the behavior of
-                  // the Very Good Coverage GitHub Action.
+                  // When coverage passes but is below 100%,
+                  // show uncovered lines as informational output.
                   if (showUncovered &&
                       uncoveredLines != null &&
                       uncoveredLines.isNotEmpty) {
@@ -286,8 +285,8 @@ class TestCLIRunner {
         );
       },
       cwd: cwd,
-      recursive: recursive,
       ignore: ignore,
+      recursive: recursive,
     );
   }
 

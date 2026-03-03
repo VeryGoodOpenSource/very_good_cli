@@ -1,317 +1,1829 @@
+// Expected usage of the plugin will need to be adjacent strings due to format.
+// ignore_for_file: no_adjacent_strings_in_list
+
+import 'dart:async';
 import 'dart:io';
 
-import 'package:lcov_parser/lcov_parser.dart';
+import 'package:mason/mason.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
+import 'package:stack_trace/stack_trace.dart' as stack_trace;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_test_runner/very_good_test_runner.dart';
 
-import '../../fixtures/lcov_fixtures.dart';
+import '../../fixtures/fixtures.dart';
+
+class _MockMasonGenerator extends Mock implements MasonGenerator {}
+
+class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+
+class _MockProgress extends Mock implements Progress {}
+
+class _MockLogger extends Mock implements Logger {}
+
+class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
 
 void main() {
-  group(CoverageCollectionMode, () {
-    test('enum has imports and all values', () {
-      expect(CoverageCollectionMode.imports, isNotNull);
-      expect(CoverageCollectionMode.all, isNotNull);
-    });
-
-    test('fromString returns imports for "imports"', () {
-      final mode = CoverageCollectionMode.fromString('imports');
-      expect(mode, equals(CoverageCollectionMode.imports));
-    });
-
-    test('fromString returns all for "all"', () {
-      final mode = CoverageCollectionMode.fromString('all');
-      expect(mode, equals(CoverageCollectionMode.all));
-    });
-
-    test('fromString returns imports for unknown value', () {
-      final mode = CoverageCollectionMode.fromString('unknown');
-      expect(mode, equals(CoverageCollectionMode.imports));
-    });
-
-    test('fromString returns imports for empty string', () {
-      final mode = CoverageCollectionMode.fromString('');
-      expect(mode, equals(CoverageCollectionMode.imports));
-    });
-  });
-
   group(TestCLIRunner, () {
-    late Directory tempDir;
-
-    setUp(() {
-      tempDir = Directory.systemTemp.createTempSync('test_cli_runner_');
+    group('CoverageCollectionMode.fromString', () {
+      test('returns correct values', () {
+        expect(
+          CoverageCollectionMode.fromString('all'),
+          CoverageCollectionMode.all,
+        );
+        expect(
+          CoverageCollectionMode.fromString('imports'),
+          CoverageCollectionMode.imports,
+        );
+        expect(
+          CoverageCollectionMode.fromString('invalid'),
+          CoverageCollectionMode.imports,
+        );
+      });
     });
 
-    tearDown(() {
-      if (tempDir.existsSync()) {
-        tempDir.deleteSync(recursive: true);
-      }
+    group('isTargettingTestFiles', () {
+      test('returns false when empty', () {
+        expect(TestCLIRunner.isTargettingTestFiles([]), isFalse);
+      });
+      test('returns false when only options are passed', () {
+        expect(
+          TestCLIRunner.isTargettingTestFiles(['--coverage', '--optimization']),
+          isFalse,
+        );
+      });
+      test('returns true when a file is passed', () {
+        expect(
+          TestCLIRunner.isTargettingTestFiles([
+            '--coverage',
+            'test/some_test.dart',
+          ]),
+          isTrue,
+        );
+      });
     });
 
-    group('_discoverDartFilesForCoverage', () {
-      test('returns empty list when directory does not exist', () {
-        // Verify that a nonexistent directory returns false
-        final libDir = Directory(p.join(tempDir.path, 'nonexistent'));
-        expect(libDir.existsSync(), isFalse);
+    group('formatUncoveredLines', () {
+      test('formats correctly', () {
+        final lines = {
+          'lib/foo.dart': [10, 30, 20],
+          'lib/bar.dart': [5],
+        };
+        expect(
+          TestCLIRunner.formatUncoveredLines(lines),
+          equals(
+            'Lines not covered:\n'
+            '\t- lib/foo.dart: 10, 20, 30\n'
+            '\t- lib/bar.dart: 5',
+          ),
+        );
+      });
+    });
+
+    group('handleMinCoverageNotMet', () {
+      late Logger logger;
+
+      setUp(() {
+        logger = _MockLogger();
       });
 
-      test('discovers all dart files recursively', () {
-        // Create a lib directory with some Dart files
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
+      test(
+        'formats min coverage rounded properly and outputs uncovered lines',
+        () {
+          const exception = MinCoverageNotMet(
+            99.991,
+            uncoveredLines: {
+              'lib/foo.dart': [1],
+            },
+          );
+          TestCLIRunner.handleMinCoverageNotMet(
+            logger: logger,
+            e: exception,
+            minCoverage: 100,
+          );
+          verify(
+            () => logger.err(
+              'Expected coverage >= 100.00% but actual is 99.99%.',
+            ),
+          ).called(1);
+          verify(
+            () => logger.err('Lines not covered:\n\t- lib/foo.dart: 1'),
+          ).called(1);
+        },
+      );
 
-        File(p.join(libDir.path, 'main.dart')).createSync();
-        File(p.join(libDir.path, 'utils.dart')).createSync();
+      test(
+        'increases decimal places when rounded value matches minCoverage',
+        () {
+          const exception = MinCoverageNotMet(
+            99.999,
+          );
+          TestCLIRunner.handleMinCoverageNotMet(
+            logger: logger,
+            e: exception,
+            minCoverage: 100,
+          );
+          verify(
+            () => logger.err(
+              'Expected coverage >= 100.000% but actual is 99.999%.',
+            ),
+          ).called(1);
+        },
+      );
+    });
 
-        final srcDir = Directory(p.join(libDir.path, 'src'))..createSync();
-        File(p.join(srcDir.path, 'helper.dart')).createSync();
+    setUpAll(() {
+      registerFallbackValue(_FakeGeneratorTarget());
+      registerFallbackValue(FileConflictResolution.prompt);
+    });
 
-        // Verify directory structure
-        expect(libDir.existsSync(), isTrue);
+    group('.test', () {
+      late Progress progress;
+      late Logger logger;
+      late GeneratorHooks hooks;
+      late MasonGenerator generator;
+      late List<String> stdoutLogs;
+      late List<String> stderrLogs;
+      late List<String> testRunnerArgs;
+
+      VeryGoodTestRunner testRunner(
+        Stream<TestEvent> stream, {
+        void Function()? onStart,
+      }) {
+        return ({
+          arguments,
+          environment,
+          runInShell = false,
+          workingDirectory,
+        }) {
+          onStart?.call();
+          if (arguments != null) testRunnerArgs.addAll(arguments);
+          return stream;
+        };
+      }
+
+      GeneratorBuilder generatorBuilder() =>
+          (_) async => generator;
+
+      setUp(() {
+        progress = _MockProgress();
+        logger = _MockLogger();
+        when(() => logger.progress(any())).thenReturn(progress);
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
+        when(() => generator.hooks).thenReturn(hooks);
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            fileConflictResolution: any(named: 'fileConflictResolution'),
+          ),
+        ).thenAnswer((_) async => []);
+        testRunnerArgs = [];
+        stdoutLogs = [];
+        stderrLogs = [];
+      });
+
+      final testRunners = [
+        ('flutter', Flutter.test),
+        ('dart', Dart.test),
+      ];
+
+      for (final testRunnerType in testRunners) {
+        final name = testRunnerType.$1;
+        final testRunner = testRunnerType.$2;
+        group('when the runner type is $name', () {
+          test(
+            'cleanup the .test_optimizer file when SIGINT is emitted',
+            () async {
+              final streamController = StreamController<ProcessSignal>();
+              await ProcessSignalOverrides.runZoned(
+                () async {
+                  final tempDirectory = Directory.systemTemp.createTempSync();
+                  addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+                  final updatedVars = <String, dynamic>{
+                    'package-root': tempDirectory.path,
+                    'foo': 'bar',
+                  };
+
+                  File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+                  Directory(p.join(tempDirectory.path, 'test')).createSync();
+                  when(
+                    () => hooks.preGen(
+                      vars: any(named: 'vars'),
+                      onVarsChanged: any(named: 'onVarsChanged'),
+                      workingDirectory: any(named: 'workingDirectory'),
+                    ),
+                  ).thenAnswer((invocation) async {
+                    (invocation.namedArguments[#onVarsChanged]
+                            as void Function(
+                              Map<String, dynamic> vars,
+                            ))
+                        .call(updatedVars);
+                  });
+                  ProcessSignalOverrides.current?.addSIGINT();
+                  await testRunner(
+                    cwd: tempDirectory.path,
+                    optimizePerformance: true,
+                    stdout: stdoutLogs.add,
+                    stderr: stderrLogs.add,
+                    logger: logger,
+                    buildGenerator: generatorBuilder(),
+                  );
+                  final filePath = p.join(
+                    tempDirectory.path,
+                    'test',
+                    '.test_optimizer.dart',
+                  );
+                  final testOptimizerFile = File(filePath);
+                  expect(testOptimizerFile.existsSync(), isFalse);
+                },
+                sigintStream: streamController.stream,
+              );
+            },
+          );
+
+          test('throws when pubspec not found', () async {
+            await expectLater(
+              () =>
+                  Flutter.test(cwd: Directory.systemTemp.path, logger: logger),
+              throwsA(isA<PubspecNotFound>()),
+            );
+          });
+
+          test('completes when there is no test directory', () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            await expectLater(
+              Flutter.test(
+                cwd: tempDirectory.path,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+            expect(
+              stdoutLogs,
+              equals([
+                'Running "flutter test" in . ...\n',
+                'No test folder found in .\n',
+              ]),
+            );
+          });
+        });
+      }
+
+      test('runs tests and shows timer until tests start', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final controller = StreamController<TestEvent>();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        unawaited(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(controller.stream),
+            logger: logger,
+          ),
+        );
+
+        await Future<void>.delayed(const Duration(seconds: 1));
+
+        controller
+          ..add(const DoneTestEvent(success: true, time: 0))
+          ..add(
+            const ExitTestEvent(exitCode: 0, time: 0),
+          );
+
+        await Future<void>.delayed(Duration.zero);
+
         expect(
-          Directory(p.join(libDir.path, 'src')).listSync(),
-          isNotEmpty,
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            '\x1B[2K\r00:00 ...',
+            contains('All tests passed!'),
+          ]),
         );
       });
 
-      test('respects exclude patterns', () {
-        // Create lib directory with some files
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
+      test('runs tests (passing)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(p.join(libDir.path, 'main.dart')).createSync();
-        File(p.join(libDir.path, 'main.g.dart')).createSync();
-
-        // Verify files exist
-        expect(File(p.join(libDir.path, 'main.dart')).existsSync(), isTrue);
-        expect(File(p.join(libDir.path, 'main.g.dart')).existsSync(), isTrue);
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            '\x1B[2K\r00:02 +1: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:02 +2: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:02 +3: CounterCubit emits [-1] when decrement is called''',
+            '\x1B[2K\r00:03 +4: App renders CounterPage',
+            '\x1B[2K\r00:03 +5: CounterPage renders CounterView',
+            '\x1B[2K\r00:03 +6: CounterView renders current count',
+            '''\x1B[2K\r00:03 +7: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:03 +8: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:04 +8: All tests passed!\n',
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
       });
-    });
 
-    group('_enhanceLcovWithUntestedFiles', () {
-      test('creates valid lcov file for untested files', () async {
-        // Create lib directory with Dart files
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
+      test('runs tests (passing) with forced ansi output', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        final dartFile = File(p.join(libDir.path, 'untested.dart'))
-          ..writeAsStringSync(
-            '''
-void function1() {
-  print('test');
-}
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-void function2() {
-  print('test2');
-}
-''',
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+            forceAnsi: true,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+1\x1B[0m: CounterCubit initial state is 0''',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+2\x1B[0m: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r\x1B[90m00:02\x1B[0m \x1B[92m+3\x1B[0m: CounterCubit emits [-1] when decrement is called''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+4\x1B[0m: App renders CounterPage''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+5\x1B[0m: CounterPage renders CounterView''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+6\x1B[0m: CounterView renders current count''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+7\x1B[0m: ...rView calls increment when increment button is tapped''',
+            '''\x1B[2K\r\x1B[90m00:03\x1B[0m \x1B[92m+8\x1B[0m: ...rView calls decrement when decrement button is tapped''',
+            '''\x1B[2K\r\x1B[90m\x1B[90m00:04\x1B[0m\x1B[0m \x1B[92m+8\x1B[0m: \x1B[92mAll tests passed!\x1B[0m\n''',
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+      });
+
+      test('runs tests (failing)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...failingJsonOutput(
+                  tempDirectory.path,
+                ).map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            '\x1B[2K\r00:11 -1: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:11 +1 -1: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:11 +2 -1: CounterCubit emits [-1] when decrement is called''',
+            '\x1B[2K\r00:11 +3 -1: App renders CounterPage',
+            '\x1B[2K\r00:12 +4 -1: CounterPage renders CounterView',
+            '\x1B[2K\r00:12 +5 -1: CounterView renders current count',
+            '''\x1B[2K\r00:12 +6 -1: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:12 +7 -1: CounterView calls decrement when decrement button is tapped''',
+            '\x1B[2K\r00:12 +7 -1: Some tests failed.\n',
+          ]),
+        );
+
+        final testPath = p.join(
+          'test',
+          'counter',
+          'cubit',
+          'counter_cubit_test.dart',
+        );
+
+        expect(
+          stderrLogs,
+          equals(
+            [
+              '\x1B[2K\rExpected: <1>\n'
+                  '  Actual: <0>\n',
+              '''\x1B[2K\rpackage:test_api                                    expect\n'''
+                  'package:flutter_test/src/widget_tester.dart 455:16  expect\n'
+                  'test/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
+              '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (FAILED)',
+              '\x1B[2K\rFailing Tests:\n'
+                  '\x1B[2K\r - $testPath \n'
+                  '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
+            ],
+          ),
+        );
+      });
+
+      test('runs tests (noisy)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...skipExceptionMessageJsonOutput(
+                  tempDirectory.path,
+                ).map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            '\x1B[2K\rSkip: currently failing (see issue 1234)\n',
+            '\x1B[2K\r(suite) ${tempDirectory.path}/test/counter/view/other_test.dart (SKIPPED)\n',
+            '\x1B[2K\r00:00 ~1: (suite)',
+            '\x1B[2K\rCounterCubit initial state is 0 ${tempDirectory.path}/test/counter/cubit/counter_cubit_test.dart (SKIPPED)\n',
+            '\x1B[2K\r00:02 ~2: CounterCubit initial state is 0',
+            '''\x1B[2K\r00:02 +1 ~2: CounterCubit emits [1] when increment is called''',
+            '''\x1B[2K\r00:02 +2 ~2: CounterCubit emits [-1] when decrement is called''',
+            '''\x1B[2K\r00:02 +3 ~2: ...a really long test name that should get truncated by very_good test''',
+            '\x1B[2K\r00:03 +3 -1 ~2: App renders CounterPage',
+            '\x1B[2K\rhello\n',
+            '\x1B[2K\r00:04 +4 -1 ~2: CounterPage renders CounterView',
+            '\x1B[2K\r00:04 +5 -1 ~2: CounterView renders current count',
+            '''\x1B[2K\r00:04 +6 -1 ~2: CounterView calls increment when increment button is tapped''',
+            '''\x1B[2K\r00:04 +7 -1 ~2: CounterView calls decrement when decrement button is tapped''',
+            '''\x1B[2K\r00:05 +8 -1 ~2: ...tiline test name that should be well processed by very_good test''',
+            '\x1B[2K\r00:05 +8 -1 ~2: Some tests failed.\n',
+          ]),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '''\x1B[2K\r══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════\n'''
+                'The following _Exception was thrown running a test:\n'
+                'Exception: oops\n'
+                '\n'
+                'When the exception was thrown, this was the stack:\n'
+                '#0      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:15:7)\n'
+                '#1      main.<anonymous closure>.<anonymous closure> (file://${tempDirectory.path}/test/app/view/app_test.dart:14:40)\n'
+                '#2      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:170:29)\n'
+                '<asynchronous suspension>\n'
+                '<asynchronous suspension>\n'
+                '(elided one frame from package:stack_trace)\n'
+                '\n'
+                'The test description was:\n'
+                '  renders CounterPage\n'
+                '''════════════════════════════════════════════════════════════════════════════════════════════════════''',
+            '\x1B[2K\rTest failed. See exception logs above.\n'
+                'The test description was: renders CounterPage',
+            '\x1B[2K\rApp renders CounterPage ${tempDirectory.path}/test/app/view/app_test.dart (FAILED)',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '\x1B[2K\r \t- [ERROR] App renders CounterPage\n',
+          ]),
+        );
+      });
+
+      test('runs tests (error)', () async {
+        const exception = 'oops';
+
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final controller = StreamController<TestEvent>();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        controller
+          ..addError(exception)
+          ..add(const ExitTestEvent(exitCode: 1, time: 0));
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(controller.stream),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs.first,
+          equals('\x1B[2K\r$exception'),
+        );
+        expect(
+          stderrLogs[1],
+          startsWith('\x1B[2K\r'),
+        );
+      });
+
+      test('runs tests (error w/stackTrace)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 4,
+                    platform: 'vm',
+                    path: '${tempDirectory.path}/test/app/view/app_test.dart',
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 10,
+                    suiteID: 4,
+                    name: 'CounterCubit',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 0,
+                    name: 'CounterCubit emits [1] when increment is called',
+                    suiteID: 4,
+                    groupIDs: [10],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
+                ErrorTestEvent(
+                  testID: 0,
+                  error: 'error',
+                  stackTrace: stack_trace.Trace.parse(
+                    'test/example_test.dart 4 main',
+                  ).toString(),
+                  isFailure: true,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '\x1B[2K\rerror',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
+          ]),
+        );
+      });
+
+      test('runs tests (compilation error)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testEventStream = Stream.fromIterable([
+          ...compilationErrorJsonOutput(
+            tempDirectory.path,
+          ).map(TestEvent.fromJson),
+          const ExitTestEvent(exitCode: 1, time: 0),
+        ]);
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(testEventStream),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+
+        expect(
+          stdoutLogs,
+          containsAllInOrder([
+            '\x1B[2K\r00:00 -1: loading test/.test_optimizer.dart',
+            '\x1B[2K\r00:00 -1: Some tests failed.\n',
+          ]),
+        );
+        expect(
+          stderrLogs,
+          containsAll([
+            '\x1B[2K\rFailed to load "test/.test_optimizer.dart":\n'
+                "test/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n"
+                '    expect(Thing(thing: true), isNull);\n'
+                '                 ^^^^^\n'
+                "lib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n"
+                '  const Thing();\n'
+                '        ^^^^^',
+          ]),
+        );
+      });
+
+      test('runs tests w/out logs', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+      });
+
+      test('runs tests w/args', () async {
+        const arguments = ['-x', 'e2e', '-j', '1'];
+
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            arguments: arguments,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(arguments));
+      });
+
+      test('runs tests w/randomSeed', () async {
+        const seed = 'seed';
+
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            randomSeed: seed,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            'Shuffling test order with --test-randomize-ordering-seed=$seed\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(
+          testRunnerArgs,
+          equals(['--test-randomize-ordering-seed', seed]),
+        );
+      });
+
+      test('runs flutter tests w/coverage', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final lcovFile = File(
+          p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+        );
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        lcovFile.createSync(recursive: true);
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                expect(lcovFile.existsSync(), isFalse);
+                lcovFile.createSync(recursive: true);
+              },
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage']));
+      });
+
+      test('runs flutter tests w/coverage', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final lcovFile = File(
+          p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+        );
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        lcovFile.createSync(recursive: true);
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.dart,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                expect(lcovFile.existsSync(), isFalse);
+                lcovFile.createSync(recursive: true);
+              },
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "dart test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage=coverage']));
+      });
+
+      test('runs tests w/coverage + min-coverage 100 (pass)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov100);
+              },
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage']));
+      });
+
+      test('runs tests w/coverage + min-coverage 100 (fail)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        await expectLater(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
+            logger: logger,
+          ),
+          throwsA(
+            isA<MinCoverageNotMet>().having(
+              (e) => e.coverage,
+              'coverage',
+              95.0,
+            ),
+          ),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+        expect(testRunnerArgs, equals(['--coverage']));
+      });
+
+      test(
+        'runs tests w/coverage + min-coverage 100 + exclude coverage (pass)',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              excludeFromCoverage:
+                  'bloc/packages/bloc/lib/src/bloc_observer.dart',
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov95);
+                },
+              ),
+              logger: logger,
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(stderrLogs, isEmpty);
+          expect(testRunnerArgs, equals(['--coverage']));
+        },
+      );
+
+      test(
+        'runs tests w/coverage + min-coverage 100 + recursive (pass)',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+          final tempNestedDirectory = Directory(
+            p.join(tempDirectory.path, 'test'),
+          )..createSync();
+          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              recursive: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                  File(
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                    )
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                },
+              ),
+              logger: logger,
+            ),
+            completion(equals([ExitCode.success.code, ExitCode.success.code])),
           );
 
-        // Create a minimal LCOV file
-        final coverageDir = Directory(p.join(tempDir.path, 'coverage'))
-          ..createSync(recursive: true);
+          final nestedRelativePath = p.relative(
+            tempNestedDirectory.path,
+            from: tempDirectory.path,
+          );
+          final relativePathPrefix = '.${p.context.separator}';
 
-        final lcovFile = File(p.join(coverageDir.path, 'lcov.info'))
-          ..writeAsStringSync('end_of_record\n');
+          expect(
+            stdoutLogs,
+            unorderedEquals([
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+              contains('All tests passed!'),
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+        },
+      );
 
-        // Verify setup
-        expect(dartFile.existsSync(), isTrue);
-        expect(lcovFile.existsSync(), isTrue);
-        expect(libDir.listSync(recursive: true), isNotEmpty);
-      });
+      test(
+        'runs tests w/coverage + min-coverage 100 + recursive (fail)',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-      test('handles empty files gracefully', () async {
-        // Create lib directory with empty Dart file
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-        final emptyFile = File(p.join(libDir.path, 'empty.dart'))
-          ..writeAsStringSync('');
+          final tempNestedDirectory = Directory(
+            p.join(tempDirectory.path, 'test'),
+          )..createSync();
+          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
-        // Create LCOV file
-        final coverageDir = Directory(p.join(tempDir.path, 'coverage'))
-          ..createSync(recursive: true);
-
-        final lcovFile = File(p.join(coverageDir.path, 'lcov.info'))
-          ..writeAsStringSync('end_of_record\n');
-
-        // Verify setup
-        expect(emptyFile.existsSync(), isTrue);
-        expect(lcovFile.existsSync(), isTrue);
-      });
-
-      test('skips comment-only lines', () async {
-        // Create lib directory with comment file
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
-
-        final commentFile = File(p.join(libDir.path, 'comment.dart'))
-          ..writeAsStringSync(
-            '''
-// This is a comment
-// Another comment
-
-/*
- * Multi-line comment
- */
-''',
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              collectCoverage: true,
+              minCoverage: 100,
+              recursive: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+                onStart: () {
+                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov100);
+                  File(
+                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
+                    )
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(lcov95);
+                },
+              ),
+              logger: logger,
+            ),
+            throwsA(
+              isA<MinCoverageNotMet>().having(
+                (e) => e.coverage,
+                'coverage',
+                95.0,
+              ),
+            ),
           );
 
-        // Create LCOV file
-        final coverageDir = Directory(p.join(tempDir.path, 'coverage'))
-          ..createSync(recursive: true);
-
-        final lcovFile = File(p.join(coverageDir.path, 'lcov.info'))
-          ..writeAsStringSync('end_of_record\n');
-
-        // Verify setup
-        expect(commentFile.existsSync(), isTrue);
-        expect(lcovFile.existsSync(), isTrue);
-      });
-
-      test('skips import and export statements', () async {
-        // Create lib directory with imports file
-        final libDir = Directory(p.join(tempDir.path, 'lib'))
-          ..createSync(recursive: true);
-
-        final importsFile = File(p.join(libDir.path, 'imports.dart'))
-          ..writeAsStringSync(
-            '''
-import 'package:flutter/material.dart';
-export 'package:flutter/material.dart';
-part 'other.dart';
-
-void main() {}
-''',
+          final nestedRelativePath = p.relative(
+            tempNestedDirectory.path,
+            from: tempDirectory.path,
           );
+          final relativePathPrefix = '.${p.context.separator}';
 
-        // Create LCOV file
-        final coverageDir = Directory(p.join(tempDir.path, 'coverage'))
-          ..createSync(recursive: true);
+          expect(
+            stdoutLogs,
+            unorderedEquals([
+              'Running "flutter test" in '
+                  '. ...\n',
+              contains('All tests passed!'),
+              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(stderrLogs, isEmpty);
+          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+        },
+      );
 
-        final lcovFile = File(p.join(coverageDir.path, 'lcov.info'))
-          ..writeAsStringSync('end_of_record\n');
+      test('runs tests w/optimizations (passing)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        // Verify setup
-        expect(importsFile.existsSync(), isTrue);
-        expect(lcovFile.existsSync(), isTrue);
+        final originalVars = <String, dynamic>{
+          'package-root': tempDirectory.path,
+        };
+        final updatedVars = <String, dynamic>{
+          'package-root': tempDirectory.path,
+          'foo': 'bar',
+        };
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged]
+                  as void Function(
+                    Map<String, dynamic> vars,
+                  ))
+              .call(updatedVars);
+        });
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            optimizePerformance: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            logger: logger,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+            ),
+            buildGenerator: generatorBuilder(),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(
+          testRunnerArgs,
+          equals([p.join('test', '.test_optimizer.dart')]),
+        );
+        verify(() => logger.progress('Optimizing tests')).called(1);
+        verify(
+          () => hooks.preGen(
+            vars: originalVars,
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: tempDirectory.path,
+          ),
+        ).called(1);
+        verify(
+          () => generator.generate(
+            any(),
+            vars: updatedVars,
+            fileConflictResolution: FileConflictResolution.overwrite,
+          ),
+        ).called(1);
+        verify(() => progress.complete()).called(1);
       });
-    });
-  });
 
-  group('formatUncoveredLines', () {
-    test('formats a single file with single line', () {
-      final result = TestCLIRunner.formatUncoveredLines({
-        'lib/src/foo.dart': [10],
+      test('runs tests w/optimizations (failing)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 4,
+                    platform: 'vm',
+                    path: p.join(
+                      tempDirectory.path,
+                      'test',
+                      '.test_optimizer.dart',
+                    ),
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 10,
+                    suiteID: 4,
+                    name: 'app/view/app_test.dart',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                GroupTestEvent(
+                  group: TestGroup(
+                    id: 99,
+                    suiteID: 4,
+                    name: 'app/view/app_test.dart CounterCubit',
+                    metadata: TestMetadata(
+                      skip: false,
+                    ),
+                    testCount: 1,
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 0,
+                    name:
+                        'app/view/app_test.dart CounterCubit emits [1] when increment is called',
+                    suiteID: 4,
+                    groupIDs: [10, 99],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
+                ErrorTestEvent(
+                  testID: 0,
+                  error: 'error',
+                  stackTrace: stack_trace.Trace.parse(
+                    'test/example_test.dart 4 main',
+                  ).toString(),
+                  isFailure: true,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.unavailable.code])),
+        );
+        expect(
+          stderrLogs,
+          equals([
+            '\x1B[2K\rerror',
+            '\x1B[2K\r${p.join('test', 'example_test.dart')} 4  main\n',
+            '\x1B[2K\rFailing Tests:\n'
+                '\x1B[2K\r - '
+                '${p.join('test', 'app', 'view', 'app_test.dart')} \n'
+                '''\x1B[2K\r \t- [FAILED] CounterCubit emits [1] when increment is called\n''',
+          ]),
+        );
       });
-      expect(result, equals('Lines not covered:\n\t- lib/src/foo.dart: 10'));
-    });
 
-    test('formats a single file with multiple lines', () {
-      final result = TestCLIRunner.formatUncoveredLines({
-        'lib/src/foo.dart': [10, 20, 30],
+      test(
+        'pass not optimized tests along with optimized tests when optimization '
+        'is enabled but there are not optimized tests as well',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': [
+              p.join('app', 'view', 'app_test.dart'),
+              p.join('app', 'cubit', 'cubit_test.dart'),
+            ],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'app', 'view', 'app_test.dart'),
+              p.join('test', 'app', 'cubit', 'cubit_test.dart'),
+            ]),
+          );
+        },
+      );
+
+      test(
+        'do not pass not optimized tests along with optimized tests when '
+        'optimization is enabled but there are no not optimized tests',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'notOptimizedTests': <String>[],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(
+                      Map<String, dynamic> vars,
+                    ))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              optimizePerformance: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              logger: logger,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable(
+                  [
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ],
+                ),
+              ),
+              buildGenerator: generatorBuilder(),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            stdoutLogs,
+            equals([
+              'Running "flutter test" in . ...\n',
+              contains('All tests passed!'),
+            ]),
+          );
+          expect(
+            testRunnerArgs,
+            equals([p.join('test', '.test_optimizer.dart')]),
+          );
+        },
+      );
+
+      test('runs tests w/showUncovered: true + coverage passes', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            showUncovered: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+        expect(
+          stdoutLogs,
+          containsAll([
+            'Running "flutter test" in . ...\n',
+            'Lines not covered:\n\t- bloc/packages/bloc/lib/src/bloc_observer.dart: 20, 27, 36, 43, 51\n',
+          ]),
+        );
       });
-      expect(
-        result,
-        equals('Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30'),
-      );
-    });
 
-    test('sorts line numbers within a file', () {
-      final result = TestCLIRunner.formatUncoveredLines({
-        'lib/src/foo.dart': [30, 10, 20],
+      test('runs tests w/showUncovered: true + min-coverage fails', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        await expectLater(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            showUncovered: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable(
+                [
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ],
+              ),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
+            ),
+            logger: logger,
+          ),
+          throwsA(
+            isA<MinCoverageNotMet>().having(
+              (e) => e.uncoveredLines?.isNotEmpty,
+              'uncoveredLines',
+              true,
+            ),
+          ),
+        );
       });
-      expect(
-        result,
-        equals('Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30'),
-      );
-    });
 
-    test('formats multiple files', () {
-      final result = TestCLIRunner.formatUncoveredLines({
-        'lib/src/foo.dart': [10, 20],
-        'lib/src/bar.dart': [5],
+      group('collectCoverageFrom parameter', () {
+        test(
+          'passes through collectCoverageFrom to test runner',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            Directory(p.join(tempDirectory.path, 'lib')).createSync();
+            lcovFile.createSync(recursive: true);
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    expect(lcovFile.existsSync(), isFalse);
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync('end_of_record\n');
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+            expect(
+              stdoutLogs,
+              equals([
+                'Running "flutter test" in . ...\n',
+                contains('All tests passed!'),
+              ]),
+            );
+            expect(testRunnerArgs, equals(['--coverage']));
+          },
+        );
+
+        test(
+          'creates lcov for dart tests with collectCoverageFrom all',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final coverageDir = Directory(
+              p.join(tempDirectory.path, 'coverage'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            Directory(p.join(tempDirectory.path, 'lib')).createSync();
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.dart,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    final lcovDir = Directory(
+                      p.join(tempDirectory.path, 'coverage'),
+                    )..createSync(recursive: true);
+                    File(
+                      p.join(lcovDir.path, 'lcov.info'),
+                    ).writeAsStringSync('end_of_record\n');
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(coverageDir.existsSync(), isTrue);
+            expect(
+              stdoutLogs,
+              equals([
+                'Running "dart test" in . ...\n',
+                contains('All tests passed!'),
+              ]),
+            );
+          },
+        );
+
+        test(
+          'respects collectCoverageFrom imports mode (default)',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            lcovFile.createSync(recursive: true);
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    lcovFile.createSync(recursive: true);
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+            expect(testRunnerArgs, equals(['--coverage']));
+          },
+        );
+
+        test(
+          'enhances lcov with untested dart files for collectCoverageFrom all',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final libDir = Directory(p.join(tempDirectory.path, 'lib'))
+              ..createSync(recursive: true);
+            File(
+              p.join(libDir.path, 'tested.dart'),
+            ).writeAsStringSync('void tested() {}');
+            File(
+              p.join(libDir.path, 'untested.dart'),
+            ).writeAsStringSync('void unused() {}');
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+
+            // Use flutter test type because it doesn't overwrite the LCOV file
+            // (unlike dart test which uses formatLcov to generate it)
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    // Create LCOV file with coverage for tested.dart
+                    // This ensures the path comparison in line 349 is exercised
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync(
+                        'SF:lib/tested.dart\n'
+                        'DA:1,1\n'
+                        'LF:1\n'
+                        'LH:1\n'
+                        'end_of_record\n',
+                      );
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            // Verify LCOV file was enhanced with untested files
+            expect(lcovFile.existsSync(), isTrue);
+            final content = lcovFile.readAsStringSync();
+            expect(content, contains('SF:lib/tested.dart'));
+            // Verify tested file was correctly identified as covered
+            // (should have DA:1,1 from original LCOV, not DA:1,0 from enhance)
+            expect(content, contains('DA:1,1'));
+            // Verify untested file was added to coverage
+            expect(content, contains('SF:lib/untested.dart'));
+            // Verify untested file has DA:1,0 (uncovered)
+            expect(content, contains('DA:1,0'));
+            // Verify untested file has LF and LH summary lines
+            expect(content, contains('LF:1'));
+            expect(content, contains('LH:0'));
+          },
+        );
+
+        test(
+          'respects exclude-coverage pattern when enhancing lcov',
+          () async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            final libDir = Directory(p.join(tempDirectory.path, 'lib'))
+              ..createSync(recursive: true);
+            File(
+              p.join(libDir.path, 'main.dart'),
+            ).writeAsStringSync('void main() {}');
+            File(
+              p.join(libDir.path, 'main.g.dart'),
+            ).writeAsStringSync('// Generated code');
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+            final lcovFile = File(
+              p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+            );
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.dart,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                collectCoverageFrom: CoverageCollectionMode.all,
+                excludeFromCoverage: '**/*.g.dart',
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable(
+                    [
+                      const DoneTestEvent(success: true, time: 0),
+                      const ExitTestEvent(exitCode: 0, time: 0),
+                    ],
+                  ),
+                  onStart: () {
+                    // Create LCOV with covered file for main.dart only
+                    lcovFile
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync(
+                        'TN:test\n'
+                        'SF:lib/main.dart\n'
+                        'DA:1,1\n'
+                        'LH:1\n'
+                        'LF:1\n'
+                        'end_of_record\n',
+                      );
+                  },
+                ),
+                logger: logger,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(lcovFile.existsSync(), isTrue);
+          },
+        );
       });
-      expect(
-        result,
-        equals(
-          'Lines not covered:\n'
-          '\t- lib/src/foo.dart: 10, 20\n'
-          '\t- lib/src/bar.dart: 5',
-        ),
-      );
-    });
-  });
-
-  group(MinCoverageNotMet, () {
-    test('stores coverage value', () {
-      const exception = MinCoverageNotMet(95.5);
-      expect(exception.coverage, equals(95.5));
-      expect(exception.uncoveredLines, isNull);
-    });
-
-    test('stores uncovered lines when provided', () {
-      const uncoveredLines = {
-        'lib/src/foo.dart': [10, 20],
-      };
-      const exception = MinCoverageNotMet(95, uncoveredLines: uncoveredLines);
-      expect(exception.coverage, equals(95));
-      expect(exception.uncoveredLines, equals(uncoveredLines));
-    });
-  });
-
-  group(CoverageMetrics, () {
-    late Directory tempDir;
-
-    setUp(() {
-      tempDir = Directory.systemTemp.createTempSync('coverage_metrics_');
-    });
-
-    tearDown(() {
-      if (tempDir.existsSync()) {
-        tempDir.deleteSync(recursive: true);
-      }
-    });
-
-    test('reports no uncovered lines for 100% coverage', () async {
-      final lcovFile = File(p.join(tempDir.path, 'lcov.info'))
-        ..writeAsStringSync(lcov100);
-      final records = await Parser.parse(lcovFile.path);
-      final metrics = CoverageMetrics.fromLcovRecords(records);
-      expect(metrics.percentage, equals(100));
-      expect(metrics.uncoveredLines, isEmpty);
-    });
-
-    test('reports uncovered lines for 95% coverage', () async {
-      final lcovFile = File(p.join(tempDir.path, 'lcov.info'))
-        ..writeAsStringSync(lcov95);
-      final records = await Parser.parse(lcovFile.path);
-      final metrics = CoverageMetrics.fromLcovRecords(records);
-      expect(metrics.percentage, lessThan(100));
-      expect(metrics.uncoveredLines, isNotEmpty);
-
-      final blocObserverFile = metrics.uncoveredLines.keys.firstWhere(
-        (k) => k.contains('bloc_observer'),
-      );
-      expect(
-        metrics.uncoveredLines[blocObserverFile],
-        containsAll([20, 27, 36, 43, 51]),
-      );
-    });
-
-    test('excludes files matching the glob from uncovered lines', () async {
-      final lcovFile = File(p.join(tempDir.path, 'lcov.info'))
-        ..writeAsStringSync(lcov95);
-      final records = await Parser.parse(lcovFile.path);
-      final metrics = CoverageMetrics.fromLcovRecords(
-        records,
-        excludeFromCoverage: '**/bloc_observer.dart',
-      );
-
-      expect(
-        metrics.uncoveredLines.keys.any((k) => k.contains('bloc_observer')),
-        isFalse,
-      );
     });
   });
 }
