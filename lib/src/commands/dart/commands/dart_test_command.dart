@@ -14,6 +14,7 @@ class DartTestOptions {
     required this.concurrency,
     required this.collectCoverage,
     required this.minCoverage,
+    required this.showUncovered,
     required this.excludeTags,
     required this.tags,
     required this.excludeFromCoverage,
@@ -34,6 +35,7 @@ class DartTestOptions {
     final minCoverage = double.tryParse(
       argResults['min-coverage'] as String? ?? '',
     );
+    final showUncovered = argResults['show-uncovered'] as bool;
     final excludeTags = argResults['exclude-tags'] as String?;
     final tags = argResults['tags'] as String?;
     final excludeFromCoverage = argResults['exclude-coverage'] as String?;
@@ -58,6 +60,7 @@ class DartTestOptions {
       concurrency: concurrency,
       collectCoverage: collectCoverage,
       minCoverage: minCoverage,
+      showUncovered: showUncovered,
       excludeTags: excludeTags,
       tags: tags,
       excludeFromCoverage: excludeFromCoverage,
@@ -80,6 +83,9 @@ class DartTestOptions {
 
   /// Whether to enforce a minimum coverage percentage.
   final double? minCoverage;
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  final bool showUncovered;
 
   /// Run only tests that do not have the specified tags.
   final String? excludeTags;
@@ -128,6 +134,7 @@ typedef DartTestCommandCall =
       bool collectCoverage,
       bool optimizePerformance,
       double? minCoverage,
+      bool showUncovered,
       String? excludeFromCoverage,
       CoverageCollectionMode collectCoverageFrom,
       String? randomSeed,
@@ -198,6 +205,14 @@ class DartTestCommand extends Command<int> {
       ..addOption(
         'min-coverage',
         help: 'Whether to enforce a minimum coverage percentage.',
+      )
+      ..addFlag(
+        'show-uncovered',
+        help:
+            'Whether to show uncovered lines when coverage is below 100%. '
+            'Requires --coverage or --min-coverage to be set, or implicitly '
+            'enables coverage collection when used alone.',
+        negatable: false,
       )
       ..addOption(
         'collect-coverage-from',
@@ -288,8 +303,11 @@ This command should be run from the root of your Dart project.''');
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage:
-              options.collectCoverage || options.minCoverage != null,
+              options.collectCoverage ||
+              options.minCoverage != null ||
+              options.showUncovered,
           minCoverage: options.minCoverage,
+          showUncovered: options.showUncovered,
           excludeFromCoverage: options.excludeFromCoverage,
           collectCoverageFrom: options.collectCoverageFrom,
           randomSeed: options.randomSeed,
