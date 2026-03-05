@@ -26,6 +26,8 @@ class DartTestOptions {
     required this.platform,
     required this.rest,
     required this.reportOn,
+    required this.runSkipped,
+    required this.checkIgnore,
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
@@ -54,6 +56,8 @@ class DartTestOptions {
     final forceAnsi = argResults['force-ansi'] as bool?;
     final platform = argResults['platform'] as String?;
     final reportOn = argResults['report-on'] as String?;
+    final runSkipped = argResults['run-skipped'] as bool;
+    final checkIgnore = argResults['check-ignore'] as bool;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -71,6 +75,8 @@ class DartTestOptions {
       forceAnsi: forceAnsi,
       platform: platform,
       reportOn: reportOn,
+      runSkipped: runSkipped,
+      checkIgnore: checkIgnore,
       rest: rest,
     );
   }
@@ -118,6 +124,12 @@ class DartTestOptions {
   /// An optional file path to report coverage information to.
   final String? reportOn;
 
+  /// Whether to run skipped tests instead of skipping them.
+  final bool runSkipped;
+
+  /// Whether to check for and respect coverage ignore comments.
+  final bool checkIgnore;
+
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
 }
@@ -143,6 +155,7 @@ typedef DartTestCommandCall =
       void Function(String)? stdout,
       void Function(String)? stderr,
       String? reportOn,
+      bool checkIgnore,
     });
 
 /// {@template dart_test_command}
@@ -253,6 +266,18 @@ class DartTestCommand extends Command<int> {
         'platform',
         help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm',
+      )
+      ..addFlag(
+        'run-skipped',
+        help: 'Run skipped tests instead of skipping them.',
+        negatable: false,
+      )
+      ..addFlag(
+        'check-ignore',
+        help:
+            'Whether to check for and respect coverage ignore comments '
+            '(e.g. // coverage:ignore-line).',
+        negatable: false,
       );
   }
 
@@ -316,11 +341,13 @@ This command should be run from the root of your Dart project.''');
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.failFast) '--fail-fast',
+            if (options.runSkipped) '--run-skipped',
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.platform == null) ...['-j', options.concurrency],
             ...options.rest,
           ],
           reportOn: options.reportOn,
+          checkIgnore: options.checkIgnore,
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;

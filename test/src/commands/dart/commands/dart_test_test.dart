@@ -45,6 +45,8 @@ const expectedTestUsage = [
       '    --force-ansi                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
       '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '    --platform=<chrome|vm>                   The platform to run tests on. \n'
+      '    --run-skipped                            Run skipped tests instead of skipping them.\n'
+      '    --check-ignore                           Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -69,6 +71,7 @@ abstract class DartTestCommandCall {
     void Function(String)? stderr,
     bool? forceAnsi,
     String? reportOn,
+    bool checkIgnore = false,
   });
 }
 
@@ -115,6 +118,7 @@ void main() {
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
           reportOn: any(named: 'reportOn'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -122,6 +126,8 @@ void main() {
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(
@@ -732,5 +738,36 @@ void main() {
         ).called(1);
       },
     );
+
+    test('completes normally --run-skipped', () async {
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: ['--run-skipped', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --check-ignore', () async {
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: defaultArguments,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+          checkIgnore: true,
+        ),
+      ).called(1);
+    });
   });
 }

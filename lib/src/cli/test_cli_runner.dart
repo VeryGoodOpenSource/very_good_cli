@@ -104,6 +104,7 @@ class TestCLIRunner {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     String? reportOn,
+    bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
@@ -206,6 +207,7 @@ class TestCLIRunner {
                   final hitmap = await coverage.HitMap.parseFiles(
                     files,
                     packagePath: packagesPath,
+                    checkIgnoredLines: checkIgnore,
                   );
 
                   final resolver = await coverage.Resolver.create(
