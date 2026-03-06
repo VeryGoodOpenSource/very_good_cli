@@ -314,9 +314,7 @@ Only one value can be selected.
     if (args['recursive'] == true) {
       cliArgs.add('-r');
     }
-    if (args['optimization'] == true) {
-      cliArgs.add('--optimization');
-    } else {
+    if (args['optimization'] == false) {
       cliArgs.add('--no-optimization');
     }
     if (args['concurrency'] != null) {
