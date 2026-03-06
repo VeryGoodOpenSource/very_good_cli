@@ -139,7 +139,6 @@ If is omitted, then core will be selected.
               description:
                   '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
             ),
-            'directory': StringSchema(description: 'Project directory'),
             'coverage': BooleanSchema(
               description: 'Whether to collect coverage information.',
             ),
@@ -309,9 +308,6 @@ Only one value can be selected.
   List<String> _parseTest(Map<String, Object?> args) {
     final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
     if (args['coverage'] == true) {
       cliArgs.add('--coverage');
     }

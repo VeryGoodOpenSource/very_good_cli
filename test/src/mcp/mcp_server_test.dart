@@ -321,7 +321,6 @@ void main() {
               name: 'test',
               arguments: {
                 'dart': true,
-                'directory': 'my_dir',
                 'coverage': true,
                 'recursive': true,
                 'optimization': true,
@@ -347,7 +346,6 @@ void main() {
         expect(capturedArgs, [
           'dart',
           'test',
-          'my_dir',
           '--coverage',
           '-r',
           '-j',
