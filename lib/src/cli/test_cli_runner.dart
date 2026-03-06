@@ -250,7 +250,7 @@ class TestCLIRunner {
                     await _enhanceLcovWithUntestedFiles(
                       lcovPath: lcovPath,
                       cwd: cwd,
-                      reportOn: 'lib',
+                      reportOn: reportOn ?? 'lib',
                       excludeFromCoverage: excludeFromCoverage,
                     );
                   }
