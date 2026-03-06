@@ -284,10 +284,27 @@ void main() {
     });
 
     group('Tool: test', () {
-      test('handles basic case with --no-optimization', () async {
+      test('handles default args (no flags added)', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['test']);
+      });
+
+      test('passes --no-optimization when explicitly false', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'optimization': false},
+            ),
+          ),
         );
 
         final capturedArgs =
@@ -333,7 +350,6 @@ void main() {
           'test',
           '--coverage',
           '-r',
-          '--optimization',
           '-j',
           '8',
           '-t',
