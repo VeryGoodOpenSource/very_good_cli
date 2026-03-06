@@ -205,6 +205,17 @@ The available values are: chrome, vm, android, ios.
 Only one value can be selected.
   ''',
             ),
+            'run_skipped': BooleanSchema(
+              description:
+                  'Run skipped tests instead of skipping them. '
+                  'Only applies to Dart tests (dart: true).',
+            ),
+            'check_ignore': BooleanSchema(
+              description:
+                  'Whether to check for and respect coverage ignore comments '
+                  '(e.g. // coverage:ignore-line). '
+                  'Only applies to Dart tests (dart: true).',
+            ),
           },
         ),
       ),
@@ -358,6 +369,12 @@ Only one value can be selected.
     }
     if (args['platform'] != null) {
       cliArgs.addAll(['--platform', args['platform']! as String]);
+    }
+    if (args['run_skipped'] == true) {
+      cliArgs.add('--run-skipped');
+    }
+    if (args['check_ignore'] == true) {
+      cliArgs.add('--check-ignore');
     }
 
     return cliArgs;

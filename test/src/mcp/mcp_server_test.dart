@@ -335,6 +335,8 @@ void main() {
                 'dart-define': 'foo=bar',
                 'dart-define-from-file': 'my_file.json',
                 'platform': 'chrome',
+                'run_skipped': true,
+                'check_ignore': true,
               },
             ),
           ),
@@ -368,6 +370,8 @@ void main() {
           'my_file.json',
           '--platform',
           'chrome',
+          '--run-skipped',
+          '--check-ignore',
         ]);
       });
 

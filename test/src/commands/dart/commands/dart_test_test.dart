@@ -45,6 +45,9 @@ const expectedTestUsage = [
       '    --force-ansi                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
       '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '    --platform=<chrome|vm>                   The platform to run tests on. \n'
+      '    --run-skipped                            Run skipped tests instead of skipping them.\n'
+      '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
+      '                                             (defaults to on)\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -56,10 +59,11 @@ abstract class DartTestCommandCall {
   Future<List<int>> call({
     String cwd = '.',
     bool recursive = false,
+    bool checkIgnore = true,
+    bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     double? minCoverage,
-    bool showUncovered = false,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
@@ -102,10 +106,11 @@ void main() {
         () => dartTest(
           cwd: any(named: 'cwd'),
           recursive: any(named: 'recursive'),
+          checkIgnore: any(named: 'checkIgnore'),
+          showUncovered: any(named: 'showUncovered'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
@@ -120,8 +125,10 @@ void main() {
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(
@@ -222,6 +229,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenAnswer(
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
@@ -495,6 +503,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -540,6 +549,7 @@ void main() {
             logger: any(named: 'logger'),
             stdout: any(named: 'stdout'),
             stderr: any(named: 'stderr'),
+            checkIgnore: any(named: 'checkIgnore'),
           ),
         ).thenThrow(exception);
         final result = await testCommand.run();
@@ -574,6 +584,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -654,6 +665,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -732,5 +744,36 @@ void main() {
         ).called(1);
       },
     );
+
+    test('completes normally --run-skipped', () async {
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: ['--run-skipped', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --no-check-ignore', () async {
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(false);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: defaultArguments,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+          checkIgnore: false,
+        ),
+      ).called(1);
+    });
   });
 }
