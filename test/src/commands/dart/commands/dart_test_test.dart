@@ -59,10 +59,11 @@ abstract class DartTestCommandCall {
   Future<List<int>> call({
     String cwd = '.',
     bool recursive = false,
+    bool checkIgnore = true,
+    bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     double? minCoverage,
-    bool showUncovered = false,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
@@ -72,7 +73,6 @@ abstract class DartTestCommandCall {
     void Function(String)? stderr,
     bool? forceAnsi,
     String? reportOn,
-    bool checkIgnore = false,
   });
 }
 
@@ -106,10 +106,11 @@ void main() {
         () => dartTest(
           cwd: any(named: 'cwd'),
           recursive: any(named: 'recursive'),
+          checkIgnore: any(named: 'checkIgnore'),
+          showUncovered: any(named: 'showUncovered'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
@@ -119,16 +120,15 @@ void main() {
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
           reportOn: any(named: 'reportOn'),
-          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
-      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(
@@ -211,7 +211,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -251,7 +250,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -267,7 +265,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -282,7 +279,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -298,7 +294,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -313,7 +308,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -328,7 +322,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -343,7 +336,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -362,7 +354,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -384,7 +375,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -402,7 +392,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -418,7 +407,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -434,7 +422,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -453,7 +440,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -473,7 +459,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -496,7 +481,6 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
             reportOn: 'routes',
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -533,7 +517,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
       verify(
@@ -615,7 +598,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
       verify(
@@ -643,7 +625,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -664,7 +645,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -697,7 +677,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
       verify(() => logger.err('$exception')).called(1);
@@ -717,7 +696,6 @@ void main() {
           stdout: logger.write,
           stderr: logger.err,
           forceAnsi: true,
-          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -739,7 +717,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -763,7 +740,6 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -780,7 +756,6 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
         ),
       ).called(1);
     });

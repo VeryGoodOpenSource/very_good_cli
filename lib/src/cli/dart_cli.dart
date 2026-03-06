@@ -99,11 +99,12 @@ class Dart {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    bool checkIgnore = true,
+    bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     Set<String> ignore = const {},
     double? minCoverage,
-    bool showUncovered = false,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
@@ -113,18 +114,18 @@ class Dart {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     String? reportOn,
-    bool checkIgnore = false,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
       testType: TestRunType.dart,
       cwd: cwd,
       recursive: recursive,
+      checkIgnore: checkIgnore,
+      showUncovered: showUncovered,
       collectCoverage: collectCoverage,
       optimizePerformance: optimizePerformance,
       ignore: ignore,
       minCoverage: minCoverage,
-      showUncovered: showUncovered,
       excludeFromCoverage: excludeFromCoverage,
       collectCoverageFrom: collectCoverageFrom,
       randomSeed: randomSeed,
@@ -134,7 +135,6 @@ class Dart {
       stderr: stderr,
       reportOn: reportOn,
       buildGenerator: buildGenerator,
-      checkIgnore: checkIgnore,
     );
   }
 }
