@@ -274,10 +274,10 @@ class DartTestCommand extends Command<int> {
       )
       ..addFlag(
         'check-ignore',
+        defaultsTo: true,
         help:
             'Whether to check for and respect coverage ignore comments '
             '(e.g. // coverage:ignore-line).',
-        negatable: false,
       );
   }
 

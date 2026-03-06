@@ -46,7 +46,8 @@ const expectedTestUsage = [
       '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '    --platform=<chrome|vm>                   The platform to run tests on. \n'
       '    --run-skipped                            Run skipped tests instead of skipping them.\n'
-      '    --check-ignore                           Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
+      '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
+      '                                             (defaults to on)\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -127,7 +128,7 @@ void main() {
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
-      when<dynamic>(() => argResults['check-ignore']).thenReturn(false);
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(
@@ -210,6 +211,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -228,6 +230,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenAnswer(
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
@@ -248,6 +251,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -263,6 +267,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -277,6 +282,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -292,6 +298,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -306,6 +313,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -320,6 +328,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -334,6 +343,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -352,6 +362,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -373,6 +384,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -390,6 +402,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -405,6 +418,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -420,6 +434,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -438,6 +453,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -457,6 +473,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -479,6 +496,7 @@ void main() {
             stdout: logger.write,
             stderr: logger.err,
             reportOn: 'routes',
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -501,6 +519,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -514,6 +533,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
       verify(
@@ -546,6 +566,7 @@ void main() {
             logger: any(named: 'logger'),
             stdout: any(named: 'stdout'),
             stderr: any(named: 'stderr'),
+            checkIgnore: any(named: 'checkIgnore'),
           ),
         ).thenThrow(exception);
         final result = await testCommand.run();
@@ -580,6 +601,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -593,6 +615,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
       verify(
@@ -620,6 +643,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -640,6 +664,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -660,6 +685,7 @@ void main() {
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -671,6 +697,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
       verify(() => logger.err('$exception')).called(1);
@@ -690,6 +717,7 @@ void main() {
           stdout: logger.write,
           stderr: logger.err,
           forceAnsi: true,
+          checkIgnore: true,
         ),
       ).called(1);
     });
@@ -711,6 +739,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -734,6 +763,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+            checkIgnore: true,
           ),
         ).called(1);
       },
@@ -750,12 +780,13 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
+          checkIgnore: true,
         ),
       ).called(1);
     });
 
-    test('completes normally --check-ignore', () async {
-      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
+    test('completes normally --no-check-ignore', () async {
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(false);
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
@@ -765,7 +796,7 @@ void main() {
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
-          checkIgnore: true,
+          checkIgnore: false,
         ),
       ).called(1);
     });
