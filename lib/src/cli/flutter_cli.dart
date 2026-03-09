@@ -206,6 +206,7 @@ class Flutter {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+    String? reportOn,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
@@ -225,6 +226,7 @@ class Flutter {
       stdout: stdout,
       stderr: stderr,
       buildGenerator: buildGenerator,
+      reportOn: reportOn,
     );
   }
 }

@@ -27,6 +27,8 @@ class FlutterTestOptions {
     required this.dartDefine,
     required this.dartDefineFromFile,
     required this.platform,
+    required this.reportOn,
+    required this.runSkipped,
     required this.rest,
   });
 
@@ -59,6 +61,8 @@ class FlutterTestOptions {
     final dartDefineFromFile =
         argResults['dart-define-from-file'] as List<String>?;
     final platform = argResults['platform'] as String?;
+    final reportOn = argResults['report-on'] as String?;
+    final runSkipped = argResults['run-skipped'] as bool;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -78,6 +82,8 @@ class FlutterTestOptions {
       dartDefine: dartDefine,
       dartDefineFromFile: dartDefineFromFile,
       platform: platform,
+      reportOn: reportOn,
+      runSkipped: runSkipped,
       rest: rest,
     );
   }
@@ -132,6 +138,12 @@ class FlutterTestOptions {
   /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
   final String? platform;
 
+  /// An optional file path to report coverage information to.
+  final String? reportOn;
+
+  /// Whether to run skipped tests instead of skipping them.
+  final bool runSkipped;
+
   /// The remaining arguments passed to the test command.
   final List<String> rest;
 }
@@ -157,6 +169,7 @@ typedef FlutterTestCommand =
       List<String>? arguments,
       void Function(String)? stdout,
       void Function(String)? stderr,
+      String? reportOn,
     });
 
 /// {@template test_command}
@@ -289,6 +302,18 @@ class TestCommand extends Command<int> {
         'platform',
         help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm|android|ios',
+      )
+      ..addOption(
+        'report-on',
+        help:
+            'An optional file path to report coverage information to. '
+            'This should be a path relative to the current working directory.',
+        valueHelp: 'lib/',
+      )
+      ..addFlag(
+        'run-skipped',
+        help: 'Run skipped tests instead of skipping them.',
+        negatable: false,
       );
   }
 
@@ -351,11 +376,13 @@ This command should be run from the root of your Flutter project.''');
           collectCoverageFrom: options.collectCoverageFrom,
           randomSeed: options.randomSeed,
           forceAnsi: options.forceAnsi,
+          reportOn: options.reportOn,
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.updateGoldens) '--update-goldens',
             if (options.failFast) '--fail-fast',
+            if (options.runSkipped) '--run-skipped',
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.dartDefine != null)
               for (final value in options.dartDefine!) '--dart-define=$value',
