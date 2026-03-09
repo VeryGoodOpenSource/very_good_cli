@@ -47,6 +47,8 @@ const expectedTestUsage = [
       '    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'
       '    --platform=<chrome|vm|android|ios>                       The platform to run tests on. \n'
+      '    --report-on=<lib/>                                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -70,6 +72,7 @@ abstract class FlutterTestCommand {
     void Function(String)? stdout,
     void Function(String)? stderr,
     bool? forceAnsi,
+    String? reportOn,
   });
 }
 
@@ -115,6 +118,7 @@ void main() {
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
+          reportOn: any(named: 'reportOn'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -125,6 +129,8 @@ void main() {
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
+      when<dynamic>(() => argResults['report-on']).thenReturn(null);
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -766,5 +772,42 @@ void main() {
         ).called(1);
       },
     );
+
+    test(
+      'reports on a different directory when --report-on is supplied',
+      () async {
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+        when<dynamic>(() => argResults['report-on']).thenReturn('routes');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            arguments: defaultArguments,
+            minCoverage: 0,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+            reportOn: 'routes',
+          ),
+        ).called(1);
+      },
+    );
+
+    test('completes normally --run-skipped', () async {
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['--run-skipped', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
   });
 }
