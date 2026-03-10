@@ -60,6 +60,7 @@ Create a very good Dart or Flutter project in seconds based on the provided temp
             'subcommand': UntitledSingleSelectEnumSchema(
               description: '''
 The available subcommands to provide an specific template, are:
+app_ui_package - Generate a Very Good App UI package.
 dart_cli - Generate a Very Good Dart CLI application.
 dart_package - Generate a Very Good Dart package.
 docs_site - Generate a Very Good documentation site.
@@ -69,6 +70,7 @@ flutter_package - Generate a Very Good Flutter package.
 flutter_plugin - Generate a Very Good Flutter plugin.
 ''',
               values: [
+                'app_ui_package',
                 'flame_game',
                 'flutter_app',
                 'flutter_package',
