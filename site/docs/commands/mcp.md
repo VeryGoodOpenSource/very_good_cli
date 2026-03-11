@@ -108,6 +108,22 @@ Add to `~/.windsurf/mcp.json`:
 ```
 
   </TabItem>
+  <TabItem value="antigravity" label="Antigravity">
+
+Add to `~/.gemini/antigravity/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "very_good_cli": {
+      "command": "very_good",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+  </TabItem>
 </Tabs>
 
 ## Available Tools
