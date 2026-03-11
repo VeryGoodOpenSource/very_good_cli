@@ -29,6 +29,7 @@ class FlutterTestOptions {
     required this.platform,
     required this.reportOn,
     required this.runSkipped,
+    required this.flavor,
     required this.rest,
   });
 
@@ -63,6 +64,7 @@ class FlutterTestOptions {
     final platform = argResults['platform'] as String?;
     final reportOn = argResults['report-on'] as String?;
     final runSkipped = argResults['run-skipped'] as bool;
+    final flavor = argResults['flavor'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -84,6 +86,7 @@ class FlutterTestOptions {
       platform: platform,
       reportOn: reportOn,
       runSkipped: runSkipped,
+      flavor: flavor,
       rest: rest,
     );
   }
@@ -143,6 +146,9 @@ class FlutterTestOptions {
 
   /// Whether to run skipped tests instead of skipping them.
   final bool runSkipped;
+
+  /// The flavor to build for testing.
+  final String? flavor;
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
@@ -314,6 +320,13 @@ class TestCommand extends Command<int> {
         'run-skipped',
         help: 'Run skipped tests instead of skipping them.',
         negatable: false,
+      )
+      ..addOption(
+        'flavor',
+        help:
+            'Build a custom app flavor as defined by platform-specific build '
+            'setup. Supports the use of product flavors in Android Gradle '
+            'scripts, and the use of custom Xcode schemes.',
       );
   }
 
@@ -383,6 +396,7 @@ This command should be run from the root of your Flutter project.''');
             if (options.updateGoldens) '--update-goldens',
             if (options.failFast) '--fail-fast',
             if (options.runSkipped) '--run-skipped',
+            if (options.flavor != null) ...['--flavor', options.flavor!],
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.dartDefine != null)
               for (final value in options.dartDefine!) '--dart-define=$value',

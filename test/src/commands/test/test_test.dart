@@ -49,6 +49,7 @@ const expectedTestUsage = [
       '    --platform=<chrome|vm|android|ios>                       The platform to run tests on. \n'
       '    --report-on=<lib/>                                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
+      '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -131,6 +132,7 @@ void main() {
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(() => argResults['report-on']).thenReturn(null);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
+      when<dynamic>(() => argResults['flavor']).thenReturn(null);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -794,6 +796,21 @@ void main() {
         ).called(1);
       },
     );
+
+    test('completes normally --flavor development', () async {
+      when<dynamic>(() => argResults['flavor']).thenReturn('development');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          arguments: ['--flavor', 'development', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
     test('completes normally --run-skipped', () async {
       when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
