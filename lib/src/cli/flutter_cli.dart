@@ -75,15 +75,26 @@ class CoverageMetrics {
     List<Record> records, {
     String? excludeFromCoverage,
   }) {
-    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
+    final globs = <Glob>[];
+
+    if (excludeFromCoverage != null && excludeFromCoverage.isNotEmpty) {
+      excludeFromCoverage.trim().split(' ').forEach((globSource) {
+        globs.add(Glob(globSource));
+      });
+    }
+
     return records.fold<CoverageMetrics>(const CoverageMetrics(), (
       current,
       record,
     ) {
       final found = record.lines?.found ?? 0;
       final hit = record.lines?.hit ?? 0;
-      if (glob != null && record.file != null) {
-        if (glob.matches(record.file!)) return current;
+      if (globs.isNotEmpty && record.file != null) {
+        for (final glob in globs) {
+          if (glob.matches(record.file!)) {
+            return current;
+          }
+        }
       }
 
       final file = record.file;
