@@ -75,41 +75,50 @@ class CoverageMetrics {
     List<Record> records, {
     String? excludeFromCoverage,
   }) {
-    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
-    return records.fold<CoverageMetrics>(const CoverageMetrics(), (
-      current,
-      record,
-    ) {
-      final found = record.lines?.found ?? 0;
-      final hit = record.lines?.hit ?? 0;
-      if (glob != null && record.file != null) {
-        if (glob.matches(record.file!)) return current;
+    final globs = <Glob>[];
+
+    if (excludeFromCoverage != null && excludeFromCoverage.isNotEmpty) {
+      for (final glob in excludeFromCoverage.trim().split(' ')) {
+        if (glob.isNotEmpty) globs.add(Glob(glob));
       }
+    }
 
-      final file = record.file;
-      final details = record.lines?.details;
-      final uncoveredLines = Map<String, List<int>>.from(
-        current.uncoveredLines,
-      );
-
-      if (file != null && details != null) {
-        for (final line in details) {
-          if ((line.hit ?? 1) == 0 && line.line != null) {
-            uncoveredLines.update(
-              file,
-              (lines) => [...lines, line.line!],
-              ifAbsent: () => [line.line!],
-            );
+    return records.fold<CoverageMetrics>(
+      const CoverageMetrics(),
+      (current, record) {
+        final found = record.lines?.found ?? 0;
+        final hit = record.lines?.hit ?? 0;
+        if (globs.isNotEmpty && record.file != null) {
+          for (final glob in globs) {
+            if (glob.matches(record.file!)) return current;
           }
         }
-      }
 
-      return CoverageMetrics(
-        totalFound: current.totalFound + found,
-        totalHits: current.totalHits + hit,
-        uncoveredLines: uncoveredLines,
-      );
-    });
+        final file = record.file;
+        final details = record.lines?.details;
+        final uncoveredLines = Map<String, List<int>>.from(
+          current.uncoveredLines,
+        );
+
+        if (file != null && details != null) {
+          for (final line in details) {
+            if ((line.hit ?? 1) == 0 && line.line != null) {
+              uncoveredLines.update(
+                file,
+                (lines) => [...lines, line.line!],
+                ifAbsent: () => [line.line!],
+              );
+            }
+          }
+        }
+
+        return CoverageMetrics(
+          totalFound: current.totalFound + found,
+          totalHits: current.totalHits + hit,
+          uncoveredLines: uncoveredLines,
+        );
+      },
+    );
   }
 
   /// Total number of lines hit (covered) across all included files.
