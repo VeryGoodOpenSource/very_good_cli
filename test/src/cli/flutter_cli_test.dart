@@ -304,7 +304,7 @@ void main() {
     });
   });
 
-  group('CoverageMetrics', () {
+  group(CoverageMetrics, () {
     List<Record> parseRecords(List<String> lines) => Parser.parseLines(lines);
 
     group('.fromLcovRecords', () {
