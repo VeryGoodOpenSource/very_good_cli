@@ -10,8 +10,6 @@ import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
-
-
 const _pubspec = '''
 name: example
 
