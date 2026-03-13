@@ -22,7 +22,7 @@ very_good test [arguments]
 -j, --concurrency                     The number of concurrent test suites run.
                                       (defaults to "4")
 -t, --tags                            Run only tests associated with the specified tags.
-    --exclude-coverage                A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').
+    --exclude-coverage                One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').
 -x, --exclude-tags                    Run only tests that do not have the specified tags.
     --min-coverage                    Whether to enforce a minimum coverage percentage.
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
@@ -38,6 +38,7 @@ very_good test [arguments]
     --collect-coverage-from=<imports|all>
                                       Whether to collect coverage from imported files only or all files.
                                       (defaults to "imports")
+    --flavor                          Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.
     --fail-fast                       Stop running tests after the first failure.
 
 Run "very_good help" to see global options.
