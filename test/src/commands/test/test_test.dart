@@ -49,6 +49,7 @@ const expectedTestUsage = [
       '    --platform=<chrome|vm|android|ios>                       The platform to run tests on. \n'
       '    --report-on=<lib/>                                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
+      '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -131,6 +132,7 @@ void main() {
       when<dynamic>(() => argResults['platform']).thenReturn(null);
       when<dynamic>(() => argResults['report-on']).thenReturn(null);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
+      when<dynamic>(() => argResults['flavor']).thenReturn(null);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -214,317 +216,31 @@ void main() {
       ).called(1);
     });
 
-    test('exits with 70 when tests do not pass', () async {
-      when(
-        () => flutterTest(
-          cwd: any(named: 'cwd'),
-          recursive: any(named: 'recursive'),
-          collectCoverage: any(named: 'collectCoverage'),
-          optimizePerformance: any(named: 'optimizePerformance'),
-          minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
-          excludeFromCoverage: any(named: 'excludeFromCoverage'),
-          arguments: any(named: 'arguments'),
-          logger: any(named: 'logger'),
-          stdout: any(named: 'stdout'),
-          stderr: any(named: 'stderr'),
-        ),
-      ).thenAnswer(
-        (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
-      );
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
-    });
-
-    test('completes normally --recursive', () async {
-      when<dynamic>(() => argResults['recursive']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          recursive: true,
-          optimizePerformance: true,
-          arguments: defaultArguments,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --concurrency 1', () async {
-      when<dynamic>(() => argResults['concurrency']).thenReturn('1');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: ['-j', '1', '--no-pub'],
-          optimizePerformance: true,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --no-optimization', () async {
-      when<dynamic>(() => argResults['optimization']).thenReturn(false);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: defaultArguments,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --update-goldens', () async {
-      when<dynamic>(() => argResults['update-goldens']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: ['--update-goldens', ...defaultArguments],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --fail-fast', () async {
-      when<dynamic>(() => argResults['fail-fast']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: ['--fail-fast', ...defaultArguments],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --platform chrome', () async {
-      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: ['--platform', 'chrome', '--no-pub'],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('disables optimization when --platform is specified', () async {
-      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: ['--platform', 'chrome', '--no-pub'],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('disables concurrency when --platform is specified', () async {
-      when<dynamic>(() => argResults['platform']).thenReturn('chrome');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: ['--platform', 'chrome', '--no-pub'],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --test-randomize-ordering-seed random', () async {
-      when<dynamic>(
-        () => argResults['test-randomize-ordering-seed'],
-      ).thenReturn('random');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          arguments: defaultArguments,
-          optimizePerformance: true,
-          randomSeed: any(named: 'randomSeed', that: isNotEmpty),
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test(
-      'completes normally --test-randomize-ordering-seed 2305182648',
-      () async {
-        const randomSeed = '2305182648';
-        when<dynamic>(
-          () => argResults['test-randomize-ordering-seed'],
-        ).thenReturn(randomSeed);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.success.code));
-        verify(
+    group('errors', () {
+      test('exits with 70 when tests do not pass', () async {
+        when(
           () => flutterTest(
-            arguments: defaultArguments,
-            randomSeed: randomSeed,
-            optimizePerformance: true,
-            logger: logger,
-            stdout: logger.write,
-            stderr: logger.err,
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
           ),
-        ).called(1);
-      },
-    );
-
-    test('completes normally --coverage', () async {
-      when<dynamic>(() => argResults['coverage']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          collectCoverage: true,
-          optimizePerformance: true,
-          arguments: defaultArguments,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally -t test-tag', () async {
-      when<dynamic>(() => argResults['tags']).thenReturn('test-tag');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: ['-t', 'test-tag', ...defaultArguments],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally -x test-tag', () async {
-      when<dynamic>(() => argResults['exclude-tags']).thenReturn('test-tag');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: ['-x', 'test-tag', ...defaultArguments],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --coverage --min-coverage 0', () async {
-      when<dynamic>(() => argResults['coverage']).thenReturn(true);
-      when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          collectCoverage: true,
-          arguments: defaultArguments,
-          minCoverage: 0,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test(
-      'enables coverage collection when --min-coverage is supplied',
-      () async {
-        when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.success.code));
-        verify(
-          () => flutterTest(
-            optimizePerformance: true,
-            collectCoverage: true,
-            arguments: defaultArguments,
-            minCoverage: 0,
-            logger: logger,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-        ).called(1);
-      },
-    );
-
-    test('fails when coverage not met', () async {
-      when<dynamic>(() => argResults['coverage']).thenReturn(true);
-      when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-      const exception = MinCoverageNotMet(0);
-      when(
-        () => flutterTest(
-          cwd: any(named: 'cwd'),
-          recursive: any(named: 'recursive'),
-          collectCoverage: any(named: 'collectCoverage'),
-          optimizePerformance: any(named: 'optimizePerformance'),
-          minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
-          excludeFromCoverage: any(named: 'excludeFromCoverage'),
-          arguments: any(named: 'arguments'),
-          logger: any(named: 'logger'),
-          stdout: any(named: 'stdout'),
-          stderr: any(named: 'stderr'),
-        ),
-      ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          collectCoverage: true,
-          arguments: defaultArguments,
-          minCoverage: 100,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-      verify(
-        () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
-      ).called(1);
-    });
-
-    test(
-      'fails when coverage not met, shows uncovered lines',
-      () async {
-        when<dynamic>(() => argResults['coverage']).thenReturn(true);
-        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
-        const exception = MinCoverageNotMet(
-          95,
-          uncoveredLines: {
-            'lib/src/foo.dart': [10, 20, 30],
-          },
+        ).thenAnswer(
+          (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
         );
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.unavailable.code));
+      });
+
+      test('throws when exception occurs', () async {
+        final exception = Exception('oops');
         when(
           () => flutterTest(
             cwd: any(named: 'cwd'),
@@ -543,241 +259,364 @@ void main() {
         final result = await testCommand.run();
         expect(result, equals(ExitCode.unavailable.code));
         verify(
-          () => logger.err(
-            'Expected coverage >= 100.00% but actual is 95.00%.',
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
           ),
         ).called(1);
-        verify(
-          () => logger.err(
-            'Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30',
-          ),
-        ).called(1);
-      },
-    );
-
-    test('displays required precision see why coverage was not met', () async {
-      when<dynamic>(() => argResults['coverage']).thenReturn(true);
-      when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-      const exception = MinCoverageNotMet(99.999995);
-      when(
-        () => flutterTest(
-          cwd: any(named: 'cwd'),
-          recursive: any(named: 'recursive'),
-          collectCoverage: any(named: 'collectCoverage'),
-          optimizePerformance: any(named: 'optimizePerformance'),
-          minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
-          excludeFromCoverage: any(named: 'excludeFromCoverage'),
-          arguments: any(named: 'arguments'),
-          logger: any(named: 'logger'),
-          stdout: any(named: 'stdout'),
-          stderr: any(named: 'stderr'),
-        ),
-      ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          collectCoverage: true,
-          arguments: defaultArguments,
-          minCoverage: 100,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-      verify(
-        () => logger.err(
-          'Expected coverage >= 100.000000% but actual is 99.999995%.',
-        ),
-      ).called(1);
+        verify(() => logger.err('$exception')).called(1);
+      });
     });
 
-    test(
-      'exclude files from coverage when --exclude-coverage is used',
-      () async {
-        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+    group('arguments', () {
+      test('completes normally --recursive', () async {
+        when<dynamic>(() => argResults['recursive']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            recursive: true,
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --concurrency 1', () async {
+        when<dynamic>(() => argResults['concurrency']).thenReturn('1');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: ['-j', '1', '--no-pub'],
+            optimizePerformance: true,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --no-optimization', () async {
+        when<dynamic>(() => argResults['optimization']).thenReturn(false);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --update-goldens', () async {
+        when<dynamic>(() => argResults['update-goldens']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: ['--update-goldens', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --fail-fast', () async {
+        when<dynamic>(() => argResults['fail-fast']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: ['--fail-fast', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --platform chrome', () async {
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: ['--platform', 'chrome', '--no-pub'],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('disables optimization when --platform is specified', () async {
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: ['--platform', 'chrome', '--no-pub'],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('disables concurrency when --platform is specified', () async {
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            arguments: ['--platform', 'chrome', '--no-pub'],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'completes normally --test-randomize-ordering-seed random',
+        () async {
+          when<dynamic>(
+            () => argResults['test-randomize-ordering-seed'],
+          ).thenReturn('random');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              arguments: defaultArguments,
+              optimizePerformance: true,
+              randomSeed: any(named: 'randomSeed', that: isNotEmpty),
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'completes normally --test-randomize-ordering-seed 2305182648',
+        () async {
+          const randomSeed = '2305182648';
+          when<dynamic>(
+            () => argResults['test-randomize-ordering-seed'],
+          ).thenReturn(randomSeed);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              arguments: defaultArguments,
+              randomSeed: randomSeed,
+              optimizePerformance: true,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test('completes normally -t test-tag', () async {
+        when<dynamic>(() => argResults['tags']).thenReturn('test-tag');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: ['-t', 'test-tag', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally -x test-tag', () async {
+        when<dynamic>(() => argResults['exclude-tags']).thenReturn('test-tag');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: ['-x', 'test-tag', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --dart-define', () async {
         when<dynamic>(
-          () => argResults['exclude-coverage'],
-        ).thenReturn('*.g.dart');
+          () => argResults['dart-define'],
+        ).thenReturn(['FOO=bar', 'X=42']);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
           () => flutterTest(
             optimizePerformance: true,
-            collectCoverage: true,
-            excludeFromCoverage: '*.g.dart',
-            arguments: defaultArguments,
-            logger: logger,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-        ).called(1);
-      },
-    );
-
-    test(
-      'enables coverage collection when --show-uncovered is supplied',
-      () async {
-        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.success.code));
-        verify(
-          () => flutterTest(
-            optimizePerformance: true,
-            collectCoverage: true,
-            showUncovered: true,
-            arguments: defaultArguments,
-            logger: logger,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-        ).called(1);
-      },
-    );
-
-    test('throws when exception occurs', () async {
-      final exception = Exception('oops');
-      when(
-        () => flutterTest(
-          cwd: any(named: 'cwd'),
-          recursive: any(named: 'recursive'),
-          collectCoverage: any(named: 'collectCoverage'),
-          optimizePerformance: any(named: 'optimizePerformance'),
-          minCoverage: any(named: 'minCoverage'),
-          showUncovered: any(named: 'showUncovered'),
-          excludeFromCoverage: any(named: 'excludeFromCoverage'),
-          arguments: any(named: 'arguments'),
-          logger: any(named: 'logger'),
-          stdout: any(named: 'stdout'),
-          stderr: any(named: 'stderr'),
-        ),
-      ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: defaultArguments,
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-      verify(() => logger.err('$exception')).called(1);
-    });
-
-    test('completes normally --dart-define', () async {
-      when<dynamic>(
-        () => argResults['dart-define'],
-      ).thenReturn(['FOO=bar', 'X=42']);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: [
-            '--dart-define=FOO=bar',
-            '--dart-define=X=42',
-            ...defaultArguments,
-          ],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --dart-define-from-file', () async {
-      when<dynamic>(
-        () => argResults['dart-define-from-file'],
-      ).thenReturn(['defines/foo.json', 'bar.env']);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: [
-            '--dart-define-from-file=defines/foo.json',
-            '--dart-define-from-file=bar.env',
-            ...defaultArguments,
-          ],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
-    });
-
-    test('completes normally --force-ansi', () async {
-      when<dynamic>(() => argResults['force-ansi']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: [
-            ...defaultArguments,
-          ],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-          forceAnsi: true,
-        ),
-      ).called(1);
-    });
-
-    test(
-      '''disables optimizePerformance when rest arguement is not an option''',
-      () async {
-        when(() => argResults.rest).thenReturn(['my-test.dart']);
-
-        final result = await testCommand.run();
-
-        expect(result, equals(ExitCode.success.code));
-        verify(
-          () => flutterTest(
             arguments: [
+              '--dart-define=FOO=bar',
+              '--dart-define=X=42',
               ...defaultArguments,
-              ...argResults.rest,
             ],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
           ),
         ).called(1);
-      },
-    );
+      });
 
-    test(
-      'enables optimizePerformance when rest arguement is an option',
-      () async {
-        when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
-
+      test('completes normally --dart-define-from-file', () async {
+        when<dynamic>(
+          () => argResults['dart-define-from-file'],
+        ).thenReturn(['defines/foo.json', 'bar.env']);
         final result = await testCommand.run();
-
         expect(result, equals(ExitCode.success.code));
         verify(
           () => flutterTest(
             optimizePerformance: true,
             arguments: [
+              '--dart-define-from-file=defines/foo.json',
+              '--dart-define-from-file=bar.env',
               ...defaultArguments,
-              ...argResults.rest,
             ],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
           ),
         ).called(1);
-      },
-    );
+      });
 
-    test(
-      'reports on a different directory when --report-on is supplied',
-      () async {
+      test('completes normally --force-ansi', () async {
+        when<dynamic>(() => argResults['force-ansi']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: [
+              ...defaultArguments,
+            ],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+            forceAnsi: true,
+          ),
+        ).called(1);
+      });
+
+      test(
+        '''disables optimizePerformance when rest arguement is not an option''',
+        () async {
+          when(() => argResults.rest).thenReturn(['my-test.dart']);
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              arguments: [
+                ...defaultArguments,
+                ...argResults.rest,
+              ],
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'enables optimizePerformance when rest arguement is an option',
+        () async {
+          when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              arguments: [
+                ...defaultArguments,
+                ...argResults.rest,
+              ],
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test('completes normally --run-skipped', () async {
+        when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: ['--run-skipped', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --flavor development', () async {
+        when<dynamic>(() => argResults['flavor']).thenReturn('development');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: ['--flavor', 'development', ...defaultArguments],
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+    });
+
+    group('coverage', () {
+      test('completes normally --coverage', () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            collectCoverage: true,
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --coverage --min-coverage 0', () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
         when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        when<dynamic>(() => argResults['report-on']).thenReturn('routes');
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -789,25 +628,239 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            reportOn: 'routes',
           ),
         ).called(1);
-      },
-    );
+      });
 
-    test('completes normally --run-skipped', () async {
-      when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.success.code));
-      verify(
-        () => flutterTest(
-          optimizePerformance: true,
-          arguments: ['--run-skipped', ...defaultArguments],
-          logger: logger,
-          stdout: logger.write,
-          stderr: logger.err,
-        ),
-      ).called(1);
+      test(
+        'enables coverage collection when --min-coverage is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test('fails when coverage not met', () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+        const exception = MinCoverageNotMet(0);
+        when(
+          () => flutterTest(
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
+          ),
+        ).thenThrow(exception);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            arguments: defaultArguments,
+            minCoverage: 100,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+        verify(
+          () => logger.err('Expected coverage >= 100.00% but actual is 0.00%.'),
+        ).called(1);
+      });
+
+      test(
+        'fails when coverage not met, shows uncovered lines',
+        () async {
+          when<dynamic>(() => argResults['coverage']).thenReturn(true);
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+          when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+          const exception = MinCoverageNotMet(
+            95,
+            uncoveredLines: {
+              'lib/src/foo.dart': [10, 20, 30],
+            },
+          );
+          when(
+            () => flutterTest(
+              cwd: any(named: 'cwd'),
+              recursive: any(named: 'recursive'),
+              collectCoverage: any(named: 'collectCoverage'),
+              optimizePerformance: any(named: 'optimizePerformance'),
+              minCoverage: any(named: 'minCoverage'),
+              showUncovered: any(named: 'showUncovered'),
+              excludeFromCoverage: any(named: 'excludeFromCoverage'),
+              arguments: any(named: 'arguments'),
+              logger: any(named: 'logger'),
+              stdout: any(named: 'stdout'),
+              stderr: any(named: 'stderr'),
+            ),
+          ).thenThrow(exception);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.unavailable.code));
+          verify(
+            () => logger.err(
+              'Expected coverage >= 100.00% but actual is 95.00%.',
+            ),
+          ).called(1);
+          verify(
+            () => logger.err(
+              'Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30',
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'displays required precision see why coverage was not met',
+        () async {
+          when<dynamic>(() => argResults['coverage']).thenReturn(true);
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+          const exception = MinCoverageNotMet(99.999995);
+          when(
+            () => flutterTest(
+              cwd: any(named: 'cwd'),
+              recursive: any(named: 'recursive'),
+              collectCoverage: any(named: 'collectCoverage'),
+              optimizePerformance: any(named: 'optimizePerformance'),
+              minCoverage: any(named: 'minCoverage'),
+              showUncovered: any(named: 'showUncovered'),
+              excludeFromCoverage: any(named: 'excludeFromCoverage'),
+              arguments: any(named: 'arguments'),
+              logger: any(named: 'logger'),
+              stdout: any(named: 'stdout'),
+              stderr: any(named: 'stderr'),
+            ),
+          ).thenThrow(exception);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.unavailable.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 100,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+          verify(
+            () => logger.err(
+              'Expected coverage >= 100.000000% but actual is 99.999995%.',
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'exclude files from coverage when --exclude-coverage is used',
+        () async {
+          when<dynamic>(() => argResults['coverage']).thenReturn(true);
+          when<dynamic>(
+            () => argResults['exclude-coverage'],
+          ).thenReturn('*.g.dart');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              excludeFromCoverage: '*.g.dart',
+              arguments: defaultArguments,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'exclude files from coverage when multiple globs are passed '
+        'via --exclude-coverage',
+        () async {
+          when<dynamic>(() => argResults['coverage']).thenReturn(true);
+          when<dynamic>(
+            () => argResults['exclude-coverage'],
+          ).thenReturn('*.g.dart *.freezed.dart');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              excludeFromCoverage: '*.g.dart *.freezed.dart',
+              arguments: defaultArguments,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'enables coverage collection when --show-uncovered is supplied',
+        () async {
+          when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              showUncovered: true,
+              arguments: defaultArguments,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'reports on a different directory when --report-on is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          when<dynamic>(() => argResults['report-on']).thenReturn('routes');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+              reportOn: 'routes',
+            ),
+          ).called(1);
+        },
+      );
     });
   });
 }
