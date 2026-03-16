@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:dart_mcp/server.dart';
-import 'package:mason/mason.dart';
+import 'package:mason/mason.dart' show ExitCode;
 import 'package:mocktail/mocktail.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/mcp/mcp_command.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
-
-class _MockLogger extends Mock implements Logger {}
 
 class _MockChannelFactory extends Mock {
   StreamChannel<String> call();
@@ -17,18 +15,13 @@ class _MockChannelFactory extends Mock {
 class _MockServerFactory extends Mock {
   MCPServer call({
     required StreamChannel<String> channel,
-    required Logger logger,
   });
 }
 
 class _FakeStreamChannel extends Fake implements StreamChannel<String> {}
 
-class _FakeLogger extends Fake implements Logger {}
-
 void main() {
   group('MCPCommand', () {
-    late Logger logger;
-
     late StreamChannelController<String> channelController;
 
     late _MockChannelFactory channelFactory;
@@ -37,14 +30,12 @@ void main() {
     late MCPServer server;
 
     setUp(() {
-      logger = _MockLogger();
       channelController = StreamChannelController<String>();
       channelFactory = _MockChannelFactory();
       serverFactory = _MockServerFactory();
 
       server = VeryGoodMCPServer(
         channel: channelController.foreign,
-        logger: logger,
       );
 
       when(() => channelFactory()).thenAnswer(
@@ -53,22 +44,16 @@ void main() {
 
       registerFallbackValue(StackTrace.current);
       registerFallbackValue(_FakeStreamChannel());
-      registerFallbackValue(_FakeLogger());
 
       when(
         () => serverFactory(
           channel: any(named: 'channel'),
-          logger: any(named: 'logger'),
         ),
       ).thenAnswer((_) => server);
-
-      when(() => logger.info(any())).thenAnswer((_) {});
-      when(() => logger.err(any())).thenAnswer((_) {});
     });
 
     test('should have correct command name', () {
       final command = MCPCommand(
-        logger: logger,
         channelFactory: channelFactory.call,
         serverFactory: serverFactory.call,
       );
@@ -77,7 +62,6 @@ void main() {
 
     test('should have correct description', () {
       final command = MCPCommand(
-        logger: logger,
         channelFactory: channelFactory.call,
         serverFactory: serverFactory.call,
       );
@@ -88,18 +72,14 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       );
     });
 
-    test('constructor uses default Logger when not provided', () {
-      final command = MCPCommand(
-        channelFactory: channelFactory.call,
-        serverFactory: serverFactory.call,
-      );
+    test('constructor uses default factories when not provided', () {
+      final command = MCPCommand();
 
       expect(command, isA<MCPCommand>());
     });
 
     test('run() returns success exit code', () async {
       final command = MCPCommand(
-        logger: logger,
         channelFactory: channelFactory.call,
         serverFactory: serverFactory.call,
       );
@@ -118,7 +98,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       verify(
         () => serverFactory(
           channel: channelController.foreign,
-          logger: logger,
         ),
       ).called(1);
     });
@@ -129,17 +108,14 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       when(
         () => serverFactory(
           channel: any(named: 'channel'),
-          logger: logger,
         ),
       ).thenAnswer((invocation) {
         return VeryGoodMCPServer(
           channel: defaultFactoryChannelController.foreign,
-          logger: logger,
         );
       });
 
       final command = MCPCommand(
-        logger: logger,
         serverFactory: serverFactory.call,
       );
 
@@ -155,7 +131,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       verify(
         () => serverFactory(
           channel: any(named: 'channel'),
-          logger: logger,
         ),
       ).called(1);
 
@@ -169,7 +144,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
         when(() => channelFactory()).thenThrow(exception);
 
         final command = MCPCommand(
-          logger: logger,
           channelFactory: channelFactory.call,
           serverFactory: serverFactory.call,
         );
@@ -182,7 +156,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
         verifyNever(
           () => serverFactory(
             channel: any(named: 'channel'),
-            logger: any(named: 'logger'),
           ),
         );
       },

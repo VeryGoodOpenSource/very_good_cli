@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
-import 'package:mason/mason.dart';
+import 'package:mason/mason.dart' show ExitCode;
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
@@ -12,7 +12,6 @@ import 'package:very_good_cli/src/mcp/mcp_server.dart';
 typedef ServerFactory =
     MCPServer Function({
       required StreamChannel<String> channel,
-      required Logger logger,
     });
 
 /// Factory function to create a [StreamChannel] from input and output streams.
@@ -29,11 +28,9 @@ StreamChannel<String> _defaultChannelFactory() {
 class MCPCommand extends Command<int> {
   /// {@macro mcp_command}
   MCPCommand({
-    Logger? logger,
     ChannelFactory? channelFactory,
     ServerFactory? serverFactory,
-  }) : _logger = logger ?? Logger(level: Level.quiet),
-       _channelFactory = channelFactory ?? _defaultChannelFactory,
+  }) : _channelFactory = channelFactory ?? _defaultChannelFactory,
        _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
 
   /// The [name] of the command. But static.
@@ -46,8 +43,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
   @override
   String get name => commandName;
 
-  final Logger _logger;
-
   final ChannelFactory _channelFactory;
 
   final ServerFactory _serverFactory;
@@ -56,8 +51,7 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
   Future<int> run() async {
     try {
       final channel = _channelFactory();
-      final server = _serverFactory(channel: channel, logger: _logger);
-
+      final server = _serverFactory(channel: channel);
       await server.done;
 
       return ExitCode.success.code;
