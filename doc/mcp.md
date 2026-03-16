@@ -91,7 +91,7 @@ Creates a new Dart or Flutter project from a template.
 {
   "tool": "create",
   "arguments": {
-    "subcommand": "app_ui_package | flutter_app | flutter_package | flutter_plugin | flame_game | dart_cli | dart_package | docs_site",
+    "subcommand": "flutter_app | flutter_package | flutter_plugin | flame_game | dart_cli | dart_package | docs_site | app_ui_package",
     "name": "my_app",
     "description": "A Very Good Project created by Very Good CLI.",
     "org_name": "com.example.verygoodcore",
