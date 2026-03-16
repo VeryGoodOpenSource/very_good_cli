@@ -57,7 +57,7 @@ Create a very good Dart or Flutter project in seconds based on the provided temp
         ''',
         inputSchema: ObjectSchema(
           properties: {
-            'subcommand': StringSchema(
+            'subcommand': UntitledSingleSelectEnumSchema(
               description: '''
 The available subcommands to provide an specific template, are:
 dart_cli - Generate a Very Good Dart CLI application.
@@ -68,7 +68,7 @@ flutter_app - Generate a Very Good Flutter application.
 flutter_package - Generate a Very Good Flutter package.
 flutter_plugin - Generate a Very Good Flutter plugin.
 ''',
-              enumValues: [
+              values: [
                 'flame_game',
                 'flutter_app',
                 'flutter_package',
@@ -139,7 +139,6 @@ If is omitted, then core will be selected.
               description:
                   '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
             ),
-            'directory': StringSchema(description: 'Project directory'),
             'coverage': BooleanSchema(
               description: 'Whether to collect coverage information.',
             ),
@@ -155,7 +154,7 @@ Add the `skip_very_good_optimization` tag to specific test files to disable them
             ),
             'concurrency': StringSchema(
               description: '''
-The number of concurrent test suites run. 
+The number of concurrent test suites run.
 Automatically set to 1 when --platform is specified.
 (defaults to "4")''',
             ),
@@ -189,14 +188,14 @@ Whether to force ansi output. If not specified, it will maintain the default beh
             ),
             'dart-define': StringSchema(
               description: '''
-Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. 
+Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors.
 Multiple defines can be passed by repeating "--dart-define" multiple times.
 (e.g., foo=bar)
 ''',
             ),
             'dart-define-from-file': StringSchema(
               description: '''
-The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. 
+The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors.
 Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.''',
             ),
             'platform': StringSchema(
@@ -205,6 +204,17 @@ The platform to run tests on.
 The available values are: chrome, vm, android, ios.
 Only one value can be selected.
   ''',
+            ),
+            'run_skipped': BooleanSchema(
+              description:
+                  'Run skipped tests instead of skipping them. '
+                  'Only applies to Dart tests (dart: true).',
+            ),
+            'check_ignore': BooleanSchema(
+              description:
+                  'Whether to check for and respect coverage ignore comments '
+                  '(e.g. // coverage:ignore-line). '
+                  'Only applies to Dart tests (dart: true).',
             ),
           },
         ),
@@ -250,7 +260,7 @@ Only one value can be selected.
         name: 'packages_check_licenses',
         description: '''
             Verify package licenses for compliance and validation in a Dart or Flutter project.
-            Identifies license types (MIT, BSD, Apache, etc.) for all 
+            Identifies license types (MIT, BSD, Apache, etc.) for all
             dependencies. Use to ensure license compatibility.''',
         inputSchema: ObjectSchema(
           properties: {
@@ -309,18 +319,13 @@ Only one value can be selected.
   List<String> _parseTest(Map<String, Object?> args) {
     final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
     if (args['coverage'] == true) {
       cliArgs.add('--coverage');
     }
     if (args['recursive'] == true) {
       cliArgs.add('-r');
     }
-    if (args['optimization'] == true) {
-      cliArgs.add('--optimization');
-    } else {
+    if (args['optimization'] == false) {
       cliArgs.add('--no-optimization');
     }
     if (args['concurrency'] != null) {
@@ -364,6 +369,12 @@ Only one value can be selected.
     }
     if (args['platform'] != null) {
       cliArgs.addAll(['--platform', args['platform']! as String]);
+    }
+    if (args['run_skipped'] == true) {
+      cliArgs.add('--run-skipped');
+    }
+    if (args['check_ignore'] == true) {
+      cliArgs.add('--check-ignore');
     }
 
     return cliArgs;

@@ -14,6 +14,7 @@ class FlutterTestOptions {
     required this.concurrency,
     required this.collectCoverage,
     required this.minCoverage,
+    required this.showUncovered,
     required this.excludeTags,
     required this.tags,
     required this.excludeFromCoverage,
@@ -26,6 +27,9 @@ class FlutterTestOptions {
     required this.dartDefine,
     required this.dartDefineFromFile,
     required this.platform,
+    required this.reportOn,
+    required this.runSkipped,
+    required this.flavor,
     required this.rest,
   });
 
@@ -36,6 +40,7 @@ class FlutterTestOptions {
     final minCoverage = double.tryParse(
       argResults['min-coverage'] as String? ?? '',
     );
+    final showUncovered = argResults['show-uncovered'] as bool;
     final excludeTags = argResults['exclude-tags'] as String?;
     final tags = argResults['tags'] as String?;
     final excludeFromCoverage = argResults['exclude-coverage'] as String?;
@@ -57,12 +62,16 @@ class FlutterTestOptions {
     final dartDefineFromFile =
         argResults['dart-define-from-file'] as List<String>?;
     final platform = argResults['platform'] as String?;
+    final reportOn = argResults['report-on'] as String?;
+    final runSkipped = argResults['run-skipped'] as bool;
+    final flavor = argResults['flavor'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
       concurrency: concurrency,
       collectCoverage: collectCoverage,
       minCoverage: minCoverage,
+      showUncovered: showUncovered,
       excludeTags: excludeTags,
       tags: tags,
       excludeFromCoverage: excludeFromCoverage,
@@ -75,6 +84,9 @@ class FlutterTestOptions {
       dartDefine: dartDefine,
       dartDefineFromFile: dartDefineFromFile,
       platform: platform,
+      reportOn: reportOn,
+      runSkipped: runSkipped,
+      flavor: flavor,
       rest: rest,
     );
   }
@@ -87,6 +99,9 @@ class FlutterTestOptions {
 
   /// Whether to enforce a minimum coverage percentage.
   final double? minCoverage;
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  final bool showUncovered;
 
   /// Run only tests that do not have the specified tags.
   final String? excludeTags;
@@ -126,6 +141,15 @@ class FlutterTestOptions {
   /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
   final String? platform;
 
+  /// An optional file path to report coverage information to.
+  final String? reportOn;
+
+  /// Whether to run skipped tests instead of skipping them.
+  final bool runSkipped;
+
+  /// The flavor to build for testing.
+  final String? flavor;
+
   /// The remaining arguments passed to the test command.
   final List<String> rest;
 }
@@ -143,6 +167,7 @@ typedef FlutterTestCommand =
       bool collectCoverage,
       bool optimizePerformance,
       double? minCoverage,
+      bool showUncovered,
       String? excludeFromCoverage,
       CoverageCollectionMode collectCoverageFrom,
       String? randomSeed,
@@ -150,6 +175,7 @@ typedef FlutterTestCommand =
       List<String>? arguments,
       void Function(String)? stdout,
       void Function(String)? stderr,
+      String? reportOn,
     });
 
 /// {@template test_command}
@@ -213,6 +239,13 @@ class TestCommand extends Command<int> {
         'min-coverage',
         help: 'Whether to enforce a minimum coverage percentage.',
       )
+      ..addFlag(
+        'show-uncovered',
+        help:
+            'Whether to show uncovered lines when coverage is below 100%. '
+            'Implicitly enables coverage collection when used alone.',
+        negatable: false,
+      )
       ..addOption(
         'collect-coverage-from',
         help:
@@ -275,6 +308,25 @@ class TestCommand extends Command<int> {
         'platform',
         help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm|android|ios',
+      )
+      ..addOption(
+        'report-on',
+        help:
+            'An optional file path to report coverage information to. '
+            'This should be a path relative to the current working directory.',
+        valueHelp: 'lib/',
+      )
+      ..addFlag(
+        'run-skipped',
+        help: 'Run skipped tests instead of skipping them.',
+        negatable: false,
+      )
+      ..addOption(
+        'flavor',
+        help:
+            'Build a custom app flavor as defined by platform-specific build '
+            'setup. Supports the use of product flavors in Android Gradle '
+            'scripts, and the use of custom Xcode schemes.',
       );
   }
 
@@ -328,17 +380,23 @@ This command should be run from the root of your Flutter project.''');
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage:
-              options.collectCoverage || options.minCoverage != null,
+              options.collectCoverage ||
+              options.minCoverage != null ||
+              options.showUncovered,
           minCoverage: options.minCoverage,
+          showUncovered: options.showUncovered,
           excludeFromCoverage: options.excludeFromCoverage,
           collectCoverageFrom: options.collectCoverageFrom,
           randomSeed: options.randomSeed,
           forceAnsi: options.forceAnsi,
+          reportOn: options.reportOn,
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],
             if (options.updateGoldens) '--update-goldens',
             if (options.failFast) '--fail-fast',
+            if (options.runSkipped) '--run-skipped',
+            if (options.flavor != null) ...['--flavor', options.flavor!],
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.dartDefine != null)
               for (final value in options.dartDefine!) '--dart-define=$value',

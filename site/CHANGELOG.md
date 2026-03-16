@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.0.3...site-v1.1.0) (2026-03-16)
+
+
+### Features
+
+* enables several globs to exclude from coverage calculations ([#1532](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1532)) ([21abe02](https://github.com/VeryGoodOpenSource/very_good_cli/commit/21abe0273d7668c6082af692f50c2a4ab7fec144))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.0.2 to 10.0.3 in /site ([#1522](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1522)) ([90f2ea5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/90f2ea54c57f16da36c5d37e951ff79ff590e08f))
+
 ## [1.0.3](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.0.2...site-v1.0.3) (2026-03-02)
 
 ### Miscellaneous Chores
