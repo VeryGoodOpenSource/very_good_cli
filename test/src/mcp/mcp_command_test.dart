@@ -97,7 +97,7 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       expect(command, isA<MCPCommand>());
     });
 
-    test('run() logs success messages and returns success exit code', () async {
+    test('run() returns success exit code', () async {
       final command = MCPCommand(
         logger: logger,
         channelFactory: channelFactory.call,
@@ -113,46 +113,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       final exitCode = await runFuture;
 
       expect(exitCode, ExitCode.success.code);
-
-      verify(
-        () => logger.info('Starting Very Good CLI MCP Server...'),
-      ).called(1);
-      verify(
-        () => logger.info(
-          'Server will listen on stdin/stdout for MCP protocol messages',
-        ),
-      ).called(1);
-      verify(
-        () => logger.info('MCP Server started successfully'),
-      ).called(1);
-      verify(() => logger.info('Available tools:')).called(1);
-      verify(
-        () => logger.info(
-          '''
-  - create: Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.''',
-        ),
-      ).called(1);
-      verify(
-        () => logger.info(
-          '  - test: Run tests in a Dart or Flutter project.',
-        ),
-      ).called(1);
-      verify(
-        () => logger.info(
-          '''
-           - packages_get: Install or update Dart/Flutter package dependencies.
-          Use after creating a project or modifying pubspec.yaml.
-          Supports recursive installation and package exclusion.''',
-        ),
-      ).called(1);
-      verify(
-        () => logger.info(
-          '''
-  - packages_check_licenses: Verify package licenses for compliance and validation in a Dart or Flutter project.
-            Identifies license types (MIT, BSD, Apache, etc.) for all 
-            dependencies. Use to ensure license compatibility.''',
-        ),
-      ).called(1);
 
       verify(() => channelFactory()).called(1);
       verify(
@@ -203,32 +163,22 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
     });
 
     test(
-      '''run() logs error and returns software exit code when an exception occurs''',
+      'run() returns software exit code when an exception occurs',
       () async {
+        final exception = Exception('Something went wrong');
+        when(() => channelFactory()).thenThrow(exception);
+
         final command = MCPCommand(
           logger: logger,
           channelFactory: channelFactory.call,
           serverFactory: serverFactory.call,
         );
 
-        final exception = Exception('Something went wrong');
-        when(
-          () => logger.info('Starting Very Good CLI MCP Server...'),
-        ).thenThrow(exception);
-
         final exitCode = await command.run();
 
         expect(exitCode, ExitCode.software.code);
 
-        verify(
-          () => logger.err('Failed to start MCP server: $exception'),
-        ).called(1);
-
-        verify(
-          () => logger.err(any(that: startsWith('Stack trace:'))),
-        ).called(1);
-
-        verifyNever(() => channelFactory());
+        verify(() => channelFactory()).called(1);
         verifyNever(
           () => serverFactory(
             channel: any(named: 'channel'),
