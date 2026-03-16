@@ -20,7 +20,8 @@
         "lib/src/version.dart"
       ],
       "exclude-paths": [
-        "site"
+        "site",
+        ".release-please-manifest.json"
       ]
     },
     "site": {
