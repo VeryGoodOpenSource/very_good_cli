@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show stderr;
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
@@ -20,8 +21,7 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
     required StreamChannel<String> channel,
     Logger? logger,
     VeryGoodCommandRunner? commandRunner,
-  }) : _logger = logger ?? Logger(),
-       _commandRunner =
+  }) : _commandRunner =
            commandRunner ?? VeryGoodCommandRunner(logger: logger ?? Logger()),
        super.fromStreamChannel(
          channel,
@@ -33,8 +33,6 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
              'A Very Good CLI MCP server that provides tools '
              'for creating and managing Dart/Flutter projects.',
        );
-
-  final Logger _logger;
 
   final VeryGoodCommandRunner _commandRunner;
 
@@ -414,52 +412,19 @@ Only one value can be selected.
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
-    final exitCode = await _runCommand(cliArgs);
-
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: exitCode == ExitCode.success.code
-              ? 'Project created successfully'
-              : 'Failed to create project',
-        ),
-      ],
-      isError: exitCode != ExitCode.success.code,
-    );
+    return _runToolCommand(cliArgs, toolName: 'create');
   }
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
-    final exitCode = await _runCommand(cliArgs);
-
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: exitCode == ExitCode.success.code
-              ? 'Tests completed successfully'
-              : 'Tests failed',
-        ),
-      ],
-      isError: exitCode != ExitCode.success.code,
-    );
+    return _runToolCommand(cliArgs, toolName: 'test');
   }
 
   Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parsePackagesGet(args);
-    final exitCode = await _runCommand(cliArgs);
-
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: exitCode == ExitCode.success.code
-              ? 'Packages retrieved successfully'
-              : 'Failed to get packages',
-        ),
-      ],
-      isError: exitCode != ExitCode.success.code,
-    );
+    return _runToolCommand(cliArgs, toolName: 'packages get');
   }
 
   Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
@@ -483,37 +448,57 @@ Only one value can be selected.
     }
 
     final cliArgs = _parsePackagesCheck(args);
-    final exitCode = await _runCommand(cliArgs);
-
-    return CallToolResult(
-      content: [
-        TextContent(
-          text: exitCode == ExitCode.success.code
-              ? 'Package license check completed successfully'
-              : 'Package license check failed',
-        ),
-      ],
-      isError: exitCode != ExitCode.success.code,
-    );
+    return _runToolCommand(cliArgs, toolName: 'packages check licenses');
   }
 
-  /// Runs CLI commands through the command runner.
-  /// Commands parse their own arguments using their argParser.
-  Future<int> _runCommand(List<String> args) async {
-    try {
-      _logger.detail('Running: very_good ${args.join(' ')}');
+  /// Runs a CLI command and returns a [CallToolResult] with descriptive
+  /// error messages including the command that was run and the exit code.
+  Future<CallToolResult> _runToolCommand(
+    List<String> args, {
+    required String toolName,
+  }) async {
+    final commandString = 'very_good ${args.join(' ')}';
 
+    try {
       final exitCode = await _commandRunner.run(args);
 
-      return exitCode;
+      if (exitCode == ExitCode.success.code) {
+        return CallToolResult(
+          content: [
+            TextContent(text: '"$toolName" completed successfully.'),
+          ],
+          isError: false,
+        );
+      }
+
+      final message =
+          '"$toolName" failed with exit code $exitCode.\n'
+          'Command: $commandString';
+      stderr.writeln('[very_good_mcp] $message');
+      return CallToolResult(
+        content: [TextContent(text: message)],
+        isError: true,
+      );
     } on UsageException catch (e) {
-      _logger.err('Usage error: ${e.message}');
-      return ExitCode.usage.code;
+      final message =
+          '"$toolName" usage error: ${e.message}\n'
+          'Command: $commandString';
+      stderr.writeln('[very_good_mcp] $message');
+      return CallToolResult(
+        content: [TextContent(text: message)],
+        isError: true,
+      );
     } on Exception catch (e, stackTrace) {
-      _logger
-        ..err('Command error: $e')
-        ..err('Stack trace: $stackTrace');
-      return ExitCode.software.code;
+      final message =
+          '"$toolName" threw an exception: $e\n'
+          'Command: $commandString';
+      stderr
+        ..writeln('[very_good_mcp] $message')
+        ..writeln('[very_good_mcp] Stack trace: $stackTrace');
+      return CallToolResult(
+        content: [TextContent(text: message)],
+        isError: true,
+      );
     }
   }
 }
