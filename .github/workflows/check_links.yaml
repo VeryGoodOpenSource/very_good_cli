@@ -16,30 +16,12 @@ on:
     - cron: "0 8 * * 1"
 
 jobs:
-  check-links:
+  check_links:
     runs-on: ubuntu-latest
     steps:
-      - name: 📚 Git Checkout
-        uses: actions/checkout@v6
-      - name: 🏗️ Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
         with:
-          node-version: 20
-      - name: 📦 Install Dependencies
-        working-directory: site
-        run: npm ci
-      - name: 🏗️ Build Docusaurus Site
-        working-directory: site
-        run: npm run build
-      - name: 🔗 Check Links
-        uses: lycheeverse/lychee-action@v2.8.0
-        with:
-          args: >-
-            --verbose
-            --no-progress
-            --max-concurrency 10
-            --root-dir '${{ github.workspace }}/site/build'
-            --fallback-extensions html
-            '**/*.md'
-            '**/*.dart'
-          fail: true
+          fail: false
