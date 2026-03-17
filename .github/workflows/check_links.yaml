@@ -28,4 +28,6 @@ jobs:
             --verbose
             --no-progress
             --max-concurrency 10
+            '**/*.md'
+            '**/*.dart'
           fail: true
