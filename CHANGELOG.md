@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.0.0...v1.1.0) (2026-03-17)
+
+
+### Features
+
+* add flavor option to test command ([#1530](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1530)) ([009656a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/009656ada9a3e181b4c08bec4505cebbff436527))
+* Adding very_good create app_ui command ([#1520](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1520)) ([f63571a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f63571aeb3428638a218063b84cff2c9b11ce540))
+* enables several globs to exclude from coverage calculations ([#1532](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1532)) ([21abe02](https://github.com/VeryGoodOpenSource/very_good_cli/commit/21abe0273d7668c6082af692f50c2a4ab7fec144))
+* **mcp:** `app_ui_package` subcommand ([#1535](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1535)) ([c81787b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c81787b32bf8094acfd40fd768ce1d2654789e21))
+* **test:** add check-ignore and run-skipped ([#1517](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1517)) ([43d72be](https://github.com/VeryGoodOpenSource/very_good_cli/commit/43d72be7fab5ef56b65e75e0c4f21592a561d4f8))
+* **test:** add show uncovered lines ([#1512](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1512)) ([ded170b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ded170bd00eaf56c0ff215a7ee73964837cf833b))
+
+
+### Bug Fixes
+
+* CLAUDE.md symlink ([#1524](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1524)) ([4feb354](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4feb3543a69e64ce424a9d8aecee93ad2126a66a))
+* exclude site releases from CLI ([#1500](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1500)) ([40cf53a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/40cf53a7385b7c0d78b3a496bceb6ea6b11c7c02))
+* mcp test optimization disabled by default ([#1515](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1515)) ([08868d1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/08868d11897553385b19553089f0d5b39eef70d6))
+* **mcp:** stdio messages ([#1534](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1534)) ([5c61472](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5c614729cf7efd36ed936c67966510f766105bd9))
+* remove directory arg from mcp test ([#1516](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1516)) ([586d7c7](https://github.com/VeryGoodOpenSource/very_good_cli/commit/586d7c79aa41187831b01dbe8589e8a76edc742d))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump dart_mcp from 0.4.1 to 0.5.0 ([#1513](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1513)) ([5678582](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5678582e541abc441c6a8749327d0fb039ec0ad0))
+* **deps:** bump test from 1.26.3 to 1.30.0 in /tool/spdx_license/hooks ([#1508](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1508)) ([a8bf3d9](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a8bf3d916e25d6cde918643646aa0eba52ea05a3))
+* **site:** 1.0.1 ([#1498](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1498)) ([e9dacc1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e9dacc19404bbbe6bae717478637ae6944c718ec))
+* **site:** 1.0.2 ([#1504](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1504)) ([00d0b49](https://github.com/VeryGoodOpenSource/very_good_cli/commit/00d0b49f51ce420064f2ee5dfe9b9d49dda8f239))
+* **site:** 1.0.3 ([#1511](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1511)) ([d6692ac](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d6692ac97b35ace631bee3c0afdf77c9a6322ec9))
+* update SPDX licenses ([#1501](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1501)) ([43cce45](https://github.com/VeryGoodOpenSource/very_good_cli/commit/43cce457bc5a40ff209adff46161321617261f8e))
+
 ## [1.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v0.28.0...v1.0.0) (2026-02-19)
 
 
