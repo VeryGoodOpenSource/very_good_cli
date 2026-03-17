@@ -138,16 +138,16 @@ Create new Dart or Flutter projects from any of the available [templates](/docs/
 
 Run tests with optional coverage and optimization. Supports both `dart test` and `flutter test` via a `dart` parameter.
 
-See the [test command](/docs/commands/test) for more details.
+See the [test command](./test.md) for more details.
 
 ### `packages_get`
 
 Install or update Dart/Flutter package dependencies.
 
-See the [get packages command](/docs/commands/get_pkgs) for more details.
+See the [get packages command](./get_pkgs.md) for more details.
 
 ### `packages_check_licenses`
 
 Check packages for license compliance.
 
-See the [check licenses command](/docs/commands/check_licenses) for more details.
+See the [check licenses command](./check_licenses.md) for more details.
