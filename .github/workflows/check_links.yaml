@@ -18,19 +18,14 @@ on:
 jobs:
   check-links:
     runs-on: ubuntu-latest
-
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v6
-
       - name: 🔗 Check Links
         uses: lycheeverse/lychee-action@v2.8.0
         with:
           args: >-
             --verbose
             --no-progress
-            --exclude-path 'lib/src/commands/create/templates'
-            --exclude-path 'site'
-            '**/*.md'
-            '**/*.dart'
+            --max-concurrency 10
           fail: true
