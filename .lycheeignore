@@ -9,11 +9,8 @@ https://not-pub.dev
 # Partial URL used as a string template in source code
 https://github.com/verygoodopensource/very_good_cli/releases/tag/v
 
-# Root-relative paths used in the docs site (https://cli.vgv.dev)
-# These are valid Docusaurus asset references but lychee cannot resolve them
-# without a base URL context.
-^/img/
-^/docs/
+# External sites that block automated requests
+https://www.cyberciti.biz
 
 # Fake file:// URIs in test fixtures (not real filesystem paths)
 ^file://

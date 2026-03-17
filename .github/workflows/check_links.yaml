@@ -21,6 +21,16 @@ jobs:
     steps:
       - name: 📚 Git Checkout
         uses: actions/checkout@v6
+      - name: 🏗️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: 📦 Install Dependencies
+        working-directory: site
+        run: npm ci
+      - name: 🏗️ Build Docusaurus Site
+        working-directory: site
+        run: npm run build
       - name: 🔗 Check Links
         uses: lycheeverse/lychee-action@v2.8.0
         with:
@@ -28,6 +38,8 @@ jobs:
             --verbose
             --no-progress
             --max-concurrency 10
+            --root-dir '${{ github.workspace }}/site/build'
+            --fallback-extensions html
             '**/*.md'
             '**/*.dart'
           fail: true
