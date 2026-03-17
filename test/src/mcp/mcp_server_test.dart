@@ -103,6 +103,7 @@ void main() {
       when(() => mockLogger.info(any())).thenAnswer((_) {});
       when(() => mockLogger.err(any())).thenAnswer((_) {});
       when(() => mockLogger.detail(any())).thenAnswer((_) {});
+      when(() => mockLogger.success(any())).thenAnswer((_) {});
 
       // This is the handshake that
       // MUST happen before any other requests, to fix the timeout.
@@ -176,7 +177,7 @@ void main() {
         expect(result.isError, isFalse);
         expect(
           (result.content.first as TextContent).text,
-          'Project created successfully',
+          '"create" completed successfully.',
         );
 
         final capturedArgs =
@@ -254,7 +255,7 @@ void main() {
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
-          'Failed to create project',
+          contains('"create" failed with exit code'),
         );
       });
 
@@ -391,7 +392,7 @@ void main() {
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
-          'Tests failed',
+          contains('"test" failed with exit code'),
         );
       });
     });
@@ -499,8 +500,8 @@ void main() {
       });
     });
 
-    group('_runCommand error handling', () {
-      test('handles UsageException', () async {
+    group('_runToolCommand error handling', () {
+      test('handles UsageException with descriptive message', () async {
         final exception = UsageException('bad usage', 'usage string');
         when(() => mockCommandRunner.run(any())).thenThrow(exception);
 
@@ -520,15 +521,12 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          'Failed to create project',
-        );
-
-        verify(() => mockLogger.err('Usage error: bad usage')).called(1);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"create" usage error: bad usage'));
+        expect(text, contains('Command: very_good'));
       });
 
-      test('handles general Exception', () async {
+      test('handles general Exception with descriptive message', () async {
         final exception = Exception('big bad');
         when(() => mockCommandRunner.run(any())).thenThrow(exception);
 
@@ -548,17 +546,10 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          'Failed to create project',
-        );
-
-        verify(
-          () => mockLogger.err('Command error: Exception: big bad'),
-        ).called(1);
-        verify(
-          () => mockLogger.err(any(that: startsWith('Stack trace:'))),
-        ).called(1);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"create" threw an exception'));
+        expect(text, contains('big bad'));
+        expect(text, contains('Command: very_good'));
       });
     });
   });
