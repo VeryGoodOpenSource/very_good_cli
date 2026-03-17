@@ -9,6 +9,9 @@ https://not-pub.dev
 # Partial URL used as a string template in source code
 https://github.com/verygoodopensource/very_good_cli/releases/tag/v
 
+# Changelog compare links reference tags that don't exist until the release is published
+https://github.com/VeryGoodOpenSource/very_good_cli/compare/
+
 # External sites that block automated requests
 https://www.cyberciti.biz
 
