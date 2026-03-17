@@ -1,0 +1,36 @@
+# Lychee ignore patterns
+# See https://github.com/lycheeverse/lychee for documentation
+
+# Placeholder and test-fixture URLs (not real links)
+https://github.com/org/repo
+https://github.com/verygoodopensource/_very_good_analysis
+https://not-pub.dev
+
+# Partial URL used as a string template in source code
+https://github.com/verygoodopensource/very_good_cli/releases/tag/v
+
+# Badge/shield URLs that are frequently rate-limited
+https://img.shields.io
+https://pub.dartlang.org
+
+# Old pub.dev mirror (redirects to pub.dev, may cause false positives)
+https://pub.dartlang.org/packages/very_good_cli
+
+# Root-relative paths used in the docs site (https://cli.vgv.dev)
+# These are valid Docusaurus asset references but lychee cannot resolve them
+# without a base URL context.
+^/img/
+^/docs/
+
+# Bare domain used as display text in markdown links (no scheme, not a real URL)
+brickhub\.dev
+
+# Fake file:// URIs in test fixtures (not real filesystem paths)
+^file://
+
+# Dart string interpolation placeholders in source code (e.g. $packageName)
+# These are not real URLs — lychee picks them up as literal link text
+\$\w+
+
+# cyberciti.biz returns 403 for automated crawlers; the link is valid
+cyberciti\.biz
