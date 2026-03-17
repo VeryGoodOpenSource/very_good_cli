@@ -2,6 +2,7 @@
 # Runs `mason bundle` to generate bundles for all bricks within the respective templates directories.
 
 bricks=(
+    very_good_app_ui
     very_good_core
     very_good_dart_package
     very_good_dart_cli

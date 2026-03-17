@@ -57,6 +57,7 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
+  app_ui_package    Generate a Very Good App UI package.
   dart_cli          Generate a Very Good Dart CLI application.
   dart_package      Generate a Very Good Dart package.
   docs_site         Generate a Very Good documentation site.
@@ -79,6 +80,9 @@ very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custo
 
 # Create a new Flutter app named my_app with a custom application id
 very_good create flutter_app my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
+
+# Create a new App UI package named my_app_ui_package
+very_good create app_ui_package my_app_ui_package --desc "My new App UI package"
 
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
@@ -237,7 +241,7 @@ Run "very_good help <command>" for more information about a command.
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
-[pub_link]: https://pub.dartlang.org/packages/very_good_cli
+[pub_link]: https://pub.dev/packages/very_good_cli
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis
