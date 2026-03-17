@@ -241,7 +241,7 @@ Run "very_good help <command>" for more information about a command.
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
-[pub_link]: https://pub.dartlang.org/packages/very_good_cli
+[pub_link]: https://pub.dev/packages/very_good_cli
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis

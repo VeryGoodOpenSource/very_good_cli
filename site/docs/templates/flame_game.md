@@ -20,7 +20,7 @@ Read more about this game template [in our blog][blog].
 
 - **Audio** - Background music and sound effects within the game.
 
-- **VGV Project Architecture** - This project contains a similar architecture to other VGV projects (see our [core starter app](https://github.com/VeryGoodOpenSource/very_good_core/tree/main/src/my_app)).
+- **VGV Project Architecture** - This project contains a similar architecture to other VGV projects (see our [core starter app](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_core)).
 
 - **100% Test Coverage** — Each line is executed at least once by a test.
 
