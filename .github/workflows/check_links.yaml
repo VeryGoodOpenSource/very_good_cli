@@ -24,4 +24,8 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          fail: false
+          # Use site/static as the root dir so lychee can resolve root-relative
+          # paths (e.g. /img/...) used in Docusaurus site docs. Virtual category
+          # pages (/docs/category/...) are excluded via .lycheeignore.
+          args: --root-dir site/static ./**/*.md ./**/*.dart
+          fail: true
