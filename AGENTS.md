@@ -90,3 +90,4 @@ Templates use Mason for code generation. Each template has a bundle, a `Template
 - Dartdoc templates: `/// {@template name}...{@endtemplate}` / `/// {@macro name}`
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (used by release-please for automated versioning)
 - `lib/src/version.dart` is auto-generated — do not edit manually
+

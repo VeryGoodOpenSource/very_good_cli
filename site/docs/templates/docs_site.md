@@ -66,4 +66,4 @@ very_good create docs_site .
 [docs_dark]: /img/docs_dark.png
 [docs_dark_overview]: /img/docs_overview_dark.png
 [docusaurus_link]: https://docusaurus.io/
-[home_link]: /
+[home_link]: https://cli.vgv.dev

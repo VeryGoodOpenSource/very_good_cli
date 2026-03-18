@@ -278,11 +278,30 @@ final veryGoodAppUiBundle = MasonBundle.fromJson(<String, dynamic>{
       "type": "text",
     },
   ],
-  "hooks": [],
+  "hooks": [
+    {
+      "path": "pre_gen.dart",
+      "data":
+          "aW1wb3J0ICdwYWNrYWdlOmNsb2NrL2Nsb2NrLmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6bWFzb24vbWFzb24uZGFydCc7Cgp2b2lkIHJ1bihIb29rQ29udGV4dCBjb250ZXh0KSB7CiAgY29udGV4dC52YXJzID0gey4uLmNvbnRleHQudmFycywgJ2N1cnJlbnRfeWVhcic6IGNsb2NrLm5vdygpLnllYXIudG9TdHJpbmcoKX07Cn0K",
+      "type": "text",
+    },
+    {
+      "path": "pubspec.yaml",
+      "data":
+          "bmFtZTogdmVyeV9nb29kX2FwcF91aV9ob29rcwoKZW52aXJvbm1lbnQ6CiAgc2RrOiBeMy4xMS4wCgpkZXBlbmRlbmNpZXM6CiAgY2xvY2s6IF4xLjEuMQogIG1hc29uOiBeMC4xLjAKCmRldl9kZXBlbmRlbmNpZXM6CiAgbW9ja3RhaWw6IF4xLjAuMwogIHRlc3Q6IF4xLjMwLjAKICB2ZXJ5X2dvb2RfYW5hbHlzaXM6IF4xMC4yLjAK",
+      "type": "text",
+    },
+    {
+      "path": "test/pre_gen_test.dart",
+      "data":
+          "aW1wb3J0ICdwYWNrYWdlOmNsb2NrL2Nsb2NrLmRhcnQnOwppbXBvcnQgJ3BhY2thZ2U6bWFzb24vbWFzb24uZGFydCc7CmltcG9ydCAncGFja2FnZTptb2NrdGFpbC9tb2NrdGFpbC5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOnRlc3QvdGVzdC5kYXJ0JzsKCmltcG9ydCAnLi4vcHJlX2dlbi5kYXJ0JyBhcyBwcmVfZ2VuOwoKY2xhc3MgX01vY2tIb29rQ29udGV4dCBleHRlbmRzIE1vY2sgaW1wbGVtZW50cyBIb29rQ29udGV4dCB7fQoKdm9pZCBtYWluKCkgewogIGdyb3VwKCdwcmVfZ2VuJywgKCkgewogICAgbGF0ZSBIb29rQ29udGV4dCBjb250ZXh0OwoKICAgIHNldFVwKCgpIHsKICAgICAgY29udGV4dCA9IF9Nb2NrSG9va0NvbnRleHQoKTsKICAgIH0pOwoKICAgIHRlc3QoJ3BvcHVsYXRlcyB2YXJpYWJsZXMnLCAoKSB7CiAgICAgIHdpdGhDbG9jayhDbG9jay5maXhlZChEYXRlVGltZSgyMDIwKSksICgpIHsKICAgICAgICBmaW5hbCB2YXJzID0gewogICAgICAgICAgJ3Byb2plY3RfbmFtZSc6ICdteV9hcHBfdWknLAogICAgICAgICAgJ29yZ19uYW1lJzogJ2NvbS5leGFtcGxlJywKICAgICAgICAgICdkZXNjcmlwdGlvbic6ICdBIFZlcnkgR29vZCBBcHAgVUkgcGFja2FnZS4nLAogICAgICAgICAgJ3B1Ymxpc2hhYmxlJzogZmFsc2UsCiAgICAgICAgfTsKICAgICAgICB3aGVuKCgpID0+IGNvbnRleHQudmFycykudGhlblJldHVybih2YXJzKTsKCiAgICAgICAgcHJlX2dlbi5ydW4oY29udGV4dCk7CgogICAgICAgIGZpbmFsIG5ld1ZhcnMgPQogICAgICAgICAgICB2ZXJpZnkoKCkgPT4gY29udGV4dC52YXJzID0gY2FwdHVyZUFueSgpKS5jYXB0dXJlZC5sYXN0CiAgICAgICAgICAgICAgICBhcyBNYXA8U3RyaW5nLCBkeW5hbWljPjsKCiAgICAgICAgZXhwZWN0KAogICAgICAgICAgbmV3VmFycywKICAgICAgICAgIGVxdWFscyh7CiAgICAgICAgICAgICdwcm9qZWN0X25hbWUnOiAnbXlfYXBwX3VpJywKICAgICAgICAgICAgJ29yZ19uYW1lJzogJ2NvbS5leGFtcGxlJywKICAgICAgICAgICAgJ2Rlc2NyaXB0aW9uJzogJ0EgVmVyeSBHb29kIEFwcCBVSSBwYWNrYWdlLicsCiAgICAgICAgICAgICdwdWJsaXNoYWJsZSc6IGZhbHNlLAogICAgICAgICAgICAnY3VycmVudF95ZWFyJzogJzIwMjAnLAogICAgICAgICAgfSksCiAgICAgICAgKTsKICAgICAgfSk7CiAgICB9KTsKICB9KTsKfQo=",
+      "type": "text",
+    },
+  ],
   "name": "very_good_app_ui",
   "description":
       "A Very Good Flutter app UI package created by Very Good Ventures.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "environment": {"mason": "^0.1.0"},
   "repository":
       "https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_app_ui",
@@ -294,7 +313,8 @@ final veryGoodAppUiBundle = MasonBundle.fromJson(<String, dynamic>{
   },
   "changelog": {
     "path": "CHANGELOG.md",
-    "data": "IyAwLjEuMAoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2UK",
+    "data":
+        "IyBDaGFuZ2Vsb2cKCiMjIFswLjIuMF0oaHR0cHM6Ly9naXRodWIuY29tL1ZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2RfdGVtcGxhdGVzL2NvbXBhcmUvdmVyeV9nb29kX2FwcF91aS12MC4xLjAuLi52ZXJ5X2dvb2RfYXBwX3VpLXYwLjIuMCkgKDIwMjYtMDMtMTcpCgoKIyMjIEZlYXR1cmVzCgoqIEFkZGluZyB0aGUgYXBwIHVpIHRlbXBsYXRlIChbIzQ1NV0oaHR0cHM6Ly9naXRodWIuY29tL1ZlcnlHb29kT3BlblNvdXJjZS92ZXJ5X2dvb2RfdGVtcGxhdGVzL2lzc3Vlcy80NTUpKSAoWzBlMmU4YzldKGh0dHBzOi8vZ2l0aHViLmNvbS9WZXJ5R29vZE9wZW5Tb3VyY2UvdmVyeV9nb29kX3RlbXBsYXRlcy9jb21taXQvMGUyZThjOWQ5NTkwOWVjMzI1OWYxNTZiZGUyYzAzMzM0NTM3ZDRmMykpCgojIyAwLjEuMAoKLSBmZWF0OiBpbml0aWFsIHJlbGVhc2UK",
     "type": "text",
   },
   "license": {
@@ -322,6 +342,12 @@ final veryGoodAppUiBundle = MasonBundle.fromJson(<String, dynamic>{
           "Whether the generated package is intended to be published.",
       "default": false,
       "prompt": "Will the package be published?",
+    },
+    "org_name": {
+      "type": "string",
+      "description": "The organization name",
+      "default": "com.example.verygoodapp",
+      "prompt": "What is the organization name?",
     },
   },
 });
