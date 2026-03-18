@@ -28,9 +28,16 @@ This template is powered by [Docusaurus][docusaurus_link] and comes with the fol
 
 ## Getting Started 🚀
 
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
+
 ```sh
 # Create a new docs site named my_docs_site
 very_good create docs_site my_docs_site
+
+# Create a new docs site named my_docs_site with a custom org
+very_good create docs_site my_docs_site --org "my-custom-org"
 
 # Create a new docs site named with the name of the current directory
 very_good create docs_site .
@@ -59,4 +66,4 @@ very_good create docs_site .
 [docs_dark]: /img/docs_dark.png
 [docs_dark_overview]: /img/docs_overview_dark.png
 [docusaurus_link]: https://docusaurus.io/
-[home_link]: /
+[home_link]: https://cli.vgv.dev

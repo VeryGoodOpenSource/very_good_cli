@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
-import 'package:mason/mason.dart';
+import 'package:mason/mason.dart' show ExitCode;
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
@@ -12,7 +12,6 @@ import 'package:very_good_cli/src/mcp/mcp_server.dart';
 typedef ServerFactory =
     MCPServer Function({
       required StreamChannel<String> channel,
-      required Logger logger,
     });
 
 /// Factory function to create a [StreamChannel] from input and output streams.
@@ -29,11 +28,9 @@ StreamChannel<String> _defaultChannelFactory() {
 class MCPCommand extends Command<int> {
   /// {@macro mcp_command}
   MCPCommand({
-    Logger? logger,
     ChannelFactory? channelFactory,
     ServerFactory? serverFactory,
-  }) : _logger = logger ?? Logger(),
-       _channelFactory = channelFactory ?? _defaultChannelFactory,
+  }) : _channelFactory = channelFactory ?? _defaultChannelFactory,
        _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
 
   /// The [name] of the command. But static.
@@ -46,8 +43,6 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
   @override
   String get name => commandName;
 
-  final Logger _logger;
-
   final ChannelFactory _channelFactory;
 
   final ServerFactory _serverFactory;
@@ -55,49 +50,15 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
   @override
   Future<int> run() async {
     try {
-      _logger
-        ..info('Starting Very Good CLI MCP Server...')
-        ..info(
-          'Server will listen on stdin/stdout for MCP protocol messages',
-        );
-
-      // Create a channel from stdin/stdout using the stdio helper
       final channel = _channelFactory();
-
-      // Create and start the MCP server
-      final server = _serverFactory(
-        channel: channel,
-        logger: _logger,
-      );
-
-      _logger
-        ..info('MCP Server started successfully')
-        ..info('Available tools:')
-        ..info('''
-  - create: Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.''')
-        ..info('  - test: Run tests in a Dart or Flutter project.')
-        ..info(
-          '''
-           - packages_get: Install or update Dart/Flutter package dependencies.
-          Use after creating a project or modifying pubspec.yaml.
-          Supports recursive installation and package exclusion.''',
-        )
-        ..info(
-          '''
-  - packages_check_licenses: Verify package licenses for compliance and validation in a Dart or Flutter project.
-            Identifies license types (MIT, BSD, Apache, etc.) for all 
-            dependencies. Use to ensure license compatibility.''',
-        );
-
-      // Wait for the server to complete
-      // (this will block until the connection is closed)
+      final server = _serverFactory(channel: channel);
       await server.done;
 
       return ExitCode.success.code;
     } on Exception catch (e, stackTrace) {
-      _logger
-        ..err('Failed to start MCP server: $e')
-        ..err('Stack trace: $stackTrace');
+      stderr
+        ..writeln('[very_good_mcp] Failed to start MCP server: $e')
+        ..writeln('[very_good_mcp] Stack trace: $stackTrace');
       return ExitCode.software.code;
     }
   }

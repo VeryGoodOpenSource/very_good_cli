@@ -3,3 +3,4 @@ node_modules
 /public/build
 .env
 .docusaurus
+CHANGELOG.md

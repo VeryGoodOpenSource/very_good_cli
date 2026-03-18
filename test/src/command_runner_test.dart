@@ -215,14 +215,12 @@ void main() {
               verifyInOrder([
                 () => logger.info('\nThank you for using Very Good '),
                 () => logger.info('Ventures open source '),
-                () => logger.info("tools!\nDon't forget to fill "),
-                () => logger.info('out this form to get '),
-                () => logger.info('information on future updates '),
-                () => logger.info('and releases here: '),
+                () => logger.info('tools!\nFollow us on GitHub for '),
+                () => logger.info('updates on future releases: '),
                 () => logger.info(
                   any(
                     that: contains(
-                      'https://verygood.ventures/dev/tools/cli/subscribe',
+                      'https://verygood.ventures/resources/open-source-packages/',
                     ),
                   ),
                 ),

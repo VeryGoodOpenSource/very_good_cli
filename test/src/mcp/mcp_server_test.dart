@@ -103,6 +103,7 @@ void main() {
       when(() => mockLogger.info(any())).thenAnswer((_) {});
       when(() => mockLogger.err(any())).thenAnswer((_) {});
       when(() => mockLogger.detail(any())).thenAnswer((_) {});
+      when(() => mockLogger.success(any())).thenAnswer((_) {});
 
       // This is the handshake that
       // MUST happen before any other requests, to fix the timeout.
@@ -176,7 +177,7 @@ void main() {
         expect(result.isError, isFalse);
         expect(
           (result.content.first as TextContent).text,
-          'Project created successfully',
+          '"create" completed successfully.',
         );
 
         final capturedArgs =
@@ -200,7 +201,8 @@ void main() {
                 'application_id': 'com.test.my_app',
                 'platforms': 'ios,web',
                 'publishable': true,
-                'template': 'wear',
+                'executable-name': 'my_cli',
+                'template': 'core',
               },
             ),
           ),
@@ -224,8 +226,10 @@ void main() {
           '--platforms',
           'ios,web',
           '--publishable',
+          '--executable-name',
+          'my_cli',
           '-t',
-          'wear',
+          'core',
         ]);
       });
 
@@ -251,7 +255,7 @@ void main() {
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
-          'Failed to create project',
+          contains('"create" failed with exit code'),
         );
       });
 
@@ -281,10 +285,27 @@ void main() {
     });
 
     group('Tool: test', () {
-      test('handles basic case with --no-optimization', () async {
+      test('handles default args (no flags added)', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['test']);
+      });
+
+      test('passes --no-optimization when explicitly false', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'optimization': false},
+            ),
+          ),
         );
 
         final capturedArgs =
@@ -301,13 +322,12 @@ void main() {
               name: 'test',
               arguments: {
                 'dart': true,
-                'directory': 'my_dir',
                 'coverage': true,
                 'recursive': true,
                 'optimization': true,
                 'concurrency': '8',
                 'tags': 'a,b',
-                'exclude_coverage': false,
+                'exclude_coverage': '**/*.g.dart',
                 'exclude_tags': 'c,d',
                 'min_coverage': '90',
                 'test_randomize_ordering_seed': '123',
@@ -316,6 +336,8 @@ void main() {
                 'dart-define': 'foo=bar',
                 'dart-define-from-file': 'my_file.json',
                 'platform': 'chrome',
+                'run_skipped': true,
+                'check_ignore': true,
               },
             ),
           ),
@@ -327,15 +349,14 @@ void main() {
         expect(capturedArgs, [
           'dart',
           'test',
-          'my_dir',
           '--coverage',
           '-r',
-          '--optimization',
           '-j',
           '8',
           '-t',
           'a,b',
           '--exclude-coverage',
+          '**/*.g.dart',
           '-x',
           'c,d',
           '--min-coverage',
@@ -350,6 +371,8 @@ void main() {
           'my_file.json',
           '--platform',
           'chrome',
+          '--run-skipped',
+          '--check-ignore',
         ]);
       });
 
@@ -369,7 +392,7 @@ void main() {
         expect(result.isError, isTrue);
         expect(
           (result.content.first as TextContent).text,
-          'Tests failed',
+          contains('"test" failed with exit code'),
         );
       });
     });
@@ -477,8 +500,8 @@ void main() {
       });
     });
 
-    group('_runCommand error handling', () {
-      test('handles UsageException', () async {
+    group('_runToolCommand error handling', () {
+      test('handles UsageException with descriptive message', () async {
         final exception = UsageException('bad usage', 'usage string');
         when(() => mockCommandRunner.run(any())).thenThrow(exception);
 
@@ -498,15 +521,12 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          'Failed to create project',
-        );
-
-        verify(() => mockLogger.err('Usage error: bad usage')).called(1);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"create" usage error: bad usage'));
+        expect(text, contains('Command: very_good'));
       });
 
-      test('handles general Exception', () async {
+      test('handles general Exception with descriptive message', () async {
         final exception = Exception('big bad');
         when(() => mockCommandRunner.run(any())).thenThrow(exception);
 
@@ -526,17 +546,10 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          'Failed to create project',
-        );
-
-        verify(
-          () => mockLogger.err('Command error: Exception: big bad'),
-        ).called(1);
-        verify(
-          () => mockLogger.err(any(that: startsWith('Stack trace:'))),
-        ).called(1);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"create" threw an exception'));
+        expect(text, contains('big bad'));
+        expect(text, contains('Command: very_good'));
       });
     });
   });

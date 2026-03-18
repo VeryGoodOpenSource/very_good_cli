@@ -108,6 +108,15 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'skip-packages',
         help: 'Skip packages from having their licenses checked.',
+      )
+      ..addOption(
+        'reporter',
+        help: 'Lists all licenses.',
+        allowed: ['text', 'csv'],
+        allowedHelp: {
+          'text': 'Lists licenses without a specific format.',
+          'csv': 'Lists licenses in a CSV format.',
+        },
       );
   }
 
@@ -133,6 +142,11 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final allowedLicenses = _argResults['allowed'] as List<String>;
     final forbiddenLicenses = _argResults['forbidden'] as List<String>;
     final skippedPackages = _argResults['skip-packages'] as List<String>;
+    final reporterOutput = _argResults['reporter'] as String?;
+
+    final reporterOutputFormat = ReporterOutputFormat.fromString(
+      reporterOutput,
+    );
 
     allowedLicenses.removeWhere((license) => license.trim().isEmpty);
     forbiddenLicenses.removeWhere((license) => license.trim().isEmpty);
@@ -354,6 +368,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       _composeReport(
         licenses: licenses,
         bannedDependencies: bannedDependencies,
+        reporterOutputFormat: reporterOutputFormat,
       ),
     );
 
@@ -451,6 +466,7 @@ _BannedDependencyLicenseMap? _bannedDependencies({
 String _composeReport({
   required _DependencyLicenseMap licenses,
   required _BannedDependencyLicenseMap? bannedDependencies,
+  ReporterOutputFormat? reporterOutputFormat,
 }) {
   final bannedLicenseTypes = bannedDependencies?.values.fold(<String>{}, (
     previousValue,
@@ -495,7 +511,24 @@ String _composeReport({
       ? ''
       : ' of type: ${formattedLicenseTypes.toList().stringify()}';
 
-  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.''';
+  final licenseBuilder = StringBuffer();
+  if (reporterOutputFormat case final ReporterOutputFormat outputFormat) {
+    licenseBuilder.write('\n');
+    for (final license in licenses.entries) {
+      if (license.value case final Set<String> dependencyLicenses) {
+        for (final dependencyLicense in dependencyLicenses) {
+          licenseBuilder.writeln(
+            outputFormat.formatLicense(
+              packageName: license.key,
+              licenseName: dependencyLicense,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.$licenseBuilder''';
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
@@ -604,4 +637,41 @@ Set<String>? _collectWorkspaceDependencies({
   }
 
   return dependencies;
+}
+
+/// Format type for listing all licenses via --reporter option.
+enum ReporterOutputFormat {
+  /// List all licenses separated by a dash.
+  ///
+  /// Example: very_good_cli - MIT
+  text,
+
+  /// List all licenses in a CSV format.
+  ///
+  /// Example: very_good_cli,MIT
+  csv
+  ;
+
+  /// Convenience parsing method from user input.
+  ///
+  /// Return desired format for valid inputs
+  ///        null for invalid inputs or unspecified input.
+  static ReporterOutputFormat? fromString(String? value) {
+    return switch (value) {
+      'text' => text,
+      'csv' => csv,
+      _ => null,
+    };
+  }
+
+  /// Stringify the package with it's license into the desired format
+  String formatLicense({
+    required String packageName,
+    required String licenseName,
+  }) {
+    return switch (this) {
+      text => '$packageName - $licenseName',
+      csv => '$packageName,$licenseName',
+    };
+  }
 }

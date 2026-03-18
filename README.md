@@ -57,6 +57,7 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
+  app_ui_package    Generate a Very Good App UI package.
   dart_cli          Generate a Very Good Dart CLI application.
   dart_package      Generate a Very Good Dart package.
   docs_site         Generate a Very Good documentation site.
@@ -80,11 +81,11 @@ very_good create flutter_app my_app --desc "My new Flutter app" --org "com.custo
 # Create a new Flutter app named my_app with a custom application id
 very_good create flutter_app my_app --desc "My new Flutter app" --application-id "com.custom.app.id"
 
+# Create a new App UI package named my_app_ui_package
+very_good create app_ui_package my_app_ui_package --desc "My new App UI package"
+
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
-
-# Create a new Wear OS app named my_wear_app
-very_good create flutter_app my_wear_app --desc "My new Wear OS app" --template wear
 
 # Create a new Flutter package named my_flutter_package
 very_good create flutter_package my_flutter_package --desc "My new Flutter package"
@@ -175,6 +176,9 @@ very_good packages check licenses --forbidden="unknown"
 
 # Check licenses for certain dependencies types
 very_good packages check licenses --dependency-type="direct-main,transitive"
+
+# Check and list licenses in the current directory
+very_good packages check licenses --reporter="csv"
 ```
 
 ### [`very_good mcp`](https://cli.vgv.dev/docs/commands/mcp)
@@ -192,6 +196,7 @@ very_good mcp
 The MCP server exposes Very Good CLI functionality through the Model Context Protocol, allowing AI assistants to interact with the CLI programmatically. This enables automated project creation, testing, and package management through MCP-compatible tools.
 
 **Available MCP Tools:**
+
 - `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
 - `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
 - `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
@@ -236,7 +241,7 @@ Run "very_good help <command>" for more information about a command.
 [logging_link]: https://api.flutter.dev/flutter/dart-developer/log.html
 [null_safety_link]: https://flutter.dev/docs/null-safety
 [pub_badge]: https://img.shields.io/pub/v/very_good_cli.svg
-[pub_link]: https://pub.dartlang.org/packages/very_good_cli
+[pub_link]: https://pub.dev/packages/very_good_cli
 [testing_link]: https://flutter.dev/docs/testing
 [very_good_analysis_badge]: https://img.shields.io/badge/style-very_good_analysis-B22C89.svg
 [very_good_analysis_link]: https://pub.dev/packages/very_good_analysis

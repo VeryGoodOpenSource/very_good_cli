@@ -15,7 +15,7 @@ function HomepageHeader() {
       <div className="container">
         <img
           className={clsx(styles.heroLogo)}
-          src={colorMode == 'dark' ? 'img/logo_dark.svg' : 'img/logo.svg'}
+          src={colorMode === 'dark' ? 'img/logo_dark.svg' : 'img/logo.svg'}
           alt="CLI Logo"
         />
         <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -26,11 +26,11 @@ function HomepageHeader() {
   );
 }
 
-export default function Home(): JSX.Element {
+export default function Home(): React.JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
-      description={`The official documentation site for Very Good CLI Docs. ${siteConfig.tagline}.`}
+      description={`The official documentation site for Very Good CLI. ${siteConfig.tagline}.`}
     >
       <HomepageHeader />
       <main>
@@ -64,7 +64,7 @@ function HomepageHeroImage() {
 type FeatureItem = {
   title: string;
   Svg: React.ComponentType<React.ComponentProps<'svg'>>;
-  description: JSX.Element;
+  description: React.JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
@@ -77,8 +77,9 @@ const FeatureList: FeatureItem[] = [
         <a href="/docs/templates/flame_game">Flame game</a>,{' '}
         <a href="/docs/templates/flutter_pkg">Flutter package</a>,{' '}
         <a href="/docs/templates/dart_pkg">Dart package</a>,{' '}
-        <a href="/docs/templates/federated_plugin">federated plugin</a>, or{' '}
-        <a href="/docs/templates/dart_cli">Dart CLI</a> with one command.
+        <a href="/docs/templates/federated_plugin">federated plugin</a>,{' '}
+        <a href="/docs/templates/dart_cli">Dart CLI</a>, or{' '}
+        <a href="/docs/templates/docs_site">docs site</a> with one command.
       </>
     ),
   },
@@ -98,7 +99,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Optimize your tests and recursively fetch packages with additional CLI{' '}
-        <a href="/docs/category/commands"> commands</a>.
+        <a href="/docs/category/commands">commands</a>.
       </>
     ),
   },
@@ -118,7 +119,7 @@ function Feature({ title, Svg, description }: FeatureItem) {
   );
 }
 
-function HomepageFeatures(): JSX.Element {
+function HomepageFeatures(): React.JSX.Element {
   return (
     <section className={styles.features}>
       <div className="container">
@@ -190,22 +191,5 @@ function HomepageBlogs() {
         </div>
       </div>
     </div>
-  );
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg
-      width="13.5"
-      height="13.5"
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-theme-IconExternalLink-styles-module"
-    >
-      <path
-        fill="currentColor"
-        d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"
-      ></path>
-    </svg>
   );
 }

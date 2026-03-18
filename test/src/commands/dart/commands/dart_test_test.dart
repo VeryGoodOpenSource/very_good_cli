@@ -24,24 +24,30 @@ const expectedTestUsage = [
   'Run tests in a Dart project.\n'
       '\n'
       'Usage: very_good dart test [arguments]\n'
-      '-h, --help                            Print this usage information.\n'
-      '    --coverage                        Whether to collect coverage information.\n'
-      '-r, --recursive                       Run tests recursively for all nested packages.\n'
-      '    --[no-]optimization               Whether to apply optimizations for test performance.\n'
-      '                                      Automatically disabled when --platform is specified.\n'
-      '                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
-      '                                      (defaults to on)\n'
-      '-j, --concurrency                     The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
-      '                                      (defaults to "4")\n'
-      '-t, --tags                            Run only tests associated with the specified tags.\n'
-      "    --exclude-coverage                A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
-      '-x, --exclude-tags                    Run only tests that do not have the specified tags.\n'
-      '    --min-coverage                    Whether to enforce a minimum coverage percentage.\n'
-      '    --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.\n'
-      '    --fail-fast                       Stop running tests after the first failure.\n'
-      '    --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
-      '    --report-on=<lib/>                An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
-      '    --platform=<chrome|vm>            The platform to run tests on. \n'
+      '-h, --help                                   Print this usage information.\n'
+      '    --coverage                               Whether to collect coverage information.\n'
+      '-r, --recursive                              Run tests recursively for all nested packages.\n'
+      '    --[no-]optimization                      Whether to apply optimizations for test performance.\n'
+      '                                             Automatically disabled when --platform is specified.\n'
+      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
+      '                                             (defaults to on)\n'
+      '-j, --concurrency                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
+      '                                             (defaults to "4")\n'
+      '-t, --tags                                   Run only tests associated with the specified tags.\n'
+      "    --exclude-coverage                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
+      '-x, --exclude-tags                           Run only tests that do not have the specified tags.\n'
+      '    --min-coverage                           Whether to enforce a minimum coverage percentage.\n'
+      '    --show-uncovered                         Whether to show uncovered lines when coverage is below 100%. Requires --coverage or --min-coverage to be set, or implicitly enables coverage collection when used alone.\n'
+      '    --collect-coverage-from=<imports|all>    Whether to collect coverage from imported files only or all files.\n'
+      '                                             [imports (default), all]\n'
+      '    --test-randomize-ordering-seed           The seed to randomize the execution order of test cases within test files.\n'
+      '    --fail-fast                              Stop running tests after the first failure.\n'
+      '    --force-ansi                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
+      '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --platform=<chrome|vm>                   The platform to run tests on. \n'
+      '    --run-skipped                            Run skipped tests instead of skipping them.\n'
+      '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
+      '                                             (defaults to on)\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -53,10 +59,13 @@ abstract class DartTestCommandCall {
   Future<List<int>> call({
     String cwd = '.',
     bool recursive = false,
+    bool checkIgnore = true,
+    bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     double? minCoverage,
     String? excludeFromCoverage,
+    CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
     List<String>? arguments,
     Logger? logger,
@@ -79,6 +88,10 @@ void main() {
     late DartTestCommandCall dartTest;
     late DartTestCommand testCommand;
 
+    setUpAll(() {
+      registerFallbackValue(CoverageCollectionMode.imports);
+    });
+
     setUp(() {
       logger = _MockLogger();
       isFlutterInstalled = true;
@@ -86,17 +99,20 @@ void main() {
       dartTest = _MockDartTestCommand();
       testCommand = DartTestCommand(
         logger: logger,
-        dartInstalled: ({required Logger logger}) async => isFlutterInstalled,
+        dartInstalled: ({required logger}) async => isFlutterInstalled,
         dartTest: dartTest.call,
       )..argResultOverrides = argResults;
       when(
         () => dartTest(
           cwd: any(named: 'cwd'),
           recursive: any(named: 'recursive'),
+          checkIgnore: any(named: 'checkIgnore'),
+          showUncovered: any(named: 'showUncovered'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          collectCoverageFrom: any(named: 'collectCoverageFrom'),
           randomSeed: any(named: 'randomSeed'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
@@ -109,9 +125,16 @@ void main() {
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
+      when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
+      when<dynamic>(
+        () => argResults['collect-coverage-from'],
+      ).thenReturn('imports');
+      when<dynamic>(() => argResults['report-on']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -200,11 +223,13 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenAnswer(
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
@@ -472,11 +497,13 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -497,6 +524,49 @@ void main() {
       ).called(1);
     });
 
+    test(
+      'fails when coverage not met, shows uncovered lines',
+      () async {
+        when<dynamic>(() => argResults['coverage']).thenReturn(true);
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+        const exception = MinCoverageNotMet(
+          95,
+          uncoveredLines: {
+            'lib/src/foo.dart': [10, 20, 30],
+          },
+        );
+        when(
+          () => dartTest(
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
+            checkIgnore: any(named: 'checkIgnore'),
+          ),
+        ).thenThrow(exception);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.unavailable.code));
+        verify(
+          () => logger.err(
+            'Expected coverage >= 100.00% but actual is 95.00%.',
+          ),
+        ).called(1);
+        verify(
+          () => logger.err(
+            'Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30',
+          ),
+        ).called(1);
+      },
+    );
+
     test('displays required precision see why coverage was not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
@@ -508,11 +578,13 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -558,6 +630,26 @@ void main() {
       },
     );
 
+    test(
+      'enables coverage collection when --show-uncovered is supplied',
+      () async {
+        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => dartTest(
+            optimizePerformance: true,
+            collectCoverage: true,
+            showUncovered: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      },
+    );
+
     test('throws when exception occurs', () async {
       final exception = Exception('oops');
       when(
@@ -567,11 +659,13 @@ void main() {
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           arguments: any(named: 'arguments'),
           logger: any(named: 'logger'),
           stdout: any(named: 'stdout'),
           stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
@@ -650,5 +744,36 @@ void main() {
         ).called(1);
       },
     );
+
+    test('completes normally --run-skipped', () async {
+      when<dynamic>(() => argResults['run-skipped']).thenReturn(true);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: ['--run-skipped', ...defaultArguments],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --no-check-ignore', () async {
+      when<dynamic>(() => argResults['check-ignore']).thenReturn(false);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: defaultArguments,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+          checkIgnore: false,
+        ),
+      ).called(1);
+    });
   });
 }

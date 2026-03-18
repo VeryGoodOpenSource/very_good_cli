@@ -19,6 +19,24 @@ enum TestRunType {
   dart,
 }
 
+/// How to collect coverage.
+enum CoverageCollectionMode {
+  /// Collect coverage from imported files only (default behavior).
+  imports,
+
+  /// Collect coverage from all files in the project.
+  all
+  ;
+
+  /// Parses a string value into a [CoverageCollectionMode].
+  static CoverageCollectionMode fromString(String value) {
+    return CoverageCollectionMode.values.firstWhere(
+      (mode) => mode.name == value,
+      orElse: () => CoverageCollectionMode.imports,
+    );
+  }
+}
+
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 
@@ -28,10 +46,15 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// {@endtemplate}
 class MinCoverageNotMet implements Exception {
   /// {@macro coverage_not_met}
-  const MinCoverageNotMet(this.coverage);
+  const MinCoverageNotMet(this.coverage, {this.uncoveredLines});
 
   /// The measured coverage percentage (total hits / total found * 100).
   final double coverage;
+
+  /// Lines not covered, keyed by file path, values are line numbers.
+  ///
+  /// Only populated when `--show-uncovered` is set.
+  final Map<String, List<int>>? uncoveredLines;
 }
 
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
@@ -71,7 +94,9 @@ class TestCLIRunner {
     bool optimizePerformance = false,
     Set<String> ignore = const {},
     double? minCoverage,
+    bool showUncovered = false,
     String? excludeFromCoverage,
+    CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
     String? randomSeed,
     bool? forceAnsi,
     List<String>? arguments,
@@ -79,6 +104,7 @@ class TestCLIRunner {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     String? reportOn,
+    bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
@@ -181,6 +207,7 @@ class TestCLIRunner {
                   final hitmap = await coverage.HitMap.parseFiles(
                     files,
                     packagePath: packagesPath,
+                    checkIgnoredLines: checkIgnore,
                   );
 
                   final resolver = await coverage.Resolver.create(
@@ -197,6 +224,17 @@ class TestCLIRunner {
                   // Write the lcov output to the file.
                   await lcovFile.create(recursive: true);
                   await lcovFile.writeAsString(output);
+
+                  // If collectCoverageFrom is 'all', enhance with untested
+                  // files
+                  if (collectCoverageFrom == CoverageCollectionMode.all) {
+                    await _enhanceLcovWithUntestedFiles(
+                      cwd: cwd,
+                      lcovPath: lcovPath,
+                      reportOn: reportOn ?? 'lib',
+                      excludeFromCoverage: excludeFromCoverage,
+                    );
+                  }
                 }
 
                 if (collectCoverage) {
@@ -204,24 +242,53 @@ class TestCLIRunner {
                     lcovFile.existsSync(),
                     'coverage/lcov.info must exist',
                   );
+
+                  // For Flutter tests with collectCoverageFrom = all,
+                  // enhance lcov.
+                  if (testType == TestRunType.flutter &&
+                      collectCoverageFrom == CoverageCollectionMode.all) {
+                    await _enhanceLcovWithUntestedFiles(
+                      lcovPath: lcovPath,
+                      cwd: cwd,
+                      reportOn: reportOn ?? 'lib',
+                      excludeFromCoverage: excludeFromCoverage,
+                    );
+                  }
                 }
 
-                if (minCoverage != null) {
+                if (minCoverage != null || showUncovered) {
                   final records = await Parser.parse(lcovPath);
-                  final coverageMetrics = _CoverageMetrics.fromLcovRecords(
+                  final coverageMetrics = CoverageMetrics.fromLcovRecords(
                     records,
-                    excludeFromCoverage,
+                    excludeFromCoverage: excludeFromCoverage,
                   );
                   final coverage = coverageMetrics.percentage;
+                  final uncoveredLines =
+                      showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
+                      ? coverageMetrics.uncoveredLines
+                      : null;
 
-                  if (coverage < minCoverage) throw MinCoverageNotMet(coverage);
+                  if (minCoverage != null && coverage < minCoverage) {
+                    throw MinCoverageNotMet(
+                      coverage,
+                      uncoveredLines: uncoveredLines,
+                    );
+                  }
+
+                  // When coverage passes but is below 100%,
+                  // show uncovered lines as informational output.
+                  if (showUncovered &&
+                      uncoveredLines != null &&
+                      uncoveredLines.isNotEmpty) {
+                    stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
+                  }
                 }
               }),
         );
       },
       cwd: cwd,
-      recursive: recursive,
       ignore: ignore,
+      recursive: recursive,
     );
   }
 
@@ -230,7 +297,9 @@ class TestCLIRunner {
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
 
-  /// Handles the [MinCoverageNotMet] exception by logging the error message
+  /// Handles the [MinCoverageNotMet] exception by logging the error message.
+  ///
+  /// If [e] contains uncovered lines, they are logged after the error message.
   static void handleMinCoverageNotMet({
     required Logger logger,
     required MinCoverageNotMet e,
@@ -254,6 +323,120 @@ class TestCLIRunner {
     logger.err(
       '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
     );
+
+    final uncoveredLines = e.uncoveredLines;
+    if (uncoveredLines != null && uncoveredLines.isNotEmpty) {
+      logger.err(formatUncoveredLines(uncoveredLines));
+    }
+  }
+
+  /// Formats a map of uncovered lines into a human-readable string.
+  ///
+  /// The [uncoveredLines] map is keyed by file path, with values being lists
+  /// of uncovered line numbers.
+  ///
+  /// Example output:
+  /// ```dart
+  /// Lines not covered:
+  ///   - lib/src/foo.dart: 10, 20, 30
+  ///   - lib/src/bar.dart: 5
+  /// ```
+  static String formatUncoveredLines(Map<String, List<int>> uncoveredLines) {
+    final lines = uncoveredLines.entries.map((entry) {
+      final sortedLines = [...entry.value]..sort();
+      return '\t- ${entry.key}: ${sortedLines.join(', ')}';
+    });
+    return 'Lines not covered:\n${lines.join('\n')}';
+  }
+
+  /// Discovers all Dart files in the specified directory for coverage.
+  static List<String> _discoverDartFilesForCoverage({
+    required String cwd,
+    required String reportOn,
+    String? excludeFromCoverage,
+  }) {
+    final reportOnPath = p.join(cwd, reportOn);
+    final directory = Directory(reportOnPath);
+
+    if (!directory.existsSync()) return [];
+
+    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
+
+    return directory
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .where((file) => glob == null || !glob.matches(file.path))
+        .map((file) => p.relative(file.path, from: cwd))
+        .toList();
+  }
+
+  /// Enhances an existing lcov file by adding uncovered files with 0% coverage.
+  static Future<void> _enhanceLcovWithUntestedFiles({
+    required String lcovPath,
+    required String cwd,
+    required String reportOn,
+    String? excludeFromCoverage,
+  }) async {
+    final lcovFile = File(lcovPath);
+
+    final allDartFiles = _discoverDartFilesForCoverage(
+      cwd: cwd,
+      reportOn: reportOn,
+      excludeFromCoverage: excludeFromCoverage,
+    );
+
+    // Parse existing lcov to find covered files
+    final existingRecords = await Parser.parse(lcovPath);
+    final coveredFiles = existingRecords
+        .where((r) => r.file != null)
+        .map((r) => r.file!)
+        .toSet();
+
+    // Find uncovered files
+    final uncoveredFiles = allDartFiles.where((file) {
+      final normalizedFile = p.normalize(file);
+      for (final covered in coveredFiles) {
+        if (p.normalize(covered).endsWith(normalizedFile)) {
+          return false; // File is covered
+        }
+      }
+      return true; // File is uncovered
+    }).toList();
+
+    if (uncoveredFiles.isEmpty) return;
+
+    // Append uncovered files to lcov
+    final lcovContent = await lcovFile.readAsString();
+    final buffer = StringBuffer(lcovContent);
+
+    for (final file in uncoveredFiles) {
+      final absolutePath = p.join(cwd, file);
+      final dartFile = File(absolutePath);
+      if (dartFile.existsSync()) {
+        final lines = await dartFile.readAsLines();
+        buffer.writeln('SF:${file.replaceAll(r'\', '/')}');
+        // Mark non-trivial lines as uncovered
+        var linesFound = 0;
+        for (var i = 1; i <= lines.length; i++) {
+          final line = lines[i - 1].trim();
+          if (line.isNotEmpty &&
+              !line.startsWith('//') &&
+              !line.startsWith('import') &&
+              !line.startsWith('export') &&
+              !line.startsWith('part')) {
+            buffer.writeln('DA:$i,0');
+            linesFound++;
+          }
+        }
+        buffer
+          ..writeln('LF:$linesFound')
+          ..writeln('LH:0')
+          ..writeln('end_of_record');
+      }
+    }
+
+    await lcovFile.writeAsString(buffer.toString());
   }
 
   static List<File> _dartCoverageFilesToProcess(String absPath) {

@@ -38,8 +38,5 @@ class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   }
 
   @override
-  final List<Template> templates = [
-    VeryGoodCoreTemplate(),
-    VeryGoodWearAppTemplate(),
-  ];
+  final List<Template> templates = [VeryGoodCoreTemplate()];
 }

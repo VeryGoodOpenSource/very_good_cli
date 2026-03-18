@@ -56,7 +56,7 @@ The `allowed` and `forbidden` options can't be used at the same time. Typical or
 
 ### `dependency-type`
 
-The type of dependencies to check licenses for. There are three available types:
+The type of dependencies to check licenses for. There are four available types:
 
 - [`direct-dev`](https://dart.dev/tools/pub/dependencies#dev-dependencies): Another package that your package needs during development.
 - [`direct-main`](https://dart.dev/tools/pub/dependencies): Another package that your package needs to work.
@@ -99,6 +99,31 @@ Avoids terminating if the license of a dependency could not be retrieved; this m
 very_good packages check licenses --ignore-retrieval-failures
 
 # ✓ Retrieved 6 licenses from 6 packages of type: BSD-3-Clause (3), MIT (1), unknown (1) and Apache-2.0 (1).
+```
+
+### `reporter`
+
+Lists all packages with their licenses in a specific format. This is useful for generating reports or auditing dependencies.
+
+Available formats:
+
+- `text`: Lists licenses without a specific format (e.g., `package_name - MIT`).
+- `csv`: Lists licenses in a CSV format (e.g., `package_name,MIT`).
+
+#### Example usage:
+
+```sh
+very_good packages check licenses --reporter=text
+
+# package_a - MIT
+# package_b - BSD-3-Clause
+# package_c - Apache-2.0
+
+very_good packages check licenses --reporter=csv
+
+# package_a,MIT
+# package_b,BSD-3-Clause
+# package_c,Apache-2.0
 ```
 
 ## Supported licenses 💳

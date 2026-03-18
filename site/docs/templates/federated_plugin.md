@@ -8,6 +8,10 @@ This template is for a plugin that follows the [federated plugin architecture][f
 
 ## Usage
 
+:::tip
+Use `-o` or `--output-directory` to specify a custom output directory for the generated project.
+:::
+
 ```sh
 # Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
 very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
@@ -31,6 +35,9 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 
 # Create a new Flutter plugin named with the name of the current directory
 very_good create flutter_plugin . --desc "My new Flutter plugin" --platforms android,ios,web
+
+# Create a new Flutter plugin named my_flutter_plugin that is publishable
+very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --publishable
 ```
 
 [federated_plugin_docs]: https://docs.flutter.dev/development/packages-and-plugins/developing-packages#federated-plugins

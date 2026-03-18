@@ -16,6 +16,15 @@ class CreateCommand extends Command<int> {
     @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
     @visibleForTesting MasonGeneratorFromBrick? generatorFromBrick,
   }) {
+    // very_good create app_ui_package <args>
+    addSubcommand(
+      CreateAppUiPackage(
+        logger: logger,
+        generatorFromBundle: generatorFromBundle,
+        generatorFromBrick: generatorFromBrick,
+      ),
+    );
+
     // very_good create flutter_app <args>
     addSubcommand(
       CreateFlutterApp(
