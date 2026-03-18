@@ -53,6 +53,7 @@ Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
 
 Available subcommands:
+  app_ui_package    Generate a Very Good App UI package.
   dart_cli          Generate a Very Good Dart CLI application.
   dart_package      Generate a Very Good Dart package.
   docs_site         Generate a Very Good documentation site.

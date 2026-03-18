@@ -8,6 +8,7 @@ Very Good CLI allows you to generate scalable templates and use helpful commands
 
 Templates have their own repositories, if you want to contribute to them please refer to their repositories:
 
+- [App UI Package](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_app_ui)
 - [Dart CLI](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_dart_cli)
 - [Dart Package](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_dart_package)
 - [Docs Site](https://github.com/VeryGoodOpenSource/very_good_templates/tree/main/very_good_docs_site)
