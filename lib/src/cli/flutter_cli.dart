@@ -215,7 +215,7 @@ class Flutter {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
-    String? reportOn,
+    List<String>? reportOn,
   }) async {
     return TestCLIRunner.test(
       logger: logger,

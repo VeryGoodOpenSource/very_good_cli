@@ -103,7 +103,7 @@ class TestCLIRunner {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
-    String? reportOn,
+    List<String>? reportOn,
     bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
@@ -217,7 +217,7 @@ class TestCLIRunner {
 
                   final output = hitmap.formatLcov(
                     resolver,
-                    reportOn: [reportOn ?? 'lib'],
+                    reportOn: reportOn ?? ['lib'],
                     basePath: cwd,
                   );
 
@@ -231,7 +231,7 @@ class TestCLIRunner {
                     await _enhanceLcovWithUntestedFiles(
                       cwd: cwd,
                       lcovPath: lcovPath,
-                      reportOn: reportOn ?? 'lib',
+                      reportOn: reportOn ?? ['lib'],
                       excludeFromCoverage: excludeFromCoverage,
                     );
                   }
@@ -250,7 +250,7 @@ class TestCLIRunner {
                     await _enhanceLcovWithUntestedFiles(
                       lcovPath: lcovPath,
                       cwd: cwd,
-                      reportOn: reportOn ?? 'lib',
+                      reportOn: reportOn ?? ['lib'],
                       excludeFromCoverage: excludeFromCoverage,
                     );
                   }
@@ -349,33 +349,34 @@ class TestCLIRunner {
     return 'Lines not covered:\n${lines.join('\n')}';
   }
 
-  /// Discovers all Dart files in the specified directory for coverage.
+  /// Discovers all Dart files in the specified directories for coverage.
   static List<String> _discoverDartFilesForCoverage({
     required String cwd,
-    required String reportOn,
+    required List<String> reportOn,
     String? excludeFromCoverage,
   }) {
-    final reportOnPath = p.join(cwd, reportOn);
-    final directory = Directory(reportOnPath);
-
-    if (!directory.existsSync()) return [];
-
     final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
 
-    return directory
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.dart'))
-        .where((file) => glob == null || !glob.matches(file.path))
-        .map((file) => p.relative(file.path, from: cwd))
-        .toList();
+    return reportOn.expand((dir) {
+      final reportOnPath = p.join(cwd, dir);
+      final directory = Directory(reportOnPath);
+
+      if (!directory.existsSync()) return <String>[];
+
+      return directory
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.dart'))
+          .where((file) => glob == null || !glob.matches(file.path))
+          .map((file) => p.relative(file.path, from: cwd));
+    }).toList();
   }
 
   /// Enhances an existing lcov file by adding uncovered files with 0% coverage.
   static Future<void> _enhanceLcovWithUntestedFiles({
     required String lcovPath,
     required String cwd,
-    required String reportOn,
+    required List<String> reportOn,
     String? excludeFromCoverage,
   }) async {
     final lcovFile = File(lcovPath);

@@ -43,7 +43,7 @@ const expectedTestUsage = [
       '    --test-randomize-ordering-seed           The seed to randomize the execution order of test cases within test files.\n'
       '    --fail-fast                              Stop running tests after the first failure.\n'
       '    --force-ansi                             Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.\n'
-      '    --report-on=<lib/>                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --report-on=<lib/>                       Optional file paths to report coverage information to. This should be paths relative to the current working directory. Can be passed multiple times.\n'
       '    --platform=<chrome|vm>                   The platform to run tests on. \n'
       '    --run-skipped                            Run skipped tests instead of skipping them.\n'
       '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
@@ -72,7 +72,7 @@ abstract class DartTestCommandCall {
     void Function(String)? stdout,
     void Function(String)? stderr,
     bool? forceAnsi,
-    String? reportOn,
+    List<String>? reportOn,
   });
 }
 
@@ -134,7 +134,7 @@ void main() {
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
-      when<dynamic>(() => argResults['report-on']).thenReturn(null);
+      when<dynamic>(() => argResults['report-on']).thenReturn(<String>[]);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -468,7 +468,9 @@ void main() {
       'reports on a different directory when --report-on is supplied',
       () async {
         when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        when<dynamic>(() => argResults['report-on']).thenReturn('routes');
+        when<dynamic>(
+          () => argResults['report-on'],
+        ).thenReturn(<String>['routes']);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -480,7 +482,7 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            reportOn: 'routes',
+            reportOn: ['routes'],
           ),
         ).called(1);
       },
