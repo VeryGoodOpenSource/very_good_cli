@@ -863,6 +863,54 @@ void main() {
           ).called(1);
         },
       );
+
+      test(
+        'splits space-separated paths when --report-on "lib test" is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          when<dynamic>(
+            () => argResults['report-on'],
+          ).thenReturn(<String>['lib test']);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+              reportOn: ['lib', 'test'],
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'splits comma-separated paths when --report-on "lib,test" is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          when<dynamic>(
+            () => argResults['report-on'],
+          ).thenReturn(<String>['lib,test']);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+              reportOn: ['lib', 'test'],
+            ),
+          ).called(1);
+        },
+      );
     });
   });
 }

@@ -62,7 +62,10 @@ class FlutterTestOptions {
     final dartDefineFromFile =
         argResults['dart-define-from-file'] as List<String>?;
     final platform = argResults['platform'] as String?;
-    final reportOn = argResults['report-on'] as List<String>;
+    final reportOn = (argResults['report-on'] as List<String>)
+        .expand((e) => e.split(RegExp(r'[,\s]+')))
+        .where((e) => e.isNotEmpty)
+        .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final flavor = argResults['flavor'] as String?;
     final rest = argResults.rest;

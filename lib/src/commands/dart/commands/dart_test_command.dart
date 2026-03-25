@@ -55,7 +55,10 @@ class DartTestOptions {
     final failFast = argResults['fail-fast'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
     final platform = argResults['platform'] as String?;
-    final reportOn = argResults['report-on'] as List<String>;
+    final reportOn = (argResults['report-on'] as List<String>)
+        .expand((e) => e.split(RegExp(r'[,\s]+')))
+        .where((e) => e.isNotEmpty)
+        .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final checkIgnore = argResults['check-ignore'] as bool;
     final rest = argResults.rest;
