@@ -47,7 +47,7 @@ const expectedTestUsage = [
       '    --dart-define=<foo=bar>                                  Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define" multiple times.\n'
       '    --dart-define-from-file=<use-define-config.json|.env>    The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors. Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.\n'
       '    --platform=<chrome|vm|android|ios>                       The platform to run tests on. \n'
-      '    --report-on=<lib/>                                       An optional file path to report coverage information to. This should be a path relative to the current working directory.\n'
+      '    --report-on=<lib/>                                       Optional file paths to report coverage information to. This should be paths relative to the current working directory. Can be passed multiple times.\n'
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
       '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '\n'
@@ -73,7 +73,7 @@ abstract class FlutterTestCommand {
     void Function(String)? stdout,
     void Function(String)? stderr,
     bool? forceAnsi,
-    String? reportOn,
+    List<String>? reportOn,
   });
 }
 
@@ -130,7 +130,7 @@ void main() {
       when<dynamic>(() => argResults['fail-fast']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
-      when<dynamic>(() => argResults['report-on']).thenReturn(null);
+      when<dynamic>(() => argResults['report-on']).thenReturn(<String>[]);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['flavor']).thenReturn(null);
       when<dynamic>(
@@ -844,7 +844,9 @@ void main() {
         'reports on a different directory when --report-on is supplied',
         () async {
           when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-          when<dynamic>(() => argResults['report-on']).thenReturn('routes');
+          when<dynamic>(
+            () => argResults['report-on'],
+          ).thenReturn(<String>['routes']);
           final result = await testCommand.run();
           expect(result, equals(ExitCode.success.code));
           verify(
@@ -856,7 +858,55 @@ void main() {
               logger: logger,
               stdout: logger.write,
               stderr: logger.err,
-              reportOn: 'routes',
+              reportOn: ['routes'],
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'splits space-separated paths when --report-on "lib test" is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          when<dynamic>(
+            () => argResults['report-on'],
+          ).thenReturn(<String>['lib test']);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+              reportOn: ['lib', 'test'],
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'splits comma-separated paths when --report-on "lib,test" is supplied',
+        () async {
+          when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
+          when<dynamic>(
+            () => argResults['report-on'],
+          ).thenReturn(<String>['lib,test']);
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              collectCoverage: true,
+              arguments: defaultArguments,
+              minCoverage: 0,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+              reportOn: ['lib', 'test'],
             ),
           ).called(1);
         },

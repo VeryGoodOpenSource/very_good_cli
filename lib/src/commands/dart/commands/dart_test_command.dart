@@ -55,7 +55,10 @@ class DartTestOptions {
     final failFast = argResults['fail-fast'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
     final platform = argResults['platform'] as String?;
-    final reportOn = argResults['report-on'] as String?;
+    final reportOn = (argResults['report-on'] as List<String>)
+        .expand((e) => e.split(RegExp(r'[,\s]+')))
+        .where((e) => e.isNotEmpty)
+        .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final checkIgnore = argResults['check-ignore'] as bool;
     final rest = argResults.rest;
@@ -121,8 +124,8 @@ class DartTestOptions {
   /// The platform to run tests on (e.g., 'chrome', 'vm').
   final String? platform;
 
-  /// An optional file path to report coverage information to.
-  final String? reportOn;
+  /// An optional list of file paths to report coverage information to.
+  final List<String> reportOn;
 
   /// Whether to run skipped tests instead of skipping them.
   final bool runSkipped;
@@ -154,7 +157,7 @@ typedef DartTestCommandCall =
       List<String>? arguments,
       void Function(String)? stdout,
       void Function(String)? stderr,
-      String? reportOn,
+      List<String>? reportOn,
       bool checkIgnore,
     });
 
@@ -255,11 +258,12 @@ class DartTestCommand extends Command<int> {
             'it will maintain the default behavior based on stdout and stderr.',
         negatable: false,
       )
-      ..addOption(
+      ..addMultiOption(
         'report-on',
         help:
-            'An optional file path to report coverage information to. '
-            'This should be a path relative to the current working directory.',
+            'Optional file paths to report coverage information to. '
+            'This should be paths relative to the current working directory. '
+            'Can be passed multiple times.',
         valueHelp: 'lib/',
       )
       ..addOption(
@@ -346,7 +350,7 @@ This command should be run from the root of your Dart project.''');
             if (options.platform == null) ...['-j', options.concurrency],
             ...options.rest,
           ],
-          reportOn: options.reportOn,
+          reportOn: options.reportOn.isEmpty ? null : options.reportOn,
           checkIgnore: options.checkIgnore,
         );
         if (results.any((code) => code != ExitCode.success.code)) {
