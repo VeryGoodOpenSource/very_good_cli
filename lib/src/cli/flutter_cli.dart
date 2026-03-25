@@ -184,6 +184,7 @@ class Flutter {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
+            timeout: _pubGetTimeout,
           );
         } finally {
           installProgress.complete();

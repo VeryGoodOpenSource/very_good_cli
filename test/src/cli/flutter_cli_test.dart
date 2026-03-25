@@ -301,6 +301,31 @@ void main() {
           runProcess: process.run,
         );
       });
+
+      test('throws ProcessException when pub get times out', () async {
+        when(
+          () => process.run(
+            'flutter',
+            any(that: contains('pub')),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) => Completer<ProcessResult>().future);
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Flutter.pubGet(logger: logger),
+            throwsA(
+              isA<ProcessException>().having(
+                (e) => e.message,
+                'message',
+                contains('Timed out'),
+              ),
+            ),
+          ),
+          runProcess: process.run,
+        );
+      });
     });
   });
 

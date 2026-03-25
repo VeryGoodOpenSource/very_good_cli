@@ -1,5 +1,11 @@
 part of 'cli.dart';
 
+/// Default timeout for pub get operations.
+///
+/// When connected to a network without internet access, pub get can hang
+/// indefinitely. This timeout ensures the CLI surfaces a clear error instead.
+const _pubGetTimeout = Duration(seconds: 120);
+
 /// Dart CLI
 class Dart {
   /// Determine whether dart is installed.
@@ -45,6 +51,7 @@ class Dart {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
+            timeout: _pubGetTimeout,
           );
         } finally {
           installProgress.complete();

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
@@ -280,6 +282,31 @@ void main() {
           () => expectLater(
             () => Dart.pubGet(cwd: tempDirectory.path, logger: logger),
             throwsA(isA<UnreachableGitDependency>()),
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws ProcessException when pub get times out', () async {
+        when(
+          () => process.run(
+            'dart',
+            any(that: contains('pub')),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) => Completer<ProcessResult>().future);
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.pubGet(logger: logger),
+            throwsA(
+              isA<ProcessException>().having(
+                (e) => e.message,
+                'message',
+                contains('Timed out'),
+              ),
+            ),
           ),
           runProcess: process.run,
         );

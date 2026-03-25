@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
@@ -587,6 +588,44 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
           ).called(1);
         });
       });
+
+      test(
+        'returns unavailable exit code when preGen times out',
+        () async {
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+            ),
+          ).thenAnswer((_) => Completer<void>().future);
+
+          final result = await runner.run([
+            'create_subcommand',
+            'test_project',
+          ]);
+
+          expect(result, equals(ExitCode.unavailable.code));
+          verify(() => progress.fail(any())).called(1);
+          verify(
+            () => logger.err(
+              any(
+                that: contains(
+                  'Bootstrapping timed out after '
+                  '${CreateSubCommand.preGenTimeout.inSeconds} seconds.',
+                ),
+              ),
+            ),
+          ).called(1);
+          verifyNever(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          );
+        },
+        timeout: Timeout(CreateSubCommand.preGenTimeout + Duration(seconds: 5)),
+      );
     });
   });
   group('OrgName', () {
