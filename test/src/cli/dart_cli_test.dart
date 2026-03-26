@@ -301,7 +301,7 @@ void main() {
           () => expectLater(
             Dart.pubGet(
               logger: logger,
-              timeout: Duration(milliseconds: 100),
+              timeout: const Duration(milliseconds: 100),
             ),
             throwsA(
               isA<ProcessException>().having(
