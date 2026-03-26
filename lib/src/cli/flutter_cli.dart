@@ -157,6 +157,7 @@ class Flutter {
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
+    Duration timeout = _pubGetTimeout,
   }) async {
     final initialCwd = cwd;
 
@@ -184,6 +185,7 @@ class Flutter {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
+            timeout: timeout,
           );
         } finally {
           installProgress.complete();

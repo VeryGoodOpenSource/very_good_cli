@@ -79,21 +79,41 @@ class _ProcessOverridesScope extends ProcessOverrides {
 /// Abstraction for running commands via command-line.
 class _Cmd {
   /// Runs the specified [cmd] with the provided [args].
+  ///
+  /// If [timeout] is provided, the process will be terminated after the
+  /// specified duration with a [ProcessException].
   static Future<ProcessResult> run(
     String cmd,
     List<String> args, {
     required Logger logger,
     bool throwOnError = true,
     String? workingDirectory,
+    Duration? timeout,
   }) async {
     logger.detail('Running: $cmd with $args');
     final runProcess = ProcessOverrides.current?.runProcess ?? Process.run;
-    final result = await runProcess(
+    final processFuture = runProcess(
       cmd,
       args,
       runInShell: true,
       workingDirectory: workingDirectory,
     );
+    final ProcessResult result;
+    if (timeout != null) {
+      try {
+        result = await processFuture.timeout(timeout);
+      } on TimeoutException {
+        throw ProcessException(
+          cmd,
+          args,
+          'Timed out after ${timeout.inSeconds} seconds. '
+          'Check your internet connection.',
+          -1,
+        );
+      }
+    } else {
+      result = await processFuture;
+    }
     logger
       ..detail('stdout:\n${result.stdout}')
       ..detail('stderr:\n${result.stderr}');
