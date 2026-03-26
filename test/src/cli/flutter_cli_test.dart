@@ -314,7 +314,10 @@ void main() {
 
         await ProcessOverrides.runZoned(
           () => expectLater(
-            Flutter.pubGet(logger: logger),
+            Flutter.pubGet(
+              logger: logger,
+              timeout: Duration(milliseconds: 100),
+            ),
             throwsA(
               isA<ProcessException>().having(
                 (e) => e.message,

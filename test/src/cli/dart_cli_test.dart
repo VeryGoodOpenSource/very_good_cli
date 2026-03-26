@@ -299,7 +299,10 @@ void main() {
 
         await ProcessOverrides.runZoned(
           () => expectLater(
-            Dart.pubGet(logger: logger),
+            Dart.pubGet(
+              logger: logger,
+              timeout: Duration(milliseconds: 100),
+            ),
             throwsA(
               isA<ProcessException>().having(
                 (e) => e.message,

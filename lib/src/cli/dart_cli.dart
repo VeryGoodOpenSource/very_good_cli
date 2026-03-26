@@ -24,6 +24,7 @@ class Dart {
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
+    Duration timeout = _pubGetTimeout,
   }) async {
     final initialCwd = cwd;
 
@@ -51,7 +52,7 @@ class Dart {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
-            timeout: _pubGetTimeout,
+            timeout: timeout,
           );
         } finally {
           installProgress.complete();
