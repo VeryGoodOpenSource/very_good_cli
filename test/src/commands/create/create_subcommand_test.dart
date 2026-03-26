@@ -624,7 +624,9 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
             ),
           );
         },
-        timeout: Timeout(CreateSubCommand.preGenTimeout + Duration(seconds: 5)),
+        timeout: Timeout(
+          CreateSubCommand.preGenTimeout + const Duration(seconds: 5),
+        ),
       );
     });
   });
