@@ -15,6 +15,9 @@ Use `-o` or `--output-directory` to specify a custom output directory for the ge
 ```sh
 # Create a new Flutter plugin named my_flutter_plugin (all platforms enabled)
 very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
+
+# Create a new Flutter plugin named my_flutter_plugin with a custom org
+very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin" --org "com.custom.org"
 ```
 
 ## Providing supported platforms

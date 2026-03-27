@@ -51,7 +51,7 @@ You can combine `.` with any other supported flags for that template:
 
 ```sh
 # Create a Flutter app with a custom org name
-very_good create flutter_app . --org "com.mycompany"
+very_good create flutter_app . --org "com.company"
 
 # Create a Flutter app with a description
 very_good create flutter_app . --desc "My production Flutter app"
