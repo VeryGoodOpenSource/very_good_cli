@@ -10,7 +10,7 @@ template type has a corresponding subcommand.
 ## Usage
 
 ```sh
-Creates a new very good project in the specified directory.
+Creates a new Very Good project in the specified directory.
 
 Usage: very_good create <subcommand> <project-name> [arguments]
 -h, --help    Print this usage information.
@@ -66,26 +66,8 @@ very_good create flutter_plugin . --desc "My plugin" --platforms android,ios,web
 This works with every template subcommand:
 
 ```sh
-# Create a Dart package in the current directory
-very_good create dart_package .
-
-# Create a Dart CLI app in the current directory
-very_good create dart_cli .
-
-# Create a Flutter package in the current directory
-very_good create flutter_package .
-
-# Create an App UI package in the current directory
-very_good create app_ui_package .
-
-# Create a Flame game in the current directory
-very_good create flame_game .
-
-# Create a docs site in the current directory
-very_good create docs_site .
-
-# Create a Flutter plugin in the current directory
-very_good create flutter_plugin .
+# Create a Flutter app in the current directory
+very_good create flutter_app .
 ```
 
 :::note
