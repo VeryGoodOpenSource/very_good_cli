@@ -66,7 +66,10 @@ Run "very_good help" to see global options.
 ```
 
 :::tip
-You can use `.` as the project name to create the project in the current directory. The project will be named with the name of the current directory.
+Pass `.` as the project name to create the project in the current directory.
+Very Good CLI derives the project name from the current directory's basename.
+
+See the [create command docs](./commands/create.md) for more details.
 :::
 
 ### `very_good mcp`

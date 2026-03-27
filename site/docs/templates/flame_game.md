@@ -42,6 +42,9 @@ Use `-o` or `--output-directory` to specify a custom output directory for the ge
 # Create a new Flame game named my_game
 very_good create flame_game my_game --desc "My new Flame game"
 
+# Create a new Flame game named my_game with a custom org
+very_good create flame_game my_game --desc "My new Flame game" --org "com.custom.org"
+
 # Create a new Flame game named with the name of the current directory
 very_good create flame_game . --desc "My new Flame game"
 
