@@ -37,7 +37,7 @@ generated project.
 
 Instead of specifying a project name, you can pass `.` to create the project
 in your current directory. Very Good CLI derives the project name from your
-current directory's basename.
+current directory's basename. This works with every template subcommand.
 
 For example, if your working directory is `/home/user/my_flutter_app`, the
 following command creates a Flutter app named `my_flutter_app` in place:
@@ -63,16 +63,9 @@ very_good create dart_package . --desc "My Dart package" --publishable
 very_good create flutter_plugin . --desc "My plugin" --platforms android,ios,web
 ```
 
-This works with every template subcommand:
-
-```sh
-# Create a Flutter app in the current directory
-very_good create flutter_app .
-```
-
 :::note
-You cannot combine `.` with `--output-directory`. Using both together produces
-an error.
+You cannot combine `.` with `--output-directory`. Very Good CLI will exit with
+an error if you specify both.
 :::
 
 ## Available templates
