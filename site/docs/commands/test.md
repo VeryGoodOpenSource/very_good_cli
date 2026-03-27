@@ -25,6 +25,8 @@ very_good test [arguments]
     --exclude-coverage                One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').
 -x, --exclude-tags                    Run only tests that do not have the specified tags.
     --min-coverage                    Whether to enforce a minimum coverage percentage.
+    --show-uncovered                  Whether to show uncovered lines when coverage is below 100%.
+                                      Implicitly enables coverage collection when used alone.
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
     --update-goldens                  Whether "matchesGoldenFile()" calls within your test methods should update the golden files.
     --force-ansi                      Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.
@@ -38,6 +40,10 @@ very_good test [arguments]
     --collect-coverage-from=<imports|all>
                                       Whether to collect coverage from imported files only or all files.
                                       (defaults to "imports")
+    --report-on=<lib/>                Optional file paths to report coverage information to.
+                                      This should be paths relative to the current working directory.
+                                      Can be passed multiple times.
+    --run-skipped                     Run skipped tests instead of skipping them.
     --flavor                          Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.
     --fail-fast                       Stop running tests after the first failure.
 
