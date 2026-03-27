@@ -134,6 +134,8 @@ The MCP server exposes the following tools to AI assistants:
 
 Create new Dart or Flutter projects from any of the available [templates](/docs/category/templates).
 
+See the [create command](./create.md) for more details.
+
 ### `test`
 
 Run tests with optional coverage and optimization. Supports both `dart test` and `flutter test` via a `dart` parameter.
