@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.1.0...site-v1.1.1) (2026-03-30)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.0.3 to 10.1.0 in /site ([#1542](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1542)) ([12f1386](https://github.com/VeryGoodOpenSource/very_good_cli/commit/12f138690059a204a6fdd0c514d709f556231117))
+
+
+### Docs
+
+* add create command in current directory ([#1549](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1549)) ([8eefa56](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8eefa56d29c4f1b5d929a0b1252417a7e9395fad))
+
 ## [1.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.0.3...site-v1.1.0) (2026-03-18)
 
 
