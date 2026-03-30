@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.0...v1.1.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* add timeout to prevent bootstrapping from hanging indefinitely ([#1548](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1548)) ([f808c53](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f808c53bd0e8b6c18eeb11887a9dbd3ce9733ef8))
+* support multiple paths for report-on ([#1543](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1543)) ([ad52603](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ad526036b3a6434a6d2e0cf2f2bcab128e64a77c))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.1.0 ([#1523](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1523)) ([24766a6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/24766a697fb3f169d8a1ec592b665b5ad1788151))
+
 ## [1.1.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.0.0...v1.1.0) (2026-03-18)
 
 
