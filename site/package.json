@@ -34,7 +34,7 @@
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "eslint": "^10.1.0",
-    "eslint-plugin-jest": "^29.15.0",
+    "eslint-plugin-jest": "^29.15.1",
     "globals": "^17.4.0",
     "jest": "^30.3.0",
     "prettier": "^3.8.1",
