@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.2](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.1...v1.1.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* exclude site releases from CLI ([#1551](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1551)) ([b0a5521](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b0a5521430246929cd6b08ea5c9d2b45630f61ba))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.1.1 ([#1546](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1546)) ([d349b8e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d349b8e95d83ccbb2b4bb305474d5a671bea96a1))
+
 ## [1.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.0...v1.1.1) (2026-03-26)
 
 
