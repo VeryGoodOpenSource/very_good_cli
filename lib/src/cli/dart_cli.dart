@@ -1,5 +1,11 @@
 part of 'cli.dart';
 
+/// Default timeout for pub get operations.
+///
+/// When connected to a network without internet access, pub get can hang
+/// indefinitely. This timeout ensures the CLI surfaces a clear error instead.
+const _pubGetTimeout = Duration(seconds: 120);
+
 /// Dart CLI
 class Dart {
   /// Determine whether dart is installed.
@@ -18,6 +24,7 @@ class Dart {
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
+    Duration timeout = _pubGetTimeout,
   }) async {
     final initialCwd = cwd;
 
@@ -45,6 +52,7 @@ class Dart {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
+            timeout: timeout,
           );
         } finally {
           installProgress.complete();
@@ -113,7 +121,7 @@ class Dart {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
-    String? reportOn,
+    List<String>? reportOn,
   }) async {
     return TestCLIRunner.test(
       logger: logger,

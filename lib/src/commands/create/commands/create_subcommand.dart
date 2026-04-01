@@ -213,6 +213,13 @@ abstract class CreateSubCommand extends Command<int> {
     return result;
   }
 
+  /// Timeout for the Mason hook's internal `dart pub get` during bootstrapping.
+  ///
+  /// When connected to a network without internet access, this can hang
+  /// indefinitely. This timeout ensures the CLI surfaces a clear error instead.
+  @visibleForTesting
+  static const preGenTimeout = Duration(seconds: 120);
+
   /// Invoked by [run] to create the project, contains the logic for using
   /// the template vars obtained by [getTemplateVars] to generate the project
   /// from the [generator] and [template].
@@ -222,7 +229,18 @@ abstract class CreateSubCommand extends Command<int> {
     final generateProgress = logger.progress('Bootstrapping');
     final target = DirectoryGeneratorTarget(outputDirectory);
 
-    await generator.hooks.preGen(vars: vars, onVarsChanged: (v) => vars = v);
+    try {
+      await generator.hooks
+          .preGen(vars: vars, onVarsChanged: (v) => vars = v)
+          .timeout(preGenTimeout);
+    } on TimeoutException {
+      generateProgress.fail('Timed out waiting for hook dependencies.');
+      logger.err(
+        'Bootstrapping timed out after ${preGenTimeout.inSeconds} seconds.\n'
+        'Check your internet connection and try again.',
+      );
+      return ExitCode.unavailable.code;
+    }
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 

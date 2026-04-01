@@ -62,7 +62,10 @@ class FlutterTestOptions {
     final dartDefineFromFile =
         argResults['dart-define-from-file'] as List<String>?;
     final platform = argResults['platform'] as String?;
-    final reportOn = argResults['report-on'] as String?;
+    final reportOn = (argResults['report-on'] as List<String>)
+        .expand((e) => e.split(RegExp(r'[,\s]+')))
+        .where((e) => e.isNotEmpty)
+        .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final flavor = argResults['flavor'] as String?;
     final rest = argResults.rest;
@@ -141,8 +144,8 @@ class FlutterTestOptions {
   /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
   final String? platform;
 
-  /// An optional file path to report coverage information to.
-  final String? reportOn;
+  /// An optional list of file paths to report coverage information to.
+  final List<String> reportOn;
 
   /// Whether to run skipped tests instead of skipping them.
   final bool runSkipped;
@@ -175,7 +178,7 @@ typedef FlutterTestCommand =
       List<String>? arguments,
       void Function(String)? stdout,
       void Function(String)? stderr,
-      String? reportOn,
+      List<String>? reportOn,
     });
 
 /// {@template test_command}
@@ -309,11 +312,12 @@ class TestCommand extends Command<int> {
         help: 'The platform to run tests on. ',
         valueHelp: 'chrome|vm|android|ios',
       )
-      ..addOption(
+      ..addMultiOption(
         'report-on',
         help:
-            'An optional file path to report coverage information to. '
-            'This should be a path relative to the current working directory.',
+            'Optional file paths to report coverage information to. '
+            'This should be paths relative to the current working directory. '
+            'Can be passed multiple times.',
         valueHelp: 'lib/',
       )
       ..addFlag(
@@ -389,7 +393,7 @@ This command should be run from the root of your Flutter project.''');
           collectCoverageFrom: options.collectCoverageFrom,
           randomSeed: options.randomSeed,
           forceAnsi: options.forceAnsi,
-          reportOn: options.reportOn,
+          reportOn: options.reportOn.isEmpty ? null : options.reportOn,
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],

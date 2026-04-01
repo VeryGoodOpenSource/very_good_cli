@@ -157,6 +157,7 @@ class Flutter {
     String cwd = '.',
     bool recursive = false,
     Set<String> ignore = const {},
+    Duration timeout = _pubGetTimeout,
   }) async {
     final initialCwd = cwd;
 
@@ -184,6 +185,7 @@ class Flutter {
             ['pub', 'get', '--no-example'],
             workingDirectory: cwd,
             logger: logger,
+            timeout: timeout,
           );
         } finally {
           installProgress.complete();
@@ -215,7 +217,7 @@ class Flutter {
     void Function(String)? stdout,
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
-    String? reportOn,
+    List<String>? reportOn,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
