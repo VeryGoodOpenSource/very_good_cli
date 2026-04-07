@@ -2,7 +2,7 @@
 
 This document tracks where Very Good CLI is headed. It is intentionally high-level — focused on themes and milestones rather than exhaustive issue lists. Specific work lives in the [GitHub issue tracker](https://github.com/VeryGoodOpenSource/very_good_cli/issues).
 
-> This is a directional roadmap, not a commitment. Priorities shift as we learn from the community and from our own use of the tool in client projects. If something here matters to you, open an issue or upvote an existing one.
+> This is a directional roadmap, not a commitment. Priorities shift as we learn from the community and from our own use of the tool in client projects. If something here matters to you, open an issue or react to an existing one.
 
 ---
 
@@ -94,7 +94,7 @@ Looking to contribute? These are well-scoped, clearly defined issues with enough
 
 ## Blocked
 
-- [#947 — CI `test_optimizer` cache error with GitHub Actions + Melos](https://github.com/VeryGoodOpenSource/very_good_cli/issues/947) — blocked by [felangel/mason#1655](https://github.com/felangel/mason/issues/1655)
+- [#947 — CI `test_optimizer` cache error with GitHub Actions + Melos](https://github.com/VeryGoodOpenSource/very_good_cli/issues/947) — blocked by [mason#1655](https://github.com/felangel/mason/issues/1655)
 
 ---
 
