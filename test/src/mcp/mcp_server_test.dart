@@ -91,10 +91,7 @@ void main() {
         ),
       );
       registerFallbackValue(
-        CallToolRequest(
-          name: 'dummyTool',
-          arguments: const {},
-        ),
+        CallToolRequest(name: 'dummyTool', arguments: const {}),
       );
 
       when(
@@ -301,10 +298,7 @@ void main() {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'optimization': false},
-            ),
+            CallToolRequest(name: 'test', arguments: {'optimization': false}),
           ),
         );
 
@@ -374,6 +368,40 @@ void main() {
           '--run-skipped',
           '--check-ignore',
         ]);
+      });
+
+      test('passes directory as positional argument', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'directory': 'my_dir'},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['test', 'my_dir']);
+      });
+
+      test('passes directory as positional argument with dart flag', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'directory': 'my_dir', 'dart': true},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['dart', 'test', 'my_dir']);
       });
 
       test('handles command failure', () async {
