@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.1...v1.2.0) (2026-04-08)
+
+
+### Features
+
+* **mcp:** add directory parameter to test tool ([#1567](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1567)) ([0f0aaf7](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0f0aaf7ee20dc88c929e33ec096ae94774827b46))
+
+
+### Bug Fixes
+
+* exclude site releases from CLI ([#1551](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1551)) ([b0a5521](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b0a5521430246929cd6b08ea5c9d2b45630f61ba))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.1.1 ([#1546](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1546)) ([d349b8e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d349b8e95d83ccbb2b4bb305474d5a671bea96a1))
+
+
+### Docs
+
+* add ROADMAP.md ([#1566](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1566)) ([0b3a1f5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0b3a1f5c438d27ce4f9ab74e8802da24f622c37a))
+
 ## [1.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.0...v1.1.1) (2026-03-26)
 
 
