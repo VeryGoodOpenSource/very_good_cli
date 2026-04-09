@@ -135,6 +135,11 @@ If is omitted, then core will be selected.
         description: 'Run tests in a Dart or Flutter project.',
         inputSchema: ObjectSchema(
           properties: {
+            'directory': StringSchema(
+              description:
+                  'Target directory path (defaults to current directory). '
+                  'Can be absolute or relative path to project root.',
+            ),
             'dart': BooleanSchema(
               description:
                   '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
@@ -319,6 +324,9 @@ Only one value can be selected.
   List<String> _parseTest(Map<String, Object?> args) {
     final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
+    if (args['directory'] != null) {
+      cliArgs.add(args['directory']! as String);
+    }
     if (args['coverage'] == true) {
       cliArgs.add('--coverage');
     }
@@ -464,9 +472,7 @@ Only one value can be selected.
 
       if (exitCode == ExitCode.success.code) {
         return CallToolResult(
-          content: [
-            TextContent(text: '"$toolName" completed successfully.'),
-          ],
+          content: [TextContent(text: '"$toolName" completed successfully.')],
           isError: false,
         );
       }
