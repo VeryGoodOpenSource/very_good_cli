@@ -12,6 +12,9 @@ import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
+/// The basename of the pubspec file.
+const pubspecBasename = 'pubspec.yaml';
+
 /// {@template PubspecParseException}
 /// Thrown when a [Pubspec] fails to parse.
 /// {@endtemplate}
@@ -46,13 +49,11 @@ class Pubspec {
   factory Pubspec.fromString(String content) {
     late final YamlMap yaml;
     try {
-      yaml = loadYaml(content) as YamlMap;
-      // loadYaml throws TypeError when it fails to cast content as a YamlMap.
-      // YamlException is thrown when the content is not valid YAML.
-      // We need to catch both to provide a meaningful exception.
-      // ignore: avoid_catching_errors
-    } on TypeError catch (_) {
-      throw const PubspecParseException('Failed to parse YAML content');
+      final loaded = loadYaml(content);
+      if (loaded is! YamlMap) {
+        throw const PubspecParseException('Failed to parse YAML content');
+      }
+      yaml = loaded;
     } on YamlException catch (_) {
       throw const PubspecParseException('Failed to parse YAML content');
     }
@@ -91,6 +92,18 @@ class Pubspec {
       throw PubspecParseException('File not found: ${file.path}');
     }
     return Pubspec.fromString(file.readAsStringSync());
+  }
+
+  /// Attempts to parse a [Pubspec] from a [file].
+  ///
+  /// Returns `null` if the file doesn't exist or cannot be parsed.
+  static Pubspec? tryParse(File file) {
+    if (!file.existsSync()) return null;
+    try {
+      return Pubspec.fromFile(file);
+    } on PubspecParseException catch (_) {
+      return null;
+    }
   }
 
   /// The name of the package.

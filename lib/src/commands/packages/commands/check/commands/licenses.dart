@@ -36,10 +36,6 @@ Future<detector.Result> Function(String, double)? detectLicenseOverride;
 @visibleForTesting
 const pubspecLockBasename = 'pubspec.lock';
 
-/// The basename of the pubspec file.
-@visibleForTesting
-const pubspecBasename = 'pubspec.yaml';
-
 /// The URI for the pub.dev license page for the given [packageName].
 @visibleForTesting
 Uri pubLicenseUri(String packageName) =>
@@ -199,7 +195,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     // Check if this is a workspace root and collect dependencies accordingly
     final pubspecFile = File(path.join(targetPath, pubspecBasename));
-    final pubspec = _tryParsePubspec(pubspecFile);
+    final pubspec = Pubspec.tryParse(pubspecFile);
 
     // Collect workspace dependencies if this is a workspace root
     final workspaceDependencies = _collectWorkspaceDependencies(
@@ -573,18 +569,6 @@ extension on List<Object> {
   }
 }
 
-/// Attempts to parse a [Pubspec] from a file.
-///
-/// Returns `null` if the file doesn't exist or cannot be parsed.
-Pubspec? _tryParsePubspec(File pubspecFile) {
-  if (!pubspecFile.existsSync()) return null;
-  try {
-    return Pubspec.fromFile(pubspecFile);
-  } on PubspecParseException catch (_) {
-    return null;
-  }
-}
-
 /// Collects dependencies from a workspace.
 ///
 /// If [pubspec] is not a workspace root, returns `null`.
@@ -613,7 +597,7 @@ Set<String>? _collectWorkspaceDependencies({
     final memberPubspecFile = File(
       path.join(memberDirectory.path, pubspecBasename),
     );
-    final memberPubspec = _tryParsePubspec(memberPubspecFile);
+    final memberPubspec = Pubspec.tryParse(memberPubspecFile);
     if (memberPubspec == null) continue;
 
     if (dependencyTypes.contains('direct-main')) {

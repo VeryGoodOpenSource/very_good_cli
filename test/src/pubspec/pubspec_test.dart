@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 
 void main() {
-  group('$Pubspec', () {
+  group(Pubspec, () {
     group('fromString', () {
       test('parses basic pubspec correctly', () {
         final pubspec = Pubspec.fromString(_basicPubspecContent);
@@ -205,7 +205,7 @@ void main() {
     });
   });
 
-  group('$PubspecParseException', () {
+  group(PubspecParseException, () {
     test('toString returns message when provided', () {
       final exception = PubspecParseException('test message');
       expect(
@@ -220,7 +220,7 @@ void main() {
     });
   });
 
-  group('$PubspecResolution', () {
+  group(PubspecResolution, () {
     group('tryParse', () {
       test('parses workspace correctly', () {
         expect(
