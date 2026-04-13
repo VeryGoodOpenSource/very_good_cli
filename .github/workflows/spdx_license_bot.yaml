@@ -47,7 +47,7 @@ jobs:
 
       - name: 📝 Create Pull Request
         if: ${{ env.did_change == 'true' }}
-        uses: peter-evans/create-pull-request@v8.1.0
+        uses: peter-evans/create-pull-request@v8.1.1
         with:
           base: main
           labels: bot
