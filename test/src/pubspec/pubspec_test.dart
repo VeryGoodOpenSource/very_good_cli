@@ -1,7 +1,3 @@
-// Ensures we don't have to use const constructors
-// and instances are created at runtime.
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
@@ -9,236 +5,145 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 
 void main() {
-  group(Pubspec, () {
-    group('fromString', () {
-      test('parses basic pubspec correctly', () {
-        final pubspec = Pubspec.fromString(_basicPubspecContent);
+  group('tryParsePubspec', () {
+    late Directory tempDirectory;
 
-        expect(pubspec.name, equals('test_package'));
-        expect(pubspec.dependencies, equals(['foo', 'bar']));
-        expect(pubspec.devDependencies, equals(['test', 'mocktail']));
-        expect(pubspec.workspace, isNull);
-        expect(pubspec.resolution, isNull);
-        expect(pubspec.isWorkspaceRoot, isFalse);
-        expect(pubspec.isWorkspaceMember, isFalse);
-      });
-
-      test('parses workspace root pubspec correctly', () {
-        final pubspec = Pubspec.fromString(_workspaceRootPubspecContent);
-
-        expect(pubspec.name, equals('workspace_root'));
-        expect(pubspec.dependencies, isEmpty);
-        expect(pubspec.devDependencies, isEmpty);
-        expect(pubspec.workspace, equals(['packages/app', 'packages/shared']));
-        expect(pubspec.resolution, isNull);
-        expect(pubspec.isWorkspaceRoot, isTrue);
-        expect(pubspec.isWorkspaceMember, isFalse);
-      });
-
-      test('parses workspace member pubspec correctly', () {
-        final pubspec = Pubspec.fromString(_workspaceMemberPubspecContent);
-
-        expect(pubspec.name, equals('workspace_member'));
-        expect(pubspec.dependencies, equals(['http', 'shared']));
-        expect(pubspec.devDependencies, equals(['test']));
-        expect(pubspec.workspace, isNull);
-        expect(pubspec.resolution, equals(PubspecResolution.workspace));
-        expect(pubspec.isWorkspaceRoot, isFalse);
-        expect(pubspec.isWorkspaceMember, isTrue);
-      });
-
-      test('parses workspace with glob pattern correctly', () {
-        final pubspec = Pubspec.fromString(_workspaceWithGlobPubspecContent);
-
-        expect(pubspec.workspace, equals(['packages/*']));
-        expect(pubspec.isWorkspaceRoot, isTrue);
-      });
-
-      test('parses pubspec with no dependencies correctly', () {
-        final pubspec = Pubspec.fromString(_noDependenciesPubspecContent);
-
-        expect(pubspec.name, equals('no_deps'));
-        expect(pubspec.dependencies, isEmpty);
-        expect(pubspec.devDependencies, isEmpty);
-      });
-
-      test('throws $PubspecParseException when content is empty', () {
-        expect(
-          () => Pubspec.fromString(''),
-          throwsA(isA<PubspecParseException>()),
-        );
-      });
-
-      test('throws $PubspecParseException when content is invalid YAML', () {
-        expect(
-          () => Pubspec.fromString('invalid: yaml: content: ['),
-          throwsA(isA<PubspecParseException>()),
-        );
-      });
-
-      test('handles missing name gracefully', () {
-        final pubspec = Pubspec.fromString('dependencies:\n  foo: ^1.0.0');
-        expect(pubspec.name, equals(''));
-      });
+    setUp(() {
+      tempDirectory = Directory.systemTemp.createTempSync();
     });
 
-    group('fromFile', () {
-      late Directory tempDirectory;
-
-      setUp(() {
-        tempDirectory = Directory.systemTemp.createTempSync();
-      });
-
-      tearDown(() {
-        tempDirectory.deleteSync(recursive: true);
-      });
-
-      test('parses file correctly', () {
-        final pubspecFile = File(path.join(tempDirectory.path, 'pubspec.yaml'))
-          ..writeAsStringSync(_basicPubspecContent);
-
-        final pubspec = Pubspec.fromFile(pubspecFile);
-
-        expect(pubspec.name, equals('test_package'));
-        expect(pubspec.dependencies, equals(['foo', 'bar']));
-      });
-
-      test('throws $PubspecParseException when file does not exist', () {
-        final nonExistentFile = File(
-          path.join(tempDirectory.path, 'nonexistent.yaml'),
-        );
-
-        expect(
-          () => Pubspec.fromFile(nonExistentFile),
-          throwsA(isA<PubspecParseException>()),
-        );
-      });
+    tearDown(() {
+      tempDirectory.deleteSync(recursive: true);
     });
 
-    group('resolveWorkspaceMembers', () {
-      late Directory tempDirectory;
+    test('returns a Pubspec when the file exists and is valid', () {
+      final file = File(path.join(tempDirectory.path, pubspecBasename))
+        ..writeAsStringSync(_basicPubspecContent);
 
-      setUp(() {
-        tempDirectory = Directory.systemTemp.createTempSync();
-      });
+      final pubspec = tryParsePubspec(file);
 
-      tearDown(() {
-        tempDirectory.deleteSync(recursive: true);
-      });
-
-      test('returns empty list when not a workspace root', () {
-        final pubspec = Pubspec.fromString(_basicPubspecContent);
-        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
-        expect(members, isEmpty);
-      });
-
-      test('resolves direct path members correctly', () {
-        // Create workspace structure
-        final appDir = Directory(path.join(tempDirectory.path, 'packages/app'))
-          ..createSync(recursive: true);
-        File(
-          path.join(appDir.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_workspaceMemberPubspecContent);
-
-        final sharedDir = Directory(
-          path.join(tempDirectory.path, 'packages/shared'),
-        )..createSync(recursive: true);
-        File(
-          path.join(sharedDir.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_workspaceMemberPubspecContent);
-
-        final pubspec = Pubspec.fromString(_workspaceRootPubspecContent);
-        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
-
-        expect(members.length, equals(2));
-        expect(members.map((d) => path.basename(d.path)), contains('app'));
-        expect(members.map((d) => path.basename(d.path)), contains('shared'));
-      });
-
-      test('ignores directories without pubspec.yaml for glob patterns', () {
-        // Create workspace structure with one valid and one invalid member
-        final validDir = Directory(
-          path.join(tempDirectory.path, 'packages/valid'),
-        )..createSync(recursive: true);
-        File(
-          path.join(validDir.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_workspaceMemberPubspecContent);
-
-        // Create a directory without pubspec.yaml
-        Directory(
-          path.join(tempDirectory.path, 'packages/invalid'),
-        ).createSync(recursive: true);
-
-        final pubspec = Pubspec.fromString(_workspaceWithGlobPubspecContent);
-        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
-
-        expect(members.length, equals(1));
-        expect(path.basename(members.first.path), equals('valid'));
-      });
-
-      test('skips non-existent direct path members', () {
-        // Don't create any directories
-        final pubspec = Pubspec.fromString(_workspaceRootPubspecContent);
-        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
-
-        expect(members, isEmpty);
-      });
-
-      test('resolves glob pattern matching pubspec.yaml files directly', () {
-        // Create workspace structure
-        final memberDir = Directory(
-          path.join(tempDirectory.path, 'packages/member'),
-        )..createSync(recursive: true);
-        File(
-          path.join(memberDir.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_workspaceMemberPubspecContent);
-
-        // Use a glob pattern that matches pubspec.yaml files directly
-        final pubspec = Pubspec.fromString(
-          _workspaceWithFileGlobPubspecContent,
-        );
-        final members = pubspec.resolveWorkspaceMembers(tempDirectory);
-
-        expect(members.length, equals(1));
-        expect(path.basename(members.first.path), equals('member'));
-      });
-    });
-  });
-
-  group(PubspecParseException, () {
-    test('toString returns message when provided', () {
-      final exception = PubspecParseException('test message');
+      expect(pubspec, isNotNull);
+      expect(pubspec!.name, equals('test_package'));
+      expect(pubspec.dependencies.keys, containsAll(<String>['foo', 'bar']));
       expect(
-        exception.toString(),
-        equals('PubspecParseException: test message'),
+        pubspec.devDependencies.keys,
+        containsAll(<String>['test', 'mocktail']),
       );
     });
 
-    test('toString returns class name when no message', () {
-      final exception = PubspecParseException();
-      expect(exception.toString(), equals('PubspecParseException'));
+    test('returns null when the file does not exist', () {
+      final file = File(path.join(tempDirectory.path, 'missing.yaml'));
+      expect(tryParsePubspec(file), isNull);
+    });
+
+    test('returns null when the file contains invalid YAML', () {
+      final file = File(path.join(tempDirectory.path, pubspecBasename))
+        ..writeAsStringSync('invalid: yaml: content: [');
+      expect(tryParsePubspec(file), isNull);
     });
   });
 
-  group(PubspecResolution, () {
-    group('tryParse', () {
-      test('parses workspace correctly', () {
-        expect(
-          PubspecResolution.tryParse('workspace'),
-          equals(PubspecResolution.workspace),
-        );
-      });
+  group('PubspecWorkspace', () {
+    test('isWorkspaceRoot is true when workspace is set', () {
+      final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
+      expect(pubspec.isWorkspaceRoot, isTrue);
+      expect(pubspec.isWorkspaceMember, isFalse);
+    });
 
-      test('parses external correctly', () {
-        expect(
-          PubspecResolution.tryParse('external'),
-          equals(PubspecResolution.external),
-        );
-      });
+    test('isWorkspaceRoot is false when workspace is not set', () {
+      final pubspec = Pubspec.parse(_basicPubspecContent);
+      expect(pubspec.isWorkspaceRoot, isFalse);
+    });
 
-      test('returns null for invalid value', () {
-        expect(PubspecResolution.tryParse('invalid'), isNull);
-      });
+    test('isWorkspaceMember is true when resolution is workspace', () {
+      final pubspec = Pubspec.parse(_workspaceMemberPubspecContent);
+      expect(pubspec.isWorkspaceMember, isTrue);
+      expect(pubspec.isWorkspaceRoot, isFalse);
+    });
+
+    test('isWorkspaceMember is false when resolution is absent', () {
+      final pubspec = Pubspec.parse(_basicPubspecContent);
+      expect(pubspec.isWorkspaceMember, isFalse);
+    });
+  });
+
+  group('resolveWorkspaceMembers', () {
+    late Directory tempDirectory;
+
+    setUp(() {
+      tempDirectory = Directory.systemTemp.createTempSync();
+    });
+
+    tearDown(() {
+      tempDirectory.deleteSync(recursive: true);
+    });
+
+    test('returns empty list when not a workspace root', () {
+      final pubspec = Pubspec.parse(_basicPubspecContent);
+      expect(resolveWorkspaceMembers(pubspec, tempDirectory), isEmpty);
+    });
+
+    test('resolves direct path members correctly', () {
+      final appDir = Directory(path.join(tempDirectory.path, 'packages/app'))
+        ..createSync(recursive: true);
+      File(
+        path.join(appDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final sharedDir = Directory(
+        path.join(tempDirectory.path, 'packages/shared'),
+      )..createSync(recursive: true);
+      File(
+        path.join(sharedDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
+      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+
+      expect(members.length, equals(2));
+      expect(members.map((d) => path.basename(d.path)), contains('app'));
+      expect(members.map((d) => path.basename(d.path)), contains('shared'));
+    });
+
+    test('ignores directories without pubspec.yaml for glob patterns', () {
+      final validDir = Directory(
+        path.join(tempDirectory.path, 'packages/valid'),
+      )..createSync(recursive: true);
+      File(
+        path.join(validDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      // Create a directory without pubspec.yaml
+      Directory(
+        path.join(tempDirectory.path, 'packages/invalid'),
+      ).createSync(recursive: true);
+
+      final pubspec = Pubspec.parse(_workspaceWithGlobPubspecContent);
+      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+
+      expect(members.length, equals(1));
+      expect(path.basename(members.first.path), equals('valid'));
+    });
+
+    test('skips non-existent direct path members', () {
+      final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
+      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+      expect(members, isEmpty);
+    });
+
+    test('resolves glob pattern matching pubspec.yaml files directly', () {
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages/member'),
+      )..createSync(recursive: true);
+      File(
+        path.join(memberDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse(_workspaceWithFileGlobPubspecContent);
+      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+
+      expect(members.length, equals(1));
+      expect(path.basename(members.first.path), equals('member'));
     });
   });
 }
@@ -297,14 +202,6 @@ environment:
 
 workspace:
   - packages/*
-''';
-
-/// A pubspec.yaml with no dependencies.
-const _noDependenciesPubspecContent = '''
-name: no_deps
-
-environment:
-  sdk: ^3.0.0
 ''';
 
 /// A workspace pubspec.yaml with glob pattern that matches pubspec.yaml files.

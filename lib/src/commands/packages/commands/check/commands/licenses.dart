@@ -195,7 +195,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     // Check if this is a workspace root and collect dependencies accordingly
     final pubspecFile = File(path.join(targetPath, pubspecBasename));
-    final pubspec = Pubspec.tryParse(pubspecFile);
+    final pubspec = tryParsePubspec(pubspecFile);
 
     // Collect workspace dependencies if this is a workspace root
     final workspaceDependencies = _collectWorkspaceDependencies(
@@ -585,26 +585,26 @@ Set<String>? _collectWorkspaceDependencies({
 
   // Collect dependencies from the root pubspec itself
   if (dependencyTypes.contains('direct-main')) {
-    dependencies.addAll(pubspec.dependencies);
+    dependencies.addAll(pubspec.dependencies.keys);
   }
   if (dependencyTypes.contains('direct-dev')) {
-    dependencies.addAll(pubspec.devDependencies);
+    dependencies.addAll(pubspec.devDependencies.keys);
   }
 
   // Collect dependencies from workspace members
-  final members = pubspec.resolveWorkspaceMembers(targetDirectory);
+  final members = resolveWorkspaceMembers(pubspec, targetDirectory);
   for (final memberDirectory in members) {
     final memberPubspecFile = File(
       path.join(memberDirectory.path, pubspecBasename),
     );
-    final memberPubspec = Pubspec.tryParse(memberPubspecFile);
+    final memberPubspec = tryParsePubspec(memberPubspecFile);
     if (memberPubspec == null) continue;
 
     if (dependencyTypes.contains('direct-main')) {
-      dependencies.addAll(memberPubspec.dependencies);
+      dependencies.addAll(memberPubspec.dependencies.keys);
     }
     if (dependencyTypes.contains('direct-dev')) {
-      dependencies.addAll(memberPubspec.devDependencies);
+      dependencies.addAll(memberPubspec.devDependencies.keys);
     }
 
     // Handle nested workspaces recursively

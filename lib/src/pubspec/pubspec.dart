@@ -1,219 +1,84 @@
-/// A simple parser for pubspec.yaml files.
+/// Workspace-aware helpers around [package:pubspec_parse].
 ///
-/// This is used by the `packages check licenses` command to detect workspace
-/// configurations and collect dependencies from workspace members.
+/// Parsing is delegated to [Pubspec.parse]; this library only adds the
+/// filesystem and glob expansion helpers needed by
+/// `packages check licenses` to walk workspace members.
 library;
 
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
 import 'package:path/path.dart' as path;
-import 'package:yaml/yaml.dart';
+import 'package:pubspec_parse/pubspec_parse.dart';
+
+export 'package:pubspec_parse/pubspec_parse.dart' show Pubspec;
 
 /// The basename of the pubspec file.
 const pubspecBasename = 'pubspec.yaml';
 
-/// {@template PubspecParseException}
-/// Thrown when a [Pubspec] fails to parse.
-/// {@endtemplate}
-class PubspecParseException implements Exception {
-  /// {@macro PubspecParseException}
-  const PubspecParseException([this.message]);
+const _workspaceResolution = 'workspace';
 
-  /// The error message.
-  final String? message;
-
-  @override
-  String toString() => message != null
-      ? 'PubspecParseException: $message'
-      : 'PubspecParseException';
-}
-
-/// {@template Pubspec}
-/// A representation of a pubspec.yaml file.
-/// {@endtemplate}
-class Pubspec {
-  const Pubspec._({
-    required this.name,
-    required this.dependencies,
-    required this.devDependencies,
-    required this.workspace,
-    required this.resolution,
-  });
-
-  /// Parses a [Pubspec] from a string.
-  ///
-  /// Throws a [PubspecParseException] if the string cannot be parsed.
-  factory Pubspec.fromString(String content) {
-    late final YamlMap yaml;
-    try {
-      final loaded = loadYaml(content);
-      if (loaded is! YamlMap) {
-        throw const PubspecParseException('Failed to parse YAML content');
-      }
-      yaml = loaded;
-    } on YamlException catch (_) {
-      throw const PubspecParseException('Failed to parse YAML content');
-    }
-
-    final name = yaml['name'] as String? ?? '';
-
-    final dependencies = _parseDependencies(yaml['dependencies']);
-    final devDependencies = _parseDependencies(yaml['dev_dependencies']);
-
-    final workspaceValue = yaml['workspace'];
-    List<String>? workspace;
-    if (workspaceValue is YamlList) {
-      workspace = workspaceValue.cast<String>().toList();
-    }
-
-    final resolutionValue = yaml['resolution'];
-    PubspecResolution? resolution;
-    if (resolutionValue is String) {
-      resolution = PubspecResolution.tryParse(resolutionValue);
-    }
-
-    return Pubspec._(
-      name: name,
-      dependencies: UnmodifiableListView(dependencies),
-      devDependencies: UnmodifiableListView(devDependencies),
-      workspace: workspace != null ? UnmodifiableListView(workspace) : null,
-      resolution: resolution,
-    );
-  }
-
-  /// Parses a [Pubspec] from a file.
-  ///
-  /// Throws a [PubspecParseException] if the file cannot be read or parsed.
-  factory Pubspec.fromFile(File file) {
-    if (!file.existsSync()) {
-      throw PubspecParseException('File not found: ${file.path}');
-    }
-    return Pubspec.fromString(file.readAsStringSync());
-  }
-
-  /// Attempts to parse a [Pubspec] from a [file].
-  ///
-  /// Returns `null` if the file doesn't exist or cannot be parsed.
-  static Pubspec? tryParse(File file) {
-    if (!file.existsSync()) return null;
-    try {
-      return Pubspec.fromFile(file);
-    } on PubspecParseException catch (_) {
-      return null;
-    }
-  }
-
-  /// The name of the package.
-  final String name;
-
-  /// The direct main dependencies.
-  final UnmodifiableListView<String> dependencies;
-
-  /// The direct dev dependencies.
-  final UnmodifiableListView<String> devDependencies;
-
-  /// The workspace member paths, if this is a workspace root.
-  ///
-  /// This is `null` if this pubspec is not a workspace root.
-  final UnmodifiableListView<String>? workspace;
-
-  /// The resolution mode for this package.
-  ///
-  /// This is `null` if no resolution is specified (typical for standalone
-  /// packages or workspace roots).
-  final PubspecResolution? resolution;
-
+/// Workspace-related conveniences on top of [Pubspec].
+extension PubspecWorkspace on Pubspec {
   /// Whether this pubspec is a workspace root.
   bool get isWorkspaceRoot => workspace != null;
 
   /// Whether this pubspec is a workspace member.
-  bool get isWorkspaceMember => resolution == PubspecResolution.workspace;
+  bool get isWorkspaceMember => resolution == _workspaceResolution;
+}
 
-  /// Resolves workspace member paths to actual directories.
-  ///
-  /// This handles glob patterns in workspace paths (e.g., `packages/*`).
-  /// The [rootDirectory] should be the directory containing this pubspec.
-  ///
-  /// Returns an empty list if this is not a workspace root.
-  List<Directory> resolveWorkspaceMembers(Directory rootDirectory) {
-    if (workspace == null) return [];
-
-    final members = <Directory>[];
-    for (final pattern in workspace!) {
-      if (_isGlobPattern(pattern)) {
-        // Handle glob patterns
-        final glob = Glob(pattern);
-        final matches = glob.listSync(root: rootDirectory.path);
-        for (final match in matches) {
-          if (match is Directory) {
-            final pubspecFile = File(path.join(match.path, 'pubspec.yaml'));
-            if (pubspecFile.existsSync()) {
-              members.add(Directory(match.path));
-            }
-          } else if (match is File &&
-              path.basename(match.path) == 'pubspec.yaml') {
-            members.add(Directory(match.parent.path));
-          }
-        }
-      } else {
-        // Handle direct path
-        final memberPath = path.join(rootDirectory.path, pattern);
-        final memberDir = Directory(memberPath);
-        if (memberDir.existsSync()) {
-          members.add(memberDir);
-        }
-      }
-    }
-
-    return members;
+/// Attempts to read and parse a [Pubspec] from [file].
+///
+/// Returns `null` when the file does not exist or cannot be parsed.
+Pubspec? tryParsePubspec(File file) {
+  if (!file.existsSync()) return null;
+  try {
+    return Pubspec.parse(
+      file.readAsStringSync(),
+      sourceUrl: file.uri,
+      lenient: true,
+    );
+  } on Exception {
+    return null;
   }
 }
 
-/// Parses dependency names from a YAML dependencies map.
-List<String> _parseDependencies(Object? value) {
-  if (value == null) return [];
-  if (value is! YamlMap) return [];
+/// Resolves the workspace members declared by [pubspec], expanding any glob
+/// patterns relative to [root].
+///
+/// Returns an empty list when [pubspec] is not a workspace root.
+List<Directory> resolveWorkspaceMembers(Pubspec pubspec, Directory root) {
+  final patterns = pubspec.workspace;
+  if (patterns == null) return const [];
 
-  return value.keys.cast<String>().toList();
+  final members = <Directory>[];
+  for (final pattern in patterns) {
+    if (_isGlobPattern(pattern)) {
+      final matches = Glob(pattern).listSync(root: root.path);
+      for (final match in matches) {
+        if (match is Directory) {
+          final pubspecFile = File(path.join(match.path, pubspecBasename));
+          if (pubspecFile.existsSync()) {
+            members.add(Directory(match.path));
+          }
+        } else if (match is File &&
+            path.basename(match.path) == pubspecBasename) {
+          members.add(Directory(match.parent.path));
+        }
+      }
+    } else {
+      final memberDir = Directory(path.join(root.path, pattern));
+      if (memberDir.existsSync()) members.add(memberDir);
+    }
+  }
+
+  return members;
 }
 
-/// Checks if a path pattern contains glob characters.
 bool _isGlobPattern(String pattern) {
   return pattern.contains('*') ||
       pattern.contains('?') ||
       pattern.contains('[') ||
       pattern.contains('{');
-}
-
-/// {@template PubspecResolution}
-/// The resolution mode for a pubspec.
-/// {@endtemplate}
-enum PubspecResolution {
-  /// This package is a workspace member and should resolve with the workspace
-  /// root.
-  workspace._('workspace'),
-
-  /// This package uses external resolution (e.g., Dart SDK packages).
-  external._('external'),
-  ;
-
-  const PubspecResolution._(this.value);
-
-  /// Tries to parse a [PubspecResolution] from a string.
-  ///
-  /// Returns `null` if the string is not a valid resolution value.
-  static PubspecResolution? tryParse(String value) {
-    for (final resolution in PubspecResolution.values) {
-      if (resolution.value == value) {
-        return resolution;
-      }
-    }
-    return null;
-  }
-
-  /// The string representation as it appears in pubspec.yaml.
-  final String value;
 }
