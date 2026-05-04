@@ -324,5 +324,66 @@ void main() {
         );
       });
     });
+
+    group('.runPigeon', () {
+      test('completes normally', () async {
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.runPigeon(
+              logger: logger,
+              cwd: '.',
+              input: 'pigeons/messages.dart',
+            ),
+            completes,
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws when process fails', () async {
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.runPigeon(
+              logger: logger,
+              cwd: '.',
+              input: 'pigeons/messages.dart',
+            ),
+            throwsException,
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('runs dart with correct args', () async {
+        await ProcessOverrides.runZoned(
+          () async {
+            await Dart.runPigeon(
+              logger: logger,
+              cwd: '.',
+              input: 'pigeons/messages.dart',
+            );
+
+            verify(
+              () => process.run(
+                'dart',
+                ['run', 'pigeon', '--input', 'pigeons/messages.dart'],
+                runInShell: any(named: 'runInShell'),
+                workingDirectory: any(named: 'workingDirectory'),
+              ),
+            ).called(1);
+          },
+          runProcess: process.run,
+        );
+      });
+    });
   });
 }

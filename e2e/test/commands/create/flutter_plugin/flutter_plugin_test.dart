@@ -33,6 +33,27 @@ void main() {
         'format',
       ], workingDirectory: pluginDirectory);
 
+      // Verify pigeon generated messages.g.dart for each platform before
+      // analysis. If missing, this gives a clear error instead of a wall of
+      // unresolved-reference analyzer failures.
+      const platforms = ['android', 'ios', 'linux', 'macos', 'windows'];
+      for (final platform in platforms) {
+        final messagesFile = File(
+          path.join(
+            pluginDirectory,
+            '${pluginName}_$platform',
+            'lib',
+            'src',
+            'messages.g.dart',
+          ),
+        );
+        expect(
+          messagesFile.existsSync(),
+          isTrue,
+          reason: 'pigeon did not generate ${messagesFile.path}',
+        );
+      }
+
       final analyzeResult = await expectSuccessfulProcessResult('flutter', [
         'analyze',
         '.',
