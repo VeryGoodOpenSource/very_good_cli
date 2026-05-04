@@ -33,25 +33,35 @@ void main() {
         'format',
       ], workingDirectory: pluginDirectory);
 
-      // Verify pigeon generated messages.g.dart for each platform before
-      // analysis. If missing, this gives a clear error instead of a wall of
-      // unresolved-reference analyzer failures.
-      const platforms = ['android', 'ios', 'linux', 'macos', 'windows'];
-      for (final platform in platforms) {
-        final messagesFile = File(
+      // Verify pigeon generated messages.g.dart for each platform that has a
+      // pigeon input file. The check is conditional so it passes when the
+      // fallback bundle (without pigeon) is used.
+      const pigeonPlatforms = ['android', 'ios', 'linux', 'macos', 'windows'];
+      for (final platform in pigeonPlatforms) {
+        final pigeonInput = File(
           path.join(
             pluginDirectory,
             '${pluginName}_$platform',
-            'lib',
-            'src',
-            'messages.g.dart',
+            'pigeons',
+            'messages.dart',
           ),
         );
-        expect(
-          messagesFile.existsSync(),
-          isTrue,
-          reason: 'pigeon did not generate ${messagesFile.path}',
-        );
+        if (pigeonInput.existsSync()) {
+          final messagesFile = File(
+            path.join(
+              pluginDirectory,
+              '${pluginName}_$platform',
+              'lib',
+              'src',
+              'messages.g.dart',
+            ),
+          );
+          expect(
+            messagesFile.existsSync(),
+            isTrue,
+            reason: 'pigeon did not generate ${messagesFile.path}',
+          );
+        }
       }
 
       final analyzeResult = await expectSuccessfulProcessResult('flutter', [
@@ -80,6 +90,28 @@ void main() {
           'compact',
         ], workingDirectory: packageDirectory);
         expect(testResult.stdout, contains('All tests passed!'));
+
+        // Pigeon-generated files (*.g.dart) are auto-generated platform
+        // channel boilerplate and are excluded from the 100% coverage
+        // requirement — consistent with how the project's own CI excludes
+        // *.gen.dart files via very_good_coverage.
+        final messagesGenFile = File(
+          path.join(packageDirectory, 'lib', 'src', 'messages.g.dart'),
+        );
+        if (messagesGenFile.existsSync()) {
+          await expectSuccessfulProcessResult(
+            'lcov',
+            [
+              '--remove',
+              'coverage/lcov.info',
+              '*/messages.g.dart',
+              '--output-file',
+              'coverage/lcov.info',
+            ],
+            workingDirectory: packageDirectory,
+            validateStderr: false,
+          );
+        }
 
         final testCoverageResult = await expectSuccessfulProcessResult(
           'genhtml',
