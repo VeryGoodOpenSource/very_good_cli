@@ -18,6 +18,7 @@ class FlutterPluginTemplate extends Template {
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     if (await installFlutterPackages(logger, outputDir, recursive: true)) {
+      await generatePigeonCode(logger, outputDir);
       await applyDartFixes(logger, outputDir, recursive: true);
     }
     _logSummary(logger);
