@@ -243,10 +243,7 @@ Run "runner help" to see global options.''';
             () async {
               final expectedProjectName = path.basename(Directory.current.path);
 
-              final result = await runner.run([
-                'create_subcommand',
-                '.',
-              ]);
+              final result = await runner.run(['create_subcommand', '.']);
 
               expect(result, equals(ExitCode.success.code));
               verify(() => logger.progress('Bootstrapping')).called(1);
@@ -265,10 +262,7 @@ Run "runner help" to see global options.''';
           );
 
           test('uses name if just a name is provided', () async {
-            final result = await runner.run([
-              'create_subcommand',
-              'name',
-            ]);
+            final result = await runner.run(['create_subcommand', 'name']);
 
             expect(result, equals(ExitCode.success.code));
             verify(() => logger.progress('Bootstrapping')).called(1);
@@ -291,10 +285,7 @@ Run "runner help" to see global options.''';
           () async {
             final expectedProjectName = path.basename(Directory.current.path);
 
-            final result = await runner.run([
-              'create_subcommand',
-              '.',
-            ]);
+            final result = await runner.run(['create_subcommand', '.']);
 
             expect(result, equals(ExitCode.success.code));
             verify(() => logger.progress('Bootstrapping')).called(1);
@@ -412,10 +403,7 @@ Run "runner help" to see global options.''';
             () async {
               await expectLater(
                 () async {
-                  await runner.run([
-                    'create_subcommand',
-                    'path/to/name',
-                  ]);
+                  await runner.run(['create_subcommand', 'path/to/name']);
                 },
                 throwsA(
                   isA<UsageException>()
@@ -430,31 +418,28 @@ Run "runner help" to see global options.''';
             },
           );
 
-          test(
-            'throws UsageException when project-name is . and '
-            '--output-directory is provided',
-            () async {
-              await expectLater(
-                () async {
-                  await runner.run([
-                    'create_subcommand',
-                    '.',
-                    '--output-directory',
-                    'path/to/name',
-                  ]);
-                },
-                throwsA(
-                  isA<UsageException>()
-                      .having((e) => e.usage, 'usage', expectedUsage)
-                      .having(
-                        (e) => e.message,
-                        'message',
-                        '''--output-directory cannot be specified when using "very_good create <template> ."''',
-                      ),
-                ),
-              );
-            },
-          );
+          test('throws UsageException when project-name is . and '
+              '--output-directory is provided', () async {
+            await expectLater(
+              () async {
+                await runner.run([
+                  'create_subcommand',
+                  '.',
+                  '--output-directory',
+                  'path/to/name',
+                ]);
+              },
+              throwsA(
+                isA<UsageException>()
+                    .having((e) => e.usage, 'usage', expectedUsage)
+                    .having(
+                      (e) => e.message,
+                      'message',
+                      '''--output-directory cannot be specified when using "very_good create <template> ."''',
+                    ),
+              ),
+            );
+          });
           test('throws UsageException when project-name is omitted', () async {
             await expectLater(
               () async {

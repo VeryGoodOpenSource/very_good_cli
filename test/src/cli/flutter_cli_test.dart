@@ -45,12 +45,7 @@ class _MockProgress extends Mock implements Progress {}
 class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
 
 void main() {
-  final successProcessResult = ProcessResult(
-    42,
-    ExitCode.success.code,
-    '',
-    '',
-  );
+  final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');
   final softwareErrorProcessResult = ProcessResult(
     42,
     ExitCode.software.code,
@@ -171,75 +166,69 @@ void main() {
         );
       });
 
-      test(
-        'completes when there is a pubspec.yaml and '
-        'directory is ignored (recursive)',
-        () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      test('completes when there is a pubspec.yaml and '
+          'directory is ignored (recursive)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
-            ..createSync();
-          final ignoredDirectory = Directory(
-            p.join(tempDirectory.path, 'test_plugin'),
-          )..createSync();
+        final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
+          ..createSync();
+        final ignoredDirectory = Directory(
+          p.join(tempDirectory.path, 'test_plugin'),
+        )..createSync();
 
-          File(
-            p.join(nestedDirectory.path, 'pubspec.yaml'),
-          ).writeAsStringSync(_pubspec);
-          File(
-            p.join(ignoredDirectory.path, 'pubspec.yaml'),
-          ).writeAsStringSync(_pubspec);
+        File(
+          p.join(nestedDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_pubspec);
+        File(
+          p.join(ignoredDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_pubspec);
 
-          final relativePathPrefix = '.${p.context.separator}';
+        final relativePathPrefix = '.${p.context.separator}';
 
-          await ProcessOverrides.runZoned(
-            () => expectLater(
-              Dart.pubGet(
-                cwd: tempDirectory.path,
-                recursive: true,
-                ignore: {
-                  'test_plugin',
-                  '/**/test_plugin_two/**',
-                },
-                logger: logger,
-              ),
-              completes,
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.pubGet(
+              cwd: tempDirectory.path,
+              recursive: true,
+              ignore: {'test_plugin', '/**/test_plugin_two/**'},
+              logger: logger,
             ),
-            runProcess: process.run,
-          ).whenComplete(() {
-            final nestedRelativePath = p.relative(
-              nestedDirectory.path,
+            completes,
+          ),
+          runProcess: process.run,
+        ).whenComplete(() {
+          final nestedRelativePath = p.relative(
+            nestedDirectory.path,
+            from: tempDirectory.path,
+          );
+
+          verify(() {
+            logger.progress(
+              any(
+                that: contains(
+                  '''Running "dart pub get" in $relativePathPrefix$nestedRelativePath''',
+                ),
+              ),
+            );
+          }).called(1);
+
+          verifyNever(() {
+            final ignoredRelativePath = p.relative(
+              ignoredDirectory.path,
               from: tempDirectory.path,
             );
 
-            verify(() {
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "dart pub get" in $relativePathPrefix$nestedRelativePath''',
-                  ),
+            logger.progress(
+              any(
+                that: contains(
+                  '''Running "dart pub get" in $relativePathPrefix$ignoredRelativePath''',
                 ),
-              );
-            }).called(1);
-
-            verifyNever(() {
-              final ignoredRelativePath = p.relative(
-                ignoredDirectory.path,
-                from: tempDirectory.path,
-              );
-
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "dart pub get" in $relativePathPrefix$ignoredRelativePath''',
-                  ),
-                ),
-              );
-            });
+              ),
+            );
           });
-        },
-      );
+        });
+      });
 
       test('throws when process fails', () async {
         when(

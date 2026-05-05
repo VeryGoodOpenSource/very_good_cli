@@ -13,40 +13,38 @@ void main() {
 
         expect(
           pubspecLock.packages,
-          equals(
-            [
-              PubspecLockPackage(
-                name: 'very_good_test_runner',
-                type: PubspecLockPackageDependencyType.directMain,
-                isPubHosted: true,
-              ),
-              PubspecLockPackage(
-                name: 'very_good_analysis',
-                type: PubspecLockPackageDependencyType.directDev,
-                isPubHosted: true,
-              ),
-              PubspecLockPackage(
-                name: 'yaml',
-                type: PubspecLockPackageDependencyType.transitive,
-                isPubHosted: true,
-              ),
-              PubspecLockPackage(
-                name: 'path',
-                type: PubspecLockPackageDependencyType.directOverridden,
-                isPubHosted: true,
-              ),
-              PubspecLockPackage(
-                name: 'foo',
-                type: PubspecLockPackageDependencyType.directMain,
-                isPubHosted: false,
-              ),
-              PubspecLockPackage(
-                name: 'yaml2',
-                type: PubspecLockPackageDependencyType.transitive,
-                isPubHosted: false,
-              ),
-            ],
-          ),
+          equals([
+            PubspecLockPackage(
+              name: 'very_good_test_runner',
+              type: PubspecLockPackageDependencyType.directMain,
+              isPubHosted: true,
+            ),
+            PubspecLockPackage(
+              name: 'very_good_analysis',
+              type: PubspecLockPackageDependencyType.directDev,
+              isPubHosted: true,
+            ),
+            PubspecLockPackage(
+              name: 'yaml',
+              type: PubspecLockPackageDependencyType.transitive,
+              isPubHosted: true,
+            ),
+            PubspecLockPackage(
+              name: 'path',
+              type: PubspecLockPackageDependencyType.directOverridden,
+              isPubHosted: true,
+            ),
+            PubspecLockPackage(
+              name: 'foo',
+              type: PubspecLockPackageDependencyType.directMain,
+              isPubHosted: false,
+            ),
+            PubspecLockPackage(
+              name: 'yaml2',
+              type: PubspecLockPackageDependencyType.transitive,
+              isPubHosted: false,
+            ),
+          ]),
         );
       });
 

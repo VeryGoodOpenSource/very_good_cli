@@ -12,19 +12,11 @@ class _MockProgress extends Mock implements Progress {}
 
 void main() {
   const latestVersion = '0.0.0';
-  final successProcessResult = ProcessResult(
-    42,
-    ExitCode.success.code,
-    '',
-    '',
-  );
+  final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');
 
   group('update', () {
     test('can be instantiated without optional parameters', () {
-      expect(
-        () => UpdateCommand(logger: Logger()),
-        returnsNormally,
-      );
+      expect(() => UpdateCommand(logger: Logger()), returnsNormally);
     });
 
     test(
