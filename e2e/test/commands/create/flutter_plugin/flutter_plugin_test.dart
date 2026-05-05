@@ -91,10 +91,6 @@ void main() {
         ], workingDirectory: packageDirectory);
         expect(testResult.stdout, contains('All tests passed!'));
 
-        // Pigeon-generated files (*.g.dart) are auto-generated platform
-        // channel boilerplate and are excluded from the 100% coverage
-        // requirement — consistent with how the project's own CI excludes
-        // *.gen.dart files via very_good_coverage.
         final messagesGenFile = File(
           path.join(packageDirectory, 'lib', 'src', 'messages.g.dart'),
         );
