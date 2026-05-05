@@ -541,7 +541,8 @@ enum ReporterOutputFormat {
   /// List all licenses in a CSV format.
   ///
   /// Example: very_good_cli,MIT
-  csv;
+  csv
+  ;
 
   /// Convenience parsing method from user input.
   ///
