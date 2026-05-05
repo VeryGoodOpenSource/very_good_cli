@@ -9,6 +9,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
@@ -27,6 +28,19 @@ class _FakeLogger extends Fake implements Logger {}
 
 class _FakeDirectoryGeneratorTarget extends Fake
     implements DirectoryGeneratorTarget {}
+
+class _TestProcess {
+  Future<ProcessResult> run(
+    String command,
+    List<String> args, {
+    bool runInShell = false,
+    String? workingDirectory,
+  }) {
+    throw UnimplementedError();
+  }
+}
+
+class _MockProcess extends Mock implements _TestProcess {}
 
 final expectedUsage = [
   'Generate a Very Good Flutter plugin.\n'
@@ -226,6 +240,95 @@ void main() {
           () => logger.info('Created a Very Good Flutter Plugin! 🦄'),
         ).called(1);
       });
+
+      test(
+        'runs pigeon for each platform directory that has an input file',
+        () async {
+          const pluginPlatforms = ['android', 'ios'];
+
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          when(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          ).thenAnswer((invocation) async {
+            final target =
+                invocation.positionalArguments.first
+                    as DirectoryGeneratorTarget;
+
+            File(path.join(target.dir.path, 'pubspec.yaml'))
+              ..createSync(recursive: true)
+              ..writeAsStringSync(pubspec);
+
+            for (final platform in pluginPlatforms) {
+              final pigeonDir = Directory(
+                path.join(
+                  target.dir.path,
+                  'my_plugin_$platform',
+                  'pigeons',
+                ),
+              )..createSync(recursive: true);
+              File(
+                path.join(pigeonDir.path, 'messages.dart'),
+              ).writeAsStringSync('');
+            }
+
+            return generatedFiles;
+          });
+
+          final process = _MockProcess();
+          final successResult = ProcessResult(
+            42,
+            ExitCode.success.code,
+            '',
+            '',
+          );
+          when(
+            () => process.run(
+              any(),
+              any(),
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((_) async => successResult);
+
+          final argResults = _MockArgResults();
+          final command = CreateFlutterPlugin(
+            logger: logger,
+            generatorFromBrick: (_) async => generator,
+            generatorFromBundle: (_) async => throw Exception('oops'),
+          )..argResultOverrides = argResults;
+
+          when(
+            () => argResults['output-directory'] as String?,
+          ).thenReturn(tempDirectory.path);
+          when(() => argResults.rest).thenReturn(['my_plugin']);
+          when(
+            () => argResults['platforms'] as List<String>,
+          ).thenReturn(pluginPlatforms);
+
+          await ProcessOverrides.runZoned(
+            () => expectLater(
+              command.run(),
+              completion(equals(ExitCode.success.code)),
+            ),
+            runProcess: process.run,
+          );
+
+          verify(
+            () => process.run(
+              'dart',
+              ['run', 'pigeon', '--input', 'pigeons/messages.dart'],
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).called(pluginPlatforms.length);
+        },
+      );
     });
   });
 }

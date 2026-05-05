@@ -33,6 +33,37 @@ void main() {
         'format',
       ], workingDirectory: pluginDirectory);
 
+      // Verify pigeon generated messages.g.dart for each platform that has a
+      // pigeon input file. The check is conditional so it passes when the
+      // fallback bundle (without pigeon) is used.
+      const pigeonPlatforms = ['android', 'ios', 'linux', 'macos', 'windows'];
+      for (final platform in pigeonPlatforms) {
+        final pigeonInput = File(
+          path.join(
+            pluginDirectory,
+            '${pluginName}_$platform',
+            'pigeons',
+            'messages.dart',
+          ),
+        );
+        if (pigeonInput.existsSync()) {
+          final messagesFile = File(
+            path.join(
+              pluginDirectory,
+              '${pluginName}_$platform',
+              'lib',
+              'src',
+              'messages.g.dart',
+            ),
+          );
+          expect(
+            messagesFile.existsSync(),
+            isTrue,
+            reason: 'pigeon did not generate ${messagesFile.path}',
+          );
+        }
+      }
+
       final analyzeResult = await expectSuccessfulProcessResult('flutter', [
         'analyze',
         '.',
@@ -59,6 +90,24 @@ void main() {
           'compact',
         ], workingDirectory: packageDirectory);
         expect(testResult.stdout, contains('All tests passed!'));
+
+        final messagesGenFile = File(
+          path.join(packageDirectory, 'lib', 'src', 'messages.g.dart'),
+        );
+        if (messagesGenFile.existsSync()) {
+          await expectSuccessfulProcessResult(
+            'lcov',
+            [
+              '--remove',
+              'coverage/lcov.info',
+              '*/messages.g.dart',
+              '--output-file',
+              'coverage/lcov.info',
+            ],
+            workingDirectory: packageDirectory,
+            validateStderr: false,
+          );
+        }
 
         final testCoverageResult = await expectSuccessfulProcessResult(
           'genhtml',
