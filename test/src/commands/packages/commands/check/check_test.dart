@@ -24,16 +24,12 @@ const _expectedPackagesCheckUsage = [
 
 void main() {
   group('packages check licenses', () {
-    final commandArguments = UnmodifiableListView(
-      ['packages', 'check'],
-    );
+    final commandArguments = UnmodifiableListView(['packages', 'check']);
 
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(
-          [...commandArguments, '--help'],
-        );
+        final result = await commandRunner.run([...commandArguments, '--help']);
         expect(printLogs, equals(_expectedPackagesCheckUsage));
         expect(result, equals(ExitCode.success.code));
 

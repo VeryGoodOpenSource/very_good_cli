@@ -128,9 +128,7 @@ void main() {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-        final result = await commandRunner.run(
-          [...commandArguments, '--help'],
-        );
+        final result = await commandRunner.run([...commandArguments, '--help']);
         expect(printLogs, equals(_expectedPackagesCheckLicensesUsage));
         expect(result, equals(ExitCode.success.code));
 
@@ -151,9 +149,11 @@ void main() {
       test(
         '''when too many rest arguments are provided''',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final result = await commandRunner.run(
-            [...commandArguments, 'arg1', 'arg2'],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            'arg1',
+            'arg2',
+          ]);
           expect(result, equals(ExitCode.usage.code));
         }),
       );
@@ -161,185 +161,183 @@ void main() {
       test(
         '''when allowed and forbidden are used simultaneously''',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final result = await commandRunner.run(
-            [...commandArguments, '--allowed', 'MIT', '--forbidden', 'BSD'],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            '--allowed',
+            'MIT',
+            '--forbidden',
+            'BSD',
+          ]);
           expect(result, equals(ExitCode.usage.code));
         }),
       );
     });
 
-    group(
-      'reports licenses correctly',
-      () {
-        test(
-          '''when there is a single hosted direct dependency and license''',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validPubspecLockContent);
+    group('reports licenses correctly', () {
+      test(
+        '''when there is a single hosted direct dependency and license''',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
 
-            when(
-              () => packageConfig.packages,
-            ).thenReturn([veryGoodTestRunnerConfigPackage]);
-            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
-            when(() => logger.progress(any())).thenReturn(progress);
+          when(() => logger.progress(any())).thenReturn(progress);
 
-            final result = await commandRunner.run(
-              [...commandArguments, tempDirectory.path],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 1 package',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT (1).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
 
-        test(
-          '''when there are multiple hosted direct dependency and licenses''',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validMultiplePubspecLockContent);
+      test(
+        '''when there are multiple hosted direct dependency and licenses''',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validMultiplePubspecLockContent);
 
-            when(() => logger.progress(any())).thenReturn(progress);
+          when(() => logger.progress(any())).thenReturn(progress);
 
-            when(
-              () => detectorResult.matches,
-            ).thenReturn([mitLicenseMatch, bsdLicenseMatch]);
-            when(() => packageConfig.packages).thenReturn({
-              veryGoodTestRunnerConfigPackage,
-              cliCompletionConfigPackage,
-            });
+          when(
+            () => detectorResult.matches,
+          ).thenReturn([mitLicenseMatch, bsdLicenseMatch]);
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+          });
 
-            final result = await commandRunner.run(
-              [...commandArguments, tempDirectory.path],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 2 packages',
-              ),
-            ).called(1);
-            verify(
-              () => progress.update(
-                'Collecting licenses from 2 out of 2 packages',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 4 licenses from 2 packages of type: MIT (2) and BSD (2).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 2 packages'),
+          ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 2 out of 2 packages'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 4 licenses from 2 packages of type: MIT (2) and BSD (2).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
 
-        test(
-          '''when both allowed and forbidden are specified but left empty''',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validPubspecLockContent);
+      test(
+        '''when both allowed and forbidden are specified but left empty''',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
 
-            when(
-              () => packageConfig.packages,
-            ).thenReturn([veryGoodTestRunnerConfigPackage]);
-            when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
-            when(() => logger.progress(any())).thenReturn(progress);
+          when(() => logger.progress(any())).thenReturn(progress);
 
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                allowedArgument,
-                '',
-                forbiddenArgument,
-                '',
-                tempDirectory.path,
-              ],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            allowedArgument,
+            '',
+            forbiddenArgument,
+            '',
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 1 package',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: MIT (1).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
 
-        test(
-          'unknown when no license file is found',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validPubspecLockContent);
+      test(
+        'unknown when no license file is found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
 
-            when(
-              () => packageConfig.packages,
-            ).thenReturn([veryGoodTestRunnerConfigPackage]);
-            final licenseFilePath = path.join(
-              tempDirectory.path,
-              veryGoodTestRunnerConfigPackage.name,
-              'LICENSE',
-            );
-            File(licenseFilePath).deleteSync();
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          final licenseFilePath = path.join(
+            tempDirectory.path,
+            veryGoodTestRunnerConfigPackage.name,
+            'LICENSE',
+          );
+          File(licenseFilePath).deleteSync();
 
-            when(() => logger.progress(any())).thenReturn(progress);
+          when(() => logger.progress(any())).thenReturn(progress);
 
-            final result = await commandRunner.run(
-              [...commandArguments, tempDirectory.path],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 1 package',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: unknown (1).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: unknown (1).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
 
-        test(
-          'unknown when non-standard license file is found',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validPubspecLockContent);
+      test(
+        'unknown when non-standard license file is found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
 
-            when(
-              () => packageConfig.packages,
-            ).thenReturn([veryGoodTestRunnerConfigPackage]);
-            final licenseFilePath = path.join(
-              tempDirectory.path,
-              veryGoodTestRunnerConfigPackage.name,
-              'LICENSE',
-            );
-            File(licenseFilePath).writeAsStringSync('''
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          final licenseFilePath = path.join(
+            tempDirectory.path,
+            veryGoodTestRunnerConfigPackage.name,
+            'LICENSE',
+          );
+          File(licenseFilePath).writeAsStringSync('''
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License. You may
 obtain a copy of the License at
@@ -352,70 +350,69 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 implied. See the License for the specific language governing permissions
 and limitations under the License.''');
 
-            when(() => logger.progress(any())).thenReturn(progress);
-            when(() => detectorResult.matches).thenReturn([]);
+          when(() => logger.progress(any())).thenReturn(progress);
+          when(() => detectorResult.matches).thenReturn([]);
 
-            final result = await commandRunner.run(
-              [...commandArguments, tempDirectory.path],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 1 package',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: unknown (1).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: unknown (1).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
 
-        test(
-          'unknown when invalid license file is found',
-          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            File(
-              path.join(tempDirectory.path, pubspecLockBasename),
-            ).writeAsStringSync(_validPubspecLockContent);
+      test(
+        'unknown when invalid license file is found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
 
-            when(
-              () => packageConfig.packages,
-            ).thenReturn([veryGoodTestRunnerConfigPackage]);
-            final licenseFilePath = path.join(
-              tempDirectory.path,
-              veryGoodTestRunnerConfigPackage.name,
-              'LICENSE',
-            );
-            File(
-              licenseFilePath,
-            ).writeAsStringSync('This is an invalid license file.');
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([veryGoodTestRunnerConfigPackage]);
+          final licenseFilePath = path.join(
+            tempDirectory.path,
+            veryGoodTestRunnerConfigPackage.name,
+            'LICENSE',
+          );
+          File(
+            licenseFilePath,
+          ).writeAsStringSync('This is an invalid license file.');
 
-            when(() => logger.progress(any())).thenReturn(progress);
-            when(() => detectorResult.matches).thenReturn([]);
+          when(() => logger.progress(any())).thenReturn(progress);
+          when(() => detectorResult.matches).thenReturn([]);
 
-            final result = await commandRunner.run(
-              [...commandArguments, tempDirectory.path],
-            );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
-            verify(
-              () => progress.update(
-                'Collecting licenses from 1 out of 1 package',
-              ),
-            ).called(1);
-            verify(
-              () => progress.complete(
-                '''Retrieved 1 license from 1 package of type: unknown (1).''',
-              ),
-            ).called(1);
+          verify(
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: unknown (1).''',
+            ),
+          ).called(1);
 
-            expect(result, equals(ExitCode.success.code));
-          }),
-        );
-      },
-    );
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+    });
 
     group('ignore-retrieval-failures', () {
       const ignoreRetrievalFailuresArgument = '--ignore-retrieval-failures';
@@ -445,13 +442,11 @@ and limitations under the License.''');
               return detectorResult;
             };
 
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                ignoreRetrievalFailuresArgument,
-                tempDirectory.path,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              tempDirectory.path,
+            ]);
 
             final packagePath = path.join(
               tempDirectory.path,
@@ -493,13 +488,11 @@ and limitations under the License.''');
             when(() => packageConfig.packages).thenReturn({});
 
             final targetPath = tempDirectory.path;
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                ignoreRetrievalFailuresArgument,
-                targetPath,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              targetPath,
+            ]);
 
             final errorMessage =
                 '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
@@ -538,18 +531,16 @@ and limitations under the License.''');
               'inexistent',
               'nothing',
             );
-            when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
-              Uri.file(packagePath),
-            );
+            when(
+              () => veryGoodTestRunnerConfigPackage.root,
+            ).thenReturn(Uri.file(packagePath));
 
             final targetPath = tempDirectory.path;
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                ignoreRetrievalFailuresArgument,
-                targetPath,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              targetPath,
+            ]);
 
             final errorMessage =
                 '''\n[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';
@@ -586,13 +577,11 @@ and limitations under the License.''');
             });
             detectLicenseOverride = (name, _) async => throw error;
 
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                ignoreRetrievalFailuresArgument,
-                tempDirectory.path,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              ignoreRetrievalFailuresArgument,
+              tempDirectory.path,
+            ]);
 
             final packageNames = packageConfig.packages.map((package) {
               return package.name;
@@ -653,9 +642,10 @@ and limitations under the License.''');
         test(
           'when no option is provided',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final result = await commandRunner.run(
-              [...commandArguments, dependencyTypeArgument],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              dependencyTypeArgument,
+            ]);
             expect(result, equals(ExitCode.usage.code));
           }),
         );
@@ -663,9 +653,11 @@ and limitations under the License.''');
         test(
           'when invalid option is provided',
           withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-            final result = await commandRunner.run(
-              [...commandArguments, dependencyTypeArgument, 'invalid'],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              dependencyTypeArgument,
+              'invalid',
+            ]);
             expect(result, equals(ExitCode.usage.code));
           }),
         );
@@ -682,12 +674,7 @@ and limitations under the License.''');
           group('on developer main dependencies only', () {
             test(
               'by default',
-              withRunner((
-                commandRunner,
-                logger,
-                pubUpdater,
-                printLogs,
-              ) async {
+              withRunner((commandRunner, logger, pubUpdater, printLogs) async {
                 File(
                   path.join(tempDirectory.path, pubspecLockBasename),
                 ).writeAsStringSync(_validPubspecLockContent);
@@ -701,9 +688,10 @@ and limitations under the License.''');
 
                 when(() => logger.progress(any())).thenReturn(progress);
 
-                final result = await commandRunner.run(
-                  [...commandArguments, tempDirectory.path],
-                );
+                final result = await commandRunner.run([
+                  ...commandArguments,
+                  tempDirectory.path,
+                ]);
 
                 final packageNames = packageConfig.packages.map((package) {
                   return package.name;
@@ -731,12 +719,7 @@ and limitations under the License.''');
 
             test(
               'when specified',
-              withRunner((
-                commandRunner,
-                logger,
-                pubUpdater,
-                printLogs,
-              ) async {
+              withRunner((commandRunner, logger, pubUpdater, printLogs) async {
                 File(
                   path.join(tempDirectory.path, pubspecLockBasename),
                 ).writeAsStringSync(_validPubspecLockContent);
@@ -750,14 +733,12 @@ and limitations under the License.''');
 
                 when(() => logger.progress(any())).thenReturn(progress);
 
-                final result = await commandRunner.run(
-                  [
-                    ...commandArguments,
-                    dependencyTypeArgument,
-                    dependencyTypeMainDirectOption,
-                    tempDirectory.path,
-                  ],
-                );
+                final result = await commandRunner.run([
+                  ...commandArguments,
+                  dependencyTypeArgument,
+                  dependencyTypeMainDirectOption,
+                  tempDirectory.path,
+                ]);
 
                 final packageNames = packageConfig.packages.map((package) {
                   return package.name;
@@ -786,12 +767,7 @@ and limitations under the License.''');
 
           test(
             'on developer dev dependencies only',
-            withRunner((
-              commandRunner,
-              logger,
-              pubUpdater,
-              printLogs,
-            ) async {
+            withRunner((commandRunner, logger, pubUpdater, printLogs) async {
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -803,14 +779,12 @@ and limitations under the License.''');
 
               when(() => logger.progress(any())).thenReturn(progress);
 
-              final result = await commandRunner.run(
-                [
-                  ...commandArguments,
-                  dependencyTypeArgument,
-                  dependencyTypeDevDirectOption,
-                  tempDirectory.path,
-                ],
-              );
+              final result = await commandRunner.run([
+                ...commandArguments,
+                dependencyTypeArgument,
+                dependencyTypeDevDirectOption,
+                tempDirectory.path,
+              ]);
 
               final packageNames = packageConfig.packages.map((package) {
                 return package.name;
@@ -838,12 +812,7 @@ and limitations under the License.''');
 
           test(
             'on transitive dependencies only',
-            withRunner((
-              commandRunner,
-              logger,
-              pubUpdater,
-              printLogs,
-            ) async {
+            withRunner((commandRunner, logger, pubUpdater, printLogs) async {
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -855,14 +824,12 @@ and limitations under the License.''');
 
               when(() => logger.progress(any())).thenReturn(progress);
 
-              final result = await commandRunner.run(
-                [
-                  ...commandArguments,
-                  dependencyTypeArgument,
-                  dependencyTypeTransitiveOption,
-                  tempDirectory.path,
-                ],
-              );
+              final result = await commandRunner.run([
+                ...commandArguments,
+                dependencyTypeArgument,
+                dependencyTypeTransitiveOption,
+                tempDirectory.path,
+              ]);
 
               final packageNames = packageConfig.packages.map((package) {
                 return package.name;
@@ -890,12 +857,7 @@ and limitations under the License.''');
 
           test(
             'on direct overridden dependencies only',
-            withRunner((
-              commandRunner,
-              logger,
-              pubUpdater,
-              printLogs,
-            ) async {
+            withRunner((commandRunner, logger, pubUpdater, printLogs) async {
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -907,14 +869,12 @@ and limitations under the License.''');
 
               when(() => logger.progress(any())).thenReturn(progress);
 
-              final result = await commandRunner.run(
-                [
-                  ...commandArguments,
-                  dependencyTypeArgument,
-                  dependencyTypeOverriddenDirectOption,
-                  tempDirectory.path,
-                ],
-              );
+              final result = await commandRunner.run([
+                ...commandArguments,
+                dependencyTypeArgument,
+                dependencyTypeOverriddenDirectOption,
+                tempDirectory.path,
+              ]);
 
               final packageNames = packageConfig.packages.map((package) {
                 return package.name;
@@ -944,12 +904,7 @@ and limitations under the License.''');
 
           test(
             'on all dependencies',
-            withRunner((
-              commandRunner,
-              logger,
-              pubUpdater,
-              printLogs,
-            ) async {
+            withRunner((commandRunner, logger, pubUpdater, printLogs) async {
               File(
                 path.join(tempDirectory.path, pubspecLockBasename),
               ).writeAsStringSync(_validPubspecLockContent);
@@ -964,20 +919,18 @@ and limitations under the License.''');
 
               when(() => logger.progress(any())).thenReturn(progress);
 
-              final result = await commandRunner.run(
-                [
-                  ...commandArguments,
-                  dependencyTypeArgument,
-                  dependencyTypeDevDirectOption,
-                  dependencyTypeArgument,
-                  dependencyTypeTransitiveOption,
-                  dependencyTypeArgument,
-                  dependencyTypeMainDirectOption,
-                  dependencyTypeArgument,
-                  dependencyTypeOverriddenDirectOption,
-                  tempDirectory.path,
-                ],
-              );
+              final result = await commandRunner.run([
+                ...commandArguments,
+                dependencyTypeArgument,
+                dependencyTypeDevDirectOption,
+                dependencyTypeArgument,
+                dependencyTypeTransitiveOption,
+                dependencyTypeArgument,
+                dependencyTypeMainDirectOption,
+                dependencyTypeArgument,
+                dependencyTypeOverriddenDirectOption,
+                tempDirectory.path,
+              ]);
 
               final packageNames = packageConfig.packages.map((package) {
                 return package.name;
@@ -1037,14 +990,12 @@ and limitations under the License.''');
           when(() => logger.progress(any())).thenReturn(progress);
 
           const invalidLicense = 'not_a_valid_license';
-          await commandRunner.run(
-            [
-              ...commandArguments,
-              allowedArgument,
-              invalidLicense,
-              tempDirectory.path,
-            ],
-          );
+          await commandRunner.run([
+            ...commandArguments,
+            allowedArgument,
+            invalidLicense,
+            tempDirectory.path,
+          ]);
 
           final documentationLink = link(
             uri: licenseDocumentationUri,
@@ -1052,9 +1003,7 @@ and limitations under the License.''');
           );
           final warningMessage =
               '''Some licenses failed to be recognized: $invalidLicense. Refer to the $documentationLink for a list of valid licenses.''';
-          verify(
-            () => logger.warn(warningMessage),
-          ).called(1);
+          verify(() => logger.warn(warningMessage)).called(1);
         }),
       );
 
@@ -1072,14 +1021,12 @@ and limitations under the License.''');
           ).thenReturn({veryGoodTestRunnerConfigPackage});
           when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              allowedArgument,
-              'BSD',
-              tempDirectory.path,
-            ],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            allowedArgument,
+            'BSD',
+            tempDirectory.path,
+          ]);
 
           expect(result, ExitCode.config.code);
         }),
@@ -1115,21 +1062,17 @@ and limitations under the License.''');
               message: 'MIT',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                allowedArgument,
-                'BSD',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              'BSD',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
 
@@ -1162,23 +1105,19 @@ and limitations under the License.''');
               message: 'MIT',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                allowedArgument,
-                'BSD',
-                forbiddenArgument,
-                '',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              'BSD',
+              forbiddenArgument,
+              '',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''1 dependency has a banned license: $forbiddenDependencyName ($forbiddenDependencyLinkedMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
 
@@ -1217,21 +1156,17 @@ and limitations under the License.''');
               message: 'BSD',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                allowedArgument,
-                'Apache-2.0',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              'Apache-2.0',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''2 dependencies have banned licenses: $dependency1Name ($license1LinkedMessage) and $dependency2Name ($license2LinkedMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
       });
@@ -1253,14 +1188,12 @@ and limitations under the License.''');
           when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
           const invalidLicense = 'not_a_valid_license';
-          await commandRunner.run(
-            [
-              ...commandArguments,
-              forbiddenArgument,
-              invalidLicense,
-              tempDirectory.path,
-            ],
-          );
+          await commandRunner.run([
+            ...commandArguments,
+            forbiddenArgument,
+            invalidLicense,
+            tempDirectory.path,
+          ]);
 
           final documentationLink = link(
             uri: licenseDocumentationUri,
@@ -1268,9 +1201,7 @@ and limitations under the License.''');
           );
           final warningMessage =
               '''Some licenses failed to be recognized: $invalidLicense. Refer to the $documentationLink for a list of valid licenses.''';
-          verify(
-            () => logger.warn(warningMessage),
-          ).called(1);
+          verify(() => logger.warn(warningMessage)).called(1);
         }),
       );
 
@@ -1288,14 +1219,12 @@ and limitations under the License.''');
           ).thenReturn({veryGoodTestRunnerConfigPackage});
           when(() => detectorResult.matches).thenReturn([bsdLicenseMatch]);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              forbiddenArgument,
-              'BSD',
-              tempDirectory.path,
-            ],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            forbiddenArgument,
+            'BSD',
+            tempDirectory.path,
+          ]);
 
           expect(result, ExitCode.config.code);
         }),
@@ -1333,21 +1262,17 @@ and limitations under the License.''');
               message: 'MIT',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                forbiddenArgument,
-                'MIT',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              forbiddenArgument,
+              'MIT',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
 
@@ -1382,23 +1307,19 @@ and limitations under the License.''');
               message: 'MIT',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                allowedArgument,
-                '',
-                forbiddenArgument,
-                'MIT',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              '',
+              forbiddenArgument,
+              'MIT',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''1 dependency has a banned license: $forbiddenLicenseName ($forbiddenLicenseLinkMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
 
@@ -1439,23 +1360,19 @@ and limitations under the License.''');
               message: 'BSD',
             );
 
-            await commandRunner.run(
-              [
-                ...commandArguments,
-                forbiddenArgument,
-                'BSD',
-                forbiddenArgument,
-                'MIT',
-                tempDirectory.path,
-              ],
-            );
+            await commandRunner.run([
+              ...commandArguments,
+              forbiddenArgument,
+              'BSD',
+              forbiddenArgument,
+              'MIT',
+              tempDirectory.path,
+            ]);
 
             final errorMessage =
                 '''2 dependencies have banned licenses: $dependency1Name ($license1LinkedMessage) and $dependency2Name ($license2LinkedMessage).''';
 
-            verify(
-              () => logger.err(errorMessage),
-            ).called(1);
+            verify(() => logger.err(errorMessage)).called(1);
           }),
         );
       });
@@ -1467,9 +1384,10 @@ and limitations under the License.''');
       test(
         'when no option is provided',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final result = await commandRunner.run(
-            [...commandArguments, reporterArgument],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            reporterArgument,
+          ]);
           expect(result, equals(ExitCode.usage.code));
         }),
       );
@@ -1477,9 +1395,11 @@ and limitations under the License.''');
       test(
         'when invalid option is provided',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
-          final result = await commandRunner.run(
-            [...commandArguments, reporterArgument, 'invalid'],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            reporterArgument,
+            'invalid',
+          ]);
           expect(result, equals(ExitCode.usage.code));
         }),
       );
@@ -1490,33 +1410,28 @@ and limitations under the License.''');
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
 
-          when(() => packageConfig.packages).thenReturn({
-            veryGoodTestRunnerConfigPackage,
-          });
+          when(
+            () => packageConfig.packages,
+          ).thenReturn({veryGoodTestRunnerConfigPackage});
 
           when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              reporterArgument,
-              'text',
-              tempDirectory.path,
-            ],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            reporterArgument,
+            'text',
+            tempDirectory.path,
+          ]);
 
           const expectedOutput =
               '''Retrieved 1 license from 1 package of type: MIT (1).\nvery_good_test_runner - MIT\n''';
 
           verify(
-            () => progress.update(
-              'Collecting licenses from 1 out of 1 package',
-            ),
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
           ).called(1);
-          verify(
-            () => progress.complete(expectedOutput),
-          ).called(1);
+          verify(() => progress.complete(expectedOutput)).called(1);
 
           expect(result, equals(ExitCode.success.code));
         }),
@@ -1528,32 +1443,27 @@ and limitations under the License.''');
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
 
-          when(() => packageConfig.packages).thenReturn({
-            veryGoodTestRunnerConfigPackage,
-          });
+          when(
+            () => packageConfig.packages,
+          ).thenReturn({veryGoodTestRunnerConfigPackage});
           when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [
-              ...commandArguments,
-              reporterArgument,
-              'csv',
-              tempDirectory.path,
-            ],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            reporterArgument,
+            'csv',
+            tempDirectory.path,
+          ]);
 
           const expectedOutput =
               '''Retrieved 1 license from 1 package of type: MIT (1).\nvery_good_test_runner,MIT\n''';
 
           verify(
-            () => progress.update(
-              'Collecting licenses from 1 out of 1 package',
-            ),
+            () =>
+                progress.update('Collecting licenses from 1 out of 1 package'),
           ).called(1);
-          verify(
-            () => progress.complete(expectedOutput),
-          ).called(1);
+          verify(() => progress.complete(expectedOutput)).called(1);
 
           expect(result, equals(ExitCode.success.code));
         }),
@@ -1579,14 +1489,12 @@ and limitations under the License.''');
             });
             when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
 
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                skipPackagesArgument,
-                'cli_completion',
-                tempDirectory.path,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              skipPackagesArgument,
+              'cli_completion',
+              tempDirectory.path,
+            ]);
 
             verify(
               () => progress.update(
@@ -1611,16 +1519,14 @@ and limitations under the License.''');
 
             when(() => logger.progress(any())).thenReturn(progress);
 
-            final result = await commandRunner.run(
-              [
-                ...commandArguments,
-                skipPackagesArgument,
-                'cli_completion',
-                skipPackagesArgument,
-                'very_good_test_runner',
-                tempDirectory.path,
-              ],
-            );
+            final result = await commandRunner.run([
+              ...commandArguments,
+              skipPackagesArgument,
+              'cli_completion',
+              skipPackagesArgument,
+              'very_good_test_runner',
+              tempDirectory.path,
+            ]);
 
             final expectedMessage =
                 '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
@@ -1639,9 +1545,10 @@ and limitations under the License.''');
         'when target path does not exist',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           final targetPath = path.join(tempDirectory.path, 'inexistent');
-          final result = await commandRunner.run(
-            [...commandArguments, targetPath],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            targetPath,
+          ]);
 
           final errorMessage =
               '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''';
@@ -1656,9 +1563,10 @@ and limitations under the License.''');
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [...commandArguments, tempDirectory.path],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
           final errorMessage =
               'Could not find a $pubspecLockBasename in ${tempDirectory.path}';
@@ -1679,9 +1587,10 @@ and limitations under the License.''');
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [...commandArguments, tempDirectory.path],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
           final errorMessage =
               'Could not parse $pubspecLockBasename in ${tempDirectory.path}';
@@ -1702,9 +1611,10 @@ and limitations under the License.''');
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [...commandArguments, tempDirectory.path],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
           final expectedMessage =
               '''No hosted dependencies found in ${tempDirectory.path} of type: direct-main.''';
@@ -1723,9 +1633,9 @@ and limitations under the License.''');
             path.join(tempDirectory.path, pubspecLockBasename),
           ).writeAsStringSync(_validPubspecLockContent);
 
-          when(() => packageConfig.packages).thenReturn({
-            veryGoodTestRunnerConfigPackage,
-          });
+          when(
+            () => packageConfig.packages,
+          ).thenReturn({veryGoodTestRunnerConfigPackage});
 
           final error = Exception('error');
 
@@ -1733,9 +1643,10 @@ and limitations under the License.''');
 
           when(() => logger.progress(any())).thenReturn(progress);
 
-          final result = await commandRunner.run(
-            [...commandArguments, tempDirectory.path],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
 
           final packageName = packageConfig.packages.first.name;
           final packagePath = path.join(tempDirectory.path, packageName);
@@ -1763,9 +1674,10 @@ and limitations under the License.''');
           findPackageConfigOverride = (_) async => throw error;
 
           final targetPath = tempDirectory.path;
-          final result = await commandRunner.run(
-            [...commandArguments, targetPath],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            targetPath,
+          ]);
 
           final errorMessage =
               '''Could not find a valid package config in $targetPath. Run `dart pub get` or `flutter pub get` to generate one.''';
@@ -1789,9 +1701,10 @@ and limitations under the License.''');
           when(() => packageConfig.packages).thenReturn({});
 
           final targetPath = tempDirectory.path;
-          final result = await commandRunner.run(
-            [...commandArguments, targetPath],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            targetPath,
+          ]);
 
           final errorMessage =
               '''[${veryGoodTestRunnerConfigPackage.name}] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
@@ -1821,14 +1734,15 @@ and limitations under the License.''');
             'inexistent',
             'nothing',
           );
-          when(() => veryGoodTestRunnerConfigPackage.root).thenReturn(
-            Uri.file(packagePath),
-          );
+          when(
+            () => veryGoodTestRunnerConfigPackage.root,
+          ).thenReturn(Uri.file(packagePath));
 
           final targetPath = tempDirectory.path;
-          final result = await commandRunner.run(
-            [...commandArguments, targetPath],
-          );
+          final result = await commandRunner.run([
+            ...commandArguments,
+            targetPath,
+          ]);
 
           final errorMessage =
               '''[${veryGoodTestRunnerConfigPackage.name}] Could not find package directory at $packagePath.''';

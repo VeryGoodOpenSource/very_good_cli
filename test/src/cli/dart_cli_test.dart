@@ -83,12 +83,7 @@ void main() {
       });
 
       test('returns false when dart is not installed', () async {
-        final processResult = ProcessResult(
-          42,
-          ExitCode.software.code,
-          '',
-          '',
-        );
+        final processResult = ProcessResult(42, ExitCode.software.code, '', '');
 
         when(
           () => process.run(
@@ -100,10 +95,8 @@ void main() {
         ).thenAnswer((_) async => processResult);
 
         await ProcessOverrides.runZoned(
-          () => expectLater(
-            Dart.installed(logger: logger),
-            completion(isFalse),
-          ),
+          () =>
+              expectLater(Dart.installed(logger: logger), completion(isFalse)),
           runProcess: process.run,
         );
       });
@@ -156,75 +149,69 @@ void main() {
         );
       });
 
-      test(
-        'completes when there is a pubspec.yaml and '
-        'directory is ignored (recursive)',
-        () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      test('completes when there is a pubspec.yaml and '
+          'directory is ignored (recursive)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
-            ..createSync();
-          final ignoredDirectory = Directory(
-            p.join(tempDirectory.path, 'test_plugin'),
-          )..createSync();
+        final nestedDirectory = Directory(p.join(tempDirectory.path, 'test'))
+          ..createSync();
+        final ignoredDirectory = Directory(
+          p.join(tempDirectory.path, 'test_plugin'),
+        )..createSync();
 
-          File(
-            p.join(nestedDirectory.path, 'pubspec.yaml'),
-          ).writeAsStringSync(_pubspec);
-          File(
-            p.join(ignoredDirectory.path, 'pubspec.yaml'),
-          ).writeAsStringSync(_pubspec);
+        File(
+          p.join(nestedDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_pubspec);
+        File(
+          p.join(ignoredDirectory.path, 'pubspec.yaml'),
+        ).writeAsStringSync(_pubspec);
 
-          final relativePathPrefix = '.${p.context.separator}';
+        final relativePathPrefix = '.${p.context.separator}';
 
-          await ProcessOverrides.runZoned(
-            () => expectLater(
-              Dart.pubGet(
-                cwd: tempDirectory.path,
-                recursive: true,
-                ignore: {
-                  'test_plugin',
-                  '/**/test_plugin_two/**',
-                },
-                logger: logger,
-              ),
-              completes,
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.pubGet(
+              cwd: tempDirectory.path,
+              recursive: true,
+              ignore: {'test_plugin', '/**/test_plugin_two/**'},
+              logger: logger,
             ),
-            runProcess: process.run,
-          ).whenComplete(() {
-            final nestedRelativePath = p.relative(
-              nestedDirectory.path,
+            completes,
+          ),
+          runProcess: process.run,
+        ).whenComplete(() {
+          final nestedRelativePath = p.relative(
+            nestedDirectory.path,
+            from: tempDirectory.path,
+          );
+
+          verify(() {
+            logger.progress(
+              any(
+                that: contains(
+                  '''Running "dart pub get" in $relativePathPrefix$nestedRelativePath''',
+                ),
+              ),
+            );
+          }).called(1);
+
+          verifyNever(() {
+            final ignoredRelativePath = p.relative(
+              ignoredDirectory.path,
               from: tempDirectory.path,
             );
 
-            verify(() {
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "dart pub get" in $relativePathPrefix$nestedRelativePath''',
-                  ),
+            logger.progress(
+              any(
+                that: contains(
+                  '''Running "dart pub get" in $relativePathPrefix$ignoredRelativePath''',
                 ),
-              );
-            }).called(1);
-
-            verifyNever(() {
-              final ignoredRelativePath = p.relative(
-                ignoredDirectory.path,
-                from: tempDirectory.path,
-              );
-
-              logger.progress(
-                any(
-                  that: contains(
-                    '''Running "dart pub get" in $relativePathPrefix$ignoredRelativePath''',
-                  ),
-                ),
-              );
-            });
+              ),
+            );
           });
-        },
-      );
+        });
+      });
 
       test('throws when process fails', () async {
         when(
@@ -322,6 +309,64 @@ void main() {
           () => expectLater(Dart.applyFixes(logger: logger), completes),
           runProcess: process.run,
         );
+      });
+    });
+
+    group('.runPigeon', () {
+      test('completes normally', () async {
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.runPigeon(
+              logger: logger,
+              cwd: '.',
+              input: 'pigeons/messages.dart',
+            ),
+            completes,
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws when process fails', () async {
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.runPigeon(
+              logger: logger,
+              cwd: '.',
+              input: 'pigeons/messages.dart',
+            ),
+            throwsException,
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('runs dart with correct args', () async {
+        await ProcessOverrides.runZoned(() async {
+          await Dart.runPigeon(
+            logger: logger,
+            cwd: '.',
+            input: 'pigeons/messages.dart',
+          );
+
+          verify(
+            () => process.run(
+              'dart',
+              ['run', 'pigeon', '--input', 'pigeons/messages.dart'],
+              runInShell: any(named: 'runInShell'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).called(1);
+        }, runProcess: process.run);
       });
     });
   });

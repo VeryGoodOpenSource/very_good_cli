@@ -189,11 +189,7 @@ void main() {
 
         Directory(path.join(Directory.current.path, 'project')).createSync();
         File(
-          path.join(
-            Directory.current.path,
-            'project',
-            'pubspec.yaml',
-          ),
+          path.join(Directory.current.path, 'project', 'pubspec.yaml'),
         ).createSync();
 
         final result = await commandRunner.run(['dart', 'test', '-r']);
@@ -574,48 +570,42 @@ void main() {
       ).called(1);
     });
 
-    test(
-      'fails when coverage not met, shows uncovered lines',
-      () async {
-        when<dynamic>(() => argResults['coverage']).thenReturn(true);
-        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-        when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
-        const exception = MinCoverageNotMet(
-          95,
-          uncoveredLines: {
-            'lib/src/foo.dart': [10, 20, 30],
-          },
-        );
-        when(
-          () => dartTest(
-            cwd: any(named: 'cwd'),
-            recursive: any(named: 'recursive'),
-            collectCoverage: any(named: 'collectCoverage'),
-            optimizePerformance: any(named: 'optimizePerformance'),
-            minCoverage: any(named: 'minCoverage'),
-            showUncovered: any(named: 'showUncovered'),
-            excludeFromCoverage: any(named: 'excludeFromCoverage'),
-            arguments: any(named: 'arguments'),
-            logger: any(named: 'logger'),
-            stdout: any(named: 'stdout'),
-            stderr: any(named: 'stderr'),
-            checkIgnore: any(named: 'checkIgnore'),
-          ),
-        ).thenThrow(exception);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.unavailable.code));
-        verify(
-          () => logger.err(
-            'Expected coverage >= 100.00% but actual is 95.00%.',
-          ),
-        ).called(1);
-        verify(
-          () => logger.err(
-            'Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30',
-          ),
-        ).called(1);
-      },
-    );
+    test('fails when coverage not met, shows uncovered lines', () async {
+      when<dynamic>(() => argResults['coverage']).thenReturn(true);
+      when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+      when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
+      const exception = MinCoverageNotMet(
+        95,
+        uncoveredLines: {
+          'lib/src/foo.dart': [10, 20, 30],
+        },
+      );
+      when(
+        () => dartTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          showUncovered: any(named: 'showUncovered'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          arguments: any(named: 'arguments'),
+          logger: any(named: 'logger'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+          checkIgnore: any(named: 'checkIgnore'),
+        ),
+      ).thenThrow(exception);
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.unavailable.code));
+      verify(
+        () => logger.err('Expected coverage >= 100.00% but actual is 95.00%.'),
+      ).called(1);
+      verify(
+        () =>
+            logger.err('Lines not covered:\n\t- lib/src/foo.dart: 10, 20, 30'),
+      ).called(1);
+    });
 
     test('displays required precision see why coverage was not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
@@ -739,9 +729,7 @@ void main() {
       verify(
         () => dartTest(
           optimizePerformance: true,
-          arguments: [
-            ...defaultArguments,
-          ],
+          arguments: [...defaultArguments],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
@@ -760,10 +748,7 @@ void main() {
         expect(result, equals(ExitCode.success.code));
         verify(
           () => dartTest(
-            arguments: [
-              ...defaultArguments,
-              ...argResults.rest,
-            ],
+            arguments: [...defaultArguments, ...argResults.rest],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
@@ -783,10 +768,7 @@ void main() {
         verify(
           () => dartTest(
             optimizePerformance: true,
-            arguments: [
-              ...defaultArguments,
-              ...argResults.rest,
-            ],
+            arguments: [...defaultArguments, ...argResults.rest],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,

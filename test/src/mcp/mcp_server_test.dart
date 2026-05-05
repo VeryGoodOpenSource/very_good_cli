@@ -374,10 +374,7 @@ void main() {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'directory': 'my_dir'},
-            ),
+            CallToolRequest(name: 'test', arguments: {'directory': 'my_dir'}),
           ),
         );
 

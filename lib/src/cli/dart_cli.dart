@@ -101,6 +101,20 @@ class Dart {
     await Future.wait<void>(processes);
   }
 
+  /// Run pigeon code generation (`dart run pigeon --input <input>`).
+  static Future<void> runPigeon({
+    required Logger logger,
+    required String cwd,
+    required String input,
+  }) async {
+    await _Cmd.run(
+      'dart',
+      ['run', 'pigeon', '--input', input],
+      workingDirectory: cwd,
+      logger: logger,
+    );
+  }
+
   /// Run tests (`dart test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({

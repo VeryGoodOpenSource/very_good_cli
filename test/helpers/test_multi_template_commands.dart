@@ -55,11 +55,7 @@ Future<void> testMultiTemplateCommand({
     ),
   );
   verify(
-    () => generator.generate(
-      any(),
-      vars: expectedVars,
-      logger: logger,
-    ),
+    () => generator.generate(any(), vars: expectedVars, logger: logger),
   ).called(1);
   verify(() => logger.created(expectedLogSummary)).called(1);
 }
