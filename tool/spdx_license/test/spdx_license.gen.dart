@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 728 SPDX licenses.
+/// A list of all 730 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -123,6 +123,7 @@ enum SpdxLicense {
   $Borceux._('Borceux'),
   $Brian_Gladman_2_Clause._('Brian-Gladman-2-Clause'),
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
+  $Brian_Gladman_3_Clause_no_conversion._('Brian-Gladman-3-Clause-no-conversion'),
   $Buddy._('Buddy'),
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
@@ -448,6 +449,7 @@ enum SpdxLicense {
   $MS_PL._('MS-PL'),
   $MS_RL._('MS-RL'),
   $MTLL._('MTLL'),
+  $MVT_1_1._('MVT-1.1'),
   $Mackerras_3_Clause._('Mackerras-3-Clause'),
   $Mackerras_3_Clause_acknowledgment._('Mackerras-3-Clause-acknowledgment'),
   $MakeIndex._('MakeIndex'),
