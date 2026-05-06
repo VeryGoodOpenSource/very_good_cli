@@ -13,9 +13,7 @@ class _MockChannelFactory extends Mock {
 }
 
 class _MockServerFactory extends Mock {
-  MCPServer call({
-    required StreamChannel<String> channel,
-  });
+  MCPServer call({required StreamChannel<String> channel});
 }
 
 class _FakeStreamChannel extends Fake implements StreamChannel<String> {}
@@ -34,21 +32,15 @@ void main() {
       channelFactory = _MockChannelFactory();
       serverFactory = _MockServerFactory();
 
-      server = VeryGoodMCPServer(
-        channel: channelController.foreign,
-      );
+      server = VeryGoodMCPServer(channel: channelController.foreign);
 
-      when(() => channelFactory()).thenAnswer(
-        (_) => channelController.foreign,
-      );
+      when(() => channelFactory()).thenAnswer((_) => channelController.foreign);
 
       registerFallbackValue(StackTrace.current);
       registerFallbackValue(_FakeStreamChannel());
 
       when(
-        () => serverFactory(
-          channel: any(named: 'channel'),
-        ),
+        () => serverFactory(channel: any(named: 'channel')),
       ).thenAnswer((_) => server);
     });
 
@@ -95,29 +87,21 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       expect(exitCode, ExitCode.success.code);
 
       verify(() => channelFactory()).called(1);
-      verify(
-        () => serverFactory(
-          channel: channelController.foreign,
-        ),
-      ).called(1);
+      verify(() => serverFactory(channel: channelController.foreign)).called(1);
     });
 
     test('run() uses default channel factory when not provided', () async {
       final defaultFactoryChannelController = StreamChannelController<String>();
 
-      when(
-        () => serverFactory(
-          channel: any(named: 'channel'),
-        ),
-      ).thenAnswer((invocation) {
+      when(() => serverFactory(channel: any(named: 'channel'))).thenAnswer((
+        invocation,
+      ) {
         return VeryGoodMCPServer(
           channel: defaultFactoryChannelController.foreign,
         );
       });
 
-      final command = MCPCommand(
-        serverFactory: serverFactory.call,
-      );
+      final command = MCPCommand(serverFactory: serverFactory.call);
 
       final runFuture = command.run();
 
@@ -128,37 +112,26 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
       final exitCode = await runFuture;
       expect(exitCode, ExitCode.success.code);
 
-      verify(
-        () => serverFactory(
-          channel: any(named: 'channel'),
-        ),
-      ).called(1);
+      verify(() => serverFactory(channel: any(named: 'channel'))).called(1);
 
       verifyNever(channelFactory.call);
     });
 
-    test(
-      'run() returns software exit code when an exception occurs',
-      () async {
-        final exception = Exception('Something went wrong');
-        when(() => channelFactory()).thenThrow(exception);
+    test('run() returns software exit code when an exception occurs', () async {
+      final exception = Exception('Something went wrong');
+      when(() => channelFactory()).thenThrow(exception);
 
-        final command = MCPCommand(
-          channelFactory: channelFactory.call,
-          serverFactory: serverFactory.call,
-        );
+      final command = MCPCommand(
+        channelFactory: channelFactory.call,
+        serverFactory: serverFactory.call,
+      );
 
-        final exitCode = await command.run();
+      final exitCode = await command.run();
 
-        expect(exitCode, ExitCode.software.code);
+      expect(exitCode, ExitCode.software.code);
 
-        verify(() => channelFactory()).called(1);
-        verifyNever(
-          () => serverFactory(
-            channel: any(named: 'channel'),
-          ),
-        );
-      },
-    );
+      verify(() => channelFactory()).called(1);
+      verifyNever(() => serverFactory(channel: any(named: 'channel')));
+    });
   });
 }

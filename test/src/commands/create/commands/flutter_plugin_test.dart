@@ -266,11 +266,7 @@ void main() {
 
             for (final platform in pluginPlatforms) {
               final pigeonDir = Directory(
-                path.join(
-                  target.dir.path,
-                  'my_plugin_$platform',
-                  'pigeons',
-                ),
+                path.join(target.dir.path, 'my_plugin_$platform', 'pigeons'),
               )..createSync(recursive: true);
               File(
                 path.join(pigeonDir.path, 'messages.dart'),
