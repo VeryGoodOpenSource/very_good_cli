@@ -10,9 +10,7 @@ import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
 /// Type definition for a factory that creates a [VeryGoodMCPServer].
 typedef ServerFactory =
-    MCPServer Function({
-      required StreamChannel<String> channel,
-    });
+    MCPServer Function({required StreamChannel<String> channel});
 
 /// Factory function to create a [StreamChannel] from input and output streams.
 typedef ChannelFactory = StreamChannel<String> Function();
@@ -27,11 +25,9 @@ StreamChannel<String> _defaultChannelFactory() {
 /// {@endtemplate}
 class MCPCommand extends Command<int> {
   /// {@macro mcp_command}
-  MCPCommand({
-    ChannelFactory? channelFactory,
-    ServerFactory? serverFactory,
-  }) : _channelFactory = channelFactory ?? _defaultChannelFactory,
-       _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
+  MCPCommand({ChannelFactory? channelFactory, ServerFactory? serverFactory})
+    : _channelFactory = channelFactory ?? _defaultChannelFactory,
+      _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
 
   /// The [name] of the command. But static.
   static const String commandName = 'mcp';

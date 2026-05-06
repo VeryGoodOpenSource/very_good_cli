@@ -22,12 +22,7 @@ class _MockLogger extends Mock implements Logger {}
 class _MockProgress extends Mock implements Progress {}
 
 void main() {
-  final successProcessResult = ProcessResult(
-    42,
-    ExitCode.success.code,
-    '',
-    '',
-  );
+  final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');
   final softwareErrorProcessResult = ProcessResult(
     42,
     ExitCode.software.code,
@@ -58,18 +53,15 @@ void main() {
 
     group('reachable', () {
       test('completes for a reachable remote', () async {
-        await ProcessOverrides.runZoned(
-          () async {
-            await expectLater(
-              Git.reachable(
-                Uri.parse('https://github.com/org/repo'),
-                logger: logger,
-              ),
-              completes,
-            );
-          },
-          runProcess: process.run,
-        );
+        await ProcessOverrides.runZoned(() async {
+          await expectLater(
+            Git.reachable(
+              Uri.parse('https://github.com/org/repo'),
+              logger: logger,
+            ),
+            completes,
+          );
+        }, runProcess: process.run);
       });
 
       test(
@@ -84,18 +76,15 @@ void main() {
             ),
           ).thenAnswer((_) async => softwareErrorProcessResult);
 
-          await ProcessOverrides.runZoned(
-            () async {
-              await expectLater(
-                Git.reachable(
-                  Uri.parse('https://github.com/org/repo'),
-                  logger: logger,
-                ),
-                throwsA(isA<UnreachableGitDependency>()),
-              );
-            },
-            runProcess: process.run,
-          );
+          await ProcessOverrides.runZoned(() async {
+            await expectLater(
+              Git.reachable(
+                Uri.parse('https://github.com/org/repo'),
+                logger: logger,
+              ),
+              throwsA(isA<UnreachableGitDependency>()),
+            );
+          }, runProcess: process.run);
         },
       );
     });
@@ -106,11 +95,9 @@ void main() {
         final exception = UnreachableGitDependency(remote: remote);
         expect(
           exception.toString(),
-          equals(
-            '''
+          equals('''
 $remote is unreachable.
-Make sure the remote exists and you have the correct access rights.''',
-          ),
+Make sure the remote exists and you have the correct access rights.'''),
         );
       });
     });
