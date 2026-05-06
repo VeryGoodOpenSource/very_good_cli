@@ -2049,6 +2049,66 @@ and limitations under the License.''');
       );
 
       test(
+        'includes dep declared as direct-main in one member and direct-dev in another',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceRootPubspecContent,
+          );
+
+          // app declares cli_completion as a direct-main dependency.
+          final appDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'app'),
+          )..createSync(recursive: true);
+          File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberSharedPubspecContent,
+          );
+
+          // shared declares cli_completion as a direct-dev dependency.
+          final sharedDir = Directory(
+            path.join(tempDirectory.path, 'packages', 'shared'),
+          )..createSync(recursive: true);
+          File(path.join(sharedDir.path, 'pubspec.yaml')).writeAsStringSync(
+            _workspaceMemberCliCompletionDevDepPubspecContent,
+          );
+
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_workspacePubspecLockContent);
+
+          when(
+            () => packageConfig.packages,
+          ).thenReturn([cliCompletionConfigPackage]);
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          // Requesting only direct-main still surfaces cli_completion because
+          // at least one member declares it under that type.
+          final result = await commandRunner.run(
+            [
+              ...commandArguments,
+              '--dependency-type',
+              'direct-main',
+              tempDirectory.path,
+            ],
+          );
+
+          verify(
+            () => progress.update(
+              'Collecting licenses from 1 out of 1 package',
+            ),
+          ).called(1);
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
         'handles nested workspaces recursively',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           // Create root workspace pubspec.yaml
@@ -2300,6 +2360,21 @@ environment:
 resolution: workspace
 
 dependencies:
+  cli_completion: ^0.4.0
+''';
+
+/// A workspace member pubspec.yaml that declares `cli_completion` as a
+/// direct-dev dependency. Used to verify that a dependency listed as
+/// direct-main in one member and direct-dev in another is still surfaced.
+const _workspaceMemberCliCompletionDevDepPubspecContent = '''
+name: shared
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dev_dependencies:
   cli_completion: ^0.4.0
 ''';
 

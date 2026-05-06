@@ -179,7 +179,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final progress = _logger.progress('Checking licenses on $targetPath');
 
-    final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
+    final pubspecLockFile = File(
+      path.join(targetDirectory.path, pubspecLockBasename),
+    );
     if (!pubspecLockFile.existsSync()) {
       progress.cancel();
       _logger.err('Could not find a $pubspecLockBasename in $targetPath');
@@ -193,14 +195,12 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
-    // Check if this is a workspace root and collect dependencies accordingly
-    final pubspecFile = File(path.join(targetPath, pubspecBasename));
+    final pubspecFile = File(
+      path.join(targetDirectory.path, pubspecBasename),
+    );
     final pubspec = tryParsePubspec(pubspecFile);
-
-    // Collect workspace dependencies if this is a workspace root
-    final workspaceDependencies = _collectWorkspaceDependencies(
-      pubspec: pubspec,
-      targetDirectory: targetDirectory,
+    final workspaceDependencies = pubspec?.collectWorkspaceDependencies(
+      root: targetDirectory,
       dependencyTypes: dependencyTypes,
     );
 
@@ -209,17 +209,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
       if (skippedPackages.contains(dependency.name)) return false;
 
-      // If we have workspace dependencies, use them for filtering direct deps
       if (workspaceDependencies != null) {
-        // For direct-main and direct-dev, check against workspace dependencies
-        if (dependencyTypes.contains('direct-main') ||
-            dependencyTypes.contains('direct-dev')) {
-          if (workspaceDependencies.contains(dependency.name)) {
-            return true;
-          }
-        }
+        if (workspaceDependencies.contains(dependency.name)) return true;
 
-        // For transitive and direct-overridden, still use pubspec.lock types
         final dependencyType = dependency.type;
         if (dependencyTypes.contains('transitive') &&
             dependencyType == PubspecLockPackageDependencyType.transitive) {
@@ -234,7 +226,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
         return false;
       }
 
-      // Non-workspace: use the original filtering logic
       final dependencyType = dependency.type;
       return (dependencyTypes.contains('direct-main') &&
               dependencyType == PubspecLockPackageDependencyType.directMain) ||
@@ -567,60 +558,6 @@ extension on List<Object> {
     final last = removeLast();
     return '${join(', ')} and $last';
   }
-}
-
-/// Collects dependencies from a workspace.
-///
-/// If [pubspec] is not a workspace root, returns `null`.
-/// Otherwise, returns a set of dependency names collected from all workspace
-/// members based on the requested [dependencyTypes].
-Set<String>? _collectWorkspaceDependencies({
-  required Pubspec? pubspec,
-  required Directory targetDirectory,
-  required List<String> dependencyTypes,
-}) {
-  if (pubspec == null || !pubspec.isWorkspaceRoot) return null;
-
-  final dependencies = <String>{};
-
-  // Collect dependencies from the root pubspec itself
-  if (dependencyTypes.contains('direct-main')) {
-    dependencies.addAll(pubspec.dependencies.keys);
-  }
-  if (dependencyTypes.contains('direct-dev')) {
-    dependencies.addAll(pubspec.devDependencies.keys);
-  }
-
-  // Collect dependencies from workspace members
-  final members = resolveWorkspaceMembers(pubspec, targetDirectory);
-  for (final memberDirectory in members) {
-    final memberPubspecFile = File(
-      path.join(memberDirectory.path, pubspecBasename),
-    );
-    final memberPubspec = tryParsePubspec(memberPubspecFile);
-    if (memberPubspec == null) continue;
-
-    if (dependencyTypes.contains('direct-main')) {
-      dependencies.addAll(memberPubspec.dependencies.keys);
-    }
-    if (dependencyTypes.contains('direct-dev')) {
-      dependencies.addAll(memberPubspec.devDependencies.keys);
-    }
-
-    // Handle nested workspaces recursively
-    if (memberPubspec.isWorkspaceRoot) {
-      final nestedDeps = _collectWorkspaceDependencies(
-        pubspec: memberPubspec,
-        targetDirectory: memberDirectory,
-        dependencyTypes: dependencyTypes,
-      );
-      if (nestedDeps != null) {
-        dependencies.addAll(nestedDeps);
-      }
-    }
-  }
-
-  return dependencies;
 }
 
 /// Format type for listing all licenses via --reporter option.

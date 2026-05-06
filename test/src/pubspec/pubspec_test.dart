@@ -67,7 +67,7 @@ void main() {
     });
   });
 
-  group('resolveWorkspaceMembers', () {
+  group('resolveMembers', () {
     late Directory tempDirectory;
 
     setUp(() {
@@ -80,7 +80,7 @@ void main() {
 
     test('returns empty list when not a workspace root', () {
       final pubspec = Pubspec.parse(_basicPubspecContent);
-      expect(resolveWorkspaceMembers(pubspec, tempDirectory), isEmpty);
+      expect(pubspec.resolveMembers(tempDirectory), isEmpty);
     });
 
     test('resolves direct path members correctly', () {
@@ -98,7 +98,7 @@ void main() {
       ).writeAsStringSync(_workspaceMemberPubspecContent);
 
       final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
-      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+      final members = pubspec.resolveMembers(tempDirectory);
 
       expect(members.length, equals(2));
       expect(members.map((d) => path.basename(d.path)), contains('app'));
@@ -119,7 +119,7 @@ void main() {
       ).createSync(recursive: true);
 
       final pubspec = Pubspec.parse(_workspaceWithGlobPubspecContent);
-      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+      final members = pubspec.resolveMembers(tempDirectory);
 
       expect(members.length, equals(1));
       expect(path.basename(members.first.path), equals('valid'));
@@ -127,7 +127,7 @@ void main() {
 
     test('skips non-existent direct path members', () {
       final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
-      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+      final members = pubspec.resolveMembers(tempDirectory);
       expect(members, isEmpty);
     });
 
@@ -140,10 +140,141 @@ void main() {
       ).writeAsStringSync(_workspaceMemberPubspecContent);
 
       final pubspec = Pubspec.parse(_workspaceWithFileGlobPubspecContent);
-      final members = resolveWorkspaceMembers(pubspec, tempDirectory);
+      final members = pubspec.resolveMembers(tempDirectory);
 
       expect(members.length, equals(1));
       expect(path.basename(members.first.path), equals('member'));
+    });
+  });
+
+  group('collectWorkspaceDependencies', () {
+    late Directory tempDirectory;
+
+    setUp(() {
+      tempDirectory = Directory.systemTemp.createTempSync();
+    });
+
+    tearDown(() {
+      tempDirectory.deleteSync(recursive: true);
+    });
+
+    test('returns null when not a workspace root', () {
+      final pubspec = Pubspec.parse(_basicPubspecContent);
+      expect(
+        pubspec.collectWorkspaceDependencies(
+          root: tempDirectory,
+          dependencyTypes: ['direct-main', 'direct-dev'],
+        ),
+        isNull,
+      );
+    });
+
+    test('collects direct-main deps from root and members', () {
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages/app'),
+      )..createSync(recursive: true);
+      File(
+        path.join(memberDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse(_workspaceRootWithMemberPubspecContent);
+      final deps = pubspec.collectWorkspaceDependencies(
+        root: tempDirectory,
+        dependencyTypes: ['direct-main'],
+      );
+
+      expect(deps, isNotNull);
+      expect(deps, containsAll(<String>['http', 'shared']));
+    });
+
+    test('collects direct-dev deps from root and members', () {
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages/app'),
+      )..createSync(recursive: true);
+      File(
+        path.join(memberDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse(_workspaceRootWithMemberPubspecContent);
+      final deps = pubspec.collectWorkspaceDependencies(
+        root: tempDirectory,
+        dependencyTypes: ['direct-dev'],
+      );
+
+      expect(deps, isNotNull);
+      expect(deps, contains('test'));
+    });
+
+    test(
+      'merges dep from direct-main in one member and direct-dev in another',
+      () {
+        final appDir = Directory(
+          path.join(tempDirectory.path, 'packages/app'),
+        )..createSync(recursive: true);
+        File(path.join(appDir.path, pubspecBasename)).writeAsStringSync('''
+name: app
+environment:
+  sdk: ^3.6.0
+resolution: workspace
+dependencies:
+  shared_pkg: ^1.0.0
+''');
+
+        final libDir = Directory(
+          path.join(tempDirectory.path, 'packages/lib'),
+        )..createSync(recursive: true);
+        File(path.join(libDir.path, pubspecBasename)).writeAsStringSync('''
+name: lib
+environment:
+  sdk: ^3.6.0
+resolution: workspace
+dev_dependencies:
+  shared_pkg: ^1.0.0
+''');
+
+        final pubspec = Pubspec.parse('''
+name: workspace_root
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/app
+  - packages/lib
+''');
+        final deps = pubspec.collectWorkspaceDependencies(
+          root: tempDirectory,
+          dependencyTypes: ['direct-main', 'direct-dev'],
+        );
+
+        // shared_pkg is included because it appears in at least one member
+        expect(deps, isNotNull);
+        expect(deps, contains('shared_pkg'));
+      },
+    );
+
+    test('prevents infinite recursion from circular workspace references', () {
+      // Set up a workspace root pointing to a member that points back
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages/app'),
+      )..createSync(recursive: true);
+
+      File(path.join(memberDir.path, pubspecBasename)).writeAsStringSync('''
+name: app
+environment:
+  sdk: ^3.6.0
+workspace:
+  - ../..
+dependencies:
+  http: ^1.0.0
+''');
+
+      final pubspec = Pubspec.parse(_workspaceRootWithMemberPubspecContent);
+      expect(
+        () => pubspec.collectWorkspaceDependencies(
+          root: tempDirectory,
+          dependencyTypes: ['direct-main'],
+        ),
+        returnsNormally,
+      );
     });
   });
 }
@@ -174,6 +305,17 @@ environment:
 workspace:
   - packages/app
   - packages/shared
+''';
+
+/// A workspace root pubspec.yaml with a single member.
+const _workspaceRootWithMemberPubspecContent = '''
+name: workspace_root
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - packages/app
 ''';
 
 /// A workspace member pubspec.yaml content.
