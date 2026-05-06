@@ -14,11 +14,7 @@ Future<bool> installDartPackages(
   final isDartInstalled = await Dart.installed(logger: logger);
   if (!isDartInstalled) return false;
 
-  return Dart.pubGet(
-    cwd: outputDir.path,
-    recursive: recursive,
-    logger: logger,
-  );
+  return Dart.pubGet(cwd: outputDir.path, recursive: recursive, logger: logger);
 }
 
 /// Runs `flutter pub get` in the [outputDir].
