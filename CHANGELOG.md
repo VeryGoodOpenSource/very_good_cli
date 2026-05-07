@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.1...v1.2.0) (2026-05-06)
+
+
+### Features
+
+* **mcp:** add directory parameter to test tool ([#1567](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1567)) ([0f0aaf7](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0f0aaf7ee20dc88c929e33ec096ae94774827b46))
+
+
+### Bug Fixes
+
+* **e2e:** add pigeon generation to flutter_plugin ([#1587](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1587)) ([2bf9345](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2bf9345b6969834ac4f232e73a8d57e1720c08eb))
+* exclude site releases from CLI ([#1551](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1551)) ([b0a5521](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b0a5521430246929cd6b08ea5c9d2b45630f61ba))
+
+
+### Miscellaneous Chores
+
+* **ci:** use flutter-action on spdx_license_bot ([#1589](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1589)) ([f178767](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f17876709d0b0eb9cfe313ac3d92a480fc549438))
+* **deps:** bump googleapis/release-please-action from 4 to 5 ([#1579](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1579)) ([06ba551](https://github.com/VeryGoodOpenSource/very_good_cli/commit/06ba5515413aeff99eb30b6b4e8af8e4b204ef20))
+* **deps:** bump peter-evans/create-pull-request from 8.1.0 to 8.1.1 ([#1568](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1568)) ([7051484](https://github.com/VeryGoodOpenSource/very_good_cli/commit/70514847340ef0c6b6e508e72e6643294ca83efc))
+* **site:** 1.1.1 ([#1546](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1546)) ([d349b8e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d349b8e95d83ccbb2b4bb305474d5a671bea96a1))
+* update SPDX licenses ([#1580](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1580)) ([849e9dc](https://github.com/VeryGoodOpenSource/very_good_cli/commit/849e9dc159508e042d7b8b8f521ae5314906873a))
+
+
+### Docs
+
+* add ROADMAP.md ([#1566](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1566)) ([0b3a1f5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0b3a1f5c438d27ce4f9ab74e8802da24f622c37a))
+
 ## [1.1.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.0...v1.1.1) (2026-03-26)
 
 
