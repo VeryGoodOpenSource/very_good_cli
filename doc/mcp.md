@@ -137,12 +137,13 @@ Runs tests in a Dart or Flutter project.
     "platform": "chrome | vm | android | ios",
     "dart-define": "foo=bar",
     "dart-define-from-file": "config.json",
-    "test_randomize_ordering_seed": "random"
+    "test_randomize_ordering_seed": "random",
+    "timeout_seconds": 120
   }
 }
 ```
 
-All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default.
+All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default. When `timeout_seconds` is not specified, the test run is killed after 120 seconds.
 
 ### `packages_get`
 
