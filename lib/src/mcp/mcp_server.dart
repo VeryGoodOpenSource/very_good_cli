@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show stderr;
+import 'dart:io' show Process, stderr;
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
@@ -221,6 +221,13 @@ Only one value can be selected.
                   '(e.g. // coverage:ignore-line). '
                   'Only applies to Dart tests (dart: true).',
             ),
+            'timeout_seconds': IntegerSchema(
+              description:
+                  'Maximum seconds to wait for the test run before killing '
+                  'the Flutter test process. Flutter tests can hang '
+                  'indefinitely when pumpAndSettle() is called without a '
+                  'timeout argument (default is 10 minutes). Defaults to 120.',
+            ),
           },
         ),
       ),
@@ -425,8 +432,44 @@ Only one value can be selected.
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
     final args = request.arguments ?? {};
+    final timeoutSeconds = (args['timeout_seconds'] as num?)?.toInt() ?? 120;
     final cliArgs = _parseTest(args);
-    return _runToolCommand(cliArgs, toolName: 'test');
+    try {
+      return await _runToolCommand(
+        cliArgs,
+        toolName: 'test',
+      ).timeout(Duration(seconds: timeoutSeconds));
+    } on TimeoutException {
+      stderr.writeln(
+        '[very_good_mcp] Test run timed out after ${timeoutSeconds}s. '
+        'Killing flutter_tester processes.',
+      );
+      // OS-level SIGKILL is the only reliable way to stop a hung
+      // flutter_tester. package:test timeouts fire internally but the
+      // Flutter process keeps running regardless.
+      unawaited(
+        Process.run(
+          'pkill',
+          ['-KILL', '-f', 'flutter_tester'],
+          runInShell: true,
+        ),
+      );
+      return CallToolResult(
+        content: [
+          TextContent(
+            text:
+                'Test run timed out after ${timeoutSeconds}s. '
+                'A Flutter test was hanging — likely an unbounded '
+                'pumpAndSettle() call (default timeout is 10 minutes). '
+                'The flutter_tester process was killed.\n'
+                'Fix: replace tester.pumpAndSettle() with '
+                'tester.pump(Duration(milliseconds: 500)) or '
+                'tester.pumpAndSettle(timeout: Duration(seconds: 5)).',
+          ),
+        ],
+        isError: true,
+      );
+    }
   }
 
   Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {

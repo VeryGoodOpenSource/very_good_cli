@@ -420,6 +420,44 @@ void main() {
           contains('"test" failed with exit code'),
         );
       });
+
+      test(
+        'returns timeout error and kills flutter_tester when test hangs',
+        () async {
+          // Simulate a hung test — the future never completes.
+          final hangCompleter = Completer<int>();
+          when(
+            () => mockCommandRunner.run(any()),
+          ).thenAnswer((_) => hangCompleter.future);
+
+          final response = await sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(
+                name: 'test',
+                arguments: {'timeout_seconds': 1},
+              ),
+            ),
+          );
+
+          expect(response['error'], isNull);
+          final result = CallToolResult.fromMap(
+            response['result'] as Map<String, Object?>,
+          );
+          expect(result.isError, isTrue);
+          expect(
+            (result.content.first as TextContent).text,
+            allOf([
+              contains('timed out after 1s'),
+              contains('pumpAndSettle'),
+            ]),
+          );
+
+          // Resolve the dangling future so it doesn't outlive the test.
+          hangCompleter.complete(0);
+        },
+        timeout: const Timeout(Duration(seconds: 5)),
+      );
     });
 
     group('Tool: packages_get', () {
