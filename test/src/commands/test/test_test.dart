@@ -50,6 +50,7 @@ const expectedTestUsage = [
       '    --report-on=<lib/>                                       Optional file paths to report coverage information to. This should be paths relative to the current working directory. Can be passed multiple times.\n'
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
       '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
+      '    --timeout=<seconds>                                      Maximum seconds to let tests run before killing the process. Useful when tests hang due to an unbounded pumpAndSettle() call.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -74,6 +75,7 @@ abstract class FlutterTestCommand {
     void Function(String)? stderr,
     bool? forceAnsi,
     List<String>? reportOn,
+    Duration? timeout,
   });
 }
 
@@ -120,6 +122,7 @@ void main() {
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
           reportOn: any(named: 'reportOn'),
+          timeout: any(named: 'timeout'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -133,6 +136,7 @@ void main() {
       when<dynamic>(() => argResults['report-on']).thenReturn(<String>[]);
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['flavor']).thenReturn(null);
+      when<dynamic>(() => argResults['timeout']).thenReturn(null);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -580,6 +584,22 @@ void main() {
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('completes normally --timeout 30', () async {
+        when<dynamic>(() => argResults['timeout']).thenReturn('30');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+            timeout: const Duration(seconds: 30),
           ),
         ).called(1);
       });
