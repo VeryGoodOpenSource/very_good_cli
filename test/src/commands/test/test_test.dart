@@ -587,6 +587,22 @@ void main() {
           ),
         ).called(1);
       });
+
+      test('completes normally --timeout 30', () async {
+        when<dynamic>(() => argResults['timeout']).thenReturn('30');
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+            timeout: const Duration(seconds: 30),
+          ),
+        ).called(1);
+      });
     });
 
     group('coverage', () {
