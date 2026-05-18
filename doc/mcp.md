@@ -143,7 +143,7 @@ Runs tests in a Dart or Flutter project.
 }
 ```
 
-All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default. When `timeout_seconds` is not specified, the test run is killed after 120 seconds.
+All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default. When `timeout_seconds` is not specified, no timeout is applied.
 
 ### `packages_get`
 

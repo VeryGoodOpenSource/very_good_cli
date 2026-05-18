@@ -332,6 +332,7 @@ void main() {
                 'platform': 'chrome',
                 'run_skipped': true,
                 'check_ignore': true,
+                'timeout_seconds': 60,
               },
             ),
           ),
@@ -367,6 +368,8 @@ void main() {
           'chrome',
           '--run-skipped',
           '--check-ignore',
+          '--timeout',
+          '60',
         ]);
       });
 
@@ -421,43 +424,22 @@ void main() {
         );
       });
 
-      test(
-        'returns timeout error and kills flutter_tester when test hangs',
-        () async {
-          // Simulate a hung test — the future never completes.
-          final hangCompleter = Completer<int>();
-          when(
-            () => mockCommandRunner.run(any()),
-          ).thenAnswer((_) => hangCompleter.future);
-
-          final response = await sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(
-                name: 'test',
-                arguments: {'timeout_seconds': 1},
-              ),
+      test('passes --timeout when timeout_seconds is provided', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'timeout_seconds': 120},
             ),
-          );
+          ),
+        );
 
-          expect(response['error'], isNull);
-          final result = CallToolResult.fromMap(
-            response['result'] as Map<String, Object?>,
-          );
-          expect(result.isError, isTrue);
-          expect(
-            (result.content.first as TextContent).text,
-            allOf([
-              contains('timed out after 1s'),
-              contains('pumpAndSettle'),
-            ]),
-          );
-
-          // Resolve the dangling future so it doesn't outlive the test.
-          hangCompleter.complete(0);
-        },
-        timeout: const Timeout(Duration(seconds: 5)),
-      );
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['test', '--timeout', '120']);
+      });
     });
 
     group('Tool: packages_get', () {

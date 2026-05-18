@@ -46,6 +46,8 @@ very_good test [arguments]
     --run-skipped                     Run skipped tests instead of skipping them.
     --flavor                          Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.
     --fail-fast                       Stop running tests after the first failure.
+    --timeout=<seconds>               Maximum seconds to let tests run before killing the process.
+                                      Useful when tests hang due to an unbounded pumpAndSettle() call.
 
 Run "very_good help" to see global options.
 ```
