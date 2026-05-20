@@ -20,10 +20,10 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v6
 
-      - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2.8.0
         with:
-          sdk: "3.11.0"
+          flutter-version: "3.41.x"
 
       - name: 📦 Install Dependencies
         run: dart pub get
