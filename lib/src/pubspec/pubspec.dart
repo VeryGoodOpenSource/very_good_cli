@@ -17,15 +17,10 @@ export 'package:pubspec_parse/pubspec_parse.dart' show Pubspec;
 /// The basename of the pubspec file.
 const pubspecBasename = 'pubspec.yaml';
 
-const _workspaceResolution = 'workspace';
-
 /// Workspace-related conveniences on top of [Pubspec].
 extension PubspecWorkspace on Pubspec {
   /// Whether this pubspec is a workspace root.
   bool get isWorkspaceRoot => workspace != null;
-
-  /// Whether this pubspec is a workspace member.
-  bool get isWorkspaceMember => resolution == _workspaceResolution;
 
   /// Resolves the workspace members declared by this pubspec, expanding any
   /// glob patterns relative to [root].
@@ -37,22 +32,17 @@ extension PubspecWorkspace on Pubspec {
 
     final members = <Directory>[];
     for (final pattern in patterns) {
-      if (_isGlobPattern(pattern)) {
-        final matches = Glob(pattern).listSync(root: root.path);
-        for (final match in matches) {
-          if (match is Directory) {
-            final pubspecFile = File(path.join(match.path, pubspecBasename));
-            if (pubspecFile.existsSync()) {
-              members.add(Directory(match.path));
-            }
-          } else if (match is File &&
-              path.basename(match.path) == pubspecBasename) {
-            members.add(Directory(match.parent.path));
+      final matches = Glob(pattern).listSync(root: root.path);
+      for (final match in matches) {
+        if (match is Directory) {
+          final pubspecFile = File(path.join(match.path, pubspecBasename));
+          if (pubspecFile.existsSync()) {
+            members.add(Directory(match.path));
           }
+        } else if (match is File &&
+            path.basename(match.path) == pubspecBasename) {
+          members.add(Directory(match.parent.path));
         }
-      } else {
-        final memberDir = Directory(path.join(root.path, pattern));
-        if (memberDir.existsSync()) members.add(memberDir);
       }
     }
 
@@ -120,19 +110,8 @@ extension PubspecWorkspace on Pubspec {
 Pubspec? tryParsePubspec(File file) {
   if (!file.existsSync()) return null;
   try {
-    return Pubspec.parse(
-      file.readAsStringSync(),
-      sourceUrl: file.uri,
-      lenient: true,
-    );
+    return Pubspec.parse(file.readAsStringSync(), sourceUrl: file.uri);
   } on Exception {
     return null;
   }
-}
-
-bool _isGlobPattern(String pattern) {
-  return pattern.contains('*') ||
-      pattern.contains('?') ||
-      pattern.contains('[') ||
-      pattern.contains('{');
 }

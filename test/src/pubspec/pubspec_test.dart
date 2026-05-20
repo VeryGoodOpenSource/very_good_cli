@@ -41,29 +41,31 @@ void main() {
         ..writeAsStringSync('invalid: yaml: content: [');
       expect(tryParsePubspec(file), isNull);
     });
+
+    test(
+      'returns null when YAML is valid but the pubspec is structurally invalid',
+      () {
+        final file = File(path.join(tempDirectory.path, pubspecBasename))
+          ..writeAsStringSync('''
+environment:
+  sdk: ^3.0.0
+dependencies:
+  foo: ^1.0.0
+''');
+        expect(tryParsePubspec(file), isNull);
+      },
+    );
   });
 
   group('PubspecWorkspace', () {
     test('isWorkspaceRoot is true when workspace is set', () {
       final pubspec = Pubspec.parse(_workspaceRootPubspecContent);
       expect(pubspec.isWorkspaceRoot, isTrue);
-      expect(pubspec.isWorkspaceMember, isFalse);
     });
 
     test('isWorkspaceRoot is false when workspace is not set', () {
       final pubspec = Pubspec.parse(_basicPubspecContent);
       expect(pubspec.isWorkspaceRoot, isFalse);
-    });
-
-    test('isWorkspaceMember is true when resolution is workspace', () {
-      final pubspec = Pubspec.parse(_workspaceMemberPubspecContent);
-      expect(pubspec.isWorkspaceMember, isTrue);
-      expect(pubspec.isWorkspaceRoot, isFalse);
-    });
-
-    test('isWorkspaceMember is false when resolution is absent', () {
-      final pubspec = Pubspec.parse(_basicPubspecContent);
-      expect(pubspec.isWorkspaceMember, isFalse);
     });
   });
 
@@ -144,6 +146,95 @@ void main() {
 
       expect(members.length, equals(1));
       expect(path.basename(members.first.path), equals('member'));
+    });
+
+    test('resolves `?` single-character glob patterns', () {
+      for (final name in ['appA', 'appAB']) {
+        final memberDir = Directory(
+          path.join(tempDirectory.path, 'packages', name),
+        )..createSync(recursive: true);
+        File(
+          path.join(memberDir.path, pubspecBasename),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
+      }
+
+      final pubspec = Pubspec.parse('''
+name: workspace_root
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/app?
+''');
+      final members = pubspec.resolveMembers(tempDirectory);
+
+      expect(members.length, equals(1));
+      expect(path.basename(members.first.path), equals('appA'));
+    });
+
+    test('resolves `[...]` character class glob patterns', () {
+      final memberDir = Directory(path.join(tempDirectory.path, 'packages/app'))
+        ..createSync(recursive: true);
+      File(
+        path.join(memberDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse('''
+name: workspace_root
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/[abc]pp
+''');
+      final members = pubspec.resolveMembers(tempDirectory);
+
+      expect(members.length, equals(1));
+      expect(path.basename(members.first.path), equals('app'));
+    });
+
+    test('resolves `{...}` alternation glob patterns', () {
+      for (final name in ['app', 'shared', 'other']) {
+        final memberDir = Directory(
+          path.join(tempDirectory.path, 'packages', name),
+        )..createSync(recursive: true);
+        File(
+          path.join(memberDir.path, pubspecBasename),
+        ).writeAsStringSync(_workspaceMemberPubspecContent);
+      }
+
+      final pubspec = Pubspec.parse('''
+name: workspace_root
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/{app,shared}
+''');
+      final members = pubspec.resolveMembers(tempDirectory);
+
+      expect(
+        members.map((d) => path.basename(d.path)),
+        unorderedEquals(<String>['app', 'shared']),
+      );
+    });
+
+    test('resolves literal paths whose names contain non-metachar symbols', () {
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages', '!special'),
+      )..createSync(recursive: true);
+      File(
+        path.join(memberDir.path, pubspecBasename),
+      ).writeAsStringSync(_workspaceMemberPubspecContent);
+
+      final pubspec = Pubspec.parse('''
+name: workspace_root
+environment:
+  sdk: ^3.6.0
+workspace:
+  - packages/!special
+''');
+      final members = pubspec.resolveMembers(tempDirectory);
+
+      expect(members.length, equals(1));
+      expect(path.basename(members.first.path), equals('!special'));
     });
   });
 
@@ -250,6 +341,27 @@ workspace:
         expect(deps, contains('shared_pkg'));
       },
     );
+
+    test('collects deps from members that omit `resolution: workspace`', () {
+      final memberDir = Directory(
+        path.join(tempDirectory.path, 'packages/app'),
+      )..createSync(recursive: true);
+      File(path.join(memberDir.path, pubspecBasename)).writeAsStringSync('''
+name: app
+environment:
+  sdk: ^3.6.0
+dependencies:
+  http: ^1.0.0
+''');
+
+      final pubspec = Pubspec.parse(_workspaceRootWithMemberPubspecContent);
+      final deps = pubspec.collectWorkspaceDependencies(
+        root: tempDirectory,
+        dependencyTypes: ['direct-main'],
+      );
+
+      expect(deps, contains('http'));
+    });
 
     test('prevents infinite recursion from circular workspace references', () {
       // Set up a workspace root pointing to a member that points back
