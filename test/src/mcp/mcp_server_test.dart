@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' as io;
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
@@ -370,27 +371,16 @@ void main() {
         ]);
       });
 
-      test('passes directory as positional argument', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'directory': 'my_dir'}),
-          ),
-        );
+      test('does not pass directory as a positional argument', () async {
+        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
 
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, ['test', 'my_dir']);
-      });
-
-      test('passes directory as positional argument with dart flag', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
               name: 'test',
-              arguments: {'directory': 'my_dir', 'dart': true},
+              arguments: {'directory': tempDir.path},
             ),
           ),
         );
@@ -398,7 +388,27 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['dart', 'test', 'my_dir']);
+        expect(capturedArgs, ['test']);
+      });
+
+      test('does not pass directory positionally with dart flag', () async {
+        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'directory': tempDir.path, 'dart': true},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['dart', 'test']);
       });
 
       test('handles command failure', () async {
@@ -436,13 +446,16 @@ void main() {
       });
 
       test('handles all arguments (with split "ignore")', () async {
+        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+
         await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
               name: 'packages_get',
               arguments: {
-                'directory': 'my_dir',
+                'directory': tempDir.path,
                 'recursive': true,
                 'ignore': 'pkg1, pkg2',
               },
@@ -456,7 +469,6 @@ void main() {
         expect(capturedArgs, [
           'packages',
           'get',
-          'my_dir',
           '--recursive',
           '--ignore',
           'pkg1',
@@ -468,12 +480,15 @@ void main() {
 
     group('Tool: packages_check_licenses', () {
       test('handles basic case (licenses=true)', () async {
+        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+
         await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
               name: 'packages_check_licenses',
-              arguments: {'licenses': true, 'directory': 'my_dir'},
+              arguments: {'licenses': true, 'directory': tempDir.path},
             ),
           ),
         );
@@ -481,16 +496,19 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['packages', 'check', 'licenses', 'my_dir']);
+        expect(capturedArgs, ['packages', 'check', 'licenses']);
       });
 
       test('defaults to licenses=true if not provided', () async {
+        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+
         await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
               name: 'packages_check_licenses',
-              arguments: {'directory': 'my_dir'},
+              arguments: {'directory': tempDir.path},
             ),
           ),
         );
@@ -498,7 +516,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['packages', 'check', 'licenses', 'my_dir']);
+        expect(capturedArgs, ['packages', 'check', 'licenses']);
       });
 
       test('returns error if licenses=false', () async {
@@ -575,6 +593,71 @@ void main() {
         expect(text, contains('"create" threw an exception'));
         expect(text, contains('big bad'));
         expect(text, contains('Command: very_good'));
+      });
+    });
+
+    group('directory (working directory)', () {
+      late io.Directory tempDir;
+      late String originalCwd;
+
+      setUp(() {
+        originalCwd = io.Directory.current.path;
+        tempDir = io.Directory.systemTemp.createTempSync('vgmcp_cwd_');
+        addTearDown(() {
+          // Always restore the cwd so a failure cannot leak into other tests.
+          io.Directory.current = originalCwd;
+          if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+        });
+      });
+
+      for (final toolName in const [
+        'test',
+        'packages_get',
+        'packages_check_licenses',
+      ]) {
+        test('"$toolName" runs in the requested directory', () async {
+          String? cwdDuringRun;
+          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+            cwdDuringRun = io.Directory.current.resolveSymbolicLinksSync();
+            return ExitCode.success.code;
+          });
+
+          final response = await sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(
+                name: toolName,
+                arguments: {'directory': tempDir.path},
+              ),
+            ),
+          );
+
+          final result = CallToolResult.fromMap(
+            response['result'] as Map<String, Object?>,
+          );
+          expect(result.isError, isFalse);
+          expect(cwdDuringRun, tempDir.resolveSymbolicLinksSync());
+          // The working directory is restored after the command completes.
+          expect(io.Directory.current.path, originalCwd);
+        });
+      }
+
+      test('returns an error when the directory does not exist', () async {
+        final missing = '${tempDir.path}/does-not-exist';
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(name: 'test', arguments: {'directory': missing}),
+          ),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.isError, isTrue);
+        // The cwd is left unchanged when switching to it fails.
+        expect(io.Directory.current.path, originalCwd);
       });
     });
   });
