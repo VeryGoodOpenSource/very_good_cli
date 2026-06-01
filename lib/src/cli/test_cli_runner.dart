@@ -105,7 +105,6 @@ class TestCLIRunner {
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
     bool checkIgnore = false,
-    Duration? timeout,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
@@ -189,7 +188,6 @@ class TestCLIRunner {
                 ],
                 stdout: stdout ?? noop,
                 stderr: stderr ?? noop,
-                timeout: timeout,
               ).whenComplete(() async {
                 if (optimizePerformance) {
                   await _cleanupOptimizerFile(cwd);
@@ -459,7 +457,6 @@ Future<int> _testCommand({
   String cwd = '.',
   bool collectCoverage = false,
   List<String>? arguments,
-  Duration? timeout,
 }) {
   const clearLine = '\u001B[2K\r';
 
@@ -499,33 +496,13 @@ Future<int> _testCommand({
 
   late final StreamSubscription<TestEvent> subscription;
   late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
-  Timer? timeoutTimer;
 
   sigintWatchSubscription = sigintWatch.listen((_) async {
-    timeoutTimer?.cancel();
     await _cleanupOptimizerFile(cwd);
     await subscription.cancel();
     await sigintWatchSubscription.cancel();
     return completer.complete(ExitCode.success.code);
   });
-
-  if (timeout != null) {
-    timeoutTimer = Timer(timeout, () async {
-      if (completer.isCompleted) return;
-      stderr('${clearLine}Tests timed out after ${timeout.inSeconds}s.');
-      unawaited(
-        Process.run('pkill', [
-          '-KILL',
-          '-f',
-          'flutter_tester',
-        ], runInShell: true),
-      );
-      await subscription.cancel();
-      await sigintWatchSubscription.cancel();
-      unawaited(timerSubscription.cancel());
-      completer.complete(ExitCode.unavailable.code);
-    });
-  }
 
   subscription =
       testRunner(
@@ -665,7 +642,6 @@ Future<int> _testCommand({
 
           if (event is ExitTestEvent) {
             if (completer.isCompleted) return;
-            timeoutTimer?.cancel();
             unawaited(subscription.cancel());
             unawaited(sigintWatchSubscription.cancel());
 

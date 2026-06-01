@@ -218,7 +218,6 @@ class Flutter {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
-    Duration? timeout,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
@@ -239,7 +238,6 @@ class Flutter {
       stderr: stderr,
       buildGenerator: buildGenerator,
       reportOn: reportOn,
-      timeout: timeout,
     );
   }
 }

@@ -190,7 +190,6 @@ typedef FlutterTestCommand =
       void Function(String)? stdout,
       void Function(String)? stderr,
       List<String>? reportOn,
-      Duration? timeout,
     });
 
 /// {@template test_command}
@@ -428,9 +427,10 @@ This command should be run from the root of your Flutter project.''');
                 '--dart-define-from-file=$value',
             if (options.platform == null) ...['-j', options.concurrency],
             '--no-pub',
+            if (options.timeout != null)
+              '--timeout=${options.timeout!.inSeconds}s',
             ...options.rest,
           ],
-          timeout: options.timeout,
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;

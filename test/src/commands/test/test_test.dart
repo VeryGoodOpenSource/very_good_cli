@@ -75,7 +75,6 @@ abstract class FlutterTestCommand {
     void Function(String)? stderr,
     bool? forceAnsi,
     List<String>? reportOn,
-    Duration? timeout,
   });
 }
 
@@ -122,7 +121,6 @@ void main() {
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
           reportOn: any(named: 'reportOn'),
-          timeout: any(named: 'timeout'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -595,11 +593,10 @@ void main() {
         verify(
           () => flutterTest(
             optimizePerformance: true,
-            arguments: defaultArguments,
+            arguments: [...defaultArguments, '--timeout=30s'],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
-            timeout: const Duration(seconds: 30),
           ),
         ).called(1);
       });
