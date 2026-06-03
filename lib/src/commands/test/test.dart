@@ -187,12 +187,11 @@ typedef FlutterTestCommand =
 class TestCommand extends Command<int> {
   /// {@macro test_command}
   TestCommand({
-    required Logger logger,
-    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
+    required this._logger,
     @visibleForTesting FlutterTestCommand? flutterTest,
-  }) : _logger = logger,
-       _flutterInstalled = flutterInstalled ?? Flutter.installed,
-       _flutterTest = flutterTest ?? Flutter.test {
+    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
+  }) : _flutterTest = flutterTest ?? Flutter.test,
+       _flutterInstalled = flutterInstalled ?? Flutter.installed {
     argParser
       ..addFlag(
         'coverage',
