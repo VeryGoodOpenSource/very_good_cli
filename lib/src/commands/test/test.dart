@@ -30,6 +30,7 @@ class FlutterTestOptions {
     required this.reportOn,
     required this.runSkipped,
     required this.flavor,
+    required this.timeout,
     required this.rest,
   });
 
@@ -68,6 +69,12 @@ class FlutterTestOptions {
         .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final flavor = argResults['flavor'] as String?;
+    final timeoutSeconds = int.tryParse(
+      argResults['timeout'] as String? ?? '',
+    );
+    final timeout = timeoutSeconds != null
+        ? Duration(seconds: timeoutSeconds)
+        : null;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -90,6 +97,7 @@ class FlutterTestOptions {
       reportOn: reportOn,
       runSkipped: runSkipped,
       flavor: flavor,
+      timeout: timeout,
       rest: rest,
     );
   }
@@ -152,6 +160,9 @@ class FlutterTestOptions {
 
   /// The flavor to build for testing.
   final String? flavor;
+
+  /// Maximum time to let tests run before killing the process.
+  final Duration? timeout;
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
@@ -330,6 +341,13 @@ class TestCommand extends Command<int> {
             'Build a custom app flavor as defined by platform-specific build '
             'setup. Supports the use of product flavors in Android Gradle '
             'scripts, and the use of custom Xcode schemes.',
+      )
+      ..addOption(
+        'timeout',
+        help:
+            'Maximum seconds to let tests run before killing the process. '
+            'Useful when tests hang due to an unbounded pumpAndSettle() call.',
+        valueHelp: 'seconds',
       );
   }
 
@@ -408,6 +426,8 @@ This command should be run from the root of your Flutter project.''');
                 '--dart-define-from-file=$value',
             if (options.platform == null) ...['-j', options.concurrency],
             '--no-pub',
+            if (options.timeout != null)
+              '--timeout=${options.timeout!.inSeconds}s',
             ...options.rest,
           ],
         );
