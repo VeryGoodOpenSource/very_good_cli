@@ -15,7 +15,7 @@ Very Good CLI is a Command-Line Interface that enables you to generate VGV-opini
 In order to use Very Good CLI you must have [Dart][dart_sdk] and [Flutter][flutter_sdk] installed on your machine.
 
 :::info
-Very Good CLI requires Dart `">=3.11.0 <4.0.0"`
+Very Good CLI requires Dart `">=3.12.0 <4.0.0"`
 :::
 
 ## Installing
