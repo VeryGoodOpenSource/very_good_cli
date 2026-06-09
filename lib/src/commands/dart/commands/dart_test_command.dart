@@ -167,11 +167,10 @@ typedef DartTestCommandCall =
 class DartTestCommand extends Command<int> {
   /// {@macro packages_command}
   DartTestCommand({
-    required Logger logger,
+    required this._logger,
     DartTestCommandCall? dartTest,
     DartInstalledCommand? dartInstalled,
-  }) : _logger = logger,
-       _dartTest = dartTest ?? Dart.test,
+  }) : _dartTest = dartTest ?? Dart.test,
        _dartInstalled = dartInstalled ?? Dart.installed {
     argParser
       ..addFlag(

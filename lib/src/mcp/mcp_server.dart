@@ -221,6 +221,13 @@ Only one value can be selected.
                   '(e.g. // coverage:ignore-line). '
                   'Only applies to Dart tests (dart: true).',
             ),
+            'timeout_seconds': IntegerSchema(
+              description:
+                  'Maximum seconds to wait for the test run before killing '
+                  'the Flutter test process. Flutter tests can hang '
+                  'indefinitely when pumpAndSettle() is called without a '
+                  'timeout argument. When omitted, no timeout is applied.',
+            ),
           },
         ),
       ),
@@ -382,6 +389,12 @@ Only one value can be selected.
     }
     if (args['check_ignore'] == true) {
       cliArgs.add('--check-ignore');
+    }
+    if (args['timeout_seconds'] != null) {
+      cliArgs.addAll([
+        '--timeout',
+        (args['timeout_seconds']! as num).toInt().toString(),
+      ]);
     }
 
     return cliArgs;

@@ -333,6 +333,7 @@ void main() {
                 'platform': 'chrome',
                 'run_skipped': true,
                 'check_ignore': true,
+                'timeout_seconds': 60,
               },
             ),
           ),
@@ -368,6 +369,8 @@ void main() {
           'chrome',
           '--run-skipped',
           '--check-ignore',
+          '--timeout',
+          '60',
         ]);
       });
 
@@ -429,6 +432,23 @@ void main() {
           (result.content.first as TextContent).text,
           contains('"test" failed with exit code'),
         );
+      });
+
+      test('passes --timeout when timeout_seconds is provided', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'timeout_seconds': 120},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, ['test', '--timeout', '120']);
       });
     });
 
