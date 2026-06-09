@@ -157,6 +157,129 @@ dependencies:
           contains('another_not_optimized_test.dart'),
         );
       });
+
+      test(
+        'excludes all tests in a directory containing the marker file',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          // Normal test at root level.
+          File(path.join(testDir.path, 'root_test.dart')).createSync();
+
+          // Sub-directory with a marker file → all tests excluded.
+          final skippedDir =
+              Directory(path.join(testDir.path, 'skipped_pkg'))..createSync();
+          File(
+            path.join(
+              skippedDir.path,
+              pre_gen.skipVeryGoodOptimizationMarker,
+            ),
+          ).createSync();
+          File(
+            path.join(skippedDir.path, 'skipped_a_test.dart'),
+          ).createSync();
+          File(
+            path.join(skippedDir.path, 'skipped_b_test.dart'),
+          ).createSync();
+
+          // Nested sub-directory inside the skipped directory → also excluded.
+          final nestedDir =
+              Directory(path.join(skippedDir.path, 'nested'))..createSync();
+          File(path.join(nestedDir.path, 'nested_test.dart')).createSync();
+
+          // Another sub-directory without marker → tests included.
+          final normalDir =
+              Directory(path.join(testDir.path, 'normal_pkg'))..createSync();
+          File(path.join(normalDir.path, 'normal_test.dart')).createSync();
+
+          context.vars['package-root'] = tempDirectory.absolute.path;
+
+          await pre_gen.run(context);
+
+          final tests = context.vars['tests'] as List<Map<String, String>>;
+          final optimizedPaths =
+              tests.map((e) => e['path']!).toSet();
+
+          expect(optimizedPaths, contains('root_test.dart'));
+          expect(
+            optimizedPaths,
+            contains(path.join('normal_pkg', 'normal_test.dart')),
+          );
+          expect(
+            optimizedPaths,
+            isNot(contains(path.join('skipped_pkg', 'skipped_a_test.dart'))),
+          );
+          expect(
+            optimizedPaths,
+            isNot(contains(path.join('skipped_pkg', 'skipped_b_test.dart'))),
+          );
+          expect(
+            optimizedPaths,
+            isNot(
+              contains(
+                path.join('skipped_pkg', 'nested', 'nested_test.dart'),
+              ),
+            ),
+          );
+
+          final notOptimizedTests =
+              context.vars['notOptimizedTests'] as List<String>;
+          expect(
+            notOptimizedTests,
+            containsAll([
+              path.join('skipped_pkg', 'skipped_a_test.dart'),
+              path.join('skipped_pkg', 'skipped_b_test.dart'),
+              path.join('skipped_pkg', 'nested', 'nested_test.dart'),
+            ]),
+          );
+          expect(
+            notOptimizedTests,
+            isNot(contains('root_test.dart')),
+          );
+          expect(
+            notOptimizedTests,
+            isNot(
+              contains(path.join('normal_pkg', 'normal_test.dart')),
+            ),
+          );
+        },
+      );
+
+      test(
+        'excludes all tests when marker file is at the test root',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          // Marker at root of test directory.
+          File(
+            path.join(testDir.path, pre_gen.skipVeryGoodOptimizationMarker),
+          ).createSync();
+          File(path.join(testDir.path, 'test1_test.dart')).createSync();
+
+          final subDir =
+              Directory(path.join(testDir.path, 'sub'))..createSync();
+          File(path.join(subDir.path, 'sub_test.dart')).createSync();
+
+          context.vars['package-root'] = tempDirectory.absolute.path;
+
+          await pre_gen.run(context);
+
+          final tests = context.vars['tests'] as List<Map<String, String>>;
+          expect(tests, isEmpty);
+
+          final notOptimizedTests =
+              context.vars['notOptimizedTests'] as List<String>;
+          expect(notOptimizedTests, contains('test1_test.dart'));
+          expect(
+            notOptimizedTests,
+            contains(path.join('sub', 'sub_test.dart')),
+          );
+        },
+      );
     });
 
     group('Fails', () {

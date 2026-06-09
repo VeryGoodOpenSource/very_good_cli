@@ -29,4 +29,31 @@ void main() {
 }
 ```
 
+## Opting Out of Optimization
+
+### Per file
+
+Add the `skip_very_good_optimization` tag to a test file to exclude it from the optimizer. It will still be run, but as a separate test process.
+
+```dart
+@Tags(['skip_very_good_optimization'])
+import 'package:test/test.dart';
+
+void main() { /* ... */ }
+```
+
+### Per directory
+
+Place an empty `.skip_very_good_optimization` marker file in a directory to exclude **all test files** in that directory and any of its subdirectories from the optimizer. They will still be run, but each as a separate test process.
+
+```
+test/
+  my_incompatible_package/
+    .skip_very_good_optimization   ← marker file (can be empty)
+    some_test.dart                 ← excluded from optimization
+    nested/
+      another_test.dart            ← also excluded
+  normal_test.dart                 ← still optimized
+```
+
 [1]: https://github.com/felangel/mason
