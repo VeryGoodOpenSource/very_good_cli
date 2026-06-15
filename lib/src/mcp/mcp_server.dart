@@ -1,12 +1,34 @@
 import 'dart:async';
-import 'dart:io' show Directory, stderr;
+import 'dart:convert';
+import 'dart:io'
+    show Directory, IOOverrides, IOSink, Stdout, StdoutException, stderr;
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
+import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/mcp/lock.dart';
 import 'package:very_good_cli/src/version.dart';
+
+/// {@template command_runner_builder}
+/// Builds a [VeryGoodCommandRunner] bound to the provided [logger].
+///
+/// A builder (rather than a prebuilt runner) is required so the runner — and
+/// therefore its mason [Logger] — can be constructed *inside* the
+/// [IOOverrides] zone that redirects `stdout`/`stderr`. mason captures
+/// `IOOverrides.current` once, at [Logger] construction, so a runner built
+/// outside the zone would still write to the real process stdout and corrupt
+/// the MCP JSON-RPC stream.
+/// {@endtemplate}
+typedef CommandRunnerBuilder =
+    VeryGoodCommandRunner Function({required Logger logger});
+
+/// The default [CommandRunnerBuilder] used when none is injected.
+@visibleForTesting
+VeryGoodCommandRunner defaultCommandRunnerBuilder({required Logger logger}) =>
+    VeryGoodCommandRunner(logger: logger);
 
 /// {@template very_good_mcp_server}
 /// MCP Server for Very Good CLI.
@@ -19,10 +41,9 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
   /// {@macro very_good_mcp_server}
   VeryGoodMCPServer({
     required StreamChannel<String> channel,
-    Logger? logger,
-    VeryGoodCommandRunner? commandRunner,
-  }) : _commandRunner =
-           commandRunner ?? VeryGoodCommandRunner(logger: logger ?? Logger()),
+    CommandRunnerBuilder? commandRunnerBuilder,
+  }) : _commandRunnerBuilder =
+           commandRunnerBuilder ?? defaultCommandRunnerBuilder,
        super.fromStreamChannel(
          channel,
          implementation: Implementation(
@@ -34,7 +55,16 @@ final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
              'for creating and managing Dart/Flutter projects.',
        );
 
-  final VeryGoodCommandRunner _commandRunner;
+  /// {@macro command_runner_builder}
+  final CommandRunnerBuilder _commandRunnerBuilder;
+
+  /// Serializes tool runs.
+  ///
+  /// [_runToolCommand] switches the process-global `Directory.current`, so tool
+  /// runs must not overlap — the MCP transport can dispatch tool calls
+  /// concurrently (pipelined requests), and overlapping runs would corrupt each
+  /// other's working directory. The [Lock] keeps at most one run in flight.
+  final _lock = Lock();
 
   @override
   FutureOr<InitializeResult> initialize(InitializeRequest request) async {
@@ -438,7 +468,7 @@ Only one value can be selected.
     return _runToolCommand(
       cliArgs,
       toolName: 'test',
-      workingDirectory: args['directory'] as String?,
+      directory: args['directory'] as String?,
     );
   }
 
@@ -448,7 +478,7 @@ Only one value can be selected.
     return _runToolCommand(
       cliArgs,
       toolName: 'packages get',
-      workingDirectory: args['directory'] as String?,
+      directory: args['directory'] as String?,
     );
   }
 
@@ -476,71 +506,211 @@ Only one value can be selected.
     return _runToolCommand(
       cliArgs,
       toolName: 'packages check licenses',
-      workingDirectory: args['directory'] as String?,
+      directory: args['directory'] as String?,
     );
   }
 
-  /// Runs a CLI command and returns a [CallToolResult] with descriptive
-  /// error messages including the command that was run and the exit code.
+  /// Runs a CLI command in-process and returns a [CallToolResult].
+  ///
+  /// The command is executed inside an [IOOverrides] zone that:
+  ///
+  /// * redirects `stdout`/`stderr` into a buffer, so the command's mason
+  ///   [Logger] output (test results, compile errors, ...) is captured and
+  ///   returned in the result instead of leaking onto the real process stdout,
+  ///   which is shared with the MCP JSON-RPC stream (the stdio transport
+  ///   requires the server MUST NOT write non-MCP content to stdout); and
+  /// * sets the current directory to [directory] when provided, so in-process
+  ///   commands that resolve their target from `Directory.current` run in the
+  ///   right package (`directory` is the working directory, not a positional
+  ///   argument).
+  ///
+  /// The [Logger] is constructed *inside* the zone on purpose: mason captures
+  /// `IOOverrides.current` at [Logger] construction time, so building it
+  /// outside the zone would defeat the redirect.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
-    String? workingDirectory,
-  }) async {
-    final commandString = 'very_good ${args.join(' ')}';
+    String? directory,
+  }) {
+    return _lock.run(() async {
+      final commandString = 'very_good ${args.join(' ')}';
+      final output = StringBuffer();
 
-    // The underlying CLI commands resolve their target package from
-    // `Directory.current` (and child processes inherit the process cwd), so a
-    // requested [workingDirectory] is applied by switching the current
-    // directory for the duration of the run and restoring it afterwards.
-    // Relative paths are resolved against the server's current directory.
-    final previousDirectory = Directory.current;
-
-    try {
-      if (workingDirectory != null) {
-        Directory.current = workingDirectory;
-      }
-      final exitCode = await _commandRunner.run(args);
-
-      if (exitCode == ExitCode.success.code) {
-        return CallToolResult(
-          content: [TextContent(text: '"$toolName" completed successfully.')],
-          isError: false,
+      Future<T> runCaptured<T>(Future<T> Function(Logger logger) body) {
+        final sink = CapturingStdout(output);
+        // Redirect stdout/stderr so the in-process command's mason Logger
+        // output is captured into [output] instead of leaking onto the real
+        // stdout that carries the MCP JSON-RPC stream. The Logger is built
+        // inside the zone so mason (which pins IOOverrides.current at
+        // construction) honors it.
+        return IOOverrides.runZoned(
+          () => body(Logger()),
+          stdout: () => sink,
+          stderr: () => sink,
         );
       }
 
-      final message =
-          '"$toolName" failed with exit code $exitCode.\n'
-          'Command: $commandString';
-      stderr.writeln('[very_good_mcp] $message');
-      return CallToolResult(
-        content: [TextContent(text: message)],
-        isError: true,
-      );
-    } on UsageException catch (e) {
-      final message =
-          '"$toolName" usage error: ${e.message}\n'
-          'Command: $commandString';
-      stderr.writeln('[very_good_mcp] $message');
-      return CallToolResult(
-        content: [TextContent(text: message)],
-        isError: true,
-      );
-    } on Exception catch (e, stackTrace) {
-      final message =
-          '"$toolName" threw an exception: $e\n'
-          'Command: $commandString';
-      stderr
-        ..writeln('[very_good_mcp] $message')
-        ..writeln('[very_good_mcp] Stack trace: $stackTrace');
-      return CallToolResult(
-        content: [TextContent(text: message)],
-        isError: true,
-      );
-    } finally {
-      if (workingDirectory != null) {
-        Directory.current = previousDirectory;
+      // Appends the captured command output (the real diagnostics) to a
+      // message, on every result path so partial output emitted before a throw
+      // is not lost. The buffer is populated whether the run returns or throws.
+      String withCapturedOutput(String message) {
+        final captured = sanitizeCommandOutput(output.toString()).trim();
+        if (captured.isEmpty) return message;
+        return '$message\n\nOutput:\n$captured';
       }
+
+      // Builds a failure result from [reason] (the human-readable cause). The
+      // message is logged once to the real stderr (the stdio transport forbids
+      // only non-JSON on stdout, so stderr is free for diagnostics) and also
+      // surfaced — with any captured output — in the tool result, so the same
+      // text never has to be written twice. [commandString] is appended to keep
+      // the failure reproducible.
+      CallToolResult errorResult(String reason, {StackTrace? stackTrace}) {
+        final message = '"$toolName" $reason\nCommand: $commandString';
+        stderr.writeln('[very_good_mcp] ${message.replaceAll('\n', ' ')}');
+        if (stackTrace != null) {
+          stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
+        }
+        return CallToolResult(
+          content: [TextContent(text: withCapturedOutput(message))],
+          isError: true,
+        );
+      }
+
+      // Apply [directory] as the real working directory for the duration of
+      // the run, restoring it afterwards. The underlying commands resolve their
+      // target package from the process current directory and spawn
+      // subprocesses with it, so it must be the real cwd (not just an
+      // IOOverrides override, which subprocesses do not honor).
+      final previousDirectory = Directory.current;
+
+      try {
+        if (directory != null) Directory.current = directory;
+        final exitCode = await runCaptured(
+          (logger) => _commandRunnerBuilder(logger: logger).run(args),
+        );
+
+        if (exitCode == ExitCode.success.code) {
+          final captured = sanitizeCommandOutput(output.toString()).trim();
+          return CallToolResult(
+            content: [
+              TextContent(text: '"$toolName" completed successfully.'),
+              if (captured.isNotEmpty) TextContent(text: captured),
+            ],
+            isError: false,
+          );
+        }
+
+        return errorResult('failed with exit code $exitCode.');
+      } on UsageException catch (e) {
+        return errorResult('usage error: ${e.message}');
+      } on Exception catch (e, stackTrace) {
+        return errorResult('threw an exception: $e', stackTrace: stackTrace);
+      } finally {
+        if (directory != null) Directory.current = previousDirectory;
+      }
+    });
+  }
+}
+
+/// A [Stdout] that captures everything written to it into a [StringBuffer]
+/// instead of the real process stdout/stderr.
+///
+/// Used to redirect a command's in-process [Logger] output (which mason routes
+/// through `stdout`/`stderr`, including progress spinners) away from the real
+/// stdout shared with the MCP JSON-RPC stream. It reports no terminal so mason
+/// emits plain, animation-free lines.
+@visibleForTesting
+class CapturingStdout implements Stdout {
+  /// Creates a [CapturingStdout] that appends all writes to [_buffer].
+  CapturingStdout(this._buffer);
+
+  final StringBuffer _buffer;
+
+  @override
+  Encoding encoding = utf8;
+
+  @override
+  String lineTerminator = '\n';
+
+  @override
+  void write(Object? object) => _buffer.write(object ?? 'null');
+
+  @override
+  void writeln([Object? object = '']) => _buffer.writeln(object ?? '');
+
+  @override
+  void writeAll(Iterable<dynamic> objects, [String separator = '']) =>
+      _buffer.writeAll(objects, separator);
+
+  @override
+  void writeCharCode(int charCode) => _buffer.writeCharCode(charCode);
+
+  @override
+  void add(List<int> data) {
+    try {
+      _buffer.write(encoding.decode(data));
+    } on FormatException {
+      _buffer.write(String.fromCharCodes(data));
     }
   }
+
+  @override
+  void addError(Object error, [StackTrace? stackTrace]) {}
+
+  @override
+  Future<void> addStream(Stream<List<int>> stream) => stream.forEach(add);
+
+  @override
+  Future<void> flush() async {}
+
+  @override
+  Future<void> close() async {}
+
+  @override
+  Future<void> get done => Future<void>.value();
+
+  @override
+  bool get hasTerminal => false;
+
+  @override
+  bool get supportsAnsiEscapes => false;
+
+  @override
+  int get terminalColumns =>
+      throw const StdoutException('No terminal attached');
+
+  @override
+  int get terminalLines => throw const StdoutException('No terminal attached');
+
+  @override
+  IOSink get nonBlocking => this;
+}
+
+/// Matches a CSI ANSI escape sequence (colors, cursor moves, line erases).
+final _ansiEscape = RegExp(r'\x1B\[[0-?]*[ -/]*[@-~]');
+
+/// Renders raw captured command output as plain text for a tool result.
+///
+/// In-process commands (and the test subprocesses they reformat) animate
+/// progress with ANSI escape sequences and carriage returns: a spinner redraws
+/// a single line in place with `\r` and erases it with `\x1B[2K`. A terminal
+/// resolves those to clean lines, but the raw bytes surfaced to an MCP client
+/// collapse into one run-on line. This reproduces the terminal's settled view:
+///
+/// * strips ANSI escape sequences;
+/// * normalizes `\r\n` to `\n`; and
+/// * collapses carriage-return redraws to the text after the last `\r` on each
+///   line (the final state the user would see), trimming trailing padding.
+@visibleForTesting
+String sanitizeCommandOutput(String raw) {
+  return raw
+      .replaceAll(_ansiEscape, '')
+      .replaceAll('\r\n', '\n')
+      .split('\n')
+      .map(
+        (line) =>
+            (line.contains('\r') ? line.split('\r').last : line).trimRight(),
+      )
+      .join('\n');
 }

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
@@ -10,8 +10,6 @@ import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
-
-class _MockLogger extends Mock implements Logger {}
 
 class _MockVeryGoodCommandRunner extends Mock
     implements VeryGoodCommandRunner {}
@@ -35,12 +33,17 @@ Map<String, Object?> _params(dynamic params) => params as Map<String, Object?>;
 
 void main() {
   group('VeryGoodMCPServer', () {
-    late Logger mockLogger;
     late VeryGoodCommandRunner mockCommandRunner;
+    // The mason Logger the server constructs inside the IOOverrides zone and
+    // passes to the builder. Captured here so tests can drive it directly.
+    late Logger injectedLogger;
     late StreamChannelController<String> channelController;
     // ignore: unused_local_variable Server is not used directly, but needed to keep the channel open
     late VeryGoodMCPServer server;
     late Stream<Map<String, dynamic>> serverResponses;
+    // A real directory used wherever the `directory` argument is applied as the
+    // working directory (the server switches the real cwd, which must exist).
+    late Directory tempDir;
 
     setUpAll(() {
       _idCounter = 1;
@@ -71,13 +74,16 @@ void main() {
     }
 
     setUp(() async {
-      mockLogger = _MockLogger();
       mockCommandRunner = _MockVeryGoodCommandRunner();
+      tempDir = Directory.systemTemp.createTempSync('vgmcp_test_');
+      addTearDown(() => tempDir.deleteSync(recursive: true));
       channelController = StreamChannelController<String>();
       server = VeryGoodMCPServer(
         channel: channelController.foreign,
-        logger: mockLogger,
-        commandRunner: mockCommandRunner,
+        commandRunnerBuilder: ({required logger}) {
+          injectedLogger = logger;
+          return mockCommandRunner;
+        },
       );
 
       serverResponses = channelController.local.stream
@@ -98,10 +104,6 @@ void main() {
       when(
         () => mockCommandRunner.run(any()),
       ).thenAnswer((_) async => ExitCode.success.code);
-      when(() => mockLogger.info(any())).thenAnswer((_) {});
-      when(() => mockLogger.err(any())).thenAnswer((_) {});
-      when(() => mockLogger.detail(any())).thenAnswer((_) {});
-      when(() => mockLogger.success(any())).thenAnswer((_) {});
 
       // This is the handshake that
       // MUST happen before any other requests, to fix the timeout.
@@ -375,9 +377,6 @@ void main() {
       });
 
       test('does not pass directory as a positional argument', () async {
-        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-
         await sendRequest(
           CallToolRequest.methodName,
           _params(
@@ -394,10 +393,7 @@ void main() {
         expect(capturedArgs, ['test']);
       });
 
-      test('does not pass directory positionally with dart flag', () async {
-        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-
+      test('does not pass directory as a positional with dart flag', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
@@ -466,7 +462,7 @@ void main() {
       });
 
       test('handles all arguments (with split "ignore")', () async {
-        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
         addTearDown(() => tempDir.deleteSync(recursive: true));
 
         await sendRequest(
@@ -500,7 +496,7 @@ void main() {
 
     group('Tool: packages_check_licenses', () {
       test('handles basic case (licenses=true)', () async {
-        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
         addTearDown(() => tempDir.deleteSync(recursive: true));
 
         await sendRequest(
@@ -520,7 +516,7 @@ void main() {
       });
 
       test('defaults to licenses=true if not provided', () async {
-        final tempDir = io.Directory.systemTemp.createTempSync('vgmcp_');
+        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
         addTearDown(() => tempDir.deleteSync(recursive: true));
 
         await sendRequest(
@@ -617,15 +613,15 @@ void main() {
     });
 
     group('directory (working directory)', () {
-      late io.Directory tempDir;
+      late Directory tempDir;
       late String originalCwd;
 
       setUp(() {
-        originalCwd = io.Directory.current.path;
-        tempDir = io.Directory.systemTemp.createTempSync('vgmcp_cwd_');
+        originalCwd = Directory.current.path;
+        tempDir = Directory.systemTemp.createTempSync('vgmcp_cwd_');
         addTearDown(() {
           // Always restore the cwd so a failure cannot leak into other tests.
-          io.Directory.current = originalCwd;
+          Directory.current = originalCwd;
           if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
         });
       });
@@ -638,7 +634,7 @@ void main() {
         test('"$toolName" runs in the requested directory', () async {
           String? cwdDuringRun;
           when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-            cwdDuringRun = io.Directory.current.resolveSymbolicLinksSync();
+            cwdDuringRun = Directory.current.resolveSymbolicLinksSync();
             return ExitCode.success.code;
           });
 
@@ -658,12 +654,188 @@ void main() {
           expect(result.isError, isFalse);
           expect(cwdDuringRun, tempDir.resolveSymbolicLinksSync());
           // The working directory is restored after the command completes.
-          expect(io.Directory.current.path, originalCwd);
+          expect(Directory.current.path, originalCwd);
         });
       }
+    });
 
-      test('returns an error when the directory does not exist', () async {
-        final missing = '${tempDir.path}/does-not-exist';
+    group('captured command output', () {
+      test('includes captured output in a failure result', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.write('compile error: boom');
+          stderr.write('stderr detail');
+          return ExitCode.unavailable.code;
+        });
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.isError, isTrue);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"test" failed with exit code 69'));
+        expect(text, contains('compile error: boom'));
+        expect(text, contains('stderr detail'));
+      });
+
+      test('includes captured output in a success result', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.write('All tests passed!');
+          return ExitCode.success.code;
+        });
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.isError, isFalse);
+        expect(result.content, hasLength(2));
+        expect(
+          (result.content[0] as TextContent).text,
+          '"test" completed successfully.',
+        );
+        expect((result.content[1] as TextContent).text, 'All tests passed!');
+      });
+
+      test('routes the injected in-zone logger through the capture', () async {
+        // The load-bearing invariant: a Logger constructed INSIDE the zone
+        // writes through the capture override. Driving the injected logger
+        // (not the dart:io globals) is what would fail if the Logger were
+        // built outside the zone.
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          injectedLogger
+            ..info('stdout via logger')
+            ..err('stderr via logger');
+          return ExitCode.unavailable.code;
+        });
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('stdout via logger'));
+        expect(text, contains('stderr via logger'));
+      });
+
+      test('includes captured output when the run throws', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.write('partial output before crash');
+          throw Exception('boom');
+        });
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.isError, isTrue);
+        final text = (result.content.first as TextContent).text;
+        expect(text, contains('"test" threw an exception'));
+        expect(text, contains('partial output before crash'));
+      });
+
+      test('omits the output block when nothing was captured', () async {
+        when(
+          () => mockCommandRunner.run(any()),
+        ).thenAnswer((_) async => ExitCode.success.code);
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: {})),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.content, hasLength(1));
+        expect(
+          (result.content.first as TextContent).text,
+          '"test" completed successfully.',
+        );
+      });
+    });
+
+    group('working directory', () {
+      test(
+        'serializes overlapping runs so each keeps its own directory',
+        () async {
+          final dirA = Directory.systemTemp.createTempSync('vgmcp_a_');
+          final dirB = Directory.systemTemp.createTempSync('vgmcp_b_');
+          addTearDown(() {
+            dirA.deleteSync(recursive: true);
+            dirB.deleteSync(recursive: true);
+          });
+
+          // For each run record (cwd at start, cwd after an async gap). With
+          // serialization the cwd is stable within a run; without it, a sibling
+          // run's Directory.current mutation would clobber it across the gap.
+          final pairs = <List<String>>[];
+          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+            final before = Directory.current.path;
+            await Future<void>.delayed(const Duration(milliseconds: 20));
+            final after = Directory.current.path;
+            pairs.add([before, after]);
+            return ExitCode.success.code;
+          });
+
+          await Future.wait([
+            sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'directory': dirA.path},
+                ),
+              ),
+            ),
+            sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'directory': dirB.path},
+                ),
+              ),
+            ),
+          ]);
+
+          expect(pairs, hasLength(2));
+          for (final pair in pairs) {
+            expect(
+              pair[1],
+              pair[0],
+              reason: 'cwd must stay stable for the duration of a single run',
+            );
+          }
+          expect(
+            pairs
+                .map((p) => Directory(p[0]).resolveSymbolicLinksSync())
+                .toSet(),
+            {dirA.resolveSymbolicLinksSync(), dirB.resolveSymbolicLinksSync()},
+          );
+        },
+      );
+
+      test('errors and restores cwd for a non-existent directory', () async {
+        final before = Directory.current.path;
+        final missing =
+            '${Directory.systemTemp.path}/vgmcp_missing_dir_should_not_exist';
 
         final response = await sendRequest(
           CallToolRequest.methodName,
@@ -676,9 +848,110 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        // The cwd is left unchanged when switching to it fails.
-        expect(io.Directory.current.path, originalCwd);
+        // cwd switch failed before the run, so it was never executed...
+        verifyNever(() => mockCommandRunner.run(any()));
+        // ...and the process directory is unchanged.
+        expect(Directory.current.path, before);
       });
+    });
+  });
+
+  group('defaultCommandRunnerBuilder', () {
+    test('builds a VeryGoodCommandRunner', () {
+      expect(
+        defaultCommandRunnerBuilder(logger: Logger()),
+        isA<VeryGoodCommandRunner>(),
+      );
+    });
+  });
+
+  group('CapturingStdout', () {
+    late StringBuffer buffer;
+    late CapturingStdout capturing;
+
+    setUp(() {
+      buffer = StringBuffer();
+      capturing = CapturingStdout(buffer);
+    });
+
+    test('write/writeln/writeAll/writeCharCode append to the buffer', () {
+      capturing
+        ..write('a')
+        ..write(null)
+        ..writeln('b')
+        ..writeln()
+        ..writeAll(['c', 'd'], '-')
+        ..writeCharCode(0x65); // 'e'
+      expect(buffer.toString(), 'anullb\n\nc-de');
+    });
+
+    test('add decodes bytes with the current encoding', () {
+      capturing.add(utf8.encode('héllo'));
+      expect(buffer.toString(), 'héllo');
+    });
+
+    test('add falls back to char codes on malformed bytes', () {
+      capturing.add([0xff, 0xfe]);
+      expect(buffer.toString(), String.fromCharCodes([0xff, 0xfe]));
+    });
+
+    test('addStream forwards all chunks', () async {
+      await capturing.addStream(
+        Stream.fromIterable([utf8.encode('x'), utf8.encode('y')]),
+      );
+      expect(buffer.toString(), 'xy');
+    });
+
+    test('reports no terminal and tolerates sink lifecycle calls', () async {
+      expect(capturing.hasTerminal, isFalse);
+      expect(capturing.supportsAnsiEscapes, isFalse);
+      expect(capturing.nonBlocking, same(capturing));
+      expect(capturing.encoding, utf8);
+      expect(capturing.lineTerminator, '\n');
+      expect(() => capturing.terminalColumns, throwsA(isA<StdoutException>()));
+      expect(() => capturing.terminalLines, throwsA(isA<StdoutException>()));
+      capturing.addError('ignored');
+      await capturing.flush();
+      await capturing.close();
+      await capturing.done;
+    });
+  });
+
+  group('sanitizeCommandOutput', () {
+    test('strips ANSI escape sequences', () {
+      expect(
+        sanitizeCommandOutput('\x1B[31mred\x1B[0m and \x1B[1mbold\x1B[0m'),
+        'red and bold',
+      );
+    });
+
+    test('normalizes CRLF to LF', () {
+      expect(sanitizeCommandOutput('a\r\nb\r\nc'), 'a\nb\nc');
+    });
+
+    test('collapses carriage-return redraws to the settled text', () {
+      // A spinner redrawing one line in place: erase + rewrite per tick.
+      expect(
+        sanitizeCommandOutput(
+          '\r\x1B[2K00:01 +1\r\x1B[2K00:02 +5\r\x1B[2KAll tests passed!',
+        ),
+        'All tests passed!',
+      );
+    });
+
+    test('preserves genuine newlines while collapsing redraws per line', () {
+      expect(
+        sanitizeCommandOutput('compiling...\rdone\nAll tests passed!'),
+        'done\nAll tests passed!',
+      );
+    });
+
+    test('trims trailing padding left by line erases', () {
+      expect(sanitizeCommandOutput('result      '), 'result');
+    });
+
+    test('leaves plain multi-line output untouched', () {
+      expect(sanitizeCommandOutput('line 1\nline 2'), 'line 1\nline 2');
     });
   });
 }
