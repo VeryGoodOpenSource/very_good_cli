@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show stderr;
+import 'dart:io' show Directory, stderr;
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
@@ -329,11 +329,10 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
+    // NOTE: 'directory' is intentionally not added here. It is applied as the
+    // working directory in [_runToolCommand], not as a positional test target.
     final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
 
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
     if (args['coverage'] == true) {
       cliArgs.add('--coverage');
     }
@@ -402,11 +401,10 @@ Only one value can be selected.
   }
 
   List<String> _parsePackagesGet(Map<String, Object?> args) {
+    // NOTE: 'directory' is applied as the working directory in
+    // [_runToolCommand], not as a positional argument.
     final cliArgs = <String>['packages', 'get'];
 
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
     if (args['recursive'] == true) {
       cliArgs.add('--recursive');
     }
@@ -421,11 +419,9 @@ Only one value can be selected.
   }
 
   List<String> _parsePackagesCheck(Map<String, Object?> args) {
+    // NOTE: 'directory' is applied as the working directory in
+    // [_runToolCommand], not as a positional argument.
     final cliArgs = <String>['packages', 'check', 'licenses'];
-
-    if (args['directory'] != null) {
-      cliArgs.add(args['directory']! as String);
-    }
 
     return cliArgs;
   }
@@ -439,13 +435,21 @@ Only one value can be selected.
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
-    return _runToolCommand(cliArgs, toolName: 'test');
+    return _runToolCommand(
+      cliArgs,
+      toolName: 'test',
+      workingDirectory: args['directory'] as String?,
+    );
   }
 
   Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parsePackagesGet(args);
-    return _runToolCommand(cliArgs, toolName: 'packages get');
+    return _runToolCommand(
+      cliArgs,
+      toolName: 'packages get',
+      workingDirectory: args['directory'] as String?,
+    );
   }
 
   Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
@@ -469,7 +473,11 @@ Only one value can be selected.
     }
 
     final cliArgs = _parsePackagesCheck(args);
-    return _runToolCommand(cliArgs, toolName: 'packages check licenses');
+    return _runToolCommand(
+      cliArgs,
+      toolName: 'packages check licenses',
+      workingDirectory: args['directory'] as String?,
+    );
   }
 
   /// Runs a CLI command and returns a [CallToolResult] with descriptive
@@ -477,10 +485,21 @@ Only one value can be selected.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
+    String? workingDirectory,
   }) async {
     final commandString = 'very_good ${args.join(' ')}';
 
+    // The underlying CLI commands resolve their target package from
+    // `Directory.current` (and child processes inherit the process cwd), so a
+    // requested [workingDirectory] is applied by switching the current
+    // directory for the duration of the run and restoring it afterwards.
+    // Relative paths are resolved against the server's current directory.
+    final previousDirectory = Directory.current;
+
     try {
+      if (workingDirectory != null) {
+        Directory.current = workingDirectory;
+      }
       final exitCode = await _commandRunner.run(args);
 
       if (exitCode == ExitCode.success.code) {
@@ -518,6 +537,10 @@ Only one value can be selected.
         content: [TextContent(text: message)],
         isError: true,
       );
+    } finally {
+      if (workingDirectory != null) {
+        Directory.current = previousDirectory;
+      }
     }
   }
 }
