@@ -10,4 +10,4 @@ environment:
 
 dev_dependencies:
   test: ^1.25.2
-  very_good_analysis: ^10.3.0-rc.1
+  very_good_analysis: ^10.3.0
