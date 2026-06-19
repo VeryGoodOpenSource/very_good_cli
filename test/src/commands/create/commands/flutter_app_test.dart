@@ -37,6 +37,7 @@ Usage: very_good create flutter_app <project-name> [arguments]
 
     --org-name                The organization for this new project.
                               (defaults to "com.example.verygoodcore")
+    --publishable             Whether the generated project is intended to be published.
     --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
 
 Run "very_good help" to see global options.''',
@@ -174,6 +175,7 @@ void main() {
                 'project_name': 'my_app',
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
+                'publishable': false,
                 'application_id': 'xyz.app.my_app',
               },
               expectedLogSummary: 'Created a Very Good App! 🦄',
@@ -200,6 +202,7 @@ void main() {
                 'project_name': 'my_app',
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
+                'publishable': false,
                 'application_id': 'xyz.app.my_app',
               },
               expectedLogSummary: 'Created a Very Good App! 🦄',
