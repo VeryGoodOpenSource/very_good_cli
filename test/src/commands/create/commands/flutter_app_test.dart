@@ -1,3 +1,6 @@
+// Expected usage of the app will need to be longer than 80 chars.
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'dart:io';
 
 import 'package:mason/mason.dart';
@@ -27,17 +30,24 @@ final expectedUsage = [
 Generate a Very Good Flutter application.
 
 Usage: very_good create flutter_app <project-name> [arguments]
--h, --help                    Print this usage information.
--o, --output-directory        The desired output directory when creating a new project.
-    --description             The description for this new project.
-                              (defaults to "A Very Good Project created by Very Good CLI.")
--t, --template                The template used to generate this new project.
+-h, --help                       Print this usage information.
+-o, --output-directory           The desired output directory when creating a new project.
+    --description                The description for this new project.
+                                 (defaults to "A Very Good Project created by Very Good CLI.")
+-t, --template                   The template used to generate this new project.
 
-          [core] (default)    Generate a Very Good Flutter application.
+          [core] (default)       Generate a Very Good Flutter application.
 
-    --org-name                The organization for this new project.
-                              (defaults to "com.example.verygoodcore")
-    --application-id          The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
+    --org-name                   The organization for this new project.
+                                 (defaults to "com.example.verygoodcore")
+    --application-id             The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
+    --platforms                  The platforms supported by the app. By default, all platforms are enabled. Example: --platforms=android,ios
+
+          [android] (default)    The app supports the Android platform.
+          [ios] (default)        The app supports the iOS platform.
+          [macos] (default)      The app supports the macOS platform.
+          [web] (default)        The app supports the Web platform.
+          [windows] (default)    The app supports the Windows platform.
 
 Run "very_good help" to see global options.''',
 ];
@@ -169,12 +179,54 @@ void main() {
               hooks: hooks,
               generator: generator,
               templateName: 'core',
-              mockArgs: {'application-id': 'xyz.app.my_app'},
+              mockArgs: {
+                'application-id': 'xyz.app.my_app',
+                'platforms': const [
+                  'android',
+                  'ios',
+                  'macos',
+                  'web',
+                  'windows',
+                ],
+              },
               expectedVars: {
                 'project_name': 'my_app',
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
                 'application_id': 'xyz.app.my_app',
+                'platforms': const [
+                  'android',
+                  'ios',
+                  'macos',
+                  'web',
+                  'windows',
+                ],
+              },
+              expectedLogSummary: 'Created a Very Good App! 🦄',
+            );
+          });
+
+          test('generates successfully with custom platforms', () async {
+            await testMultiTemplateCommand(
+              multiTemplatesCommand: CreateFlutterApp(
+                logger: logger,
+                generatorFromBundle: (_) async => throw Exception('oops'),
+                generatorFromBrick: (_) async => generator,
+              ),
+              logger: logger,
+              hooks: hooks,
+              generator: generator,
+              templateName: 'core',
+              mockArgs: {
+                'application-id': 'xyz.app.my_app',
+                'platforms': const ['android', 'ios'],
+              },
+              expectedVars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': 'com.example.verygoodcore',
+                'application_id': 'xyz.app.my_app',
+                'platforms': const ['android', 'ios'],
               },
               expectedLogSummary: 'Created a Very Good App! 🦄',
             );
@@ -195,12 +247,28 @@ void main() {
               hooks: hooks,
               generator: generator,
               templateName: 'core',
-              mockArgs: {'application-id': 'xyz.app.my_app'},
+              mockArgs: {
+                'application-id': 'xyz.app.my_app',
+                'platforms': const [
+                  'android',
+                  'ios',
+                  'macos',
+                  'web',
+                  'windows',
+                ],
+              },
               expectedVars: {
                 'project_name': 'my_app',
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
                 'application_id': 'xyz.app.my_app',
+                'platforms': const [
+                  'android',
+                  'ios',
+                  'macos',
+                  'web',
+                  'windows',
+                ],
               },
               expectedLogSummary: 'Created a Very Good App! 🦄',
             );
