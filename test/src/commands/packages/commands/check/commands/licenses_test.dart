@@ -1832,7 +1832,7 @@ and limitations under the License.''');
             path.join(tempDirectory.path, 'packages', 'app'),
           )..createSync(recursive: true);
           File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
-            _workspaceMemberWithDevDepsPubspecContent,
+            _workspaceMemberWithMixedDepsPubspecContent,
           );
 
           // Create shared package directory
@@ -2060,7 +2060,7 @@ and limitations under the License.''');
             path.join(tempDirectory.path, 'packages', 'app'),
           )..createSync(recursive: true);
           File(path.join(appDir.path, 'pubspec.yaml')).writeAsStringSync(
-            _workspaceMemberSharedPubspecContent,
+            _workspaceMemberAppCliCompletionPubspecContent,
           );
 
           // shared declares cli_completion as a direct-dev dependency.
@@ -2378,8 +2378,9 @@ dev_dependencies:
   cli_completion: ^0.4.0
 ''';
 
-/// A workspace member pubspec.yaml with dev dependencies.
-const _workspaceMemberWithDevDepsPubspecContent = '''
+/// A workspace member pubspec.yaml that declares both a regular dependency
+/// (`http`) and a dev dependency (`very_good_analysis`).
+const _workspaceMemberWithMixedDepsPubspecContent = '''
 name: app
 
 environment:
@@ -2392,6 +2393,22 @@ dependencies:
 
 dev_dependencies:
   very_good_analysis: ^5.0.0
+''';
+
+/// A workspace member pubspec.yaml for the `app` package that declares
+/// `cli_completion` as a direct-main dependency. Used to verify that a
+/// dependency listed as direct-main in one member and direct-dev in another is
+/// still surfaced.
+const _workspaceMemberAppCliCompletionPubspecContent = '''
+name: app
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  cli_completion: ^0.4.0
 ''';
 
 /// A pubspec.lock for workspace with dependencies from members.

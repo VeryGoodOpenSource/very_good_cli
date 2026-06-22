@@ -180,7 +180,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final progress = _logger.progress('Checking licenses on $targetPath');
 
     final pubspecLockFile = File(
-      path.join(targetDirectory.path, pubspecLockBasename),
+      path.join(targetPath, pubspecLockBasename),
     );
     if (!pubspecLockFile.existsSync()) {
       progress.cancel();
@@ -196,41 +196,36 @@ class PackagesCheckLicensesCommand extends Command<int> {
     }
 
     final pubspecFile = File(
-      path.join(targetDirectory.path, pubspecBasename),
+      path.join(targetPath, pubspecBasename),
     );
-    final pubspec = tryParsePubspec(pubspecFile);
-    final workspaceDependencies = pubspec?.collectWorkspaceDependencies(
-      root: targetDirectory,
-      dependencyTypes: dependencyTypes,
-    );
+    final pubspec = PubspecWorkspace.tryParse(pubspecFile);
+    final isWorkspace = pubspec?.isWorkspaceRoot ?? false;
+    final workspaceDependencies =
+        pubspec?.collectWorkspaceDependencies(
+          root: targetDirectory,
+          dependencyTypes: dependencyTypes,
+        ) ??
+        const <String>{};
 
     final filteredDependencies = pubspecLock.packages.where((dependency) {
       if (!dependency.isPubHosted) return false;
 
       if (skippedPackages.contains(dependency.name)) return false;
 
-      if (workspaceDependencies != null) {
-        if (workspaceDependencies.contains(dependency.name)) return true;
-
-        final dependencyType = dependency.type;
-        if (dependencyTypes.contains('transitive') &&
-            dependencyType == PubspecLockPackageDependencyType.transitive) {
-          return true;
-        }
-        if (dependencyTypes.contains('direct-overridden') &&
-            dependencyType ==
-                PubspecLockPackageDependencyType.directOverridden) {
-          return true;
-        }
-
-        return false;
-      }
-
       final dependencyType = dependency.type;
-      return (dependencyTypes.contains('direct-main') &&
-              dependencyType == PubspecLockPackageDependencyType.directMain) ||
-          (dependencyTypes.contains('direct-dev') &&
-              dependencyType == PubspecLockPackageDependencyType.directDev) ||
+
+      // In a workspace, whether a dependency counts as direct is determined by
+      // which members declare it rather than by the lock file's recorded type.
+      final isDirect = isWorkspace
+          ? workspaceDependencies.contains(dependency.name)
+          : (dependencyTypes.contains('direct-main') &&
+                    dependencyType ==
+                        PubspecLockPackageDependencyType.directMain) ||
+                (dependencyTypes.contains('direct-dev') &&
+                    dependencyType ==
+                        PubspecLockPackageDependencyType.directDev);
+
+      return isDirect ||
           (dependencyTypes.contains('transitive') &&
               dependencyType == PubspecLockPackageDependencyType.transitive) ||
           (dependencyTypes.contains('direct-overridden') &&

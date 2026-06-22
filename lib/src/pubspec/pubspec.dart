@@ -19,6 +19,25 @@ const pubspecBasename = 'pubspec.yaml';
 
 /// Workspace-related conveniences on top of [Pubspec].
 extension PubspecWorkspace on Pubspec {
+  /// Attempts to read and parse a [Pubspec] from [file].
+  ///
+  /// Returns `null` when [file] does not exist or cannot be parsed; parsing is
+  /// strict, so a structurally invalid pubspec (for example, one missing a
+  /// `name`) is treated as unparseable rather than yielding a partially
+  /// populated [Pubspec].
+  ///
+  /// Parse failures are swallowed silently: callers that walk workspace members
+  /// (see [collectWorkspaceDependencies]) skip members that fail to parse, so a
+  /// malformed member contributes no dependencies.
+  static Pubspec? tryParse(File file) {
+    if (!file.existsSync()) return null;
+    try {
+      return Pubspec.parse(file.readAsStringSync(), sourceUrl: file.uri);
+    } on Exception {
+      return null;
+    }
+  }
+
   /// Whether this pubspec is a workspace root.
   bool get isWorkspaceRoot => workspace != null;
 
@@ -32,6 +51,10 @@ extension PubspecWorkspace on Pubspec {
 
     final members = <Directory>[];
     for (final pattern in patterns) {
+      // Workspace patterns are POSIX-style (forward slashes) per the pub
+      // specification. The platform-default glob context accepts forward
+      // slashes on every platform, including Windows, so the pattern needs no
+      // separator normalization.
       final matches = Glob(pattern).listSync(root: root.path);
       for (final match in matches) {
         if (match is Directory) {
@@ -49,69 +72,61 @@ extension PubspecWorkspace on Pubspec {
     return members;
   }
 
-  /// Collects direct dependencies from this workspace root and all its members.
+  /// Collects the direct dependencies declared by this workspace root and all
+  /// of its members.
   ///
-  /// Returns `null` when this pubspec is not a workspace root. Otherwise
-  /// returns a [Set] of dependency names collected from the root and all
-  /// members (recursively) filtered by [dependencyTypes].
+  /// Returns an empty [Set] when this pubspec is not a workspace root.
+  /// Otherwise returns the names of the dependencies declared by the root and
+  /// every member (recursively), filtered by [dependencyTypes] (only
+  /// `direct-main` and `direct-dev` are relevant here).
+  ///
+  /// `dependency_overrides` are intentionally not collected: overridden
+  /// dependencies are surfaced by the caller through the workspace's
+  /// `pubspec.lock` (as `direct-overridden`) rather than from member pubspecs.
   ///
   /// The [visited] parameter prevents infinite recursion from circular
   /// workspace references; pass `null` to start a fresh traversal.
-  Set<String>? collectWorkspaceDependencies({
+  Set<String> collectWorkspaceDependencies({
     required Directory root,
     required List<String> dependencyTypes,
     Set<String>? visited,
   }) {
-    if (!isWorkspaceRoot) return null;
+    if (!isWorkspaceRoot) return {};
 
     final seen = visited ?? {};
     if (!seen.add(root.absolute.path)) return {};
 
-    final deps = <String>{};
-
-    if (dependencyTypes.contains('direct-main')) {
-      deps.addAll(dependencies.keys);
-    }
-    if (dependencyTypes.contains('direct-dev')) {
-      deps.addAll(devDependencies.keys);
-    }
+    final deps = <String>{..._directDependencies(dependencyTypes)};
 
     for (final memberDir in resolveMembers(root)) {
-      final memberPubspecFile = File(
-        path.join(memberDir.path, pubspecBasename),
+      final memberPubspec = PubspecWorkspace.tryParse(
+        File(path.join(memberDir.path, pubspecBasename)),
       );
-      final memberPubspec = tryParsePubspec(memberPubspecFile);
       if (memberPubspec == null) continue;
 
-      if (dependencyTypes.contains('direct-main')) {
-        deps.addAll(memberPubspec.dependencies.keys);
-      }
-      if (dependencyTypes.contains('direct-dev')) {
-        deps.addAll(memberPubspec.devDependencies.keys);
-      }
-
       if (memberPubspec.isWorkspaceRoot) {
-        final nestedDeps = memberPubspec.collectWorkspaceDependencies(
-          root: memberDir,
-          dependencyTypes: dependencyTypes,
-          visited: seen,
+        // Nested workspace: the recursive call collects the member's own direct
+        // dependencies along with those of its descendants, so they are not
+        // added here as well.
+        deps.addAll(
+          memberPubspec.collectWorkspaceDependencies(
+            root: memberDir,
+            dependencyTypes: dependencyTypes,
+            visited: seen,
+          ),
         );
-        if (nestedDeps != null) deps.addAll(nestedDeps);
+      } else {
+        deps.addAll(memberPubspec._directDependencies(dependencyTypes));
       }
     }
 
     return deps;
   }
-}
 
-/// Attempts to read and parse a [Pubspec] from [file].
-///
-/// Returns `null` when the file does not exist or cannot be parsed.
-Pubspec? tryParsePubspec(File file) {
-  if (!file.existsSync()) return null;
-  try {
-    return Pubspec.parse(file.readAsStringSync(), sourceUrl: file.uri);
-  } on Exception {
-    return null;
-  }
+  /// The names of this pubspec's own direct dependencies, filtered by
+  /// [dependencyTypes].
+  Set<String> _directDependencies(List<String> dependencyTypes) => {
+    if (dependencyTypes.contains('direct-main')) ...dependencies.keys,
+    if (dependencyTypes.contains('direct-dev')) ...devDependencies.keys,
+  };
 }

@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 
 void main() {
-  group('tryParsePubspec', () {
+  group('PubspecWorkspace.tryParse', () {
     late Directory tempDirectory;
 
     setUp(() {
@@ -20,7 +20,7 @@ void main() {
       final file = File(path.join(tempDirectory.path, pubspecBasename))
         ..writeAsStringSync(_basicPubspecContent);
 
-      final pubspec = tryParsePubspec(file);
+      final pubspec = PubspecWorkspace.tryParse(file);
 
       expect(pubspec, isNotNull);
       expect(pubspec!.name, equals('test_package'));
@@ -33,13 +33,13 @@ void main() {
 
     test('returns null when the file does not exist', () {
       final file = File(path.join(tempDirectory.path, 'missing.yaml'));
-      expect(tryParsePubspec(file), isNull);
+      expect(PubspecWorkspace.tryParse(file), isNull);
     });
 
     test('returns null when the file contains invalid YAML', () {
       final file = File(path.join(tempDirectory.path, pubspecBasename))
         ..writeAsStringSync('invalid: yaml: content: [');
-      expect(tryParsePubspec(file), isNull);
+      expect(PubspecWorkspace.tryParse(file), isNull);
     });
 
     test(
@@ -52,7 +52,7 @@ environment:
 dependencies:
   foo: ^1.0.0
 ''');
-        expect(tryParsePubspec(file), isNull);
+        expect(PubspecWorkspace.tryParse(file), isNull);
       },
     );
   });
@@ -249,14 +249,14 @@ workspace:
       tempDirectory.deleteSync(recursive: true);
     });
 
-    test('returns null when not a workspace root', () {
+    test('returns an empty set when not a workspace root', () {
       final pubspec = Pubspec.parse(_basicPubspecContent);
       expect(
         pubspec.collectWorkspaceDependencies(
           root: tempDirectory,
           dependencyTypes: ['direct-main', 'direct-dev'],
         ),
-        isNull,
+        isEmpty,
       );
     });
 
@@ -380,13 +380,19 @@ dependencies:
 ''');
 
       final pubspec = Pubspec.parse(_workspaceRootWithMemberPubspecContent);
+      late final Set<String> deps;
       expect(
-        () => pubspec.collectWorkspaceDependencies(
+        () => deps = pubspec.collectWorkspaceDependencies(
           root: tempDirectory,
           dependencyTypes: ['direct-main'],
         ),
         returnsNormally,
       );
+
+      // The cycling member's dependency is still collected and the call
+      // returns, proving the traversal terminated rather than looping on the
+      // circular reference.
+      expect(deps, contains('http'));
     });
   });
 }
