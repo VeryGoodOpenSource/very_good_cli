@@ -68,7 +68,7 @@ final expectedUsage = [
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.12.0
 ''';
 
 void main() {

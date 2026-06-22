@@ -152,8 +152,7 @@ enum PubspecLockPackageDependencyType {
   /// See also:
   ///
   /// * [Dart's dependency override documentation](https://dart.dev/tools/pub/dependencies#dependency-overrides)
-  directOverridden._('direct overridden')
-  ;
+  directOverridden._('direct overridden');
 
   const PubspecLockPackageDependencyType._(this.value);
 

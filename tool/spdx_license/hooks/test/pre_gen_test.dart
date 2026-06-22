@@ -21,7 +21,7 @@ class _MockLogger extends Mock implements Logger {}
 class _MockProgress extends Mock implements Progress {}
 
 class _TestHookContext implements HookContext {
-  _TestHookContext({required Logger logger}) : _logger = logger;
+  _TestHookContext({required this._logger});
 
   final Logger _logger;
 
