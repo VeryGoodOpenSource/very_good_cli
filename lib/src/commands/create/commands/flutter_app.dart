@@ -12,12 +12,28 @@ class CreateFlutterApp extends CreateSubCommand
     required super.generatorFromBundle,
     required super.generatorFromBrick,
   }) {
-    argParser.addOption(
-      'application-id',
-      help:
-          'The bundle identifier on iOS or application id on Android. '
-          '(defaults to <org-name>.<project-name>)',
-    );
+    argParser
+      ..addOption(
+        'application-id',
+        help:
+            'The bundle identifier on iOS or application id on Android. '
+            '(defaults to <org-name>.<project-name>)',
+      )
+      ..addMultiOption(
+        'platforms',
+        help:
+            'The platforms supported by the app. By default, all platforms '
+            'are enabled. Example: --platforms=android,ios',
+        defaultsTo: ['android', 'ios', 'macos', 'web', 'windows'],
+        allowed: ['android', 'ios', 'macos', 'web', 'windows'],
+        allowedHelp: {
+          'android': 'The app supports the Android platform.',
+          'ios': 'The app supports the iOS platform.',
+          'macos': 'The app supports the macOS platform.',
+          'web': 'The app supports the Web platform.',
+          'windows': 'The app supports the Windows platform.',
+        },
+      );
   }
 
   @override
@@ -34,6 +50,9 @@ class CreateFlutterApp extends CreateSubCommand
     if (applicationId != null) {
       vars['application_id'] = applicationId;
     }
+
+    final platforms = argResults['platforms'] as List<String>;
+    vars['platforms'] = platforms;
 
     return vars;
   }
