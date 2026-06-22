@@ -34,7 +34,6 @@ class _TestCreateSubCommand extends CreateSubCommand {
     required this.template,
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 
   @override
@@ -53,7 +52,6 @@ class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
     required super.template,
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 }
 
@@ -63,7 +61,6 @@ class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
     required super.template,
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 }
 
@@ -73,7 +70,6 @@ class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
     required this.templates,
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 
   @override
@@ -153,7 +149,6 @@ Run "runner help" to see global options.''';
           template: template,
           logger: logger,
           generatorFromBundle: null,
-          generatorFromBrick: null,
         );
         expect(command.name, isNotNull);
         expect(command.description, isNotNull);
@@ -229,8 +224,7 @@ Run "runner help" to see global options.''';
         final command = _TestCreateSubCommand(
           template: template,
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         );
 
         runner = _TestCommandRunner(command: command);
@@ -499,50 +493,14 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
       });
 
       group('mason generator selection', () {
-        test('uses remote brick when possible', () async {
+        test('generates from the bundled template', () async {
+          MasonBundle? bundleUsed;
           final command = _TestCreateSubCommand(
             template: template,
             logger: logger,
-            generatorFromBundle: (_) async {
-              throw UnsupportedError('this test should not reach this point');
-            },
-            generatorFromBrick: (_) async => generator,
-          );
-
-          runner = _TestCommandRunner(command: command);
-
-          final result = await runner.run([
-            'create_subcommand',
-            'test_project',
-          ]);
-
-          expect(result, equals(ExitCode.success.code));
-
-          verify(
-            () => generator.generate(
-              any(
-                that: isA<DirectoryGeneratorTarget>().having(
-                  (g) => g.dir.path,
-                  'dir',
-                  'test_project',
-                ),
-              ),
-              vars: <String, dynamic>{
-                'project_name': 'test_project',
-                'description': 'A Very Good Project created by Very Good CLI.',
-              },
-              logger: logger,
-            ),
-          ).called(1);
-        });
-
-        test('uses bundled brick when remote brick is unavailable', () async {
-          final command = _TestCreateSubCommand(
-            template: template,
-            logger: logger,
-            generatorFromBundle: (_) async => generator,
-            generatorFromBrick: (_) async {
-              throw Exception('oh no, cannot retrieve remote brick 👀');
+            generatorFromBundle: (b) async {
+              bundleUsed = b;
+              return generator;
             },
           );
 
@@ -554,6 +512,7 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
           ]);
 
           expect(result, equals(ExitCode.success.code));
+          expect(bundleUsed, same(bundle));
 
           verify(
             () => generator.generate(
@@ -649,7 +608,6 @@ Run "runner help" to see global options.''';
           template: template,
           logger: logger,
           generatorFromBundle: null,
-          generatorFromBrick: null,
         );
 
         expect(
@@ -718,8 +676,7 @@ Run "runner help" to see global options.''';
         final command = _TestCreateSubCommandWithOrgName(
           template: template,
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         );
 
         runner = _TestCommandRunner(command: command);
@@ -972,7 +929,6 @@ Run "runner help" to see global options.''';
           templates: templates,
           logger: logger,
           generatorFromBundle: null,
-          generatorFromBrick: null,
         );
         expect(
           command.argParser.options['template'],
@@ -1040,8 +996,7 @@ Run "runner help" to see global options.''';
         final command = _TestCreateSubCommandMultiTemplate(
           templates: templates,
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         );
 
         runner = _TestCommandRunner(command: command);
@@ -1130,7 +1085,6 @@ Run "runner help" to see global options.''';
           template: template,
           logger: logger,
           generatorFromBundle: null,
-          generatorFromBrick: null,
         );
 
         expect(
@@ -1195,8 +1149,7 @@ Run "runner help" to see global options.''';
         final command = _TestCreateSubCommandWithPublishable(
           template: template,
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         );
 
         runner = _TestCommandRunner(command: command);

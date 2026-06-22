@@ -9,7 +9,6 @@ class CreateDartCLI extends CreateSubCommand with Publishable {
   CreateDartCLI({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser.addOption(
       'executable-name',

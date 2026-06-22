@@ -21,9 +21,6 @@ const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 
-/// A method which returns a [Future<MasonGenerator>] given a [Brick].
-typedef MasonGeneratorFromBrick = Future<MasonGenerator> Function(Brick);
-
 /// {@template create_subcommand}
 /// Generic class for sub commands of [CreateCommand].
 /// {@endtemplate}
@@ -50,9 +47,7 @@ abstract class CreateSubCommand extends Command<int> {
   CreateSubCommand({
     required this.logger,
     @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
-    @visibleForTesting required MasonGeneratorFromBrick? generatorFromBrick,
-  }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle,
-       _generatorFromBrick = generatorFromBrick ?? MasonGenerator.fromBrick {
+  }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle {
     argParser
       ..addOption(
         'output-directory',
@@ -109,7 +104,6 @@ abstract class CreateSubCommand extends Command<int> {
   /// The logger user to notify the user of the command's progress.
   final Logger logger;
   final MasonGeneratorFromBundle _generatorFromBundle;
-  final MasonGeneratorFromBrick _generatorFromBrick;
 
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
@@ -185,19 +179,7 @@ abstract class CreateSubCommand extends Command<int> {
     return match != null && match.end == name.length;
   }
 
-  Future<MasonGenerator> _getGeneratorForTemplate() async {
-    try {
-      final brick = Brick.version(
-        name: template.bundle.name,
-        version: '^${template.bundle.version}',
-      );
-      logger.detail(
-        '''Building generator from brick: ${brick.name} ${brick.location.version}''',
-      );
-      return await _generatorFromBrick(brick);
-    } on Exception catch (error) {
-      logger.detail('Building generator from brick failed: $error');
-    }
+  Future<MasonGenerator> _getGeneratorForTemplate() {
     logger.detail(
       '''Building generator from bundle ${template.bundle.name} ${template.bundle.version}''',
     );
