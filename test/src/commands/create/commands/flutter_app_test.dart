@@ -1,6 +1,3 @@
-// Expected usage of the app will need to be longer than 80 chars.
-// ignore_for_file: lines_longer_than_80_chars
-
 import 'dart:io';
 
 import 'package:mason/mason.dart';
