@@ -146,7 +146,7 @@ void main() {
       final result = ListToolsResult.fromMap(
         response['result'] as Map<String, Object?>,
       );
-      expect(result.tools.length, 4);
+      expect(result.tools, hasLength(4));
       expect(
         result.tools.map((t) => t.name),
         containsAll([
@@ -183,7 +183,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['create', 'flutter_app', 'my_app']);
+        expect(capturedArgs, equals(['create', 'flutter_app', 'my_app']));
       });
 
       test('handles all arguments', () async {
@@ -211,26 +211,29 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, [
-          'create',
-          'flutter_app',
-          'my_app',
-          '--desc',
-          'my_desc',
-          '--org-name',
-          'com.test',
-          '-o',
-          'my_dir',
-          '--application-id',
-          'com.test.my_app',
-          '--platforms',
-          'ios,web',
-          '--publishable',
-          '--executable-name',
-          'my_cli',
-          '-t',
-          'core',
-        ]);
+        expect(
+          capturedArgs,
+          equals([
+            'create',
+            'flutter_app',
+            'my_app',
+            '--desc',
+            'my_desc',
+            '--org-name',
+            'com.test',
+            '-o',
+            'my_dir',
+            '--application-id',
+            'com.test.my_app',
+            '--platforms',
+            'ios,web',
+            '--publishable',
+            '--executable-name',
+            'my_cli',
+            '-t',
+            'core',
+          ]),
+        );
       });
 
       test('handles command runner failure', () async {
@@ -294,7 +297,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['test']);
+        expect(capturedArgs, equals(['test']));
       });
 
       test('passes --no-optimization when explicitly false', () async {
@@ -308,7 +311,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['test', '--no-optimization']);
+        expect(capturedArgs, equals(['test', '--no-optimization']));
       });
 
       test('handles all arguments', () async {
@@ -344,36 +347,39 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, [
-          'dart',
-          'test',
-          '--coverage',
-          '-r',
-          '-j',
-          '8',
-          '-t',
-          'a,b',
-          '--exclude-coverage',
-          '**/*.g.dart',
-          '-x',
-          'c,d',
-          '--min-coverage',
-          '90',
-          '--test-randomize-ordering-seed',
-          '123',
-          '--update-goldens',
-          '--force-ansi',
-          '--dart-define',
-          'foo=bar',
-          '--dart-define-from-file',
-          'my_file.json',
-          '--platform',
-          'chrome',
-          '--run-skipped',
-          '--check-ignore',
-          '--timeout',
-          '60',
-        ]);
+        expect(
+          capturedArgs,
+          equals([
+            'dart',
+            'test',
+            '--coverage',
+            '-r',
+            '-j',
+            '8',
+            '-t',
+            'a,b',
+            '--exclude-coverage',
+            '**/*.g.dart',
+            '-x',
+            'c,d',
+            '--min-coverage',
+            '90',
+            '--test-randomize-ordering-seed',
+            '123',
+            '--update-goldens',
+            '--force-ansi',
+            '--dart-define',
+            'foo=bar',
+            '--dart-define-from-file',
+            'my_file.json',
+            '--platform',
+            'chrome',
+            '--run-skipped',
+            '--check-ignore',
+            '--timeout',
+            '60',
+          ]),
+        );
       });
 
       test('does not pass directory as a positional argument', () async {
@@ -390,7 +396,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['test']);
+        expect(capturedArgs, equals(['test']));
       });
 
       test('does not pass directory as a positional with dart flag', () async {
@@ -407,7 +413,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['dart', 'test']);
+        expect(capturedArgs, equals(['dart', 'test']));
       });
 
       test('handles command failure', () async {
@@ -444,7 +450,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['test', '--timeout', '120']);
+        expect(capturedArgs, equals(['test', '--timeout', '120']));
       });
     });
 
@@ -458,7 +464,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['packages', 'get']);
+        expect(capturedArgs, equals(['packages', 'get']));
       });
 
       test('handles all arguments (with split "ignore")', () async {
@@ -482,15 +488,18 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, [
-          'packages',
-          'get',
-          '--recursive',
-          '--ignore',
-          'pkg1',
-          '--ignore',
-          'pkg2',
-        ]);
+        expect(
+          capturedArgs,
+          equals([
+            'packages',
+            'get',
+            '--recursive',
+            '--ignore',
+            'pkg1',
+            '--ignore',
+            'pkg2',
+          ]),
+        );
       });
     });
 
@@ -512,7 +521,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['packages', 'check', 'licenses']);
+        expect(capturedArgs, equals(['packages', 'check', 'licenses']));
       });
 
       test('defaults to licenses=true if not provided', () async {
@@ -532,7 +541,7 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, ['packages', 'check', 'licenses']);
+        expect(capturedArgs, equals(['packages', 'check', 'licenses']));
       });
 
       test('returns error if licenses=false', () async {
