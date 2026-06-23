@@ -38,6 +38,7 @@ final expectedUsage = [
       '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
       '    --org-name                   The organization for this new project.\n'
       '                                 (defaults to "com.example.verygoodcore")\n'
+      '    --publishable                Whether the generated project is intended to be published.\n'
       '    --platforms                  The platforms supported by the game. By default, all platforms are enabled. Example: --platforms=android,ios\n'
       '\n'
       '          [android] (default)    The game supports the Android platform.\n'
@@ -200,6 +201,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'publishable': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -212,6 +214,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'publishable': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             logger: logger,

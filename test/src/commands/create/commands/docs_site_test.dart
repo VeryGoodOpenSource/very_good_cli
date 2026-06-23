@@ -33,6 +33,7 @@ Usage: very_good create docs_site <project-name> [arguments]
 -o, --output-directory    The desired output directory when creating a new project.
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
+    --publishable         Whether the generated project is intended to be published.
     --org-name            The organization for this new project.
                           (defaults to "my-org")
 
@@ -187,6 +188,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
+              'publishable': false,
               'org_name': 'VeryGoodOpenSource',
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -198,6 +200,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
+              'publishable': false,
               'org_name': 'VeryGoodOpenSource',
             },
             logger: logger,
