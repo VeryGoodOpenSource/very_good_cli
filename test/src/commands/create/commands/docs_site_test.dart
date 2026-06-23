@@ -67,7 +67,6 @@ void main() {
       final command = CreateDocsSite(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('docs_site'));
       expect(
@@ -167,8 +166,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateDocsSite(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
