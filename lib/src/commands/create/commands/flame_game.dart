@@ -4,7 +4,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_flame_game_command}
 /// A [CreateSubCommand] for creating Flame games.
 /// {@endtemplate}
-class CreateFlameGame extends CreateSubCommand with OrgName {
+class CreateFlameGame extends CreateSubCommand with OrgName, Publishable {
   /// {@macro very_good_create_flame_game_command}
   CreateFlameGame({
     required super.logger,
