@@ -66,7 +66,6 @@ void main() {
       final command = CreateDartPackage(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('dart_package'));
       expect(command.description, equals('Generate a Very Good Dart package.'));
@@ -163,8 +162,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateDartPackage(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,

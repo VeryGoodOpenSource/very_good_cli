@@ -9,7 +9,6 @@ class CreateFlameGame extends CreateSubCommand with OrgName, Publishable {
   CreateFlameGame({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser.addMultiOption(
       'platforms',

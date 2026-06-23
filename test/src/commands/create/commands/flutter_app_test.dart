@@ -86,7 +86,6 @@ void main() {
       final command = CreateFlutterApp(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('flutter_app'));
       expect(
@@ -170,8 +169,7 @@ void main() {
             await testMultiTemplateCommand(
               multiTemplatesCommand: CreateFlutterApp(
                 logger: logger,
-                generatorFromBundle: (_) async => throw Exception('oops'),
-                generatorFromBrick: (_) async => generator,
+                generatorFromBundle: (_) async => generator,
               ),
               logger: logger,
               hooks: hooks,
@@ -209,8 +207,7 @@ void main() {
             await testMultiTemplateCommand(
               multiTemplatesCommand: CreateFlutterApp(
                 logger: logger,
-                generatorFromBundle: (_) async => throw Exception('oops'),
-                generatorFromBrick: (_) async => generator,
+                generatorFromBundle: (_) async => generator,
               ),
               logger: logger,
               hooks: hooks,
@@ -240,8 +237,7 @@ void main() {
               outputDirectoryOverride: tempDirectory,
               multiTemplatesCommand: CreateFlutterApp(
                 logger: logger,
-                generatorFromBundle: (_) async => throw Exception('oops'),
-                generatorFromBrick: (_) async => generator,
+                generatorFromBundle: (_) async => generator,
               ),
               logger: logger,
               hooks: hooks,

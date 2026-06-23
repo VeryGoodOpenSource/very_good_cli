@@ -67,7 +67,6 @@ void main() {
       final command = CreateDartCLI(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('dart_cli'));
       expect(
@@ -168,8 +167,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateDartCLI(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
