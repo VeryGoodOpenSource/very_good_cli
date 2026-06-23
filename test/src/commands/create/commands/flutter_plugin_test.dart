@@ -93,7 +93,6 @@ void main() {
       final command = CreateFlutterPlugin(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('flutter_plugin'));
       expect(
@@ -194,8 +193,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateFlutterPlugin(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
@@ -295,8 +293,7 @@ void main() {
           final argResults = _MockArgResults();
           final command = CreateFlutterPlugin(
             logger: logger,
-            generatorFromBrick: (_) async => generator,
-            generatorFromBundle: (_) async => throw Exception('oops'),
+            generatorFromBundle: (_) async => generator,
           )..argResultOverrides = argResults;
 
           when(

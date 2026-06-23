@@ -14,14 +14,12 @@ class CreateCommand extends Command<int> {
   CreateCommand({
     required Logger logger,
     @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
-    @visibleForTesting MasonGeneratorFromBrick? generatorFromBrick,
   }) {
     // very_good create app_ui_package <args>
     addSubcommand(
       CreateAppUiPackage(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -30,7 +28,6 @@ class CreateCommand extends Command<int> {
       CreateFlutterApp(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -39,7 +36,6 @@ class CreateCommand extends Command<int> {
       CreateDartPackage(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -48,7 +44,6 @@ class CreateCommand extends Command<int> {
       CreateDartCLI(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -57,7 +52,6 @@ class CreateCommand extends Command<int> {
       CreateDocsSite(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -66,7 +60,6 @@ class CreateCommand extends Command<int> {
       CreateFlutterPackage(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -75,7 +68,6 @@ class CreateCommand extends Command<int> {
       CreateFlutterPlugin(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
 
@@ -84,7 +76,6 @@ class CreateCommand extends Command<int> {
       CreateFlameGame(
         logger: logger,
         generatorFromBundle: generatorFromBundle,
-        generatorFromBrick: generatorFromBrick,
       ),
     );
   }

@@ -86,7 +86,6 @@ void main() {
       final command = CreateFlutterApp(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('flutter_app'));
       expect(
@@ -170,8 +169,7 @@ void main() {
             await testMultiTemplateCommand(
               multiTemplatesCommand: CreateFlutterApp(
                 logger: logger,
-                generatorFromBundle: (_) async => throw Exception('oops'),
-                generatorFromBrick: (_) async => generator,
+                generatorFromBundle: (_) async => generator,
               ),
               logger: logger,
               hooks: hooks,
@@ -187,7 +185,38 @@ void main() {
                 'org_name': 'com.example.verygoodcore',
                 'publishable': false,
                 'application_id': 'xyz.app.my_app',
-                'platforms': ['android', 'ios', 'macos', 'web', 'windows'],
+                'platforms': const [
+                  'android',
+                  'ios',
+                  'macos',
+                  'web',
+                  'windows',
+                ],
+              },
+              expectedLogSummary: 'Created a Very Good App! 🦄',
+            );
+          });
+
+          test('generates successfully with custom platforms', () async {
+            await testMultiTemplateCommand(
+              multiTemplatesCommand: CreateFlutterApp(
+                logger: logger,
+                generatorFromBundle: (_) async => generator,
+              ),
+              logger: logger,
+              hooks: hooks,
+              generator: generator,
+              templateName: 'core',
+              mockArgs: {
+                'application-id': 'xyz.app.my_app',
+                'platforms': const ['android', 'ios'],
+              },
+              expectedVars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': 'com.example.verygoodcore',
+                'application_id': 'xyz.app.my_app',
+                'platforms': const ['android', 'ios'],
               },
               expectedLogSummary: 'Created a Very Good App! 🦄',
             );
@@ -201,8 +230,7 @@ void main() {
               outputDirectoryOverride: tempDirectory,
               multiTemplatesCommand: CreateFlutterApp(
                 logger: logger,
-                generatorFromBundle: (_) async => throw Exception('oops'),
-                generatorFromBrick: (_) async => generator,
+                generatorFromBundle: (_) async => generator,
               ),
               logger: logger,
               hooks: hooks,

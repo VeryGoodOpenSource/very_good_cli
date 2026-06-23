@@ -10,7 +10,6 @@ class CreateFlutterApp extends CreateSubCommand
   CreateFlutterApp({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser
       ..addOption(

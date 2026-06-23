@@ -9,7 +9,6 @@ class CreateDocsSite extends CreateSubCommand {
   CreateDocsSite({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser.addOption(
       'org-name',

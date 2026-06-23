@@ -9,7 +9,6 @@ class CreateFlutterPlugin extends CreateSubCommand with Publishable, OrgName {
   CreateFlutterPlugin({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser.addMultiOption(
       'platforms',

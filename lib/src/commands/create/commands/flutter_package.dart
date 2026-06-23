@@ -9,7 +9,6 @@ class CreateFlutterPackage extends CreateSubCommand with Publishable {
   CreateFlutterPackage({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 
   @override

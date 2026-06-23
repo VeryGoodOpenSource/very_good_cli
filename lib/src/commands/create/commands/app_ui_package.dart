@@ -9,7 +9,6 @@ class CreateAppUiPackage extends CreateSubCommand with Publishable {
   CreateAppUiPackage({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 
   @override
