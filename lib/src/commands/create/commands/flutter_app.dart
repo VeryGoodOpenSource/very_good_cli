@@ -9,7 +9,6 @@ class CreateFlutterApp extends CreateSubCommand with OrgName, MultiTemplates {
   CreateFlutterApp({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser
       ..addOption(

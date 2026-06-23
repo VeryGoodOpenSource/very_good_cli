@@ -9,7 +9,6 @@ class CreateDartPackage extends CreateSubCommand with Publishable {
   CreateDartPackage({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   });
 
   @override
