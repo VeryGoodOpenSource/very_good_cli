@@ -7,7 +7,7 @@ void main() {
   group('Lock', () {
     test('returns the body result', () async {
       final lock = Lock();
-      expect(await lock.run(() async => 42), 42);
+      expect(await lock.run(() async => 42), equals(42));
     });
 
     test('serializes any number of concurrent runs', () async {
@@ -29,7 +29,7 @@ void main() {
         lock.run(body),
       ]);
 
-      expect(maxActive, 1);
+      expect(maxActive, equals(1));
     });
 
     test('runs bodies in FIFO order', () async {
@@ -45,7 +45,7 @@ void main() {
       ];
       await Future.wait(futures);
 
-      expect(order, [0, 1, 2, 3]);
+      expect(order, equals([0, 1, 2, 3]));
     });
 
     test('a failing body does not break the queue', () async {
@@ -61,7 +61,7 @@ void main() {
 
       await expectLater(failing, throwsException);
       await next;
-      expect(order, ['failing', 'next']);
+      expect(order, equals(['failing', 'next']));
     });
   });
 }

@@ -652,9 +652,9 @@ void main() {
             response['result'] as Map<String, Object?>,
           );
           expect(result.isError, isFalse);
-          expect(cwdDuringRun, tempDir.resolveSymbolicLinksSync());
+          expect(cwdDuringRun, equals(tempDir.resolveSymbolicLinksSync()));
           // The working directory is restored after the command completes.
-          expect(Directory.current.path, originalCwd);
+          expect(Directory.current.path, equals(originalCwd));
         });
       }
     });
@@ -700,9 +700,12 @@ void main() {
         expect(result.content, hasLength(2));
         expect(
           (result.content[0] as TextContent).text,
-          '"test" completed successfully.',
+          equals('"test" completed successfully.'),
         );
-        expect((result.content[1] as TextContent).text, 'All tests passed!');
+        expect(
+          (result.content[1] as TextContent).text,
+          equals('All tests passed!'),
+        );
       });
 
       test('routes the injected in-zone logger through the capture', () async {
@@ -766,7 +769,7 @@ void main() {
         expect(result.content, hasLength(1));
         expect(
           (result.content.first as TextContent).text,
-          '"test" completed successfully.',
+          equals('"test" completed successfully.'),
         );
       });
     });
@@ -819,7 +822,7 @@ void main() {
           for (final pair in pairs) {
             expect(
               pair[1],
-              pair[0],
+              equals(pair[0]),
               reason: 'cwd must stay stable for the duration of a single run',
             );
           }
@@ -827,7 +830,10 @@ void main() {
             pairs
                 .map((p) => Directory(p[0]).resolveSymbolicLinksSync())
                 .toSet(),
-            {dirA.resolveSymbolicLinksSync(), dirB.resolveSymbolicLinksSync()},
+            equals({
+              dirA.resolveSymbolicLinksSync(),
+              dirB.resolveSymbolicLinksSync(),
+            }),
           );
         },
       );
@@ -851,7 +857,7 @@ void main() {
         // cwd switch failed before the run, so it was never executed...
         verifyNever(() => mockCommandRunner.run(any()));
         // ...and the process directory is unchanged.
-        expect(Directory.current.path, before);
+        expect(Directory.current.path, equals(before));
       });
     });
   });
@@ -882,38 +888,38 @@ void main() {
         ..writeln()
         ..writeAll(['c', 'd'], '-')
         ..writeCharCode(0x65); // 'e'
-      expect(buffer.toString(), 'anullb\n\nc-de');
+      expect(buffer.toString(), equals('anullb\n\nc-de'));
     });
 
     test('add decodes bytes with the current encoding', () {
       capturing.add(utf8.encode('héllo'));
-      expect(buffer.toString(), 'héllo');
+      expect(buffer.toString(), equals('héllo'));
     });
 
     test('add falls back to char codes on malformed bytes', () {
       capturing.add([0xff, 0xfe]);
-      expect(buffer.toString(), String.fromCharCodes([0xff, 0xfe]));
+      expect(buffer.toString(), equals(String.fromCharCodes([0xff, 0xfe])));
     });
 
     test('addStream forwards all chunks', () async {
       await capturing.addStream(
         Stream.fromIterable([utf8.encode('x'), utf8.encode('y')]),
       );
-      expect(buffer.toString(), 'xy');
+      expect(buffer.toString(), equals('xy'));
     });
 
     test('reports no terminal and tolerates sink lifecycle calls', () async {
       expect(capturing.hasTerminal, isFalse);
       expect(capturing.supportsAnsiEscapes, isFalse);
       expect(capturing.nonBlocking, same(capturing));
-      expect(capturing.encoding, utf8);
-      expect(capturing.lineTerminator, '\n');
+      expect(capturing.encoding, equals(utf8));
+      expect(capturing.lineTerminator, equals('\n'));
       expect(() => capturing.terminalColumns, throwsA(isA<StdoutException>()));
       expect(() => capturing.terminalLines, throwsA(isA<StdoutException>()));
       capturing.addError('ignored');
-      await capturing.flush();
-      await capturing.close();
-      await capturing.done;
+      await expectLater(capturing.flush(), completes);
+      await expectLater(capturing.close(), completes);
+      await expectLater(capturing.done, completes);
     });
   });
 
@@ -921,12 +927,12 @@ void main() {
     test('strips ANSI escape sequences', () {
       expect(
         sanitizeCommandOutput('\x1B[31mred\x1B[0m and \x1B[1mbold\x1B[0m'),
-        'red and bold',
+        equals('red and bold'),
       );
     });
 
     test('normalizes CRLF to LF', () {
-      expect(sanitizeCommandOutput('a\r\nb\r\nc'), 'a\nb\nc');
+      expect(sanitizeCommandOutput('a\r\nb\r\nc'), equals('a\nb\nc'));
     });
 
     test('collapses carriage-return redraws to the settled text', () {
@@ -935,23 +941,23 @@ void main() {
         sanitizeCommandOutput(
           '\r\x1B[2K00:01 +1\r\x1B[2K00:02 +5\r\x1B[2KAll tests passed!',
         ),
-        'All tests passed!',
+        equals('All tests passed!'),
       );
     });
 
     test('preserves genuine newlines while collapsing redraws per line', () {
       expect(
         sanitizeCommandOutput('compiling...\rdone\nAll tests passed!'),
-        'done\nAll tests passed!',
+        equals('done\nAll tests passed!'),
       );
     });
 
     test('trims trailing padding left by line erases', () {
-      expect(sanitizeCommandOutput('result      '), 'result');
+      expect(sanitizeCommandOutput('result      '), equals('result'));
     });
 
     test('leaves plain multi-line output untouched', () {
-      expect(sanitizeCommandOutput('line 1\nline 2'), 'line 1\nline 2');
+      expect(sanitizeCommandOutput('line 1\nline 2'), equals('line 1\nline 2'));
     });
   });
 }
