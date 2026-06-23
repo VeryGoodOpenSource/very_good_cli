@@ -863,9 +863,7 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        // cwd switch failed before the run, so it was never executed...
         verifyNever(() => mockCommandRunner.run(any()));
-        // ...and the process directory is unchanged.
         expect(Directory.current.path, equals(before));
       });
     });

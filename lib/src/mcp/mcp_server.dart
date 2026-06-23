@@ -538,11 +538,6 @@ Only one value can be selected.
 
       Future<T> runCaptured<T>(Future<T> Function(Logger logger) body) {
         final sink = CapturingStdout(output);
-        // Redirect stdout/stderr so the in-process command's mason Logger
-        // output is captured into [output] instead of leaking onto the real
-        // stdout that carries the MCP JSON-RPC stream. The Logger is built
-        // inside the zone so mason (which pins IOOverrides.current at
-        // construction) honors it.
         return IOOverrides.runZoned(
           () => body(Logger()),
           stdout: () => sink,
