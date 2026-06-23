@@ -12,8 +12,8 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
 // https://dart.dev/guides/language/language-tour#important-concepts
-final RegExp _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
-final RegExp _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
+final _identifierRegExp = RegExp('[a-z_][a-z0-9_]*');
+final _orgNameRegExp = RegExp(r'^[a-zA-Z][\w-]*(\.[a-zA-Z][\w-]*)+$');
 
 const _defaultOrgName = 'com.example.verygoodcore';
 const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
@@ -64,20 +64,20 @@ abstract class CreateSubCommand extends Command<int> {
     // Add the templates arg if the command has multiple templates.
     if (this is MultiTemplates) {
       final multiTemplates = this as MultiTemplates;
-      final defaultTemplateName = multiTemplates.defaultTemplateName;
       final templates = multiTemplates.templates;
+      final defaultTemplateName = multiTemplates.defaultTemplateName;
 
       argParser.addOption(
         'template',
         abbr: 't',
         help: 'The template used to generate this new project.',
         defaultsTo: defaultTemplateName,
-        allowed: templates.map((element) => element.name).toList(),
+        allowed: templates.map((template) => template.name).toList(),
         allowedHelp: templates.fold<Map<String, String>>(
           {},
-          (previousValue, element) => {
-            ...previousValue,
-            element.name: element.help,
+          (previousTemplate, template) => {
+            ...previousTemplate,
+            template.name: template.help,
           },
         ),
       );
@@ -179,19 +179,17 @@ abstract class CreateSubCommand extends Command<int> {
     return match != null && match.end == name.length;
   }
 
-  Future<MasonGenerator> _getGeneratorForTemplate() {
-    logger.detail(
-      '''Building generator from bundle ${template.bundle.name} ${template.bundle.version}''',
-    );
-    return _generatorFromBundle(template.bundle);
-  }
-
   @override
   Future<int> run() async {
     final template = this.template;
-    final generator = await _getGeneratorForTemplate();
-    final result = await runCreate(generator, template);
+    final bundle = template.bundle;
 
+    logger.detail(
+      'Building generator from bundle ${bundle.name} ${bundle.version}',
+    );
+
+    final generator = await _generatorFromBundle(bundle);
+    final result = await runCreate(generator, template);
     return result;
   }
 
@@ -307,7 +305,7 @@ mixin MultiTemplates on CreateSubCommand {
     final templateName =
         argResults['template'] as String? ?? defaultTemplateName;
 
-    return templates.firstWhere((element) => element.name == templateName);
+    return templates.firstWhere((template) => template.name == templateName);
   }
 }
 
