@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.2.0...v1.3.0) (2026-06-23)
+
+
+### Features
+
+* add --platforms flag support to flutter_app template ([#1620](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1620)) ([11bd085](https://github.com/VeryGoodOpenSource/very_good_cli/commit/11bd0857f5c2defaee72ecbebc63d0c8fdd99cd0))
+* add publishable flag to all templates ([#1621](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1621)) ([9ff29b8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9ff29b8e2bec89a5bf7b0c446968a14e519b10fb))
+* bump template bundles ([#1622](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1622)) ([e9996cf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e9996cf49d4a61a3a0148f27a1641d93a3356732))
+* **test:** add timeout ([#1595](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1595)) ([3138466](https://github.com/VeryGoodOpenSource/very_good_cli/commit/31384665fe66b4db8c03ba6ac15940beaecb8ab4))
+
+
+### Bug Fixes
+
+* apply MCP `directory` argument as the working directory ([#1600](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1600)) ([e7ee560](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e7ee56015ff9c98632a884dbe77904f26d239ca1))
+* generate projects from bundled templates only ([#1626](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1626)) ([1f4e75f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1f4e75f2628c78d647606c549e3e2811b432d6a3))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/checkout from 6 to 7 ([#1619](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1619)) ([547d291](https://github.com/VeryGoodOpenSource/very_good_cli/commit/547d29139875b014270934563e559da1220eb663))
+* upgrade to Flutter 3.44 and Dart 3.12 ([#1604](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1604)) ([2b33ce6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2b33ce625a2d3565a2c3fb0e51c94eb30fdecea9))
+* upgrade very_good_analysis to 10.3.0 ([#1607](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1607)) ([fc2500a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fc2500aacecd4c251e0e89f97baee1f5e1a7dc37))
+
 ## [1.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.1.1...v1.2.0) (2026-05-06)
 
 
