@@ -17,6 +17,7 @@ doc/api/
 coverage/
 .test_optimizer.dart
 !bricks/test_optimizer/__brick__/test/.test_optimizer.dart
+*.vm.json
 
 # Android studio and IntelliJ
 .idea
