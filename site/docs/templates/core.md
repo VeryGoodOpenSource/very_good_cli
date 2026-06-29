@@ -247,25 +247,108 @@ Out of the box, on each pull request and push, the CI `formats`, `lints`, and `t
 
 ## Updating App Icons 📱
 
-When you create a new project, it has a default launcher icon. To customize this icon, you can do it by using the following steps for each platform.
+When you create a new project, it has a default launcher icon. To customize this icon, you can either use the [`flutter_launcher_icons`][flutter_launcher_icons_pub] package (recommended) or update the icons manually for each platform.
 
-### Android
+:::info
+Very Good Core ships with separate icons for each flavor (`development`, `staging`, `production`). When updating icons, remember to update each flavor's icons.
+:::
+
+### Using flutter_launcher_icons (Recommended)
+
+[`flutter_launcher_icons`][flutter_launcher_icons_pub] automates the generation of launcher icons from a single source image across all supported platforms.
+
+1. Add `flutter_launcher_icons` to the `dev_dependencies` in your `pubspec.yaml`:
+
+```sh
+flutter pub add --dev flutter_launcher_icons
+```
+
+2. Place your source icon (for example, `assets/icon/icon.png`) in your project and add a configuration block to `pubspec.yaml`. Since Very Good Core uses flavors, you should also create a dedicated configuration file per flavor (for example, `flutter_launcher_icons-development.yaml`, `flutter_launcher_icons-staging.yaml`, `flutter_launcher_icons-production.yaml`):
+
+```yaml
+# flutter_launcher_icons-production.yaml
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  android: "ic_launcher"
+  min_sdk_android: 21
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icon/icon.png"
+```
+
+3. Generate the icons for each flavor:
+
+```sh
+# Production
+dart run flutter_launcher_icons -f flutter_launcher_icons-production.yaml
+
+# Staging
+dart run flutter_launcher_icons -f flutter_launcher_icons-staging.yaml
+
+# Development
+dart run flutter_launcher_icons -f flutter_launcher_icons-development.yaml
+```
+
+4. Run the app to verify the icons were updated:
+
+```sh
+flutter run --flavor development --target lib/main_development.dart
+```
+
+:::tip
+For advanced configuration (such as adaptive icons on Android, image padding, or background/foreground assets), refer to the [`flutter_launcher_icons` documentation][flutter_launcher_icons_pub].
+:::
+
+### Manual Update
+
+If you prefer to replace the icons by hand, follow the steps below for each platform. Repeat the steps for each flavor by using the corresponding Android source set (`development`, `staging`, `main`) and the matching iOS/macOS `AppIcon` asset (`AppIcon-dev`, `AppIcon-stg`, `AppIcon`).
+
+#### Android
 
 1. Review the [Material Design product icons][material_design_product_icons] guidelines for icon design.
 
-2. In the `[project]/android/app/src/main/res/` directory, place your icon files in folders named using [configuration qualifiers][android_configuration_qualifiers]. The default `mipmap-` folders demonstrate the correct naming convention.
+2. In the `[project]/android/app/src/<flavor>/res/` directory (where `<flavor>` is `main`, `development`, or `staging`), replace the icon files in the `mipmap-*` folders. The default folders use [configuration qualifiers][android_configuration_qualifiers] to provide icons at different pixel densities.
 
-3. In `AndroidManifest.xml`, update the [`application`][android_application_element] tag’s `android:icon` attribute to reference icons from the previous step (for example, `<application android:icon="@mipmap/ic_launcher" ...`).
+3. If you change the icon resource name, update the [`application`][android_application_element] tag's `android:icon` attribute in `AndroidManifest.xml` to point to the new resource (for example, `<application android:icon="@mipmap/ic_launcher" ...>`).
 
 4. To verify that the icon has been replaced, run your app and inspect the app icon in the Launcher.
 
-### iOS
+#### iOS
 
 1. Review the [iOS app icons guidelines][ios_app_icon_guidelines].
 
-2. In the Xcode project navigator, select `Assets.xcassets` in the `Runner` folder. Update the placeholder icons with your own app icons.
+2. In the Xcode project navigator, select `Assets.xcassets` in the `Runner` folder. Update the `AppIcon`, `AppIcon-dev`, and `AppIcon-stg` icon sets with your own app icons, one per flavor.
 
 3. Verify the icon has been replaced by running your app using `flutter run`.
+
+#### macOS
+
+1. Open `macos/Runner/Assets.xcassets` in Xcode and update the `AppIcon` asset.
+
+2. Verify the icon has been replaced by running your app using `flutter run -d macos`.
+
+#### Web
+
+1. Replace the `favicon.png` file in `web/` and the icon files (`Icon-192.png`, `Icon-512.png`, etc.) in `web/icons/`.
+
+2. Verify the icon has been replaced by running your app using `flutter run -d chrome`.
+
+#### Windows
+
+1. Replace `windows/runner/resources/app_icon.ico` with your custom `.ico` file.
+
+2. Verify the icon has been replaced by running your app using `flutter run -d windows`.
 
 [android_application_element]: https://developer.android.com/guide/topics/manifest/application-element
 [android_configuration_qualifiers]: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
@@ -278,6 +361,7 @@ When you create a new project, it has a default launcher icon. To customize this
 [firebase_analytics_link]: https://firebase.google.com/products/analytics
 [flutter_install_link]: https://docs.flutter.dev/get-started/install
 [flutter_internationalization]: https://docs.flutter.dev/development/accessibility-and-localization/internationalization
+[flutter_launcher_icons_pub]: https://pub.dev/packages/flutter_launcher_icons
 [flutter_localizations]: https://api.flutter.dev/flutter/flutter_localizations/flutter_localizations-library.html
 [github_actions]: https://docs.github.com/en/actions/learn-github-actions
 [ios_app_icon_guidelines]: https://developer.apple.com/design/human-interface-guidelines/foundations/app-icons
