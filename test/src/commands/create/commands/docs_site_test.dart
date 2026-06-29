@@ -33,6 +33,7 @@ Usage: very_good create docs_site <project-name> [arguments]
 -o, --output-directory    The desired output directory when creating a new project.
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
+    --[no-]workspace      Register the new package in the surrounding pub workspace.
     --publishable         Whether the generated project is intended to be published.
     --org-name            The organization for this new project.
                           (defaults to "my-org")
@@ -173,6 +174,7 @@ void main() {
           () => argResults['output-directory'] as String?,
         ).thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_docs_site']);
+        when(() => argResults.wasParsed('org-name')).thenReturn(true);
         when(
           () => argResults['org-name'] as String?,
         ).thenReturn('VeryGoodOpenSource');

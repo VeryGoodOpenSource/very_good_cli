@@ -7,3 +7,4 @@ export 'flame_game.dart';
 export 'flutter_app.dart';
 export 'flutter_package.dart';
 export 'flutter_plugin.dart';
+export 'workspace.dart';

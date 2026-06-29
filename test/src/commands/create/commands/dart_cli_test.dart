@@ -33,6 +33,7 @@ Usage: very_good create dart_cli <project-name> [arguments]
 -o, --output-directory    The desired output directory when creating a new project.
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
+    --[no-]workspace      Register the new package in the surrounding pub workspace.
     --publishable         Whether the generated project is intended to be published.
     --executable-name     The CLI executable name (defaults to the project name)
 

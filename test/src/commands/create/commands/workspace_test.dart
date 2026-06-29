@@ -11,9 +11,9 @@ import '../../../../helpers/helpers.dart';
 
 class _MockLogger extends Mock implements Logger {}
 
-class _MockProgress extends Mock implements Progress {}
-
 class _MockMasonGenerator extends Mock implements MasonGenerator {}
+
+class _MockProgress extends Mock implements Progress {}
 
 class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
 
@@ -26,15 +26,13 @@ class _FakeDirectoryGeneratorTarget extends Fake
 
 final expectedUsage = [
   '''
-Generate a Very Good App UI package.
+Generate a Very Good multi-package workspace.
 
-Usage: very_good create app_ui_package <project-name> [arguments]
+Usage: very_good create workspace <project-name> [arguments]
 -h, --help                Print this usage information.
 -o, --output-directory    The desired output directory when creating a new project.
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
-    --[no-]workspace      Register the new package in the surrounding pub workspace.
-    --publishable         Whether the generated project is intended to be published.
 
 Run "very_good help" to see global options.''',
 ];
@@ -43,6 +41,7 @@ const pubspec = '''
 name: example
 environment:
   sdk: ^3.12.0
+workspace: []
 ''';
 
 void main() {
@@ -64,27 +63,28 @@ void main() {
   group('can be instantiated', () {
     test('with default options', () {
       final logger = Logger();
-      final command = CreateAppUiPackage(
+      final command = CreateWorkspace(
         logger: logger,
         generatorFromBundle: null,
       );
-      expect(command.name, equals('app_ui_package'));
+      expect(command.name, equals('workspace'));
+      expect(command.aliases, equals(['ws']));
       expect(
         command.description,
-        equals('Generate a Very Good App UI package.'),
+        equals('Generate a Very Good multi-package workspace.'),
       );
       expect(command.logger, equals(logger));
-      expect(command, isA<Publishable>());
+      expect(command.registersInWorkspace, isFalse);
     });
   });
 
-  group('create app_ui_package', () {
+  group('create workspace', () {
     test(
       'help',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final result = await commandRunner.run([
           'create',
-          'app_ui_package',
+          'workspace',
           '--help',
         ]);
         expect(printLogs, equals(expectedUsage));
@@ -92,11 +92,7 @@ void main() {
 
         printLogs.clear();
 
-        final resultAbbr = await commandRunner.run([
-          'create',
-          'app_ui_pkg',
-          '-h',
-        ]);
+        final resultAbbr = await commandRunner.run(['create', 'ws', '-h']);
         expect(printLogs, equals(expectedUsage));
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
@@ -104,7 +100,7 @@ void main() {
 
     group('running the command', () {
       final generatedFiles = List.filled(
-        10,
+        6,
         const GeneratedFile.created(path: ''),
       );
 
@@ -122,27 +118,8 @@ void main() {
             onVarsChanged: any(named: 'onVarsChanged'),
           ),
         ).thenAnswer((_) async {});
-
-        when(
-          () => generator.generate(
-            any(),
-            vars: any(named: 'vars'),
-            logger: any(named: 'logger'),
-          ),
-        ).thenAnswer((_) async {
-          return generatedFiles;
-        });
-
         when(() => generator.id).thenReturn('generator_id');
         when(() => generator.description).thenReturn('generator description');
-        when(() => generator.hooks).thenReturn(hooks);
-
-        when(
-          () => hooks.preGen(
-            vars: any(named: 'vars'),
-            onVarsChanged: any(named: 'onVarsChanged'),
-          ),
-        ).thenAnswer((_) async {});
         when(
           () => generator.generate(
             any(),
@@ -159,49 +136,38 @@ void main() {
         });
       });
 
-      test('creates app ui package', () async {
+      test('creates workspace', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
-        final command = CreateAppUiPackage(
+        final command = CreateWorkspace(
           logger: logger,
           generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
         ).thenReturn(tempDirectory.path);
-        when(() => argResults.rest).thenReturn(['my_app_ui']);
+        when(() => argResults.rest).thenReturn(['my_workspace']);
 
         final result = await command.run();
 
-        expect(command.template.name, 'app_ui');
+        expect(command.template.name, 'workspace');
         expect(result, equals(ExitCode.success.code));
 
         verify(() => logger.progress('Bootstrapping')).called(1);
         verify(
-          () => hooks.preGen(
-            vars: <String, dynamic>{
-              'project_name': 'my_app_ui',
-              'description': '',
-              'publishable': false,
-            },
-            onVarsChanged: any(named: 'onVarsChanged'),
-          ),
-        );
-        verify(
           () => generator.generate(
             any(),
             vars: <String, dynamic>{
-              'project_name': 'my_app_ui',
+              'project_name': 'my_workspace',
               'description': '',
-              'publishable': false,
             },
             logger: logger,
           ),
         ).called(1);
         verify(
-          () => logger.info('Created a Very Good App UI Package! 🦄'),
+          () => logger.info('Created a Very Good Workspace! 🦄'),
         ).called(1);
       });
     });

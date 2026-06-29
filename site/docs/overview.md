@@ -61,6 +61,7 @@ Available subcommands:
   flutter_app       Generate a Very Good Flutter application.
   flutter_package   Generate a Very Good Flutter package.
   flutter_plugin    Generate a Very Good Flutter plugin.
+  workspace         Generate a Very Good multi-package workspace.
 
 Run "very_good help" to see global options.
 ```

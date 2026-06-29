@@ -48,6 +48,11 @@ dart pub global run very_good_cli:very_good <command> <args>
 
 Create a very good project in seconds based on the provided template. Each template has a corresponding sub-command (e.g.,`very_good create flutter_app` will generate a Flutter starter app).
 
+> 🆕 **Multi-package workspaces**: use `very_good create workspace` to scaffold a
+> [pub workspace](https://dart.dev/tools/pub/workspaces), then add members with
+> the opt-in `--workspace` flag on any `create` subcommand. See
+> [Workspaces](#workspaces) below.
+
 ![Very Good Create][very_good_create]
 
 ```sh
@@ -65,6 +70,7 @@ Available subcommands:
   flutter_app       Generate a Very Good Flutter application.
   flutter_package   Generate a Very Good Flutter package.
   flutter_plugin    Generate a Very Good Flutter plugin.
+  workspace         Generate a Very Good multi-package workspace.
 
 Run "very_good help" to see global options.
 ```
@@ -111,6 +117,23 @@ very_good create flutter_plugin my_flutter_plugin --desc "My new Flutter plugin"
 # Create a new docs site named my_docs_site
 very_good create docs_site my_docs_site
 
+```
+
+#### Workspaces
+
+`very_good create workspace` scaffolds a multi-package [pub workspace][pub_workspaces_link] — a root `pubspec.yaml` with a `workspace:` list plus `apps/` and `packages/` directories for its members.
+
+```sh
+# Create a new multi-package workspace named my_workspace
+very_good create workspace my_workspace
+```
+
+Add members from inside the workspace with the opt-in `--workspace` flag (available on every `create` subcommand, off by default). It registers the new package in the root `workspace:` list and gives it `resolution: workspace`, so a single resolve covers the whole workspace:
+
+```sh
+cd my_workspace
+very_good create dart_package my_package -o packages --workspace
+very_good create flutter_app my_app -o apps --workspace
 ```
 
 ---
@@ -250,3 +273,4 @@ Run "very_good help <command>" for more information about a command.
 [very_good_create]: https://raw.githubusercontent.com/VeryGoodOpenSource/very_good_cli/main/doc/assets/very_good_create.gif
 [very_good_ventures_link]: https://verygood.ventures
 [path_setup_link]: https://dart.dev/tools/pub/cmd/pub-global#running-a-script-from-your-path
+[pub_workspaces_link]: https://dart.dev/tools/pub/workspaces

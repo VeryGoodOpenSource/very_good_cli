@@ -35,9 +35,11 @@ Future<void> testMultiTemplateCommand({
   when(
     () => argResults['output-directory'] as String?,
   ).thenReturn(outputDirectory.path);
+  when(() => argResults.wasParsed('org-name')).thenReturn(false);
 
   for (final entry in mockArgs.entries) {
     when(() => argResults[entry.key]).thenReturn(entry.value);
+    when(() => argResults.wasParsed(entry.key)).thenReturn(true);
   }
 
   when(() => argResults.rest).thenReturn(['my_app']);

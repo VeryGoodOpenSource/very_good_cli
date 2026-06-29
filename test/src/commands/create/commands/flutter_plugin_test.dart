@@ -50,6 +50,7 @@ final expectedUsage = [
       '-o, --output-directory           The desired output directory when creating a new project.\n'
       '    --description                The description for this new project.\n'
       '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
+      '    --[no-]workspace             Register the new package in the surrounding pub workspace.\n'
       '    --org-name                   The organization for this new project.\n'
       '                                 (defaults to "com.example.verygoodcore")\n'
       '    --publishable                Whether the generated project is intended to be published.\n'
@@ -195,6 +196,7 @@ void main() {
           logger: logger,
           generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
+        when(() => argResults.wasParsed('org-name')).thenReturn(false);
         when(
           () => argResults['output-directory'] as String?,
         ).thenReturn(tempDirectory.path);
@@ -296,6 +298,7 @@ void main() {
             generatorFromBundle: (_) async => generator,
           )..argResultOverrides = argResults;
 
+          when(() => argResults.wasParsed('org-name')).thenReturn(false);
           when(
             () => argResults['output-directory'] as String?,
           ).thenReturn(tempDirectory.path);

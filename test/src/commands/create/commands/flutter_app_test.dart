@@ -31,6 +31,7 @@ Usage: very_good create flutter_app <project-name> [arguments]
 -o, --output-directory           The desired output directory when creating a new project.
     --description                The description for this new project.
                                  (defaults to "A Very Good Project created by Very Good CLI.")
+    --[no-]workspace             Register the new package in the surrounding pub workspace.
 -t, --template                   The template used to generate this new project.
 
           [core] (default)       Generate a Very Good Flutter application.

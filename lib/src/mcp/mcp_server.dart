@@ -96,6 +96,7 @@ flame_game - Generate a Very Good Flame game.
 flutter_app - Generate a Very Good Flutter application.
 flutter_package - Generate a Very Good Flutter package.
 flutter_plugin - Generate a Very Good Flutter plugin.
+workspace - Generate a Very Good multi-package workspace.
 ''',
               values: [
                 'app_ui_package',
@@ -106,6 +107,7 @@ flutter_plugin - Generate a Very Good Flutter plugin.
                 'dart_cli',
                 'dart_package',
                 'docs_site',
+                'workspace',
               ],
             ),
             'name': StringSchema(description: 'Project name'),
