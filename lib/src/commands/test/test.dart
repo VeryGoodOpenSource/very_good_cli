@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
 class FlutterTestOptions {
@@ -35,18 +36,50 @@ class FlutterTestOptions {
   });
 
   /// Parses [ArgResults] into a [FlutterTestOptions] instance.
-  factory FlutterTestOptions.parse(ArgResults argResults) {
-    final concurrency = argResults['concurrency'] as String;
-    final collectCoverage = argResults['coverage'] as bool;
-    final minCoverage = double.tryParse(
-      argResults['min-coverage'] as String? ?? '',
-    );
-    final showUncovered = argResults['show-uncovered'] as bool;
-    final excludeTags = argResults['exclude-tags'] as String?;
-    final tags = argResults['tags'] as String?;
-    final excludeFromCoverage = argResults['exclude-coverage'] as String?;
+  ///
+  /// When [config] is provided, its values are used as defaults for any
+  /// option that was not explicitly parsed on the command line.
+  factory FlutterTestOptions.parse(
+    ArgResults argResults, {
+    VeryGoodConfig config = VeryGoodConfig.empty,
+  }) {
+    final testConfig = config.test;
+
+    T? configOverride<T>(String name, T? value) {
+      if (value == null) return null;
+      if (argResults.wasParsed(name)) return null;
+      return value;
+    }
+
+    final concurrency =
+        configOverride('concurrency', testConfig.concurrency) ??
+        argResults['concurrency'] as String;
+    final collectCoverage =
+        configOverride('coverage', testConfig.coverage) ??
+        argResults['coverage'] as bool;
+    final minCoverageString =
+        configOverride('min-coverage', testConfig.minCoverage) ??
+        argResults['min-coverage'] as String?;
+    final minCoverage = double.tryParse(minCoverageString ?? '');
+    final showUncovered =
+        configOverride('show-uncovered', testConfig.showUncovered) ??
+        argResults['show-uncovered'] as bool;
+    final excludeTags =
+        configOverride('exclude-tags', testConfig.excludeTags) ??
+        argResults['exclude-tags'] as String?;
+    final tags =
+        configOverride('tags', testConfig.tags) ??
+        argResults['tags'] as String?;
+    final excludeFromCoverage =
+        configOverride('exclude-coverage', testConfig.excludeCoverage) ??
+        argResults['exclude-coverage'] as String?;
     final collectCoverageFromString =
-        argResults['collect-coverage-from'] as String? ?? 'imports';
+        configOverride(
+          'collect-coverage-from',
+          testConfig.collectCoverageFrom,
+        ) ??
+        argResults['collect-coverage-from'] as String? ??
+        'imports';
     final collectCoverageFrom = CoverageCollectionMode.fromString(
       collectCoverageFromString,
     );
@@ -55,23 +88,44 @@ class FlutterTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = argResults['optimization'] as bool;
-    final updateGoldens = argResults['update-goldens'] as bool;
-    final failFast = argResults['fail-fast'] as bool;
+    final optimizePerformance =
+        configOverride('optimization', testConfig.optimization) ??
+        argResults['optimization'] as bool;
+    final updateGoldens =
+        configOverride('update-goldens', testConfig.updateGoldens) ??
+        argResults['update-goldens'] as bool;
+    final failFast =
+        configOverride('fail-fast', testConfig.failFast) ??
+        argResults['fail-fast'] as bool;
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = argResults['dart-define'] as List<String>?;
+    final dartDefine =
+        configOverride('dart-define', testConfig.dartDefine) ??
+        argResults['dart-define'] as List<String>?;
     final dartDefineFromFile =
+        configOverride(
+          'dart-define-from-file',
+          testConfig.dartDefineFromFile,
+        ) ??
         argResults['dart-define-from-file'] as List<String>?;
-    final platform = argResults['platform'] as String?;
-    final reportOn = (argResults['report-on'] as List<String>)
+    final platform =
+        configOverride('platform', testConfig.platform) ??
+        argResults['platform'] as String?;
+    final reportOnFromArgs = argResults['report-on'] as List<String>;
+    final reportOnFromConfig = configOverride('report-on', testConfig.reportOn);
+    final reportOn = (reportOnFromConfig ?? reportOnFromArgs)
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = argResults['run-skipped'] as bool;
-    final flavor = argResults['flavor'] as String?;
-    final timeoutSeconds = int.tryParse(
-      argResults['timeout'] as String? ?? '',
-    );
+    final runSkipped =
+        configOverride('run-skipped', testConfig.runSkipped) ??
+        argResults['run-skipped'] as bool;
+    final flavor =
+        configOverride('flavor', testConfig.flavor) ??
+        argResults['flavor'] as String?;
+    final timeoutString =
+        configOverride('timeout', testConfig.timeout) ??
+        argResults['timeout'] as String?;
+    final timeoutSeconds = int.tryParse(timeoutString ?? '');
     final timeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
@@ -382,9 +436,19 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
+    final VeryGoodConfig config;
+    try {
+      config = VeryGoodConfig.loadFromDirectory(Directory(targetPath));
+    } on VeryGoodConfigParseException catch (e) {
+      _logger.err(
+        'Could not read `$veryGoodConfigFileName` in $targetPath.\n${e.message}',
+      );
+      return ExitCode.config.code;
+    }
+
     final isFlutterInstalled = await _flutterInstalled(logger: _logger);
 
-    final options = FlutterTestOptions.parse(_argResults);
+    final options = FlutterTestOptions.parse(_argResults, config: config);
 
     if (isFlutterInstalled) {
       try {

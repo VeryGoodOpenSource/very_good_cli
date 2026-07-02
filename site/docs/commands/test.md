@@ -92,3 +92,20 @@ By default, all tests run with optimizations enabled; use the `--no-optimization
 
 import 'package:test/test.dart';
 ```
+
+### Configuring defaults with `very_good.yaml`
+
+To avoid repeating flags every time you run `very_good test` locally or on CI, you may create a `very_good.yaml` file at the root of your project. The `test` section accepts the same names as the CLI flags (kebab-case). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
+
+```yaml
+# very_good.yaml
+test:
+  min-coverage: 100
+  exclude-coverage: "**/*.g.dart"
+  report-on:
+    - lib/
+  dart-define:
+    - FLAVOR=development
+```
+
+With the file above, running `very_good test` behaves the same as running `very_good test --min-coverage 100 --exclude-coverage '**/*.g.dart' --report-on lib/ --dart-define=FLAVOR=development`. You can still override any of these values on the command line, for example `very_good test --min-coverage 90` to lower the coverage threshold for a single run.
