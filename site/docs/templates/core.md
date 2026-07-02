@@ -263,7 +263,7 @@ Very Good Core ships with separate icons for each flavor (`development`, `stagin
 flutter pub add --dev flutter_launcher_icons
 ```
 
-2. Place your source icon (for example, `assets/icon/icon.png`) in your project and add a configuration block to `pubspec.yaml`. Since Very Good Core uses flavors, you should also create a dedicated configuration file per flavor (for example, `flutter_launcher_icons-development.yaml`, `flutter_launcher_icons-staging.yaml`, `flutter_launcher_icons-production.yaml`):
+2. Place your source icon (for example, `assets/icon/icon.png`) in your project. Since Very Good Core uses flavors, create a dedicated configuration file per flavor (`flutter_launcher_icons-development.yaml`, `flutter_launcher_icons-staging.yaml`, `flutter_launcher_icons-production.yaml`):
 
 ```yaml
 # flutter_launcher_icons-production.yaml
@@ -275,35 +275,29 @@ flutter_launcher_icons:
   remove_alpha_ios: true
   web:
     generate: true
-    image_path: 'assets/icon/icon.png'
-    background_color: '#hexcode'
-    theme_color: '#hexcode'
+    background_color: '#000000'
+    theme_color: '#000000'
   windows:
     generate: true
-    image_path: 'assets/icon/icon.png'
     icon_size: 48
   macos:
     generate: true
-    image_path: 'assets/icon/icon.png'
 ```
 
 3. Generate the icons for each flavor:
 
 ```sh
-# Production
-dart run flutter_launcher_icons -f flutter_launcher_icons-production.yaml
-
-# Staging
-dart run flutter_launcher_icons -f flutter_launcher_icons-staging.yaml
-
-# Development
-dart run flutter_launcher_icons -f flutter_launcher_icons-development.yaml
+for flavor in production staging development; do
+  dart run flutter_launcher_icons -f flutter_launcher_icons-${flavor}.yaml
+done
 ```
 
-4. Run the app to verify the icons were updated:
+4. Verify the icons were updated for each flavor:
 
 ```sh
 flutter run --flavor development --target lib/main_development.dart
+flutter run --flavor staging --target lib/main_staging.dart
+flutter run --flavor production --target lib/main_production.dart
 ```
 
 :::tip
@@ -334,7 +328,7 @@ If you prefer to replace the icons by hand, follow the steps below for each plat
 
 #### macOS
 
-1. Open `macos/Runner/Assets.xcassets` in Xcode and update the `AppIcon` asset.
+1. Open `macos/Runner/Assets.xcassets` in Xcode and update the `AppIcon`, `AppIcon-dev`, and `AppIcon-stg` icon sets, one per flavor.
 
 2. Verify the icon has been replaced by running your app using `flutter run -d macos`.
 
