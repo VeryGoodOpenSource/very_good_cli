@@ -147,7 +147,7 @@ class VeryGoodTestConfig extends Equatable {
   final bool? optimization;
 
   /// The number of concurrent test suites run.
-  @JsonKey(fromJson: _intAsString)
+  @JsonKey(fromJson: _numAsString)
   final String? concurrency;
 
   /// Run only tests associated with the specified tags.
@@ -198,7 +198,7 @@ class VeryGoodTestConfig extends Equatable {
   final String? flavor;
 
   /// Maximum seconds to let tests run before killing the process.
-  @JsonKey(fromJson: _intAsString)
+  @JsonKey(fromJson: _numAsString)
   final String? timeout;
 
   @override
@@ -224,18 +224,10 @@ class VeryGoodTestConfig extends Equatable {
   ];
 }
 
-/// Coerces an `int` or `String` value into a `String`.
+/// Coerces a `num` or `String` value into a `String`.
 ///
 /// Options are stored as strings to match the CLI's argument parsing (which
-/// always yields strings) but are naturally written as integers in YAML.
-String? _intAsString(Object? value) {
-  if (value == null) return null;
-  if (value is int) return value.toString();
-  if (value is String) return value;
-  throw FormatException('Expected an integer or string but got `$value`.');
-}
-
-/// Coerces a `num` or `String` value into a `String`.
+/// always yields strings) but are naturally written as numbers in YAML.
 String? _numAsString(Object? value) {
   if (value == null) return null;
   if (value is num) return value.toString();

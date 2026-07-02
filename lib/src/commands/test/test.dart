@@ -102,7 +102,7 @@ class FlutterTestOptions {
     final runSkipped = resolve('run-skipped', testConfig.runSkipped);
     final flavor = resolve<String?>('flavor', testConfig.flavor);
     final timeoutSeconds = int.tryParse(
-      resolve<String>('timeout', testConfig.timeout, fallbackValue: ''),
+      resolve<String?>('timeout', testConfig.timeout) ?? '',
     );
     final timeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)

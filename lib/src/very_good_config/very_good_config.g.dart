@@ -26,7 +26,7 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
     final val = VeryGoodTestConfig(
       coverage: $checkedConvert('coverage', (v) => v as bool?),
       optimization: $checkedConvert('optimization', (v) => v as bool?),
-      concurrency: $checkedConvert('concurrency', (v) => _intAsString(v)),
+      concurrency: $checkedConvert('concurrency', (v) => _numAsString(v)),
       tags: $checkedConvert('tags', (v) => v as String?),
       excludeCoverage: $checkedConvert('exclude-coverage', (v) => v as String?),
       excludeTags: $checkedConvert('exclude-tags', (v) => v as String?),
@@ -47,7 +47,7 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
       reportOn: $checkedConvert('report-on', (v) => _stringList(v)),
       runSkipped: $checkedConvert('run-skipped', (v) => v as bool?),
       flavor: $checkedConvert('flavor', (v) => v as String?),
-      timeout: $checkedConvert('timeout', (v) => _intAsString(v)),
+      timeout: $checkedConvert('timeout', (v) => _numAsString(v)),
     );
     return val;
   },
