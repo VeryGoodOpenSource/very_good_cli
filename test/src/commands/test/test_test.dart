@@ -961,8 +961,8 @@ void main() {
       });
 
       test('CLI argument takes precedence over config value', () async {
-        when(() => argResults.wasParsed('min-coverage')).thenReturn(true);
         when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('min-coverage')).thenReturn(true);
         when<dynamic>(() => argResults['min-coverage']).thenReturn('50');
 
         final options = FlutterTestOptions.parse(

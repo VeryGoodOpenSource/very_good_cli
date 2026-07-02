@@ -88,6 +88,32 @@ test:
         expect(config.test.minCoverage, '95.5');
       });
 
+      test('parses integer options provided as quoted strings', () {
+        final config = VeryGoodConfig.fromString('''
+test:
+  concurrency: "8"
+  timeout: "60"
+''');
+        expect(config.test.concurrency, '8');
+        expect(config.test.timeout, '60');
+      });
+
+      test('parses min-coverage provided as a quoted string', () {
+        final config = VeryGoodConfig.fromString('''
+test:
+  min-coverage: "95"
+''');
+        expect(config.test.minCoverage, '95');
+      });
+
+      test('parses collect-coverage-from with value `imports`', () {
+        final config = VeryGoodConfig.fromString('''
+test:
+  collect-coverage-from: imports
+''');
+        expect(config.test.collectCoverageFrom, 'imports');
+      });
+
       test('throws when test section is not a map', () {
         expect(
           () => VeryGoodConfig.fromString('test: foo'),
