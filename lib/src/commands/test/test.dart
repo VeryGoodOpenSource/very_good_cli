@@ -31,6 +31,7 @@ class FlutterTestOptions {
     required this.runSkipped,
     required this.flavor,
     required this.timeout,
+    required this.fileReporter,
     required this.rest,
   });
 
@@ -69,12 +70,11 @@ class FlutterTestOptions {
         .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final flavor = argResults['flavor'] as String?;
-    final timeoutSeconds = int.tryParse(
-      argResults['timeout'] as String? ?? '',
-    );
+    final timeoutSeconds = int.tryParse(argResults['timeout'] as String? ?? '');
     final timeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
+    final fileReporter = argResults['file-reporter'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -98,6 +98,7 @@ class FlutterTestOptions {
       runSkipped: runSkipped,
       flavor: flavor,
       timeout: timeout,
+      fileReporter: fileReporter,
       rest: rest,
     );
   }
@@ -163,6 +164,13 @@ class FlutterTestOptions {
 
   /// Maximum time to let tests run before killing the process.
   final Duration? timeout;
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  ///
+  /// Unlike `--reporter` / `--machine`, this does not modify the process
+  /// stdout, so it is safe to use alongside the CLI's test optimization.
+  final String? fileReporter;
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
@@ -348,6 +356,15 @@ class TestCommand extends Command<int> {
             'Maximum seconds to let tests run before killing the process. '
             'Useful when tests hang due to an unbounded pumpAndSettle() call.',
         valueHelp: 'seconds',
+      )
+      ..addOption(
+        'file-reporter',
+        help:
+            'Enable an additional reporter writing test results to a file. '
+            'Should be in the form <name>:<path> (e.g. "json:reports/tests.json"). '
+            'Unlike --reporter and --machine, this does not affect stdout, so '
+            'it works with test optimization enabled.',
+        valueHelp: 'name:path',
       );
   }
 
@@ -428,6 +445,8 @@ This command should be run from the root of your Flutter project.''');
             '--no-pub',
             if (options.timeout != null)
               '--timeout=${options.timeout!.inSeconds}s',
+            if (options.fileReporter != null)
+              '--file-reporter=${options.fileReporter}',
             ...options.rest,
           ],
         );

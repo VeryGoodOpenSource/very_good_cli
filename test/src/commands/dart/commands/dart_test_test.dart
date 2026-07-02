@@ -48,6 +48,7 @@ const expectedTestUsage = [
       '    --run-skipped                            Run skipped tests instead of skipping them.\n'
       '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
       '                                             (defaults to on)\n'
+      '    --file-reporter=<name:path>              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json"). Unlike --reporter, this does not affect stdout, so it works with test optimization enabled.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -135,6 +136,7 @@ void main() {
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
       when<dynamic>(() => argResults['report-on']).thenReturn(<String>[]);
+      when<dynamic>(() => argResults['file-reporter']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
     });
 
@@ -804,6 +806,26 @@ void main() {
           stdout: logger.write,
           stderr: logger.err,
           checkIgnore: false,
+        ),
+      ).called(1);
+    });
+
+    test('completes normally --file-reporter json:test-report.json', () async {
+      when<dynamic>(
+        () => argResults['file-reporter'],
+      ).thenReturn('json:test-report.json');
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          optimizePerformance: true,
+          arguments: [
+            ...defaultArguments,
+            '--file-reporter=json:test-report.json',
+          ],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
         ),
       ).called(1);
     });
