@@ -268,23 +268,23 @@ flutter pub add --dev flutter_launcher_icons
 ```yaml
 # flutter_launcher_icons-production.yaml
 flutter_launcher_icons:
-  image_path: "assets/icon/icon.png"
-  android: "ic_launcher"
+  image_path: 'assets/icon/icon.png'
+  android: 'ic_launcher'
   min_sdk_android: 21
   ios: true
   remove_alpha_ios: true
   web:
     generate: true
-    image_path: "assets/icon/icon.png"
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
+    image_path: 'assets/icon/icon.png'
+    background_color: '#hexcode'
+    theme_color: '#hexcode'
   windows:
     generate: true
-    image_path: "assets/icon/icon.png"
+    image_path: 'assets/icon/icon.png'
     icon_size: 48
   macos:
     generate: true
-    image_path: "assets/icon/icon.png"
+    image_path: 'assets/icon/icon.png'
 ```
 
 3. Generate the icons for each flavor:
