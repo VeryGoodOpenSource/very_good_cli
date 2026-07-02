@@ -170,6 +170,75 @@ test:
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
+
+      test('throws when an unrecognized root key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized test key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  min-coverag: 80'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when min-coverage is below 0', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  min-coverage: -1'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when min-coverage is above 100', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  min-coverage: 101'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('parses min-coverage at the boundaries', () {
+        expect(
+          VeryGoodConfig.fromString(
+            'test:\n  min-coverage: 0',
+          ).test.minCoverage,
+          '0',
+        );
+        expect(
+          VeryGoodConfig.fromString(
+            'test:\n  min-coverage: 100',
+          ).test.minCoverage,
+          '100',
+        );
+      });
+
+      test('throws when concurrency is not a positive integer', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  concurrency: 0'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  concurrency: -3'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  concurrency: 1.5'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when timeout is not a positive integer', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  timeout: 0'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  timeout: -30'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
     });
 
     group('loadFromDirectory', () {
@@ -207,6 +276,75 @@ test:
         ).writeAsStringSync('- not\n- a\n- map');
         expect(
           () => VeryGoodConfig.loadFromDirectory(tempDir),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+    });
+
+    group('loadFromClosestAncestor', () {
+      late Directory tempDir;
+      late Directory nestedDir;
+
+      setUp(() {
+        tempDir = Directory.systemTemp.createTempSync('very_good_config_');
+        nestedDir = Directory(p.join(tempDir.path, 'packages', 'foo'))
+          ..createSync(recursive: true);
+      });
+
+      tearDown(() {
+        if (tempDir.existsSync()) {
+          tempDir.deleteSync(recursive: true);
+        }
+      });
+
+      test('reads config from the starting directory', () {
+        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
+          '''
+test:
+  min-coverage: 80
+''',
+        );
+        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
+        expect(config.test.minCoverage, '80');
+      });
+
+      test('reads config from an ancestor directory', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+test:
+  min-coverage: 90
+''');
+        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
+        expect(config.test.minCoverage, '90');
+      });
+
+      test('prefers the closest config over an ancestor', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+test:
+  min-coverage: 90
+''');
+        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
+          '''
+test:
+  min-coverage: 80
+''',
+        );
+        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
+        expect(config.test.minCoverage, '80');
+      });
+
+      test('returns empty config when no file is found in any ancestor', () {
+        expect(
+          VeryGoodConfig.loadFromClosestAncestor(nestedDir),
+          equals(VeryGoodConfig.empty),
+        );
+      });
+
+      test('rethrows parse exception when the closest file is malformed', () {
+        File(
+          p.join(nestedDir.path, veryGoodConfigFileName),
+        ).writeAsStringSync('- not\n- a\n- map');
+        expect(
+          () => VeryGoodConfig.loadFromClosestAncestor(nestedDir),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });

@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/very_good_config/config_resolver.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
@@ -44,31 +45,28 @@ class FlutterTestOptions {
     VeryGoodConfig config = VeryGoodConfig.empty,
   }) {
     final testConfig = config.test;
+    final resolver = ConfigResolver(argResults);
 
-    T resolve<T>(String name, T? configValue, {T? fallbackValue}) {
-      final value = configValue != null && !argResults.wasParsed(name)
-          ? configValue
-          : argResults[name] as T?;
-      return (value ?? fallbackValue) as T;
-    }
-
-    final concurrency = resolve('concurrency', testConfig.concurrency);
-    final collectCoverage = resolve('coverage', testConfig.coverage);
+    final concurrency = resolver.resolve('concurrency', testConfig.concurrency);
+    final collectCoverage = resolver.resolve('coverage', testConfig.coverage);
     final minCoverage = double.tryParse(
-      resolve<String?>('min-coverage', testConfig.minCoverage) ?? '',
+      resolver.resolve<String?>('min-coverage', testConfig.minCoverage) ?? '',
     );
-    final showUncovered = resolve('show-uncovered', testConfig.showUncovered);
-    final excludeTags = resolve<String?>(
+    final showUncovered = resolver.resolve(
+      'show-uncovered',
+      testConfig.showUncovered,
+    );
+    final excludeTags = resolver.resolve<String?>(
       'exclude-tags',
       testConfig.excludeTags,
     );
-    final tags = resolve<String?>('tags', testConfig.tags);
-    final excludeFromCoverage = resolve<String?>(
+    final tags = resolver.resolve<String?>('tags', testConfig.tags);
+    final excludeFromCoverage = resolver.resolve<String?>(
       'exclude-coverage',
       testConfig.excludeCoverage,
     );
     final collectCoverageFrom = CoverageCollectionMode.fromString(
-      resolve<String>(
+      resolver.resolve<String>(
         'collect-coverage-from',
         testConfig.collectCoverageFrom,
         fallbackValue: 'imports',
@@ -79,30 +77,34 @@ class FlutterTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = resolve(
+    final optimizePerformance = resolver.resolve(
       'optimization',
       testConfig.optimization,
     );
-    final updateGoldens = resolve('update-goldens', testConfig.updateGoldens);
-    final failFast = resolve('fail-fast', testConfig.failFast);
+    final updateGoldens = resolver.resolve(
+      'update-goldens',
+      testConfig.updateGoldens,
+    );
+    final failFast = resolver.resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = resolve<List<String>?>(
+    final dartDefine = resolver.resolve<List<String>?>(
       'dart-define',
       testConfig.dartDefine,
     );
-    final dartDefineFromFile = resolve<List<String>?>(
+    final dartDefineFromFile = resolver.resolve<List<String>?>(
       'dart-define-from-file',
       testConfig.dartDefineFromFile,
     );
-    final platform = resolve<String?>('platform', testConfig.platform);
-    final reportOn = resolve<List<String>>('report-on', testConfig.reportOn)
+    final platform = resolver.resolve<String?>('platform', testConfig.platform);
+    final reportOn = resolver
+        .resolve<List<String>>('report-on', testConfig.reportOn)
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = resolve('run-skipped', testConfig.runSkipped);
-    final flavor = resolve<String?>('flavor', testConfig.flavor);
+    final runSkipped = resolver.resolve('run-skipped', testConfig.runSkipped);
+    final flavor = resolver.resolve<String?>('flavor', testConfig.flavor);
     final timeoutSeconds = int.tryParse(
-      resolve<String?>('timeout', testConfig.timeout) ?? '',
+      resolver.resolve<String?>('timeout', testConfig.timeout) ?? '',
     );
     final timeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
@@ -416,10 +418,10 @@ This command should be run from the root of your Flutter project.''');
 
     final VeryGoodConfig config;
     try {
-      config = VeryGoodConfig.loadFromDirectory(Directory(targetPath));
+      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
     } on VeryGoodConfigParseException catch (e) {
       _logger.err(
-        'Could not read `$veryGoodConfigFileName` in $targetPath.\n'
+        'Could not read `$veryGoodConfigFileName`.\n'
         '${e.message}',
       );
       return ExitCode.config.code;

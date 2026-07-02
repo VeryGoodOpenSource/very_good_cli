@@ -43,6 +43,7 @@ class VeryGoodConfigParseException implements Exception {
   anyMap: true,
   checked: true,
   createToJson: false,
+  disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.kebab,
 )
 class VeryGoodConfig extends Equatable {
@@ -90,6 +91,32 @@ class VeryGoodConfig extends Equatable {
     );
   }
 
+  /// Loads the closest [VeryGoodConfig] by searching [directory] and each of
+  /// its ancestors, from the innermost directory outward.
+  ///
+  /// This allows a single repository-wide `very_good.yaml` at the project root
+  /// to apply to commands run from any nested package directory. The first
+  /// configuration file encountered wins; ancestors are not merged.
+  ///
+  /// Returns [VeryGoodConfig.empty] when no configuration file is found.
+  /// Throws a [VeryGoodConfigParseException] when the closest file exists but
+  /// cannot be parsed.
+  factory VeryGoodConfig.loadFromClosestAncestor(Directory directory) {
+    var current = directory.absolute;
+    while (true) {
+      final file = File(path.join(current.path, veryGoodConfigFileName));
+      if (file.existsSync()) {
+        return VeryGoodConfig.fromString(
+          file.readAsStringSync(),
+          sourceUrl: file.uri,
+        );
+      }
+      final parent = current.parent;
+      if (parent.path == current.path) return VeryGoodConfig.empty;
+      current = parent;
+    }
+  }
+
   /// An empty [VeryGoodConfig] with no values set.
   static const VeryGoodConfig empty = VeryGoodConfig();
 
@@ -110,6 +137,7 @@ class VeryGoodConfig extends Equatable {
   anyMap: true,
   checked: true,
   createToJson: false,
+  disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.kebab,
 )
 class VeryGoodTestConfig extends Equatable {
@@ -147,7 +175,7 @@ class VeryGoodTestConfig extends Equatable {
   final bool? optimization;
 
   /// The number of concurrent test suites run.
-  @JsonKey(fromJson: _numAsString)
+  @JsonKey(fromJson: _concurrency)
   final String? concurrency;
 
   /// Run only tests associated with the specified tags.
@@ -160,7 +188,7 @@ class VeryGoodTestConfig extends Equatable {
   final String? excludeTags;
 
   /// The minimum coverage percentage enforced.
-  @JsonKey(fromJson: _numAsString)
+  @JsonKey(fromJson: _minCoverage)
   final String? minCoverage;
 
   /// Whether to show uncovered lines when coverage is below 100%.
@@ -198,7 +226,7 @@ class VeryGoodTestConfig extends Equatable {
   final String? flavor;
 
   /// Maximum seconds to let tests run before killing the process.
-  @JsonKey(fromJson: _numAsString)
+  @JsonKey(fromJson: _timeout)
   final String? timeout;
 
   @override
@@ -233,6 +261,47 @@ String? _numAsString(Object? value) {
   if (value is num) return value.toString();
   if (value is String) return value;
   throw FormatException('Expected a number or string but got `$value`.');
+}
+
+/// Coerces and validates a positive integer option stored as a string.
+///
+/// [key] is the option name used to enrich the error message.
+String? _positiveInt(Object? value, String key) {
+  final asString = _numAsString(value);
+  if (asString == null) return null;
+  final parsed = int.tryParse(asString);
+  if (parsed == null || parsed < 1) {
+    throw FormatException(
+      'Expected `$key` to be a positive integer but got `$asString`.',
+    );
+  }
+  return asString;
+}
+
+/// Validates and returns the `concurrency` value.
+///
+/// Accepts only positive integers.
+String? _concurrency(Object? value) => _positiveInt(value, 'concurrency');
+
+/// Validates and returns the `timeout` value.
+///
+/// Accepts only positive integers (seconds).
+String? _timeout(Object? value) => _positiveInt(value, 'timeout');
+
+/// Validates and returns the `min-coverage` value.
+///
+/// Accepts only a number between 0 and 100 (inclusive).
+String? _minCoverage(Object? value) {
+  final asString = _numAsString(value);
+  if (asString == null) return null;
+  final parsed = double.tryParse(asString);
+  if (parsed == null || parsed < 0 || parsed > 100) {
+    throw FormatException(
+      'Expected `min-coverage` to be a number between 0 and 100 '
+      'but got `$asString`.',
+    );
+  }
+  return asString;
 }
 
 /// Validates and returns the `collect-coverage-from` value.
