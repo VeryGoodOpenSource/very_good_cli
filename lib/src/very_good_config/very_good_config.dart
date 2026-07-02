@@ -1,16 +1,19 @@
 /// Support for loading Very Good CLI configuration from a
 /// `very_good.yaml` file.
 ///
-/// The configuration file lives at the root of a project and allows
-/// developers to persist frequently used CLI parameters (for example
-/// `test` coverage excludes) so that running the CLI locally produces the
-/// same results as running it on CI.
+/// The configuration file lives at the root of a project and allows developers
+/// to persist frequently used CLI parameters so that running the CLI locally
+/// produces the same results as running it on CI.
 library;
 
+import 'dart:io';
+
+import 'package:checked_yaml/checked_yaml.dart';
 import 'package:equatable/equatable.dart';
-import 'package:path/path.dart' as p;
-import 'package:universal_io/io.dart';
-import 'package:yaml/yaml.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:path/path.dart' as path;
+
+part 'very_good_config.g.dart';
 
 /// The default name of the Very Good CLI configuration file.
 const veryGoodConfigFileName = 'very_good.yaml';
@@ -36,40 +39,41 @@ class VeryGoodConfigParseException implements Exception {
 /// are used as defaults whenever the corresponding CLI flag is not
 /// explicitly passed at the command line.
 /// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  fieldRename: FieldRename.kebab,
+)
 class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
   const VeryGoodConfig({this.test = const VeryGoodTestConfig()});
 
-  /// An empty [VeryGoodConfig] with no values set.
-  static const VeryGoodConfig empty = VeryGoodConfig();
+  /// Creates a [VeryGoodConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodConfigFromJson(json);
+  }
 
   /// Parses a [VeryGoodConfig] from a YAML [content] string.
   ///
   /// An empty or `null` YAML document yields [VeryGoodConfig.empty].
   ///
+  /// When provided, [sourceUrl] is used to enrich error messages with the
+  /// location the [content] originated from.
+  ///
   /// Throws a [VeryGoodConfigParseException] if [content] is not a valid
   /// YAML map or if any known section is malformed.
-  factory VeryGoodConfig.fromString(String content) {
-    final dynamic loaded;
+  factory VeryGoodConfig.fromString(String content, {Uri? sourceUrl}) {
     try {
-      loaded = loadYaml(content);
-    } on YamlException catch (e) {
-      throw VeryGoodConfigParseException('Failed to parse YAML: ${e.message}');
-    }
-
-    if (loaded == null) return VeryGoodConfig.empty;
-    if (loaded is! YamlMap) {
-      throw const VeryGoodConfigParseException(
-        'The root of `very_good.yaml` must be a map.',
+      return checkedYamlDecode(
+        content,
+        (json) => VeryGoodConfig.fromJson(json ?? const {}),
+        allowNull: true,
+        sourceUrl: sourceUrl,
       );
+    } on ParsedYamlException catch (e) {
+      throw VeryGoodConfigParseException(e.formattedMessage ?? e.message);
     }
-
-    final testSection = loaded['test'];
-    final testConfig = testSection == null
-        ? const VeryGoodTestConfig()
-        : VeryGoodTestConfig.fromYaml(testSection);
-
-    return VeryGoodConfig(test: testConfig);
   }
 
   /// Loads a [VeryGoodConfig] from the given [directory].
@@ -77,11 +81,17 @@ class VeryGoodConfig extends Equatable {
   /// Returns [VeryGoodConfig.empty] when the configuration file does not
   /// exist. Throws a [VeryGoodConfigParseException] when the file exists
   /// but cannot be parsed.
-  static VeryGoodConfig loadFromDirectory(Directory directory) {
-    final file = File(p.join(directory.path, veryGoodConfigFileName));
+  factory VeryGoodConfig.loadFromDirectory(Directory directory) {
+    final file = File(path.join(directory.path, veryGoodConfigFileName));
     if (!file.existsSync()) return VeryGoodConfig.empty;
-    return VeryGoodConfig.fromString(file.readAsStringSync());
+    return VeryGoodConfig.fromString(
+      file.readAsStringSync(),
+      sourceUrl: file.uri,
+    );
   }
+
+  /// An empty [VeryGoodConfig] with no values set.
+  static const VeryGoodConfig empty = VeryGoodConfig();
 
   /// Configuration values for the `very_good test` command.
   final VeryGoodTestConfig test;
@@ -96,6 +106,12 @@ class VeryGoodConfig extends Equatable {
 ///
 /// Any field that is left as `null` retains its CLI default.
 /// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  fieldRename: FieldRename.kebab,
+)
 class VeryGoodTestConfig extends Equatable {
   /// {@macro very_good_test_config}
   const VeryGoodTestConfig({
@@ -119,37 +135,9 @@ class VeryGoodTestConfig extends Equatable {
     this.timeout,
   });
 
-  /// Parses a [VeryGoodTestConfig] from a YAML node.
-  ///
-  /// Throws a [VeryGoodConfigParseException] if the [yaml] node is not a
-  /// map or if any known field has an unsupported type.
-  factory VeryGoodTestConfig.fromYaml(dynamic yaml) {
-    if (yaml is! YamlMap) {
-      throw const VeryGoodConfigParseException(
-        'The `test` section of `very_good.yaml` must be a map.',
-      );
-    }
-
-    return VeryGoodTestConfig(
-      coverage: _readBool(yaml, 'coverage'),
-      optimization: _readBool(yaml, 'optimization'),
-      concurrency: _readIntAsString(yaml, 'concurrency'),
-      tags: _readString(yaml, 'tags'),
-      excludeCoverage: _readString(yaml, 'exclude-coverage'),
-      excludeTags: _readString(yaml, 'exclude-tags'),
-      minCoverage: _readNumAsString(yaml, 'min-coverage'),
-      showUncovered: _readBool(yaml, 'show-uncovered'),
-      collectCoverageFrom: _readCollectCoverageFrom(yaml),
-      updateGoldens: _readBool(yaml, 'update-goldens'),
-      failFast: _readBool(yaml, 'fail-fast'),
-      dartDefine: _readStringList(yaml, 'dart-define'),
-      dartDefineFromFile: _readStringList(yaml, 'dart-define-from-file'),
-      platform: _readString(yaml, 'platform'),
-      reportOn: _readStringList(yaml, 'report-on'),
-      runSkipped: _readBool(yaml, 'run-skipped'),
-      flavor: _readString(yaml, 'flavor'),
-      timeout: _readIntAsString(yaml, 'timeout'),
-    );
+  /// Creates a [VeryGoodTestConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodTestConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodTestConfigFromJson(json);
   }
 
   /// Whether to collect coverage information.
@@ -159,6 +147,7 @@ class VeryGoodTestConfig extends Equatable {
   final bool? optimization;
 
   /// The number of concurrent test suites run.
+  @JsonKey(fromJson: _intAsString)
   final String? concurrency;
 
   /// Run only tests associated with the specified tags.
@@ -171,12 +160,14 @@ class VeryGoodTestConfig extends Equatable {
   final String? excludeTags;
 
   /// The minimum coverage percentage enforced.
+  @JsonKey(fromJson: _numAsString)
   final String? minCoverage;
 
   /// Whether to show uncovered lines when coverage is below 100%.
   final bool? showUncovered;
 
   /// Whether to collect coverage from imported files only or all files.
+  @JsonKey(fromJson: _collectCoverageFrom)
   final String? collectCoverageFrom;
 
   /// Whether `matchesGoldenFile()` calls should update the golden files.
@@ -186,15 +177,18 @@ class VeryGoodTestConfig extends Equatable {
   final bool? failFast;
 
   /// Additional `--dart-define` values.
+  @JsonKey(fromJson: _stringList)
   final List<String>? dartDefine;
 
   /// Paths of `.json` or `.env` files with `--dart-define-from-file` values.
+  @JsonKey(fromJson: _stringList)
   final List<String>? dartDefineFromFile;
 
   /// The platform to run tests on (e.g. `chrome`, `vm`, `android`, `ios`).
   final String? platform;
 
   /// Optional file paths to report coverage information to.
+  @JsonKey(fromJson: _stringList)
   final List<String>? reportOn;
 
   /// Whether to run skipped tests instead of skipping them.
@@ -204,6 +198,7 @@ class VeryGoodTestConfig extends Equatable {
   final String? flavor;
 
   /// Maximum seconds to let tests run before killing the process.
+  @JsonKey(fromJson: _intAsString)
   final String? timeout;
 
   @override
@@ -229,77 +224,53 @@ class VeryGoodTestConfig extends Equatable {
   ];
 }
 
-bool? _readBool(YamlMap yaml, String key) {
-  if (!yaml.containsKey(key)) return null;
-  final value = yaml[key];
-  if (value is! bool) {
-    throw VeryGoodConfigParseException(
-      'Expected a boolean value for `$key` but got `$value`.',
-    );
-  }
-  return value;
-}
-
-String? _readString(YamlMap yaml, String key) {
-  if (!yaml.containsKey(key)) return null;
-  final value = yaml[key];
-  if (value is! String) {
-    throw VeryGoodConfigParseException(
-      'Expected a string value for `$key` but got `$value`.',
-    );
-  }
-  return value;
-}
-
-String? _readIntAsString(YamlMap yaml, String key) {
-  if (!yaml.containsKey(key)) return null;
-  final value = yaml[key];
+/// Coerces an `int` or `String` value into a `String`.
+///
+/// Options are stored as strings to match the CLI's argument parsing (which
+/// always yields strings) but are naturally written as integers in YAML.
+String? _intAsString(Object? value) {
+  if (value == null) return null;
   if (value is int) return value.toString();
   if (value is String) return value;
-  throw VeryGoodConfigParseException(
-    'Expected an integer or string value for `$key` but got `$value`.',
-  );
+  throw FormatException('Expected an integer or string but got `$value`.');
 }
 
-String? _readNumAsString(YamlMap yaml, String key) {
-  if (!yaml.containsKey(key)) return null;
-  final value = yaml[key];
+/// Coerces a `num` or `String` value into a `String`.
+String? _numAsString(Object? value) {
+  if (value == null) return null;
   if (value is num) return value.toString();
   if (value is String) return value;
-  throw VeryGoodConfigParseException(
-    'Expected a number or string value for `$key` but got `$value`.',
-  );
+  throw FormatException('Expected a number or string but got `$value`.');
 }
 
-String? _readCollectCoverageFrom(YamlMap yaml) {
-  const key = 'collect-coverage-from';
-  final value = _readString(yaml, key);
+/// Validates and returns the `collect-coverage-from` value.
+///
+/// Accepts only `imports` or `all`.
+String? _collectCoverageFrom(Object? value) {
   if (value == null) return null;
   if (value != 'imports' && value != 'all') {
-    throw VeryGoodConfigParseException(
-      'Expected `$key` to be `imports` or `all` but got `$value`.',
-    );
+    throw FormatException('Expected `imports` or `all` but got `$value`.');
   }
-  return value;
+  return value as String;
 }
 
-List<String>? _readStringList(YamlMap yaml, String key) {
-  if (!yaml.containsKey(key)) return null;
-  final value = yaml[key];
+/// Coerces a single string or a list of strings into a `List<String>`.
+List<String>? _stringList(Object? value) {
+  if (value == null) return null;
   if (value is String) return [value];
-  if (value is YamlList) {
+  if (value is List) {
     return value
         .map((dynamic e) {
           if (e is! String) {
-            throw VeryGoodConfigParseException(
-              'Expected every entry of `$key` to be a string but got `$e`.',
+            throw FormatException(
+              'Expected every entry to be a string but got `$e`.',
             );
           }
           return e;
         })
         .toList(growable: false);
   }
-  throw VeryGoodConfigParseException(
-    'Expected a string or list of strings for `$key` but got `$value`.',
+  throw FormatException(
+    'Expected a string or list of strings but got `$value`.',
   );
 }

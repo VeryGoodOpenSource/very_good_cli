@@ -45,87 +45,65 @@ class FlutterTestOptions {
   }) {
     final testConfig = config.test;
 
-    T? configOverride<T>(String name, T? value) {
-      if (value == null) return null;
-      if (argResults.wasParsed(name)) return null;
-      return value;
+    T resolve<T>(String name, T? configValue, {T? fallbackValue}) {
+      final value = configValue != null && !argResults.wasParsed(name)
+          ? configValue
+          : argResults[name] as T?;
+      return (value ?? fallbackValue) as T;
     }
 
-    final concurrency =
-        configOverride('concurrency', testConfig.concurrency) ??
-        argResults['concurrency'] as String;
-    final collectCoverage =
-        configOverride('coverage', testConfig.coverage) ??
-        argResults['coverage'] as bool;
-    final minCoverageString =
-        configOverride('min-coverage', testConfig.minCoverage) ??
-        argResults['min-coverage'] as String?;
-    final minCoverage = double.tryParse(minCoverageString ?? '');
-    final showUncovered =
-        configOverride('show-uncovered', testConfig.showUncovered) ??
-        argResults['show-uncovered'] as bool;
-    final excludeTags =
-        configOverride('exclude-tags', testConfig.excludeTags) ??
-        argResults['exclude-tags'] as String?;
-    final tags =
-        configOverride('tags', testConfig.tags) ??
-        argResults['tags'] as String?;
-    final excludeFromCoverage =
-        configOverride('exclude-coverage', testConfig.excludeCoverage) ??
-        argResults['exclude-coverage'] as String?;
-    final collectCoverageFromString =
-        configOverride(
-          'collect-coverage-from',
-          testConfig.collectCoverageFrom,
-        ) ??
-        argResults['collect-coverage-from'] as String? ??
-        'imports';
+    final concurrency = resolve('concurrency', testConfig.concurrency);
+    final collectCoverage = resolve('coverage', testConfig.coverage);
+    final minCoverage = double.tryParse(
+      resolve<String?>('min-coverage', testConfig.minCoverage) ?? '',
+    );
+    final showUncovered = resolve('show-uncovered', testConfig.showUncovered);
+    final excludeTags = resolve<String?>(
+      'exclude-tags',
+      testConfig.excludeTags,
+    );
+    final tags = resolve<String?>('tags', testConfig.tags);
+    final excludeFromCoverage = resolve<String?>(
+      'exclude-coverage',
+      testConfig.excludeCoverage,
+    );
     final collectCoverageFrom = CoverageCollectionMode.fromString(
-      collectCoverageFromString,
+      resolve<String>(
+        'collect-coverage-from',
+        testConfig.collectCoverageFrom,
+        fallbackValue: 'imports',
+      ),
     );
     final randomOrderingSeed =
         argResults['test-randomize-ordering-seed'] as String?;
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance =
-        configOverride('optimization', testConfig.optimization) ??
-        argResults['optimization'] as bool;
-    final updateGoldens =
-        configOverride('update-goldens', testConfig.updateGoldens) ??
-        argResults['update-goldens'] as bool;
-    final failFast =
-        configOverride('fail-fast', testConfig.failFast) ??
-        argResults['fail-fast'] as bool;
+    final optimizePerformance = resolve(
+      'optimization',
+      testConfig.optimization,
+    );
+    final updateGoldens = resolve('update-goldens', testConfig.updateGoldens);
+    final failFast = resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine =
-        configOverride('dart-define', testConfig.dartDefine) ??
-        argResults['dart-define'] as List<String>?;
-    final dartDefineFromFile =
-        configOverride(
-          'dart-define-from-file',
-          testConfig.dartDefineFromFile,
-        ) ??
-        argResults['dart-define-from-file'] as List<String>?;
-    final platform =
-        configOverride('platform', testConfig.platform) ??
-        argResults['platform'] as String?;
-    final reportOnFromArgs = argResults['report-on'] as List<String>;
-    final reportOnFromConfig = configOverride('report-on', testConfig.reportOn);
-    final reportOn = (reportOnFromConfig ?? reportOnFromArgs)
+    final dartDefine = resolve<List<String>?>(
+      'dart-define',
+      testConfig.dartDefine,
+    );
+    final dartDefineFromFile = resolve<List<String>?>(
+      'dart-define-from-file',
+      testConfig.dartDefineFromFile,
+    );
+    final platform = resolve<String?>('platform', testConfig.platform);
+    final reportOn = resolve<List<String>>('report-on', testConfig.reportOn)
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped =
-        configOverride('run-skipped', testConfig.runSkipped) ??
-        argResults['run-skipped'] as bool;
-    final flavor =
-        configOverride('flavor', testConfig.flavor) ??
-        argResults['flavor'] as String?;
-    final timeoutString =
-        configOverride('timeout', testConfig.timeout) ??
-        argResults['timeout'] as String?;
-    final timeoutSeconds = int.tryParse(timeoutString ?? '');
+    final runSkipped = resolve('run-skipped', testConfig.runSkipped);
+    final flavor = resolve<String?>('flavor', testConfig.flavor);
+    final timeoutSeconds = int.tryParse(
+      resolve<String>('timeout', testConfig.timeout, fallbackValue: ''),
+    );
     final timeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
@@ -441,7 +419,8 @@ This command should be run from the root of your Flutter project.''');
       config = VeryGoodConfig.loadFromDirectory(Directory(targetPath));
     } on VeryGoodConfigParseException catch (e) {
       _logger.err(
-        'Could not read `$veryGoodConfigFileName` in $targetPath.\n${e.message}',
+        'Could not read `$veryGoodConfigFileName` in $targetPath.\n'
+        '${e.message}',
       );
       return ExitCode.config.code;
     }
