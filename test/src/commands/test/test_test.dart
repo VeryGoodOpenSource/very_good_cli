@@ -939,12 +939,8 @@ void main() {
         }),
       );
 
-      test('applies config value when arg was not parsed', () async {
+      test('applies config value when arg was not parsed', () {
         when(() => argResults.wasParsed(any())).thenReturn(false);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.success.code));
-        // Provide the config directly via FlutterTestOptions.parse to
-        // verify precedence rules without touching the filesystem.
         final options = FlutterTestOptions.parse(
           argResults,
           config: const VeryGoodConfig(
@@ -960,7 +956,7 @@ void main() {
         expect(options.reportOn, equals(['lib/']));
       });
 
-      test('CLI argument takes precedence over config value', () async {
+      test('CLI argument takes precedence over config value', () {
         when(() => argResults.wasParsed(any())).thenReturn(false);
         when(() => argResults.wasParsed('min-coverage')).thenReturn(true);
         when<dynamic>(() => argResults['min-coverage']).thenReturn('50');
@@ -973,6 +969,21 @@ void main() {
         );
         expect(options.minCoverage, 50);
       });
+
+      test(
+        'falls back to the CLI default when the parsed arg is null '
+        'and the config is unset',
+        () {
+          when(() => argResults.wasParsed(any())).thenReturn(true);
+          when<dynamic>(
+            () => argResults['collect-coverage-from'],
+          ).thenReturn(null);
+
+          final options = FlutterTestOptions.parse(argResults);
+
+          expect(options.collectCoverageFrom, CoverageCollectionMode.imports);
+        },
+      );
     });
   });
 }

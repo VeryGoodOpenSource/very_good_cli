@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 void main() {
-  group('$VeryGoodConfig', () {
+  group(VeryGoodConfig, () {
     group('fromString', () {
       test('returns empty config when content is empty', () {
         expect(VeryGoodConfig.fromString(''), equals(VeryGoodConfig.empty));
@@ -62,22 +62,22 @@ test:
 
         expect(config.test.coverage, isTrue);
         expect(config.test.optimization, isFalse);
-        expect(config.test.concurrency, '8');
-        expect(config.test.tags, 'my-tag');
-        expect(config.test.excludeCoverage, '**/*.g.dart');
-        expect(config.test.excludeTags, 'skip');
-        expect(config.test.minCoverage, '95');
+        expect(config.test.concurrency, equals('8'));
+        expect(config.test.tags, equals('my-tag'));
+        expect(config.test.excludeCoverage, equals('**/*.g.dart'));
+        expect(config.test.excludeTags, equals('skip'));
+        expect(config.test.minCoverage, equals('95'));
         expect(config.test.showUncovered, isTrue);
-        expect(config.test.collectCoverageFrom, 'all');
+        expect(config.test.collectCoverageFrom, equals('all'));
         expect(config.test.updateGoldens, isTrue);
         expect(config.test.failFast, isTrue);
         expect(config.test.dartDefine, equals(['FOO=bar', 'X=42']));
         expect(config.test.dartDefineFromFile, equals(['defines.env']));
-        expect(config.test.platform, 'chrome');
+        expect(config.test.platform, equals('chrome'));
         expect(config.test.reportOn, equals(['lib/', 'packages/foo/lib/']));
         expect(config.test.runSkipped, isTrue);
-        expect(config.test.flavor, 'staging');
-        expect(config.test.timeout, '30');
+        expect(config.test.flavor, equals('staging'));
+        expect(config.test.timeout, equals('30'));
       });
 
       test('parses min-coverage as decimal string', () {
@@ -85,7 +85,7 @@ test:
 test:
   min_coverage: 95.5
 ''');
-        expect(config.test.minCoverage, '95.5');
+        expect(config.test.minCoverage, equals('95.5'));
       });
 
       test('parses integer options provided as quoted strings', () {
@@ -94,8 +94,8 @@ test:
   concurrency: "8"
   timeout: "60"
 ''');
-        expect(config.test.concurrency, '8');
-        expect(config.test.timeout, '60');
+        expect(config.test.concurrency, equals('8'));
+        expect(config.test.timeout, equals('60'));
       });
 
       test('parses min-coverage provided as a quoted string', () {
@@ -103,7 +103,7 @@ test:
 test:
   min_coverage: "95"
 ''');
-        expect(config.test.minCoverage, '95');
+        expect(config.test.minCoverage, equals('95'));
       });
 
       test('parses collect-coverage-from with value `imports`', () {
@@ -111,7 +111,7 @@ test:
 test:
   collect_coverage_from: imports
 ''');
-        expect(config.test.collectCoverageFrom, 'imports');
+        expect(config.test.collectCoverageFrom, equals('imports'));
       });
 
       test('throws when test section is not a map', () {
@@ -151,8 +151,9 @@ test:
 
       test('throws when collect-coverage-from has invalid value', () {
         expect(
-          () =>
-              VeryGoodConfig.fromString('test:\n  collect_coverage_from: bad'),
+          () => VeryGoodConfig.fromString(
+            'test:\n  collect_coverage_from: bad',
+          ),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
@@ -204,13 +205,13 @@ test:
           VeryGoodConfig.fromString(
             'test:\n  min_coverage: 0',
           ).test.minCoverage,
-          '0',
+          equals('0'),
         );
         expect(
           VeryGoodConfig.fromString(
             'test:\n  min_coverage: 100',
           ).test.minCoverage,
-          '100',
+          equals('100'),
         );
       });
 
@@ -241,54 +242,15 @@ test:
       });
     });
 
-    group('loadFromDirectory', () {
-      late Directory tempDir;
-
-      setUp(() {
-        tempDir = Directory.systemTemp.createTempSync('very_good_config_');
-      });
-
-      tearDown(() {
-        if (tempDir.existsSync()) {
-          tempDir.deleteSync(recursive: true);
-        }
-      });
-
-      test('returns empty config when file is missing', () {
-        expect(
-          VeryGoodConfig.loadFromDirectory(tempDir),
-          equals(VeryGoodConfig.empty),
-        );
-      });
-
-      test('reads config file when present', () {
-        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
-test:
-  min_coverage: 90
-''');
-        final config = VeryGoodConfig.loadFromDirectory(tempDir);
-        expect(config.test.minCoverage, '90');
-      });
-
-      test('rethrows parse exception when file is malformed', () {
-        File(
-          p.join(tempDir.path, veryGoodConfigFileName),
-        ).writeAsStringSync('- not\n- a\n- map');
-        expect(
-          () => VeryGoodConfig.loadFromDirectory(tempDir),
-          throwsA(isA<VeryGoodConfigParseException>()),
-        );
-      });
-    });
-
     group('loadFromClosestAncestor', () {
       late Directory tempDir;
       late Directory nestedDir;
 
       setUp(() {
         tempDir = Directory.systemTemp.createTempSync('very_good_config_');
-        nestedDir = Directory(p.join(tempDir.path, 'packages', 'foo'))
-          ..createSync(recursive: true);
+        nestedDir = Directory(
+          p.join(tempDir.path, 'packages', 'foo'),
+        )..createSync(recursive: true);
       });
 
       tearDown(() {
@@ -305,7 +267,7 @@ test:
 ''',
         );
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, '80');
+        expect(config.test.minCoverage, equals('80'));
       });
 
       test('reads config from an ancestor directory', () {
@@ -314,7 +276,7 @@ test:
   min_coverage: 90
 ''');
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, '90');
+        expect(config.test.minCoverage, equals('90'));
       });
 
       test('prefers the closest config over an ancestor', () {
@@ -329,7 +291,7 @@ test:
 ''',
         );
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, '80');
+        expect(config.test.minCoverage, equals('80'));
       });
 
       test('returns empty config when no file is found in any ancestor', () {
@@ -365,7 +327,7 @@ test:
     });
   });
 
-  group('$VeryGoodTestConfig', () {
+  group(VeryGoodTestConfig, () {
     test('supports value equality', () {
       expect(
         VeryGoodTestConfig(coverage: true, minCoverage: '95'),
@@ -378,7 +340,7 @@ test:
     });
   });
 
-  group('$VeryGoodConfigParseException', () {
+  group(VeryGoodConfigParseException, () {
     test('provides message via toString', () {
       const exception = VeryGoodConfigParseException('bad thing');
       expect(exception.toString(), contains('bad thing'));

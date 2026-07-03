@@ -109,3 +109,5 @@ test:
 ```
 
 With the file above, running `very_good test` behaves the same as running `very_good test --min-coverage 100 --exclude-coverage '**/*.g.dart' --report-on lib/ --dart-define=FLAVOR=development`. You can still override any of these values on the command line, for example `very_good test --min-coverage 90` to lower the coverage threshold for a single run.
+
+The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged. This lets a single `very_good.yaml` at the repository root apply to commands run from any nested package.

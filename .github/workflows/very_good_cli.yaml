@@ -35,6 +35,8 @@ jobs:
       concurrency: 1
       run_skipped: true
       run_bloc_lint: false
+      # The CLI's own test suite is run directly rather than through the test optimizer,
+      # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
 
   pana:

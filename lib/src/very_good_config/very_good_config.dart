@@ -77,22 +77,11 @@ class VeryGoodConfig extends Equatable {
     }
   }
 
-  /// Loads a [VeryGoodConfig] from the given [directory].
-  ///
-  /// Returns [VeryGoodConfig.empty] when the configuration file does not
-  /// exist. Throws a [VeryGoodConfigParseException] when the file exists
-  /// but cannot be parsed.
-  factory VeryGoodConfig.loadFromDirectory(Directory directory) {
-    final file = File(path.join(directory.path, veryGoodConfigFileName));
-    if (!file.existsSync()) return VeryGoodConfig.empty;
-    return VeryGoodConfig.fromString(
-      file.readAsStringSync(),
-      sourceUrl: file.uri,
-    );
-  }
-
   /// Loads the closest [VeryGoodConfig] by searching [directory] and each of
   /// its ancestors, from the innermost directory outward.
+  ///
+  /// [directory] is resolved to an absolute path before the walk, so a relative
+  /// [directory] is searched relative to the current working directory.
   ///
   /// This allows a single repository-wide `very_good.yaml` at the project root
   /// to apply to commands run from any nested package directory. The first
@@ -104,17 +93,26 @@ class VeryGoodConfig extends Equatable {
   factory VeryGoodConfig.loadFromClosestAncestor(Directory directory) {
     var current = directory.absolute;
     while (true) {
-      final file = File(path.join(current.path, veryGoodConfigFileName));
-      if (file.existsSync()) {
-        return VeryGoodConfig.fromString(
-          file.readAsStringSync(),
-          sourceUrl: file.uri,
-        );
-      }
+      final config = _loadFromDirectory(current);
+      if (config != null) return config;
       final parent = current.parent;
       if (parent.path == current.path) return VeryGoodConfig.empty;
       current = parent;
     }
+  }
+
+  /// Loads a [VeryGoodConfig] from the configuration file directly inside
+  /// [directory], or `null` when the file does not exist.
+  ///
+  /// Throws a [VeryGoodConfigParseException] when the file exists but cannot be
+  /// parsed.
+  static VeryGoodConfig? _loadFromDirectory(Directory directory) {
+    final file = File(path.join(directory.path, veryGoodConfigFileName));
+    if (!file.existsSync()) return null;
+    return VeryGoodConfig.fromString(
+      file.readAsStringSync(),
+      sourceUrl: file.uri,
+    );
   }
 
   /// An empty [VeryGoodConfig] with no values set.
@@ -251,6 +249,11 @@ class VeryGoodTestConfig extends Equatable {
     timeout,
   ];
 }
+
+// The coercers below intentionally validate more strictly than the CLI flag
+// parser. A value such as `min_coverage: 150` is rejected here at config load
+// time even though `--min-coverage 150` is accepted by the flag parser, so
+// misconfigured `very_good.yaml` files fail fast with a clear message.
 
 /// Coerces a `num` or `String` value into a `String`.
 ///
