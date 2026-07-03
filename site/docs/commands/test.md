@@ -95,16 +95,16 @@ import 'package:test/test.dart';
 
 ### Configuring defaults with `very_good.yaml`
 
-To avoid repeating flags every time you run `very_good test` locally or on CI, you may create a `very_good.yaml` file at the root of your project. The `test` section accepts the same names as the CLI flags (kebab-case). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
+To avoid repeating flags every time you run `very_good test` locally or on CI, you may create a `very_good.yaml` file at the root of your project. The `test` section accepts the same names as the CLI flags in snake_case (e.g. `--min-coverage` becomes `min_coverage`). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
 
 ```yaml
 # very_good.yaml
 test:
-  min-coverage: 100
-  exclude-coverage: "**/*.g.dart"
-  report-on:
+  min_coverage: 100
+  exclude_coverage: "**/*.g.dart"
+  report_on:
     - lib/
-  dart-define:
+  dart_define:
     - FLAVOR=development
 ```
 

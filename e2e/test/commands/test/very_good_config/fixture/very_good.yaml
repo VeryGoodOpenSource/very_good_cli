@@ -1,2 +1,2 @@
 test:
-  min-coverage: 100
+  min_coverage: 100
