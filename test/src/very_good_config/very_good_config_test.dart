@@ -40,22 +40,22 @@ test:
   optimization: false
   concurrency: 8
   tags: my-tag
-  exclude-coverage: "**/*.g.dart"
-  exclude-tags: skip
-  min-coverage: 95
-  show-uncovered: true
-  collect-coverage-from: all
-  update-goldens: true
-  fail-fast: true
-  dart-define:
+  exclude_coverage: "**/*.g.dart"
+  exclude_tags: skip
+  min_coverage: 95
+  show_uncovered: true
+  collect_coverage_from: all
+  update_goldens: true
+  fail_fast: true
+  dart_define:
     - FOO=bar
     - X=42
-  dart-define-from-file: defines.env
+  dart_define_from_file: defines.env
   platform: chrome
-  report-on:
+  report_on:
     - lib/
     - packages/foo/lib/
-  run-skipped: true
+  run_skipped: true
   flavor: staging
   timeout: 30
 ''');
@@ -83,7 +83,7 @@ test:
       test('parses min-coverage as decimal string', () {
         final config = VeryGoodConfig.fromString('''
 test:
-  min-coverage: 95.5
+  min_coverage: 95.5
 ''');
         expect(config.test.minCoverage, '95.5');
       });
@@ -101,7 +101,7 @@ test:
       test('parses min-coverage provided as a quoted string', () {
         final config = VeryGoodConfig.fromString('''
 test:
-  min-coverage: "95"
+  min_coverage: "95"
 ''');
         expect(config.test.minCoverage, '95');
       });
@@ -109,7 +109,7 @@ test:
       test('parses collect-coverage-from with value `imports`', () {
         final config = VeryGoodConfig.fromString('''
 test:
-  collect-coverage-from: imports
+  collect_coverage_from: imports
 ''');
         expect(config.test.collectCoverageFrom, 'imports');
       });
@@ -144,7 +144,7 @@ test:
 
       test('throws when number option has wrong type', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  min-coverage: [95]'),
+          () => VeryGoodConfig.fromString('test:\n  min_coverage: [95]'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
@@ -152,21 +152,21 @@ test:
       test('throws when collect-coverage-from has invalid value', () {
         expect(
           () =>
-              VeryGoodConfig.fromString('test:\n  collect-coverage-from: bad'),
+              VeryGoodConfig.fromString('test:\n  collect_coverage_from: bad'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
 
       test('throws when string list has non-string entries', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  dart-define:\n    - 42'),
+          () => VeryGoodConfig.fromString('test:\n  dart_define:\n    - 42'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
 
       test('throws when string list has wrong type', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  report-on: 42'),
+          () => VeryGoodConfig.fromString('test:\n  report_on: 42'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
@@ -180,21 +180,21 @@ test:
 
       test('throws when an unrecognized test key is present', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  min-coverag: 80'),
+          () => VeryGoodConfig.fromString('test:\n  min_coverag: 80'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
 
       test('throws when min-coverage is below 0', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  min-coverage: -1'),
+          () => VeryGoodConfig.fromString('test:\n  min_coverage: -1'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
 
       test('throws when min-coverage is above 100', () {
         expect(
-          () => VeryGoodConfig.fromString('test:\n  min-coverage: 101'),
+          () => VeryGoodConfig.fromString('test:\n  min_coverage: 101'),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
@@ -202,13 +202,13 @@ test:
       test('parses min-coverage at the boundaries', () {
         expect(
           VeryGoodConfig.fromString(
-            'test:\n  min-coverage: 0',
+            'test:\n  min_coverage: 0',
           ).test.minCoverage,
           '0',
         );
         expect(
           VeryGoodConfig.fromString(
-            'test:\n  min-coverage: 100',
+            'test:\n  min_coverage: 100',
           ).test.minCoverage,
           '100',
         );
@@ -264,7 +264,7 @@ test:
       test('reads config file when present', () {
         File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
 test:
-  min-coverage: 90
+  min_coverage: 90
 ''');
         final config = VeryGoodConfig.loadFromDirectory(tempDir);
         expect(config.test.minCoverage, '90');
@@ -301,7 +301,7 @@ test:
         File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
           '''
 test:
-  min-coverage: 80
+  min_coverage: 80
 ''',
         );
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
@@ -311,7 +311,7 @@ test:
       test('reads config from an ancestor directory', () {
         File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
 test:
-  min-coverage: 90
+  min_coverage: 90
 ''');
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
         expect(config.test.minCoverage, '90');
@@ -320,12 +320,12 @@ test:
       test('prefers the closest config over an ancestor', () {
         File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
 test:
-  min-coverage: 90
+  min_coverage: 90
 ''');
         File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
           '''
 test:
-  min-coverage: 80
+  min_coverage: 80
 ''',
         );
         final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);

@@ -44,7 +44,7 @@ class VeryGoodConfigParseException implements Exception {
   checked: true,
   createToJson: false,
   disallowUnrecognizedKeys: true,
-  fieldRename: FieldRename.kebab,
+  fieldRename: FieldRename.snake,
 )
 class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
@@ -138,7 +138,7 @@ class VeryGoodConfig extends Equatable {
   checked: true,
   createToJson: false,
   disallowUnrecognizedKeys: true,
-  fieldRename: FieldRename.kebab,
+  fieldRename: FieldRename.snake,
 )
 class VeryGoodTestConfig extends Equatable {
   /// {@macro very_good_test_config}
@@ -288,7 +288,7 @@ String? _concurrency(Object? value) => _positiveInt(value, 'concurrency');
 /// Accepts only positive integers (seconds).
 String? _timeout(Object? value) => _positiveInt(value, 'timeout');
 
-/// Validates and returns the `min-coverage` value.
+/// Validates and returns the `min_coverage` value.
 ///
 /// Accepts only a number between 0 and 100 (inclusive).
 String? _minCoverage(Object? value) {
@@ -297,14 +297,14 @@ String? _minCoverage(Object? value) {
   final parsed = double.tryParse(asString);
   if (parsed == null || parsed < 0 || parsed > 100) {
     throw FormatException(
-      'Expected `min-coverage` to be a number between 0 and 100 '
+      'Expected `min_coverage` to be a number between 0 and 100 '
       'but got `$asString`.',
     );
   }
   return asString;
 }
 
-/// Validates and returns the `collect-coverage-from` value.
+/// Validates and returns the `collect_coverage_from` value.
 ///
 /// Accepts only `imports` or `all`.
 String? _collectCoverageFrom(Object? value) {
