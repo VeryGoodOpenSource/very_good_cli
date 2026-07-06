@@ -101,7 +101,7 @@ To avoid repeating flags every time you run `very_good test` locally or on CI, y
 # very_good.yaml
 test:
   min_coverage: 100
-  exclude_coverage: "**/*.g.dart"
+  exclude_coverage: '**/*.g.dart'
   report_on:
     - lib/
   dart_define:

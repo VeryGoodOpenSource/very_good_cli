@@ -37,3 +37,7 @@ CLAUDE.local.md
 
 .codex/
 .cursor/
+
+# act artifacts
+act_output.log
+.secrets
