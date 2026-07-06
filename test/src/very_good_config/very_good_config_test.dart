@@ -34,31 +34,16 @@ void main() {
       });
 
       test('parses all supported test options', () {
-        final config = VeryGoodConfig.fromString('''
-test:
-  coverage: true
-  optimization: false
-  concurrency: 8
-  tags: my-tag
-  exclude_coverage: "**/*.g.dart"
-  exclude_tags: skip
-  min_coverage: 95
-  show_uncovered: true
-  collect_coverage_from: all
-  update_goldens: true
-  fail_fast: true
-  dart_define:
-    - FOO=bar
-    - X=42
-  dart_define_from_file: defines.env
-  platform: chrome
-  report_on:
-    - lib/
-    - packages/foo/lib/
-  run_skipped: true
-  flavor: staging
-  timeout: 30
-''');
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_test_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
 
         expect(config.test.coverage, isTrue);
         expect(config.test.optimization, isFalse);

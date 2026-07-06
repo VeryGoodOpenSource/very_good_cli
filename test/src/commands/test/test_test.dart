@@ -951,8 +951,8 @@ void main() {
             ),
           ),
         );
-        expect(options.minCoverage, 90);
-        expect(options.excludeFromCoverage, '**/*.g.dart');
+        expect(options.minCoverage, equals(90));
+        expect(options.excludeFromCoverage, equals('**/*.g.dart'));
         expect(options.reportOn, equals(['lib/']));
       });
 
@@ -967,23 +967,20 @@ void main() {
             test: VeryGoodTestConfig(minCoverage: '90'),
           ),
         );
-        expect(options.minCoverage, 50);
+        expect(options.minCoverage, equals(50));
       });
 
-      test(
-        'falls back to the CLI default when the parsed arg is null '
-        'and the config is unset',
-        () {
-          when(() => argResults.wasParsed(any())).thenReturn(true);
-          when<dynamic>(
-            () => argResults['collect-coverage-from'],
-          ).thenReturn(null);
+      test('falls back to the CLI default when the parsed arg is null '
+          'and the config is unset', () {
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+        when<dynamic>(
+          () => argResults['collect-coverage-from'],
+        ).thenReturn(null);
 
-          final options = FlutterTestOptions.parse(argResults);
+        final options = FlutterTestOptions.parse(argResults);
 
-          expect(options.collectCoverageFrom, CoverageCollectionMode.imports);
-        },
-      );
+        expect(options.collectCoverageFrom, CoverageCollectionMode.imports);
+      });
     });
   });
 }

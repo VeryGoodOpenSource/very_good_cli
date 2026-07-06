@@ -35,9 +35,10 @@ void main() {
         Directory.current = tempDirectory;
         addTearDown(() => Directory.current = cwd);
 
-        final result = await commandRunner.run(['test', '--coverage']);
-
-        expect(result, equals(ExitCode.unavailable.code));
+        await expectLater(
+          commandRunner.run(['test', '--coverage']),
+          completion(equals(ExitCode.unavailable.code)),
+        );
         verify(
           () => logger.err(any(that: contains('Expected coverage >= 100.00%'))),
         ).called(1);
@@ -71,14 +72,15 @@ void main() {
         Directory.current = tempDirectory;
         addTearDown(() => Directory.current = cwd);
 
-        final result = await commandRunner.run([
-          'test',
-          '--coverage',
-          '--min-coverage',
-          '0',
-        ]);
-
-        expect(result, equals(ExitCode.success.code));
+        await expectLater(
+          commandRunner.run([
+            'test',
+            '--coverage',
+            '--min-coverage',
+            '0',
+          ]),
+          completion(equals(ExitCode.success.code)),
+        );
       }),
     );
 
@@ -91,31 +93,23 @@ void main() {
         );
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
-name: malformed_fixture
-description: Fixture for testing malformed very_good.yaml.
-version: 0.1.0+1
-publish_to: none
-
-environment:
-  sdk: ^3.12.0
-
-dev_dependencies:
-  test: ^1.24.3
-''',
+        final fixture = Directory(
+          path.join(
+            Directory.current.path,
+            'test/commands/test/very_good_config/malformed_fixture',
+          ),
         );
-        File(
-          path.join(tempDirectory.path, 'very_good.yaml'),
-        ).writeAsStringSync('- not\n- a\n- map');
+
+        await copyDirectory(fixture, tempDirectory);
 
         final cwd = Directory.current;
         Directory.current = tempDirectory;
         addTearDown(() => Directory.current = cwd);
 
-        final result = await commandRunner.run(['test']);
-
-        expect(result, equals(ExitCode.config.code));
+        await expectLater(
+          commandRunner.run(['test']),
+          completion(equals(ExitCode.config.code)),
+        );
         verify(
           () => logger.err(
             any(that: contains('Could not read `very_good.yaml`')),
