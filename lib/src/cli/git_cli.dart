@@ -21,10 +21,15 @@ Make sure the remote exists and you have the correct access rights.''';
 /// Git CLI
 class Git {
   /// Determine whether the [remote] is reachable.
+  ///
+  /// The check honors `url.<base>.insteadOf` git config overrides by passing
+  /// `--get-url` to `git ls-remote`, mirroring how the actual pull would
+  /// resolve the remote.
   static Future<void> reachable(Uri remote, {required Logger logger}) async {
     try {
       await _Cmd.run('git', [
         'ls-remote',
+        '--get-url',
         '$remote',
         '--exit-code',
       ], logger: logger);

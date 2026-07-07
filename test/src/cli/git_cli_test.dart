@@ -64,6 +64,22 @@ void main() {
         }, runProcess: process.run);
       });
 
+      test('passes --get-url to respect insteadOf overrides', () async {
+        final remote = Uri.parse('https://github.com/org/repo');
+        await ProcessOverrides.runZoned(() async {
+          await Git.reachable(remote, logger: logger);
+        }, runProcess: process.run);
+
+        verify(
+          () => process.run(
+            'git',
+            ['ls-remote', '--get-url', '$remote', '--exit-code'],
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).called(1);
+      });
+
       test(
         'throws UnreachableGitDependency for an unreachable remote',
         () async {
