@@ -48,14 +48,13 @@ very_good test [arguments]
     --fail-fast                       Stop running tests after the first failure.
     --timeout=<seconds>               Maximum seconds to let tests run before killing the process.
                                       Useful when tests hang due to an unbounded pumpAndSettle() call.
-    --file-reporter=<name:path>       Enable an additional reporter writing test results to a file
-                                      (e.g. "json:reports/tests.json"). Safe to combine with test optimization
-                                      because it does not modify stdout.
+    --file-reporter=<name:path>       Enable an additional reporter writing test results to a file.
+                                      Should be in the form <name>:<path> (e.g. "json:reports/tests.json").
 
 Run "very_good help" to see global options.
 ```
 
-### Machine-readable test reports (JUnit, SonarQube, etc.)
+### Machine-readable test reports
 
 If you need a machine-readable summary of your test results (for example to feed a CI tool or convert to JUnit XML), use `--file-reporter`. It maps directly to the `--file-reporter` flag from `flutter test` and `dart test`, and writes the report to a file instead of stdout — so it stays compatible with `very_good test`'s optimization and progress rendering.
 

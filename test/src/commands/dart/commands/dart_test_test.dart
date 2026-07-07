@@ -48,7 +48,7 @@ const expectedTestUsage = [
       '    --run-skipped                            Run skipped tests instead of skipping them.\n'
       '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
       '                                             (defaults to on)\n'
-      '    --file-reporter=<name:path>              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json"). Unlike --reporter, this does not affect stdout, so it works with test optimization enabled.\n'
+      '    --file-reporter=<name:path>              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];

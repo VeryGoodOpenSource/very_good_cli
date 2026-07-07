@@ -51,7 +51,7 @@ const expectedTestUsage = [
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
       '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '    --timeout=<seconds>                                      Maximum seconds to let tests run before killing the process. Useful when tests hang due to an unbounded pumpAndSettle() call.\n'
-      '    --file-reporter=<name:path>                              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json"). Unlike --reporter and --machine, this does not affect stdout, so it works with test optimization enabled.\n'
+      '    --file-reporter=<name:path>                              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];

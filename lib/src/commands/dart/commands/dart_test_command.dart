@@ -138,9 +138,6 @@ class DartTestOptions {
 
   /// Additional reporter that writes test results to a file, expressed as
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
-  ///
-  /// Unlike `--reporter`, this does not modify the process stdout, so it is
-  /// safe to use alongside the CLI's test optimization.
   final String? fileReporter;
 
   /// The remaining arguments passed to the `dart test` command.
@@ -296,9 +293,7 @@ class DartTestCommand extends Command<int> {
         'file-reporter',
         help:
             'Enable an additional reporter writing test results to a file. '
-            'Should be in the form <name>:<path> (e.g. "json:reports/tests.json"). '
-            'Unlike --reporter, this does not affect stdout, so it works with '
-            'test optimization enabled.',
+            'Should be in the form <name>:<path> (e.g. "json:reports/tests.json").',
         valueHelp: 'name:path',
       );
   }
