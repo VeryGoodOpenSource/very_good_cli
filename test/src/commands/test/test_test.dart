@@ -52,6 +52,7 @@ const expectedTestUsage = [
       '    --run-skipped                                            Run skipped tests instead of skipping them.\n'
       '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '    --timeout=<seconds>                                      Maximum seconds to let tests run before killing the process. Useful when tests hang due to an unbounded pumpAndSettle() call.\n'
+      '    --file-reporter=<name:path>                              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -136,6 +137,7 @@ void main() {
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['flavor']).thenReturn(null);
       when<dynamic>(() => argResults['timeout']).thenReturn(null);
+      when<dynamic>(() => argResults['file-reporter']).thenReturn(null);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -601,6 +603,29 @@ void main() {
           ),
         ).called(1);
       });
+
+      test(
+        'completes normally --file-reporter json:test-report.json',
+        () async {
+          when<dynamic>(
+            () => argResults['file-reporter'],
+          ).thenReturn('json:test-report.json');
+          final result = await testCommand.run();
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              optimizePerformance: true,
+              arguments: [
+                ...defaultArguments,
+                '--file-reporter=json:test-report.json',
+              ],
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('coverage', () {
