@@ -152,7 +152,11 @@ class FlutterTestOptions {
     final effectiveTimeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
-    final fileReporter = argResults['file-reporter'] as String?;
+    final fileReporter = _resolveArg<String?>(
+      argResults,
+      'file-reporter',
+      testConfig.fileReporter,
+    );
     final rest = argResults.rest;
 
     return FlutterTestOptions._(

@@ -121,6 +121,7 @@ test:
     - lib/
   dart_define:
     - FLAVOR=development
+  file_reporter: json:reports/tests.json
 ```
 
 With the file above, running `very_good test` behaves the same as running `very_good test --min-coverage 100 --exclude-coverage '**/*.g.dart' --report-on lib/ --dart-define=FLAVOR=development`. You can still override any of these values on the command line, for example `very_good test --min-coverage 90` to lower the coverage threshold for a single run.

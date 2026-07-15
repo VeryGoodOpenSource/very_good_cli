@@ -45,6 +45,7 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
         'run_skipped',
         'flavor',
         'timeout',
+        'file_reporter',
       ],
     );
     final val = VeryGoodTestConfig(
@@ -72,6 +73,7 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
       runSkipped: $checkedConvert('run_skipped', (v) => v as bool?),
       flavor: $checkedConvert('flavor', (v) => v as String?),
       timeout: $checkedConvert('timeout', (v) => _timeout(v)),
+      fileReporter: $checkedConvert('file_reporter', (v) => v as String?),
     );
     return val;
   },
@@ -87,5 +89,6 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
     'dartDefineFromFile': 'dart_define_from_file',
     'reportOn': 'report_on',
     'runSkipped': 'run_skipped',
+    'fileReporter': 'file_reporter',
   },
 );

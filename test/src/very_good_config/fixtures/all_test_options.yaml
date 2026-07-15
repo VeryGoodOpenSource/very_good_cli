@@ -21,3 +21,4 @@ test:
   run_skipped: true
   flavor: staging
   timeout: 30
+  file_reporter: json:reports/tests.json

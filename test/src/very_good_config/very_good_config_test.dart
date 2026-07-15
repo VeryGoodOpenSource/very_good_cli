@@ -63,6 +63,10 @@ void main() {
         expect(config.test.runSkipped, isTrue);
         expect(config.test.flavor, equals('staging'));
         expect(config.test.timeout, equals('30'));
+        expect(
+          config.test.fileReporter,
+          equals('json:reports/tests.json'),
+        );
       });
 
       test('parses min-coverage as decimal string', () {

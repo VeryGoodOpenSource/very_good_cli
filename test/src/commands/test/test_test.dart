@@ -973,12 +973,14 @@ void main() {
               minCoverage: '90',
               excludeCoverage: '**/*.g.dart',
               reportOn: ['lib/'],
+              fileReporter: 'json:reports/tests.json',
             ),
           ),
         );
         expect(options.minCoverage, equals(90));
         expect(options.excludeFromCoverage, equals('**/*.g.dart'));
         expect(options.reportOn, equals(['lib/']));
+        expect(options.fileReporter, equals('json:reports/tests.json'));
       });
 
       test('CLI argument takes precedence over config value', () {
@@ -993,6 +995,22 @@ void main() {
           ),
         );
         expect(options.minCoverage, equals(50));
+      });
+
+      test('CLI --file-reporter takes precedence over config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('file-reporter')).thenReturn(true);
+        when<dynamic>(
+          () => argResults['file-reporter'],
+        ).thenReturn('json:cli.json');
+
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(fileReporter: 'json:config.json'),
+          ),
+        );
+        expect(options.fileReporter, equals('json:cli.json'));
       });
 
       test('falls back to the CLI default when the parsed arg is null '

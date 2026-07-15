@@ -159,6 +159,7 @@ class VeryGoodTestConfig extends Equatable {
     this.runSkipped,
     this.flavor,
     this.timeout,
+    this.fileReporter,
   });
 
   /// Creates a [VeryGoodTestConfig] from a decoded YAML/JSON [json] map.
@@ -227,6 +228,10 @@ class VeryGoodTestConfig extends Equatable {
   @JsonKey(fromJson: _timeout)
   final String? timeout;
 
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  final String? fileReporter;
+
   @override
   List<Object?> get props => [
     coverage,
@@ -247,6 +252,7 @@ class VeryGoodTestConfig extends Equatable {
     runSkipped,
     flavor,
     timeout,
+    fileReporter,
   ];
 }
 
