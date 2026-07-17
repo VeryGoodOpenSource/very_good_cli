@@ -38,6 +38,7 @@ final expectedUsage = [
       '                                 (defaults to "A Very Good Project created by Very Good CLI.")\n'
       '    --org-name                   The organization for this new project.\n'
       '                                 (defaults to "com.example.verygoodcore")\n'
+      '    --publishable                Whether the generated project is intended to be published.\n'
       '    --platforms                  The platforms supported by the game. By default, all platforms are enabled. Example: --platforms=android,ios\n'
       '\n'
       '          [android] (default)    The game supports the Android platform.\n'
@@ -82,7 +83,6 @@ void main() {
       final command = CreateFlameGame(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('flame_game'));
       expect(command.description, equals('Generate a Very Good Flame game.'));
@@ -176,8 +176,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateFlameGame(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
@@ -202,6 +201,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'publishable': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -214,6 +214,7 @@ void main() {
               'project_name': 'my_app',
               'description': '',
               'org_name': 'com.example.verygoodcore',
+              'publishable': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             logger: logger,

@@ -4,12 +4,11 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_docs_site}
 /// A [CreateSubCommand] for creating Dart command line interfaces.
 /// {@endtemplate}
-class CreateDocsSite extends CreateSubCommand {
+class CreateDocsSite extends CreateSubCommand with Publishable {
   /// {@macro very_good_create_docs_site}
   CreateDocsSite({
     required super.logger,
     required super.generatorFromBundle,
-    required super.generatorFromBrick,
   }) {
     argParser.addOption(
       'org-name',

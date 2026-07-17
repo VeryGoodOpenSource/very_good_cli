@@ -66,7 +66,6 @@ void main() {
       final command = CreateFlutterPackage(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('flutter_package'));
       expect(
@@ -166,8 +165,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateFlutterPackage(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,

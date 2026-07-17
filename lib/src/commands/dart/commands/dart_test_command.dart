@@ -28,6 +28,7 @@ class DartTestOptions {
     required this.reportOn,
     required this.runSkipped,
     required this.checkIgnore,
+    required this.fileReporter,
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
@@ -61,6 +62,7 @@ class DartTestOptions {
         .toList();
     final runSkipped = argResults['run-skipped'] as bool;
     final checkIgnore = argResults['check-ignore'] as bool;
+    final fileReporter = argResults['file-reporter'] as String?;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -80,6 +82,7 @@ class DartTestOptions {
       reportOn: reportOn,
       runSkipped: runSkipped,
       checkIgnore: checkIgnore,
+      fileReporter: fileReporter,
       rest: rest,
     );
   }
@@ -132,6 +135,10 @@ class DartTestOptions {
 
   /// Whether to check for and respect coverage ignore comments.
   final bool checkIgnore;
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  final String? fileReporter;
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
@@ -281,6 +288,13 @@ class DartTestCommand extends Command<int> {
         help:
             'Whether to check for and respect coverage ignore comments '
             '(e.g. // coverage:ignore-line).',
+      )
+      ..addOption(
+        'file-reporter',
+        help:
+            'Enable an additional reporter writing test results to a file. '
+            'Should be in the form <name>:<path> (e.g. "json:reports/tests.json").',
+        valueHelp: 'name:path',
       );
   }
 
@@ -347,6 +361,8 @@ This command should be run from the root of your Dart project.''');
             if (options.runSkipped) '--run-skipped',
             if (options.platform != null) ...['--platform', options.platform!],
             if (options.platform == null) ...['-j', options.concurrency],
+            if (options.fileReporter != null)
+              '--file-reporter=${options.fileReporter}',
             ...options.rest,
           ],
           reportOn: options.reportOn.isEmpty ? null : options.reportOn,

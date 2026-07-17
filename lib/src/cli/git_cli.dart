@@ -25,6 +25,7 @@ class Git {
     try {
       await _Cmd.run('git', [
         'ls-remote',
+        '--get-url',
         '$remote',
         '--exit-code',
       ], logger: logger);

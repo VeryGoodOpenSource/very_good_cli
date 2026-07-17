@@ -33,6 +33,7 @@ Usage: very_good create docs_site <project-name> [arguments]
 -o, --output-directory    The desired output directory when creating a new project.
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
+    --publishable         Whether the generated project is intended to be published.
     --org-name            The organization for this new project.
                           (defaults to "my-org")
 
@@ -67,7 +68,6 @@ void main() {
       final command = CreateDocsSite(
         logger: logger,
         generatorFromBundle: null,
-        generatorFromBrick: null,
       );
       expect(command.name, equals('docs_site'));
       expect(
@@ -167,8 +167,7 @@ void main() {
         final argResults = _MockArgResults();
         final command = CreateDocsSite(
           logger: logger,
-          generatorFromBundle: (_) async => throw Exception('oops'),
-          generatorFromBrick: (_) async => generator,
+          generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
         when(
           () => argResults['output-directory'] as String?,
@@ -189,6 +188,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
+              'publishable': false,
               'org_name': 'VeryGoodOpenSource',
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -200,6 +200,7 @@ void main() {
             vars: <String, dynamic>{
               'project_name': 'my_docs_site',
               'description': '',
+              'publishable': false,
               'org_name': 'VeryGoodOpenSource',
             },
             logger: logger,
