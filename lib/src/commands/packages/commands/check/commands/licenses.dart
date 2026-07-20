@@ -20,6 +20,7 @@ import 'package:package_config/package_config.dart' as package_config;
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
@@ -178,7 +179,9 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     final progress = _logger.progress('Checking licenses on $targetPath');
 
-    final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
+    final pubspecLockFile = File(
+      path.join(targetPath, pubspecLockBasename),
+    );
     if (!pubspecLockFile.existsSync()) {
       progress.cancel();
       _logger.err('Could not find a $pubspecLockBasename in $targetPath');
@@ -192,16 +195,37 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
+    final pubspecFile = File(
+      path.join(targetPath, pubspecBasename),
+    );
+    final pubspec = PubspecWorkspace.tryParse(pubspecFile);
+    final isWorkspace = pubspec?.isWorkspaceRoot ?? false;
+    final workspaceDependencies =
+        pubspec?.collectWorkspaceDependencies(
+          root: targetDirectory,
+          dependencyTypes: dependencyTypes,
+        ) ??
+        const <String>{};
+
     final filteredDependencies = pubspecLock.packages.where((dependency) {
       if (!dependency.isPubHosted) return false;
 
       if (skippedPackages.contains(dependency.name)) return false;
 
       final dependencyType = dependency.type;
-      return (dependencyTypes.contains('direct-main') &&
-              dependencyType == PubspecLockPackageDependencyType.directMain) ||
-          (dependencyTypes.contains('direct-dev') &&
-              dependencyType == PubspecLockPackageDependencyType.directDev) ||
+
+      // In a workspace, whether a dependency counts as direct is determined by
+      // which members declare it rather than by the lock file's recorded type.
+      final isDirect = isWorkspace
+          ? workspaceDependencies.contains(dependency.name)
+          : (dependencyTypes.contains('direct-main') &&
+                    dependencyType ==
+                        PubspecLockPackageDependencyType.directMain) ||
+                (dependencyTypes.contains('direct-dev') &&
+                    dependencyType ==
+                        PubspecLockPackageDependencyType.directDev);
+
+      return isDirect ||
           (dependencyTypes.contains('transitive') &&
               dependencyType == PubspecLockPackageDependencyType.transitive) ||
           (dependencyTypes.contains('direct-overridden') &&
