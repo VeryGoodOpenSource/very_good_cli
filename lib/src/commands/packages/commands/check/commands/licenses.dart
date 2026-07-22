@@ -20,12 +20,22 @@ import 'package:package_config/package_config.dart' as package_config;
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
+import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
+import 'package:very_good_cli/src/pubspec_workspace/pubspec_workspace.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting
 Future<package_config.PackageConfig?> Function(Directory directory)?
 findPackageConfigOverride;
+
+/// Overrides the [resolveWorkspaceDependencies] function for testing.
+@visibleForTesting
+Map<String, PubspecDependencyType>? Function(
+  Directory directory, {
+  required Logger logger,
+})?
+resolveWorkspaceOverride;
 
 /// Overrides the [detector.detectLicense] function for testing.
 @visibleForTesting
@@ -181,7 +191,15 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
     if (!pubspecLockFile.existsSync()) {
       progress.cancel();
-      _logger.err('Could not find a $pubspecLockBasename in $targetPath');
+      if (declaresWorkspaceResolution(targetDirectory)) {
+        _logger.err(
+          'Could not find a $pubspecLockBasename in $targetPath.\n'
+          'This package resolves as part of a Pub workspace. '
+          'Run the command from the workspace root instead.',
+        );
+      } else {
+        _logger.err('Could not find a $pubspecLockBasename in $targetPath');
+      }
       return ExitCode.noInput.code;
     }
 
@@ -192,21 +210,26 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
+    final resolveWorkspace =
+        resolveWorkspaceOverride ?? resolveWorkspaceDependencies;
+    final workspaceDeps = resolveWorkspace(targetDirectory, logger: _logger);
+
     final filteredDependencies = pubspecLock.packages.where((dependency) {
       if (!dependency.isPubHosted) return false;
 
       if (skippedPackages.contains(dependency.name)) return false;
 
-      final dependencyType = dependency.type;
+      final dependencyType = workspaceDeps == null
+          ? dependency.type
+          : workspaceDeps[dependency.name] ?? PubspecDependencyType.transitive;
       return (dependencyTypes.contains('direct-main') &&
-              dependencyType == PubspecLockPackageDependencyType.directMain) ||
+              dependencyType == PubspecDependencyType.directMain) ||
           (dependencyTypes.contains('direct-dev') &&
-              dependencyType == PubspecLockPackageDependencyType.directDev) ||
+              dependencyType == PubspecDependencyType.directDev) ||
           (dependencyTypes.contains('transitive') &&
-              dependencyType == PubspecLockPackageDependencyType.transitive) ||
+              dependencyType == PubspecDependencyType.transitive) ||
           (dependencyTypes.contains('direct-overridden') &&
-              dependencyType ==
-                  PubspecLockPackageDependencyType.directOverridden);
+              dependencyType == PubspecDependencyType.directOverridden);
     });
 
     if (filteredDependencies.isEmpty) {

@@ -9,6 +9,7 @@ library;
 import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
+import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:yaml/yaml.dart';
 
 /// {@template PubspecLockParseException}
@@ -88,7 +89,7 @@ class PubspecLockPackage extends Equatable {
     required YamlMap data,
   }) {
     final dependency = data['dependency'] as String;
-    final dependencyType = PubspecLockPackageDependencyType.parse(dependency);
+    final dependencyType = PubspecDependencyType.parse(dependency);
 
     final source = data['source'] as String;
     late final bool isPubHosted;
@@ -110,73 +111,12 @@ class PubspecLockPackage extends Equatable {
   /// The name of the dependency.
   final String name;
 
-  /// {@macro PubspecLockDependencyType}
-  final PubspecLockPackageDependencyType type;
+  /// {@macro pubspec_dependency_type}
+  final PubspecDependencyType type;
 
   /// Whether the dependency is hosted on pub.dev or not.
   final bool isPubHosted;
 
   @override
   List<Object?> get props => [type, isPubHosted];
-}
-
-/// {@template PubspecLockDependencyType}
-/// The type of a [PubspecLockPackage].
-/// {@endtemplate}
-enum PubspecLockPackageDependencyType {
-  /// Another package that your package needs to work.
-  ///
-  /// See also:
-  ///
-  /// * [Dart's dependency documentation](https://dart.dev/tools/pub/dependencies)
-  directMain._('direct main'),
-
-  /// Another package that your package needs during development.
-  ///
-  /// See also:
-  ///
-  /// * [Dart's developer dependency documentation](https://dart.dev/tools/pub/dependencies#dev-dependencies)
-  directDev._('direct dev'),
-
-  /// A dependency that your package indirectly uses because one of its
-  /// dependencies requires it.
-  ///
-  /// See also:
-  ///
-  /// * [Dart's transitive dependency documentation](https://dart.dev/tools/pub/glossary#transitive-)
-  transitive._('transitive'),
-
-  ///  A dependency that your package overrides that is not already a
-  /// `direct main` or `direct dev` dependency.
-  ///
-  /// See also:
-  ///
-  /// * [Dart's dependency override documentation](https://dart.dev/tools/pub/dependencies#dependency-overrides)
-  directOverridden._('direct overridden');
-
-  const PubspecLockPackageDependencyType._(this.value);
-
-  /// Parses a [PubspecLockPackageDependencyType] from a string.
-  ///
-  /// Throws an [ArgumentError] if the string is not a valid dependency type.
-  factory PubspecLockPackageDependencyType.parse(String value) {
-    if (_valueMap.containsKey(value)) {
-      return _valueMap[value]!;
-    }
-
-    throw ArgumentError.value(
-      value,
-      'value',
-      'Invalid PubspecLockPackageDependencyType value.',
-    );
-  }
-
-  static Map<String, PubspecLockPackageDependencyType> _valueMap = {
-    for (final type in PubspecLockPackageDependencyType.values)
-      type.value: type,
-  };
-
-  /// The string representation of the [PubspecLockPackageDependencyType]
-  /// as it appears in a pubspec.lock file.
-  final String value;
 }
