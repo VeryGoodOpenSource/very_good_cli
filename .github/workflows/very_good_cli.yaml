@@ -29,12 +29,14 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1
     with:
-      flutter_version: "3.44.x"
-      concurrency: 1
-      coverage_excludes: "**/*.gen.dart"
-      run_bloc_lint: false
-      run_skipped: true
       runs_on: ${{ matrix.os }}
+      flutter_version: "3.44.x"
+      coverage_excludes: "**/*.{gen,g}.dart"
+      concurrency: 1
+      run_skipped: true
+      run_bloc_lint: false
+      # The CLI's own test suite is run directly rather than through the test optimizer,
+      # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
 
   pana:
