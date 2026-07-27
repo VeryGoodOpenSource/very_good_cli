@@ -179,6 +179,17 @@ test:
           config.packages.get.ignore,
           equals(['example', 'integration_test']),
         );
+
+        final licenses = config.packages.check.licenses;
+        expect(licenses.ignoreRetrievalFailures, isTrue);
+        expect(
+          licenses.dependencyType,
+          equals(['direct-main', 'direct-dev']),
+        );
+        expect(licenses.allowed, equals(['MIT', 'BSD-3-Clause']));
+        expect(licenses.forbidden, isNull);
+        expect(licenses.skipPackages, equals(['very_good_analysis']));
+        expect(licenses.reporter, equals('csv'));
       });
 
       test('parses single ignore entry as a list', () {
@@ -231,6 +242,83 @@ packages:
       test('throws when packages.get.ignore has wrong type', () {
         expect(
           () => VeryGoodConfig.fromString('packages:\n  get:\n    ignore: 42'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.check section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  check: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages.check key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString(
+            'packages:\n  check:\n    unknown: true',
+          ),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test(
+        'throws when an unrecognized packages.check.licenses key is present',
+        () {
+          expect(
+            () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      unknown: true
+'''),
+            throwsA(isA<VeryGoodConfigParseException>()),
+          );
+        },
+      );
+
+      test('parses single allowed entry as a list', () {
+        final config = VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      allowed: MIT
+''');
+        expect(config.packages.check.licenses.allowed, equals(['MIT']));
+      });
+
+      test('throws when dependency_type is not a valid value', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      dependency_type: everything
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when reporter is not a valid value', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      reporter: json
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when ignore_retrieval_failures has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      ignore_retrieval_failures: maybe
+'''),
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
@@ -473,6 +561,50 @@ test:
       expect(
         VeryGoodPackagesGetConfig(recursive: true),
         isNot(equals(VeryGoodPackagesGetConfig(recursive: false))),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesCheckConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesCheckConfig(),
+        equals(VeryGoodPackagesCheckConfig()),
+      );
+      expect(
+        VeryGoodPackagesCheckConfig(
+          licenses: VeryGoodPackagesCheckLicensesConfig(reporter: 'csv'),
+        ),
+        isNot(equals(VeryGoodPackagesCheckConfig())),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesCheckLicensesConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesCheckLicensesConfig(
+          ignoreRetrievalFailures: true,
+          dependencyType: ['direct-main'],
+          allowed: ['MIT'],
+          forbidden: ['BSD'],
+          skipPackages: ['a'],
+          reporter: 'csv',
+        ),
+        equals(
+          VeryGoodPackagesCheckLicensesConfig(
+            ignoreRetrievalFailures: true,
+            dependencyType: ['direct-main'],
+            allowed: ['MIT'],
+            forbidden: ['BSD'],
+            skipPackages: ['a'],
+            reporter: 'csv',
+          ),
+        ),
+      );
+      expect(
+        VeryGoodPackagesCheckLicensesConfig(reporter: 'csv'),
+        isNot(equals(VeryGoodPackagesCheckLicensesConfig(reporter: 'text'))),
       );
     });
   });

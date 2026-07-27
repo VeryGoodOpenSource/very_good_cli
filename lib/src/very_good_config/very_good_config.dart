@@ -7,7 +7,7 @@
 library;
 
 import 'dart:io';
-
+import 'package:args/args.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -17,6 +17,27 @@ part 'very_good_config.g.dart';
 
 /// The default name of the Very Good CLI configuration file.
 const veryGoodConfigFileName = 'very_good.yaml';
+
+/// Resolves the value for the argument named [name] against a `very_good.yaml`
+/// configuration value.
+///
+/// Resolution follows a fixed precedence, from highest to lowest:
+///
+/// 1. A command line argument that was explicitly parsed.
+/// 2. [configValue], the corresponding value from the configuration file.
+/// 3. [fallbackValue], used when neither the command line nor the configuration
+///    provide a value (typically the argument's command line default).
+T resolveArg<T>(
+  ArgResults argResults,
+  String name,
+  T? configValue, {
+  T? fallbackValue,
+}) {
+  final value = configValue != null && !argResults.wasParsed(name)
+      ? configValue
+      : argResults[name] as T?;
+  return (value ?? fallbackValue) as T;
+}
 
 /// {@template very_good_config_parse_exception}
 /// Thrown when a [VeryGoodConfig] fails to parse.
@@ -275,7 +296,10 @@ class VeryGoodTestConfig extends Equatable {
 )
 class VeryGoodPackagesConfig extends Equatable {
   /// {@macro very_good_packages_config}
-  const VeryGoodPackagesConfig({this.get = const VeryGoodPackagesGetConfig()});
+  const VeryGoodPackagesConfig({
+    this.get = const VeryGoodPackagesGetConfig(),
+    this.check = const VeryGoodPackagesCheckConfig(),
+  });
 
   /// Creates a [VeryGoodPackagesConfig] from a decoded YAML/JSON [json] map.
   factory VeryGoodPackagesConfig.fromJson(Map<dynamic, dynamic> json) {
@@ -285,8 +309,11 @@ class VeryGoodPackagesConfig extends Equatable {
   /// Configuration values for the `very_good packages get` command.
   final VeryGoodPackagesGetConfig get;
 
+  /// Configuration values for the `very_good packages check` command.
+  final VeryGoodPackagesCheckConfig check;
+
   @override
-  List<Object?> get props => [get];
+  List<Object?> get props => [get, check];
 }
 
 /// {@template very_good_packages_get_config}
@@ -320,6 +347,102 @@ class VeryGoodPackagesGetConfig extends Equatable {
 
   @override
   List<Object?> get props => [recursive, ignore];
+}
+
+/// {@template very_good_packages_check_config}
+/// Configuration values that customize the defaults of the
+/// `very_good packages check` command.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodPackagesCheckConfig extends Equatable {
+  /// {@macro very_good_packages_check_config}
+  const VeryGoodPackagesCheckConfig({
+    this.licenses = const VeryGoodPackagesCheckLicensesConfig(),
+  });
+
+  /// Creates a [VeryGoodPackagesCheckConfig] from a decoded YAML/JSON [json]
+  /// map.
+  factory VeryGoodPackagesCheckConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodPackagesCheckConfigFromJson(json);
+  }
+
+  /// Configuration values for the `very_good packages check licenses` command.
+  final VeryGoodPackagesCheckLicensesConfig licenses;
+
+  @override
+  List<Object?> get props => [licenses];
+}
+
+/// {@template very_good_packages_check_licenses_config}
+/// Configuration values that customize the defaults of the
+/// `very_good packages check licenses` command.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodPackagesCheckLicensesConfig extends Equatable {
+  /// {@macro very_good_packages_check_licenses_config}
+  const VeryGoodPackagesCheckLicensesConfig({
+    this.ignoreRetrievalFailures,
+    this.dependencyType,
+    this.allowed,
+    this.forbidden,
+    this.skipPackages,
+    this.reporter,
+  });
+
+  /// Creates a [VeryGoodPackagesCheckLicensesConfig] from a decoded YAML/JSON
+  /// [json] map.
+  factory VeryGoodPackagesCheckLicensesConfig.fromJson(
+    Map<dynamic, dynamic> json,
+  ) {
+    return _$VeryGoodPackagesCheckLicensesConfigFromJson(json);
+  }
+
+  /// Whether to disregard licenses that failed to be retrieved.
+  final bool? ignoreRetrievalFailures;
+
+  /// The type of dependencies to check licenses for.
+  @JsonKey(fromJson: _dependencyType)
+  final List<String>? dependencyType;
+
+  /// Only allow the use of certain licenses.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? allowed;
+
+  /// Deny the use of certain licenses.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? forbidden;
+
+  /// Packages to skip from having their licenses checked.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? skipPackages;
+
+  /// The format used to list all licenses.
+  @JsonKey(fromJson: _reporter)
+  final String? reporter;
+
+  @override
+  List<Object?> get props => [
+    ignoreRetrievalFailures,
+    dependencyType,
+    allowed,
+    forbidden,
+    skipPackages,
+    reporter,
+  ];
 }
 
 // The coercers below intentionally validate more strictly than the CLI flag
@@ -386,6 +509,41 @@ String? _collectCoverageFrom(Object? value) {
   if (value == null) return null;
   if (value != 'imports' && value != 'all') {
     throw FormatException('Expected `imports` or `all` but got `$value`.');
+  }
+  return value as String;
+}
+
+/// The dependency types accepted by `very_good packages check licenses`.
+const _dependencyTypes = [
+  'direct-main',
+  'direct-dev',
+  'direct-overridden',
+  'transitive',
+];
+
+/// Validates and returns the `dependency_type` value.
+///
+/// Accepts only the values allowed by the CLI option.
+List<String>? _dependencyType(Object? value) {
+  final values = _stringList(value);
+  if (values == null) return null;
+  for (final value in values) {
+    if (!_dependencyTypes.contains(value)) {
+      throw FormatException(
+        'Expected one of ${_dependencyTypes.join(', ')} but got `$value`.',
+      );
+    }
+  }
+  return values;
+}
+
+/// Validates and returns the `reporter` value.
+///
+/// Accepts only `text` or `csv`.
+String? _reporter(Object? value) {
+  if (value == null) return null;
+  if (value != 'text' && value != 'csv') {
+    throw FormatException('Expected `text` or `csv` but got `$value`.');
   }
   return value as String;
 }

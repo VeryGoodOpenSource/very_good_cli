@@ -4,3 +4,15 @@ packages:
     ignore:
       - example
       - integration_test
+  check:
+    licenses:
+      ignore_retrieval_failures: true
+      dependency_type:
+        - direct-main
+        - direct-dev
+      allowed:
+        - MIT
+        - BSD-3-Clause
+      skip_packages:
+        - very_good_analysis
+      reporter: csv

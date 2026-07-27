@@ -101,13 +101,19 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
 
 VeryGoodPackagesConfig _$VeryGoodPackagesConfigFromJson(Map json) =>
     $checkedCreate('VeryGoodPackagesConfig', json, ($checkedConvert) {
-      $checkKeys(json, allowedKeys: const ['get']);
+      $checkKeys(json, allowedKeys: const ['get', 'check']);
       final val = VeryGoodPackagesConfig(
         get: $checkedConvert(
           'get',
           (v) => v == null
               ? const VeryGoodPackagesGetConfig()
               : VeryGoodPackagesGetConfig.fromJson(v as Map),
+        ),
+        check: $checkedConvert(
+          'check',
+          (v) => v == null
+              ? const VeryGoodPackagesCheckConfig()
+              : VeryGoodPackagesCheckConfig.fromJson(v as Map),
         ),
       );
       return val;
@@ -122,3 +128,56 @@ VeryGoodPackagesGetConfig _$VeryGoodPackagesGetConfigFromJson(Map json) =>
       );
       return val;
     });
+
+VeryGoodPackagesCheckConfig _$VeryGoodPackagesCheckConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodPackagesCheckConfig', json, ($checkedConvert) {
+      $checkKeys(json, allowedKeys: const ['licenses']);
+      final val = VeryGoodPackagesCheckConfig(
+        licenses: $checkedConvert(
+          'licenses',
+          (v) => v == null
+              ? const VeryGoodPackagesCheckLicensesConfig()
+              : VeryGoodPackagesCheckLicensesConfig.fromJson(v as Map),
+        ),
+      );
+      return val;
+    });
+
+VeryGoodPackagesCheckLicensesConfig
+_$VeryGoodPackagesCheckLicensesConfigFromJson(Map json) => $checkedCreate(
+  'VeryGoodPackagesCheckLicensesConfig',
+  json,
+  ($checkedConvert) {
+    $checkKeys(
+      json,
+      allowedKeys: const [
+        'ignore_retrieval_failures',
+        'dependency_type',
+        'allowed',
+        'forbidden',
+        'skip_packages',
+        'reporter',
+      ],
+    );
+    final val = VeryGoodPackagesCheckLicensesConfig(
+      ignoreRetrievalFailures: $checkedConvert(
+        'ignore_retrieval_failures',
+        (v) => v as bool?,
+      ),
+      dependencyType: $checkedConvert(
+        'dependency_type',
+        (v) => _dependencyType(v),
+      ),
+      allowed: $checkedConvert('allowed', (v) => _stringList(v)),
+      forbidden: $checkedConvert('forbidden', (v) => _stringList(v)),
+      skipPackages: $checkedConvert('skip_packages', (v) => _stringList(v)),
+      reporter: $checkedConvert('reporter', (v) => _reporter(v)),
+    );
+    return val;
+  },
+  fieldKeyMap: const {
+    'ignoreRetrievalFailures': 'ignore_retrieval_failures',
+    'dependencyType': 'dependency_type',
+    'skipPackages': 'skip_packages',
+  },
+);

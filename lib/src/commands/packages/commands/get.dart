@@ -21,18 +21,21 @@ class PackagesGetOptions {
   }) {
     final getConfig = config.packages.get;
 
-    final recursive = _resolveArg(
+    final recursive = resolveArg(
       argResults,
       'recursive',
       getConfig.recursive,
     );
-    final ignore = _resolveArg<List<String>>(
+    final ignore = resolveArg<List<String>>(
       argResults,
       'ignore',
       getConfig.ignore,
     );
 
-    return PackagesGetOptions._(recursive: recursive, ignore: ignore.toSet());
+    return PackagesGetOptions._(
+      recursive: recursive,
+      ignore: ignore.toSet(),
+    );
   }
 
   /// Whether to install dependencies recursively for all nested packages.
@@ -40,27 +43,6 @@ class PackagesGetOptions {
 
   /// Packages to exclude from installing dependencies.
   final Set<String> ignore;
-}
-
-/// Resolves the value for the argument named [name] against a `very_good.yaml`
-/// configuration value.
-///
-/// Resolution follows a fixed precedence, from highest to lowest:
-///
-/// 1. A command line argument that was explicitly parsed.
-/// 2. [configValue], the corresponding value from the configuration file.
-/// 3. [fallbackValue], used when neither the command line nor the configuration
-///    provide a value (typically the argument's command line default).
-T _resolveArg<T>(
-  ArgResults argResults,
-  String name,
-  T? configValue, {
-  T? fallbackValue,
-}) {
-  final value = configValue != null && !argResults.wasParsed(name)
-      ? configValue
-      : argResults[name] as T?;
-  return (value ?? fallbackValue) as T;
 }
 
 /// {@template packages_get_command}
