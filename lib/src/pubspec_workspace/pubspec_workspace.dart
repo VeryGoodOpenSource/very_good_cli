@@ -147,8 +147,10 @@ Iterable<Directory> _expandMembers(
     // On Unix, globbing into a path whose intermediate segment is a file
     // throws (ENOTDIR); on Windows glob swallows it internally, so this catch
     // is unreachable there and cannot be covered on both platforms.
+    // coverage:ignore-start
   } on FileSystemException {
-    matches = const []; // coverage:ignore-line
+    matches = const [];
+    // coverage:ignore-end
   }
 
   final directories = matches.whereType<Directory>().toList();
