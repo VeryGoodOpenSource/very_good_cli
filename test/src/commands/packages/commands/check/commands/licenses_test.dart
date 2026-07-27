@@ -6,6 +6,7 @@
 
 import 'dart:io';
 
+import 'package:args/args.dart';
 import 'package:collection/collection.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:mocktail/mocktail.dart';
@@ -14,8 +15,11 @@ import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../../../../helpers/helpers.dart';
+
+class _MockArgResults extends Mock implements ArgResults {}
 
 class _MockProgress extends Mock implements Progress {}
 
@@ -1751,6 +1755,237 @@ and limitations under the License.''');
           verify(() => progress.cancel()).called(1);
 
           expect(result, equals(ExitCode.noInput.code));
+        }),
+      );
+    });
+
+    group('very_good.yaml configuration', () {
+      ArgResults emptyArgResults() {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when<dynamic>(
+          () => argResults['ignore-retrieval-failures'],
+        ).thenReturn(false);
+        when<dynamic>(
+          () => argResults['dependency-type'],
+        ).thenReturn(<String>['direct-main']);
+        when<dynamic>(() => argResults['allowed']).thenReturn(<String>[]);
+        when<dynamic>(() => argResults['forbidden']).thenReturn(<String>[]);
+        when<dynamic>(() => argResults['skip-packages']).thenReturn(<String>[]);
+        when<dynamic>(() => argResults['reporter']).thenReturn(null);
+        return argResults;
+      }
+
+      test(
+        'fails with exit code ${ExitCode.config.code} '
+        'when very_good.yaml is malformed',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        }),
+      );
+
+      test('applies config values when args were not parsed', () {
+        final options = PackagesCheckLicensesOptions.parse(
+          emptyArgResults(),
+          config: const VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              check: VeryGoodPackagesCheckConfig(
+                licenses: VeryGoodPackagesCheckLicensesConfig(
+                  ignoreRetrievalFailures: true,
+                  dependencyType: ['direct-dev'],
+                  allowed: ['MIT', ' '],
+                  skipPackages: ['yaml'],
+                  reporter: 'csv',
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.ignoreRetrievalFailures, isTrue);
+        expect(options.dependencyTypes, equals({'direct-dev'}));
+        expect(options.allowedLicenses, equals(['MIT']));
+        expect(options.forbiddenLicenses, isEmpty);
+        expect(options.skippedPackages, equals({'yaml'}));
+        expect(options.reporterOutputFormat, equals(ReporterOutputFormat.csv));
+      });
+
+      test('CLI arguments take precedence over config values', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+        when<dynamic>(
+          () => argResults['ignore-retrieval-failures'],
+        ).thenReturn(false);
+        when<dynamic>(
+          () => argResults['dependency-type'],
+        ).thenReturn(<String>['transitive']);
+        when<dynamic>(() => argResults['allowed']).thenReturn(<String>[]);
+        when<dynamic>(
+          () => argResults['forbidden'],
+        ).thenReturn(<String>['BSD']);
+        when<dynamic>(
+          () => argResults['skip-packages'],
+        ).thenReturn(<String>['path']);
+        when<dynamic>(() => argResults['reporter']).thenReturn('text');
+
+        final options = PackagesCheckLicensesOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              check: VeryGoodPackagesCheckConfig(
+                licenses: VeryGoodPackagesCheckLicensesConfig(
+                  ignoreRetrievalFailures: true,
+                  dependencyType: ['direct-dev'],
+                  forbidden: ['MIT'],
+                  skipPackages: ['yaml'],
+                  reporter: 'csv',
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.ignoreRetrievalFailures, isFalse);
+        expect(options.dependencyTypes, equals({'transitive'}));
+        expect(options.forbiddenLicenses, equals(['BSD']));
+        expect(options.skippedPackages, equals({'path'}));
+        expect(options.reporterOutputFormat, equals(ReporterOutputFormat.text));
+      });
+
+      test('falls back to CLI defaults when neither is set', () {
+        final options = PackagesCheckLicensesOptions.parse(emptyArgResults());
+
+        expect(options.ignoreRetrievalFailures, isFalse);
+        expect(options.dependencyTypes, equals({'direct-main'}));
+        expect(options.allowedLicenses, isEmpty);
+        expect(options.forbiddenLicenses, isEmpty);
+        expect(options.skippedPackages, isEmpty);
+        expect(options.reporterOutputFormat, isNull);
+      });
+
+      test(
+        'applies allowed value from config',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('''
+packages:
+  check:
+    licenses:
+      allowed:
+        - BSD
+''');
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+          when(
+            () => packageConfig.packages,
+          ).thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          const bannedDependencyName = 'very_good_test_runner';
+          final bannedDependencyLinkedMessage = link(
+            uri: pubLicenseUri(bannedDependencyName),
+            message: 'MIT',
+          );
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+
+          verify(
+            () => logger.err(
+              '''1 dependency has a banned license: $bannedDependencyName ($bannedDependencyLinkedMessage).''',
+            ),
+          ).called(1);
+          expect(result, equals(ExitCode.config.code));
+        }),
+      );
+
+      test(
+        'applies skip_packages and reporter values from config',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('''
+packages:
+  check:
+    licenses:
+      skip_packages: cli_completion
+      reporter: csv
+''');
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validMultiplePubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+          when(() => packageConfig.packages).thenReturn({
+            veryGoodTestRunnerConfigPackage,
+            cliCompletionConfigPackage,
+          });
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).\nvery_good_test_runner,MIT\n''',
+            ),
+          ).called(1);
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'applies dependency_type value from config',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('''
+packages:
+  check:
+    licenses:
+      dependency_type: transitive
+''');
+          File(
+            path.join(tempDirectory.path, pubspecLockBasename),
+          ).writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+          when(() => packageConfig.packages).thenReturn({yamlConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+          expect(result, equals(ExitCode.success.code));
         }),
       );
     });
