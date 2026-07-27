@@ -42,40 +42,30 @@ class DartTestOptions {
   }) {
     final testConfig = config.dart.test;
 
-    final concurrency = _resolveArg(
-      argResults,
+    final concurrency = argResults.resolve(
       'concurrency',
       testConfig.concurrency,
     );
-    final collectCoverage = _resolveArg(
-      argResults,
-      'coverage',
-      testConfig.coverage,
-    );
-    final minCoverageString = _resolveArg<String?>(
-      argResults,
+    final collectCoverage = argResults.resolve('coverage', testConfig.coverage);
+    final minCoverageString = argResults.resolve<String?>(
       'min-coverage',
       testConfig.minCoverage,
     );
     final minCoverage = double.tryParse(minCoverageString ?? '');
-    final showUncovered = _resolveArg(
-      argResults,
+    final showUncovered = argResults.resolve(
       'show-uncovered',
       testConfig.showUncovered,
     );
-    final excludeTags = _resolveArg<String?>(
-      argResults,
+    final excludeTags = argResults.resolve<String?>(
       'exclude-tags',
       testConfig.excludeTags,
     );
-    final tags = _resolveArg<String?>(argResults, 'tags', testConfig.tags);
-    final excludeFromCoverage = _resolveArg<String?>(
-      argResults,
+    final tags = argResults.resolve<String?>('tags', testConfig.tags);
+    final excludeFromCoverage = argResults.resolve<String?>(
       'exclude-coverage',
       testConfig.excludeCoverage,
     );
-    final collectCoverageFromString = _resolveArg<String>(
-      argResults,
+    final collectCoverageFromString = argResults.resolve<String>(
       'collect-coverage-from',
       testConfig.collectCoverageFrom,
       fallbackValue: 'imports',
@@ -88,43 +78,30 @@ class DartTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = _resolveArg(
-      argResults,
+    final optimizePerformance = argResults.resolve(
       'optimization',
       testConfig.optimization,
     );
-    final failFast = _resolveArg(
-      argResults,
-      'fail-fast',
-      testConfig.failFast,
-    );
+    final failFast = argResults.resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final platform = _resolveArg<String?>(
-      argResults,
+    final platform = argResults.resolve<String?>(
       'platform',
       testConfig.platform,
     );
-    final reportOn = _resolveArg<List<String>>(
-      argResults,
-      'report-on',
-      testConfig.reportOn,
-    );
-    final effectiveReportOn = reportOn
+    final reportOn = argResults
+        .resolve<List<String>>('report-on', testConfig.reportOn)
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = _resolveArg(
-      argResults,
+    final runSkipped = argResults.resolve(
       'run-skipped',
       testConfig.runSkipped,
     );
-    final checkIgnore = _resolveArg(
-      argResults,
+    final checkIgnore = argResults.resolve(
       'check-ignore',
       testConfig.checkIgnore,
     );
-    final fileReporter = _resolveArg<String?>(
-      argResults,
+    final fileReporter = argResults.resolve<String?>(
       'file-reporter',
       testConfig.fileReporter,
     );
@@ -144,7 +121,7 @@ class DartTestOptions {
       failFast: failFast,
       forceAnsi: forceAnsi,
       platform: platform,
-      reportOn: effectiveReportOn,
+      reportOn: reportOn,
       runSkipped: runSkipped,
       checkIgnore: checkIgnore,
       fileReporter: fileReporter,
@@ -207,27 +184,6 @@ class DartTestOptions {
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
-}
-
-/// Resolves the value for the argument named [name] against a `very_good.yaml`
-/// configuration value.
-///
-/// Resolution follows a fixed precedence, from highest to lowest:
-///
-/// 1. A command line argument that was explicitly parsed.
-/// 2. [configValue], the corresponding value from the configuration file.
-/// 3. [fallbackValue], used when neither the command line nor the configuration
-///    provide a value (typically the argument's command line default).
-T _resolveArg<T>(
-  ArgResults argResults,
-  String name,
-  T? configValue, {
-  T? fallbackValue,
-}) {
-  final value = configValue != null && !argResults.wasParsed(name)
-      ? configValue
-      : argResults[name] as T?;
-  return (value ?? fallbackValue) as T;
 }
 
 /// Signature for the [Dart.installed] method.

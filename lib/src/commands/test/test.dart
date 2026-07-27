@@ -46,40 +46,33 @@ class FlutterTestOptions {
   }) {
     final testConfig = config.test;
 
-    final concurrency = _resolveArg(
-      argResults,
+    final concurrency = argResults.resolve(
       'concurrency',
       testConfig.concurrency,
     );
-    final collectCoverage = _resolveArg(
-      argResults,
+    final collectCoverage = argResults.resolve(
       'coverage',
       testConfig.coverage,
     );
-    final minCoverage = _resolveArg<String?>(
-      argResults,
+    final minCoverage = argResults.resolve<String?>(
       'min-coverage',
       testConfig.minCoverage,
     );
     final effectiveMinCoverage = double.tryParse(minCoverage ?? '');
-    final showUncovered = _resolveArg(
-      argResults,
+    final showUncovered = argResults.resolve(
       'show-uncovered',
       testConfig.showUncovered,
     );
-    final excludeTags = _resolveArg<String?>(
-      argResults,
+    final excludeTags = argResults.resolve<String?>(
       'exclude-tags',
       testConfig.excludeTags,
     );
-    final tags = _resolveArg<String?>(argResults, 'tags', testConfig.tags);
-    final excludeFromCoverage = _resolveArg<String?>(
-      argResults,
+    final tags = argResults.resolve<String?>('tags', testConfig.tags);
+    final excludeFromCoverage = argResults.resolve<String?>(
       'exclude-coverage',
       testConfig.excludeCoverage,
     );
-    final collectCoverageFrom = _resolveArg<String>(
-      argResults,
+    final collectCoverageFrom = argResults.resolve<String>(
       'collect-coverage-from',
       testConfig.collectCoverageFrom,
       fallbackValue: 'imports',
@@ -92,39 +85,32 @@ class FlutterTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = _resolveArg(
-      argResults,
+    final optimizePerformance = argResults.resolve(
       'optimization',
       testConfig.optimization,
     );
-    final updateGoldens = _resolveArg(
-      argResults,
+    final updateGoldens = argResults.resolve(
       'update-goldens',
       testConfig.updateGoldens,
     );
-    final failFast = _resolveArg(
-      argResults,
+    final failFast = argResults.resolve(
       'fail-fast',
       testConfig.failFast,
     );
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = _resolveArg<List<String>?>(
-      argResults,
+    final dartDefine = argResults.resolve<List<String>?>(
       'dart-define',
       testConfig.dartDefine,
     );
-    final dartDefineFromFile = _resolveArg<List<String>?>(
-      argResults,
+    final dartDefineFromFile = argResults.resolve<List<String>?>(
       'dart-define-from-file',
       testConfig.dartDefineFromFile,
     );
-    final platform = _resolveArg<String?>(
-      argResults,
+    final platform = argResults.resolve<String?>(
       'platform',
       testConfig.platform,
     );
-    final reportOn = _resolveArg<List<String>>(
-      argResults,
+    final reportOn = argResults.resolve<List<String>>(
       'report-on',
       testConfig.reportOn,
     );
@@ -133,18 +119,15 @@ class FlutterTestOptions {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final runSkipped = _resolveArg(
-      argResults,
+    final runSkipped = argResults.resolve(
       'run-skipped',
       testConfig.runSkipped,
     );
-    final flavor = _resolveArg<String?>(
-      argResults,
+    final flavor = argResults.resolve<String?>(
       'flavor',
       testConfig.flavor,
     );
-    final timeout = _resolveArg<String?>(
-      argResults,
+    final timeout = argResults.resolve<String?>(
       'timeout',
       testConfig.timeout,
     );
@@ -152,8 +135,7 @@ class FlutterTestOptions {
     final effectiveTimeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
-    final fileReporter = _resolveArg<String?>(
-      argResults,
+    final fileReporter = argResults.resolve<String?>(
       'file-reporter',
       testConfig.fileReporter,
     );
@@ -253,27 +235,6 @@ class FlutterTestOptions {
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
-}
-
-/// Resolves the value for the argument named [name] against a `very_good.yaml`
-/// configuration value.
-///
-/// Resolution follows a fixed precedence, from highest to lowest:
-///
-/// 1. A command line argument that was explicitly parsed.
-/// 2. [configValue], the corresponding value from the configuration file.
-/// 3. [fallbackValue], used when neither the command line nor the configuration
-///    provide a value (typically the argument's command line default).
-T _resolveArg<T>(
-  ArgResults argResults,
-  String name,
-  T? configValue, {
-  T? fallbackValue,
-}) {
-  final value = configValue != null && !argResults.wasParsed(name)
-      ? configValue
-      : argResults[name] as T?;
-  return (value ?? fallbackValue) as T;
 }
 
 /// Signature for the [Flutter.installed] method.

@@ -7,7 +7,7 @@
 library;
 
 import 'dart:io';
-
+import 'package:args/args.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -401,10 +401,26 @@ class VeryGoodDartTestConfig extends Equatable {
   ];
 }
 
-// The coercers below intentionally validate more strictly than the CLI flag
-// parser. A value such as `min_coverage: 150` is rejected here at config load
-// time even though `--min-coverage 150` is accepted by the flag parser, so
-// misconfigured `very_good.yaml` files fail fast with a clear message.
+/// Extension that resolves argument values against `very_good.yaml`
+/// configuration values.
+extension ArgResultsResolver on ArgResults {
+  /// Resolves the value for the argument named [name] against a
+  /// `very_good.yaml` configuration value.
+  ///
+  /// Resolution follows a fixed precedence, from highest to lowest:
+  ///
+  /// 1. A command line argument that was explicitly parsed.
+  /// 2. [configValue], the corresponding value from the configuration file.
+  /// 3. [fallbackValue], used when neither the command line nor the
+  ///    configuration provide a value (typically the argument's command line
+  ///    default).
+  T resolve<T>(String name, T? configValue, {T? fallbackValue}) {
+    final value = configValue != null && !wasParsed(name)
+        ? configValue
+        : this[name] as T?;
+    return (value ?? fallbackValue) as T;
+  }
+}
 
 /// Coerces a `num` or `String` value into a `String`.
 ///
