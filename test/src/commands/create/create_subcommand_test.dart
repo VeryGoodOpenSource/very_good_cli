@@ -1067,8 +1067,8 @@ Run "runner help" to see global options.''';
           final cwd = Directory.current;
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() {
-            tempDirectory.deleteSync(recursive: true);
             Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
           });
 
           File(
