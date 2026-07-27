@@ -21,6 +21,7 @@ import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Overrides the [package_config.findPackageConfig] function for testing.
 @visibleForTesting
@@ -64,6 +65,87 @@ typedef _DependencyLicenseMap = Map<String, Set<String>?>;
 /// Defines a [Map] with banned dependencies as keys and their banned licenses
 /// as values.
 typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
+
+/// Options for configuring the `very_good packages check licenses` command.
+class PackagesCheckLicensesOptions {
+  PackagesCheckLicensesOptions._({
+    required this.ignoreRetrievalFailures,
+    required this.dependencyTypes,
+    required this.allowedLicenses,
+    required this.forbiddenLicenses,
+    required this.skippedPackages,
+    required this.reporterOutputFormat,
+  });
+
+  /// Parses [ArgResults] into a [PackagesCheckLicensesOptions] instance.
+  ///
+  /// When [config] is provided, its values are used as defaults for any
+  /// option that was not explicitly parsed on the command line.
+  factory PackagesCheckLicensesOptions.parse(
+    ArgResults argResults, {
+    VeryGoodConfig config = VeryGoodConfig.empty,
+  }) {
+    final licensesConfig = config.packages.check.licenses;
+
+    final ignoreRetrievalFailures = resolveArg(
+      argResults,
+      'ignore-retrieval-failures',
+      licensesConfig.ignoreRetrievalFailures,
+    );
+    final dependencyTypes = resolveArg<List<String>>(
+      argResults,
+      'dependency-type',
+      licensesConfig.dependencyType,
+    );
+    final allowedLicenses = resolveArg<List<String>>(
+      argResults,
+      'allowed',
+      licensesConfig.allowed,
+    );
+    final forbiddenLicenses = resolveArg<List<String>>(
+      argResults,
+      'forbidden',
+      licensesConfig.forbidden,
+    );
+    final skippedPackages = resolveArg<List<String>>(
+      argResults,
+      'skip-packages',
+      licensesConfig.skipPackages,
+    );
+    final reporter = resolveArg<String?>(
+      argResults,
+      'reporter',
+      licensesConfig.reporter,
+    );
+
+    return PackagesCheckLicensesOptions._(
+      ignoreRetrievalFailures: ignoreRetrievalFailures,
+      dependencyTypes: dependencyTypes.toSet(),
+      allowedLicenses: allowedLicenses.withoutBlanks,
+      forbiddenLicenses: forbiddenLicenses.withoutBlanks,
+      skippedPackages: skippedPackages.toSet(),
+      reporterOutputFormat: ReporterOutputFormat.fromString(reporter),
+    );
+  }
+
+  /// Whether to disregard licenses that failed to be retrieved.
+  final bool ignoreRetrievalFailures;
+
+  /// The type of dependencies to check licenses for.
+  final Set<String> dependencyTypes;
+
+  /// The only licenses allowed to be used.
+  final List<String> allowedLicenses;
+
+  /// The licenses denied from being used.
+  final List<String> forbiddenLicenses;
+
+  /// Packages skipped from having their licenses checked.
+  final Set<String> skippedPackages;
+
+  /// The format used to list all licenses.
+  final ReporterOutputFormat? reporterOutputFormat;
+}
 
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
@@ -132,19 +214,27 @@ class PackagesCheckLicensesCommand extends Command<int> {
       usageException('Too many arguments');
     }
 
-    final ignoreFailures = _argResults['ignore-retrieval-failures'] as bool;
-    final dependencyTypes = _argResults['dependency-type'] as List<String>;
-    final allowedLicenses = _argResults['allowed'] as List<String>;
-    final forbiddenLicenses = _argResults['forbidden'] as List<String>;
-    final skippedPackages = _argResults['skip-packages'] as List<String>;
-    final reporterOutput = _argResults['reporter'] as String?;
+    final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
+    final targetPath = path.normalize(Directory(target).absolute.path);
 
-    final reporterOutputFormat = ReporterOutputFormat.fromString(
-      reporterOutput,
+    final VeryGoodConfig config;
+    try {
+      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
+    } on VeryGoodConfigParseException catch (e) {
+      _logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n'
+        '${e.message}',
+      );
+      return ExitCode.config.code;
+    }
+
+    final options = PackagesCheckLicensesOptions.parse(
+      _argResults,
+      config: config,
     );
 
-    allowedLicenses.removeWhere((license) => license.trim().isEmpty);
-    forbiddenLicenses.removeWhere((license) => license.trim().isEmpty);
+    final allowedLicenses = options.allowedLicenses;
+    final forbiddenLicenses = options.forbiddenLicenses;
 
     if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
       usageException(
@@ -166,8 +256,6 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
     }
 
-    final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
-    final targetPath = path.normalize(Directory(target).absolute.path);
     final targetDirectory = Directory(targetPath);
     if (!targetDirectory.existsSync()) {
       _logger.err(
@@ -195,16 +283,16 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final filteredDependencies = pubspecLock.packages.where((dependency) {
       if (!dependency.isPubHosted) return false;
 
-      if (skippedPackages.contains(dependency.name)) return false;
+      if (options.skippedPackages.contains(dependency.name)) return false;
 
       final dependencyType = dependency.type;
-      return (dependencyTypes.contains('direct-main') &&
+      return (options.dependencyTypes.contains('direct-main') &&
               dependencyType == PubspecLockPackageDependencyType.directMain) ||
-          (dependencyTypes.contains('direct-dev') &&
+          (options.dependencyTypes.contains('direct-dev') &&
               dependencyType == PubspecLockPackageDependencyType.directDev) ||
-          (dependencyTypes.contains('transitive') &&
+          (options.dependencyTypes.contains('transitive') &&
               dependencyType == PubspecLockPackageDependencyType.transitive) ||
-          (dependencyTypes.contains('direct-overridden') &&
+          (options.dependencyTypes.contains('direct-overridden') &&
               dependencyType ==
                   PubspecLockPackageDependencyType.directOverridden);
     });
@@ -212,7 +300,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     if (filteredDependencies.isEmpty) {
       progress.cancel();
       _logger.info(
-        '''No hosted dependencies found in $targetPath of type: ${dependencyTypes.stringify()}.''',
+        '''No hosted dependencies found in $targetPath of type: ${options.dependencyTypes.stringify()}.''',
       );
       return ExitCode.success.code;
     }
@@ -240,7 +328,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       if (cachePackageEntry == null) {
         final errorMessage =
             '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
-        if (!ignoreFailures) {
+        if (!options.ignoreRetrievalFailures) {
           progress.cancel();
           _logger.err(errorMessage);
           return ExitCode.noInput.code;
@@ -256,7 +344,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       if (!packageDirectory.existsSync()) {
         final errorMessage =
             '''[$dependencyName] Could not find package directory at $packagePath.''';
-        if (!ignoreFailures) {
+        if (!options.ignoreRetrievalFailures) {
           progress.cancel();
           _logger.err(errorMessage);
           return ExitCode.noInput.code;
@@ -284,7 +372,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       } on Exception catch (e) {
         final errorMessage =
             '''[$dependencyName] Failed to detect license from $packagePath: $e''';
-        if (!ignoreFailures) {
+        if (!options.ignoreRetrievalFailures) {
           progress.cancel();
           _logger.err(errorMessage);
           return ExitCode.software.code;
@@ -326,7 +414,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       _composeReport(
         licenses: licenses,
         bannedDependencies: bannedDependencies,
-        reporterOutputFormat: reporterOutputFormat,
+        reporterOutputFormat: options.reporterOutputFormat,
       ),
     );
 
@@ -522,13 +610,18 @@ String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
   return '''${bannedDependencies.length} $prefix $suffix: ${bannedDependenciesList.stringify()}.''';
 }
 
-extension on List<Object> {
+extension on Iterable<Object> {
   String stringify() {
     if (isEmpty) return '';
     if (length == 1) return first.toString();
-    final last = removeLast();
-    return '${join(', ')} and $last';
+    return '${take(length - 1).join(', ')} and $last';
   }
+}
+
+extension on List<String> {
+  /// The licenses that are not blank.
+  List<String> get withoutBlanks =>
+      where((license) => license.trim().isNotEmpty).toList();
 }
 
 /// Format type for listing all licenses via --reporter option.

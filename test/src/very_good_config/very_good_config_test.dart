@@ -1,6 +1,7 @@
 // Ensures we don't have to use const constructors
 // and instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:io';
 
@@ -207,6 +208,167 @@ test:
         );
       });
 
+      test('parses all supported packages options', () {
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_packages_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
+
+        expect(config.packages.get.recursive, isTrue);
+        expect(
+          config.packages.get.ignore,
+          equals(['example', 'integration_test']),
+        );
+
+        final licenses = config.packages.check.licenses;
+        expect(licenses.ignoreRetrievalFailures, isTrue);
+        expect(
+          licenses.dependencyType,
+          equals(['direct-main', 'direct-dev']),
+        );
+        expect(licenses.allowed, equals(['MIT', 'BSD-3-Clause']));
+        expect(licenses.forbidden, isNull);
+        expect(licenses.skipPackages, equals(['very_good_analysis']));
+        expect(licenses.reporter, equals('csv'));
+      });
+
+      test('parses single ignore entry as a list', () {
+        final config = VeryGoodConfig.fromString('''
+packages:
+  get:
+    ignore: example
+''');
+        expect(config.packages.get.ignore, equals(['example']));
+      });
+
+      test('throws when packages section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  get: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages.get key is present', () {
+        expect(
+          () =>
+              VeryGoodConfig.fromString('packages:\n  get:\n    unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get.recursive has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString(
+            'packages:\n  get:\n    recursive: maybe',
+          ),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get.ignore has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  get:\n    ignore: 42'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.check section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  check: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages.check key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString(
+            'packages:\n  check:\n    unknown: true',
+          ),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test(
+        'throws when an unrecognized packages.check.licenses key is present',
+        () {
+          expect(
+            () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      unknown: true
+'''),
+            throwsA(isA<VeryGoodConfigParseException>()),
+          );
+        },
+      );
+
+      test('parses single allowed entry as a list', () {
+        final config = VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      allowed: MIT
+''');
+        expect(config.packages.check.licenses.allowed, equals(['MIT']));
+      });
+
+      test('throws when dependency_type is not a valid value', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      dependency_type: everything
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when reporter is not a valid value', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      reporter: json
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when ignore_retrieval_failures has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+packages:
+  check:
+    licenses:
+      ignore_retrieval_failures: maybe
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
       test('throws when an unrecognized root key is present', () {
         expect(
           () => VeryGoodConfig.fromString('unknown: true'),
@@ -371,6 +533,36 @@ test:
           ),
         ),
       );
+      expect(
+        VeryGoodConfig(
+          packages: VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+        equals(
+          VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(recursive: true),
+            ),
+          ),
+        ),
+      );
+      expect(
+        VeryGoodConfig(
+          packages: VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+        isNot(
+          equals(
+            VeryGoodConfig(
+              packages: VeryGoodPackagesConfig(
+                get: VeryGoodPackagesGetConfig(recursive: false),
+              ),
+            ),
+          ),
+        ),
+      );
     });
   });
 
@@ -398,6 +590,94 @@ test:
       expect(
         VeryGoodCreateConfig(publishable: true),
         isNot(equals(VeryGoodCreateConfig(publishable: false))),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesConfig(),
+        equals(VeryGoodPackagesConfig()),
+      );
+      expect(
+        VeryGoodPackagesConfig(
+          get: VeryGoodPackagesGetConfig(recursive: true),
+        ),
+        equals(
+          VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+      );
+      expect(
+        VeryGoodPackagesConfig(
+          get: VeryGoodPackagesGetConfig(recursive: true),
+        ),
+        isNot(
+          equals(
+            VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(recursive: false),
+            ),
+          ),
+        ),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesGetConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesGetConfig(recursive: true, ignore: ['a']),
+        equals(VeryGoodPackagesGetConfig(recursive: true, ignore: ['a'])),
+      );
+      expect(
+        VeryGoodPackagesGetConfig(recursive: true),
+        isNot(equals(VeryGoodPackagesGetConfig(recursive: false))),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesCheckConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesCheckConfig(),
+        equals(VeryGoodPackagesCheckConfig()),
+      );
+      expect(
+        VeryGoodPackagesCheckConfig(
+          licenses: VeryGoodPackagesCheckLicensesConfig(reporter: 'csv'),
+        ),
+        isNot(equals(VeryGoodPackagesCheckConfig())),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesCheckLicensesConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesCheckLicensesConfig(
+          ignoreRetrievalFailures: true,
+          dependencyType: ['direct-main'],
+          allowed: ['MIT'],
+          forbidden: ['BSD'],
+          skipPackages: ['a'],
+          reporter: 'csv',
+        ),
+        equals(
+          VeryGoodPackagesCheckLicensesConfig(
+            ignoreRetrievalFailures: true,
+            dependencyType: ['direct-main'],
+            allowed: ['MIT'],
+            forbidden: ['BSD'],
+            skipPackages: ['a'],
+            reporter: 'csv',
+          ),
+        ),
+      );
+      expect(
+        VeryGoodPackagesCheckLicensesConfig(reporter: 'csv'),
+        isNot(equals(VeryGoodPackagesCheckLicensesConfig(reporter: 'text'))),
       );
     });
   });

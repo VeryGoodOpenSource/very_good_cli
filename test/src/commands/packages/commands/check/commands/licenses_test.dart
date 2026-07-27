@@ -1754,6 +1754,29 @@ and limitations under the License.''');
         }),
       );
     });
+
+    group('very_good.yaml configuration', () {
+      test(
+        'fails with exit code ${ExitCode.config.code} '
+        'when very_good.yaml is malformed',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        }),
+      );
+    });
   });
 }
 

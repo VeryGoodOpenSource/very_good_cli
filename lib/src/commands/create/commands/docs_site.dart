@@ -1,5 +1,6 @@
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// {@template very_good_create_docs_site}
 /// A [CreateSubCommand] for creating Dart command line interfaces.
@@ -30,9 +31,12 @@ class CreateDocsSite extends CreateSubCommand with Publishable {
   Map<String, dynamic> getTemplateVars() {
     return <String, dynamic>{
       ...super.getTemplateVars(),
-      'org_name':
-          resolveArg<String>('org-name', createConfig.orgName) ??
-          _defaultOrgName,
+      'org_name': resolveArg<String>(
+        argResults,
+        'org-name',
+        createConfig.orgName,
+        fallbackValue: _defaultOrgName,
+      ),
     };
   }
 

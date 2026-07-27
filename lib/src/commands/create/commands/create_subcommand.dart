@@ -169,20 +169,13 @@ abstract class CreateSubCommand extends Command<int> {
     return name;
   }
 
-  /// Resolves the value for the argument named [name] against the matching
-  /// `very_good.yaml` [configValue].
-  ///
-  /// A command line argument that was explicitly parsed always wins. Otherwise
-  /// the [configValue] is used when present, falling back to the argument's
-  /// default value.
-  T? resolveArg<T>(String name, T? configValue) {
-    if (argResults.wasParsed(name)) return argResults[name] as T?;
-    return configValue ?? argResults[name] as T?;
-  }
-
   /// Gets the description for the project.
-  String get projectDescription =>
-      resolveArg<String>('description', createConfig.description) ?? '';
+  String get projectDescription => resolveArg<String>(
+    argResults,
+    'description',
+    createConfig.description,
+    fallbackValue: '',
+  );
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -292,7 +285,12 @@ mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
     final orgName =
-        resolveArg<String>('org-name', createConfig.orgName) ?? _defaultOrgName;
+        resolveArg<String>(
+          argResults,
+          'org-name',
+          createConfig.orgName,
+          fallbackValue: _defaultOrgName,
+        );
     _validateOrgName(orgName);
     return orgName;
   }
@@ -337,8 +335,12 @@ mixin MultiTemplates on CreateSubCommand {
   @override
   Template get template {
     final templateName =
-        resolveArg<String>('template', createConfig.template) ??
-        defaultTemplateName;
+        resolveArg<String>(
+          argResults,
+          'template',
+          createConfig.template,
+          fallbackValue: defaultTemplateName,
+        );
 
     return templates.firstWhere(
       (template) => template.name == templateName,
@@ -357,5 +359,10 @@ mixin MultiTemplates on CreateSubCommand {
 mixin Publishable on CreateSubCommand {
   /// Gets the publishable flag.
   bool get publishable =>
-      resolveArg<bool>('publishable', createConfig.publishable) ?? false;
+      resolveArg<bool>(
+        argResults,
+        'publishable',
+        createConfig.publishable,
+        fallbackValue: false,
+      );
 }
