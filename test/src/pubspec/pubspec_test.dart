@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
-import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 
