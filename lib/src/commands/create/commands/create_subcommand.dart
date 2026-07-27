@@ -284,13 +284,12 @@ abstract class CreateSubCommand extends Command<int> {
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
-    final orgName =
-        resolveArg<String>(
-          argResults,
-          'org-name',
-          createConfig.orgName,
-          fallbackValue: _defaultOrgName,
-        );
+    final orgName = resolveArg<String>(
+      argResults,
+      'org-name',
+      createConfig.orgName,
+      fallbackValue: _defaultOrgName,
+    );
     _validateOrgName(orgName);
     return orgName;
   }
@@ -334,13 +333,12 @@ mixin MultiTemplates on CreateSubCommand {
   @nonVirtual
   @override
   Template get template {
-    final templateName =
-        resolveArg<String>(
-          argResults,
-          'template',
-          createConfig.template,
-          fallbackValue: defaultTemplateName,
-        );
+    final templateName = resolveArg<String>(
+      argResults,
+      'template',
+      createConfig.template,
+      fallbackValue: defaultTemplateName,
+    );
 
     return templates.firstWhere(
       (template) => template.name == templateName,
@@ -358,11 +356,10 @@ mixin MultiTemplates on CreateSubCommand {
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
   /// Gets the publishable flag.
-  bool get publishable =>
-      resolveArg<bool>(
-        argResults,
-        'publishable',
-        createConfig.publishable,
-        fallbackValue: false,
-      );
+  bool get publishable => resolveArg<bool>(
+    argResults,
+    'publishable',
+    createConfig.publishable,
+    fallbackValue: false,
+  );
 }
