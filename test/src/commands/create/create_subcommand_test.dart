@@ -1065,9 +1065,12 @@ Run "runner help" to see global options.''';
         'throws UsageException when the config template is not allowed',
         () async {
           final cwd = Directory.current;
-          addTearDown(() => Directory.current = cwd);
           final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+          addTearDown(() {
+            tempDirectory.deleteSync(recursive: true);
+            Directory.current = cwd;
+          });
+
           File(
             path.join(tempDirectory.path, veryGoodConfigFileName),
           ).writeAsStringSync('create:\n  template: unknown');
@@ -1267,7 +1270,10 @@ Run "runner help" to see global options.''';
 
       test('applies config values loaded from very_good.yaml', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
-        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
         File(
           path.join(tempDirectory.path, veryGoodConfigFileName),
         ).writeAsStringSync('create:\n  org_name: com.very.good');
@@ -1297,7 +1303,10 @@ Run "runner help" to see global options.''';
         'when very_good.yaml is malformed',
         () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+          addTearDown(() {
+            Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
+          });
           File(
             path.join(tempDirectory.path, veryGoodConfigFileName),
           ).writeAsStringSync('- not\n- a\n- map');
