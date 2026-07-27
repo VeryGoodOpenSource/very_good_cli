@@ -2,14 +2,19 @@
 // and also be longer than 80 chars.
 // ignore_for_file: no_adjacent_strings_in_list, lines_longer_than_80_chars
 
+import 'package:args/args.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/packages/commands/get.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../../helpers/helpers.dart';
+
+class _MockArgResults extends Mock implements ArgResults {}
 
 const _expectedPackagesGetUsage = [
   'Get packages in a Dart or Flutter project.\n'
@@ -598,5 +603,214 @@ sdk: ^3.12.0
         });
       }),
     );
+
+    group('very_good.yaml configuration', () {
+      test(
+        'fails with exit code ${ExitCode.config.code} '
+        'when very_good.yaml is malformed',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(
+            path.join(tempDirectory.path, 'pubspec.yaml'),
+          ).createSync();
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final result = await commandRunner.run([
+            'packages',
+            'get',
+            tempDirectory.path,
+          ]);
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        }),
+      );
+
+      test('applies config values when args were not parsed', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when<dynamic>(() => argResults['recursive']).thenReturn(false);
+        when<dynamic>(() => argResults['ignore']).thenReturn(<String>[]);
+
+        final options = PackagesGetOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(
+                recursive: true,
+                ignore: ['example'],
+              ),
+            ),
+          ),
+        );
+
+        expect(options.recursive, isTrue);
+        expect(options.ignore, equals({'example'}));
+      });
+
+      test('CLI arguments take precedence over config values', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+        when<dynamic>(() => argResults['recursive']).thenReturn(false);
+        when<dynamic>(
+          () => argResults['ignore'],
+        ).thenReturn(<String>['cli']);
+
+        final options = PackagesGetOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(
+                recursive: true,
+                ignore: ['config'],
+              ),
+            ),
+          ),
+        );
+
+        expect(options.recursive, isFalse);
+        expect(options.ignore, equals({'cli'}));
+      });
+
+      test('falls back to CLI defaults when neither is set', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when<dynamic>(() => argResults['recursive']).thenReturn(false);
+        when<dynamic>(() => argResults['ignore']).thenReturn(<String>[]);
+
+        final options = PackagesGetOptions.parse(argResults);
+
+        expect(options.recursive, isFalse);
+        expect(options.ignore, isEmpty);
+      });
+
+      test(
+        'applies recursive value from config',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('''
+packages:
+  get:
+    recursive: true
+''');
+
+          final pubspecA = File(
+            path.join(tempDirectory.path, 'example_a', 'pubspec.yaml'),
+          );
+          final pubspecB = File(
+            path.join(tempDirectory.path, 'example_b', 'pubspec.yaml'),
+          );
+          pubspecA
+            ..createSync(recursive: true)
+            ..writeAsStringSync('''
+name: example_a
+version: 0.1.0
+
+environment:
+  sdk: ^3.12.0
+''');
+          pubspecB
+            ..createSync(recursive: true)
+            ..writeAsStringSync('''
+name: example_b
+version: 0.1.0
+
+environment:
+  sdk: ^3.12.0
+''');
+
+          final result = await commandRunner.run([
+            'packages',
+            'get',
+            tempDirectory.path,
+          ]);
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(that: contains('Running "flutter pub get" in')),
+            );
+          }).called(2);
+        }),
+      );
+
+      test(
+        'applies ignore value from config',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('''
+packages:
+  get:
+    recursive: true
+    ignore:
+      - plugin_b
+''');
+
+          final directoryA = Directory(
+            path.join(tempDirectory.path, 'plugin_a'),
+          );
+          final directoryB = Directory(
+            path.join(tempDirectory.path, 'plugin_b'),
+          );
+          File(path.join(directoryA.path, 'pubspec.yaml'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('''
+name: plugin_a
+version: 0.1.0
+
+environment:
+  sdk: ^3.12.0
+''');
+          File(path.join(directoryB.path, 'pubspec.yaml'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('''
+name: plugin_b
+version: 0.1.0
+
+environment:
+  sdk: ^3.12.0
+''');
+
+          final result = await commandRunner.run([
+            'packages',
+            'get',
+            tempDirectory.path,
+          ]);
+          expect(result, equals(ExitCode.success.code));
+          verify(() {
+            logger.progress(
+              any(
+                that: contains(
+                  'Running "flutter pub get" in .${path.context.separator}plugin_a',
+                ),
+              ),
+            );
+          }).called(1);
+          verifyNever(() {
+            logger.progress(
+              any(
+                that: contains(
+                  'Running "flutter pub get" in .${path.context.separator}plugin_b',
+                ),
+              ),
+            );
+          });
+        }),
+      );
+    });
   });
 }

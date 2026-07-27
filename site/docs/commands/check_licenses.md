@@ -126,6 +126,31 @@ very_good packages check licenses --reporter=csv
 # package_c,Apache-2.0
 ```
 
+## Configuring defaults with `very_good.yaml`
+
+To avoid repeating arguments every time you run `very_good packages check licenses` locally or on CI, you may create a `very_good.yaml` file at the root of your project. The `packages.check.licenses` section accepts the same names as the CLI arguments in snake_case (e.g. `--skip-packages` becomes `skip_packages`). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
+
+```yaml
+# very_good.yaml
+packages:
+  check:
+    licenses:
+      dependency_type:
+        - direct-main
+        - transitive
+      allowed:
+        - MIT
+        - BSD-3-Clause
+      skip_packages:
+        - html
+      ignore_retrieval_failures: true
+      reporter: csv
+```
+
+With the file above, running `very_good packages check licenses` behaves the same as running `very_good packages check licenses --dependency-type=direct-main,transitive --allowed=MIT,BSD-3-Clause --skip-packages=html --ignore-retrieval-failures --reporter=csv`.
+
+The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged.
+
 ## Supported licenses 💳
 
 The license detection is processed by [Dart's package analyzer](https://pub.dev/packages/pana), which reports commonly found licenses (SPDX licenses). The list of accepted licenses can be seen in the [SPDX GitHub repository](https://github.com/spdx/license-list-data/tree/main/text) or in the [SPDX License enumeration](https://github.com/VeryGoodOpenSource/very_good_cli/blob/main/lib/src/pub_license/spdx_license.gen.dart). Therefore, when specifying a license within arguments it must strictly match with the SPDX license name.
