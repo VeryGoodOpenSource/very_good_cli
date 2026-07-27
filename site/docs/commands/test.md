@@ -126,4 +126,17 @@ test:
 
 With the file above, running `very_good test` behaves the same as running `very_good test --min-coverage 100 --exclude-coverage '**/*.g.dart' --report-on lib/ --dart-define=FLAVOR=development`. You can still override any of these values on the command line, for example `very_good test --min-coverage 90` to lower the coverage threshold for a single run.
 
+To customize the defaults for `very_good dart test`, use the `dart.test` section. It accepts the same options as `test` (minus the Flutter-only flags such as `update_goldens`, `flavor`, `timeout`, `dart_define`, and `dart_define_from_file`) plus `check_ignore`.
+
+```yaml
+# very_good.yaml
+dart:
+  test:
+    min_coverage: 100
+    exclude_coverage: '**/*.g.dart'
+    report_on:
+      - lib/
+    file_reporter: json:reports/tests.json
+```
+
 The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged. This lets a single `very_good.yaml` at the repository root apply to commands run from any nested package.

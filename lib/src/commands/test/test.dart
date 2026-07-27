@@ -46,40 +46,33 @@ class FlutterTestOptions {
   }) {
     final testConfig = config.test;
 
-    final concurrency = resolveArg(
-      argResults,
+    final concurrency = argResults.resolve(
       'concurrency',
       testConfig.concurrency,
     );
-    final collectCoverage = resolveArg(
-      argResults,
+    final collectCoverage = argResults.resolve(
       'coverage',
       testConfig.coverage,
     );
-    final minCoverage = resolveArg<String?>(
-      argResults,
+    final minCoverage = argResults.resolve<String?>(
       'min-coverage',
       testConfig.minCoverage,
     );
     final effectiveMinCoverage = double.tryParse(minCoverage ?? '');
-    final showUncovered = resolveArg(
-      argResults,
+    final showUncovered = argResults.resolve(
       'show-uncovered',
       testConfig.showUncovered,
     );
-    final excludeTags = resolveArg<String?>(
-      argResults,
+    final excludeTags = argResults.resolve<String?>(
       'exclude-tags',
       testConfig.excludeTags,
     );
-    final tags = resolveArg<String?>(argResults, 'tags', testConfig.tags);
-    final excludeFromCoverage = resolveArg<String?>(
-      argResults,
+    final tags = argResults.resolve<String?>('tags', testConfig.tags);
+    final excludeFromCoverage = argResults.resolve<String?>(
       'exclude-coverage',
       testConfig.excludeCoverage,
     );
-    final collectCoverageFrom = resolveArg<String>(
-      argResults,
+    final collectCoverageFrom = argResults.resolve<String>(
       'collect-coverage-from',
       testConfig.collectCoverageFrom,
       fallbackValue: 'imports',
@@ -92,39 +85,32 @@ class FlutterTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = resolveArg(
-      argResults,
+    final optimizePerformance = argResults.resolve(
       'optimization',
       testConfig.optimization,
     );
-    final updateGoldens = resolveArg(
-      argResults,
+    final updateGoldens = argResults.resolve(
       'update-goldens',
       testConfig.updateGoldens,
     );
-    final failFast = resolveArg(
-      argResults,
+    final failFast = argResults.resolve(
       'fail-fast',
       testConfig.failFast,
     );
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = resolveArg<List<String>?>(
-      argResults,
+    final dartDefine = argResults.resolve<List<String>?>(
       'dart-define',
       testConfig.dartDefine,
     );
-    final dartDefineFromFile = resolveArg<List<String>?>(
-      argResults,
+    final dartDefineFromFile = argResults.resolve<List<String>?>(
       'dart-define-from-file',
       testConfig.dartDefineFromFile,
     );
-    final platform = resolveArg<String?>(
-      argResults,
+    final platform = argResults.resolve<String?>(
       'platform',
       testConfig.platform,
     );
-    final reportOn = resolveArg<List<String>>(
-      argResults,
+    final reportOn = argResults.resolve<List<String>>(
       'report-on',
       testConfig.reportOn,
     );
@@ -133,18 +119,15 @@ class FlutterTestOptions {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final runSkipped = resolveArg(
-      argResults,
+    final runSkipped = argResults.resolve(
       'run-skipped',
       testConfig.runSkipped,
     );
-    final flavor = resolveArg<String?>(
-      argResults,
+    final flavor = argResults.resolve<String?>(
       'flavor',
       testConfig.flavor,
     );
-    final timeout = resolveArg<String?>(
-      argResults,
+    final timeout = argResults.resolve<String?>(
       'timeout',
       testConfig.timeout,
     );
@@ -152,8 +135,7 @@ class FlutterTestOptions {
     final effectiveTimeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
-    final fileReporter = resolveArg<String?>(
-      argResults,
+    final fileReporter = argResults.resolve<String?>(
       'file-reporter',
       testConfig.fileReporter,
     );

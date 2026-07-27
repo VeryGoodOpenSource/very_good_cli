@@ -18,25 +18,25 @@ part 'very_good_config.g.dart';
 /// The default name of the Very Good CLI configuration file.
 const veryGoodConfigFileName = 'very_good.yaml';
 
-/// Resolves the value for the argument named [name] against a `very_good.yaml`
-/// configuration value.
-///
-/// Resolution follows a fixed precedence, from highest to lowest:
-///
-/// 1. A command line argument that was explicitly parsed.
-/// 2. [configValue], the corresponding value from the configuration file.
-/// 3. [fallbackValue], used when neither the command line nor the configuration
-///    provide a value (typically the argument's command line default).
-T resolveArg<T>(
-  ArgResults argResults,
-  String name,
-  T? configValue, {
-  T? fallbackValue,
-}) {
-  final value = configValue != null && !argResults.wasParsed(name)
-      ? configValue
-      : argResults[name] as T?;
-  return (value ?? fallbackValue) as T;
+/// Extension that resolves argument values against `very_good.yaml`
+/// configuration values.
+extension ArgResultsResolver on ArgResults {
+  /// Resolves the value for the argument named [name] against a
+  /// `very_good.yaml` configuration value.
+  ///
+  /// Resolution follows a fixed precedence, from highest to lowest:
+  ///
+  /// 1. A command line argument that was explicitly parsed.
+  /// 2. [configValue], the corresponding value from the configuration file.
+  /// 3. [fallbackValue], used when neither the command line nor the
+  ///    configuration provide a value (typically the argument's command line
+  ///    default).
+  T resolve<T>(String name, T? configValue, {T? fallbackValue}) {
+    final value = configValue != null && !wasParsed(name)
+        ? configValue
+        : this[name] as T?;
+    return (value ?? fallbackValue) as T;
+  }
 }
 
 /// {@template very_good_config_parse_exception}
@@ -72,6 +72,7 @@ class VeryGoodConfig extends Equatable {
   const VeryGoodConfig({
     this.test = const VeryGoodTestConfig(),
     this.create = const VeryGoodCreateConfig(),
+    this.dart = const VeryGoodDartConfig(),
     this.packages = const VeryGoodPackagesConfig(),
   });
 
@@ -149,11 +150,14 @@ class VeryGoodConfig extends Equatable {
   /// Configuration values for the `very_good create` command.
   final VeryGoodCreateConfig create;
 
+  /// Configuration values for the `very_good dart test` command.
+  final VeryGoodDartConfig dart;
+
   /// Configuration values for the `very_good packages` command.
   final VeryGoodPackagesConfig packages;
 
   @override
-  List<Object?> get props => [test, create, packages];
+  List<Object?> get props => [test, create, dart, packages];
 }
 
 /// {@template very_good_create_config}
@@ -326,6 +330,143 @@ class VeryGoodTestConfig extends Equatable {
     runSkipped,
     flavor,
     timeout,
+    fileReporter,
+  ];
+}
+
+/// {@template very_good_dart_config}
+/// Configuration values that customize the defaults of the
+/// `very_good dart test` command.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodDartConfig extends Equatable {
+  /// {@macro very_good_dart_config}
+  const VeryGoodDartConfig({this.test = const VeryGoodDartTestConfig()});
+
+  /// Creates a [VeryGoodDartConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodDartConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodDartConfigFromJson(json);
+  }
+
+  /// Configuration values for the `very_good dart test` subcommand.
+  final VeryGoodDartTestConfig test;
+
+  @override
+  List<Object?> get props => [test];
+}
+
+/// {@template very_good_dart_test_config}
+/// Configuration values that customize the defaults of the
+/// `very_good dart test` command.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodDartTestConfig extends Equatable {
+  /// {@macro very_good_dart_test_config}
+  const VeryGoodDartTestConfig({
+    this.coverage,
+    this.optimization,
+    this.concurrency,
+    this.tags,
+    this.excludeCoverage,
+    this.excludeTags,
+    this.minCoverage,
+    this.showUncovered,
+    this.collectCoverageFrom,
+    this.failFast,
+    this.platform,
+    this.reportOn,
+    this.runSkipped,
+    this.checkIgnore,
+    this.fileReporter,
+  });
+
+  /// Creates a [VeryGoodDartTestConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodDartTestConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodDartTestConfigFromJson(json);
+  }
+
+  /// Whether to collect coverage information.
+  final bool? coverage;
+
+  /// Whether to apply optimizations for test performance.
+  final bool? optimization;
+
+  /// The number of concurrent test suites run.
+  @JsonKey(fromJson: _concurrency)
+  final String? concurrency;
+
+  /// Run only tests associated with the specified tags.
+  final String? tags;
+
+  /// A glob which will be used to exclude files that match from the coverage.
+  final String? excludeCoverage;
+
+  /// Run only tests that do not have the specified tags.
+  final String? excludeTags;
+
+  /// The minimum coverage percentage enforced.
+  @JsonKey(fromJson: _minCoverage)
+  final String? minCoverage;
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  final bool? showUncovered;
+
+  /// Whether to collect coverage from imported files only or all files.
+  @JsonKey(fromJson: _collectCoverageFrom)
+  final String? collectCoverageFrom;
+
+  /// Whether to stop running tests after the first failure.
+  final bool? failFast;
+
+  /// The platform to run tests on (e.g. `chrome`, `vm`).
+  final String? platform;
+
+  /// Optional file paths to report coverage information to.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? reportOn;
+
+  /// Whether to run skipped tests instead of skipping them.
+  final bool? runSkipped;
+
+  /// Whether to check for and respect coverage ignore comments.
+  final bool? checkIgnore;
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  final String? fileReporter;
+
+  @override
+  List<Object?> get props => [
+    coverage,
+    optimization,
+    concurrency,
+    tags,
+    excludeCoverage,
+    excludeTags,
+    minCoverage,
+    showUncovered,
+    collectCoverageFrom,
+    failFast,
+    platform,
+    reportOn,
+    runSkipped,
+    checkIgnore,
     fileReporter,
   ];
 }
