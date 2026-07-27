@@ -8,13 +8,19 @@ part of 'very_good_config.dart';
 
 VeryGoodConfig _$VeryGoodConfigFromJson(Map json) =>
     $checkedCreate('VeryGoodConfig', json, ($checkedConvert) {
-      $checkKeys(json, allowedKeys: const ['test']);
+      $checkKeys(json, allowedKeys: const ['test', 'packages']);
       final val = VeryGoodConfig(
         test: $checkedConvert(
           'test',
           (v) => v == null
               ? const VeryGoodTestConfig()
               : VeryGoodTestConfig.fromJson(v as Map),
+        ),
+        packages: $checkedConvert(
+          'packages',
+          (v) => v == null
+              ? const VeryGoodPackagesConfig()
+              : VeryGoodPackagesConfig.fromJson(v as Map),
         ),
       );
       return val;
@@ -92,3 +98,27 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
     'fileReporter': 'file_reporter',
   },
 );
+
+VeryGoodPackagesConfig _$VeryGoodPackagesConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodPackagesConfig', json, ($checkedConvert) {
+      $checkKeys(json, allowedKeys: const ['get']);
+      final val = VeryGoodPackagesConfig(
+        get: $checkedConvert(
+          'get',
+          (v) => v == null
+              ? const VeryGoodPackagesGetConfig()
+              : VeryGoodPackagesGetConfig.fromJson(v as Map),
+        ),
+      );
+      return val;
+    });
+
+VeryGoodPackagesGetConfig _$VeryGoodPackagesGetConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodPackagesGetConfig', json, ($checkedConvert) {
+      $checkKeys(json, allowedKeys: const ['recursive', 'ignore']);
+      final val = VeryGoodPackagesGetConfig(
+        recursive: $checkedConvert('recursive', (v) => v as bool?),
+        ignore: $checkedConvert('ignore', (v) => _stringList(v)),
+      );
+      return val;
+    });

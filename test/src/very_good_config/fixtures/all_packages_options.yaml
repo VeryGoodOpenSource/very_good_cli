@@ -1,0 +1,6 @@
+packages:
+  get:
+    recursive: true
+    ignore:
+      - example
+      - integration_test

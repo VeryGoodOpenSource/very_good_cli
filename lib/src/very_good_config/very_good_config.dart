@@ -48,7 +48,10 @@ class VeryGoodConfigParseException implements Exception {
 )
 class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
-  const VeryGoodConfig({this.test = const VeryGoodTestConfig()});
+  const VeryGoodConfig({
+    this.test = const VeryGoodTestConfig(),
+    this.packages = const VeryGoodPackagesConfig(),
+  });
 
   /// Creates a [VeryGoodConfig] from a decoded YAML/JSON [json] map.
   factory VeryGoodConfig.fromJson(Map<dynamic, dynamic> json) {
@@ -121,8 +124,11 @@ class VeryGoodConfig extends Equatable {
   /// Configuration values for the `very_good test` command.
   final VeryGoodTestConfig test;
 
+  /// Configuration values for the `very_good packages` command.
+  final VeryGoodPackagesConfig packages;
+
   @override
-  List<Object?> get props => [test];
+  List<Object?> get props => [test, packages];
 }
 
 /// {@template very_good_test_config}
@@ -254,6 +260,66 @@ class VeryGoodTestConfig extends Equatable {
     timeout,
     fileReporter,
   ];
+}
+
+/// {@template very_good_packages_config}
+/// Configuration values that customize the defaults of the
+/// `very_good packages` command.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodPackagesConfig extends Equatable {
+  /// {@macro very_good_packages_config}
+  const VeryGoodPackagesConfig({this.get = const VeryGoodPackagesGetConfig()});
+
+  /// Creates a [VeryGoodPackagesConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodPackagesConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodPackagesConfigFromJson(json);
+  }
+
+  /// Configuration values for the `very_good packages get` command.
+  final VeryGoodPackagesGetConfig get;
+
+  @override
+  List<Object?> get props => [get];
+}
+
+/// {@template very_good_packages_get_config}
+/// Configuration values that customize the defaults of the
+/// `very_good packages get` command.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodPackagesGetConfig extends Equatable {
+  /// {@macro very_good_packages_get_config}
+  const VeryGoodPackagesGetConfig({this.recursive, this.ignore});
+
+  /// Creates a [VeryGoodPackagesGetConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodPackagesGetConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodPackagesGetConfigFromJson(json);
+  }
+
+  /// Whether to install dependencies recursively for all nested packages.
+  final bool? recursive;
+
+  /// Packages to exclude from installing dependencies.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? ignore;
+
+  @override
+  List<Object?> get props => [recursive, ignore];
 }
 
 // The coercers below intentionally validate more strictly than the CLI flag

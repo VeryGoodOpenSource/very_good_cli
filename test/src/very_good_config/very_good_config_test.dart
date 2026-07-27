@@ -1,6 +1,7 @@
 // Ensures we don't have to use const constructors
 // and instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:io';
 
@@ -161,6 +162,79 @@ test:
         );
       });
 
+      test('parses all supported packages options', () {
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_packages_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
+
+        expect(config.packages.get.recursive, isTrue);
+        expect(
+          config.packages.get.ignore,
+          equals(['example', 'integration_test']),
+        );
+      });
+
+      test('parses single ignore entry as a list', () {
+        final config = VeryGoodConfig.fromString('''
+packages:
+  get:
+    ignore: example
+''');
+        expect(config.packages.get.ignore, equals(['example']));
+      });
+
+      test('throws when packages section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  get: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized packages.get key is present', () {
+        expect(
+          () =>
+              VeryGoodConfig.fromString('packages:\n  get:\n    unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get.recursive has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString(
+            'packages:\n  get:\n    recursive: maybe',
+          ),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when packages.get.ignore has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString('packages:\n  get:\n    ignore: 42'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
       test('throws when an unrecognized root key is present', () {
         expect(
           () => VeryGoodConfig.fromString('unknown: true'),
@@ -313,6 +387,36 @@ test:
           equals(VeryGoodConfig(test: VeryGoodTestConfig(coverage: false))),
         ),
       );
+      expect(
+        VeryGoodConfig(
+          packages: VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+        equals(
+          VeryGoodConfig(
+            packages: VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(recursive: true),
+            ),
+          ),
+        ),
+      );
+      expect(
+        VeryGoodConfig(
+          packages: VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+        isNot(
+          equals(
+            VeryGoodConfig(
+              packages: VeryGoodPackagesConfig(
+                get: VeryGoodPackagesGetConfig(recursive: false),
+              ),
+            ),
+          ),
+        ),
+      );
     });
   });
 
@@ -325,6 +429,50 @@ test:
       expect(
         VeryGoodTestConfig(coverage: true),
         isNot(equals(VeryGoodTestConfig(coverage: false))),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesConfig(),
+        equals(VeryGoodPackagesConfig()),
+      );
+      expect(
+        VeryGoodPackagesConfig(
+          get: VeryGoodPackagesGetConfig(recursive: true),
+        ),
+        equals(
+          VeryGoodPackagesConfig(
+            get: VeryGoodPackagesGetConfig(recursive: true),
+          ),
+        ),
+      );
+      expect(
+        VeryGoodPackagesConfig(
+          get: VeryGoodPackagesGetConfig(recursive: true),
+        ),
+        isNot(
+          equals(
+            VeryGoodPackagesConfig(
+              get: VeryGoodPackagesGetConfig(recursive: false),
+            ),
+          ),
+        ),
+      );
+    });
+  });
+
+  group(VeryGoodPackagesGetConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodPackagesGetConfig(recursive: true, ignore: ['a']),
+        equals(VeryGoodPackagesGetConfig(recursive: true, ignore: ['a'])),
+      );
+      expect(
+        VeryGoodPackagesGetConfig(recursive: true),
+        isNot(equals(VeryGoodPackagesGetConfig(recursive: false))),
       );
     });
   });
