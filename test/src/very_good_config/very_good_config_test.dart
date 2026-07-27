@@ -161,6 +161,69 @@ test:
         );
       });
 
+      test('parses all supported dart test options', () {
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_dart_test_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
+
+        expect(config.dart.test.coverage, isTrue);
+        expect(config.dart.test.optimization, isFalse);
+        expect(config.dart.test.concurrency, equals('8'));
+        expect(config.dart.test.tags, equals('my-tag'));
+        expect(config.dart.test.excludeCoverage, equals('**/*.g.dart'));
+        expect(config.dart.test.excludeTags, equals('skip'));
+        expect(config.dart.test.minCoverage, equals('95'));
+        expect(config.dart.test.showUncovered, isTrue);
+        expect(config.dart.test.collectCoverageFrom, equals('all'));
+        expect(config.dart.test.failFast, isTrue);
+        expect(config.dart.test.platform, equals('chrome'));
+        expect(
+          config.dart.test.reportOn,
+          equals(['lib/', 'packages/foo/lib/']),
+        );
+        expect(config.dart.test.runSkipped, isTrue);
+        expect(config.dart.test.checkIgnore, isFalse);
+        expect(
+          config.dart.test.fileReporter,
+          equals('json:reports/tests.json'),
+        );
+      });
+
+      test('throws when dart section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('dart: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when dart.test section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('dart:\n  test: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized dart key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('dart:\n  unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized dart.test key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('dart:\n  test:\n    unknown: true'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
       test('throws when an unrecognized root key is present', () {
         expect(
           () => VeryGoodConfig.fromString('unknown: true'),
@@ -313,6 +376,36 @@ test:
           equals(VeryGoodConfig(test: VeryGoodTestConfig(coverage: false))),
         ),
       );
+      expect(
+        VeryGoodConfig(
+          dart: VeryGoodDartConfig(
+            test: VeryGoodDartTestConfig(coverage: true),
+          ),
+        ),
+        equals(
+          VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(coverage: true),
+            ),
+          ),
+        ),
+      );
+      expect(
+        VeryGoodConfig(
+          dart: VeryGoodDartConfig(
+            test: VeryGoodDartTestConfig(coverage: true),
+          ),
+        ),
+        isNot(
+          equals(
+            VeryGoodConfig(
+              dart: VeryGoodDartConfig(
+                test: VeryGoodDartTestConfig(coverage: false),
+              ),
+            ),
+          ),
+        ),
+      );
     });
   });
 
@@ -325,6 +418,39 @@ test:
       expect(
         VeryGoodTestConfig(coverage: true),
         isNot(equals(VeryGoodTestConfig(coverage: false))),
+      );
+    });
+  });
+
+  group(VeryGoodDartConfig, () {
+    test('supports value equality', () {
+      expect(VeryGoodDartConfig(), equals(VeryGoodDartConfig()));
+      expect(
+        VeryGoodDartConfig(test: VeryGoodDartTestConfig(coverage: true)),
+        equals(
+          VeryGoodDartConfig(test: VeryGoodDartTestConfig(coverage: true)),
+        ),
+      );
+      expect(
+        VeryGoodDartConfig(test: VeryGoodDartTestConfig(coverage: true)),
+        isNot(
+          equals(
+            VeryGoodDartConfig(test: VeryGoodDartTestConfig(coverage: false)),
+          ),
+        ),
+      );
+    });
+  });
+
+  group(VeryGoodDartTestConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodDartTestConfig(coverage: true, minCoverage: '95'),
+        equals(VeryGoodDartTestConfig(coverage: true, minCoverage: '95')),
+      );
+      expect(
+        VeryGoodDartTestConfig(coverage: true),
+        isNot(equals(VeryGoodDartTestConfig(coverage: false))),
       );
     });
   });

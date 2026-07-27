@@ -7,6 +7,7 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Dart test command.
 class DartTestOptions {
@@ -32,18 +33,53 @@ class DartTestOptions {
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
-  factory DartTestOptions.parse(ArgResults argResults) {
-    final concurrency = argResults['concurrency'] as String;
-    final collectCoverage = argResults['coverage'] as bool;
-    final minCoverage = double.tryParse(
-      argResults['min-coverage'] as String? ?? '',
+  ///
+  /// When [config] is provided, its values are used as defaults for any
+  /// option that was not explicitly parsed on the command line.
+  factory DartTestOptions.parse(
+    ArgResults argResults, {
+    VeryGoodConfig config = VeryGoodConfig.empty,
+  }) {
+    final testConfig = config.dart.test;
+
+    final concurrency = _resolveArg(
+      argResults,
+      'concurrency',
+      testConfig.concurrency,
     );
-    final showUncovered = argResults['show-uncovered'] as bool;
-    final excludeTags = argResults['exclude-tags'] as String?;
-    final tags = argResults['tags'] as String?;
-    final excludeFromCoverage = argResults['exclude-coverage'] as String?;
-    final collectCoverageFromString =
-        argResults['collect-coverage-from'] as String? ?? 'imports';
+    final collectCoverage = _resolveArg(
+      argResults,
+      'coverage',
+      testConfig.coverage,
+    );
+    final minCoverageString = _resolveArg<String?>(
+      argResults,
+      'min-coverage',
+      testConfig.minCoverage,
+    );
+    final minCoverage = double.tryParse(minCoverageString ?? '');
+    final showUncovered = _resolveArg(
+      argResults,
+      'show-uncovered',
+      testConfig.showUncovered,
+    );
+    final excludeTags = _resolveArg<String?>(
+      argResults,
+      'exclude-tags',
+      testConfig.excludeTags,
+    );
+    final tags = _resolveArg<String?>(argResults, 'tags', testConfig.tags);
+    final excludeFromCoverage = _resolveArg<String?>(
+      argResults,
+      'exclude-coverage',
+      testConfig.excludeCoverage,
+    );
+    final collectCoverageFromString = _resolveArg<String>(
+      argResults,
+      'collect-coverage-from',
+      testConfig.collectCoverageFrom,
+      fallbackValue: 'imports',
+    );
     final collectCoverageFrom = CoverageCollectionMode.fromString(
       collectCoverageFromString,
     );
@@ -52,17 +88,46 @@ class DartTestOptions {
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = argResults['optimization'] as bool;
-    final failFast = argResults['fail-fast'] as bool;
+    final optimizePerformance = _resolveArg(
+      argResults,
+      'optimization',
+      testConfig.optimization,
+    );
+    final failFast = _resolveArg(
+      argResults,
+      'fail-fast',
+      testConfig.failFast,
+    );
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final platform = argResults['platform'] as String?;
-    final reportOn = (argResults['report-on'] as List<String>)
+    final platform = _resolveArg<String?>(
+      argResults,
+      'platform',
+      testConfig.platform,
+    );
+    final reportOn = _resolveArg<List<String>>(
+      argResults,
+      'report-on',
+      testConfig.reportOn,
+    );
+    final effectiveReportOn = reportOn
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = argResults['run-skipped'] as bool;
-    final checkIgnore = argResults['check-ignore'] as bool;
-    final fileReporter = argResults['file-reporter'] as String?;
+    final runSkipped = _resolveArg(
+      argResults,
+      'run-skipped',
+      testConfig.runSkipped,
+    );
+    final checkIgnore = _resolveArg(
+      argResults,
+      'check-ignore',
+      testConfig.checkIgnore,
+    );
+    final fileReporter = _resolveArg<String?>(
+      argResults,
+      'file-reporter',
+      testConfig.fileReporter,
+    );
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -79,7 +144,7 @@ class DartTestOptions {
       failFast: failFast,
       forceAnsi: forceAnsi,
       platform: platform,
-      reportOn: reportOn,
+      reportOn: effectiveReportOn,
       runSkipped: runSkipped,
       checkIgnore: checkIgnore,
       fileReporter: fileReporter,
@@ -142,6 +207,27 @@ class DartTestOptions {
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
+}
+
+/// Resolves the value for the argument named [name] against a `very_good.yaml`
+/// configuration value.
+///
+/// Resolution follows a fixed precedence, from highest to lowest:
+///
+/// 1. A command line argument that was explicitly parsed.
+/// 2. [configValue], the corresponding value from the configuration file.
+/// 3. [fallbackValue], used when neither the command line nor the configuration
+///    provide a value (typically the argument's command line default).
+T _resolveArg<T>(
+  ArgResults argResults,
+  String name,
+  T? configValue, {
+  T? fallbackValue,
+}) {
+  final value = configValue != null && !argResults.wasParsed(name)
+      ? configValue
+      : argResults[name] as T?;
+  return (value ?? fallbackValue) as T;
 }
 
 /// Signature for the [Dart.installed] method.
@@ -327,9 +413,20 @@ This command should be run from the root of your Dart project.''');
       return ExitCode.noInput.code;
     }
 
+    final VeryGoodConfig config;
+    try {
+      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
+    } on VeryGoodConfigParseException catch (e) {
+      _logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n'
+        '${e.message}',
+      );
+      return ExitCode.config.code;
+    }
+
     final isDartInstalled = await _dartInstalled(logger: _logger);
 
-    final options = DartTestOptions.parse(_argResults);
+    final options = DartTestOptions.parse(_argResults, config: config);
 
     if (isDartInstalled) {
       try {
