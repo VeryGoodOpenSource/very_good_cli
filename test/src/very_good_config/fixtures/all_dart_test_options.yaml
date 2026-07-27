@@ -1,0 +1,19 @@
+dart:
+  test:
+    coverage: true
+    optimization: false
+    concurrency: 8
+    tags: my-tag
+    exclude_coverage: "**/*.g.dart"
+    exclude_tags: skip
+    min_coverage: 95
+    show_uncovered: true
+    collect_coverage_from: all
+    fail_fast: true
+    platform: chrome
+    report_on:
+      - lib/
+      - packages/foo/lib/
+    run_skipped: true
+    check_ignore: false
+    file_reporter: json:reports/tests.json

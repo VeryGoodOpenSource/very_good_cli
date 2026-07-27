@@ -87,33 +87,27 @@ class PackagesCheckLicensesOptions {
   }) {
     final licensesConfig = config.packages.check.licenses;
 
-    final ignoreRetrievalFailures = resolveArg(
-      argResults,
+    final ignoreRetrievalFailures = argResults.resolve(
       'ignore-retrieval-failures',
       licensesConfig.ignoreRetrievalFailures,
     );
-    final dependencyTypes = resolveArg<List<String>>(
-      argResults,
+    final dependencyTypes = argResults.resolve<List<String>>(
       'dependency-type',
       licensesConfig.dependencyType,
     );
-    final allowedLicenses = resolveArg<List<String>>(
-      argResults,
+    final allowedLicenses = argResults.resolve<List<String>>(
       'allowed',
       licensesConfig.allowed,
     );
-    final forbiddenLicenses = resolveArg<List<String>>(
-      argResults,
+    final forbiddenLicenses = argResults.resolve<List<String>>(
       'forbidden',
       licensesConfig.forbidden,
     );
-    final skippedPackages = resolveArg<List<String>>(
-      argResults,
+    final skippedPackages = argResults.resolve<List<String>>(
       'skip-packages',
       licensesConfig.skipPackages,
     );
-    final reporter = resolveArg<String?>(
-      argResults,
+    final reporter = argResults.resolve<String?>(
       'reporter',
       licensesConfig.reporter,
     );

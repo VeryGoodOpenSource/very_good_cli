@@ -8,13 +8,19 @@ part of 'very_good_config.dart';
 
 VeryGoodConfig _$VeryGoodConfigFromJson(Map json) =>
     $checkedCreate('VeryGoodConfig', json, ($checkedConvert) {
-      $checkKeys(json, allowedKeys: const ['test', 'packages']);
+      $checkKeys(json, allowedKeys: const ['test', 'dart', 'packages']);
       final val = VeryGoodConfig(
         test: $checkedConvert(
           'test',
           (v) => v == null
               ? const VeryGoodTestConfig()
               : VeryGoodTestConfig.fromJson(v as Map),
+        ),
+        dart: $checkedConvert(
+          'dart',
+          (v) => v == null
+              ? const VeryGoodDartConfig()
+              : VeryGoodDartConfig.fromJson(v as Map),
         ),
         packages: $checkedConvert(
           'packages',
@@ -98,6 +104,84 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
     'fileReporter': 'file_reporter',
   },
 );
+
+VeryGoodDartConfig _$VeryGoodDartConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodDartConfig', json, ($checkedConvert) {
+      $checkKeys(json, allowedKeys: const ['test']);
+      final val = VeryGoodDartConfig(
+        test: $checkedConvert(
+          'test',
+          (v) => v == null
+              ? const VeryGoodDartTestConfig()
+              : VeryGoodDartTestConfig.fromJson(v as Map),
+        ),
+      );
+      return val;
+    });
+
+VeryGoodDartTestConfig _$VeryGoodDartTestConfigFromJson(Map json) =>
+    $checkedCreate(
+      'VeryGoodDartTestConfig',
+      json,
+      ($checkedConvert) {
+        $checkKeys(
+          json,
+          allowedKeys: const [
+            'coverage',
+            'optimization',
+            'concurrency',
+            'tags',
+            'exclude_coverage',
+            'exclude_tags',
+            'min_coverage',
+            'show_uncovered',
+            'collect_coverage_from',
+            'fail_fast',
+            'platform',
+            'report_on',
+            'run_skipped',
+            'check_ignore',
+            'file_reporter',
+          ],
+        );
+        final val = VeryGoodDartTestConfig(
+          coverage: $checkedConvert('coverage', (v) => v as bool?),
+          optimization: $checkedConvert('optimization', (v) => v as bool?),
+          concurrency: $checkedConvert('concurrency', (v) => _concurrency(v)),
+          tags: $checkedConvert('tags', (v) => v as String?),
+          excludeCoverage: $checkedConvert(
+            'exclude_coverage',
+            (v) => v as String?,
+          ),
+          excludeTags: $checkedConvert('exclude_tags', (v) => v as String?),
+          minCoverage: $checkedConvert('min_coverage', (v) => _minCoverage(v)),
+          showUncovered: $checkedConvert('show_uncovered', (v) => v as bool?),
+          collectCoverageFrom: $checkedConvert(
+            'collect_coverage_from',
+            (v) => _collectCoverageFrom(v),
+          ),
+          failFast: $checkedConvert('fail_fast', (v) => v as bool?),
+          platform: $checkedConvert('platform', (v) => v as String?),
+          reportOn: $checkedConvert('report_on', (v) => _stringList(v)),
+          runSkipped: $checkedConvert('run_skipped', (v) => v as bool?),
+          checkIgnore: $checkedConvert('check_ignore', (v) => v as bool?),
+          fileReporter: $checkedConvert('file_reporter', (v) => v as String?),
+        );
+        return val;
+      },
+      fieldKeyMap: const {
+        'excludeCoverage': 'exclude_coverage',
+        'excludeTags': 'exclude_tags',
+        'minCoverage': 'min_coverage',
+        'showUncovered': 'show_uncovered',
+        'collectCoverageFrom': 'collect_coverage_from',
+        'failFast': 'fail_fast',
+        'reportOn': 'report_on',
+        'runSkipped': 'run_skipped',
+        'checkIgnore': 'check_ignore',
+        'fileReporter': 'file_reporter',
+      },
+    );
 
 VeryGoodPackagesConfig _$VeryGoodPackagesConfigFromJson(Map json) =>
     $checkedCreate('VeryGoodPackagesConfig', json, ($checkedConvert) {
