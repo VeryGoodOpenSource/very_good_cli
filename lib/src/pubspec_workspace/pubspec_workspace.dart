@@ -143,8 +143,12 @@ Iterable<Directory> _expandMembers(
     matches = Glob(entry).listSync(root: base.path);
     // A missing intermediate directory (e.g. `packages/*` when `packages/`
     // does not exist) surfaces as a FileSystemException; treat it as no match.
+    //
+    // On Unix, globbing into a path whose intermediate segment is a file
+    // throws (ENOTDIR); on Windows glob swallows it internally, so this catch
+    // is unreachable there and cannot be covered on both platforms.
   } on FileSystemException {
-    matches = const [];
+    matches = const []; // coverage:ignore-line
   }
 
   final directories = matches.whereType<Directory>().toList();
