@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/commands/test/test.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../helpers/helpers.dart';
 
@@ -934,6 +935,95 @@ void main() {
           ).called(1);
         },
       );
+    });
+
+    group('very_good.yaml configuration', () {
+      test(
+        'fails with exit code ${ExitCode.config.code} '
+        'when very_good.yaml is malformed',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() {
+            Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
+          });
+
+          Directory.current = tempDirectory.path;
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          File(
+            path.join(tempDirectory.path, 'very_good.yaml'),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final result = await commandRunner.run(['test']);
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        }),
+      );
+
+      test('applies config value when arg was not parsed', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(
+              minCoverage: '90',
+              excludeCoverage: '**/*.g.dart',
+              reportOn: ['lib/'],
+              fileReporter: 'json:reports/tests.json',
+            ),
+          ),
+        );
+        expect(options.minCoverage, equals(90));
+        expect(options.excludeFromCoverage, equals('**/*.g.dart'));
+        expect(options.reportOn, equals(['lib/']));
+        expect(options.fileReporter, equals('json:reports/tests.json'));
+      });
+
+      test('CLI argument takes precedence over config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('min-coverage')).thenReturn(true);
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('50');
+
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(minCoverage: '90'),
+          ),
+        );
+        expect(options.minCoverage, equals(50));
+      });
+
+      test('CLI --file-reporter takes precedence over config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('file-reporter')).thenReturn(true);
+        when<dynamic>(
+          () => argResults['file-reporter'],
+        ).thenReturn('json:cli.json');
+
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(fileReporter: 'json:config.json'),
+          ),
+        );
+        expect(options.fileReporter, equals('json:cli.json'));
+      });
+
+      test('falls back to the CLI default when the parsed arg is null '
+          'and the config is unset', () {
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+        when<dynamic>(
+          () => argResults['collect-coverage-from'],
+        ).thenReturn(null);
+
+        final options = FlutterTestOptions.parse(argResults);
+
+        expect(options.collectCoverageFrom, CoverageCollectionMode.imports);
+      });
     });
   });
 }

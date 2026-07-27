@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
 class FlutterTestOptions {
@@ -36,56 +37,137 @@ class FlutterTestOptions {
   });
 
   /// Parses [ArgResults] into a [FlutterTestOptions] instance.
-  factory FlutterTestOptions.parse(ArgResults argResults) {
-    final concurrency = argResults['concurrency'] as String;
-    final collectCoverage = argResults['coverage'] as bool;
-    final minCoverage = double.tryParse(
-      argResults['min-coverage'] as String? ?? '',
+  ///
+  /// When [config] is provided, its values are used as defaults for any
+  /// option that was not explicitly parsed on the command line.
+  factory FlutterTestOptions.parse(
+    ArgResults argResults, {
+    VeryGoodConfig config = VeryGoodConfig.empty,
+  }) {
+    final testConfig = config.test;
+
+    final concurrency = _resolveArg(
+      argResults,
+      'concurrency',
+      testConfig.concurrency,
     );
-    final showUncovered = argResults['show-uncovered'] as bool;
-    final excludeTags = argResults['exclude-tags'] as String?;
-    final tags = argResults['tags'] as String?;
-    final excludeFromCoverage = argResults['exclude-coverage'] as String?;
-    final collectCoverageFromString =
-        argResults['collect-coverage-from'] as String? ?? 'imports';
-    final collectCoverageFrom = CoverageCollectionMode.fromString(
-      collectCoverageFromString,
+    final collectCoverage = _resolveArg(
+      argResults,
+      'coverage',
+      testConfig.coverage,
+    );
+    final minCoverage = _resolveArg<String?>(
+      argResults,
+      'min-coverage',
+      testConfig.minCoverage,
+    );
+    final effectiveMinCoverage = double.tryParse(minCoverage ?? '');
+    final showUncovered = _resolveArg(
+      argResults,
+      'show-uncovered',
+      testConfig.showUncovered,
+    );
+    final excludeTags = _resolveArg<String?>(
+      argResults,
+      'exclude-tags',
+      testConfig.excludeTags,
+    );
+    final tags = _resolveArg<String?>(argResults, 'tags', testConfig.tags);
+    final excludeFromCoverage = _resolveArg<String?>(
+      argResults,
+      'exclude-coverage',
+      testConfig.excludeCoverage,
+    );
+    final collectCoverageFrom = _resolveArg<String>(
+      argResults,
+      'collect-coverage-from',
+      testConfig.collectCoverageFrom,
+      fallbackValue: 'imports',
+    );
+    final effectiveCollectCoverageFrom = CoverageCollectionMode.fromString(
+      collectCoverageFrom,
     );
     final randomOrderingSeed =
         argResults['test-randomize-ordering-seed'] as String?;
     final randomSeed = randomOrderingSeed == 'random'
         ? Random().nextInt(4294967295).toString()
         : randomOrderingSeed;
-    final optimizePerformance = argResults['optimization'] as bool;
-    final updateGoldens = argResults['update-goldens'] as bool;
-    final failFast = argResults['fail-fast'] as bool;
+    final optimizePerformance = _resolveArg(
+      argResults,
+      'optimization',
+      testConfig.optimization,
+    );
+    final updateGoldens = _resolveArg(
+      argResults,
+      'update-goldens',
+      testConfig.updateGoldens,
+    );
+    final failFast = _resolveArg(
+      argResults,
+      'fail-fast',
+      testConfig.failFast,
+    );
     final forceAnsi = argResults['force-ansi'] as bool?;
-    final dartDefine = argResults['dart-define'] as List<String>?;
-    final dartDefineFromFile =
-        argResults['dart-define-from-file'] as List<String>?;
-    final platform = argResults['platform'] as String?;
-    final reportOn = (argResults['report-on'] as List<String>)
+    final dartDefine = _resolveArg<List<String>?>(
+      argResults,
+      'dart-define',
+      testConfig.dartDefine,
+    );
+    final dartDefineFromFile = _resolveArg<List<String>?>(
+      argResults,
+      'dart-define-from-file',
+      testConfig.dartDefineFromFile,
+    );
+    final platform = _resolveArg<String?>(
+      argResults,
+      'platform',
+      testConfig.platform,
+    );
+    final reportOn = _resolveArg<List<String>>(
+      argResults,
+      'report-on',
+      testConfig.reportOn,
+    );
+    final effectiveReportOn = reportOn
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = argResults['run-skipped'] as bool;
-    final flavor = argResults['flavor'] as String?;
-    final timeoutSeconds = int.tryParse(argResults['timeout'] as String? ?? '');
-    final timeout = timeoutSeconds != null
+
+    final runSkipped = _resolveArg(
+      argResults,
+      'run-skipped',
+      testConfig.runSkipped,
+    );
+    final flavor = _resolveArg<String?>(
+      argResults,
+      'flavor',
+      testConfig.flavor,
+    );
+    final timeout = _resolveArg<String?>(
+      argResults,
+      'timeout',
+      testConfig.timeout,
+    );
+    final timeoutSeconds = int.tryParse(timeout ?? '');
+    final effectiveTimeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)
         : null;
-    final fileReporter = argResults['file-reporter'] as String?;
+    final fileReporter = _resolveArg<String?>(
+      argResults,
+      'file-reporter',
+      testConfig.fileReporter,
+    );
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
       concurrency: concurrency,
       collectCoverage: collectCoverage,
-      minCoverage: minCoverage,
+      minCoverage: effectiveMinCoverage,
       showUncovered: showUncovered,
       excludeTags: excludeTags,
       tags: tags,
       excludeFromCoverage: excludeFromCoverage,
-      collectCoverageFrom: collectCoverageFrom,
+      collectCoverageFrom: effectiveCollectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
       updateGoldens: updateGoldens,
@@ -94,10 +176,10 @@ class FlutterTestOptions {
       dartDefine: dartDefine,
       dartDefineFromFile: dartDefineFromFile,
       platform: platform,
-      reportOn: reportOn,
+      reportOn: effectiveReportOn,
       runSkipped: runSkipped,
       flavor: flavor,
-      timeout: timeout,
+      timeout: effectiveTimeout,
       fileReporter: fileReporter,
       rest: rest,
     );
@@ -171,6 +253,27 @@ class FlutterTestOptions {
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
+}
+
+/// Resolves the value for the argument named [name] against a `very_good.yaml`
+/// configuration value.
+///
+/// Resolution follows a fixed precedence, from highest to lowest:
+///
+/// 1. A command line argument that was explicitly parsed.
+/// 2. [configValue], the corresponding value from the configuration file.
+/// 3. [fallbackValue], used when neither the command line nor the configuration
+///    provide a value (typically the argument's command line default).
+T _resolveArg<T>(
+  ArgResults argResults,
+  String name,
+  T? configValue, {
+  T? fallbackValue,
+}) {
+  final value = configValue != null && !argResults.wasParsed(name)
+      ? configValue
+      : argResults[name] as T?;
+  return (value ?? fallbackValue) as T;
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -394,9 +497,20 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.noInput.code;
     }
 
+    final VeryGoodConfig config;
+    try {
+      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
+    } on VeryGoodConfigParseException catch (e) {
+      _logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n'
+        '${e.message}',
+      );
+      return ExitCode.config.code;
+    }
+
     final isFlutterInstalled = await _flutterInstalled(logger: _logger);
 
-    final options = FlutterTestOptions.parse(_argResults);
+    final options = FlutterTestOptions.parse(_argResults, config: config);
 
     if (isFlutterInstalled) {
       try {
