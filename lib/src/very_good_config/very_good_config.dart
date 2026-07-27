@@ -48,7 +48,10 @@ class VeryGoodConfigParseException implements Exception {
 )
 class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
-  const VeryGoodConfig({this.test = const VeryGoodTestConfig()});
+  const VeryGoodConfig({
+    this.test = const VeryGoodTestConfig(),
+    this.create = const VeryGoodCreateConfig(),
+  });
 
   /// Creates a [VeryGoodConfig] from a decoded YAML/JSON [json] map.
   factory VeryGoodConfig.fromJson(Map<dynamic, dynamic> json) {
@@ -121,8 +124,54 @@ class VeryGoodConfig extends Equatable {
   /// Configuration values for the `very_good test` command.
   final VeryGoodTestConfig test;
 
+  /// Configuration values for the `very_good create` command.
+  final VeryGoodCreateConfig create;
+
   @override
-  List<Object?> get props => [test];
+  List<Object?> get props => [test, create];
+}
+
+/// {@template very_good_create_config}
+/// Configuration values that customize the defaults of the
+/// `very_good create` command and its subcommands.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodCreateConfig extends Equatable {
+  /// {@macro very_good_create_config}
+  const VeryGoodCreateConfig({
+    this.description,
+    this.orgName,
+    this.publishable,
+    this.template,
+  });
+
+  /// Creates a [VeryGoodCreateConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodCreateConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodCreateConfigFromJson(json);
+  }
+
+  /// The description for the generated project.
+  final String? description;
+
+  /// The organization for the generated project.
+  final String? orgName;
+
+  /// Whether the generated project is intended to be published.
+  final bool? publishable;
+
+  /// The template used to generate the project.
+  final String? template;
+
+  @override
+  List<Object?> get props => [description, orgName, publishable, template];
 }
 
 /// {@template very_good_test_config}

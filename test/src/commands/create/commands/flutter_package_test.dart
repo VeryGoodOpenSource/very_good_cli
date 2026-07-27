@@ -163,6 +163,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateFlutterPackage(
           logger: logger,
           generatorFromBundle: (_) async => generator,

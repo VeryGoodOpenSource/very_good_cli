@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -105,6 +106,14 @@ abstract class CreateSubCommand extends Command<int> {
   final Logger logger;
   final MasonGeneratorFromBundle _generatorFromBundle;
 
+  /// The resolved `very_good create` configuration read from the closest
+  /// `very_good.yaml` file.
+  ///
+  /// Values declared here are used as defaults for any option that was not
+  /// explicitly passed on the command line. It defaults to an empty
+  /// configuration until [run] loads it.
+  VeryGoodCreateConfig createConfig = const VeryGoodCreateConfig();
+
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
   ArgResults? argResultOverrides;
@@ -160,8 +169,20 @@ abstract class CreateSubCommand extends Command<int> {
     return name;
   }
 
+  /// Resolves the value for the argument named [name] against the matching
+  /// `very_good.yaml` [configValue].
+  ///
+  /// A command line argument that was explicitly parsed always wins. Otherwise
+  /// the [configValue] is used when present, falling back to the argument's
+  /// default value.
+  T? resolveArg<T>(String name, T? configValue) {
+    if (argResults.wasParsed(name)) return argResults[name] as T?;
+    return configValue ?? argResults[name] as T?;
+  }
+
   /// Gets the description for the project.
-  String get projectDescription => argResults['description'] as String? ?? '';
+  String get projectDescription =>
+      resolveArg<String>('description', createConfig.description) ?? '';
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -181,6 +202,18 @@ abstract class CreateSubCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    try {
+      createConfig = VeryGoodConfig.loadFromClosestAncestor(
+        Directory.current,
+      ).create;
+    } on VeryGoodConfigParseException catch (e) {
+      logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n'
+        '${e.message}',
+      );
+      return ExitCode.config.code;
+    }
+
     final template = this.template;
     final bundle = template.bundle;
 
@@ -258,7 +291,8 @@ abstract class CreateSubCommand extends Command<int> {
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
-    final orgName = argResults['org-name'] as String? ?? _defaultOrgName;
+    final orgName =
+        resolveArg<String>('org-name', createConfig.orgName) ?? _defaultOrgName;
     _validateOrgName(orgName);
     return orgName;
   }
@@ -303,9 +337,15 @@ mixin MultiTemplates on CreateSubCommand {
   @override
   Template get template {
     final templateName =
-        argResults['template'] as String? ?? defaultTemplateName;
+        resolveArg<String>('template', createConfig.template) ??
+        defaultTemplateName;
 
-    return templates.firstWhere((template) => template.name == templateName);
+    return templates.firstWhere(
+      (template) => template.name == templateName,
+      orElse: () => usageException(
+        '"$templateName" is not an allowed value for option "--template".',
+      ),
+    );
   }
 }
 
@@ -316,5 +356,6 @@ mixin MultiTemplates on CreateSubCommand {
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
   /// Gets the publishable flag.
-  bool get publishable => argResults['publishable'] as bool? ?? false;
+  bool get publishable =>
+      resolveArg<bool>('publishable', createConfig.publishable) ?? false;
 }

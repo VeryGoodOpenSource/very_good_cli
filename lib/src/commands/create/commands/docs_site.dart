@@ -30,7 +30,9 @@ class CreateDocsSite extends CreateSubCommand with Publishable {
   Map<String, dynamic> getTemplateVars() {
     return <String, dynamic>{
       ...super.getTemplateVars(),
-      'org_name': argResults['org-name'],
+      'org_name':
+          resolveArg<String>('org-name', createConfig.orgName) ??
+          _defaultOrgName,
     };
   }
 

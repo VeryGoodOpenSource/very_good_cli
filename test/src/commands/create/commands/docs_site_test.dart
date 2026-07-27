@@ -165,6 +165,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateDocsSite(
           logger: logger,
           generatorFromBundle: (_) async => generator,
@@ -208,6 +209,39 @@ void main() {
         ).called(1);
         verify(
           () => logger.info('Created a Very Good documentation site! 🦄'),
+        ).called(1);
+      });
+
+      test('uses default org name when omitted', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        final argResults = _MockArgResults();
+        final command = CreateDocsSite(
+          logger: logger,
+          generatorFromBundle: (_) async => generator,
+        )..argResultOverrides = argResults;
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(
+          () => argResults['output-directory'] as String?,
+        ).thenReturn(tempDirectory.path);
+        when(() => argResults.rest).thenReturn(['my_docs_site']);
+        when(() => argResults['org-name'] as String?).thenReturn(null);
+
+        final result = await command.run();
+
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => generator.generate(
+            any(),
+            vars: <String, dynamic>{
+              'project_name': 'my_docs_site',
+              'description': '',
+              'publishable': false,
+              'org_name': 'my-org',
+            },
+            logger: logger,
+          ),
         ).called(1);
       });
     });

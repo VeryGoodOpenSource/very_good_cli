@@ -103,6 +103,52 @@ test:
         expect(config.test.collectCoverageFrom, equals('imports'));
       });
 
+      test('parses all supported create options', () {
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_create_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
+
+        expect(config.create.description, equals('A configured project.'));
+        expect(config.create.orgName, equals('com.very.good'));
+        expect(config.create.publishable, isTrue);
+        expect(config.create.template, equals('my-template'));
+      });
+
+      test('defaults create to an empty config when omitted', () {
+        final config = VeryGoodConfig.fromString('test:\n  coverage: true');
+        expect(config.create, equals(const VeryGoodCreateConfig()));
+      });
+
+      test('throws when create section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('create: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when a create bool option has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString(
+            'create:\n  publishable: yes-please',
+          ),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized create key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('create:\n  org_nam: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
       test('throws when test section is not a map', () {
         expect(
           () => VeryGoodConfig.fromString('test: foo'),
@@ -313,6 +359,18 @@ test:
           equals(VeryGoodConfig(test: VeryGoodTestConfig(coverage: false))),
         ),
       );
+      expect(
+        VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true)),
+        equals(VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true))),
+      );
+      expect(
+        VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true)),
+        isNot(
+          equals(
+            VeryGoodConfig(create: VeryGoodCreateConfig(publishable: false)),
+          ),
+        ),
+      );
     });
   });
 
@@ -325,6 +383,21 @@ test:
       expect(
         VeryGoodTestConfig(coverage: true),
         isNot(equals(VeryGoodTestConfig(coverage: false))),
+      );
+    });
+  });
+
+  group(VeryGoodCreateConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodCreateConfig(orgName: 'com.very.good', publishable: true),
+        equals(
+          VeryGoodCreateConfig(orgName: 'com.very.good', publishable: true),
+        ),
+      );
+      expect(
+        VeryGoodCreateConfig(publishable: true),
+        isNot(equals(VeryGoodCreateConfig(publishable: false))),
       );
     });
   });

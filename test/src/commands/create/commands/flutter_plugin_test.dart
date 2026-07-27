@@ -191,6 +191,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateFlutterPlugin(
           logger: logger,
           generatorFromBundle: (_) async => generator,
@@ -291,6 +292,7 @@ void main() {
           ).thenAnswer((_) async => successResult);
 
           final argResults = _MockArgResults();
+          when(() => argResults.wasParsed(any())).thenReturn(true);
           final command = CreateFlutterPlugin(
             logger: logger,
             generatorFromBundle: (_) async => generator,

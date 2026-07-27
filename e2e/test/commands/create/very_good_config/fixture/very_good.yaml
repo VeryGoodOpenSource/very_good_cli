@@ -1,0 +1,3 @@
+create:
+  description: A project configured via very_good.yaml.
+  publishable: true

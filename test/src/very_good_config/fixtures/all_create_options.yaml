@@ -1,0 +1,5 @@
+create:
+  description: A configured project.
+  org_name: com.very.good
+  publishable: true
+  template: my-template
