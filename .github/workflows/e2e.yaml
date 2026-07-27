@@ -33,6 +33,7 @@ jobs:
           - test/commands/test/compilation_error/compilation_error_test.dart
           - test/commands/test/no_project/no_project_test.dart
           - test/commands/test/spaced_golden_file_name/spaced_golden_file_name_test.dart
+          - test/commands/test/very_good_config/very_good_config_test.dart
 
           # E2E tests for the create command
           - test/commands/create/flutter_app/core_test.dart
