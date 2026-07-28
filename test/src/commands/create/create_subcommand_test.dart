@@ -1133,7 +1133,7 @@ Run "runner help" to see global options.''';
       ).thenAnswer((_) async {});
     });
 
-    group('resolveArg', () {
+    group('resolve', () {
       test('applies config value when the arg was not parsed', () {
         final argResults = _MockArgResults();
         when(() => argResults.wasParsed(any())).thenReturn(false);
