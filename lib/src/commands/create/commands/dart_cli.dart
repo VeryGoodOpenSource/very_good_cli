@@ -4,7 +4,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_dart_cli_command}
 /// A [CreateSubCommand] for creating Dart command line interfaces.
 /// {@endtemplate}
-class CreateDartCLI extends CreateSubCommand with Publishable {
+class CreateDartCLI extends CreateSubCommand with Publishable, Workspace {
   /// {@macro very_good_create_dart_cli_command}
   CreateDartCLI({
     required super.logger,

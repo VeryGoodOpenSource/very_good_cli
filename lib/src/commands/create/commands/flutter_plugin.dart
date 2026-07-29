@@ -4,7 +4,8 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_flutter_plugin_command}
 /// A [CreateSubCommand] for creating Flutter plugins.
 /// {@endtemplate}
-class CreateFlutterPlugin extends CreateSubCommand with Publishable, OrgName {
+class CreateFlutterPlugin extends CreateSubCommand
+    with Publishable, OrgName, Workspace {
   /// {@macro very_good_create_flutter_plugin_command}
   CreateFlutterPlugin({
     required super.logger,

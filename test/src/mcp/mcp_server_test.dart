@@ -201,6 +201,7 @@ void main() {
                 'application_id': 'com.test.my_app',
                 'platforms': 'ios,web',
                 'publishable': true,
+                'workspace': true,
                 'executable-name': 'my_cli',
                 'template': 'core',
               },
@@ -228,11 +229,36 @@ void main() {
             '--platforms',
             'ios,web',
             '--publishable',
+            '--workspace',
             '--executable-name',
             'my_cli',
             '-t',
             'core',
           ]),
+        );
+      });
+
+      test('handles --no-workspace', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'create',
+              arguments: {
+                'subcommand': 'dart_package',
+                'name': 'my_pkg',
+                'workspace': false,
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(
+          capturedArgs,
+          equals(['create', 'dart_package', 'my_pkg', '--no-workspace']),
         );
       });
 
