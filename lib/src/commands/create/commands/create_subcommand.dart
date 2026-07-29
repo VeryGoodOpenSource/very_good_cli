@@ -42,6 +42,9 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 ///
 /// For sub commands that receive a publishable flag, sub classes must mix with
 /// [Publishable].
+///
+/// For sub commands that receive a workspace flag, sub classes must mix with
+/// [Workspace].
 abstract class CreateSubCommand extends Command<int> {
   /// {@macro create_subcommand}
   CreateSubCommand({
@@ -97,6 +100,16 @@ abstract class CreateSubCommand extends Command<int> {
         'publishable',
         negatable: false,
         help: 'Whether the generated project is intended to be published.',
+      );
+    }
+
+    if (this is Workspace) {
+      argParser.addFlag(
+        'workspace',
+        aliases: ['ws'],
+        help:
+            'Whether the generated project should resolve its dependencies '
+            'from a parent Pub workspace.',
       );
     }
   }
@@ -237,6 +250,7 @@ abstract class CreateSubCommand extends Command<int> {
   ///
   /// For subcommands that mix with [OrgName], it includes 'org_name'.
   /// For subcommands that mix with [Publishable], it includes 'publishable'.
+  /// For subcommands that mix with [Workspace], it includes 'workspace'.
   @mustCallSuper
   Map<String, dynamic> getTemplateVars() {
     final projectName = this.projectName;
@@ -247,6 +261,7 @@ abstract class CreateSubCommand extends Command<int> {
       'description': projectDescription,
       if (this is OrgName) 'org_name': (this as OrgName).orgName,
       if (this is Publishable) 'publishable': (this as Publishable).publishable,
+      if (this is Workspace) 'workspace': (this as Workspace).workspace,
     };
   }
 }
@@ -317,4 +332,13 @@ mixin MultiTemplates on CreateSubCommand {
 mixin Publishable on CreateSubCommand {
   /// Gets the publishable flag.
   bool get publishable => argResults['publishable'] as bool? ?? false;
+}
+
+/// Mixin for [CreateSubCommand] subclasses that receives the workspace flag.
+///
+/// Takes care of parsing it from [argResults] and pass it
+/// to the brick generator.
+mixin Workspace on CreateSubCommand {
+  /// Gets the workspace flag.
+  bool get workspace => argResults['workspace'] as bool? ?? false;
 }

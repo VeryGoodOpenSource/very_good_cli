@@ -5,7 +5,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// A [CreateSubCommand] for creating Flutter apps.
 /// {@endtemplate}
 class CreateFlutterApp extends CreateSubCommand
-    with OrgName, MultiTemplates, Publishable {
+    with OrgName, MultiTemplates, Publishable, Workspace {
   /// {@macro very_good_create_flutter_app_command}
   CreateFlutterApp({
     required super.logger,

@@ -139,6 +139,10 @@ Only available for subcommands: flutter_plugin with all values) and flame_game (
               description: '''
 Whether package is intended for publishing (flutter_package, dart_package  only)''',
             ),
+            'workspace': BooleanSchema(
+              description: '''
+Whether the generated project should resolve its dependencies from a parent Pub workspace.''',
+            ),
             'executable-name': StringSchema(
               description: '''
 CLI custom executable name (dart_cli  only)''',
@@ -347,6 +351,11 @@ Only one value can be selected.
     }
     if (args['publishable'] == true) {
       cliArgs.add('--publishable');
+    }
+    if (args['workspace'] == true) {
+      cliArgs.add('--workspace');
+    } else if (args['workspace'] == false) {
+      cliArgs.add('--no-workspace');
     }
     if (args['executable-name'] != null) {
       cliArgs.addAll(['--executable-name', args['executable-name']! as String]);
