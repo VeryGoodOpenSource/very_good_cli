@@ -38,6 +38,7 @@ Usage: very_good create flutter_app <project-name> [arguments]
     --org-name                   The organization for this new project.
                                  (defaults to "com.example.verygoodcore")
     --publishable                Whether the generated project is intended to be published.
+    --[no-]workspace             Whether the generated project should resolve its dependencies from a parent Pub workspace.
     --application-id             The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
     --platforms                  The platforms supported by the app. By default, all platforms are enabled. Example: --platforms=android,ios
 
@@ -190,6 +191,7 @@ void main() {
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
                 'publishable': false,
+                'workspace': false,
                 'application_id': 'xyz.app.my_app',
                 'platforms': const [
                   'android',
@@ -222,6 +224,7 @@ void main() {
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
                 'publishable': false,
+                'workspace': false,
                 'application_id': 'xyz.app.my_app',
                 'platforms': const ['android', 'ios'],
               },
@@ -258,6 +261,7 @@ void main() {
                 'description': '',
                 'org_name': 'com.example.verygoodcore',
                 'publishable': false,
+                'workspace': false,
                 'application_id': 'xyz.app.my_app',
                 'platforms': const [
                   'android',

@@ -64,6 +64,15 @@ class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
   });
 }
 
+class _TestCreateSubCommandWithWorkspace extends _TestCreateSubCommand
+    with Workspace {
+  _TestCreateSubCommandWithWorkspace({
+    required super.template,
+    required super.logger,
+    required super.generatorFromBundle,
+  });
+}
+
 class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
     with MultiTemplates {
   _TestCreateSubCommandMultiTemplate({
@@ -1252,6 +1261,238 @@ Run "runner help" to see global options.''';
             ),
           );
         });
+      });
+    });
+  });
+
+  group('Workspace', () {
+    late Template template;
+    late _MockBundle bundle;
+
+    setUp(() {
+      bundle = _MockBundle();
+      when(() => bundle.name).thenReturn('test');
+      when(() => bundle.description).thenReturn('Test bundle');
+      when(() => bundle.version).thenReturn('<bundleversion>');
+      template = _MockTemplate();
+      when(() => template.name).thenReturn('test');
+      when(() => template.bundle).thenReturn(bundle);
+      when(
+        () => template.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
+    });
+
+    group('can be instantiated', () {
+      test('with default options', () {
+        final command = _TestCreateSubCommandWithWorkspace(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        );
+
+        expect(
+          command.argParser.options['workspace'],
+          isA<Option>()
+              .having((o) => o.isFlag, 'isFlag', true)
+              .having((o) => o.abbr, 'abbr', null)
+              .having((o) => o.defaultsTo, 'defaultsTo', false)
+              .having((o) => o.negatable, 'negatable', true)
+              .having((o) => o.aliases, 'aliases', ['ws']),
+        );
+        expect(command.argParser.commands, isEmpty);
+      });
+    });
+
+    group('parsing of options', () {
+      late GeneratorHooks hooks;
+      late MasonGenerator generator;
+      late _TestCommandRunner runner;
+
+      setUp(() {
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
+
+        when(() => generator.hooks).thenReturn(hooks);
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        ).thenAnswer((_) async {});
+
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            logger: any(named: 'logger'),
+          ),
+        ).thenAnswer((_) async {
+          return generatedFiles;
+        });
+
+        when(() => generator.id).thenReturn('generator_id');
+        when(() => generator.description).thenReturn('generator description');
+        when(() => generator.hooks).thenReturn(hooks);
+
+        final command = _TestCreateSubCommandWithWorkspace(
+          template: template,
+          logger: logger,
+          generatorFromBundle: (_) async => generator,
+        );
+
+        runner = _TestCommandRunner(command: command);
+      });
+
+      test('parses workspace', () async {
+        final result = await runner.run([
+          'create_subcommand',
+          'test_project',
+          '--workspace',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                true,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(that: isA<DirectoryGeneratorTarget>()),
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                true,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      test('parses workspace from alias', () async {
+        final result = await runner.run([
+          'create_subcommand',
+          'test_project',
+          '--ws',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                true,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(that: isA<DirectoryGeneratorTarget>()),
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                true,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      test('parses --no-workspace', () async {
+        final result = await runner.run([
+          'create_subcommand',
+          'test_project',
+          '--no-workspace',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                false,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(that: isA<DirectoryGeneratorTarget>()),
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                false,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      test('uses default value for omitted workspace flag', () async {
+        final result = await runner.run(['create_subcommand', 'test_project']);
+
+        expect(result, equals(ExitCode.success.code));
+
+        verify(
+          () => hooks.preGen(
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                false,
+              ),
+            ),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        );
+
+        verify(
+          () => generator.generate(
+            any(that: isA<DirectoryGeneratorTarget>()),
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['workspace'],
+                'workspace',
+                false,
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
       });
     });
   });
