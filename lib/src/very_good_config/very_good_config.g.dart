@@ -6,31 +6,62 @@ part of 'very_good_config.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-VeryGoodConfig _$VeryGoodConfigFromJson(Map json) =>
-    $checkedCreate('VeryGoodConfig', json, ($checkedConvert) {
-      $checkKeys(json, allowedKeys: const ['test', 'dart', 'packages']);
-      final val = VeryGoodConfig(
-        test: $checkedConvert(
-          'test',
-          (v) => v == null
-              ? const VeryGoodTestConfig()
-              : VeryGoodTestConfig.fromJson(v as Map),
-        ),
-        dart: $checkedConvert(
-          'dart',
-          (v) => v == null
-              ? const VeryGoodDartConfig()
-              : VeryGoodDartConfig.fromJson(v as Map),
-        ),
-        packages: $checkedConvert(
-          'packages',
-          (v) => v == null
-              ? const VeryGoodPackagesConfig()
-              : VeryGoodPackagesConfig.fromJson(v as Map),
-        ),
+VeryGoodConfig _$VeryGoodConfigFromJson(Map json) => $checkedCreate(
+  'VeryGoodConfig',
+  json,
+  ($checkedConvert) {
+    $checkKeys(json, allowedKeys: const ['test', 'create', 'dart', 'packages']);
+    final val = VeryGoodConfig(
+      test: $checkedConvert(
+        'test',
+        (v) => v == null
+            ? const VeryGoodTestConfig()
+            : VeryGoodTestConfig.fromJson(v as Map),
+      ),
+      create: $checkedConvert(
+        'create',
+        (v) => v == null
+            ? const VeryGoodCreateConfig()
+            : VeryGoodCreateConfig.fromJson(v as Map),
+      ),
+      dart: $checkedConvert(
+        'dart',
+        (v) => v == null
+            ? const VeryGoodDartConfig()
+            : VeryGoodDartConfig.fromJson(v as Map),
+      ),
+      packages: $checkedConvert(
+        'packages',
+        (v) => v == null
+            ? const VeryGoodPackagesConfig()
+            : VeryGoodPackagesConfig.fromJson(v as Map),
+      ),
+    );
+    return val;
+  },
+);
+
+VeryGoodCreateConfig _$VeryGoodCreateConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodCreateConfig', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        allowedKeys: const [
+          'description',
+          'org_name',
+          'publishable',
+          'template',
+          'workspace',
+        ],
+      );
+      final val = VeryGoodCreateConfig(
+        description: $checkedConvert('description', (v) => v as String?),
+        orgName: $checkedConvert('org_name', (v) => v as String?),
+        publishable: $checkedConvert('publishable', (v) => v as bool?),
+        template: $checkedConvert('template', (v) => v as String?),
+        workspace: $checkedConvert('workspace', (v) => v as bool?),
       );
       return val;
-    });
+    }, fieldKeyMap: const {'orgName': 'org_name'});
 
 VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
   'VeryGoodTestConfig',

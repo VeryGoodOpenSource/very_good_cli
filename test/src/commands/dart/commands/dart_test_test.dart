@@ -865,6 +865,11 @@ void main() {
           config: const VeryGoodConfig(
             dart: VeryGoodDartConfig(
               test: VeryGoodDartTestConfig(
+                concurrency: '8',
+                tags: 'unit',
+                optimization: false,
+                platform: 'chrome',
+                checkIgnore: false,
                 minCoverage: '90',
                 excludeCoverage: '**/*.g.dart',
                 reportOn: ['lib/'],
@@ -873,10 +878,44 @@ void main() {
             ),
           ),
         );
+        expect(options.concurrency, equals('8'));
+        expect(options.tags, equals('unit'));
+        expect(options.optimizePerformance, isFalse);
+        expect(options.platform, equals('chrome'));
+        expect(options.checkIgnore, isFalse);
         expect(options.minCoverage, equals(90));
         expect(options.excludeFromCoverage, equals('**/*.g.dart'));
         expect(options.reportOn, equals(['lib/']));
         expect(options.fileReporter, equals('json:reports/tests.json'));
+      });
+
+      test('CLI arguments take precedence over config for all fields', () {
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+        when<dynamic>(() => argResults['concurrency']).thenReturn('2');
+        when<dynamic>(() => argResults['tags']).thenReturn('cli-tag');
+        when<dynamic>(() => argResults['optimization']).thenReturn(true);
+        when<dynamic>(() => argResults['platform']).thenReturn('vm');
+        when<dynamic>(() => argResults['check-ignore']).thenReturn(true);
+
+        final options = DartTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(
+                concurrency: '8',
+                tags: 'unit',
+                optimization: false,
+                platform: 'chrome',
+                checkIgnore: false,
+              ),
+            ),
+          ),
+        );
+        expect(options.concurrency, equals('2'));
+        expect(options.tags, equals('cli-tag'));
+        expect(options.optimizePerformance, isTrue);
+        expect(options.platform, equals('vm'));
+        expect(options.checkIgnore, isTrue);
       });
 
       test('CLI argument takes precedence over config value', () {
