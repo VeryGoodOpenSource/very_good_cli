@@ -93,10 +93,4 @@ class CreateCommand extends Command<int> {
   @override
   String get invocation =>
       'very_good create <subcommand> <project-name> [arguments]';
-
-  /// The names of the subcommands that accept the `--workspace` flag.
-  Set<String> get workspaceSubcommandNames => subcommands.entries
-      .where((entry) => entry.value is Workspace)
-      .map((entry) => entry.key)
-      .toSet();
 }
