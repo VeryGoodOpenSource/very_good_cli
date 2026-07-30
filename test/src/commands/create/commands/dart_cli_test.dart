@@ -34,6 +34,7 @@ Usage: very_good create dart_cli <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --publishable         Whether the generated project is intended to be published.
+    --[no-]workspace      Whether the generated project should resolve its dependencies from a parent Pub workspace.
     --executable-name     The CLI executable name (defaults to the project name)
 
 Run "very_good help" to see global options.''',
@@ -75,6 +76,7 @@ void main() {
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());
+      expect(command, isA<Workspace>());
       expect(command.argParser.options, contains('executable-name'));
     });
   });
@@ -165,6 +167,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateDartCLI(
           logger: logger,
           generatorFromBundle: (_) async => generator,
@@ -189,6 +192,7 @@ void main() {
               'project_name': 'my_cli',
               'description': '',
               'publishable': false,
+              'workspace': false,
               'executable_name': 'my_executable',
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -201,6 +205,7 @@ void main() {
               'project_name': 'my_cli',
               'description': '',
               'publishable': false,
+              'workspace': false,
               'executable_name': 'my_executable',
             },
             logger: logger,

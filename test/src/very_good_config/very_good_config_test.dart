@@ -1,13 +1,16 @@
-// Ensures we don't have to use const constructors
-// and instances are created at runtime.
+// Ensures instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:io';
 
+import 'package:mason_logger/mason_logger.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
+
+class _MockLogger extends Mock implements Logger {}
 
 void main() {
   group(VeryGoodConfig, () {
@@ -99,6 +102,51 @@ test:
   collect_coverage_from: imports
 ''');
         expect(config.test.collectCoverageFrom, equals('imports'));
+      });
+
+      test('parses all supported create options', () {
+        final fixture = File(
+          p.join(
+            'test',
+            'src',
+            'very_good_config',
+            'fixtures',
+            'all_create_options.yaml',
+          ),
+        );
+        final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
+
+        expect(config.create.description, equals('A configured project.'));
+        expect(config.create.orgName, equals('com.very.good'));
+        expect(config.create.publishable, isTrue);
+        expect(config.create.template, equals('my-template'));
+        expect(config.create.workspace, isTrue);
+      });
+
+      test('defaults create to an empty config when omitted', () {
+        final config = VeryGoodConfig.fromString('test:\n  coverage: true');
+        expect(config.create, equals(const VeryGoodCreateConfig()));
+      });
+
+      test('throws when create section is not a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('create: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when a create bool option has wrong type', () {
+        expect(
+          () => VeryGoodConfig.fromString('create:\n  publishable: yes-please'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized create key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('create:\n  org_nam: foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
       });
 
       test('throws when test section is not a map', () {
@@ -449,20 +497,36 @@ packages:
       });
     });
 
-    group('loadFromClosestAncestor', () {
+    group('load', () {
       late Directory tempDir;
       late Directory nestedDir;
+      late Logger logger;
 
       setUp(() {
         tempDir = Directory.systemTemp.createTempSync('very_good_config_');
         nestedDir = Directory(p.join(tempDir.path, 'packages', 'foo'))
           ..createSync(recursive: true);
+        logger = _MockLogger();
       });
 
       tearDown(() {
         if (tempDir.existsSync()) {
           tempDir.deleteSync(recursive: true);
         }
+      });
+
+      test('returns the parsed config when very_good.yaml is valid', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+packages:
+  get:
+    recursive: true
+''');
+
+        final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+        expect(config, isNotNull);
+        expect(config!.packages.get.recursive, isTrue);
+        verifyNever(() => logger.err(any()));
       });
 
       test('reads config from the starting directory', () {
@@ -472,8 +536,10 @@ test:
   min_coverage: 80
 ''',
         );
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('80'));
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('80'));
       });
 
       test('reads config from an ancestor directory', () {
@@ -481,8 +547,10 @@ test:
 test:
   min_coverage: 90
 ''');
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('90'));
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('90'));
       });
 
       test('prefers the closest config over an ancestor', () {
@@ -496,26 +564,54 @@ test:
   min_coverage: 80
 ''',
         );
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('80'));
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('80'));
       });
 
-      test('returns empty config when no file is found in any ancestor', () {
-        expect(
-          VeryGoodConfig.loadFromClosestAncestor(nestedDir),
-          equals(VeryGoodConfig.empty),
-        );
+      test('returns an empty config when no very_good.yaml exists', () {
+        final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+        expect(config, equals(VeryGoodConfig.empty));
+        verifyNever(() => logger.err(any()));
       });
 
-      test('rethrows parse exception when the closest file is malformed', () {
-        File(
-          p.join(nestedDir.path, veryGoodConfigFileName),
-        ).writeAsStringSync('- not\n- a\n- map');
-        expect(
-          () => VeryGoodConfig.loadFromClosestAncestor(nestedDir),
-          throwsA(isA<VeryGoodConfigParseException>()),
-        );
-      });
+      test(
+        'logs an error and returns null when very_good.yaml is malformed',
+        () {
+          File(
+            p.join(tempDir.path, veryGoodConfigFileName),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+          expect(config, isNull);
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'logs an error and returns null when the closest file is malformed',
+        () {
+          File(
+            p.join(nestedDir.path, veryGoodConfigFileName),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+          expect(config, isNull);
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     test('supports value equality', () {
@@ -528,6 +624,18 @@ test:
         VeryGoodConfig(test: VeryGoodTestConfig(coverage: true)),
         isNot(
           equals(VeryGoodConfig(test: VeryGoodTestConfig(coverage: false))),
+        ),
+      );
+      expect(
+        VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true)),
+        equals(VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true))),
+      );
+      expect(
+        VeryGoodConfig(create: VeryGoodCreateConfig(publishable: true)),
+        isNot(
+          equals(
+            VeryGoodConfig(create: VeryGoodCreateConfig(publishable: false)),
+          ),
         ),
       );
       expect(
@@ -602,6 +710,21 @@ test:
       expect(
         VeryGoodTestConfig(coverage: true),
         isNot(equals(VeryGoodTestConfig(coverage: false))),
+      );
+    });
+  });
+
+  group(VeryGoodCreateConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodCreateConfig(orgName: 'com.very.good', publishable: true),
+        equals(
+          VeryGoodCreateConfig(orgName: 'com.very.good', publishable: true),
+        ),
+      );
+      expect(
+        VeryGoodCreateConfig(publishable: true),
+        isNot(equals(VeryGoodCreateConfig(publishable: false))),
       );
     });
   });

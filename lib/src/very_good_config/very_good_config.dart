@@ -11,6 +11,7 @@ import 'package:args/args.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
 
 part 'very_good_config.g.dart';
@@ -71,6 +72,7 @@ class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
   const VeryGoodConfig({
     this.test = const VeryGoodTestConfig(),
+    this.create = const VeryGoodCreateConfig(),
     this.dart = const VeryGoodDartConfig(),
     this.packages = const VeryGoodPackagesConfig(),
   });
@@ -105,24 +107,25 @@ class VeryGoodConfig extends Equatable {
   /// Loads the closest [VeryGoodConfig] by searching [directory] and each of
   /// its ancestors, from the innermost directory outward.
   ///
-  /// [directory] is resolved to an absolute path before the walk, so a relative
-  /// [directory] is searched relative to the current working directory.
-  ///
-  /// This allows a single repository-wide `very_good.yaml` at the project root
-  /// to apply to commands run from any nested package directory. The first
-  /// configuration file encountered wins; ancestors are not merged.
-  ///
   /// Returns [VeryGoodConfig.empty] when no configuration file is found.
-  /// Throws a [VeryGoodConfigParseException] when the closest file exists but
-  /// cannot be parsed.
-  factory VeryGoodConfig.loadFromClosestAncestor(Directory directory) {
-    var current = directory.absolute;
-    while (true) {
-      final config = _loadFromDirectory(current);
-      if (config != null) return config;
-      final parent = current.parent;
-      if (parent.path == current.path) return VeryGoodConfig.empty;
-      current = parent;
+  ///
+  /// On a parse failure, logs a formatted error via [logger] and returns
+  /// `null`, signalling that the caller should exit with a config error.
+  static VeryGoodConfig? load(Directory directory, {required Logger logger}) {
+    try {
+      var current = directory.absolute;
+      while (true) {
+        final config = _loadFromDirectory(current);
+        if (config != null) return config;
+        final parent = current.parent;
+        if (parent.path == current.path) return VeryGoodConfig.empty;
+        current = parent;
+      }
+    } on VeryGoodConfigParseException catch (e) {
+      logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n${e.message}',
+      );
+      return null;
     }
   }
 
@@ -146,6 +149,9 @@ class VeryGoodConfig extends Equatable {
   /// Configuration values for the `very_good test` command.
   final VeryGoodTestConfig test;
 
+  /// Configuration values for the `very_good create` command.
+  final VeryGoodCreateConfig create;
+
   /// Configuration values for the `very_good dart test` command.
   final VeryGoodDartConfig dart;
 
@@ -153,7 +159,61 @@ class VeryGoodConfig extends Equatable {
   final VeryGoodPackagesConfig packages;
 
   @override
-  List<Object?> get props => [test, dart, packages];
+  List<Object?> get props => [test, create, dart, packages];
+}
+
+/// {@template very_good_create_config}
+/// Configuration values that customize the defaults of the
+/// `very_good create` command and its subcommands.
+///
+/// Any field that is left as `null` retains its CLI default.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodCreateConfig extends Equatable {
+  /// {@macro very_good_create_config}
+  const VeryGoodCreateConfig({
+    this.description,
+    this.orgName,
+    this.publishable,
+    this.template,
+    this.workspace,
+  });
+
+  /// Creates a [VeryGoodCreateConfig] from a decoded YAML/JSON [json] map.
+  factory VeryGoodCreateConfig.fromJson(Map<dynamic, dynamic> json) {
+    return _$VeryGoodCreateConfigFromJson(json);
+  }
+
+  /// The description for the generated project.
+  final String? description;
+
+  /// The organization for the generated project.
+  final String? orgName;
+
+  /// Whether the generated project is intended to be published.
+  final bool? publishable;
+
+  /// The template used to generate the project.
+  final String? template;
+
+  /// Whether the generated project should resolve its dependencies from a
+  /// parent Pub workspace.
+  final bool? workspace;
+
+  @override
+  List<Object?> get props => [
+    description,
+    orgName,
+    publishable,
+    template,
+    workspace,
+  ];
 }
 
 /// {@template very_good_test_config}
@@ -586,11 +646,6 @@ class VeryGoodPackagesCheckLicensesConfig extends Equatable {
   ];
 }
 
-// The coercers below intentionally validate more strictly than the CLI flag
-// parser. A value such as `min_coverage: 150` is rejected here at config load
-// time even though `--min-coverage 150` is accepted by the flag parser, so
-// misconfigured `very_good.yaml` files fail fast with a clear message.
-
 /// Coerces a `num` or `String` value into a `String`.
 ///
 /// Options are stored as strings to match the CLI's argument parsing (which
@@ -643,24 +698,36 @@ String? _minCoverage(Object? value) {
   return asString;
 }
 
-/// Validates and returns the `collect_coverage_from` value.
-///
-/// Accepts only `imports` or `all`.
-String? _collectCoverageFrom(Object? value) {
-  if (value == null) return null;
-  if (value != 'imports' && value != 'all') {
-    throw FormatException('Expected `imports` or `all` but got `$value`.');
-  }
-  return value as String;
-}
+/// The values accepted by the `collect-coverage-from` option, shared between
+/// the CLI argument parser and the `very_good.yaml` validator so they cannot
+/// drift apart.
+const collectCoverageFromAllowedValues = ['imports', 'all'];
 
-/// The dependency types accepted by `very_good packages check licenses`.
-const _dependencyTypes = [
+/// The dependency types accepted by `very_good packages check licenses`, shared
+/// between the CLI argument parser and the `very_good.yaml` validator so they
+/// cannot drift apart.
+const dependencyTypeAllowedValues = [
   'direct-main',
   'direct-dev',
   'direct-overridden',
   'transitive',
 ];
+
+/// The values accepted by the license `reporter` option, shared between the
+/// CLI argument parser and the `very_good.yaml` validator so they cannot drift
+/// apart.
+const reporterAllowedValues = ['text', 'csv'];
+
+/// Validates and returns the `collect_coverage_from` value.
+///
+/// Accepts only `imports` or `all`.
+String? _collectCoverageFrom(Object? value) {
+  if (value == null) return null;
+  if (!collectCoverageFromAllowedValues.contains(value)) {
+    throw FormatException('Expected `imports` or `all` but got `$value`.');
+  }
+  return value as String;
+}
 
 /// Validates and returns the `dependency_type` value.
 ///
@@ -669,9 +736,10 @@ List<String>? _dependencyType(Object? value) {
   final values = _stringList(value);
   if (values == null) return null;
   for (final value in values) {
-    if (!_dependencyTypes.contains(value)) {
+    if (!dependencyTypeAllowedValues.contains(value)) {
       throw FormatException(
-        'Expected one of ${_dependencyTypes.join(', ')} but got `$value`.',
+        'Expected one of ${dependencyTypeAllowedValues.join(', ')} '
+        'but got `$value`.',
       );
     }
   }
@@ -683,7 +751,7 @@ List<String>? _dependencyType(Object? value) {
 /// Accepts only `text` or `csv`.
 String? _reporter(Object? value) {
   if (value == null) return null;
-  if (value != 'text' && value != 'csv') {
+  if (!reporterAllowedValues.contains(value)) {
     throw FormatException('Expected `text` or `csv` but got `$value`.');
   }
   return value as String;

@@ -4,7 +4,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_app_ui_package_command}
 /// A [CreateSubCommand] for creating App UI packages.
 /// {@endtemplate}
-class CreateAppUiPackage extends CreateSubCommand with Publishable {
+class CreateAppUiPackage extends CreateSubCommand with Publishable, Workspace {
   /// {@macro very_good_create_app_ui_package_command}
   CreateAppUiPackage({
     required super.logger,

@@ -34,6 +34,7 @@ Usage: very_good create app_ui_package <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --publishable         Whether the generated project is intended to be published.
+    --[no-]workspace      Whether the generated project should resolve its dependencies from a parent Pub workspace.
 
 Run "very_good help" to see global options.''',
 ];
@@ -74,6 +75,7 @@ void main() {
       );
       expect(command.logger, equals(logger));
       expect(command, isA<Publishable>());
+      expect(command, isA<Workspace>());
     });
   });
 
@@ -163,6 +165,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateAppUiPackage(
           logger: logger,
           generatorFromBundle: (_) async => generator,
@@ -184,6 +187,7 @@ void main() {
               'project_name': 'my_app_ui',
               'description': '',
               'publishable': false,
+              'workspace': false,
             },
             onVarsChanged: any(named: 'onVarsChanged'),
           ),
@@ -195,6 +199,7 @@ void main() {
               'project_name': 'my_app_ui',
               'description': '',
               'publishable': false,
+              'workspace': false,
             },
             logger: logger,
           ),

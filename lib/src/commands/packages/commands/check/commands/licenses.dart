@@ -167,12 +167,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'dependency-type',
         help: 'The type of dependencies to check licenses for.',
-        allowed: [
-          'direct-main',
-          'direct-dev',
-          'direct-overridden',
-          'transitive',
-        ],
+        allowed: dependencyTypeAllowedValues,
         allowedHelp: {
           'direct-main': 'Check for direct main dependencies.',
           'direct-dev': 'Check for direct dev dependencies.',
@@ -193,7 +188,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addOption(
         'reporter',
         help: 'Lists all licenses.',
-        allowed: ['text', 'csv'],
+        allowed: reporterAllowedValues,
         allowedHelp: {
           'text': 'Lists licenses without a specific format.',
           'csv': 'Lists licenses in a CSV format.',
@@ -221,16 +216,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
 
-    final VeryGoodConfig config;
-    try {
-      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
-    } on VeryGoodConfigParseException catch (e) {
-      _logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n'
-        '${e.message}',
-      );
-      return ExitCode.config.code;
-    }
+    final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
+    if (config == null) return ExitCode.config.code;
 
     final options = PackagesCheckLicensesOptions.parse(
       _argResults,

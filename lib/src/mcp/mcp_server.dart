@@ -139,6 +139,10 @@ Only available for subcommands: flutter_plugin with all values) and flame_game (
               description: '''
 Whether package is intended for publishing (flutter_package, dart_package  only)''',
             ),
+            'workspace': BooleanSchema(
+              description: '''
+Whether the generated project should resolve its dependencies from a parent Pub workspace.''',
+            ),
             'executable-name': StringSchema(
               description: '''
 CLI custom executable name (dart_cli  only)''',
@@ -324,6 +328,20 @@ Only one value can be selected.
     );
   }
 
+  /// The `create` subcommands that define the `--workspace` flag.
+  ///
+  /// `docs_site` is intentionally excluded because it does not mix in the
+  /// `Workspace` mixin and therefore rejects the flag.
+  static const _workspaceSubcommands = {
+    'app_ui_package',
+    'flame_game',
+    'flutter_app',
+    'flutter_package',
+    'flutter_plugin',
+    'dart_cli',
+    'dart_package',
+  };
+
   List<String> _parseCreate(Map<String, Object?> args) {
     final subcommand = args['subcommand']! as String;
     final name = args['name']! as String;
@@ -347,6 +365,13 @@ Only one value can be selected.
     }
     if (args['publishable'] == true) {
       cliArgs.add('--publishable');
+    }
+    if (_workspaceSubcommands.contains(subcommand)) {
+      if (args['workspace'] == true) {
+        cliArgs.add('--workspace');
+      } else if (args['workspace'] == false) {
+        cliArgs.add('--no-workspace');
+      }
     }
     if (args['executable-name'] != null) {
       cliArgs.addAll(['--executable-name', args['executable-name']! as String]);

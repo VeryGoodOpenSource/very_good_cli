@@ -39,6 +39,7 @@ final expectedUsage = [
       '    --org-name                   The organization for this new project.\n'
       '                                 (defaults to "com.example.verygoodcore")\n'
       '    --publishable                Whether the generated project is intended to be published.\n'
+      '    --[no-]workspace             Whether the generated project should resolve its dependencies from a parent Pub workspace.\n'
       '    --platforms                  The platforms supported by the game. By default, all platforms are enabled. Example: --platforms=android,ios\n'
       '\n'
       '          [android] (default)    The game supports the Android platform.\n'
@@ -174,6 +175,7 @@ void main() {
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
         final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(true);
         final command = CreateFlameGame(
           logger: logger,
           generatorFromBundle: (_) async => generator,
@@ -202,6 +204,7 @@ void main() {
               'description': '',
               'org_name': 'com.example.verygoodcore',
               'publishable': false,
+              'workspace': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -215,6 +218,7 @@ void main() {
               'description': '',
               'org_name': 'com.example.verygoodcore',
               'publishable': false,
+              'workspace': false,
               'platforms': ['android', 'ios', 'web', 'macos', 'windows'],
             },
             logger: logger,
