@@ -497,81 +497,15 @@ packages:
       });
     });
 
-    group('loadFromClosestAncestor', () {
+    group('load', () {
       late Directory tempDir;
       late Directory nestedDir;
+      late Logger logger;
 
       setUp(() {
         tempDir = Directory.systemTemp.createTempSync('very_good_config_');
         nestedDir = Directory(p.join(tempDir.path, 'packages', 'foo'))
           ..createSync(recursive: true);
-      });
-
-      tearDown(() {
-        if (tempDir.existsSync()) {
-          tempDir.deleteSync(recursive: true);
-        }
-      });
-
-      test('reads config from the starting directory', () {
-        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
-          '''
-test:
-  min_coverage: 80
-''',
-        );
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('80'));
-      });
-
-      test('reads config from an ancestor directory', () {
-        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
-test:
-  min_coverage: 90
-''');
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('90'));
-      });
-
-      test('prefers the closest config over an ancestor', () {
-        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
-test:
-  min_coverage: 90
-''');
-        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
-          '''
-test:
-  min_coverage: 80
-''',
-        );
-        final config = VeryGoodConfig.loadFromClosestAncestor(nestedDir);
-        expect(config.test.minCoverage, equals('80'));
-      });
-
-      test('returns empty config when no file is found in any ancestor', () {
-        expect(
-          VeryGoodConfig.loadFromClosestAncestor(nestedDir),
-          equals(VeryGoodConfig.empty),
-        );
-      });
-
-      test('rethrows parse exception when the closest file is malformed', () {
-        File(
-          p.join(nestedDir.path, veryGoodConfigFileName),
-        ).writeAsStringSync('- not\n- a\n- map');
-        expect(
-          () => VeryGoodConfig.loadFromClosestAncestor(nestedDir),
-          throwsA(isA<VeryGoodConfigParseException>()),
-        );
-      });
-    });
-
-    group('load', () {
-      late Directory tempDir;
-      late Logger logger;
-
-      setUp(() {
-        tempDir = Directory.systemTemp.createTempSync('very_good_config_');
         logger = _MockLogger();
       });
 
@@ -595,6 +529,47 @@ packages:
         verifyNever(() => logger.err(any()));
       });
 
+      test('reads config from the starting directory', () {
+        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
+          '''
+test:
+  min_coverage: 80
+''',
+        );
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('80'));
+      });
+
+      test('reads config from an ancestor directory', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+test:
+  min_coverage: 90
+''');
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('90'));
+      });
+
+      test('prefers the closest config over an ancestor', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+test:
+  min_coverage: 90
+''');
+        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
+          '''
+test:
+  min_coverage: 80
+''',
+        );
+
+        final config = VeryGoodConfig.load(nestedDir, logger: logger);
+
+        expect(config?.test.minCoverage, equals('80'));
+      });
+
       test('returns an empty config when no very_good.yaml exists', () {
         final config = VeryGoodConfig.load(tempDir, logger: logger);
 
@@ -610,6 +585,24 @@ packages:
           ).writeAsStringSync('- not\n- a\n- map');
 
           final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+          expect(config, isNull);
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'logs an error and returns null when the closest file is malformed',
+        () {
+          File(
+            p.join(nestedDir.path, veryGoodConfigFileName),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final config = VeryGoodConfig.load(nestedDir, logger: logger);
 
           expect(config, isNull);
           verify(

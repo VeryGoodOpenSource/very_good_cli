@@ -107,42 +107,23 @@ class VeryGoodConfig extends Equatable {
   /// Loads the closest [VeryGoodConfig] by searching [directory] and each of
   /// its ancestors, from the innermost directory outward.
   ///
-  /// [directory] is resolved to an absolute path before the walk, so a relative
-  /// [directory] is searched relative to the current working directory.
-  ///
-  /// This allows a single repository-wide `very_good.yaml` at the project root
-  /// to apply to commands run from any nested package directory. The first
-  /// configuration file encountered wins; ancestors are not merged.
-  ///
   /// Returns [VeryGoodConfig.empty] when no configuration file is found.
-  /// Throws a [VeryGoodConfigParseException] when the closest file exists but
-  /// cannot be parsed.
-  factory VeryGoodConfig.loadFromClosestAncestor(Directory directory) {
-    var current = directory.absolute;
-    while (true) {
-      final config = _loadFromDirectory(current);
-      if (config != null) return config;
-      final parent = current.parent;
-      if (parent.path == current.path) return VeryGoodConfig.empty;
-      current = parent;
-    }
-  }
-
-  /// Loads the closest [VeryGoodConfig] to [directory].
   ///
   /// On a parse failure, logs a formatted error via [logger] and returns
   /// `null`, signalling that the caller should exit with a config error.
-  ///
-  /// Centralizes the load-and-report contract shared by every command that
-  /// reads `very_good.yaml`, so the error message and exit behavior stay
-  /// consistent.
   static VeryGoodConfig? load(Directory directory, {required Logger logger}) {
     try {
-      return VeryGoodConfig.loadFromClosestAncestor(directory);
+      var current = directory.absolute;
+      while (true) {
+        final config = _loadFromDirectory(current);
+        if (config != null) return config;
+        final parent = current.parent;
+        if (parent.path == current.path) return VeryGoodConfig.empty;
+        current = parent;
+      }
     } on VeryGoodConfigParseException catch (e) {
       logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n'
-        '${e.message}',
+        'Could not read `$veryGoodConfigFileName`.\n${e.message}',
       );
       return null;
     }
@@ -717,24 +698,36 @@ String? _minCoverage(Object? value) {
   return asString;
 }
 
-/// Validates and returns the `collect_coverage_from` value.
-///
-/// Accepts only `imports` or `all`.
-String? _collectCoverageFrom(Object? value) {
-  if (value == null) return null;
-  if (value != 'imports' && value != 'all') {
-    throw FormatException('Expected `imports` or `all` but got `$value`.');
-  }
-  return value as String;
-}
+/// The values accepted by the `collect-coverage-from` option, shared between
+/// the CLI argument parser and the `very_good.yaml` validator so they cannot
+/// drift apart.
+const collectCoverageFromAllowedValues = ['imports', 'all'];
 
-/// The dependency types accepted by `very_good packages check licenses`.
-const _dependencyTypes = [
+/// The dependency types accepted by `very_good packages check licenses`, shared
+/// between the CLI argument parser and the `very_good.yaml` validator so they
+/// cannot drift apart.
+const dependencyTypeAllowedValues = [
   'direct-main',
   'direct-dev',
   'direct-overridden',
   'transitive',
 ];
+
+/// The values accepted by the license `reporter` option, shared between the
+/// CLI argument parser and the `very_good.yaml` validator so they cannot drift
+/// apart.
+const reporterAllowedValues = ['text', 'csv'];
+
+/// Validates and returns the `collect_coverage_from` value.
+///
+/// Accepts only `imports` or `all`.
+String? _collectCoverageFrom(Object? value) {
+  if (value == null) return null;
+  if (!collectCoverageFromAllowedValues.contains(value)) {
+    throw FormatException('Expected `imports` or `all` but got `$value`.');
+  }
+  return value as String;
+}
 
 /// Validates and returns the `dependency_type` value.
 ///
@@ -743,9 +736,10 @@ List<String>? _dependencyType(Object? value) {
   final values = _stringList(value);
   if (values == null) return null;
   for (final value in values) {
-    if (!_dependencyTypes.contains(value)) {
+    if (!dependencyTypeAllowedValues.contains(value)) {
       throw FormatException(
-        'Expected one of ${_dependencyTypes.join(', ')} but got `$value`.',
+        'Expected one of ${dependencyTypeAllowedValues.join(', ')} '
+        'but got `$value`.',
       );
     }
   }
@@ -757,7 +751,7 @@ List<String>? _dependencyType(Object? value) {
 /// Accepts only `text` or `csv`.
 String? _reporter(Object? value) {
   if (value == null) return null;
-  if (value != 'text' && value != 'csv') {
+  if (!reporterAllowedValues.contains(value)) {
     throw FormatException('Expected `text` or `csv` but got `$value`.');
   }
   return value as String;

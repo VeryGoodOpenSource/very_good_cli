@@ -1091,7 +1091,8 @@ Run "runner help" to see global options.''';
               isA<UsageException>().having(
                 (e) => e.message,
                 'message',
-                '"unknown" is not an allowed value for option "--template".',
+                '"unknown" is not an allowed value for the `create.template` '
+                    'key in `$veryGoodConfigFileName`.',
               ),
             ),
           );

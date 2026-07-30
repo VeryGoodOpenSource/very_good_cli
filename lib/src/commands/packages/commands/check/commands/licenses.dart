@@ -157,12 +157,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addMultiOption(
         'dependency-type',
         help: 'The type of dependencies to check licenses for.',
-        allowed: [
-          'direct-main',
-          'direct-dev',
-          'direct-overridden',
-          'transitive',
-        ],
+        allowed: dependencyTypeAllowedValues,
         allowedHelp: {
           'direct-main': 'Check for direct main dependencies.',
           'direct-dev': 'Check for direct dev dependencies.',
@@ -183,7 +178,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       ..addOption(
         'reporter',
         help: 'Lists all licenses.',
-        allowed: ['text', 'csv'],
+        allowed: reporterAllowedValues,
         allowedHelp: {
           'text': 'Lists licenses without a specific format.',
           'csv': 'Lists licenses in a CSV format.',

@@ -333,7 +333,7 @@ class TestCommand extends Command<int> {
         help:
             'Whether to collect coverage from imported files only or all '
             'files.',
-        allowed: ['imports', 'all'],
+        allowed: collectCoverageFromAllowedValues,
         defaultsTo: 'imports',
         valueHelp: 'imports|all',
       )

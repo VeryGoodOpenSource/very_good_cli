@@ -346,9 +346,17 @@ mixin MultiTemplates on CreateSubCommand {
 
     return templates.firstWhere(
       (template) => template.name == templateName,
-      orElse: () => usageException(
-        '"$templateName" is not an allowed value for option "--template".',
-      ),
+      orElse: () {
+        // When the value came from `very_good.yaml` rather than the command
+        // line, point the user at the config key instead of the CLI option so
+        // they debug the right place.
+        final source = argResults.wasParsed('template')
+            ? 'option "--template"'
+            : 'the `create.template` key in `$veryGoodConfigFileName`';
+        usageException(
+          '"$templateName" is not an allowed value for $source.',
+        );
+      },
     );
   }
 }
