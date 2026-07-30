@@ -262,6 +262,30 @@ void main() {
         );
       });
 
+      test('does not forward workspace args to docs_site', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'create',
+              arguments: {
+                'subcommand': 'docs_site',
+                'name': 'my_docs',
+                'workspace': true,
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(
+          capturedArgs,
+          equals(['create', 'docs_site', 'my_docs']),
+        );
+      });
+
       test('handles command runner failure', () async {
         when(
           () => mockCommandRunner.run(any()),

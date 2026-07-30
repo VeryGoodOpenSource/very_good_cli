@@ -207,17 +207,9 @@ abstract class CreateSubCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    try {
-      createConfig = VeryGoodConfig.loadFromClosestAncestor(
-        Directory.current,
-      ).create;
-    } on VeryGoodConfigParseException catch (e) {
-      logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n'
-        '${e.message}',
-      );
-      return ExitCode.config.code;
-    }
+    final config = VeryGoodConfig.load(Directory.current, logger: logger);
+    if (config == null) return ExitCode.config.code;
+    createConfig = config.create;
 
     final template = this.template;
     final bundle = template.bundle;
@@ -381,5 +373,9 @@ mixin Publishable on CreateSubCommand {
 /// to the brick generator.
 mixin Workspace on CreateSubCommand {
   /// Gets the workspace flag.
-  bool get workspace => argResults['workspace'] as bool? ?? false;
+  bool get workspace => argResults.resolve<bool>(
+    'workspace',
+    createConfig.workspace,
+    fallbackValue: false,
+  );
 }

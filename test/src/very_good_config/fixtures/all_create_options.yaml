@@ -3,3 +3,4 @@ create:
   org_name: com.very.good
   publishable: true
   template: my-template
+  workspace: true

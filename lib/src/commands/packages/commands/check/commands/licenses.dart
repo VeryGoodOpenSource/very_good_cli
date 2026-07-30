@@ -211,16 +211,8 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
 
-    final VeryGoodConfig config;
-    try {
-      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
-    } on VeryGoodConfigParseException catch (e) {
-      _logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n'
-        '${e.message}',
-      );
-      return ExitCode.config.code;
-    }
+    final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
+    if (config == null) return ExitCode.config.code;
 
     final options = PackagesCheckLicensesOptions.parse(
       _argResults,

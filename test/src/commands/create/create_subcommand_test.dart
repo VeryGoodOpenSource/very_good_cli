@@ -1235,6 +1235,55 @@ Run "runner help" to see global options.''';
 
         expect(command.publishable, isTrue);
       });
+
+      test('resolves the workspace flag from the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['workspace'] as bool?).thenReturn(null);
+
+        final command =
+            _TestCreateSubCommandWithWorkspace(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(workspace: true);
+
+        expect(command.workspace, isTrue);
+      });
+
+      test('prefers the CLI workspace flag over the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('workspace')).thenReturn(true);
+        when(() => argResults['workspace'] as bool?).thenReturn(false);
+
+        final command =
+            _TestCreateSubCommandWithWorkspace(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(workspace: true);
+
+        expect(command.workspace, isFalse);
+      });
+
+      test('falls back to false when neither workspace source is set', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['workspace'] as bool?).thenReturn(null);
+
+        final command = _TestCreateSubCommandWithWorkspace(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(command.workspace, isFalse);
+      });
     });
 
     group('run', () {

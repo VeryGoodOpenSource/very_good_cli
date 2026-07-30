@@ -41,24 +41,27 @@ VeryGoodConfig _$VeryGoodConfigFromJson(Map json) => $checkedCreate(
   },
 );
 
-VeryGoodCreateConfig _$VeryGoodCreateConfigFromJson(Map json) => $checkedCreate(
-  'VeryGoodCreateConfig',
-  json,
-  ($checkedConvert) {
-    $checkKeys(
-      json,
-      allowedKeys: const ['description', 'org_name', 'publishable', 'template'],
-    );
-    final val = VeryGoodCreateConfig(
-      description: $checkedConvert('description', (v) => v as String?),
-      orgName: $checkedConvert('org_name', (v) => v as String?),
-      publishable: $checkedConvert('publishable', (v) => v as bool?),
-      template: $checkedConvert('template', (v) => v as String?),
-    );
-    return val;
-  },
-  fieldKeyMap: const {'orgName': 'org_name'},
-);
+VeryGoodCreateConfig _$VeryGoodCreateConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodCreateConfig', json, ($checkedConvert) {
+      $checkKeys(
+        json,
+        allowedKeys: const [
+          'description',
+          'org_name',
+          'publishable',
+          'template',
+          'workspace',
+        ],
+      );
+      final val = VeryGoodCreateConfig(
+        description: $checkedConvert('description', (v) => v as String?),
+        orgName: $checkedConvert('org_name', (v) => v as String?),
+        publishable: $checkedConvert('publishable', (v) => v as bool?),
+        template: $checkedConvert('template', (v) => v as String?),
+        workspace: $checkedConvert('workspace', (v) => v as bool?),
+      );
+      return val;
+    }, fieldKeyMap: const {'orgName': 'org_name'});
 
 VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
   'VeryGoodTestConfig',

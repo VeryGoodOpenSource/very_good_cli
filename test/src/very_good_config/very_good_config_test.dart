@@ -1,13 +1,16 @@
-// Ensures we don't have to use const constructors
-// and instances are created at runtime.
+// Ensures instances are created at runtime.
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: prefer_const_literals_to_create_immutables
 
 import 'dart:io';
 
+import 'package:mason_logger/mason_logger.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
+
+class _MockLogger extends Mock implements Logger {}
 
 void main() {
   group(VeryGoodConfig, () {
@@ -117,6 +120,7 @@ test:
         expect(config.create.orgName, equals('com.very.good'));
         expect(config.create.publishable, isTrue);
         expect(config.create.template, equals('my-template'));
+        expect(config.create.workspace, isTrue);
       });
 
       test('defaults create to an empty config when omitted', () {
@@ -560,6 +564,61 @@ test:
           throwsA(isA<VeryGoodConfigParseException>()),
         );
       });
+    });
+
+    group('load', () {
+      late Directory tempDir;
+      late Logger logger;
+
+      setUp(() {
+        tempDir = Directory.systemTemp.createTempSync('very_good_config_');
+        logger = _MockLogger();
+      });
+
+      tearDown(() {
+        if (tempDir.existsSync()) {
+          tempDir.deleteSync(recursive: true);
+        }
+      });
+
+      test('returns the parsed config when very_good.yaml is valid', () {
+        File(p.join(tempDir.path, veryGoodConfigFileName)).writeAsStringSync('''
+packages:
+  get:
+    recursive: true
+''');
+
+        final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+        expect(config, isNotNull);
+        expect(config!.packages.get.recursive, isTrue);
+        verifyNever(() => logger.err(any()));
+      });
+
+      test('returns an empty config when no very_good.yaml exists', () {
+        final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+        expect(config, equals(VeryGoodConfig.empty));
+        verifyNever(() => logger.err(any()));
+      });
+
+      test(
+        'logs an error and returns null when very_good.yaml is malformed',
+        () {
+          File(
+            p.join(tempDir.path, veryGoodConfigFileName),
+          ).writeAsStringSync('- not\n- a\n- map');
+
+          final config = VeryGoodConfig.load(tempDir, logger: logger);
+
+          expect(config, isNull);
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     test('supports value equality', () {

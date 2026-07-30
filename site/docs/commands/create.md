@@ -79,6 +79,7 @@ create:
   org_name: com.very.good
   publishable: true
   template: core
+  workspace: true
 ```
 
 With the file above, running `very_good create flutter_app my_app` behaves the same as running `very_good create flutter_app my_app --desc 'A Very Good project.' --org-name com.very.good --publishable --template core`. You can still override any of these values on the command line, for example `very_good create flutter_app my_app --org-name com.example` to use a different org name for a single run.

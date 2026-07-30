@@ -11,6 +11,7 @@ import 'package:args/args.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
 
 part 'very_good_config.g.dart';
@@ -127,6 +128,26 @@ class VeryGoodConfig extends Equatable {
     }
   }
 
+  /// Loads the closest [VeryGoodConfig] to [directory].
+  ///
+  /// On a parse failure, logs a formatted error via [logger] and returns
+  /// `null`, signalling that the caller should exit with a config error.
+  ///
+  /// Centralizes the load-and-report contract shared by every command that
+  /// reads `very_good.yaml`, so the error message and exit behavior stay
+  /// consistent.
+  static VeryGoodConfig? load(Directory directory, {required Logger logger}) {
+    try {
+      return VeryGoodConfig.loadFromClosestAncestor(directory);
+    } on VeryGoodConfigParseException catch (e) {
+      logger.err(
+        'Could not read `$veryGoodConfigFileName`.\n'
+        '${e.message}',
+      );
+      return null;
+    }
+  }
+
   /// Loads a [VeryGoodConfig] from the configuration file directly inside
   /// [directory], or `null` when the file does not exist.
   ///
@@ -180,6 +201,7 @@ class VeryGoodCreateConfig extends Equatable {
     this.orgName,
     this.publishable,
     this.template,
+    this.workspace,
   });
 
   /// Creates a [VeryGoodCreateConfig] from a decoded YAML/JSON [json] map.
@@ -199,8 +221,18 @@ class VeryGoodCreateConfig extends Equatable {
   /// The template used to generate the project.
   final String? template;
 
+  /// Whether the generated project should resolve its dependencies from a
+  /// parent Pub workspace.
+  final bool? workspace;
+
   @override
-  List<Object?> get props => [description, orgName, publishable, template];
+  List<Object?> get props => [
+    description,
+    orgName,
+    publishable,
+    template,
+    workspace,
+  ];
 }
 
 /// {@template very_good_test_config}
