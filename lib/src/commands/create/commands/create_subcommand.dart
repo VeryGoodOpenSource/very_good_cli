@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -118,6 +119,14 @@ abstract class CreateSubCommand extends Command<int> {
   final Logger logger;
   final MasonGeneratorFromBundle _generatorFromBundle;
 
+  /// The resolved `very_good create` configuration read from the closest
+  /// `very_good.yaml` file.
+  ///
+  /// Values declared here are used as defaults for any option that was not
+  /// explicitly passed on the command line. It defaults to an empty
+  /// configuration until [run] loads it.
+  VeryGoodCreateConfig createConfig = const VeryGoodCreateConfig();
+
   /// [ArgResults] which can be overridden for testing.
   @visibleForTesting
   ArgResults? argResultOverrides;
@@ -174,7 +183,11 @@ abstract class CreateSubCommand extends Command<int> {
   }
 
   /// Gets the description for the project.
-  String get projectDescription => argResults['description'] as String? ?? '';
+  String get projectDescription => argResults.resolve<String>(
+    'description',
+    createConfig.description,
+    fallbackValue: '',
+  );
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -194,6 +207,10 @@ abstract class CreateSubCommand extends Command<int> {
 
   @override
   Future<int> run() async {
+    final config = VeryGoodConfig.load(Directory.current, logger: logger);
+    if (config == null) return ExitCode.config.code;
+    createConfig = config.create;
+
     final template = this.template;
     final bundle = template.bundle;
 
@@ -273,7 +290,11 @@ abstract class CreateSubCommand extends Command<int> {
 mixin OrgName on CreateSubCommand {
   /// Gets the organization name.
   String get orgName {
-    final orgName = argResults['org-name'] as String? ?? _defaultOrgName;
+    final orgName = argResults.resolve<String>(
+      'org-name',
+      createConfig.orgName,
+      fallbackValue: _defaultOrgName,
+    );
     _validateOrgName(orgName);
     return orgName;
   }
@@ -317,10 +338,26 @@ mixin MultiTemplates on CreateSubCommand {
   @nonVirtual
   @override
   Template get template {
-    final templateName =
-        argResults['template'] as String? ?? defaultTemplateName;
+    final templateName = argResults.resolve<String>(
+      'template',
+      createConfig.template,
+      fallbackValue: defaultTemplateName,
+    );
 
-    return templates.firstWhere((template) => template.name == templateName);
+    return templates.firstWhere(
+      (template) => template.name == templateName,
+      orElse: () {
+        // When the value came from `very_good.yaml` rather than the command
+        // line, point the user at the config key instead of the CLI option so
+        // they debug the right place.
+        final source = argResults.wasParsed('template')
+            ? 'option "--template"'
+            : 'the `create.template` key in `$veryGoodConfigFileName`';
+        usageException(
+          '"$templateName" is not an allowed value for $source.',
+        );
+      },
+    );
   }
 }
 
@@ -331,7 +368,11 @@ mixin MultiTemplates on CreateSubCommand {
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
   /// Gets the publishable flag.
-  bool get publishable => argResults['publishable'] as bool? ?? false;
+  bool get publishable => argResults.resolve<bool>(
+    'publishable',
+    createConfig.publishable,
+    fallbackValue: false,
+  );
 }
 
 /// Mixin for [CreateSubCommand] subclasses that receives the workspace flag.
@@ -340,5 +381,9 @@ mixin Publishable on CreateSubCommand {
 /// to the brick generator.
 mixin Workspace on CreateSubCommand {
   /// Gets the workspace flag.
-  bool get workspace => argResults['workspace'] as bool? ?? false;
+  bool get workspace => argResults.resolve<bool>(
+    'workspace',
+    createConfig.workspace,
+    fallbackValue: false,
+  );
 }

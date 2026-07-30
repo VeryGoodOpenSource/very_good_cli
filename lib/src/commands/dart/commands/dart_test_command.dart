@@ -280,7 +280,7 @@ class DartTestCommand extends Command<int> {
         help:
             'Whether to collect coverage from imported files only or all '
             'files.',
-        allowed: ['imports', 'all'],
+        allowed: collectCoverageFromAllowedValues,
         defaultsTo: 'imports',
         valueHelp: 'imports|all',
       )
@@ -366,16 +366,8 @@ This command should be run from the root of your Dart project.''');
       return ExitCode.noInput.code;
     }
 
-    final VeryGoodConfig config;
-    try {
-      config = VeryGoodConfig.loadFromClosestAncestor(Directory(targetPath));
-    } on VeryGoodConfigParseException catch (e) {
-      _logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n'
-        '${e.message}',
-      );
-      return ExitCode.config.code;
-    }
+    final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
+    if (config == null) return ExitCode.config.code;
 
     final isDartInstalled = await _dartInstalled(logger: _logger);
 

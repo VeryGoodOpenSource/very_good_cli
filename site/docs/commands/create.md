@@ -68,6 +68,24 @@ You cannot combine `.` with `--output-directory`. Very Good CLI will exit with
 an error if you specify both.
 :::
 
+## Configuring defaults with `very_good.yaml`
+
+To avoid repeating the same flags every time you scaffold a new project, you may create a `very_good.yaml` file at the root of your project. The `create` section accepts the same names as the CLI flags in snake_case (e.g. `--org-name` becomes `org_name`). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
+
+```yaml
+# very_good.yaml
+create:
+  description: A Very Good project.
+  org_name: com.very.good
+  publishable: true
+  template: core
+  workspace: true
+```
+
+With the file above, running `very_good create flutter_app my_app` behaves the same as running `very_good create flutter_app my_app --desc 'A Very Good project.' --org-name com.very.good --publishable --template core`. You can still override any of these values on the command line, for example `very_good create flutter_app my_app --org-name com.example` to use a different org name for a single run.
+
+The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged. This lets a single `very_good.yaml` at the repository root apply to commands run from any nested package.
+
 ## Available templates
 
 Each subcommand maps to a specific project template. For detailed usage options

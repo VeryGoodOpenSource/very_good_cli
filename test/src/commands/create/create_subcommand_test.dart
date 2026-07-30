@@ -9,8 +9,11 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dart';
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 class _MockTemplate extends Mock implements Template {}
+
+class _MockArgResults extends Mock implements ArgResults {}
 
 class _MockLogger extends Mock implements Logger {}
 
@@ -1034,6 +1037,68 @@ Run "runner help" to see global options.''';
         verifyNever(() => template2.onGenerateComplete(logger, any()));
       });
 
+      test('falls back to the default template when unresolved', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['template'] as String?).thenReturn(null);
+
+        final command = _TestCreateSubCommandMultiTemplate(
+          templates: templates,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(command.template.name, equals('template1'));
+      });
+
+      test('selects the template from the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['template'] as String?).thenReturn('template1');
+
+        final command =
+            _TestCreateSubCommandMultiTemplate(
+                templates: templates,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(
+                template: 'template2',
+              );
+
+        expect(command.template.name, equals('template2'));
+      });
+
+      test(
+        'throws UsageException when the config template is not allowed',
+        () async {
+          final cwd = Directory.current;
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() {
+            Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
+          });
+
+          File(
+            path.join(tempDirectory.path, veryGoodConfigFileName),
+          ).writeAsStringSync('create:\n  template: unknown');
+          Directory.current = tempDirectory.path;
+
+          await expectLater(
+            () => runner.run(['create_subcommand', 'test_project']),
+            throwsA(
+              isA<UsageException>().having(
+                (e) => e.message,
+                'message',
+                '"unknown" is not an allowed value for the `create.template` '
+                    'key in `$veryGoodConfigFileName`.',
+              ),
+            ),
+          );
+        },
+      );
+
       group('validates template name', () {
         test('throws UsageException when --template is invalid', () async {
           await expectLater(
@@ -1058,6 +1123,267 @@ Run "runner help" to see global options.''';
           );
         });
       });
+    });
+  });
+
+  group('very_good.yaml configuration', () {
+    late Template template;
+    late _MockBundle bundle;
+
+    setUp(() {
+      bundle = _MockBundle();
+      when(() => bundle.name).thenReturn('test');
+      when(() => bundle.description).thenReturn('Test bundle');
+      when(() => bundle.version).thenReturn('<bundleversion>');
+      template = _MockTemplate();
+      when(() => template.name).thenReturn('test');
+      when(() => template.bundle).thenReturn(bundle);
+      when(
+        () => template.onGenerateComplete(any(), any()),
+      ).thenAnswer((_) async {});
+    });
+
+    group('resolve', () {
+      test('applies config value when the arg was not parsed', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(
+          () => argResults['description'] as String?,
+        ).thenReturn('A Very Good Project created by Very Good CLI.');
+
+        final command =
+            _TestCreateSubCommand(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(
+                description: 'From config',
+              );
+
+        expect(command.projectDescription, equals('From config'));
+      });
+
+      test('prefers the CLI argument over the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('description')).thenReturn(true);
+        when(
+          () => argResults['description'] as String?,
+        ).thenReturn('From CLI');
+
+        final command =
+            _TestCreateSubCommand(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(
+                description: 'From config',
+              );
+
+        expect(command.projectDescription, equals('From CLI'));
+      });
+
+      test('falls back to the CLI default when neither is set', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['description'] as String?).thenReturn(null);
+
+        final command = _TestCreateSubCommand(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(command.projectDescription, isEmpty);
+      });
+
+      test('resolves the org name from the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['org-name'] as String?).thenReturn(null);
+
+        final command =
+            _TestCreateSubCommandWithOrgName(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(
+                orgName: 'com.very.good',
+              );
+
+        expect(command.orgName, equals('com.very.good'));
+      });
+
+      test('resolves the publishable flag from the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['publishable'] as bool?).thenReturn(null);
+
+        final command =
+            _TestCreateSubCommandWithPublishable(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(publishable: true);
+
+        expect(command.publishable, isTrue);
+      });
+
+      test('resolves the workspace flag from the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['workspace'] as bool?).thenReturn(null);
+
+        final command =
+            _TestCreateSubCommandWithWorkspace(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(workspace: true);
+
+        expect(command.workspace, isTrue);
+      });
+
+      test('prefers the CLI workspace flag over the config value', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('workspace')).thenReturn(true);
+        when(() => argResults['workspace'] as bool?).thenReturn(false);
+
+        final command =
+            _TestCreateSubCommandWithWorkspace(
+                template: template,
+                logger: logger,
+                generatorFromBundle: null,
+              )
+              ..argResultOverrides = argResults
+              ..createConfig = const VeryGoodCreateConfig(workspace: true);
+
+        expect(command.workspace, isFalse);
+      });
+
+      test('falls back to false when neither workspace source is set', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults['workspace'] as bool?).thenReturn(null);
+
+        final command = _TestCreateSubCommandWithWorkspace(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(command.workspace, isFalse);
+      });
+    });
+
+    group('run', () {
+      late Directory cwd;
+      late GeneratorHooks hooks;
+      late MasonGenerator generator;
+      late _TestCommandRunner runner;
+
+      setUp(() {
+        cwd = Directory.current;
+        hooks = _MockGeneratorHooks();
+        generator = _MockMasonGenerator();
+
+        when(() => generator.hooks).thenReturn(hooks);
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => generator.generate(
+            any(),
+            vars: any(named: 'vars'),
+            logger: any(named: 'logger'),
+          ),
+        ).thenAnswer((_) async => generatedFiles);
+        when(() => generator.id).thenReturn('generator_id');
+        when(() => generator.description).thenReturn('generator description');
+
+        final command = _TestCreateSubCommandWithOrgName(
+          template: template,
+          logger: logger,
+          generatorFromBundle: (_) async => generator,
+        );
+        runner = _TestCommandRunner(command: command);
+      });
+
+      tearDown(() {
+        Directory.current = cwd;
+      });
+
+      test('applies config values loaded from very_good.yaml', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
+        File(
+          path.join(tempDirectory.path, veryGoodConfigFileName),
+        ).writeAsStringSync('create:\n  org_name: com.very.good');
+        Directory.current = tempDirectory.path;
+
+        final result = await runner.run(['create_subcommand', 'test_project']);
+
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => generator.generate(
+            any(),
+            vars: any(
+              named: 'vars',
+              that: isA<Map<String, dynamic>>().having(
+                (vars) => vars['org_name'],
+                'org_name',
+                'com.very.good',
+              ),
+            ),
+            logger: logger,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'fails with exit code ${ExitCode.config.code} '
+        'when very_good.yaml is malformed',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() {
+            Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
+          });
+          File(
+            path.join(tempDirectory.path, veryGoodConfigFileName),
+          ).writeAsStringSync('- not\n- a\n- map');
+          Directory.current = tempDirectory.path;
+
+          final result = await runner.run([
+            'create_subcommand',
+            'test_project',
+          ]);
+
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not read `very_good.yaml`')),
+            ),
+          ).called(1);
+        },
+      );
     });
   });
 
