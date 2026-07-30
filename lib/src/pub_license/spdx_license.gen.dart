@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 730 SPDX licenses.
+/// A list of all 734 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -125,6 +125,7 @@ enum SpdxLicense {
   $Brian_Gladman_3_Clause._('Brian-Gladman-3-Clause'),
   $Brian_Gladman_3_Clause_no_conversion._('Brian-Gladman-3-Clause-no-conversion'),
   $Buddy._('Buddy'),
+  $Bugroff._('Bugroff'),
   $C_UDA_1_0._('C-UDA-1.0'),
   $CAL_1_0._('CAL-1.0'),
   $CAL_1_0_Combined_Work_Exception._('CAL-1.0-Combined-Work-Exception'),
@@ -147,6 +148,7 @@ enum SpdxLicense {
   $CC_BY_NC_2_5._('CC-BY-NC-2.5'),
   $CC_BY_NC_3_0._('CC-BY-NC-3.0'),
   $CC_BY_NC_3_0_DE._('CC-BY-NC-3.0-DE'),
+  $CC_BY_NC_3_0_IGO._('CC-BY-NC-3.0-IGO'),
   $CC_BY_NC_4_0._('CC-BY-NC-4.0'),
   $CC_BY_NC_ND_1_0._('CC-BY-NC-ND-1.0'),
   $CC_BY_NC_ND_2_0._('CC-BY-NC-ND-2.0'),
@@ -370,6 +372,7 @@ enum SpdxLicense {
   $ImageMagick._('ImageMagick'),
   $Imlib2._('Imlib2'),
   $Info_ZIP._('Info-ZIP'),
+  $Informatica._('Informatica'),
   $Inner_Net_2_0._('Inner-Net-2.0'),
   $InnoSetup._('InnoSetup'),
   $Intel._('Intel'),
@@ -686,6 +689,7 @@ enum SpdxLicense {
   $Zlib._('Zlib'),
   $any_OSI._('any-OSI'),
   $any_OSI_perl_modules._('any-OSI-perl-modules'),
+  $atc_game._('atc-game'),
   $bcrypt_Solar_Designer._('bcrypt-Solar-Designer'),
   $blessing._('blessing'),
   $bzip2_1_0_5._('bzip2-1.0.5'),

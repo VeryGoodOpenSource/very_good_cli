@@ -93,10 +93,7 @@ class DartTestOptions {
         .expand((e) => e.split(RegExp(r'[,\s]+')))
         .where((e) => e.isNotEmpty)
         .toList();
-    final runSkipped = argResults.resolve(
-      'run-skipped',
-      testConfig.runSkipped,
-    );
+    final runSkipped = argResults.resolve('run-skipped', testConfig.runSkipped);
     final checkIgnore = argResults.resolve(
       'check-ignore',
       testConfig.checkIgnore,

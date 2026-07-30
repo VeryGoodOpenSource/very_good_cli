@@ -41,18 +41,12 @@ class CreateCommand extends Command<int> {
 
     // very_good create dart_cli <args>
     addSubcommand(
-      CreateDartCLI(
-        logger: logger,
-        generatorFromBundle: generatorFromBundle,
-      ),
+      CreateDartCLI(logger: logger, generatorFromBundle: generatorFromBundle),
     );
 
     // very_good create docs_site <args>
     addSubcommand(
-      CreateDocsSite(
-        logger: logger,
-        generatorFromBundle: generatorFromBundle,
-      ),
+      CreateDocsSite(logger: logger, generatorFromBundle: generatorFromBundle),
     );
 
     // very_good create flutter_package <args>
@@ -73,10 +67,7 @@ class CreateCommand extends Command<int> {
 
     // very_good create flame_game <args>
     addSubcommand(
-      CreateFlameGame(
-        logger: logger,
-        generatorFromBundle: generatorFromBundle,
-      ),
+      CreateFlameGame(logger: logger, generatorFromBundle: generatorFromBundle),
     );
   }
 
