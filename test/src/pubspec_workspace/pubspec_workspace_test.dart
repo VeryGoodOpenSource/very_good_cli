@@ -420,7 +420,9 @@ environment:
 dependencies:
   collection: ^1.18.0
 ''');
-      // A matched directory without a pubspec.yaml is skipped, not fatal.
+      // A glob-matched directory without a pubspec.yaml is silently skipped:
+      // globs like `packages/*` legitimately co-exist with documentation or
+      // fixture folders and should not emit warnings for them.
       Directory(
         path.join(tempDirectory.path, 'packages', 'not_a_package'),
       ).createSync(recursive: true);
@@ -434,11 +436,49 @@ dependencies:
         'path': PubspecDependencyType.directMain,
         'collection': PubspecDependencyType.directMain,
       });
-      verify(() => logger.warn(any())).called(1);
+      verifyNever(() => logger.warn(any()));
     });
 
-    test('warns and continues when a glob entry cannot be listed', () {
-      writePubspec(tempDirectory, '.', '''
+    test(
+      'still warns when a glob-matched directory has an unparseable pubspec',
+      () {
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/*
+''');
+        writePubspec(tempDirectory, 'packages/pkg_a', '''
+name: pkg_a
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+dependencies:
+  path: ^1.9.0
+''');
+        // A pubspec.yaml is present but unparseable — the review still wants
+        // this surfaced as a warning even under a glob.
+        writePubspec(
+          tempDirectory,
+          'packages/broken',
+          '{{{ not valid yaml',
+        );
+
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
+
+        expect(result, {'path': PubspecDependencyType.directMain});
+        verify(() => logger.warn(any())).called(1);
+      },
+    );
+
+    test(
+      'silently skips a glob entry that cannot be listed',
+      () {
+        writePubspec(tempDirectory, '.', '''
 name: workspace_root
 environment:
   sdk: ^3.11.0
@@ -446,7 +486,7 @@ workspace:
   - app
   - blocked/*
 ''');
-      writePubspec(tempDirectory, 'app', '''
+        writePubspec(tempDirectory, 'app', '''
 name: app
 resolution: workspace
 environment:
@@ -454,18 +494,21 @@ environment:
 dependencies:
   path: ^1.9.0
 ''');
-      // A file where the glob expects a directory makes listing throw a
-      // FileSystemException, which is treated as no match.
-      File(path.join(tempDirectory.path, 'blocked')).writeAsStringSync('');
+        // A file where the glob expects a directory makes listing throw a
+        // FileSystemException, which is treated as no match. Since the entry
+        // is a glob, a no-match is silent (an empty `blocked/*` is a
+        // legitimate configuration).
+        File(path.join(tempDirectory.path, 'blocked')).writeAsStringSync('');
 
-      final result = resolveWorkspaceDependencies(
-        tempDirectory,
-        logger: logger,
-      );
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
 
-      expect(result, {'path': PubspecDependencyType.directMain});
-      verify(() => logger.warn(any())).called(1);
-    });
+        expect(result, {'path': PubspecDependencyType.directMain});
+        verifyNever(() => logger.warn(any()));
+      },
+    );
 
     test('warns and continues when a workspace entry matches no directory', () {
       writePubspec(tempDirectory, '.', '''
@@ -550,6 +593,161 @@ flutter:
       verifyNever(() => logger.warn(any()));
     });
 
+    test(
+      'discovers a workspace declared only in the root '
+      'pubspec_overrides.yaml',
+      () {
+        // The root pubspec.yaml has no workspace declaration; Pub allows the
+        // workspace list to live in pubspec_overrides.yaml instead. If we
+        // ignore the overrides file we return null and the licenses command
+        // falls back to the lockfile (where every member dependency is
+        // transitive) — that's the failure mode this test guards against.
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+''');
+        File(
+          path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('''
+workspace:
+  - app
+''');
+        writePubspec(tempDirectory, 'app', '''
+name: app
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+dependencies:
+  path: ^1.9.0
+''');
+
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
+
+        expect(result, {'path': PubspecDependencyType.directMain});
+      },
+    );
+
+    test(
+      "applies a member's pubspec_overrides.yaml before walking further",
+      () {
+        // The member declares no `workspace:` in its pubspec.yaml, only in
+        // its pubspec_overrides.yaml. The nested member's dependency must
+        // still be picked up.
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - app
+''');
+        writePubspec(tempDirectory, 'app', '''
+name: app
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+dependencies:
+  path: ^1.9.0
+''');
+        File(
+          path.join(tempDirectory.path, 'app', 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('''
+workspace:
+  - nested
+''');
+        writePubspec(tempDirectory, 'app/nested', '''
+name: nested
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+dependencies:
+  collection: ^1.18.0
+''');
+
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
+
+        expect(result, {
+          'path': PubspecDependencyType.directMain,
+          'collection': PubspecDependencyType.directMain,
+        });
+      },
+    );
+
+    test(
+      'pubspec_overrides.yaml replaces dependency_overrides entirely',
+      () {
+        // The overrides file replaces, not merges — the pubspec.yaml
+        // dependency_overrides entry must be dropped in favor of the one in
+        // pubspec_overrides.yaml.
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - app
+dependency_overrides:
+  meta: ^1.9.0
+''');
+        File(
+          path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('''
+dependency_overrides:
+  args: ^2.4.0
+''');
+        writePubspec(tempDirectory, 'app', '''
+name: app
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+''');
+
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
+
+        expect(result, {'args': PubspecDependencyType.directOverridden});
+      },
+    );
+
+    test(
+      'falls back to pubspec.yaml alone when pubspec_overrides.yaml is '
+      'unparseable',
+      () {
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - app
+''');
+        File(
+          path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('{{{ not valid yaml');
+        writePubspec(tempDirectory, 'app', '''
+name: app
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+dependencies:
+  path: ^1.9.0
+''');
+
+        final result = resolveWorkspaceDependencies(
+          tempDirectory,
+          logger: logger,
+        );
+
+        expect(result, {'path': PubspecDependencyType.directMain});
+      },
+    );
+
     test('returns an empty map when no member declares direct deps', () {
       writePubspec(tempDirectory, '.', '''
 name: workspace_root
@@ -606,5 +804,45 @@ environment:
     test('returns false when there is no pubspec', () {
       expect(declaresWorkspaceResolution(tempDirectory), isFalse);
     });
+
+    test(
+      'returns true when pubspec_overrides.yaml sets resolution: workspace',
+      () {
+        writePubspec(tempDirectory, '.', '''
+name: app
+environment:
+  sdk: ^3.11.0
+''');
+        File(
+          path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('''
+resolution: workspace
+''');
+
+        expect(declaresWorkspaceResolution(tempDirectory), isTrue);
+      },
+    );
+
+    test(
+      'pubspec_overrides.yaml resolution replaces the pubspec.yaml value',
+      () {
+        writePubspec(tempDirectory, '.', '''
+name: app
+resolution: workspace
+environment:
+  sdk: ^3.11.0
+''');
+        // The override clears the resolution (an empty overrides file that
+        // does not set resolution leaves the pubspec.yaml value alone, so we
+        // set it to something other than 'workspace' to force replacement).
+        File(
+          path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+        ).writeAsStringSync('''
+resolution: none
+''');
+
+        expect(declaresWorkspaceResolution(tempDirectory), isFalse);
+      },
+    );
   });
 }
