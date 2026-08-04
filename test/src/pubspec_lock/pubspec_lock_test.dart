@@ -3,6 +3,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
 
 void main() {
@@ -16,32 +17,32 @@ void main() {
           equals([
             PubspecLockPackage(
               name: 'very_good_test_runner',
-              type: PubspecLockPackageDependencyType.directMain,
+              type: PubspecDependencyType.directMain,
               isPubHosted: true,
             ),
             PubspecLockPackage(
               name: 'very_good_analysis',
-              type: PubspecLockPackageDependencyType.directDev,
+              type: PubspecDependencyType.directDev,
               isPubHosted: true,
             ),
             PubspecLockPackage(
               name: 'yaml',
-              type: PubspecLockPackageDependencyType.transitive,
+              type: PubspecDependencyType.transitive,
               isPubHosted: true,
             ),
             PubspecLockPackage(
               name: 'path',
-              type: PubspecLockPackageDependencyType.directOverridden,
+              type: PubspecDependencyType.directOverridden,
               isPubHosted: true,
             ),
             PubspecLockPackage(
               name: 'foo',
-              type: PubspecLockPackageDependencyType.directMain,
+              type: PubspecDependencyType.directMain,
               isPubHosted: false,
             ),
             PubspecLockPackage(
               name: 'yaml2',
-              type: PubspecLockPackageDependencyType.transitive,
+              type: PubspecDependencyType.transitive,
               isPubHosted: false,
             ),
           ]),
@@ -67,7 +68,7 @@ void main() {
       expect(
         PubspecLockPackage(
           name: 'foo',
-          type: PubspecLockPackageDependencyType.directMain,
+          type: PubspecDependencyType.directMain,
           isPubHosted: true,
         ),
         isA<PubspecLockPackage>(),
@@ -77,62 +78,23 @@ void main() {
     test('supports value equality', () {
       final package1 = PubspecLockPackage(
         name: 'foo',
-        type: PubspecLockPackageDependencyType.directMain,
+        type: PubspecDependencyType.directMain,
         isPubHosted: true,
       );
       final package2 = PubspecLockPackage(
         name: 'foo',
-        type: PubspecLockPackageDependencyType.directMain,
+        type: PubspecDependencyType.directMain,
         isPubHosted: true,
       );
       final package3 = PubspecLockPackage(
         name: 'bar',
-        type: PubspecLockPackageDependencyType.transitive,
+        type: PubspecDependencyType.transitive,
         isPubHosted: false,
       );
 
       expect(package1, equals(package2));
       expect(package1, isNot(equals(package3)));
       expect(package2, isNot(equals(package3)));
-    });
-  });
-
-  group('$PubspecLockPackageDependencyType', () {
-    group('parse', () {
-      test('parses successfully `direct main`', () {
-        expect(
-          PubspecLockPackageDependencyType.parse('direct main'),
-          equals(PubspecLockPackageDependencyType.directMain),
-        );
-      });
-
-      test('parses successfully `direct dev`', () {
-        expect(
-          PubspecLockPackageDependencyType.parse('direct dev'),
-          equals(PubspecLockPackageDependencyType.directDev),
-        );
-      });
-
-      test('parses successfully `direct overridden`', () {
-        expect(
-          PubspecLockPackageDependencyType.parse('direct overridden'),
-          equals(PubspecLockPackageDependencyType.directOverridden),
-        );
-      });
-
-      test('parses successfully `transitive`', () {
-        expect(
-          PubspecLockPackageDependencyType.parse('transitive'),
-          equals(PubspecLockPackageDependencyType.transitive),
-        );
-      });
-
-      test('throws a $ArgumentError when type is invalid', () {
-        expect(
-          () => PubspecLockPackageDependencyType.parse('invalid'),
-          throwsA(isA<ArgumentError>()),
-        );
-      });
     });
   });
 }
