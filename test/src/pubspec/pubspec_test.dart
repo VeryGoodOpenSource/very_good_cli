@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 
 void main() {
-  group('$PubspecDependencyType', () {
+  group(PubspecDependencyType, () {
     group('parse', () {
       test('parses successfully `direct main`', () {
         expect(
