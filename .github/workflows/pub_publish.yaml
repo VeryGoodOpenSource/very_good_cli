@@ -15,7 +15,7 @@ jobs:
       - name: 📚 Git Checkout
         uses: actions/checkout@v7
       - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1
+        uses: dart-lang/setup-dart@v1.7.2
         with:
           sdk: "3.12.0"
       - name: 📦 Install Dependencies
