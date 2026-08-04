@@ -7,10 +7,7 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 /// {@endtemplate}
 class CreateDocsSite extends CreateSubCommand with Publishable {
   /// {@macro very_good_create_docs_site}
-  CreateDocsSite({
-    required super.logger,
-    required super.generatorFromBundle,
-  }) {
+  CreateDocsSite({required super.logger, required super.generatorFromBundle}) {
     argParser.addOption(
       'org-name',
       help: 'The organization for this new project.',

@@ -50,10 +50,7 @@ class FlutterTestOptions {
       'concurrency',
       testConfig.concurrency,
     );
-    final collectCoverage = argResults.resolve(
-      'coverage',
-      testConfig.coverage,
-    );
+    final collectCoverage = argResults.resolve('coverage', testConfig.coverage);
     final minCoverage = argResults.resolve<String?>(
       'min-coverage',
       testConfig.minCoverage,
@@ -93,10 +90,7 @@ class FlutterTestOptions {
       'update-goldens',
       testConfig.updateGoldens,
     );
-    final failFast = argResults.resolve(
-      'fail-fast',
-      testConfig.failFast,
-    );
+    final failFast = argResults.resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
     final dartDefine = argResults.resolve<List<String>?>(
       'dart-define',
@@ -119,18 +113,9 @@ class FlutterTestOptions {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final runSkipped = argResults.resolve(
-      'run-skipped',
-      testConfig.runSkipped,
-    );
-    final flavor = argResults.resolve<String?>(
-      'flavor',
-      testConfig.flavor,
-    );
-    final timeout = argResults.resolve<String?>(
-      'timeout',
-      testConfig.timeout,
-    );
+    final runSkipped = argResults.resolve('run-skipped', testConfig.runSkipped);
+    final flavor = argResults.resolve<String?>('flavor', testConfig.flavor);
+    final timeout = argResults.resolve<String?>('timeout', testConfig.timeout);
     final timeoutSeconds = int.tryParse(timeout ?? '');
     final effectiveTimeout = timeoutSeconds != null
         ? Duration(seconds: timeoutSeconds)

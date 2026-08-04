@@ -21,19 +21,10 @@ class PackagesGetOptions {
   }) {
     final getConfig = config.packages.get;
 
-    final recursive = argResults.resolve(
-      'recursive',
-      getConfig.recursive,
-    );
-    final ignore = argResults.resolve<List<String>>(
-      'ignore',
-      getConfig.ignore,
-    );
+    final recursive = argResults.resolve('recursive', getConfig.recursive);
+    final ignore = argResults.resolve<List<String>>('ignore', getConfig.ignore);
 
-    return PackagesGetOptions._(
-      recursive: recursive,
-      ignore: ignore.toSet(),
-    );
+    return PackagesGetOptions._(recursive: recursive, ignore: ignore.toSet());
   }
 
   /// Whether to install dependencies recursively for all nested packages.
