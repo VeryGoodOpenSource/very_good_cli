@@ -174,6 +174,14 @@ If is omitted, then core will be selected.
                   'Target directory path (defaults to current directory). '
                   'Can be absolute or relative path to project root.',
             ),
+            'paths': ListSchema(
+              description:
+                  'Test files or directories to run, relative to the project '
+                  "root (e.g. ['test/src/foo_test.dart', 'test/widgets']). "
+                  'When omitted, the whole suite runs. Note that targeting '
+                  'specific paths disables the test optimization step.',
+              items: StringSchema(),
+            ),
             'dart': BooleanSchema(
               description:
                   '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
@@ -450,6 +458,13 @@ Only one value can be selected.
         '--timeout',
         (args['timeout_seconds']! as num).toInt().toString(),
       ]);
+    }
+
+    // Positional test targets go last, after every option, so that they are
+    // parsed as `rest` rather than as a value for the preceding option.
+    final paths = args['paths'] as List<Object?>?;
+    if (paths != null) {
+      cliArgs.addAll(paths.cast<String>());
     }
 
     return cliArgs;
