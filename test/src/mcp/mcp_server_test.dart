@@ -502,6 +502,69 @@ void main() {
                 as List<String>;
         expect(capturedArgs, equals(['test', '--timeout', '120']));
       });
+
+      test('passes paths as positional test targets', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {
+                'paths': ['test/src/foo_test.dart', 'test/widgets'],
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(
+          capturedArgs,
+          equals(['test', 'test/src/foo_test.dart', 'test/widgets']),
+        );
+      });
+
+      test('passes paths after options so they are parsed as rest', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {
+                'dart': true,
+                'concurrency': '8',
+                'paths': ['test/src/foo_test.dart'],
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(
+          capturedArgs,
+          equals(['dart', 'test', '-j', '8', 'test/src/foo_test.dart']),
+        );
+      });
+
+      test('adds no positional targets when paths is empty', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'paths': <String>[]},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, equals(['test']));
+      });
     });
 
     group('Tool: packages_get', () {
