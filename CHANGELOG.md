@@ -1,5 +1,30 @@
 # Changelog
 
+## [1.4.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.3.0...v1.4.0) (2026-08-06)
+
+
+### Features
+
+* add --file-reporter support to test commands ([#1640](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1640)) ([20a3943](https://github.com/VeryGoodOpenSource/very_good_cli/commit/20a3943f892b8820f235ed6e24e491c41f92b53f))
+* add --get-url flag to git ls-remote for URL config overrides ([#1642](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1642)) ([417b20b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/417b20b645962a1ac990c0f0cb494d09006dd767))
+* add workspace flag support for monorepo packages ([#1667](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1667)) ([c2dc91b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c2dc91b844509e420499867827558fc3c8232fc5)), closes [#1635](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1635)
+* bump template bundles ([#1666](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1666)) ([34a499d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/34a499d5ef024d3eff48b196befb53ac27383ae7))
+* bump template bundles ([#1678](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1678)) ([4d5402a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4d5402aee696069adb9d0b5938bd76dc16e808dc))
+* **create:** add create config to very_good.yaml ([#1665](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1665)) ([8e78a14](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8e78a14f46b3fbaa6832979017f9be4caebb77ea))
+* **dart:** add dart config to very_good.yaml ([#1664](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1664)) ([694478a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/694478a4d68bfdcb65e1a026d6715b6b6541124d))
+* **licenses:** add workspace support ([#1657](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1657)) ([7c3a176](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7c3a176f894822e90bf5e8d888f322052557ef98))
+* **packages:** add packages config to very_good.yaml ([#1663](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1663)) ([a4505cf](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a4505cfe2c3457e6d049e387aded8126caa29a0b))
+* **test:** add very_good.yaml for config ([#1636](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1636)) ([fed3074](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fed3074f2ef1b629762b85d3b862bc45bd179ade))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/setup-node from 6 to 7 ([#1649](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1649)) ([b17baef](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b17baef164ae8deed34d1669b5a045f5991afae6))
+* **deps:** bump dart-lang/setup-dart from 1 to 1.7.2 ([#1674](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1674)) ([7ff3bd6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7ff3bd6d123c52947467d35f03262b9e59c05cc6))
+* **deps:** bump dart-lang/setup-dart from 1.7.2 to 1.8.0 ([#1677](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1677)) ([d4c8325](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d4c8325c17494b18502b18e49b7274520f5a3ac9))
+* **deps:** bump package_config from 2.2.0 to 3.0.0 ([#1673](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1673)) ([330f569](https://github.com/VeryGoodOpenSource/very_good_cli/commit/330f5698f5b2d9fb20be9563d58559640a305ce4))
+* update SPDX licenses ([#1668](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1668)) ([d1b694b](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d1b694b34d2f6230dfab6bb11a15fc8f5eed1bd5))
+
 ## [1.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.2.0...v1.3.0) (2026-06-23)
 
 
