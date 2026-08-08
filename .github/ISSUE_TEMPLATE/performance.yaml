@@ -7,8 +7,8 @@ body:
     id: description
     attributes:
       label: Description
-      description: Clearly describe what code needs to be changed and what the performance impact is going to be. Bonus point's if you can tie this directly to user experience.
-      placeholder: " Provide a description of the performance update."
+      description: Clearly describe what code needs to be changed and what the performance impact is going to be. Bonus points if you can tie this directly to user experience.
+      placeholder: "Provide a description of the performance update."
     validations:
       required: true
   - type: textarea
