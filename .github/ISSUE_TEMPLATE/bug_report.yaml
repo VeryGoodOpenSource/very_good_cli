@@ -12,7 +12,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: setps-to-reproduce
+    id: steps-to-reproduce
     attributes:
       label: Steps To Reproduce
       description: A set of instructions, step by step, explaining how to reproduce the bug.
