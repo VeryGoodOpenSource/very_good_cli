@@ -483,11 +483,7 @@ Only one value can be selected.
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
-    return _runToolCommand(
-      cliArgs,
-      toolName: 'create',
-      requestArguments: args,
-    );
+    return _runToolCommand(cliArgs, toolName: 'create', requestArguments: args);
   }
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
@@ -631,7 +627,7 @@ Only one value can be selected.
 
         return errorResult(
           'failed with exit code $exitCode.',
-          failureType: failureTypeForExitCode(exitCode),
+          failureType: ToolFailureType.fromExitCode(exitCode),
         );
       } on UsageException catch (e) {
         return errorResult(
@@ -749,11 +745,9 @@ String sanitizeCommandOutput(String raw) {
       .replaceAll(_ansiEscape, '')
       .replaceAll('\r\n', '\n')
       .split('\n')
-      .map(
-        (line) {
-          final output = line.contains('\r') ? line.split('\r').last : line;
-          return output.trimRight();
-        },
-      )
+      .map((line) {
+        final output = line.contains('\r') ? line.split('\r').last : line;
+        return output.trimRight();
+      })
       .join('\n');
 }

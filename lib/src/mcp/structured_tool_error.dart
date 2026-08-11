@@ -24,37 +24,37 @@ enum ToolFailureType {
   transient,
 
   /// A domain rule was violated.
-  business,
-}
+  business;
 
-/// Classifies an [exitCode] into a [ToolFailureType].
-///
-/// Codes follow the sysexits.h conventions surfaced by `package:io`'s
-/// [ExitCode]; unknown codes fall back to [ToolFailureType.business], the
-/// safest default for an outcome we can't attribute to a transient failure or
-/// a bad input.
-ToolFailureType failureTypeForExitCode(int exitCode) {
-  if (exitCode == ExitCode.usage.code ||
-      exitCode == ExitCode.data.code ||
-      exitCode == ExitCode.noInput.code ||
-      exitCode == ExitCode.config.code) {
-    return ToolFailureType.validation;
+  /// Classifies an [exitCode] into a [ToolFailureType].
+  ///
+  /// Codes follow the sysexits.h conventions surfaced by `package:io`'s
+  /// [ExitCode]; unknown codes fall back to [ToolFailureType.business], the
+  /// safest default for an outcome we can't attribute to a transient failure
+  /// or a bad input.
+  factory ToolFailureType.fromExitCode(int exitCode) {
+    if (exitCode == ExitCode.usage.code ||
+        exitCode == ExitCode.data.code ||
+        exitCode == ExitCode.noInput.code ||
+        exitCode == ExitCode.config.code) {
+      return ToolFailureType.validation;
+    }
+
+    if (exitCode == ExitCode.noPerm.code) {
+      return ToolFailureType.permission;
+    }
+
+    if (exitCode == ExitCode.unavailable.code ||
+        exitCode == ExitCode.tempFail.code ||
+        exitCode == ExitCode.ioError.code ||
+        exitCode == ExitCode.osError.code ||
+        exitCode == ExitCode.osFile.code ||
+        exitCode == ExitCode.cantCreate.code) {
+      return ToolFailureType.transient;
+    }
+
+    return ToolFailureType.business;
   }
-
-  if (exitCode == ExitCode.noPerm.code) {
-    return ToolFailureType.permission;
-  }
-
-  if (exitCode == ExitCode.unavailable.code ||
-      exitCode == ExitCode.tempFail.code ||
-      exitCode == ExitCode.ioError.code ||
-      exitCode == ExitCode.osError.code ||
-      exitCode == ExitCode.osFile.code ||
-      exitCode == ExitCode.cantCreate.code) {
-    return ToolFailureType.transient;
-  }
-
-  return ToolFailureType.business;
 }
 
 /// Suggests alternative approaches keyed on [failureType].

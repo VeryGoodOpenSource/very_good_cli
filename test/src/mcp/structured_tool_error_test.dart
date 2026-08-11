@@ -6,67 +6,73 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 
 void main() {
-  group('failureTypeForExitCode', () {
+  group(ToolFailureType, () {
     test('classifies validation exit codes', () {
       expect(
-        failureTypeForExitCode(ExitCode.usage.code),
+        ToolFailureType.fromExitCode(ExitCode.usage.code),
         equals(ToolFailureType.validation),
       );
       expect(
-        failureTypeForExitCode(ExitCode.data.code),
+        ToolFailureType.fromExitCode(ExitCode.data.code),
         equals(ToolFailureType.validation),
       );
       expect(
-        failureTypeForExitCode(ExitCode.noInput.code),
+        ToolFailureType.fromExitCode(ExitCode.noInput.code),
         equals(ToolFailureType.validation),
       );
       expect(
-        failureTypeForExitCode(ExitCode.config.code),
+        ToolFailureType.fromExitCode(ExitCode.config.code),
         equals(ToolFailureType.validation),
       );
     });
 
     test('classifies permission exit codes', () {
       expect(
-        failureTypeForExitCode(ExitCode.noPerm.code),
+        ToolFailureType.fromExitCode(ExitCode.noPerm.code),
         equals(ToolFailureType.permission),
       );
     });
 
     test('classifies transient exit codes', () {
       expect(
-        failureTypeForExitCode(ExitCode.unavailable.code),
+        ToolFailureType.fromExitCode(ExitCode.unavailable.code),
         equals(ToolFailureType.transient),
       );
       expect(
-        failureTypeForExitCode(ExitCode.tempFail.code),
+        ToolFailureType.fromExitCode(ExitCode.tempFail.code),
         equals(ToolFailureType.transient),
       );
       expect(
-        failureTypeForExitCode(ExitCode.ioError.code),
+        ToolFailureType.fromExitCode(ExitCode.ioError.code),
         equals(ToolFailureType.transient),
       );
       expect(
-        failureTypeForExitCode(ExitCode.osError.code),
+        ToolFailureType.fromExitCode(ExitCode.osError.code),
         equals(ToolFailureType.transient),
       );
       expect(
-        failureTypeForExitCode(ExitCode.osFile.code),
+        ToolFailureType.fromExitCode(ExitCode.osFile.code),
         equals(ToolFailureType.transient),
       );
       expect(
-        failureTypeForExitCode(ExitCode.cantCreate.code),
+        ToolFailureType.fromExitCode(ExitCode.cantCreate.code),
         equals(ToolFailureType.transient),
       );
     });
 
     test('defaults unknown or software exit codes to business', () {
       expect(
-        failureTypeForExitCode(ExitCode.software.code),
+        ToolFailureType.fromExitCode(ExitCode.software.code),
         equals(ToolFailureType.business),
       );
-      expect(failureTypeForExitCode(1), equals(ToolFailureType.business));
-      expect(failureTypeForExitCode(255), equals(ToolFailureType.business));
+      expect(
+        ToolFailureType.fromExitCode(1),
+        equals(ToolFailureType.business),
+      );
+      expect(
+        ToolFailureType.fromExitCode(255),
+        equals(ToolFailureType.business),
+      );
     });
   });
 
@@ -82,7 +88,7 @@ void main() {
     });
   });
 
-  group('StructuredToolError', () {
+  group(StructuredToolError, () {
     test('emits a "failure" status when no captured output is provided', () {
       final result = const StructuredToolError(
         toolName: 'test',
