@@ -61,7 +61,7 @@ test:
   optimization: false
   concurrency: 8
   tags: my-tag
-  exclude_coverage: "**/*.g.dart"
+  exclude_coverage: '**/*.g.dart'
   exclude_tags: skip
   min_coverage: 95
   show_uncovered: true
@@ -82,27 +82,27 @@ test:
   file_reporter: json:reports/tests.json
 ```
 
-| Field                    | Type                | Notes                                                                       |
-| ------------------------ | ------------------- | --------------------------------------------------------------------------- |
-| `coverage`               | `bool`              | Whether to collect coverage information.                                    |
-| `optimization`           | `bool`              | Whether to apply optimizations for test performance.                        |
-| `concurrency`            | `int`               | Positive integer. The number of concurrent test suites run.                 |
-| `tags`                   | `string`            | Run only tests associated with the specified tags.                          |
-| `exclude_coverage`       | `string`            | A glob that excludes matching files from coverage.                          |
-| `exclude_tags`           | `string`            | Run only tests that do not have the specified tags.                         |
-| `min_coverage`           | `number`            | Between `0` and `100`. Enforces a minimum coverage percentage.              |
-| `show_uncovered`         | `bool`              | Whether to show uncovered lines when coverage is below 100%.                |
-| `collect_coverage_from`  | `imports` \| `all`  | Whether to collect coverage from imported files only or all files.          |
-| `update_goldens`         | `bool`              | Whether `matchesGoldenFile()` calls should update the golden files.         |
-| `fail_fast`              | `bool`              | Whether to stop running tests after the first failure.                      |
-| `dart_define`            | `string` \| `list`  | Additional `--dart-define` values.                                          |
-| `dart_define_from_file`  | `string` \| `list`  | Paths of `.json` or `.env` files with `--dart-define-from-file` values.     |
-| `platform`               | `string`            | The platform to run tests on (`chrome`, `vm`, `android`, `ios`).            |
-| `report_on`              | `string` \| `list`  | File paths to report coverage information to.                               |
-| `run_skipped`            | `bool`              | Whether to run skipped tests instead of skipping them.                      |
-| `flavor`                 | `string`            | The flavor to build for testing.                                            |
-| `timeout`                | `int`               | Positive integer (seconds). Maximum time tests may run before being killed. |
-| `file_reporter`          | `string`            | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`). |
+| Field                   | Type               | Notes                                                                         |
+| ----------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| `coverage`              | `bool`             | Whether to collect coverage information.                                      |
+| `optimization`          | `bool`             | Whether to apply optimizations for test performance.                          |
+| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                   |
+| `tags`                  | `string`           | Run only tests associated with the specified tags.                            |
+| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                            |
+| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                           |
+| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                |
+| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                  |
+| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.            |
+| `update_goldens`        | `bool`             | Whether `matchesGoldenFile()` calls should update the golden files.           |
+| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                        |
+| `dart_define`           | `string` \| `list` | Additional `--dart-define` values.                                            |
+| `dart_define_from_file` | `string` \| `list` | Paths of `.json` or `.env` files with `--dart-define-from-file` values.       |
+| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`, `android`, `ios`).              |
+| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                 |
+| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                        |
+| `flavor`                | `string`           | The flavor to build for testing.                                              |
+| `timeout`               | `int`              | Positive integer (seconds). Maximum time tests may run before being killed.   |
+| `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`). |
 
 ### `create`
 
@@ -138,7 +138,7 @@ dart:
     optimization: false
     concurrency: 8
     tags: my-tag
-    exclude_coverage: "**/*.g.dart"
+    exclude_coverage: '**/*.g.dart'
     exclude_tags: skip
     min_coverage: 95
     show_uncovered: true
@@ -153,21 +153,21 @@ dart:
     file_reporter: json:reports/tests.json
 ```
 
-| Field                   | Type               | Notes                                                                |
-| ----------------------- | ------------------ | -------------------------------------------------------------------- |
-| `coverage`              | `bool`             | Whether to collect coverage information.                             |
-| `optimization`          | `bool`             | Whether to apply optimizations for test performance.                 |
-| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.          |
-| `tags`                  | `string`           | Run only tests associated with the specified tags.                   |
-| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                   |
-| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                  |
-| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.       |
-| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.         |
-| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.   |
-| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.               |
-| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`).                       |
-| `report_on`             | `string` \| `list` | File paths to report coverage information to.                        |
-| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.               |
+| Field                   | Type               | Notes                                                                         |
+| ----------------------- | ------------------ | ----------------------------------------------------------------------------- |
+| `coverage`              | `bool`             | Whether to collect coverage information.                                      |
+| `optimization`          | `bool`             | Whether to apply optimizations for test performance.                          |
+| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                   |
+| `tags`                  | `string`           | Run only tests associated with the specified tags.                            |
+| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                            |
+| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                           |
+| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                |
+| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                  |
+| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.            |
+| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                        |
+| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`).                                |
+| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                 |
+| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                        |
 | `check_ignore`          | `bool`             | Whether to respect coverage ignore comments (e.g. `// coverage:ignore-line`). |
 | `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`). |
 
@@ -184,10 +184,10 @@ packages:
       - integration_test
 ```
 
-| Field       | Type               | Notes                                                             |
-| ----------- | ------------------ | ----------------------------------------------------------------- |
-| `recursive` | `bool`             | Whether to install dependencies recursively for nested packages.  |
-| `ignore`    | `string` \| `list` | Packages to exclude from installing dependencies.                 |
+| Field       | Type               | Notes                                                            |
+| ----------- | ------------------ | ---------------------------------------------------------------- |
+| `recursive` | `bool`             | Whether to install dependencies recursively for nested packages. |
+| `ignore`    | `string` \| `list` | Packages to exclude from installing dependencies.                |
 
 ### `packages.check.licenses`
 
@@ -209,14 +209,14 @@ packages:
       reporter: csv # text | csv
 ```
 
-| Field                       | Type               | Notes                                                                                                  |
-| --------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------ |
-| `ignore_retrieval_failures` | `bool`             | Whether to disregard licenses that failed to be retrieved.                                             |
-| `dependency_type`           | `string` \| `list` | One or more of `direct-main`, `direct-dev`, `direct-overridden`, `transitive`.                         |
-| `allowed`                   | `string` \| `list` | Only allow the use of certain licenses.                                                                |
-| `forbidden`                 | `string` \| `list` | Deny the use of certain licenses. Cannot be combined with `allowed`.                                   |
-| `skip_packages`             | `string` \| `list` | Packages to skip from having their licenses checked.                                                   |
-| `reporter`                  | `text` \| `csv`    | The format used to list all licenses.                                                                  |
+| Field                       | Type               | Notes                                                                          |
+| --------------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| `ignore_retrieval_failures` | `bool`             | Whether to disregard licenses that failed to be retrieved.                     |
+| `dependency_type`           | `string` \| `list` | One or more of `direct-main`, `direct-dev`, `direct-overridden`, `transitive`. |
+| `allowed`                   | `string` \| `list` | Only allow the use of certain licenses.                                        |
+| `forbidden`                 | `string` \| `list` | Deny the use of certain licenses. Cannot be combined with `allowed`.           |
+| `skip_packages`             | `string` \| `list` | Packages to skip from having their licenses checked.                           |
+| `reporter`                  | `text` \| `csv`    | The format used to list all licenses.                                          |
 
 :::info
 Options that accept a list also accept a single string. For example,
@@ -236,14 +236,14 @@ create:
 
 test:
   min_coverage: 100
-  exclude_coverage: "**/*.g.dart"
+  exclude_coverage: '**/*.g.dart'
   report_on:
     - lib/
 
 dart:
   test:
     min_coverage: 100
-    exclude_coverage: "**/*.g.dart"
+    exclude_coverage: '**/*.g.dart'
     report_on:
       - lib/
 
