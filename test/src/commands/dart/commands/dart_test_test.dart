@@ -37,7 +37,7 @@ const expectedTestUsage = [
       '-t, --tags                                   Run only tests associated with the specified tags.\n'
       "    --exclude-coverage                       A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').\n"
       '-x, --exclude-tags                           Run only tests that do not have the specified tags.\n'
-      '    --min-coverage                           Whether to enforce a minimum coverage percentage.\n'
+      '    --min-coverage                           Whether to enforce a minimum coverage percentage. Implicitly enables coverage collection when used alone.\n'
       '    --show-uncovered                         Whether to show uncovered lines when coverage is below 100%. Requires --coverage or --min-coverage to be set, or implicitly enables coverage collection when used alone.\n'
       '    --collect-coverage-from=<imports|all>    Whether to collect coverage from imported files only or all files.\n'
       '                                             [imports (default), all]\n'

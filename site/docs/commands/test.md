@@ -25,6 +25,7 @@ very_good test [arguments]
     --exclude-coverage                One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').
 -x, --exclude-tags                    Run only tests that do not have the specified tags.
     --min-coverage                    Whether to enforce a minimum coverage percentage.
+                                      Implicitly enables coverage collection when used alone.
     --show-uncovered                  Whether to show uncovered lines when coverage is below 100%.
                                       Implicitly enables coverage collection when used alone.
     --test-randomize-ordering-seed    The seed to randomize the execution order of test cases within test files.
