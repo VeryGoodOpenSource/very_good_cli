@@ -680,29 +680,27 @@ Only one value can be selected.
 /// stdout shared with the MCP JSON-RPC stream. It reports no terminal so mason
 /// emits plain, animation-free lines.
 ///
-/// When `onLine` is provided, it is invoked with the sanitized text of each
-/// settled line as `\n` or `\r` boundaries are crossed. `\r` is treated as a
-/// boundary so spinner redraws (which rewrite one line in place using `\r`)
-/// still surface each intermediate state — useful for streaming MCP progress
-/// notifications while a long-running command runs.
+/// When `onLine` is provided, it is invoked with the sanitized, non-empty text
+/// of each settled line. Boundary detection is delegated to [LineSplitter],
+/// which treats a bare `\r` as a boundary too (so spinner redraws, which
+/// rewrite one line in place using `\r`, still surface each intermediate
+/// state) and buffers partial lines across separate writes.
 @visibleForTesting
 class CapturingStdout implements Stdout {
   /// Creates a [CapturingStdout] that appends all writes to [_buffer].
   ///
   /// If `onLine` is non-null, it is called with each settled line's sanitized,
-  /// non-empty text (see [sanitizeCommandOutput]) as `\n`/`\r` boundaries are
-  /// reached.
-  CapturingStdout(this._buffer, {this.onLine});
+  /// non-empty text (see [sanitizeCommandOutput]).
+  CapturingStdout(this._buffer, {void Function(String line)? onLine})
+    : _lineSink = onLine == null
+          ? null
+          : const LineSplitter().startChunkedConversion(_LineSink(onLine));
 
   final StringBuffer _buffer;
 
-  /// Callback invoked for each settled, non-empty line captured. When `null`,
-  /// no line-boundary detection is performed.
-  final void Function(String line)? onLine;
-
-  /// Bytes/chars accumulated since the last `\n`/`\r` boundary. Only used when
-  /// [onLine] is non-null.
-  final StringBuffer _pendingLine = StringBuffer();
+  /// Feeds writes through [LineSplitter] to detect settled lines. `null` when
+  /// no `onLine` callback was supplied, so writes skip boundary detection.
+  final Sink<String>? _lineSink;
 
   @override
   Encoding encoding = utf8;
@@ -710,27 +708,11 @@ class CapturingStdout implements Stdout {
   @override
   String lineTerminator = '\n';
 
-  /// Appends [text] to the capture buffer and, when [onLine] is wired, feeds
-  /// it through the line-boundary detector.
+  /// Appends [text] to the capture buffer and, when wired, feeds it through
+  /// the line-boundary detector.
   void _append(String text) {
     _buffer.write(text);
-    if (onLine == null) return;
-    for (var i = 0; i < text.length; i++) {
-      final code = text.codeUnitAt(i);
-      if (code == 0x0A /* \n */ || code == 0x0D /* \r */ ) {
-        _flushPending();
-      } else {
-        _pendingLine.writeCharCode(code);
-      }
-    }
-  }
-
-  void _flushPending() {
-    final callback = onLine;
-    if (callback == null || _pendingLine.isEmpty) return;
-    final settled = sanitizeCommandOutput(_pendingLine.toString()).trim();
-    _pendingLine.clear();
-    if (settled.isNotEmpty) callback(settled);
+    _lineSink?.add(text);
   }
 
   @override
@@ -785,6 +767,24 @@ class CapturingStdout implements Stdout {
 
   @override
   IOSink get nonBlocking => this;
+}
+
+/// Forwards each line [LineSplitter] settles to [onLine], dropping
+/// blank/whitespace-only lines and stripping ANSI escapes via
+/// [sanitizeCommandOutput].
+class _LineSink implements Sink<String> {
+  _LineSink(this.onLine);
+
+  final void Function(String line) onLine;
+
+  @override
+  void add(String data) {
+    final settled = sanitizeCommandOutput(data).trim();
+    if (settled.isNotEmpty) onLine(settled);
+  }
+
+  @override
+  void close() {}
 }
 
 /// Matches a CSI ANSI escape sequence (colors, cursor moves, line erases).
