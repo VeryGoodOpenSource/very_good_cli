@@ -304,7 +304,9 @@ class TestCommand extends Command<int> {
       )
       ..addOption(
         'min-coverage',
-        help: 'Whether to enforce a minimum coverage percentage.',
+        help:
+            'Whether to enforce a minimum coverage percentage. '
+            'Implicitly enables coverage collection when used alone.',
       )
       ..addFlag(
         'show-uncovered',
