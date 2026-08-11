@@ -11,6 +11,12 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
+/// Decodes a MCP tool result's text content as the structured error payload.
+Map<String, Object?> _errorPayload(CallToolResult result) {
+  final text = (result.content.first as TextContent).text;
+  return jsonDecode(text) as Map<String, Object?>;
+}
+
 class _MockVeryGoodCommandRunner extends Mock
     implements VeryGoodCommandRunner {}
 
@@ -306,9 +312,24 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('failure'));
+        expect(payload['failureType'], equals('business'));
+        expect(payload['reason'], contains('failed with exit code 70'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('create'));
+        expect(action['command'], contains('very_good create flutter_app'));
         expect(
-          (result.content.first as TextContent).text,
-          contains('"create" failed with exit code'),
+          action['arguments'],
+          equals({'subcommand': 'flutter_app', 'name': 'my_app'}),
+        );
+        expect(
+          payload['alternativeApproaches'],
+          isA<List<Object?>>().having(
+            (l) => l.length,
+            'length',
+            greaterThan(0),
+          ),
         );
       });
 
@@ -480,10 +501,9 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          contains('"test" failed with exit code'),
-        );
+        final payload = _errorPayload(result);
+        expect(payload['reason'], contains('failed with exit code 70'));
+        expect(payload['failureType'], equals('business'));
       });
 
       test('passes --timeout when timeout_seconds is provided', () async {
@@ -610,10 +630,13 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          contains('No check specified'),
-        );
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('failure'));
+        expect(payload['failureType'], equals('validation'));
+        expect(payload['reason'], contains('No check specified'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('packages check licenses'));
+        expect(action['arguments'], equals({'licenses': false}));
         verifyNever(() => mockCommandRunner.run(any()));
       });
     });
@@ -639,9 +662,11 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"create" usage error: bad usage'));
-        expect(text, contains('Command: very_good'));
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('validation'));
+        expect(payload['reason'], contains('usage error: bad usage'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['command'], contains('very_good'));
       });
 
       test('handles general Exception with descriptive message', () async {
@@ -664,10 +689,12 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"create" threw an exception'));
-        expect(text, contains('big bad'));
-        expect(text, contains('Command: very_good'));
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('transient'));
+        expect(payload['reason'], contains('threw an exception'));
+        expect(payload['reason'], contains('big bad'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['command'], contains('very_good'));
       });
     });
 
@@ -735,10 +762,13 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"test" failed with exit code 69'));
-        expect(text, contains('compile error: boom'));
-        expect(text, contains('stderr detail'));
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('partial_failure'));
+        expect(payload['failureType'], equals('transient'));
+        expect(payload['reason'], contains('failed with exit code 69'));
+        final partial = payload['partialResults']! as String;
+        expect(partial, contains('compile error: boom'));
+        expect(partial, contains('stderr detail'));
       });
 
       test('includes captured output in a success result', () async {
@@ -787,9 +817,10 @@ void main() {
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('stdout via logger'));
-        expect(text, contains('stderr via logger'));
+        final payload = _errorPayload(result);
+        final partial = payload['partialResults']! as String;
+        expect(partial, contains('stdout via logger'));
+        expect(partial, contains('stderr via logger'));
       });
 
       test('includes captured output when the run throws', () async {
@@ -807,9 +838,13 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"test" threw an exception'));
-        expect(text, contains('partial output before crash'));
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('partial_failure'));
+        expect(payload['reason'], contains('threw an exception'));
+        expect(
+          payload['partialResults'],
+          contains('partial output before crash'),
+        );
       });
 
       test('omits the output block when nothing was captured', () async {
@@ -1015,6 +1050,145 @@ void main() {
 
     test('leaves plain multi-line output untouched', () {
       expect(sanitizeCommandOutput('line 1\nline 2'), equals('line 1\nline 2'));
+    });
+  });
+
+  group('failureTypeForExitCode', () {
+    test('classifies validation exit codes', () {
+      expect(failureTypeForExitCode(ExitCode.usage.code), equals('validation'));
+      expect(failureTypeForExitCode(ExitCode.data.code), equals('validation'));
+      expect(
+        failureTypeForExitCode(ExitCode.noInput.code),
+        equals('validation'),
+      );
+      expect(
+        failureTypeForExitCode(ExitCode.config.code),
+        equals('validation'),
+      );
+    });
+
+    test('classifies permission exit codes', () {
+      expect(
+        failureTypeForExitCode(ExitCode.noPerm.code),
+        equals('permission'),
+      );
+    });
+
+    test('classifies transient exit codes', () {
+      expect(
+        failureTypeForExitCode(ExitCode.unavailable.code),
+        equals('transient'),
+      );
+      expect(
+        failureTypeForExitCode(ExitCode.tempFail.code),
+        equals('transient'),
+      );
+      expect(
+        failureTypeForExitCode(ExitCode.ioError.code),
+        equals('transient'),
+      );
+      expect(
+        failureTypeForExitCode(ExitCode.osError.code),
+        equals('transient'),
+      );
+      expect(failureTypeForExitCode(ExitCode.osFile.code), equals('transient'));
+      expect(
+        failureTypeForExitCode(ExitCode.cantCreate.code),
+        equals('transient'),
+      );
+    });
+
+    test('defaults unknown or software exit codes to business', () {
+      expect(
+        failureTypeForExitCode(ExitCode.software.code),
+        equals('business'),
+      );
+      expect(failureTypeForExitCode(1), equals('business'));
+      expect(failureTypeForExitCode(255), equals('business'));
+    });
+  });
+
+  group('alternativeApproachesFor', () {
+    test('returns non-empty suggestions for each known failureType', () {
+      for (final type in const [
+        'transient',
+        'validation',
+        'permission',
+        'business',
+      ]) {
+        expect(
+          alternativeApproachesFor(type),
+          isNotEmpty,
+          reason: '$type must offer at least one alternative approach',
+        );
+      }
+    });
+
+    test('falls back to business suggestions for unknown types', () {
+      expect(
+        alternativeApproachesFor('nonsense'),
+        equals(alternativeApproachesFor('business')),
+      );
+    });
+  });
+
+  group('buildStructuredErrorResult', () {
+    test('emits a "failure" status when no captured output is provided', () {
+      final result = buildStructuredErrorResult(
+        toolName: 'test',
+        reason: 'boom',
+        failureType: 'business',
+      );
+      expect(result.isError, isTrue);
+      final payload =
+          jsonDecode((result.content.first as TextContent).text)
+              as Map<String, Object?>;
+      expect(payload['status'], equals('failure'));
+      expect(payload['reason'], equals('boom'));
+      expect(payload['partialResults'], isNull);
+      final action = payload['attemptedAction']! as Map<String, Object?>;
+      expect(action, equals({'tool': 'test'}));
+    });
+
+    test(
+      'emits a "partial_failure" status and preserves captured output',
+      () {
+        final result = buildStructuredErrorResult(
+          toolName: 'create',
+          reason: 'crashed',
+          failureType: 'transient',
+          commandString: 'very_good create flutter_app my_app',
+          directory: '/tmp/x',
+          attemptedArguments: const {'name': 'my_app'},
+          capturedOutput: 'compile error',
+        );
+        final payload =
+            jsonDecode((result.content.first as TextContent).text)
+                as Map<String, Object?>;
+        expect(payload['status'], equals('partial_failure'));
+        expect(payload['partialResults'], equals('compile error'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(
+          action['command'],
+          equals('very_good create flutter_app my_app'),
+        );
+        expect(action['directory'], equals('/tmp/x'));
+        expect(action['arguments'], equals({'name': 'my_app'}));
+      },
+    );
+
+    test('omits arguments key when attemptedArguments is empty', () {
+      final result = buildStructuredErrorResult(
+        toolName: 'test',
+        reason: 'oops',
+        failureType: 'business',
+        attemptedArguments: const {},
+      );
+      final payload =
+          jsonDecode((result.content.first as TextContent).text)
+              as Map<String, Object?>;
+      final action = payload['attemptedAction']! as Map<String, Object?>;
+      expect(action.containsKey('arguments'), isFalse);
     });
   });
 }

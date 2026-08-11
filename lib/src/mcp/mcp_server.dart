@@ -484,7 +484,11 @@ Only one value can be selected.
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
-    return _runToolCommand(cliArgs, toolName: 'create');
+    return _runToolCommand(
+      cliArgs,
+      toolName: 'create',
+      requestArguments: args,
+    );
   }
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
@@ -494,6 +498,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'test',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
@@ -504,6 +509,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'packages get',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
@@ -515,15 +521,13 @@ Only one value can be selected.
     final checkLicenses = args['licenses'] as bool? ?? true;
 
     if (!checkLicenses) {
-      return CallToolResult(
-        content: [
-          TextContent(
-            text:
-                'No check specified. Currently only "licenses" check is '
-                'supported. Set licenses=true to run license checks.',
-          ),
-        ],
-        isError: true,
+      return buildStructuredErrorResult(
+        toolName: 'packages check licenses',
+        reason:
+            'No check specified. Currently only "licenses" check is '
+            'supported. Set licenses=true to run license checks.',
+        failureType: 'validation',
+        attemptedArguments: args,
       );
     }
 
@@ -532,6 +536,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'packages check licenses',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
@@ -556,6 +561,7 @@ Only one value can be selected.
     List<String> args, {
     required String toolName,
     String? directory,
+    Map<String, Object?>? requestArguments,
   }) {
     return _lock.run(() async {
       final commandString = 'very_good ${args.join(' ')}';
@@ -570,30 +576,33 @@ Only one value can be selected.
         );
       }
 
-      // Appends the captured command output (the real diagnostics) to a
-      // message, on every result path so partial output emitted before a throw
-      // is not lost. The buffer is populated whether the run returns or throws.
-      String withCapturedOutput(String message) {
+      // Builds a structured JSON failure result from [reason] and
+      // [failureType]. The captured command output is surfaced as
+      // `partialResults` so any diagnostics emitted before a failure or throw
+      // are preserved. A short human-readable summary is also logged to the
+      // real stderr (the stdio transport forbids non-JSON on stdout, so stderr
+      // is free for diagnostics).
+      CallToolResult errorResult(
+        String reason, {
+        required String failureType,
+        StackTrace? stackTrace,
+      }) {
         final captured = sanitizeCommandOutput(output.toString()).trim();
-        if (captured.isEmpty) return message;
-        return '$message\n\nOutput:\n$captured';
-      }
-
-      // Builds a failure result from [reason] (the human-readable cause). The
-      // message is logged once to the real stderr (the stdio transport forbids
-      // only non-JSON on stdout, so stderr is free for diagnostics) and also
-      // surfaced — with any captured output — in the tool result, so the same
-      // text never has to be written twice. [commandString] is appended to keep
-      // the failure reproducible.
-      CallToolResult errorResult(String reason, {StackTrace? stackTrace}) {
-        final message = '"$toolName" $reason\nCommand: $commandString';
-        stderr.writeln('[very_good_mcp] ${message.replaceAll('\n', ' ')}');
+        stderr.writeln(
+          '[very_good_mcp] "$toolName" $failureType error: $reason '
+          '(command: $commandString)',
+        );
         if (stackTrace != null) {
           stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
         }
-        return CallToolResult(
-          content: [TextContent(text: withCapturedOutput(message))],
-          isError: true,
+        return buildStructuredErrorResult(
+          toolName: toolName,
+          reason: reason,
+          failureType: failureType,
+          commandString: commandString,
+          directory: directory,
+          attemptedArguments: requestArguments,
+          capturedOutput: captured,
         );
       }
 
@@ -621,16 +630,147 @@ Only one value can be selected.
           );
         }
 
-        return errorResult('failed with exit code $exitCode.');
+        return errorResult(
+          'failed with exit code $exitCode.',
+          failureType: failureTypeForExitCode(exitCode),
+        );
       } on UsageException catch (e) {
-        return errorResult('usage error: ${e.message}');
+        return errorResult(
+          'usage error: ${e.message}',
+          failureType: 'validation',
+        );
       } on Exception catch (e, stackTrace) {
-        return errorResult('threw an exception: $e', stackTrace: stackTrace);
+        return errorResult(
+          'threw an exception: $e',
+          failureType: 'transient',
+          stackTrace: stackTrace,
+        );
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }
     });
   }
+}
+
+/// Classifies an [exitCode] into a structured `failureType`.
+///
+/// The buckets — `validation`, `permission`, `transient`, and `business` —
+/// match the categories documented in the tool result schema so agent loops
+/// can pick a recovery strategy without parsing free-form text.
+///
+/// Codes follow the sysexits.h conventions surfaced by `package:io`'s
+/// [ExitCode]; unknown codes fall back to `business`, the safest default for
+/// an outcome we can't attribute to a transient failure or a bad input.
+@visibleForTesting
+String failureTypeForExitCode(int exitCode) {
+  if (exitCode == ExitCode.usage.code ||
+      exitCode == ExitCode.data.code ||
+      exitCode == ExitCode.noInput.code ||
+      exitCode == ExitCode.config.code) {
+    return 'validation';
+  }
+  if (exitCode == ExitCode.noPerm.code) {
+    return 'permission';
+  }
+  if (exitCode == ExitCode.unavailable.code ||
+      exitCode == ExitCode.tempFail.code ||
+      exitCode == ExitCode.ioError.code ||
+      exitCode == ExitCode.osError.code ||
+      exitCode == ExitCode.osFile.code ||
+      exitCode == ExitCode.cantCreate.code) {
+    return 'transient';
+  }
+  return 'business';
+}
+
+/// Suggests alternative approaches keyed on [failureType].
+///
+/// These are surfaced verbatim in the structured error payload so an agent
+/// coordinator has recovery options attached to every failure without having
+/// to reason about the failure type itself.
+@visibleForTesting
+List<String> alternativeApproachesFor(String failureType) {
+  const transient = [
+    'Retry the command; the failure may resolve on its own.',
+    'Check network and remote service availability, then retry.',
+    'If retries keep failing with the same error, switch approach.',
+  ];
+  const validation = [
+    'Correct any invalid tool arguments before retrying.',
+    'Consult the tool schema for accepted parameters and values.',
+    'Inspect the captured output for the field the CLI rejected.',
+  ];
+  const permission = [
+    'Ensure the process can read and write the target directory.',
+    'Retry after adjusting filesystem permissions or credentials.',
+    'Cannot be retried as-is without an authorization change.',
+  ];
+  const business = [
+    'Inspect the captured output for the specific rule reported.',
+    'Try an alternate subcommand, template, or configuration.',
+    'Escalate to the user if the constraint cannot be satisfied.',
+  ];
+  switch (failureType) {
+    case 'transient':
+      return transient;
+    case 'validation':
+      return validation;
+    case 'permission':
+      return permission;
+    case 'business':
+    default:
+      return business;
+  }
+}
+
+/// Builds a structured [CallToolResult] describing a tool failure.
+///
+/// Callers pass the failure metadata and any captured output; this returns a
+/// [CallToolResult] whose single text content is a pretty-printed JSON payload
+/// with the fields agents rely on to pick a recovery strategy:
+///
+/// * `status` — `partial_failure` if [capturedOutput] is non-empty, else
+///   `failure`.
+/// * `failureType` — one of `transient`, `validation`, `business`, or
+///   `permission`.
+/// * `attemptedAction` — the tool name, the concrete CLI command that was
+///   invoked (when known), the working directory (when set), and the raw
+///   caller-supplied arguments.
+/// * `reason` — the human-readable failure cause.
+/// * `partialResults` — the sanitized captured command output, when any.
+/// * `alternativeApproaches` — recovery suggestions from
+///   [alternativeApproachesFor].
+@visibleForTesting
+CallToolResult buildStructuredErrorResult({
+  required String toolName,
+  required String reason,
+  required String failureType,
+  String? commandString,
+  String? directory,
+  Map<String, Object?>? attemptedArguments,
+  String? capturedOutput,
+}) {
+  final hasPartial = capturedOutput != null && capturedOutput.isNotEmpty;
+  final attemptedAction = <String, Object?>{
+    'tool': toolName,
+    'command': ?commandString,
+    'directory': ?directory,
+    if (attemptedArguments != null && attemptedArguments.isNotEmpty)
+      'arguments': attemptedArguments,
+  };
+  final payload = <String, Object?>{
+    'status': hasPartial ? 'partial_failure' : 'failure',
+    'failureType': failureType,
+    'attemptedAction': attemptedAction,
+    'reason': reason,
+    if (hasPartial) 'partialResults': capturedOutput,
+    'alternativeApproaches': alternativeApproachesFor(failureType),
+  };
+  final text = const JsonEncoder.withIndent('  ').convert(payload);
+  return CallToolResult(
+    content: [TextContent(text: text)],
+    isError: true,
+  );
 }
 
 /// A [Stdout] that captures everything written to it into a [StringBuffer]
