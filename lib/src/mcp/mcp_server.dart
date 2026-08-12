@@ -747,7 +747,7 @@ class CapturingStdout implements Stdout {
   Future<void> flush() async {}
 
   @override
-  Future<void> close() async {}
+  Future<void> close() async => _lineSink?.close();
 
   @override
   Future<void> get done => Future<void>.value();

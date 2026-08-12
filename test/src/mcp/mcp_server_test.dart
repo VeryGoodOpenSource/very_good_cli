@@ -1186,6 +1186,15 @@ void main() {
         sink.write('!\n');
         expect(lines, equals(['hello world!']));
       });
+
+      test('flushes the final unterminated line on close', () async {
+        final lines = <String>[];
+        final sink = CapturingStdout(StringBuffer(), onLine: lines.add)
+          ..write('done');
+        expect(lines, isEmpty);
+        await sink.close();
+        expect(lines, equals(['done']));
+      });
     });
 
     test('reports no terminal and tolerates sink lifecycle calls', () async {
