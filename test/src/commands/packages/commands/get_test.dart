@@ -117,7 +117,7 @@ name: example
 version: 0.1.0
 
 environment:
-sdk: ^3.12.0
+sdk: ^3.13.0
 ''',
         );
 
@@ -167,7 +167,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
         final result = await commandRunner.run([
           'packages',
@@ -195,7 +195,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''',
         );
         final result = await commandRunner.run([
@@ -230,7 +230,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -239,7 +239,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -278,7 +278,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -287,7 +287,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -324,7 +324,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -333,7 +333,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -373,7 +373,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
         pubspecB
           ..createSync(recursive: true)
@@ -382,7 +382,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -442,7 +442,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
@@ -452,7 +452,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -492,7 +492,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
@@ -502,7 +502,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -548,7 +548,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         File(path.join(directoryA.path, 'example', 'pubspec.yaml'))
@@ -558,7 +558,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         File(path.join(directoryA.path, 'my_sub_package', 'pubspec.yaml'))
@@ -568,7 +568,7 @@ sdk: ^3.12.0
           version: 0.1.0
           
           environment:
-            sdk: ^3.12.0
+            sdk: ^3.13.0
           ''');
 
         final result = await commandRunner.run([
@@ -718,7 +718,7 @@ name: example_a
 version: 0.1.0
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 ''');
           pubspecB
             ..createSync(recursive: true)
@@ -727,7 +727,7 @@ name: example_b
 version: 0.1.0
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 ''');
 
           final result = await commandRunner.run([
@@ -773,7 +773,7 @@ name: plugin_a
 version: 0.1.0
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 ''');
           File(path.join(directoryB.path, 'pubspec.yaml'))
             ..createSync(recursive: true)
@@ -782,7 +782,7 @@ name: plugin_b
 version: 0.1.0
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 ''');
 
           final result = await commandRunner.run([
