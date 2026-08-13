@@ -778,6 +778,59 @@ void main() {
         expect(testRunnerArgs, equals(['--coverage=coverage']));
       });
 
+      test(
+        'resolves dart coverage package_config from the pub workspace root',
+        () async {
+          final workspaceRoot = Directory.systemTemp.createTempSync();
+          addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+          final member = Directory(
+            p.join(workspaceRoot.path, 'packages', 'foo'),
+          )..createSync(recursive: true);
+          File(p.join(member.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(member.path, 'test')).createSync();
+
+          // Pub workspaces only write package_config.json at the root.
+          File(p.join(workspaceRoot.path, '.dart_tool', 'package_config.json'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('{"configVersion":2,"packages":[]}');
+
+          final lcovFile = File(p.join(member.path, 'coverage', 'lcov.info'));
+
+          final originalCwd = Directory.current;
+          addTearDown(() => Directory.current = originalCwd);
+          Directory.current = member;
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.dart,
+              cwd: member.path,
+              collectCoverage: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+                onStart: () {
+                  expect(lcovFile.existsSync(), isFalse);
+                  lcovFile.createSync(recursive: true);
+                },
+              ),
+              logger: logger,
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            File(
+              p.join(member.path, '.dart_tool', 'package_config.json'),
+            ).existsSync(),
+            isFalse,
+          );
+        },
+      );
+
       test('runs dart tests w/coverage and checkIgnore', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

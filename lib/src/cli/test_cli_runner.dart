@@ -198,19 +198,17 @@ class TestCLIRunner {
                     p.join(cwd, 'coverage'),
                   );
 
-                  final packagesPath = p.join(
-                    '.dart_tool',
-                    'package_config.json',
-                  );
+                  // Resolve package_config.json the way dart does: start at
+                  // the package cwd and walk up. In a pub workspace the file
+                  // lives at the workspace root, not in the member package.
                   final hitmap = await coverage.HitMap.parseFiles(
                     files,
-                    packagePath: packagesPath,
+                    packagePath: cwd,
                     checkIgnoredLines: checkIgnore,
                   );
 
                   final resolver = await coverage.Resolver.create(
-                    packagesPath: packagesPath,
-                    packagePath: packagesPath,
+                    packagePath: cwd,
                   );
 
                   final output = hitmap.formatLcov(
