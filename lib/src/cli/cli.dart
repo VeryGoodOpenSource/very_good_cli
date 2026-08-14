@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
@@ -26,13 +27,12 @@ const R Function<R>(
 _asyncRunZoned = runZoned;
 
 /// Type definition for [Process.run].
-typedef RunProcess =
-    Future<ProcessResult> Function(
-      String executable,
-      List<String> arguments, {
-      String? workingDirectory,
-      bool runInShell,
-    });
+typedef RunProcess = Future<ProcessResult> Function(
+  String executable,
+  List<String> arguments, {
+  String? workingDirectory,
+  bool runInShell,
+});
 
 /// This class facilitates overriding [Process.run].
 /// It should be extended by another class in client code with overrides
