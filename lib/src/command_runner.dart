@@ -38,6 +38,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
     addCommand(TestCommand(logger: _logger));
     addCommand(UpdateCommand(logger: _logger, pubUpdater: pubUpdater));
     addCommand(DartCommand(logger: _logger));
+    addCommand(WorkspaceCommand(logger: _logger));
     addCommand(MCPCommand());
   }
 

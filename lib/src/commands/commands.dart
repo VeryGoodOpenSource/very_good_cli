@@ -4,3 +4,4 @@ export 'dart/dart.dart';
 export 'packages/packages.dart';
 export 'test/test.dart';
 export 'update.dart';
+export 'workspace/workspace.dart';

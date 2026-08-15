@@ -105,6 +105,68 @@ void main() {
       );
     });
 
+    group('changedFiles', () {
+      test('returns changed file paths', () async {
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer(
+          (_) async => ProcessResult(
+            42,
+            ExitCode.success.code,
+            'packages/a/lib/a.dart\npackages/b/test/b_test.dart\n',
+            '',
+          ),
+        );
+
+        late List<String> changedFiles;
+        await ProcessOverrides.runZoned(() async {
+          changedFiles = await Git.changedFiles(
+            'origin/main',
+            cwd: '/workspace',
+            logger: logger,
+          );
+        }, runProcess: process.run);
+
+        expect(changedFiles, [
+          'packages/a/lib/a.dart',
+          'packages/b/test/b_test.dart',
+        ]);
+        verify(
+          () => process.run(
+            'git',
+            ['diff', '--name-only', '--relative', 'origin/main...HEAD'],
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: '/workspace',
+          ),
+        ).called(1);
+      });
+
+      test('returns an empty list when git diff output is empty', () async {
+        when(
+          () => process.run(
+            any(),
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer(
+          (_) async => ProcessResult(42, ExitCode.success.code, '', ''),
+        );
+
+        late List<String> changedFiles;
+        await ProcessOverrides.runZoned(() async {
+          changedFiles = await Git.changedFiles('origin/main', logger: logger);
+        }, runProcess: process.run);
+
+        expect(changedFiles, isEmpty);
+      });
+    });
+
     group('UnreachableGitDependency', () {
       test('has correct toString override', () {
         final remote = Uri.parse('https://github.com/org/repo');
