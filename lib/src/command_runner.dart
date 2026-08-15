@@ -59,6 +59,9 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   bool get _isWindows => isWindowsOverride ?? Platform.isWindows;
 
   @override
+  bool get enableAutoInstall => !environment.containsKey('CI');
+
+  @override
   void printUsage() => _logger.info(usage);
 
   @override

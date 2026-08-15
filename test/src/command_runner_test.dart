@@ -81,6 +81,20 @@ void main() {
       expect(VeryGoodCommandRunner.new, returnsNormally);
     });
 
+    test('disables completion auto-install in CI', () {
+      expect(commandRunner.enableAutoInstall, isFalse);
+    });
+
+    test('enables completion auto-install outside CI', () {
+      final localRunner = VeryGoodCommandRunner(
+        logger: logger,
+        pubUpdater: pubUpdater,
+        environment: const {},
+      );
+
+      expect(localRunner.enableAutoInstall, isTrue);
+    });
+
     group('run', () {
       test('shows update message when newer version exists', () async {
         when(
