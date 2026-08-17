@@ -4,3 +4,10 @@ analyzer:
     - "**/*.g.dart"
     - "**/version.dart"
     - "bricks/**/__brick__"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

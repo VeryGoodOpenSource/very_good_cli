@@ -223,28 +223,28 @@ class FlutterTestOptions {
 }
 
 /// Signature for the [Flutter.installed] method.
-typedef FlutterInstalledCommand =
-    Future<bool> Function({required Logger logger});
+typedef FlutterInstalledCommand = Future<bool> Function({
+  required Logger logger,
+});
 
 /// Signature for the [Flutter.test] method.
-typedef FlutterTestCommand =
-    Future<List<int>> Function({
-      required Logger logger,
-      String cwd,
-      bool recursive,
-      bool collectCoverage,
-      bool optimizePerformance,
-      double? minCoverage,
-      bool showUncovered,
-      String? excludeFromCoverage,
-      CoverageCollectionMode collectCoverageFrom,
-      String? randomSeed,
-      bool? forceAnsi,
-      List<String>? arguments,
-      void Function(String)? stdout,
-      void Function(String)? stderr,
-      List<String>? reportOn,
-    });
+typedef FlutterTestCommand = Future<List<int>> Function({
+  required Logger logger,
+  String cwd,
+  bool recursive,
+  bool collectCoverage,
+  bool optimizePerformance,
+  double? minCoverage,
+  bool showUncovered,
+  String? excludeFromCoverage,
+  CoverageCollectionMode collectCoverageFrom,
+  String? randomSeed,
+  bool? forceAnsi,
+  List<String>? arguments,
+  void Function(String)? stdout,
+  void Function(String)? stderr,
+  List<String>? reportOn,
+});
 
 /// {@template test_command}
 /// `very_good test` command for running tests.

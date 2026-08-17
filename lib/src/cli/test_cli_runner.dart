@@ -2,13 +2,12 @@ part of 'cli.dart';
 
 /// Type definition for the [flutterTest]/[dartTest] command
 /// from 'package:very_good_test_runner`.
-typedef VeryGoodTestRunner =
-    Stream<TestEvent> Function({
-      List<String>? arguments,
-      String? workingDirectory,
-      Map<String, String>? environment,
-      bool runInShell,
-    });
+typedef VeryGoodTestRunner = Stream<TestEvent> Function({
+  List<String>? arguments,
+  String? workingDirectory,
+  Map<String, String>? environment,
+  bool runInShell,
+});
 
 /// Which test runner to use for running tests.
 enum TestRunType {
@@ -508,9 +507,10 @@ Future<int> _testCommand({
         workingDirectory: cwd,
         arguments: [
           if (collectCoverage)
-            testType == TestRunType.flutter
-                ? '--coverage'
-                : '--coverage=coverage',
+            if (testType == TestRunType.flutter)
+              '--coverage'
+            else
+              '--coverage=coverage',
           ...?arguments,
         ],
         runInShell: true,
