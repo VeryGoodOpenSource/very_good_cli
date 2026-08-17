@@ -148,14 +148,8 @@ dependencies:
         );
         final notOptimizedTests =
             context.vars['notOptimizedTests'] as List<String>;
-        expect(
-          notOptimizedTests,
-          contains('not_optimized_test.dart'),
-        );
-        expect(
-          notOptimizedTests,
-          contains('another_not_optimized_test.dart'),
-        );
+        expect(notOptimizedTests, contains('not_optimized_test.dart'));
+        expect(notOptimizedTests, contains('another_not_optimized_test.dart'));
       });
     });
 
