@@ -15,11 +15,11 @@ class _TestProcess {
   }
 }
 
-class _MockProcess extends Mock implements _TestProcess {}
+class _MockProcess extends Mock implements _TestProcess;
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
 void main() {
   final successProcessResult = ProcessResult(42, ExitCode.success.code, '', '');

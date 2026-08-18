@@ -8,20 +8,20 @@ import 'package:test/test.dart';
 
 import '../pre_gen.dart' as pre_gen;
 
-class _MockClient extends Mock implements http.Client {}
+class _MockClient extends Mock implements http.Client;
 
-class _MockResponse extends Mock implements http.Response {}
+class _MockResponse extends Mock implements http.Response;
 
-class _MockZipDecoder extends Mock implements ZipDecoder {}
+class _MockZipDecoder extends Mock implements ZipDecoder;
 
-class _MockArchive extends Mock implements Archive {}
+class _MockArchive extends Mock implements Archive;
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
 class _TestHookContext implements HookContext {
-  _TestHookContext({required this._logger});
+  new({required this._logger});
 
   final Logger _logger;
 

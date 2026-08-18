@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/logger_extension.dart';
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
 Future<void> testMultiTemplateCommand({
   required MultiTemplates multiTemplatesCommand,
@@ -33,9 +33,8 @@ Future<void> testMultiTemplateCommand({
 
   when(() => argResults.wasParsed(any())).thenReturn(true);
   when(() => argResults['template'] as String?).thenReturn(templateName);
-  when(
-    () => argResults['output-directory'] as String?,
-  ).thenReturn(outputDirectory.path);
+  when(() => argResults['output-directory'] as String?)
+      .thenReturn(outputDirectory.path);
 
   for (final entry in mockArgs.entries) {
     when(() => argResults[entry.key]).thenReturn(entry.value);
@@ -55,8 +54,7 @@ Future<void> testMultiTemplateCommand({
       onVarsChanged: any(named: 'onVarsChanged'),
     ),
   );
-  verify(
-    () => generator.generate(any(), vars: expectedVars, logger: logger),
-  ).called(1);
+  verify(() => generator.generate(any(), vars: expectedVars, logger: logger))
+      .called(1);
   verify(() => logger.created(expectedLogSummary)).called(1);
 }

@@ -9,13 +9,13 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the `very_good packages get` command.
 class PackagesGetOptions {
-  PackagesGetOptions._({required this.recursive, required this.ignore});
+  new _({required this.recursive, required this.ignore});
 
   /// Parses [ArgResults] into a [PackagesGetOptions] instance.
   ///
   /// When [config] is provided, its values are used as defaults for any
   /// option that was not explicitly parsed on the command line.
-  factory PackagesGetOptions.parse(
+  factory parse(
     ArgResults argResults, {
     VeryGoodConfig config = VeryGoodConfig.empty,
   }) {
@@ -39,7 +39,7 @@ class PackagesGetOptions {
 /// {@endtemplate}
 class PackagesGetCommand extends Command<int> {
   /// {@macro packages_get_command}
-  PackagesGetCommand({Logger? logger}) : _logger = logger ?? Logger() {
+  new({Logger? logger}) : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'recursive',

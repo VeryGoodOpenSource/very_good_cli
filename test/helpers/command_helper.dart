@@ -5,11 +5,11 @@ import 'package:mocktail/mocktail.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater;
 
 void Function() _overridePrint(void Function(List<String>) fn) {
   return () {
@@ -58,9 +58,8 @@ void Function() withRunner(
       ),
     ).thenAnswer((_) => Future.value(true));
 
-    when(
-      () => pubUpdater.getLatestVersion(any()),
-    ).thenAnswer((_) async => '1.0.0');
+    when(() => pubUpdater.getLatestVersion(any()))
+        .thenAnswer((_) async => '1.0.0');
 
     await runnerFn(commandRunner, logger, pubUpdater, printLogs);
   });

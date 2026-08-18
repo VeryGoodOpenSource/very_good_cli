@@ -8,11 +8,7 @@ import 'package:universal_io/io.dart';
 /// {@endtemplate}
 abstract class Template {
   /// {@macro template}
-  const Template({
-    required this.name,
-    required this.bundle,
-    required this.help,
-  });
+  const new({required this.name, required this.bundle, required this.help});
 
   /// The name associated with this template.
   final String name;

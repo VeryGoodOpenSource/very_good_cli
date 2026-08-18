@@ -5,7 +5,7 @@ part of 'cli.dart';
 /// {@endtemplate}
 class UnreachableGitDependency implements Exception {
   /// {@macro unreachable_git_dependency}
-  const UnreachableGitDependency({required this.remote});
+  const new({required this.remote});
 
   /// The associated git remote [Uri].
   final Uri remote;

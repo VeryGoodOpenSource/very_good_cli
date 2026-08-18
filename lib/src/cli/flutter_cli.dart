@@ -43,7 +43,7 @@ abstract class ProcessSignalOverrides {
 }
 
 class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
-  _ProcessSignalOverridesScope(Stream<ProcessSignal>? mockSigintStream) {
+  new(Stream<ProcessSignal>? mockSigintStream) {
     if (mockSigintStream != null) {
       _sigintStreamController = StreamController<ProcessSignal>();
     }
@@ -56,7 +56,7 @@ class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
 }
 
 /// Thrown when `flutter pub get` is executed without a `pubspec.yaml`.
-class PubspecNotFound implements Exception {}
+class PubspecNotFound implements Exception;
 
 /// {@template coverage_metrics}
 /// Aggregated coverage metrics computed from a list of LCOV records.
@@ -64,17 +64,14 @@ class PubspecNotFound implements Exception {}
 class CoverageMetrics {
   /// {@macro coverage_metrics}
   @visibleForTesting
-  const CoverageMetrics({
+  const new({
     this.totalHits = 0,
     this.totalFound = 0,
     this.uncoveredLines = const {},
   });
 
   /// Generate coverage metrics from a list of lcov records.
-  factory CoverageMetrics.fromLcovRecords(
-    List<Record> records, {
-    String? excludeFromCoverage,
-  }) {
+  factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
     final globs = <Glob>[];
 
     if (excludeFromCoverage != null && excludeFromCoverage.isNotEmpty) {
@@ -218,7 +215,7 @@ class Flutter {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
-  }) async {
+  }) {
     return TestCLIRunner.test(
       logger: logger,
       testType: TestRunType.flutter,

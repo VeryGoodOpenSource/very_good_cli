@@ -65,7 +65,7 @@ abstract class ProcessOverrides {
 }
 
 class _ProcessOverridesScope extends ProcessOverrides {
-  _ProcessOverridesScope(this._runProcess);
+  new(this._runProcess);
 
   final ProcessOverrides? _previous = ProcessOverrides.current;
   final RunProcess? _runProcess;

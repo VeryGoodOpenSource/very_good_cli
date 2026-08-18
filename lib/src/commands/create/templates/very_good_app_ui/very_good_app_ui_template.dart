@@ -8,7 +8,7 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@endtemplate}
 class AppUiTemplate extends Template {
   /// {@macro app_ui_template}
-  AppUiTemplate()
+  new()
     : super(
         name: 'app_ui',
         bundle: veryGoodAppUiBundle,

@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
 class _FakeContext extends Fake implements HookContext {
   @override
@@ -115,12 +115,10 @@ dependencies:
         File(path.join(testDir.path, 'test1_test.dart')).createSync();
         File(path.join(testDir.path, 'test2_test.dart')).createSync();
         File(path.join(testDir.path, 'no_test_here.dart')).createSync();
-        File(
-          path.join(testDir.path, 'not_optimized_test.dart'),
-        ).writeAsStringSync(notOptimizedTestContent);
-        File(
-          path.join(testDir.path, 'another_not_optimized_test.dart'),
-        ).writeAsStringSync(anotherNotOptimizedTestContent);
+        File(path.join(testDir.path, 'not_optimized_test.dart'))
+            .writeAsStringSync(notOptimizedTestContent);
+        File(path.join(testDir.path, 'another_not_optimized_test.dart'))
+            .writeAsStringSync(anotherNotOptimizedTestContent);
 
         context.vars['package-root'] = tempDirectory.absolute.path;
 

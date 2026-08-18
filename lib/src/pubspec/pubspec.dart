@@ -48,12 +48,12 @@ enum PubspecDependencyType {
   /// * [Dart's dependency override documentation](https://dart.dev/tools/pub/dependencies#dependency-overrides)
   directOverridden._('direct overridden');
 
-  const PubspecDependencyType._(this.value);
+  new _(this.value);
 
   /// Parses a [PubspecDependencyType] from its `pubspec.lock` textual form.
   ///
   /// Throws an [ArgumentError] if the string is not a valid dependency type.
-  factory PubspecDependencyType.parse(String value) {
+  factory parse(String value) {
     if (_valueMap.containsKey(value)) return _valueMap[value]!;
 
     throw ArgumentError.value(

@@ -16,7 +16,7 @@ class _MockServerFactory extends Mock {
   MCPServer call({required StreamChannel<String> channel});
 }
 
-class _FakeStreamChannel extends Fake implements StreamChannel<String> {}
+class _FakeStreamChannel extends Fake implements StreamChannel<String>;
 
 void main() {
   group('MCPCommand', () {
@@ -39,9 +39,8 @@ void main() {
       registerFallbackValue(StackTrace.current);
       registerFallbackValue(_FakeStreamChannel());
 
-      when(
-        () => serverFactory(channel: any(named: 'channel')),
-      ).thenAnswer((_) => server);
+      when(() => serverFactory(channel: any(named: 'channel')))
+          .thenAnswer((_) => server);
     });
 
     test('should have correct command name', () {
@@ -93,13 +92,12 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
     test('run() uses default channel factory when not provided', () async {
       final defaultFactoryChannelController = StreamChannelController<String>();
 
-      when(() => serverFactory(channel: any(named: 'channel'))).thenAnswer((
-        invocation,
-      ) {
-        return VeryGoodMCPServer(
-          channel: defaultFactoryChannelController.foreign,
-        );
-      });
+      when(() => serverFactory(channel: any(named: 'channel')))
+          .thenAnswer((invocation) {
+            return VeryGoodMCPServer(
+              channel: defaultFactoryChannelController.foreign,
+            );
+          });
 
       final command = MCPCommand(serverFactory: serverFactory.call);
 
