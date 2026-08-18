@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+
 import 'spdx_license.gen.dart';
 
 void main() {

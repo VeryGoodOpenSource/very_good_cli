@@ -1,3 +1,10 @@
 analyzer:
   exclude:
     - test
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
