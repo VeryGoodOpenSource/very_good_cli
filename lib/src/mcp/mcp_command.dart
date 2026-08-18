@@ -9,8 +9,9 @@ import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
 /// Type definition for a factory that creates a [VeryGoodMCPServer].
-typedef ServerFactory =
-    MCPServer Function({required StreamChannel<String> channel});
+typedef ServerFactory = MCPServer Function({
+  required StreamChannel<String> channel,
+});
 
 /// Factory function to create a [StreamChannel] from input and output streams.
 typedef ChannelFactory = StreamChannel<String> Function();

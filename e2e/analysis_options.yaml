@@ -2,3 +2,10 @@ include: package:very_good_analysis/analysis_options.yaml
 analyzer:
   exclude:
     - test/commands/test/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
