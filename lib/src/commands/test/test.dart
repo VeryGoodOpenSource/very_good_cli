@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
 class FlutterTestOptions {
-  FlutterTestOptions._({
+  new _({
     required this.concurrency,
     required this.collectCoverage,
     required this.minCoverage,
@@ -40,7 +40,7 @@ class FlutterTestOptions {
   ///
   /// When [config] is provided, its values are used as defaults for any
   /// option that was not explicitly parsed on the command line.
-  factory FlutterTestOptions.parse(
+  factory parse(
     ArgResults argResults, {
     VeryGoodConfig config = VeryGoodConfig.empty,
   }) {
@@ -251,7 +251,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 /// {@endtemplate}
 class TestCommand extends Command<int> {
   /// {@macro test_command}
-  TestCommand({
+  new({
     required this._logger,
     @visibleForTesting FlutterTestCommand? flutterTest,
     @visibleForTesting FlutterInstalledCommand? flutterInstalled,

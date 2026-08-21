@@ -7,7 +7,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlameGame extends CreateSubCommand
     with OrgName, Publishable, Workspace {
   /// {@macro very_good_create_flame_game_command}
-  CreateFlameGame({required super.logger, required super.generatorFromBundle}) {
+  new({required super.logger, required super.generatorFromBundle}) {
     argParser.addMultiOption(
       'platforms',
       help:

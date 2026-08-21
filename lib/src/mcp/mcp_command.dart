@@ -26,7 +26,7 @@ StreamChannel<String> _defaultChannelFactory() {
 /// {@endtemplate}
 class MCPCommand extends Command<int> {
   /// {@macro mcp_command}
-  MCPCommand({ChannelFactory? channelFactory, ServerFactory? serverFactory})
+  new({ChannelFactory? channelFactory, ServerFactory? serverFactory})
     : _channelFactory = channelFactory ?? _defaultChannelFactory,
       _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
 

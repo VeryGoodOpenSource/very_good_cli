@@ -8,7 +8,7 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@endtemplate}
 class FlutterPluginTemplate extends Template {
   /// {@macro flutter_pkg_template}
-  FlutterPluginTemplate()
+  new()
     : super(
         name: 'flutter_plugin',
         bundle: veryGoodFlutterPluginBundle,

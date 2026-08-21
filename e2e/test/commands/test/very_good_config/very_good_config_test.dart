@@ -73,12 +73,7 @@ void main() {
         addTearDown(() => Directory.current = cwd);
 
         await expectLater(
-          commandRunner.run([
-            'test',
-            '--coverage',
-            '--min-coverage',
-            '0',
-          ]),
+          commandRunner.run(['test', '--coverage', '--min-coverage', '0']),
           completion(equals(ExitCode.success.code)),
         );
       }),
