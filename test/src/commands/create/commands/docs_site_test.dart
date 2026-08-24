@@ -43,7 +43,7 @@ Run "very_good help" to see global options.''',
 const pubspec = '''
 name: example
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
 ''';
 
 void main() {
@@ -65,10 +65,7 @@ void main() {
   group('can be instantiated', () {
     test('with default options', () {
       final logger = Logger();
-      final command = CreateDocsSite(
-        logger: logger,
-        generatorFromBundle: null,
-      );
+      final command = CreateDocsSite(logger: logger, generatorFromBundle: null);
       expect(command.name, equals('docs_site'));
       expect(
         command.description,

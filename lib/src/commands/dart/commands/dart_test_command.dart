@@ -187,25 +187,24 @@ class DartTestOptions {
 typedef DartInstalledCommand = Future<bool> Function({required Logger logger});
 
 /// Signature for the [Dart.test] method.
-typedef DartTestCommandCall =
-    Future<List<int>> Function({
-      required Logger logger,
-      String cwd,
-      bool recursive,
-      bool collectCoverage,
-      bool optimizePerformance,
-      double? minCoverage,
-      bool showUncovered,
-      String? excludeFromCoverage,
-      CoverageCollectionMode collectCoverageFrom,
-      String? randomSeed,
-      bool? forceAnsi,
-      List<String>? arguments,
-      void Function(String)? stdout,
-      void Function(String)? stderr,
-      List<String>? reportOn,
-      bool checkIgnore,
-    });
+typedef DartTestCommandCall = Future<List<int>> Function({
+  required Logger logger,
+  String cwd,
+  bool recursive,
+  bool collectCoverage,
+  bool optimizePerformance,
+  double? minCoverage,
+  bool showUncovered,
+  String? excludeFromCoverage,
+  CoverageCollectionMode collectCoverageFrom,
+  String? randomSeed,
+  bool? forceAnsi,
+  List<String>? arguments,
+  void Function(String)? stdout,
+  void Function(String)? stderr,
+  List<String>? reportOn,
+  bool checkIgnore,
+});
 
 /// {@template dart_test_command}
 /// `very_good dart test` command for running dart tests.
@@ -265,7 +264,9 @@ class DartTestCommand extends Command<int> {
       )
       ..addOption(
         'min-coverage',
-        help: 'Whether to enforce a minimum coverage percentage.',
+        help:
+            'Whether to enforce a minimum coverage percentage. '
+            'Implicitly enables coverage collection when used alone.',
       )
       ..addFlag(
         'show-uncovered',

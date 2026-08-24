@@ -22,8 +22,9 @@ import 'package:very_good_cli/src/version.dart';
 /// outside the zone would still write to the real process stdout and corrupt
 /// the MCP JSON-RPC stream.
 /// {@endtemplate}
-typedef CommandRunnerBuilder =
-    VeryGoodCommandRunner Function({required Logger logger});
+typedef CommandRunnerBuilder = VeryGoodCommandRunner Function({
+  required Logger logger,
+});
 
 /// The default [CommandRunnerBuilder] used when none is injected.
 @visibleForTesting
@@ -120,12 +121,10 @@ The organization for this new project.
 (defaults to "com.example.verygoodcore")''',
             ),
             'output_directory': StringSchema(
-              description:
-                  '''The desired output directory when creating a new project.''',
+              description: '''The desired output directory when creating a new project.''',
             ),
             'application_id': StringSchema(
-              description:
-                  '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
+              description: '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
             ),
             'platforms': StringSchema(
               description: '''
@@ -183,8 +182,7 @@ If is omitted, then core will be selected.
               items: StringSchema(),
             ),
             'dart': BooleanSchema(
-              description:
-                  '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
+              description: '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
             ),
             'coverage': BooleanSchema(
               description: 'Whether to collect coverage information.',
@@ -210,8 +208,7 @@ Automatically set to 1 when --platform is specified.
                   '''Run only tests associated with the specified tags.''',
             ),
             'exclude_coverage': StringSchema(
-              description:
-                  '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
+              description: '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
             ),
             'exclude_tags': StringSchema(
               description:
@@ -222,8 +219,7 @@ Automatically set to 1 when --platform is specified.
                   '''Whether to enforce a minimum coverage percentage.''',
             ),
             'test_randomize_ordering_seed': StringSchema(
-              description:
-                  '''The seed to randomize the execution order of test cases within test files.''',
+              description: '''The seed to randomize the execution order of test cases within test files.''',
             ),
             'update_goldens': BooleanSchema(
               description: '''
