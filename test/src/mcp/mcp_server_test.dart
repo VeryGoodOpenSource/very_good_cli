@@ -503,7 +503,7 @@ void main() {
         expect(capturedArgs, equals(['test', '--timeout', '120']));
       });
 
-      test('passes paths as positional test targets', () async {
+      test('passes paths as positional test targets behind `--`', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
@@ -521,7 +521,7 @@ void main() {
                 as List<String>;
         expect(
           capturedArgs,
-          equals(['test', 'test/src/foo_test.dart', 'test/widgets']),
+          equals(['test', '--', 'test/src/foo_test.dart', 'test/widgets']),
         );
       });
 
@@ -545,8 +545,27 @@ void main() {
                 as List<String>;
         expect(
           capturedArgs,
-          equals(['dart', 'test', '-j', '8', 'test/src/foo_test.dart']),
+          equals(['dart', 'test', '-j', '8', '--', 'test/src/foo_test.dart']),
         );
+      });
+
+      test('passes a path beginning with `-` through unparsed', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {
+                'paths': ['-weird_test.dart'],
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, equals(['test', '--', '-weird_test.dart']));
       });
 
       test('adds no positional targets when paths is empty', () async {
@@ -564,6 +583,49 @@ void main() {
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
         expect(capturedArgs, equals(['test']));
+      });
+
+      test('returns error when paths is combined with recursive', () async {
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {
+                'recursive': true,
+                'paths': ['test/src/foo_test.dart'],
+              },
+            ),
+          ),
+        );
+
+        expect(response['error'], isNull);
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        expect(result.isError, isTrue);
+        expect(
+          (result.content.first as TextContent).text,
+          contains('"recursive" cannot be combined with "paths"'),
+        );
+        verifyNever(() => mockCommandRunner.run(any()));
+      });
+
+      test('allows recursive when paths is empty', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'test',
+              arguments: {'recursive': true, 'paths': <String>[]},
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(capturedArgs, equals(['test', '-r']));
       });
     });
 

@@ -170,15 +170,20 @@ If is omitted, then core will be selected.
           properties: {
             'directory': StringSchema(
               description:
-                  'Target directory path (defaults to current directory). '
-                  'Can be absolute or relative path to project root.',
+                  'The package to test (defaults to current directory). '
+                  'Can be absolute or relative path to project root. '
+                  'A package path belongs here, not in "paths".',
             ),
             'paths': ListSchema(
               description:
-                  'Test files or directories to run, relative to the project '
-                  "root (e.g. ['test/src/foo_test.dart', 'test/widgets']). "
-                  'When omitted, the whole suite runs. Note that targeting '
-                  'specific paths disables the test optimization step.',
+                  'Test files or directories to run, relative to the package '
+                  'selected by "directory" (e.g. '
+                  "['test/src/foo_test.dart', 'test/widgets']). These are "
+                  'targets inside that one package: to test a different '
+                  'package, set "directory" to it rather than putting its '
+                  'path here. When omitted, the whole suite runs. Cannot be '
+                  'combined with "recursive". Note that targeting specific '
+                  'paths disables the test optimization step.',
               items: StringSchema(),
             ),
             'dart': BooleanSchema(
@@ -188,7 +193,11 @@ If is omitted, then core will be selected.
               description: 'Whether to collect coverage information.',
             ),
             'recursive': BooleanSchema(
-              description: 'Run tests recursively for all nested packages.',
+              description:
+                  'Run tests recursively for all nested packages. '
+                  'Cannot be combined with "paths", because each package runs '
+                  'in its own working directory and a path is only meaningful '
+                  'within one of them.',
             ),
             'optimization': BooleanSchema(
               description: '''
@@ -457,10 +466,13 @@ Only one value can be selected.
     }
 
     // Positional test targets go last, after every option, so that they are
-    // parsed as `rest` rather than as a value for the preceding option.
+    // parsed as `rest` rather than as a value for the preceding option. The
+    // `--` terminator keeps a target that begins with `-` from being read as
+    // an option; the parser strips it back out of `rest`, so the test command
+    // sees the paths and nothing else.
     final paths = args['paths'] as List<Object?>?;
-    if (paths != null) {
-      cliArgs.addAll(paths.cast<String>());
+    if (paths != null && paths.isNotEmpty) {
+      cliArgs.addAll(['--', ...paths.cast<String>()]);
     }
 
     return cliArgs;
@@ -500,6 +512,27 @@ Only one value can be selected.
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
     final args = request.arguments ?? {};
+
+    // A recursive run spawns one test process per package, each with that
+    // package as its working directory, and forwards the same positional
+    // targets to all of them. A relative path can therefore only resolve in
+    // one package and fails to load in the rest. Reject the pair up front
+    // rather than let it surface as a load error from every other package.
+    final paths = args['paths'] as List<Object?>?;
+    if (args['recursive'] == true && (paths?.isNotEmpty ?? false)) {
+      return CallToolResult(
+        content: [
+          TextContent(
+            text:
+                '"recursive" cannot be combined with "paths". Paths are '
+                'resolved within a single package, so set "directory" to the '
+                'package holding the tests and drop "recursive".',
+          ),
+        ],
+        isError: true,
+      );
+    }
+
     final cliArgs = _parseTest(args);
     return _runToolCommand(
       cliArgs,
