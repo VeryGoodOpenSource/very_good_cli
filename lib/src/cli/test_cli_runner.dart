@@ -2,13 +2,12 @@ part of 'cli.dart';
 
 /// Type definition for the [flutterTest]/[dartTest] command
 /// from 'package:very_good_test_runner`.
-typedef VeryGoodTestRunner =
-    Stream<TestEvent> Function({
-      List<String>? arguments,
-      String? workingDirectory,
-      Map<String, String>? environment,
-      bool runInShell,
-    });
+typedef VeryGoodTestRunner = Stream<TestEvent> Function({
+  List<String>? arguments,
+  String? workingDirectory,
+  Map<String, String>? environment,
+  bool runInShell,
+});
 
 /// Which test runner to use for running tests.
 enum TestRunType {
