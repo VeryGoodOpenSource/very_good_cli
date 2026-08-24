@@ -789,11 +789,24 @@ void main() {
           )..createSync(recursive: true);
           File(p.join(member.path, 'pubspec.yaml')).createSync();
           Directory(p.join(member.path, 'test')).createSync();
+          File(p.join(member.path, 'lib', 'foo.dart'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('void foo() {}');
 
           // Pub workspaces only write package_config.json at the root.
           File(p.join(workspaceRoot.path, '.dart_tool', 'package_config.json'))
             ..createSync(recursive: true)
-            ..writeAsStringSync('{"configVersion":2,"packages":[]}');
+            ..writeAsStringSync(
+              '{"configVersion":2,"packages":['
+              '{"name":"foo","rootUri":"../packages/foo","packageUri":"lib/"}'
+              ']}',
+            );
+
+          File(p.join(member.path, 'coverage', 'coverage.json'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '{"coverage":[{"source":"package:foo/foo.dart","hits":[1,1]}]}',
+            );
 
           final lcovFile = File(p.join(member.path, 'coverage', 'lcov.info'));
 
@@ -813,10 +826,6 @@ void main() {
                   const DoneTestEvent(success: true, time: 0),
                   const ExitTestEvent(exitCode: 0, time: 0),
                 ]),
-                onStart: () {
-                  expect(lcovFile.existsSync(), isFalse);
-                  lcovFile.createSync(recursive: true);
-                },
               ),
               logger: logger,
             ),
@@ -828,6 +837,8 @@ void main() {
             ).existsSync(),
             isFalse,
           );
+          expect(lcovFile.existsSync(), isTrue);
+          expect(lcovFile.readAsStringSync(), contains('SF:lib/foo.dart'));
         },
       );
 
