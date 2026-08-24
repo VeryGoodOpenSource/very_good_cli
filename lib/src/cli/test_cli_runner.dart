@@ -2,12 +2,13 @@ part of 'cli.dart';
 
 /// Type definition for the [flutterTest]/[dartTest] command
 /// from 'package:very_good_test_runner`.
-typedef VeryGoodTestRunner = Stream<TestEvent> Function({
-  List<String>? arguments,
-  String? workingDirectory,
-  Map<String, String>? environment,
-  bool runInShell,
-});
+typedef VeryGoodTestRunner =
+    Stream<TestEvent> Function({
+      List<String>? arguments,
+      String? workingDirectory,
+      Map<String, String>? environment,
+      bool runInShell,
+    });
 
 /// Which test runner to use for running tests.
 enum TestRunType {
@@ -201,20 +202,32 @@ class TestCLIRunner {
                   // Resolve package_config.json the way dart does: start at
                   // the package cwd and walk up. In a pub workspace the file
                   // lives at the workspace root, not in the member package.
+                  //
+                  // Canonicalize cwd first. On Windows the temp/workspace
+                  // directory is often a junction, and package:coverage
+                  // resolves files through that real path. reportOn: ['lib']
+                  // is canonicalized against the unresolved cwd, so the
+                  // prefix check drops every file and lcov comes out empty.
+                  final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
+                  final resolvedReportOn = [
+                    for (final path in reportOn ?? ['lib'])
+                      p.isAbsolute(path) ? path : p.join(resolvedCwd, path),
+                  ];
+
                   final hitmap = await coverage.HitMap.parseFiles(
                     files,
-                    packagePath: cwd,
+                    packagePath: resolvedCwd,
                     checkIgnoredLines: checkIgnore,
                   );
 
                   final resolver = await coverage.Resolver.create(
-                    packagePath: cwd,
+                    packagePath: resolvedCwd,
                   );
 
                   final output = hitmap.formatLcov(
                     resolver,
-                    reportOn: reportOn ?? ['lib'],
-                    basePath: cwd,
+                    reportOn: resolvedReportOn,
+                    basePath: resolvedCwd,
                   );
 
                   // Write the lcov output to the file.

@@ -838,7 +838,10 @@ void main() {
             isFalse,
           );
           expect(lcovFile.existsSync(), isTrue);
-          expect(lcovFile.readAsStringSync(), contains('SF:lib/foo.dart'));
+          expect(
+            lcovFile.readAsStringSync(),
+            contains('SF:${p.join('lib', 'foo.dart')}'),
+          );
         },
       );
 
@@ -1267,7 +1270,8 @@ void main() {
                 TestStartEvent(
                   test: Test(
                     id: 0,
-                    name: 'app/view/app_test.dart CounterCubit emits [1] when increment is called',
+                    name:
+                        'app/view/app_test.dart CounterCubit emits [1] when increment is called',
                     suiteID: 4,
                     groupIDs: [10, 99],
                     metadata: TestMetadata(skip: false),
