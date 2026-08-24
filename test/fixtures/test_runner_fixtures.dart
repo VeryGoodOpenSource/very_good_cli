@@ -593,8 +593,7 @@ List<Map<String, Object>> failingJsonOutput(String cwd) => [
   {
     'testID': 11,
     'error': 'Expected: <1>\n  Actual: <0>\n',
-    'stackTrace':
-        'package:test_api                                    expect\npackage:flutter_test/src/widget_tester.dart 455:16  expect\ntest/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
+    'stackTrace': 'package:test_api                                    expect\npackage:flutter_test/src/widget_tester.dart 455:16  expect\ntest/counter/cubit/counter_cubit_test.dart 16:7     main.<fn>.<fn>\n',
     'isFailure': true,
     'type': 'error',
     'time': 11305,
@@ -1106,8 +1105,7 @@ List<Map<String, Object>> skipExceptionMessageJsonOutput(String cwd) => [
   {
     'test': {
       'id': 17,
-      'name':
-          '''this is a really long test name that should get truncated by very_good test''',
+      'name': '''this is a really long test name that should get truncated by very_good test''',
       'suiteID': 4,
       'groupIDs': [16],
       'metadata': {'skip': false, 'skipReason': null},
@@ -1295,8 +1293,7 @@ List<Map<String, Object>> skipExceptionMessageJsonOutput(String cwd) => [
   },
   {
     'testID': 21,
-    'error':
-        '''Test failed. See exception logs above.\nThe test description was: renders CounterPage''',
+    'error': '''Test failed. See exception logs above.\nThe test description was: renders CounterPage''',
     'stackTrace': '',
     'isFailure': false,
     'type': 'error',
@@ -1473,10 +1470,8 @@ List<Map<String, Object>> compilationErrorJsonOutput(String cwd) {
     {'count': 1, 'time': 4, 'type': 'allSuites'},
     {
       'testID': 1,
-      'error':
-          "Failed to load \"test/.test_optimizer.dart\":\ntest/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n    expect(Thing(thing: true), isNull);\n                 ^^^^^\nlib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n  const Thing();\n        ^^^^^",
-      'stackTrace':
-          'package:test_core/src/runner/vm/platform.dart 255:7   VMPlatform._compileToKernel\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 232:15  VMPlatform._spawnIsolate\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 76:19   VMPlatform.load\n===== asynchronous gap ===========================\npackage:test_core/src/runner/loader.dart 232:27       Loader.loadFile.<fn>\n===== asynchronous gap ===========================\npackage:test_core/src/runner/load_suite.dart 98:19    new LoadSuite.<fn>.<fn>\n',
+      'error': "Failed to load \"test/.test_optimizer.dart\":\ntest/src/my_package_test.dart:8:18: Error: No named parameter with the name 'thing'.\n    expect(Thing(thing: true), isNull);\n                 ^^^^^\nlib/compilation_error.dart:2:9: Context: Found this candidate, but the arguments don't match.\n  const Thing();\n        ^^^^^",
+      'stackTrace': 'package:test_core/src/runner/vm/platform.dart 255:7   VMPlatform._compileToKernel\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 232:15  VMPlatform._spawnIsolate\n===== asynchronous gap ===========================\npackage:test_core/src/runner/vm/platform.dart 76:19   VMPlatform.load\n===== asynchronous gap ===========================\npackage:test_core/src/runner/loader.dart 232:27       Loader.loadFile.<fn>\n===== asynchronous gap ===========================\npackage:test_core/src/runner/load_suite.dart 98:19    new LoadSuite.<fn>.<fn>\n',
       'isFailure': false,
       'type': 'error',
       'time': 532,

@@ -1203,8 +1203,7 @@ void main() {
                 TestStartEvent(
                   test: Test(
                     id: 0,
-                    name:
-                        'app/view/app_test.dart CounterCubit emits [1] when increment is called',
+                    name: 'app/view/app_test.dart CounterCubit emits [1] when increment is called',
                     suiteID: 4,
                     groupIDs: [10, 99],
                     metadata: TestMetadata(skip: false),
