@@ -360,6 +360,15 @@ class DartTestCommand extends Command<int> {
     final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
     final recursive = _argResults['recursive'] as bool;
 
+    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
+      _logger.err('''
+Cannot target specific test files together with --recursive.
+Test targets are resolved against a single package root, so the same path
+cannot apply to every package. Drop --recursive and run from the package
+that contains them.''');
+      return ExitCode.usage.code;
+    }
+
     if (!recursive && !pubspec.existsSync()) {
       _logger.err('''
 Could not find a pubspec.yaml in $targetPath.

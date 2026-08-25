@@ -512,27 +512,6 @@ Only one value can be selected.
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
     final args = request.arguments ?? {};
-
-    // A recursive run spawns one test process per package, each with that
-    // package as its working directory, and forwards the same positional
-    // targets to all of them. A relative path can therefore only resolve in
-    // one package and fails to load in the rest. Reject the pair up front
-    // rather than let it surface as a load error from every other package.
-    final paths = args['paths'] as List<Object?>?;
-    if (args['recursive'] == true && (paths?.isNotEmpty ?? false)) {
-      return CallToolResult(
-        content: [
-          TextContent(
-            text:
-                '"recursive" cannot be combined with "paths". Paths are '
-                'resolved within a single package, so set "directory" to the '
-                'package holding the tests and drop "recursive".',
-          ),
-        ],
-        isError: true,
-      );
-    }
-
     final cliArgs = _parseTest(args);
     return _runToolCommand(
       cliArgs,

@@ -584,49 +584,6 @@ void main() {
                 as List<String>;
         expect(capturedArgs, equals(['test']));
       });
-
-      test('returns error when paths is combined with recursive', () async {
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {
-                'recursive': true,
-                'paths': ['test/src/foo_test.dart'],
-              },
-            ),
-          ),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          contains('"recursive" cannot be combined with "paths"'),
-        );
-        verifyNever(() => mockCommandRunner.run(any()));
-      });
-
-      test('allows recursive when paths is empty', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'recursive': true, 'paths': <String>[]},
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test', '-r']));
-      });
     });
 
     group('Tool: packages_get', () {
