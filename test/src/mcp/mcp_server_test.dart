@@ -280,7 +280,10 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(capturedArgs, equals(['create', 'docs_site', 'my_docs']));
+        expect(
+          capturedArgs,
+          equals(['create', 'docs_site', 'my_docs']),
+        );
       });
 
       test('handles command runner failure', () async {
@@ -489,7 +492,10 @@ void main() {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 120}),
+            CallToolRequest(
+              name: 'test',
+              arguments: {'timeout_seconds': 120},
+            ),
           ),
         );
 
