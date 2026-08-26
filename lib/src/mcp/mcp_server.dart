@@ -22,9 +22,8 @@ import 'package:very_good_cli/src/version.dart';
 /// outside the zone would still write to the real process stdout and corrupt
 /// the MCP JSON-RPC stream.
 /// {@endtemplate}
-typedef CommandRunnerBuilder = VeryGoodCommandRunner Function({
-  required Logger logger,
-});
+typedef CommandRunnerBuilder =
+    VeryGoodCommandRunner Function({required Logger logger});
 
 /// The default [CommandRunnerBuilder] used when none is injected.
 @visibleForTesting
@@ -121,10 +120,12 @@ The organization for this new project.
 (defaults to "com.example.verygoodcore")''',
             ),
             'output_directory': StringSchema(
-              description: '''The desired output directory when creating a new project.''',
+              description:
+                  '''The desired output directory when creating a new project.''',
             ),
             'application_id': StringSchema(
-              description: '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
+              description:
+                  '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
             ),
             'platforms': StringSchema(
               description: '''
@@ -174,7 +175,8 @@ If is omitted, then core will be selected.
                   'Can be absolute or relative path to project root.',
             ),
             'dart': BooleanSchema(
-              description: '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
+              description:
+                  '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
             ),
             'coverage': BooleanSchema(
               description: 'Whether to collect coverage information.',
@@ -200,7 +202,8 @@ Automatically set to 1 when --platform is specified.
                   '''Run only tests associated with the specified tags.''',
             ),
             'exclude_coverage': StringSchema(
-              description: '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
+              description:
+                  '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
             ),
             'exclude_tags': StringSchema(
               description:
@@ -211,7 +214,8 @@ Automatically set to 1 when --platform is specified.
                   '''Whether to enforce a minimum coverage percentage.''',
             ),
             'test_randomize_ordering_seed': StringSchema(
-              description: '''The seed to randomize the execution order of test cases within test files.''',
+              description:
+                  '''The seed to randomize the execution order of test cases within test files.''',
             ),
             'update_goldens': BooleanSchema(
               description: '''
@@ -250,6 +254,13 @@ Only one value can be selected.
                   'Whether to check for and respect coverage ignore comments '
                   '(e.g. // coverage:ignore-line). '
                   'Only applies to Dart tests (dart: true).',
+            ),
+            'show_uncovered': BooleanSchema(
+              description:
+                  'Whether to list uncovered lines when coverage is below '
+                  '100%. Implicitly enables coverage collection when used '
+                  'alone. Useful for identifying which lines still need '
+                  'tests after a min_coverage failure.',
             ),
             'timeout_seconds': IntegerSchema(
               description:
@@ -440,6 +451,9 @@ Only one value can be selected.
     }
     if (args['check_ignore'] == true) {
       cliArgs.add('--check-ignore');
+    }
+    if (args['show_uncovered'] == true) {
+      cliArgs.add('--show-uncovered');
     }
     if (args['timeout_seconds'] != null) {
       cliArgs.addAll([
