@@ -210,7 +210,7 @@ class TestCLIRunner {
                   final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
                   final resolvedReportOn = [
                     for (final path in reportOn ?? ['lib'])
-                      p.isAbsolute(path) ? path : p.join(resolvedCwd, path),
+                      if (p.isAbsolute(path)) path else p.join(resolvedCwd, path),
                   ];
 
                   final hitmap = await coverage.HitMap.parseFiles(
