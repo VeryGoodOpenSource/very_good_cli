@@ -33,33 +33,78 @@ Future<void> run(HookContext context) async {
   final flutterSdkRegExp = RegExp(r'sdk:\s*flutter$', multiLine: true);
   final isFlutter = flutterSdkRegExp.hasMatch(pubspecContents);
 
-  final identifierGenerator = DartIdentifierGenerator();
-  final testIdentifierTable = <Map<String, String>>[];
+  final shardIndex = context.vars['shard-index'] as int?;
+  final totalShards = context.vars['total-shards'] as int?;
+
   final tests = testDir
       .listSync(recursive: true)
-      .where((entity) => entity.isTest);
+      .where(
+        (entity) => entity.isTest,
+      );
 
   final notOptimizedTests = await getNotOptimizedTests(tests, testDir.path);
 
-  for (final entity in tests) {
-    final relativePath = path
-        .relative(entity.path, from: testDir.path)
-        .replaceAll(r'\', '/');
-    testIdentifierTable.add({
-      'path': relativePath,
-      'identifier': identifierGenerator.next(),
-    });
-  }
+  // Sorting guarantees a deterministic order across machines, which is what
+  // makes sharding reproducible: `Directory.listSync` order is filesystem
+  // dependent, so without this two runners could disagree on the partition
+  // and either skip or duplicate tests.
+  final testPaths =
+      tests
+          .map(
+            (entity) => path
+                .relative(entity.path, from: testDir.path)
+                .replaceAll(r'\', '/'),
+          )
+          .toList()
+        ..sort();
 
-  final optimizedTestsIdentifierTable = testIdentifierTable
-      .where((e) => !notOptimizedTests.contains(e['path']))
-      .toList();
+  final optimizedTestPaths = shardOf(
+    testPaths.where((p) => !notOptimizedTests.contains(p)).toList(),
+    shardIndex: shardIndex,
+    totalShards: totalShards,
+  );
+
+  // Non optimized tests run as standalone files alongside the optimizer
+  // entrypoint, so they must be sharded too. Otherwise every runner would
+  // re-run all of them, defeating the purpose of sharding.
+  final shardedNotOptimizedTests = shardOf(
+    notOptimizedTests..sort(),
+    shardIndex: shardIndex,
+    totalShards: totalShards,
+  );
+
+  final identifierGenerator = DartIdentifierGenerator();
+  final optimizedTestsIdentifierTable = [
+    for (final relativePath in optimizedTestPaths)
+      {'path': relativePath, 'identifier': identifierGenerator.next()},
+  ];
 
   context.vars = {
     'tests': optimizedTestsIdentifierTable,
     'isFlutter': isFlutter,
-    'notOptimizedTests': notOptimizedTests,
+    'notOptimizedTests': shardedNotOptimizedTests,
   };
+}
+
+/// Returns the subset of [paths] that belongs to the shard [shardIndex] out of
+/// [totalShards].
+///
+/// Returns [paths] unchanged when sharding is not enabled (either value is
+/// `null`).
+///
+/// Files are dealt out round-robin (index modulo [totalShards]) over the
+/// already sorted [paths], which keeps shards balanced in file count and makes
+/// the partition stable for a given test suite.
+List<String> shardOf(
+  List<String> paths, {
+  required int? shardIndex,
+  required int? totalShards,
+}) {
+  if (shardIndex == null || totalShards == null) return paths;
+
+  return [
+    for (var i = shardIndex - 1; i < paths.length; i += totalShards) paths[i],
+  ];
 }
 
 extension on FileSystemEntity {

@@ -218,6 +218,8 @@ class Flutter {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
+    int? shardIndex,
+    int? totalShards,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
@@ -238,6 +240,8 @@ class Flutter {
       stderr: stderr,
       buildGenerator: buildGenerator,
       reportOn: reportOn,
+      shardIndex: shardIndex,
+      totalShards: totalShards,
     );
   }
 }
