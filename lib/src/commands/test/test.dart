@@ -244,10 +244,8 @@ class FlutterTestOptions {
 /// configuration is valid.
 ///
 /// [rawShardIndex] and [rawTotalShards] are the unparsed command line values,
-/// needed to tell "not provided" apart from "provided but not a number".
+/// so that "not provided" can be told apart from "provided but not a number".
 String? validateSharding({
-  required int? shardIndex,
-  required int? totalShards,
   required String? rawShardIndex,
   required String? rawTotalShards,
   required bool optimizePerformance,
@@ -259,11 +257,13 @@ String? validateSharding({
     return '--shard-index and --total-shards must be used together.';
   }
 
+  final totalShards = int.tryParse(rawTotalShards);
   if (totalShards == null || totalShards < 1) {
     return '--total-shards must be a positive integer, '
         'but got "$rawTotalShards".';
   }
 
+  final shardIndex = int.tryParse(rawShardIndex);
   if (shardIndex == null || shardIndex < 1) {
     return '--shard-index must be a positive integer, '
         'but got "$rawShardIndex".';
@@ -285,10 +285,9 @@ String? validateSharding({
   // not representative of the whole suite. Merge the lcov files from every
   // shard and enforce the threshold in a separate job instead.
   if (minCoverage != null) {
-    return 'Sharding cannot be combined with --min-coverage, because each '
-        'shard only covers a subset of the tests. Collect coverage per shard '
-        'with --coverage, merge the lcov reports, and check the threshold '
-        'once all shards have completed.';
+    return '--min-coverage cannot be combined with sharding. Collect coverage '
+        'per shard with --coverage, merge the lcov reports, then check the '
+        'threshold in a separate job.';
   }
 
   return null;
@@ -543,8 +542,6 @@ This command should be run from the root of your Flutter project.''');
     final options = FlutterTestOptions.parse(_argResults, config: config);
 
     final shardingError = validateSharding(
-      shardIndex: options.shardIndex,
-      totalShards: options.totalShards,
       rawShardIndex: _argResults['shard-index'] as String?,
       rawTotalShards: _argResults['total-shards'] as String?,
       optimizePerformance: options.optimizePerformance,

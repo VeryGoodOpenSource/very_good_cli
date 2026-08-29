@@ -105,6 +105,10 @@ not run on every runner.
 A shard with no test files (more shards than test files) succeeds without
 running anything, so an oversized matrix will not fail your build.
 
+When combined with `--recursive`, each package is sharded independently, so a
+given runner executes a slice of every package. Balance therefore degrades when
+a workspace contains many packages with few tests each.
+
 :::caution
 Sharding cannot be combined with `--min-coverage`. Each shard only exercises a
 subset of the codebase, so its coverage is not representative of the whole

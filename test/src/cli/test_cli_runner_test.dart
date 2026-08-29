@@ -1188,6 +1188,58 @@ void main() {
         expect(testRunnerArgs, isEmpty);
       });
 
+      test(
+        'runs the shard when it only contains non optimized tests',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(<String, dynamic>{
+                  'package-root': tempDirectory.path,
+                  'tests': <Map<String, String>>[],
+                  'notOptimizedTests': <String>['skip0_test.dart'],
+                });
+          });
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              buildGenerator: generatorBuilder(),
+              optimizePerformance: true,
+              shardIndex: 2,
+              totalShards: 2,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            contains(p.join('test', 'skip0_test.dart')),
+          );
+        },
+      );
+
       test('runs tests w/optimizations (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

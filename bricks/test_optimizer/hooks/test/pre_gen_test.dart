@@ -375,6 +375,36 @@ dependencies:
         },
       );
 
+      test(
+        'excludes nested non optimized tests from the optimized set',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          final nested = Directory(path.join(testDir.path, 'sub'))
+            ..createSync();
+          File(
+            path.join(nested.path, 'skip_test.dart'),
+          ).writeAsStringSync(notOptimizedTestContent);
+
+          final context = _FakeContext()
+            ..vars['package-root'] = tempDirectory.absolute.path;
+          await pre_gen.run(context);
+
+          expect(
+            pathsOf(context),
+            isEmpty,
+            reason:
+                'A tagged test in a subdirectory must not be optimized, '
+                'otherwise it runs both inlined and standalone',
+          );
+          expect(
+            context.vars['notOptimizedTests'],
+            ['sub/skip_test.dart'],
+          );
+        },
+      );
+
       test('includes every test when sharding is not requested', () async {
         createPackage(3);
 

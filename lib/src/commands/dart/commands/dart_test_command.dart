@@ -410,8 +410,6 @@ This command should be run from the root of your Dart project.''');
     final options = DartTestOptions.parse(_argResults, config: config);
 
     final shardingError = validateSharding(
-      shardIndex: options.shardIndex,
-      totalShards: options.totalShards,
       rawShardIndex: _argResults['shard-index'] as String?,
       rawTotalShards: _argResults['total-shards'] as String?,
       optimizePerformance: options.optimizePerformance,

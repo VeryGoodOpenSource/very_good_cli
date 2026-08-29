@@ -915,10 +915,9 @@ void main() {
         expect(result, equals(ExitCode.usage.code));
         verify(
           () => logger.err(
-            'Sharding cannot be combined with --min-coverage, because each '
-            'shard only covers a subset of the tests. Collect coverage per '
-            'shard with --coverage, merge the lcov reports, and check the '
-            'threshold once all shards have completed.',
+            '--min-coverage cannot be combined with sharding. Collect '
+            'coverage per shard with --coverage, merge the lcov reports, '
+            'then check the threshold in a separate job.',
           ),
         ).called(1);
       });

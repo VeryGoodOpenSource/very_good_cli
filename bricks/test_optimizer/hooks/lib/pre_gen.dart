@@ -38,9 +38,7 @@ Future<void> run(HookContext context) async {
 
   final tests = testDir
       .listSync(recursive: true)
-      .where(
-        (entity) => entity.isTest,
-      );
+      .where((entity) => entity.isTest);
 
   final notOptimizedTests = await getNotOptimizedTests(tests, testDir.path);
 
@@ -130,9 +128,10 @@ Future<List<String>> getNotOptimizedTests(
     }
   }
 
-  /// Format to relative path
+  /// Format to relative path, normalizing separators so the paths compare
+  /// equal to the ones built in [run] on Windows too.
   final relativePaths = testWithVeryGoodTest
-      .map((e) => path.relative(e, from: testDir))
+      .map((e) => path.relative(e, from: testDir).replaceAll(r'\', '/'))
       .toList();
 
   return relativePaths;
