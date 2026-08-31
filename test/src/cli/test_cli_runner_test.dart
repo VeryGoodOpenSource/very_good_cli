@@ -778,6 +778,73 @@ void main() {
         expect(testRunnerArgs, equals(['--coverage=coverage']));
       });
 
+      test(
+        'resolves dart coverage package_config from the pub workspace root',
+        () async {
+          final workspaceRoot = Directory.systemTemp.createTempSync();
+          addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+
+          final member = Directory(
+            p.join(workspaceRoot.path, 'packages', 'foo'),
+          )..createSync(recursive: true);
+          File(p.join(member.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(member.path, 'test')).createSync();
+          File(p.join(member.path, 'lib', 'foo.dart'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('void foo() {}');
+
+          // Pub workspaces only write package_config.json at the root.
+          File(p.join(workspaceRoot.path, '.dart_tool', 'package_config.json'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '{"configVersion":2,"packages":['
+              '{"name":"foo","rootUri":"../packages/foo","packageUri":"lib/"}'
+              ']}',
+            );
+
+          File(p.join(member.path, 'coverage', 'coverage.json'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync(
+              '{"coverage":[{"source":"package:foo/foo.dart","hits":[1,1]}]}',
+            );
+
+          final lcovFile = File(p.join(member.path, 'coverage', 'lcov.info'));
+
+          final originalCwd = Directory.current;
+          addTearDown(() => Directory.current = originalCwd);
+          Directory.current = member;
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.dart,
+              cwd: member.path,
+              collectCoverage: true,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+              ),
+              logger: logger,
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            File(
+              p.join(member.path, '.dart_tool', 'package_config.json'),
+            ).existsSync(),
+            isFalse,
+          );
+          expect(lcovFile.existsSync(), isTrue);
+          expect(
+            lcovFile.readAsStringSync(),
+            contains('SF:${p.join('lib', 'foo.dart')}'),
+          );
+        },
+      );
+
       test('runs dart tests w/coverage and checkIgnore', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
