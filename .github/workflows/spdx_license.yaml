@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: 🎯 Setup Dart
-        uses: dart-lang/setup-dart@v1.8.0
+        uses: dart-lang/setup-dart@v1.8.1
         with:
           sdk: "3.13.0"
 
