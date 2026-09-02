@@ -833,6 +833,178 @@ void main() {
       });
     });
 
+    group('progress notifications', () {
+      /// Collects every `notifications/progress` frame the server writes to the
+      /// channel for the lifetime of the returned canceller.
+      ({List<Map<String, dynamic>> notifications, Future<void> Function() stop})
+      captureProgressNotifications() {
+        final notifications = <Map<String, dynamic>>[];
+        final subscription = serverResponses.listen((event) {
+          if (event['method'] == 'notifications/progress') {
+            notifications.add(
+              (event['params'] as Map).cast<String, dynamic>(),
+            );
+          }
+        });
+        return (
+          notifications: notifications,
+          stop: subscription.cancel,
+        );
+      }
+
+      test('are not sent when the client omits a progressToken', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.writeln('some progress line');
+          return ExitCode.success.code;
+        });
+        final captured = captureProgressNotifications();
+        addTearDown(captured.stop);
+
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(CallToolRequest(name: 'test', arguments: const {})),
+        );
+
+        expect(captured.notifications, isEmpty);
+      });
+
+      test(
+        'are emitted with monotonic progress when a token is supplied',
+        () async {
+          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+            stdout
+              ..writeln('Optimizing tests...')
+              ..writeln('00:01 +1: some_test')
+              ..writeln('All tests passed!');
+            return ExitCode.success.code;
+          });
+          final captured = captureProgressNotifications();
+          addTearDown(captured.stop);
+
+          await sendRequest(CallToolRequest.methodName, {
+            'name': 'test',
+            'arguments': <String, Object?>{},
+            '_meta': {'progressToken': 'tkn-1'},
+          });
+
+          expect(captured.notifications, isNotEmpty);
+          for (final n in captured.notifications) {
+            expect(n['progressToken'], equals('tkn-1'));
+          }
+
+          final values = captured.notifications
+              .map((n) => (n['progress'] as num).toDouble())
+              .toList();
+          for (var i = 1; i < values.length; i++) {
+            expect(
+              values[i],
+              greaterThan(values[i - 1]),
+              reason: 'progress must strictly increase per MCP spec',
+            );
+          }
+
+          final messages = captured.notifications
+              .map((n) => n['message'] as String?)
+              .toList();
+          expect(messages.first, contains('Starting "test"'));
+          expect(messages, contains('Optimizing tests...'));
+          expect(messages, contains('All tests passed!'));
+        },
+      );
+
+      test('accepts integer progress tokens', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.writeln('a line');
+          return ExitCode.success.code;
+        });
+        final captured = captureProgressNotifications();
+        addTearDown(captured.stop);
+
+        await sendRequest(CallToolRequest.methodName, {
+          'name': 'packages_get',
+          'arguments': <String, Object?>{},
+          '_meta': {'progressToken': 42},
+        });
+
+        expect(captured.notifications, isNotEmpty);
+        for (final n in captured.notifications) {
+          expect(n['progressToken'], equals(42));
+        }
+      });
+
+      test(
+        r'flushes each spinner redraw (\r boundary) as its own notification',
+        () async {
+          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+            // A single line rewritten in place three times before settling.
+            stdout.write('00:01 +1\r00:02 +5\r00:03 +9\rAll passed\n');
+            return ExitCode.success.code;
+          });
+          final captured = captureProgressNotifications();
+          addTearDown(captured.stop);
+
+          await sendRequest(CallToolRequest.methodName, {
+            'name': 'test',
+            'arguments': <String, Object?>{},
+            '_meta': {'progressToken': 'redraw'},
+          });
+
+          final messages = captured.notifications
+              .map((n) => n['message'] as String)
+              .toList();
+          expect(messages, contains('00:01 +1'));
+          expect(messages, contains('00:02 +5'));
+          expect(messages, contains('00:03 +9'));
+          expect(messages, contains('All passed'));
+        },
+      );
+
+      test('are also emitted for packages_check_licenses', () async {
+        final licenseDir = Directory.systemTemp.createTempSync('vgmcp_lic_');
+        addTearDown(() => licenseDir.deleteSync(recursive: true));
+
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          stdout.writeln('checking licenses for package_a');
+          return ExitCode.success.code;
+        });
+        final captured = captureProgressNotifications();
+        addTearDown(captured.stop);
+
+        await sendRequest(CallToolRequest.methodName, {
+          'name': 'packages_check_licenses',
+          'arguments': <String, Object?>{'directory': licenseDir.path},
+          '_meta': {'progressToken': 'lic'},
+        });
+
+        expect(captured.notifications, isNotEmpty);
+        expect(
+          captured.notifications.map((n) => n['message'] as String).toList(),
+          contains('checking licenses for package_a'),
+        );
+      });
+
+      test('skips a run whose captured output is blank', () async {
+        when(
+          () => mockCommandRunner.run(any()),
+        ).thenAnswer((_) async => ExitCode.success.code);
+        final captured = captureProgressNotifications();
+        addTearDown(captured.stop);
+
+        await sendRequest(CallToolRequest.methodName, {
+          'name': 'test',
+          'arguments': <String, Object?>{},
+          '_meta': {'progressToken': 'silent'},
+        });
+
+        // Only the initial "Starting …" notification, no per-line ones.
+        expect(captured.notifications, hasLength(1));
+        expect(
+          captured.notifications.single['message'],
+          contains('Starting "test"'),
+        );
+      });
+    });
+
     group('working directory', () {
       test(
         'serializes overlapping runs so each keeps its own directory',
@@ -963,6 +1135,66 @@ void main() {
         Stream.fromIterable([utf8.encode('x'), utf8.encode('y')]),
       );
       expect(buffer.toString(), equals('xy'));
+    });
+
+    group('onLine callback', () {
+      test(r'is invoked once per \n-terminated line with sanitized text', () {
+        final lines = <String>[];
+        final sink = CapturingStdout(StringBuffer(), onLine: lines.add)
+          ..write('hello\nworld\n');
+
+        expect(lines, equals(['hello', 'world']));
+        // The next boundary flushes whatever has been written since.
+        sink.writeln('again');
+        expect(lines, equals(['hello', 'world', 'again']));
+      });
+
+      test(r'treats each \r as a settled-line boundary', () {
+        final lines = <String>[];
+        CapturingStdout(
+          StringBuffer(),
+          onLine: lines.add,
+        ).write('tick 1\rtick 2\rdone\n');
+        expect(lines, equals(['tick 1', 'tick 2', 'done']));
+      });
+
+      test('strips ANSI escapes from the line delivered to the callback', () {
+        final lines = <String>[];
+        CapturingStdout(
+          StringBuffer(),
+          onLine: lines.add,
+        ).writeln('\x1B[31mred\x1B[0m alert');
+        expect(lines, equals(['red alert']));
+      });
+
+      test('does not emit for blank/whitespace-only chunks', () {
+        final lines = <String>[];
+        CapturingStdout(StringBuffer(), onLine: lines.add)
+          ..writeln()
+          ..writeln('   ')
+          ..writeln('real');
+        expect(lines, equals(['real']));
+      });
+
+      test('buffers across writes until the next boundary', () {
+        final lines = <String>[];
+        final sink = CapturingStdout(StringBuffer(), onLine: lines.add)
+          ..write('hel')
+          ..write('lo ')
+          ..write('world');
+        expect(lines, isEmpty);
+        sink.write('!\n');
+        expect(lines, equals(['hello world!']));
+      });
+
+      test('flushes the final unterminated line on close', () async {
+        final lines = <String>[];
+        final sink = CapturingStdout(StringBuffer(), onLine: lines.add)
+          ..write('done');
+        expect(lines, isEmpty);
+        await sink.close();
+        expect(lines, equals(['done']));
+      });
     });
 
     test('reports no terminal and tolerates sink lifecycle calls', () async {

@@ -480,7 +480,11 @@ Only one value can be selected.
   Future<CallToolResult> _handleCreate(CallToolRequest request) async {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
-    return _runToolCommand(cliArgs, toolName: 'create');
+    return _runToolCommand(
+      cliArgs,
+      toolName: 'create',
+      progressToken: request.meta?.progressToken,
+    );
   }
 
   Future<CallToolResult> _handleTest(CallToolRequest request) async {
@@ -490,6 +494,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'test',
       directory: args['directory'] as String?,
+      progressToken: request.meta?.progressToken,
     );
   }
 
@@ -500,6 +505,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'packages get',
       directory: args['directory'] as String?,
+      progressToken: request.meta?.progressToken,
     );
   }
 
@@ -528,6 +534,7 @@ Only one value can be selected.
       cliArgs,
       toolName: 'packages check licenses',
       directory: args['directory'] as String?,
+      progressToken: request.meta?.progressToken,
     );
   }
 
@@ -548,17 +555,49 @@ Only one value can be selected.
   /// The [Logger] is constructed *inside* the zone on purpose: mason captures
   /// `IOOverrides.current` at [Logger] construction time, so building it
   /// outside the zone would defeat the redirect.
+  ///
+  /// When [progressToken] is provided, `notifications/progress` messages are
+  /// emitted as the command runs. Each settled line captured from the
+  /// command's `stdout`/`stderr` becomes one progress notification, with a
+  /// monotonically-increasing `progress` counter. Progress is a
+  /// fire-and-forget UX signal on top of the final tool result (which stays
+  /// the source of truth). If the client did not supply a token, the server
+  /// stays silent, as required by the MCP spec.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
     String? directory,
+    ProgressToken? progressToken,
   }) {
     return _lock.run(() async {
       final commandString = 'very_good ${args.join(' ')}';
       final output = StringBuffer();
 
+      // Monotonically-increasing counter for [ProgressNotification.progress].
+      // The spec requires progress to strictly increase across notifications
+      // for the same token, even when the total is unknown.
+      var progressCounter = 0;
+      void reportProgress(String message) {
+        if (progressToken == null) return;
+        progressCounter++;
+        notifyProgress(
+          ProgressNotification(
+            progressToken: progressToken,
+            progress: progressCounter,
+            message: message,
+          ),
+        );
+      }
+
+      if (progressToken != null) {
+        reportProgress('Starting "$toolName"...');
+      }
+
       Future<T> runCaptured<T>(Future<T> Function(Logger logger) body) {
-        final sink = CapturingStdout(output);
+        final sink = CapturingStdout(
+          output,
+          onLine: progressToken == null ? null : reportProgress,
+        );
         return IOOverrides.runZoned(
           () => body(Logger()),
           stdout: () => sink,
@@ -636,12 +675,28 @@ Only one value can be selected.
 /// through `stdout`/`stderr`, including progress spinners) away from the real
 /// stdout shared with the MCP JSON-RPC stream. It reports no terminal so mason
 /// emits plain, animation-free lines.
+///
+/// When `onLine` is provided, it is invoked with the sanitized, non-empty text
+/// of each settled line. Boundary detection is delegated to [LineSplitter],
+/// which treats a bare `\r` as a boundary too (so spinner redraws, which
+/// rewrite one line in place using `\r`, still surface each intermediate
+/// state) and buffers partial lines across separate writes.
 @visibleForTesting
 class CapturingStdout implements Stdout {
   /// Creates a [CapturingStdout] that appends all writes to [_buffer].
-  CapturingStdout(this._buffer);
+  ///
+  /// If `onLine` is non-null, it is called with each settled line's sanitized,
+  /// non-empty text (see [sanitizeCommandOutput]).
+  CapturingStdout(this._buffer, {void Function(String line)? onLine})
+    : _lineSink = onLine == null
+          ? null
+          : const LineSplitter().startChunkedConversion(_LineSink(onLine));
 
   final StringBuffer _buffer;
+
+  /// Feeds writes through [LineSplitter] to detect settled lines. `null` when
+  /// no `onLine` callback was supplied, so writes skip boundary detection.
+  final Sink<String>? _lineSink;
 
   @override
   Encoding encoding = utf8;
@@ -649,25 +704,32 @@ class CapturingStdout implements Stdout {
   @override
   String lineTerminator = '\n';
 
-  @override
-  void write(Object? object) => _buffer.write(object ?? 'null');
+  /// Appends [text] to the capture buffer and, when wired, feeds it through
+  /// the line-boundary detector.
+  void _append(String text) {
+    _buffer.write(text);
+    _lineSink?.add(text);
+  }
 
   @override
-  void writeln([Object? object = '']) => _buffer.writeln(object ?? '');
+  void write(Object? object) => _append(object?.toString() ?? 'null');
+
+  @override
+  void writeln([Object? object = '']) => _append('${object ?? ''}\n');
 
   @override
   void writeAll(Iterable<dynamic> objects, [String separator = '']) =>
-      _buffer.writeAll(objects, separator);
+      _append(objects.map((o) => o.toString()).join(separator));
 
   @override
-  void writeCharCode(int charCode) => _buffer.writeCharCode(charCode);
+  void writeCharCode(int charCode) => _append(String.fromCharCode(charCode));
 
   @override
   void add(List<int> data) {
     try {
-      _buffer.write(encoding.decode(data));
+      _append(encoding.decode(data));
     } on FormatException {
-      _buffer.write(String.fromCharCodes(data));
+      _append(String.fromCharCodes(data));
     }
   }
 
@@ -681,7 +743,7 @@ class CapturingStdout implements Stdout {
   Future<void> flush() async {}
 
   @override
-  Future<void> close() async {}
+  Future<void> close() async => _lineSink?.close();
 
   @override
   Future<void> get done => Future<void>.value();
@@ -701,6 +763,24 @@ class CapturingStdout implements Stdout {
 
   @override
   IOSink get nonBlocking => this;
+}
+
+/// Forwards each line [LineSplitter] settles to [onLine], dropping
+/// blank/whitespace-only lines and stripping ANSI escapes via
+/// [sanitizeCommandOutput].
+class _LineSink implements Sink<String> {
+  _LineSink(this.onLine);
+
+  final void Function(String line) onLine;
+
+  @override
+  void add(String data) {
+    final settled = sanitizeCommandOutput(data).trim();
+    if (settled.isNotEmpty) onLine(settled);
+  }
+
+  @override
+  void close() {}
 }
 
 /// Matches a CSI ANSI escape sequence (colors, cursor moves, line erases).
