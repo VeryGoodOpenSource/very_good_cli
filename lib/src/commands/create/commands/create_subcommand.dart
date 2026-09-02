@@ -353,9 +353,7 @@ mixin MultiTemplates on CreateSubCommand {
         final source = argResults.wasParsed('template')
             ? 'option "--template"'
             : 'the `create.template` key in `$veryGoodConfigFileName`';
-        usageException(
-          '"$templateName" is not an allowed value for $source.',
-        );
+        usageException('"$templateName" is not an allowed value for $source.');
       },
     );
   }
