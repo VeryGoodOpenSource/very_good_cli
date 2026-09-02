@@ -350,6 +350,22 @@ dependencies:
         expect(second, ['skip1_test.dart', 'skip3_test.dart']);
       });
 
+      test('deals optimized and non optimized tests out together', () async {
+        createPackage(2, notOptimized: 3);
+
+        final sizes = [
+          for (var i = 1; i <= 6; i++) (await runShard(i, 6)).length,
+        ];
+
+        expect(
+          sizes,
+          [1, 1, 1, 1, 1, 0],
+          reason:
+              'Sharding the two lists separately would give the first '
+              'shards a file from each while later shards stay empty',
+        );
+      });
+
       test('is deterministic across runs', () async {
         createPackage(9);
 

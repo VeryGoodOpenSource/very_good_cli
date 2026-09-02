@@ -56,20 +56,22 @@ Future<void> run(HookContext context) async {
           .toList()
         ..sort();
 
-  final optimizedTestPaths = shardOf(
-    testPaths.where((p) => !notOptimizedTests.contains(p)).toList(),
-    shardIndex: shardIndex,
-    totalShards: totalShards,
-  );
-
   // Non optimized tests run as standalone files alongside the optimizer
-  // entrypoint, so they must be sharded too. Otherwise every runner would
-  // re-run all of them, defeating the purpose of sharding.
-  final shardedNotOptimizedTests = shardOf(
-    notOptimizedTests..sort(),
+  // entrypoint, so they are sharded too, and in the same deal as the
+  // optimized ones: dealing out one list keeps every shard within one file
+  // of the others, whereas dealing out the two lists separately would hand
+  // the first shards a file from each.
+  final shardPaths = shardOf(
+    testPaths,
     shardIndex: shardIndex,
     totalShards: totalShards,
   );
+  final optimizedTestPaths = shardPaths
+      .where((p) => !notOptimizedTests.contains(p))
+      .toList();
+  final shardedNotOptimizedTests = shardPaths
+      .where(notOptimizedTests.contains)
+      .toList();
 
   final identifierGenerator = DartIdentifierGenerator();
   final optimizedTestsIdentifierTable = [
