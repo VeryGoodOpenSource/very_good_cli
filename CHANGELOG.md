@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.4.0...v1.5.0) (2026-09-03)
+
+
+### Features
+
+* bump template bundles ([#1697](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1697)) ([b8f2183](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b8f21832fe4f219290e5515e9a5533e11f94b6b1))
+* **deps:** upgrade to Dart 3.13 ([#1691](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1691)) ([25a225f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/25a225f59cfec3e7eee5bf6c271ae62ead191c79))
+* **mcp:** expose show_uncovered on the test tool ([#1706](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1706)) ([ccecc1e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ccecc1e73db8dbb226c7171b8205c0575a82c42b))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump cli_completion from 0.5.1 to 0.6.0 ([#1694](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1694)) ([1759aca](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1759aca6b2619d36b9f2668412962a1f585e8d80))
+* **deps:** bump dart-lang/setup-dart from 1.8.0 to 1.8.1 ([#1708](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1708)) ([9bba3b1](https://github.com/VeryGoodOpenSource/very_good_cli/commit/9bba3b12a382e63bc156a9e7c4e6b9ed7b89f521))
+* **deps:** bump very_good_test_runner from 0.3.0 to 0.4.0 ([#1693](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1693)) ([343d4db](https://github.com/VeryGoodOpenSource/very_good_cli/commit/343d4db3e8f5a66733c5cbe07558a82f16d8cdf8))
+* update SPDX licenses ([#1703](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1703)) ([2f6c122](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2f6c1223fc05fb0c5cbf4602bce07bed2abc9b31))
+
+
+### Docs
+
+* clarify --min-coverage and configuration ([#1685](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1685)) ([b5c2457](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b5c2457ffeb618a3cefb3880b86d0a48377196e6))
+
 ## [1.4.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.3.0...v1.4.0) (2026-08-10)
 
 
