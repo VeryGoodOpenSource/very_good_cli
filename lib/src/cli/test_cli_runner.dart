@@ -103,6 +103,8 @@ class TestCLIRunner {
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
     bool checkIgnore = false,
+    int? shardIndex,
+    int? totalShards,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
   }) async {
     final initialCwd = cwd;
@@ -140,7 +142,11 @@ class TestCLIRunner {
             '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
           );
         }
-        var vars = <String, dynamic>{'package-root': workingDirectory};
+        var vars = <String, dynamic>{
+          'package-root': workingDirectory,
+          'shard-index': ?shardIndex,
+          'total-shards': ?totalShards,
+        };
         if (optimizePerformance) {
           final optimizationProgress = logger.progress('Optimizing tests');
           try {
@@ -162,6 +168,20 @@ class TestCLIRunner {
 
         final notOptimizedTests =
             vars['notOptimizedTests'] as List<dynamic>? ?? [];
+
+        // A shard can legitimately end up empty when there are more shards
+        // than test files. That is not a failure: the shard has nothing to do,
+        // so report success instead of letting the test runner exit with
+        // "No tests were found", which would fail the CI job.
+        if (shardIndex != null &&
+            optimizePerformance &&
+            (vars['tests'] as List<dynamic>? ?? []).isEmpty &&
+            notOptimizedTests.isEmpty) {
+          stdout?.call('No tests found for shard $shardIndex in $path\n');
+          await _cleanupOptimizerFile(cwd);
+          return ExitCode.success.code;
+        }
+
         return _overrideAnsiOutput(
           forceAnsi,
           () =>

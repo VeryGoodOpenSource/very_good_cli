@@ -33,6 +33,8 @@ class FlutterTestOptions {
     required this.flavor,
     required this.timeout,
     required this.fileReporter,
+    required this.shardIndex,
+    required this.totalShards,
     required this.rest,
   });
 
@@ -124,6 +126,8 @@ class FlutterTestOptions {
       'file-reporter',
       testConfig.fileReporter,
     );
+    final shardIndex = argResults['shard-index'] as String?;
+    final totalShards = argResults['total-shards'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -148,6 +152,8 @@ class FlutterTestOptions {
       flavor: flavor,
       timeout: effectiveTimeout,
       fileReporter: fileReporter,
+      shardIndex: shardIndex,
+      totalShards: totalShards,
       rest: rest,
     );
   }
@@ -218,8 +224,69 @@ class FlutterTestOptions {
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
   final String? fileReporter;
 
+  /// The raw `--shard-index` value, validated by [validateSharding].
+  final String? shardIndex;
+
+  /// The raw `--total-shards` value, validated by [validateSharding].
+  final String? totalShards;
+
   /// The remaining arguments passed to the test command.
   final List<String> rest;
+}
+
+/// Validates the `--shard-index` / `--total-shards` combination.
+///
+/// Returns an error message describing the problem, or `null` when the
+/// configuration is valid.
+///
+/// [rawShardIndex] and [rawTotalShards] are the unparsed command line values,
+/// so that "not provided" can be told apart from "provided but not a number".
+String? validateSharding({
+  required String? rawShardIndex,
+  required String? rawTotalShards,
+  required bool optimizePerformance,
+  required double? minCoverage,
+}) {
+  if (rawShardIndex == null && rawTotalShards == null) return null;
+
+  if (rawShardIndex == null || rawTotalShards == null) {
+    return '--shard-index and --total-shards must be used together.';
+  }
+
+  final totalShards = int.tryParse(rawTotalShards);
+  if (totalShards == null || totalShards < 1) {
+    return '--total-shards must be a positive integer, '
+        'but got "$rawTotalShards".';
+  }
+
+  final shardIndex = int.tryParse(rawShardIndex);
+  if (shardIndex == null || shardIndex < 1) {
+    return '--shard-index must be a positive integer, '
+        'but got "$rawShardIndex".';
+  }
+
+  if (shardIndex > totalShards) {
+    return '--shard-index ($shardIndex) must be less than or equal to '
+        '--total-shards ($totalShards).';
+  }
+
+  // Sharding partitions the test files consolidated by the optimizer, so it
+  // cannot work when the optimization is turned off.
+  if (!optimizePerformance) {
+    return 'Sharding requires optimization to be enabled. '
+        'Remove --no-optimization or --platform to use sharding.';
+  }
+
+  // Each shard only exercises a fraction of the codebase, so its coverage is
+  // not representative of the whole suite. Merge the lcov files from every
+  // shard and enforce the threshold in a separate job instead.
+  if (minCoverage != null) {
+    return '--min-coverage cannot be combined with sharding. Collect coverage '
+        'per shard with --coverage, merge the lcov reports, then check the '
+        'threshold in a separate job.';
+  }
+
+  return null;
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -244,6 +311,8 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   void Function(String)? stdout,
   void Function(String)? stderr,
   List<String>? reportOn,
+  int? shardIndex,
+  int? totalShards,
 });
 
 /// {@template test_command}
@@ -411,6 +480,23 @@ class TestCommand extends Command<int> {
             'Enable an additional reporter writing test results to a file. '
             'Should be in the form <name>:<path> (e.g. "json:reports/tests.json").',
         valueHelp: 'name:path',
+      )
+      ..addOption(
+        'shard-index',
+        help:
+            'The 1-based index of the shard to run. '
+            'Must be used together with --total-shards. '
+            'Requires optimization to be enabled. '
+            'When omitted, no sharding is applied.',
+        valueHelp: 'index',
+      )
+      ..addOption(
+        'total-shards',
+        help:
+            'Split the test suite into this many shards and run only the one '
+            'selected by --shard-index. Useful to parallelize tests across '
+            'multiple CI runners. When omitted, no sharding is applied.',
+        valueHelp: 'count',
       );
   }
 
@@ -452,6 +538,17 @@ This command should be run from the root of your Flutter project.''');
 
     final options = FlutterTestOptions.parse(_argResults, config: config);
 
+    final shardingError = validateSharding(
+      rawShardIndex: options.shardIndex,
+      rawTotalShards: options.totalShards,
+      optimizePerformance: options.optimizePerformance,
+      minCoverage: options.minCoverage,
+    );
+    if (shardingError != null) {
+      _logger.err(shardingError);
+      return ExitCode.usage.code;
+    }
+
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
@@ -477,6 +574,8 @@ This command should be run from the root of your Flutter project.''');
           randomSeed: options.randomSeed,
           forceAnsi: options.forceAnsi,
           reportOn: options.reportOn.isEmpty ? null : options.reportOn,
+          shardIndex: int.tryParse(options.shardIndex ?? ''),
+          totalShards: int.tryParse(options.totalShards ?? ''),
           arguments: [
             if (options.excludeTags != null) ...['-x', options.excludeTags!],
             if (options.tags != null) ...['-t', options.tags!],

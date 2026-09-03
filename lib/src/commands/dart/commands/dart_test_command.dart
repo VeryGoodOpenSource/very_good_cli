@@ -7,6 +7,7 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Dart test command.
@@ -30,6 +31,8 @@ class DartTestOptions {
     required this.runSkipped,
     required this.checkIgnore,
     required this.fileReporter,
+    required this.shardIndex,
+    required this.totalShards,
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
@@ -102,6 +105,8 @@ class DartTestOptions {
       'file-reporter',
       testConfig.fileReporter,
     );
+    final shardIndex = argResults['shard-index'] as String?;
+    final totalShards = argResults['total-shards'] as String?;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -122,6 +127,8 @@ class DartTestOptions {
       runSkipped: runSkipped,
       checkIgnore: checkIgnore,
       fileReporter: fileReporter,
+      shardIndex: shardIndex,
+      totalShards: totalShards,
       rest: rest,
     );
   }
@@ -179,6 +186,12 @@ class DartTestOptions {
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
   final String? fileReporter;
 
+  /// The raw `--shard-index` value, validated by [validateSharding].
+  final String? shardIndex;
+
+  /// The raw `--total-shards` value, validated by [validateSharding].
+  final String? totalShards;
+
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
 }
@@ -204,6 +217,8 @@ typedef DartTestCommandCall = Future<List<int>> Function({
   void Function(String)? stderr,
   List<String>? reportOn,
   bool checkIgnore,
+  int? shardIndex,
+  int? totalShards,
 });
 
 /// {@template dart_test_command}
@@ -335,6 +350,23 @@ class DartTestCommand extends Command<int> {
             'Enable an additional reporter writing test results to a file. '
             'Should be in the form <name>:<path> (e.g. "json:reports/tests.json").',
         valueHelp: 'name:path',
+      )
+      ..addOption(
+        'shard-index',
+        help:
+            'The 1-based index of the shard to run. '
+            'Must be used together with --total-shards. '
+            'Requires optimization to be enabled. '
+            'When omitted, no sharding is applied.',
+        valueHelp: 'index',
+      )
+      ..addOption(
+        'total-shards',
+        help:
+            'Split the test suite into this many shards and run only the one '
+            'selected by --shard-index. Useful to parallelize tests across '
+            'multiple CI runners. When omitted, no sharding is applied.',
+        valueHelp: 'count',
       );
   }
 
@@ -374,6 +406,17 @@ This command should be run from the root of your Dart project.''');
 
     final options = DartTestOptions.parse(_argResults, config: config);
 
+    final shardingError = validateSharding(
+      rawShardIndex: options.shardIndex,
+      rawTotalShards: options.totalShards,
+      optimizePerformance: options.optimizePerformance,
+      minCoverage: options.minCoverage,
+    );
+    if (shardingError != null) {
+      _logger.err(shardingError);
+      return ExitCode.usage.code;
+    }
+
     if (isDartInstalled) {
       try {
         final results = await _dartTest(
@@ -410,6 +453,8 @@ This command should be run from the root of your Dart project.''');
           ],
           reportOn: options.reportOn.isEmpty ? null : options.reportOn,
           checkIgnore: options.checkIgnore,
+          shardIndex: int.tryParse(options.shardIndex ?? ''),
+          totalShards: int.tryParse(options.totalShards ?? ''),
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;

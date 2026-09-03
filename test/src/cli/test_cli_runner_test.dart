@@ -1083,6 +1083,163 @@ void main() {
         },
       );
 
+      test('passes shard vars to the generator', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged]
+                  as void Function(Map<String, dynamic> vars))
+              .call(<String, dynamic>{
+                'package-root': tempDirectory.path,
+                'tests': [
+                  {'path': 'a_test.dart', 'identifier': 'a'},
+                ],
+              });
+        });
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            logger: logger,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            buildGenerator: generatorBuilder(),
+            optimizePerformance: true,
+            shardIndex: 2,
+            totalShards: 3,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+
+        verify(
+          () => hooks.preGen(
+            vars: <String, dynamic>{
+              'package-root': tempDirectory.path,
+              'shard-index': 2,
+              'total-shards': 3,
+            },
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: tempDirectory.path,
+          ),
+        ).called(1);
+      });
+
+      test('succeeds without running tests when the shard is empty', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged]
+                  as void Function(Map<String, dynamic> vars))
+              .call(<String, dynamic>{
+                'package-root': tempDirectory.path,
+                'tests': <Map<String, String>>[],
+                'notOptimizedTests': <String>[],
+              });
+        });
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            logger: logger,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            buildGenerator: generatorBuilder(),
+            optimizePerformance: true,
+            shardIndex: 9,
+            totalShards: 9,
+            overrideTestRunner: testRunner(const Stream.empty()),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+
+        expect(
+          stdoutLogs,
+          equals([
+            'Running "flutter test" in . ...\n',
+            'No tests found for shard 9 in .\n',
+          ]),
+        );
+        expect(testRunnerArgs, isEmpty);
+      });
+
+      test(
+        'runs the shard when it only contains non optimized tests',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(<String, dynamic>{
+                  'package-root': tempDirectory.path,
+                  'tests': <Map<String, String>>[],
+                  'notOptimizedTests': <String>['skip0_test.dart'],
+                });
+          });
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              buildGenerator: generatorBuilder(),
+              optimizePerformance: true,
+              shardIndex: 2,
+              totalShards: 2,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            contains(p.join('test', 'skip0_test.dart')),
+          );
+        },
+      );
+
       test('runs tests w/optimizations (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

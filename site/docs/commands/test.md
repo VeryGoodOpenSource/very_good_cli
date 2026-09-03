@@ -51,6 +51,14 @@ very_good test [arguments]
                                       Useful when tests hang due to an unbounded pumpAndSettle() call.
     --file-reporter=<name:path>       Enable an additional reporter writing test results to a file.
                                       Should be in the form <name>:<path> (e.g. "json:reports/tests.json").
+    --shard-index=<index>             The 1-based index of the shard to run.
+                                      Must be used together with --total-shards.
+                                      Requires optimization to be enabled.
+                                      When omitted, no sharding is applied.
+    --total-shards=<count>            Split the test suite into this many shards and run only the one
+                                      selected by --shard-index.
+                                      Useful to parallelize tests across multiple CI runners.
+                                      When omitted, no sharding is applied.
 
 Run "very_good help" to see global options.
 ```
@@ -72,6 +80,48 @@ very_good test --coverage --file-reporter json:reports/tests.json
 For **Dart** projects, use **`very_good dart test`** instead.
 
 All test parameters and options work identically with this command.
+:::
+
+### Sharding tests across CI runners
+
+When the test phase is your CI bottleneck, split the suite across several
+runners with `--shard-index` and `--total-shards`. Each runner generates its own
+optimized entrypoint containing only its slice of the test files, so the shards
+together run every test exactly once.
+
+```yaml
+jobs:
+  test:
+    strategy:
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - run: very_good test --shard-index ${{ matrix.shard }} --total-shards 3
+```
+
+Test files are sorted and then dealt out round-robin, which keeps the partition
+deterministic: the same suite always produces the same shards, on every machine.
+Files tagged with `skip_very_good_optimization` are sharded as well, so they do
+not run on every runner.
+
+A shard with no test files (more shards than test files) succeeds without
+running anything, so an oversized matrix will not fail your build.
+
+When combined with `--recursive`, each package is sharded independently, so a
+given runner executes a slice of every package. Balance therefore degrades when
+a workspace contains many packages with few tests each.
+
+:::caution
+Sharding cannot be combined with `--min-coverage`. Each shard only exercises a
+subset of the codebase, so its coverage is not representative of the whole
+suite. Collect coverage per shard with `--coverage`, merge the resulting lcov
+reports once every shard has finished, and enforce the threshold on the merged
+report in a separate job.
+:::
+
+:::info
+Sharding requires the test optimizer, so it cannot be used with
+`--no-optimization` or with `--platform` (which disables the optimizer).
 :::
 
 ### Passing Flutter specific arguments

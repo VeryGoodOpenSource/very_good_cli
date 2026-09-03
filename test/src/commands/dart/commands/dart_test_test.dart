@@ -50,6 +50,8 @@ const expectedTestUsage = [
       '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
       '                                             (defaults to on)\n'
       '    --file-reporter=<name:path>              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
+      '    --shard-index=<index>                    The 1-based index of the shard to run. Must be used together with --total-shards. Requires optimization to be enabled. When omitted, no sharding is applied.\n'
+      '    --total-shards=<count>                   Split the test suite into this many shards and run only the one selected by --shard-index. Useful to parallelize tests across multiple CI runners. When omitted, no sharding is applied.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];
@@ -75,6 +77,8 @@ abstract class DartTestCommandCall {
     void Function(String)? stderr,
     bool? forceAnsi,
     List<String>? reportOn,
+    int? shardIndex,
+    int? totalShards,
   });
 }
 
@@ -122,6 +126,8 @@ void main() {
           stderr: any(named: 'stderr'),
           forceAnsi: any(named: 'forceAnsi'),
           reportOn: any(named: 'reportOn'),
+          shardIndex: any(named: 'shardIndex'),
+          totalShards: any(named: 'totalShards'),
         ),
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
@@ -133,6 +139,8 @@ void main() {
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
+      when<dynamic>(() => argResults['shard-index']).thenReturn(null);
+      when<dynamic>(() => argResults['total-shards']).thenReturn(null);
       when<dynamic>(
         () => argResults['collect-coverage-from'],
       ).thenReturn('imports');
@@ -829,6 +837,90 @@ void main() {
           stderr: logger.err,
         ),
       ).called(1);
+    });
+
+    group('sharding', () {
+      void withShards(String? index, String? total) {
+        when<dynamic>(() => argResults['shard-index']).thenReturn(index);
+        when<dynamic>(() => argResults['total-shards']).thenReturn(total);
+      }
+
+      test('forwards shard values to the test runner', () async {
+        withShards('2', '3');
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => dartTest(
+            shardIndex: 2,
+            totalShards: 3,
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test('fails when only one shard option is provided', () async {
+        withShards('1', null);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(
+          () => logger.err(
+            '--shard-index and --total-shards must be used together.',
+          ),
+        ).called(1);
+      });
+
+      test('fails when --shard-index exceeds --total-shards', () async {
+        withShards('4', '3');
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(
+          () => logger.err(
+            '--shard-index (4) must be less than or equal to '
+            '--total-shards (3).',
+          ),
+        ).called(1);
+      });
+
+      test('fails when sharding with optimization disabled', () async {
+        withShards('1', '3');
+        when<dynamic>(() => argResults['optimization']).thenReturn(false);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(
+          () => logger.err(
+            'Sharding requires optimization to be enabled. '
+            'Remove --no-optimization or --platform to use sharding.',
+          ),
+        ).called(1);
+      });
+
+      test('fails when sharding is combined with --min-coverage', () async {
+        withShards('1', '3');
+        when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(
+          () => logger.err(
+            '--min-coverage cannot be combined with sharding. Collect '
+            'coverage per shard with --coverage, merge the lcov reports, '
+            'then check the threshold in a separate job.',
+          ),
+        ).called(1);
+      });
     });
 
     group('very_good.yaml configuration', () {

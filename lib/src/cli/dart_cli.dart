@@ -136,6 +136,8 @@ class Dart {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
+    int? shardIndex,
+    int? totalShards,
   }) async {
     return TestCLIRunner.test(
       logger: logger,
@@ -157,6 +159,8 @@ class Dart {
       stderr: stderr,
       reportOn: reportOn,
       buildGenerator: buildGenerator,
+      shardIndex: shardIndex,
+      totalShards: totalShards,
     );
   }
 }

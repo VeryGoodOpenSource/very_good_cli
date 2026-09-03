@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:hooks/pre_gen.dart' as pre_gen;
 import 'package:mason/mason.dart';
@@ -285,6 +286,150 @@ dependencies:
           ); // only exact tag should match
         },
       );
+    });
+    group('Sharding', () {
+      /// Creates a package with [count] optimizable test files, plus any
+      /// [notOptimized] files carrying the skip optimization tag.
+      Directory createPackage(int count, {int notOptimized = 0}) {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        for (var i = 0; i < count; i++) {
+          File(path.join(testDir.path, 'test${i}_test.dart')).createSync();
+        }
+        for (var i = 0; i < notOptimized; i++) {
+          File(
+            path.join(testDir.path, 'skip${i}_test.dart'),
+          ).writeAsStringSync(notOptimizedTestContent);
+        }
+        return testDir;
+      }
+
+      List<String> pathsOf(HookContext context) {
+        final tests = context.vars['tests'] as List<Map<String, String>>;
+        return tests.map((e) => e['path']!).toList();
+      }
+
+      Future<List<String>> runShard(int index, int total) async {
+        final context = _FakeContext()
+          ..vars['package-root'] = tempDirectory.absolute.path
+          ..vars['shard-index'] = index
+          ..vars['total-shards'] = total;
+        await pre_gen.run(context);
+        return [
+          ...pathsOf(context),
+          ...(context.vars['notOptimizedTests']! as List).cast<String>(),
+        ];
+      }
+
+      test('runs every test exactly once across all shards', () async {
+        createPackage(7, notOptimized: 2);
+
+        final shards = [
+          for (var i = 1; i <= 3; i++) await runShard(i, 3),
+        ];
+        final union = shards.expand((shard) => shard).toList();
+
+        expect(
+          union..sort(),
+          [
+            for (var i = 0; i < 7; i++) 'test${i}_test.dart',
+            for (var i = 0; i < 2; i++) 'skip${i}_test.dart',
+          ]..sort(),
+          reason: 'Shards must be a complete and disjoint partition',
+        );
+      });
+
+      test('shards non optimized tests as well', () async {
+        createPackage(0, notOptimized: 4);
+
+        final first = await runShard(1, 2);
+        final second = await runShard(2, 2);
+
+        expect(first, ['skip0_test.dart', 'skip2_test.dart']);
+        expect(second, ['skip1_test.dart', 'skip3_test.dart']);
+      });
+
+      test('deals optimized and non optimized tests out together', () async {
+        createPackage(2, notOptimized: 3);
+
+        final sizes = [
+          for (var i = 1; i <= 6; i++) (await runShard(i, 6)).length,
+        ];
+
+        expect(
+          sizes,
+          [1, 1, 1, 1, 1, 0],
+          reason:
+              'Sharding the two lists separately would give the first '
+              'shards a file from each while later shards stay empty',
+        );
+      });
+
+      test('is deterministic across runs', () async {
+        createPackage(9);
+
+        expect(await runShard(2, 4), await runShard(2, 4));
+      });
+
+      test('balances shards within one file of each other', () async {
+        createPackage(10);
+
+        final sizes = [
+          for (var i = 1; i <= 4; i++) (await runShard(i, 4)).length,
+        ];
+
+        expect(sizes.reduce(max) - sizes.reduce(min), lessThanOrEqualTo(1));
+      });
+
+      test(
+        'yields an empty shard when there are more shards than tests',
+        () async {
+          createPackage(2);
+
+          expect(await runShard(3, 3), isEmpty);
+        },
+      );
+
+      test(
+        'excludes nested non optimized tests from the optimized set',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          final nested = Directory(path.join(testDir.path, 'sub'))
+            ..createSync();
+          File(
+            path.join(nested.path, 'skip_test.dart'),
+          ).writeAsStringSync(notOptimizedTestContent);
+
+          final context = _FakeContext()
+            ..vars['package-root'] = tempDirectory.absolute.path;
+          await pre_gen.run(context);
+
+          expect(
+            pathsOf(context),
+            isEmpty,
+            reason:
+                'A tagged test in a subdirectory must not be optimized, '
+                'otherwise it runs both inlined and standalone',
+          );
+          expect(
+            context.vars['notOptimizedTests'],
+            ['sub/skip_test.dart'],
+          );
+        },
+      );
+
+      test('includes every test when sharding is not requested', () async {
+        createPackage(3);
+
+        final context = _FakeContext()
+          ..vars['package-root'] = tempDirectory.absolute.path;
+        await pre_gen.run(context);
+
+        expect(pathsOf(context), hasLength(3));
+      });
     });
   });
 }
