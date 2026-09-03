@@ -51,12 +51,14 @@ very_good test [arguments]
                                       Useful when tests hang due to an unbounded pumpAndSettle() call.
     --file-reporter=<name:path>       Enable an additional reporter writing test results to a file.
                                       Should be in the form <name>:<path> (e.g. "json:reports/tests.json").
-    --shard-index=<1>                 The 1-based index of the shard to run.
+    --shard-index=<index>             The 1-based index of the shard to run.
                                       Must be used together with --total-shards.
                                       Requires optimization to be enabled.
-    --total-shards=<3>                Split the test suite into this many shards and run only the one
+                                      When omitted, no sharding is applied.
+    --total-shards=<count>            Split the test suite into this many shards and run only the one
                                       selected by --shard-index.
                                       Useful to parallelize tests across multiple CI runners.
+                                      When omitted, no sharding is applied.
 
 Run "very_good help" to see global options.
 ```

@@ -105,12 +105,8 @@ class DartTestOptions {
       'file-reporter',
       testConfig.fileReporter,
     );
-    final shardIndex = int.tryParse(
-      argResults['shard-index'] as String? ?? '',
-    );
-    final totalShards = int.tryParse(
-      argResults['total-shards'] as String? ?? '',
-    );
+    final shardIndex = argResults['shard-index'] as String?;
+    final totalShards = argResults['total-shards'] as String?;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -190,11 +186,11 @@ class DartTestOptions {
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
   final String? fileReporter;
 
-  /// The 1-based index of the shard to run, when sharding is enabled.
-  final int? shardIndex;
+  /// The raw `--shard-index` value, validated by [validateSharding].
+  final String? shardIndex;
 
-  /// The total number of shards the test suite is split into.
-  final int? totalShards;
+  /// The raw `--total-shards` value, validated by [validateSharding].
+  final String? totalShards;
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
@@ -360,16 +356,17 @@ class DartTestCommand extends Command<int> {
         help:
             'The 1-based index of the shard to run. '
             'Must be used together with --total-shards. '
-            'Requires optimization to be enabled.',
-        valueHelp: '1',
+            'Requires optimization to be enabled. '
+            'When omitted, no sharding is applied.',
+        valueHelp: 'index',
       )
       ..addOption(
         'total-shards',
         help:
             'Split the test suite into this many shards and run only the one '
             'selected by --shard-index. Useful to parallelize tests across '
-            'multiple CI runners.',
-        valueHelp: '3',
+            'multiple CI runners. When omitted, no sharding is applied.',
+        valueHelp: 'count',
       );
   }
 
@@ -410,8 +407,8 @@ This command should be run from the root of your Dart project.''');
     final options = DartTestOptions.parse(_argResults, config: config);
 
     final shardingError = validateSharding(
-      rawShardIndex: _argResults['shard-index'] as String?,
-      rawTotalShards: _argResults['total-shards'] as String?,
+      rawShardIndex: options.shardIndex,
+      rawTotalShards: options.totalShards,
       optimizePerformance: options.optimizePerformance,
       minCoverage: options.minCoverage,
     );
@@ -456,8 +453,8 @@ This command should be run from the root of your Dart project.''');
           ],
           reportOn: options.reportOn.isEmpty ? null : options.reportOn,
           checkIgnore: options.checkIgnore,
-          shardIndex: options.shardIndex,
-          totalShards: options.totalShards,
+          shardIndex: int.tryParse(options.shardIndex ?? ''),
+          totalShards: int.tryParse(options.totalShards ?? ''),
         );
         if (results.any((code) => code != ExitCode.success.code)) {
           return ExitCode.unavailable.code;

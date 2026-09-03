@@ -50,8 +50,8 @@ const expectedTestUsage = [
       '    --[no-]check-ignore                      Whether to check for and respect coverage ignore comments (e.g. // coverage:ignore-line).\n'
       '                                             (defaults to on)\n'
       '    --file-reporter=<name:path>              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
-      '    --shard-index=<1>                        The 1-based index of the shard to run. Must be used together with --total-shards. Requires optimization to be enabled.\n'
-      '    --total-shards=<3>                       Split the test suite into this many shards and run only the one selected by --shard-index. Useful to parallelize tests across multiple CI runners.\n'
+      '    --shard-index=<index>                    The 1-based index of the shard to run. Must be used together with --total-shards. Requires optimization to be enabled. When omitted, no sharding is applied.\n'
+      '    --total-shards=<count>                   Split the test suite into this many shards and run only the one selected by --shard-index. Useful to parallelize tests across multiple CI runners. When omitted, no sharding is applied.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];

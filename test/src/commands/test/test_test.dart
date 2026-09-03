@@ -53,8 +53,8 @@ const expectedTestUsage = [
       '    --flavor                                                 Build a custom app flavor as defined by platform-specific build setup. Supports the use of product flavors in Android Gradle scripts, and the use of custom Xcode schemes.\n'
       '    --timeout=<seconds>                                      Maximum seconds to let tests run before killing the process. Useful when tests hang due to an unbounded pumpAndSettle() call.\n'
       '    --file-reporter=<name:path>                              Enable an additional reporter writing test results to a file. Should be in the form <name>:<path> (e.g. "json:reports/tests.json").\n'
-      '    --shard-index=<1>                                        The 1-based index of the shard to run. Must be used together with --total-shards. Requires optimization to be enabled.\n'
-      '    --total-shards=<3>                                       Split the test suite into this many shards and run only the one selected by --shard-index. Useful to parallelize tests across multiple CI runners.\n'
+      '    --shard-index=<index>                                    The 1-based index of the shard to run. Must be used together with --total-shards. Requires optimization to be enabled. When omitted, no sharding is applied.\n'
+      '    --total-shards=<count>                                   Split the test suite into this many shards and run only the one selected by --shard-index. Useful to parallelize tests across multiple CI runners. When omitted, no sharding is applied.\n'
       '\n'
       'Run "very_good help" to see global options.',
 ];

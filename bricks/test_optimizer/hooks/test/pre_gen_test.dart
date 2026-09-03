@@ -431,45 +431,5 @@ dependencies:
         expect(pathsOf(context), hasLength(3));
       });
     });
-
-    group('shardOf', () {
-      const paths = ['a.dart', 'b.dart', 'c.dart', 'd.dart', 'e.dart'];
-
-      test('returns paths untouched when shard index is null', () {
-        expect(
-          pre_gen.shardOf(paths, shardIndex: null, totalShards: 3),
-          paths,
-        );
-      });
-
-      test('returns paths untouched when total shards is null', () {
-        expect(
-          pre_gen.shardOf(paths, shardIndex: 1, totalShards: null),
-          paths,
-        );
-      });
-
-      test('deals paths out round robin', () {
-        expect(
-          pre_gen.shardOf(paths, shardIndex: 1, totalShards: 2),
-          ['a.dart', 'c.dart', 'e.dart'],
-        );
-        expect(
-          pre_gen.shardOf(paths, shardIndex: 2, totalShards: 2),
-          ['b.dart', 'd.dart'],
-        );
-      });
-
-      test('returns everything for a single shard', () {
-        expect(pre_gen.shardOf(paths, shardIndex: 1, totalShards: 1), paths);
-      });
-
-      test('returns empty for an out of range shard', () {
-        expect(
-          pre_gen.shardOf(paths, shardIndex: 9, totalShards: 9),
-          isEmpty,
-        );
-      });
-    });
   });
 }

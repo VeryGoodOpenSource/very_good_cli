@@ -61,7 +61,7 @@ Future<void> run(HookContext context) async {
   // optimized ones: dealing out one list keeps every shard within one file
   // of the others, whereas dealing out the two lists separately would hand
   // the first shards a file from each.
-  final shardPaths = shardOf(
+  final shardPaths = _shardOf(
     testPaths,
     shardIndex: shardIndex,
     totalShards: totalShards,
@@ -95,7 +95,7 @@ Future<void> run(HookContext context) async {
 /// Files are dealt out round-robin (index modulo [totalShards]) over the
 /// already sorted [paths], which keeps shards balanced in file count and makes
 /// the partition stable for a given test suite.
-List<String> shardOf(
+List<String> _shardOf(
   List<String> paths, {
   required int? shardIndex,
   required int? totalShards,
