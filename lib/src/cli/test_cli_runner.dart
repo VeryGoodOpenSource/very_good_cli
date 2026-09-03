@@ -62,14 +62,19 @@ class MinCoverageNotMet implements Exception {
 class TestCLIRunner {
   /// Determines whether the user is targetting test files or not.
   ///
-  /// The user can only target test files by using the `--` option terminator.
-  /// The additional options after the `--` are passed to the test runner which
-  /// allows the user to target specific test files or directories.
+  /// [rest] holds the positional arguments left over after option parsing.
+  /// Trailing options are allowed, so bare targets work
+  /// (`very_good test test/foo_test.dart`); the `--` option terminator is only
+  /// needed for a target that begins with `-`, which would otherwise be read
+  /// as an option. Either way the parser strips the `--` out of [rest], so
+  /// what arrives here is the targets alone.
   ///
   /// The heuristics used to determine if the user is not targetting test files
   /// are:
   /// * No [rest] arguments are passed.
-  /// * All [rest] arguments are options (i.e. they do not start with `-`).
+  /// * Every [rest] argument is an option (i.e. it starts with `-`), which
+  ///   only happens when the options were passed through a `--` for the
+  ///   underlying test runner.
   ///
   /// See also:
   /// * [What does -- mean in Shell?](https://www.cyberciti.biz/faq/what-does-double-dash-mean-in-ssh-command/)
