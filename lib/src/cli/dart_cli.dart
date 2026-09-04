@@ -136,7 +136,7 @@ class Dart {
     void Function(String)? stderr,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
-  }) async {
+  }) {
     return TestCLIRunner.test(
       logger: logger,
       testType: TestRunType.dart,

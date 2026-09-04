@@ -9,7 +9,7 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@endtemplate}
 class VeryGoodCoreTemplate extends Template {
   /// {@macro very_good_core_template}
-  VeryGoodCoreTemplate()
+  new()
     : super(
         name: 'core',
         bundle: veryGoodCoreBundle,

@@ -11,29 +11,29 @@ import 'package:very_good_cli/src/commands/create/commands/create_subcommand.dar
 import 'package:very_good_cli/src/commands/create/templates/template.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
-class _MockTemplate extends Mock implements Template {}
+class _MockTemplate extends Mock implements Template;
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockBundle extends Mock implements MasonBundle {}
+class _MockBundle extends Mock implements MasonBundle;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger;
 
 class _FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+    implements DirectoryGeneratorTarget;
 
-class _FakeDirectory extends Fake implements Directory {}
+class _FakeDirectory extends Fake implements Directory;
 
 class _TestCreateSubCommand extends CreateSubCommand {
-  _TestCreateSubCommand({
+  new({
     required this.template,
     required super.logger,
     required super.generatorFromBundle,
@@ -51,7 +51,7 @@ class _TestCreateSubCommand extends CreateSubCommand {
 
 class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
     with OrgName {
-  _TestCreateSubCommandWithOrgName({
+  new({
     required super.template,
     required super.logger,
     required super.generatorFromBundle,
@@ -60,7 +60,7 @@ class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
 
 class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
     with Publishable {
-  _TestCreateSubCommandWithPublishable({
+  new({
     required super.template,
     required super.logger,
     required super.generatorFromBundle,
@@ -69,7 +69,7 @@ class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
 
 class _TestCreateSubCommandWithWorkspace extends _TestCreateSubCommand
     with Workspace {
-  _TestCreateSubCommandWithWorkspace({
+  new({
     required super.template,
     required super.logger,
     required super.generatorFromBundle,
@@ -78,7 +78,7 @@ class _TestCreateSubCommandWithWorkspace extends _TestCreateSubCommand
 
 class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
     with MultiTemplates {
-  _TestCreateSubCommandMultiTemplate({
+  new({
     required this.templates,
     required super.logger,
     required super.generatorFromBundle,
@@ -95,8 +95,7 @@ class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
 }
 
 class _TestCommandRunner extends CommandRunner<int> {
-  _TestCommandRunner({required this.command})
-    : super('runner', 'Test command runner') {
+  new({required this.command}) : super('runner', 'Test command runner') {
     addCommand(command);
   }
 
@@ -150,9 +149,8 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(
-        () => template.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -609,9 +607,8 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(
-        () => template.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -920,17 +917,15 @@ Run "runner help" to see global options.''';
       when(() => template1.name).thenReturn('template1');
       when(() => template1.help).thenReturn('template1 help');
       when(() => template1.bundle).thenReturn(bundle);
-      when(
-        () => template1.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template1.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
 
       final template2 = _MockTemplate();
       when(() => template2.name).thenReturn('template2');
       when(() => template2.help).thenReturn('template2 help');
       when(() => template2.bundle).thenReturn(bundle);
-      when(
-        () => template2.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template2.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
 
       templates = [template1, template2];
     });
@@ -1080,9 +1075,8 @@ Run "runner help" to see global options.''';
             tempDirectory.deleteSync(recursive: true);
           });
 
-          File(
-            path.join(tempDirectory.path, veryGoodConfigFileName),
-          ).writeAsStringSync('create:\n  template: unknown');
+          File(path.join(tempDirectory.path, veryGoodConfigFileName))
+              .writeAsStringSync('create:\n  template: unknown');
           Directory.current = tempDirectory.path;
 
           await expectLater(
@@ -1138,18 +1132,16 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(
-        () => template.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
     });
 
     group('resolve', () {
       test('applies config value when the arg was not parsed', () {
         final argResults = _MockArgResults();
         when(() => argResults.wasParsed(any())).thenReturn(false);
-        when(
-          () => argResults['description'] as String?,
-        ).thenReturn('A Very Good Project created by Very Good CLI.');
+        when(() => argResults['description'] as String?)
+            .thenReturn('A Very Good Project created by Very Good CLI.');
 
         final command =
             _TestCreateSubCommand(
@@ -1169,9 +1161,7 @@ Run "runner help" to see global options.''';
         final argResults = _MockArgResults();
         when(() => argResults.wasParsed(any())).thenReturn(false);
         when(() => argResults.wasParsed('description')).thenReturn(true);
-        when(
-          () => argResults['description'] as String?,
-        ).thenReturn('From CLI');
+        when(() => argResults['description'] as String?).thenReturn('From CLI');
 
         final command =
             _TestCreateSubCommand(
@@ -1333,9 +1323,8 @@ Run "runner help" to see global options.''';
           Directory.current = cwd;
           tempDirectory.deleteSync(recursive: true);
         });
-        File(
-          path.join(tempDirectory.path, veryGoodConfigFileName),
-        ).writeAsStringSync('create:\n  org_name: com.very.good');
+        File(path.join(tempDirectory.path, veryGoodConfigFileName))
+            .writeAsStringSync('create:\n  org_name: com.very.good');
         Directory.current = tempDirectory.path;
 
         final result = await runner.run(['create_subcommand', 'test_project']);
@@ -1357,33 +1346,26 @@ Run "runner help" to see global options.''';
         ).called(1);
       });
 
-      test(
-        'fails with exit code ${ExitCode.config.code} '
-        'when very_good.yaml is malformed',
-        () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() {
-            Directory.current = cwd;
-            tempDirectory.deleteSync(recursive: true);
-          });
-          File(
-            path.join(tempDirectory.path, veryGoodConfigFileName),
-          ).writeAsStringSync('- not\n- a\n- map');
-          Directory.current = tempDirectory.path;
+      test('fails with exit code ${ExitCode.config.code} '
+          'when very_good.yaml is malformed', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
+        File(path.join(tempDirectory.path, veryGoodConfigFileName))
+            .writeAsStringSync('- not\n- a\n- map');
+        Directory.current = tempDirectory.path;
 
-          final result = await runner.run([
-            'create_subcommand',
-            'test_project',
-          ]);
+        final result = await runner.run(['create_subcommand', 'test_project']);
 
-          expect(result, equals(ExitCode.config.code));
-          verify(
-            () => logger.err(
-              any(that: contains('Could not read `very_good.yaml`')),
-            ),
-          ).called(1);
-        },
-      );
+        expect(result, equals(ExitCode.config.code));
+        verify(
+          () => logger.err(
+            any(that: contains('Could not read `very_good.yaml`')),
+          ),
+        ).called(1);
+      });
     });
   });
 
@@ -1409,9 +1391,8 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(
-        () => template.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {
@@ -1603,9 +1584,8 @@ Run "runner help" to see global options.''';
       template = _MockTemplate();
       when(() => template.name).thenReturn('test');
       when(() => template.bundle).thenReturn(bundle);
-      when(
-        () => template.onGenerateComplete(any(), any()),
-      ).thenAnswer((_) async {});
+      when(() => template.onGenerateComplete(any(), any()))
+          .thenAnswer((_) async {});
     });
 
     group('can be instantiated', () {

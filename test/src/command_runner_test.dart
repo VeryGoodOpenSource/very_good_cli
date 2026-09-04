@@ -12,17 +12,17 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/version.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockPubUpdater extends Mock implements PubUpdater {}
+class _MockPubUpdater extends Mock implements PubUpdater;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockDirectory extends Mock implements Directory {}
+class _MockDirectory extends Mock implements Directory;
 
-class _MockFile extends Mock implements File {}
+class _MockFile extends Mock implements File;
 
-class _MockStdout extends Mock implements Stdout {}
+class _MockStdout extends Mock implements Stdout;
 
 const expectedUsage = [
   '🦄 A Very Good Command-Line Interface\n',
@@ -71,9 +71,8 @@ void main() {
         environment: {'CI': 'true'},
       );
 
-      when(
-        () => pubUpdater.getLatestVersion(any()),
-      ).thenAnswer((_) async => packageVersion);
+      when(() => pubUpdater.getLatestVersion(any()))
+          .thenAnswer((_) async => packageVersion);
     });
 
     test('can be instantiated without optional parameters', () {
@@ -82,9 +81,8 @@ void main() {
 
     group('run', () {
       test('shows update message when newer version exists', () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenAnswer((_) async => latestVersion);
+        when(() => pubUpdater.getLatestVersion(any()))
+            .thenAnswer((_) async => latestVersion);
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));
@@ -94,9 +92,8 @@ void main() {
       test(
         'does not show update message when using the update command',
         () async {
-          when(
-            () => pubUpdater.getLatestVersion(any()),
-          ).thenAnswer((_) async => latestVersion);
+          when(() => pubUpdater.getLatestVersion(any()))
+              .thenAnswer((_) async => latestVersion);
           when(
             () => pubUpdater.update(
               packageName: packageName,
@@ -124,9 +121,8 @@ void main() {
       );
 
       test('handles pub update errors gracefully', () async {
-        when(
-          () => pubUpdater.getLatestVersion(any()),
-        ).thenThrow(Exception('oops'));
+        when(() => pubUpdater.getLatestVersion(any()))
+            .thenThrow(Exception('oops'));
 
         final result = await commandRunner.run(['--version']);
         expect(result, equals(ExitCode.success.code));

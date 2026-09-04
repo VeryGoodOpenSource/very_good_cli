@@ -9,20 +9,20 @@ import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
-class _FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger;
 
 class _FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+    implements DirectoryGeneratorTarget;
 
 final expectedUsage = [
   '''
@@ -167,9 +167,8 @@ void main() {
           logger: logger,
           generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(
-          () => argResults['output-directory'] as String?,
-        ).thenReturn(tempDirectory.path);
+        when(() => argResults['output-directory'] as String?)
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_package']);
 
         final result = await command.run();
@@ -201,9 +200,8 @@ void main() {
             logger: logger,
           ),
         ).called(1);
-        verify(
-          () => logger.info('Created a Very Good Dart Package! 🦄'),
-        ).called(1);
+        verify(() => logger.info('Created a Very Good Dart Package! 🦄'))
+            .called(1);
       });
     });
   });

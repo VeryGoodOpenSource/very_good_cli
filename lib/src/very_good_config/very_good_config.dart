@@ -46,7 +46,7 @@ extension ArgResultsResolver on ArgResults {
 /// {@endtemplate}
 class VeryGoodConfigParseException implements Exception {
   /// {@macro very_good_config_parse_exception}
-  const VeryGoodConfigParseException(this.message);
+  const new(this.message);
 
   /// A human readable description of the parse failure.
   final String message;
@@ -71,7 +71,7 @@ class VeryGoodConfigParseException implements Exception {
 )
 class VeryGoodConfig extends Equatable {
   /// {@macro very_good_config}
-  const VeryGoodConfig({
+  const new({
     this.test = const VeryGoodTestConfig(),
     this.create = const VeryGoodCreateConfig(),
     this.dart = const VeryGoodDartConfig(),
@@ -79,7 +79,7 @@ class VeryGoodConfig extends Equatable {
   });
 
   /// Creates a [VeryGoodConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodConfigFromJson(json);
   }
 
@@ -92,7 +92,7 @@ class VeryGoodConfig extends Equatable {
   ///
   /// Throws a [VeryGoodConfigParseException] if [content] is not a valid
   /// YAML map or if any known section is malformed.
-  factory VeryGoodConfig.fromString(String content, {Uri? sourceUrl}) {
+  factory fromString(String content, {Uri? sourceUrl}) {
     try {
       return checkedYamlDecode(
         content,
@@ -176,7 +176,7 @@ class VeryGoodConfig extends Equatable {
 )
 class VeryGoodCreateConfig extends Equatable {
   /// {@macro very_good_create_config}
-  const VeryGoodCreateConfig({
+  const new({
     this.description,
     this.orgName,
     this.publishable,
@@ -185,7 +185,7 @@ class VeryGoodCreateConfig extends Equatable {
   });
 
   /// Creates a [VeryGoodCreateConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodCreateConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodCreateConfigFromJson(json);
   }
 
@@ -230,7 +230,7 @@ class VeryGoodCreateConfig extends Equatable {
 )
 class VeryGoodTestConfig extends Equatable {
   /// {@macro very_good_test_config}
-  const VeryGoodTestConfig({
+  const new({
     this.coverage,
     this.optimization,
     this.concurrency,
@@ -253,7 +253,7 @@ class VeryGoodTestConfig extends Equatable {
   });
 
   /// Creates a [VeryGoodTestConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodTestConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodTestConfigFromJson(json);
   }
 
@@ -361,10 +361,10 @@ class VeryGoodTestConfig extends Equatable {
 )
 class VeryGoodDartConfig extends Equatable {
   /// {@macro very_good_dart_config}
-  const VeryGoodDartConfig({this.test = const VeryGoodDartTestConfig()});
+  const new({this.test = const VeryGoodDartTestConfig()});
 
   /// Creates a [VeryGoodDartConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodDartConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodDartConfigFromJson(json);
   }
 
@@ -390,7 +390,7 @@ class VeryGoodDartConfig extends Equatable {
 )
 class VeryGoodDartTestConfig extends Equatable {
   /// {@macro very_good_dart_test_config}
-  const VeryGoodDartTestConfig({
+  const new({
     this.coverage,
     this.optimization,
     this.concurrency,
@@ -409,7 +409,7 @@ class VeryGoodDartTestConfig extends Equatable {
   });
 
   /// Creates a [VeryGoodDartTestConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodDartTestConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodDartTestConfigFromJson(json);
   }
 
@@ -496,13 +496,13 @@ class VeryGoodDartTestConfig extends Equatable {
 )
 class VeryGoodPackagesConfig extends Equatable {
   /// {@macro very_good_packages_config}
-  const VeryGoodPackagesConfig({
+  const new({
     this.get = const VeryGoodPackagesGetConfig(),
     this.check = const VeryGoodPackagesCheckConfig(),
   });
 
   /// Creates a [VeryGoodPackagesConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodPackagesConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesConfigFromJson(json);
   }
 
@@ -531,10 +531,10 @@ class VeryGoodPackagesConfig extends Equatable {
 )
 class VeryGoodPackagesGetConfig extends Equatable {
   /// {@macro very_good_packages_get_config}
-  const VeryGoodPackagesGetConfig({this.recursive, this.ignore});
+  const new({this.recursive, this.ignore});
 
   /// Creates a [VeryGoodPackagesGetConfig] from a decoded YAML/JSON [json] map.
-  factory VeryGoodPackagesGetConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesGetConfigFromJson(json);
   }
 
@@ -562,13 +562,11 @@ class VeryGoodPackagesGetConfig extends Equatable {
 )
 class VeryGoodPackagesCheckConfig extends Equatable {
   /// {@macro very_good_packages_check_config}
-  const VeryGoodPackagesCheckConfig({
-    this.licenses = const VeryGoodPackagesCheckLicensesConfig(),
-  });
+  const new({this.licenses = const VeryGoodPackagesCheckLicensesConfig()});
 
   /// Creates a [VeryGoodPackagesCheckConfig] from a decoded YAML/JSON [json]
   /// map.
-  factory VeryGoodPackagesCheckConfig.fromJson(Map<dynamic, dynamic> json) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesCheckConfigFromJson(json);
   }
 
@@ -594,7 +592,7 @@ class VeryGoodPackagesCheckConfig extends Equatable {
 )
 class VeryGoodPackagesCheckLicensesConfig extends Equatable {
   /// {@macro very_good_packages_check_licenses_config}
-  const VeryGoodPackagesCheckLicensesConfig({
+  const new({
     this.ignoreRetrievalFailures,
     this.dependencyType,
     this.allowed,
@@ -605,9 +603,7 @@ class VeryGoodPackagesCheckLicensesConfig extends Equatable {
 
   /// Creates a [VeryGoodPackagesCheckLicensesConfig] from a decoded YAML/JSON
   /// [json] map.
-  factory VeryGoodPackagesCheckLicensesConfig.fromJson(
-    Map<dynamic, dynamic> json,
-  ) {
+  factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesCheckLicensesConfigFromJson(json);
   }
 

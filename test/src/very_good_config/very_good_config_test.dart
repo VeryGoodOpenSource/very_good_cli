@@ -10,7 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
 void main() {
   group(VeryGoodConfig, () {
@@ -457,15 +457,15 @@ packages:
 
       test('parses min-coverage at the boundaries', () {
         expect(
-          VeryGoodConfig.fromString(
-            'test:\n  min_coverage: 0',
-          ).test.minCoverage,
+          VeryGoodConfig.fromString('test:\n  min_coverage: 0')
+              .test
+              .minCoverage,
           equals('0'),
         );
         expect(
-          VeryGoodConfig.fromString(
-            'test:\n  min_coverage: 100',
-          ).test.minCoverage,
+          VeryGoodConfig.fromString('test:\n  min_coverage: 100')
+              .test
+              .minCoverage,
           equals('100'),
         );
       });
@@ -530,12 +530,11 @@ packages:
       });
 
       test('reads config from the starting directory', () {
-        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
-          '''
+        File(p.join(nestedDir.path, veryGoodConfigFileName))
+            .writeAsStringSync('''
 test:
   min_coverage: 80
-''',
-        );
+''');
 
         final config = VeryGoodConfig.load(nestedDir, logger: logger);
 
@@ -558,12 +557,11 @@ test:
 test:
   min_coverage: 90
 ''');
-        File(p.join(nestedDir.path, veryGoodConfigFileName)).writeAsStringSync(
-          '''
+        File(p.join(nestedDir.path, veryGoodConfigFileName))
+            .writeAsStringSync('''
 test:
   min_coverage: 80
-''',
-        );
+''');
 
         final config = VeryGoodConfig.load(nestedDir, logger: logger);
 
@@ -580,9 +578,8 @@ test:
       test(
         'logs an error and returns null when very_good.yaml is malformed',
         () {
-          File(
-            p.join(tempDir.path, veryGoodConfigFileName),
-          ).writeAsStringSync('- not\n- a\n- map');
+          File(p.join(tempDir.path, veryGoodConfigFileName))
+              .writeAsStringSync('- not\n- a\n- map');
 
           final config = VeryGoodConfig.load(tempDir, logger: logger);
 
@@ -598,9 +595,8 @@ test:
       test(
         'logs an error and returns null when the closest file is malformed',
         () {
-          File(
-            p.join(nestedDir.path, veryGoodConfigFileName),
-          ).writeAsStringSync('- not\n- a\n- map');
+          File(p.join(nestedDir.path, veryGoodConfigFileName))
+              .writeAsStringSync('- not\n- a\n- map');
 
           final config = VeryGoodConfig.load(nestedDir, logger: logger);
 

@@ -9,18 +9,18 @@ import 'package:very_good_cli/src/commands/create/commands/flutter_app.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger;
 
 class _FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+    implements DirectoryGeneratorTarget;
 
 final expectedUsage = [
   '''
