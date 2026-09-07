@@ -32,7 +32,7 @@ dependencies:
   stack_trace: ^1.11.1
   stream_channel: ^2.1.4
   universal_io: ^2.2.2
-  very_good_test_runner: ^0.3.0
+  very_good_test_runner: ^0.4.0
   yaml: ^3.1.2
 
 dev_dependencies:
