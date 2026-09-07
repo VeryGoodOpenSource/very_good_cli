@@ -40,7 +40,7 @@ VeryGoodCommandRunner defaultCommandRunnerBuilder({required Logger logger}) =>
 /// {@endtemplate}
 final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
   /// {@macro very_good_mcp_server}
-  VeryGoodMCPServer({
+  new({
     required StreamChannel<String> channel,
     CommandRunnerBuilder? commandRunnerBuilder,
   }) : _commandRunnerBuilder =
@@ -487,13 +487,13 @@ Only one value can be selected.
     return cliArgs;
   }
 
-  Future<CallToolResult> _handleCreate(CallToolRequest request) async {
+  Future<CallToolResult> _handleCreate(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
     return _runToolCommand(cliArgs, toolName: 'create');
   }
 
-  Future<CallToolResult> _handleTest(CallToolRequest request) async {
+  Future<CallToolResult> _handleTest(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
     return _runToolCommand(
@@ -503,7 +503,7 @@ Only one value can be selected.
     );
   }
 
-  Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
+  Future<CallToolResult> _handlePackagesGet(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parsePackagesGet(args);
     return _runToolCommand(
@@ -513,7 +513,7 @@ Only one value can be selected.
     );
   }
 
-  Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
+  Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) {
     final args = request.arguments ?? {};
 
     // Currently, 'packages check' only has 'licenses' as a subcommand
@@ -521,15 +521,17 @@ Only one value can be selected.
     final checkLicenses = args['licenses'] as bool? ?? true;
 
     if (!checkLicenses) {
-      return CallToolResult(
-        content: [
-          TextContent(
-            text:
-                'No check specified. Currently only "licenses" check is '
-                'supported. Set licenses=true to run license checks.',
-          ),
-        ],
-        isError: true,
+      return Future.value(
+        CallToolResult(
+          content: [
+            TextContent(
+              text:
+                  'No check specified. Currently only "licenses" check is '
+                  'supported. Set licenses=true to run license checks.',
+            ),
+          ],
+          isError: true,
+        ),
       );
     }
 
@@ -649,7 +651,7 @@ Only one value can be selected.
 @visibleForTesting
 class CapturingStdout implements Stdout {
   /// Creates a [CapturingStdout] that appends all writes to [_buffer].
-  CapturingStdout(this._buffer);
+  new(this._buffer);
 
   final StringBuffer _buffer;
 

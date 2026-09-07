@@ -14,20 +14,20 @@ import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
-class _FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger;
 
 class _FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+    implements DirectoryGeneratorTarget;
 
 class _TestProcess {
   Future<ProcessResult> run(
@@ -40,7 +40,7 @@ class _TestProcess {
   }
 }
 
-class _MockProcess extends Mock implements _TestProcess {}
+class _MockProcess extends Mock implements _TestProcess;
 
 final expectedUsage = [
   'Generate a Very Good Flutter plugin.\n'
@@ -198,13 +198,11 @@ void main() {
           logger: logger,
           generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(
-          () => argResults['output-directory'] as String?,
-        ).thenReturn(tempDirectory.path);
+        when(() => argResults['output-directory'] as String?)
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_plugin']);
-        when(
-          () => argResults['platforms'] as List<String>,
-        ).thenReturn(['android', 'ios', 'windows']);
+        when(() => argResults['platforms'] as List<String>)
+            .thenReturn(['android', 'ios', 'windows']);
 
         final result = await command.run();
 
@@ -239,9 +237,8 @@ void main() {
             logger: logger,
           ),
         ).called(1);
-        verify(
-          () => logger.info('Created a Very Good Flutter Plugin! 🦄'),
-        ).called(1);
+        verify(() => logger.info('Created a Very Good Flutter Plugin! 🦄'))
+            .called(1);
       });
 
       test(
@@ -271,9 +268,8 @@ void main() {
               final pigeonDir = Directory(
                 path.join(target.dir.path, 'my_plugin_$platform', 'pigeons'),
               )..createSync(recursive: true);
-              File(
-                path.join(pigeonDir.path, 'messages.dart'),
-              ).writeAsStringSync('');
+              File(path.join(pigeonDir.path, 'messages.dart'))
+                  .writeAsStringSync('');
             }
 
             return generatedFiles;
@@ -302,13 +298,11 @@ void main() {
             generatorFromBundle: (_) async => generator,
           )..argResultOverrides = argResults;
 
-          when(
-            () => argResults['output-directory'] as String?,
-          ).thenReturn(tempDirectory.path);
+          when(() => argResults['output-directory'] as String?)
+              .thenReturn(tempDirectory.path);
           when(() => argResults.rest).thenReturn(['my_plugin']);
-          when(
-            () => argResults['platforms'] as List<String>,
-          ).thenReturn(pluginPlatforms);
+          when(() => argResults['platforms'] as List<String>)
+              .thenReturn(pluginPlatforms);
 
           await ProcessOverrides.runZoned(
             () => expectLater(

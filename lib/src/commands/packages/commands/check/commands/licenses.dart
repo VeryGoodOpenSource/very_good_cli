@@ -78,7 +78,7 @@ typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
 
 /// Options for configuring the `very_good packages check licenses` command.
 class PackagesCheckLicensesOptions {
-  PackagesCheckLicensesOptions._({
+  new _({
     required this.ignoreRetrievalFailures,
     required this.dependencyTypes,
     required this.allowedLicenses,
@@ -91,7 +91,7 @@ class PackagesCheckLicensesOptions {
   ///
   /// When [config] is provided, its values are used as defaults for any
   /// option that was not explicitly parsed on the command line.
-  factory PackagesCheckLicensesOptions.parse(
+  factory parse(
     ArgResults argResults, {
     VeryGoodConfig config = VeryGoodConfig.empty,
   }) {
@@ -156,8 +156,7 @@ class PackagesCheckLicensesOptions {
 /// {@endtemplate}
 class PackagesCheckLicensesCommand extends Command<int> {
   /// {@macro packages_check_licenses_command}
-  PackagesCheckLicensesCommand({Logger? logger})
-    : _logger = logger ?? Logger() {
+  new({Logger? logger}) : _logger = logger ?? Logger() {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',

@@ -20,11 +20,10 @@ void main() {
         tempDirectory,
       );
 
-      await expectSuccessfulProcessResult(
-        'flutter',
-        ['pub', 'get'],
-        workingDirectory: tempDirectory.path,
-      );
+      await expectSuccessfulProcessResult('flutter', [
+        'pub',
+        'get',
+      ], workingDirectory: tempDirectory.path);
 
       final cwd = Directory.current;
       Directory.current = tempDirectory;
@@ -34,9 +33,7 @@ void main() {
 
       expect(result, equals(ExitCode.unavailable.code));
       verify(
-        () => logger.err(
-          any(that: contains('- test/.test_optimizer.dart')),
-        ),
+        () => logger.err(any(that: contains('- test/.test_optimizer.dart'))),
       ).called(1);
     }),
   );

@@ -7,10 +7,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlutterApp extends CreateSubCommand
     with OrgName, MultiTemplates, Publishable, Workspace {
   /// {@macro very_good_create_flutter_app_command}
-  CreateFlutterApp({
-    required super.logger,
-    required super.generatorFromBundle,
-  }) {
+  new({required super.logger, required super.generatorFromBundle}) {
     argParser
       ..addOption(
         'application-id',
