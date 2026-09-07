@@ -17,14 +17,14 @@ import 'package:yaml/yaml.dart';
 /// {@endtemplate}
 class PubspecLockParseException implements Exception {
   /// {@macro PubspecLockParseException}
-  const PubspecLockParseException();
+  const new();
 }
 
 /// {@template PubspecLock}
 /// A representation of a pubspec.lock file.
 /// {@endtemplate}
 class PubspecLock {
-  const PubspecLock._({required this.packages});
+  const new _({required this.packages});
 
   /// Parses a [PubspecLock] from a string.
   ///
@@ -33,7 +33,7 @@ class PubspecLock {
   ///
   /// It throws a [PubspecLockParseException] if the string cannot be parsed
   /// as a [YamlMap].
-  factory PubspecLock.fromString(String content) {
+  factory fromString(String content) {
     late final YamlMap yaml;
     try {
       yaml = loadYaml(content) as YamlMap;
@@ -77,17 +77,14 @@ class PubspecLock {
 /// {@endtemplate}
 class PubspecLockPackage extends Equatable {
   /// {@macro PubspecLockDependency}
-  const PubspecLockPackage({
+  const new({
     required this.name,
     required this.type,
     required this.isPubHosted,
   });
 
   /// Parses a [PubspecLockPackage] from a [YamlMap].
-  factory PubspecLockPackage.fromYamlMap({
-    required String name,
-    required YamlMap data,
-  }) {
+  factory fromYamlMap({required String name, required YamlMap data}) {
     final dependency = data['dependency'] as String;
     final dependencyType = PubspecDependencyType.parse(dependency);
 

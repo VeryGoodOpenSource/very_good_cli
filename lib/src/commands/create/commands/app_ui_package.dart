@@ -6,10 +6,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@endtemplate}
 class CreateAppUiPackage extends CreateSubCommand with Publishable, Workspace {
   /// {@macro very_good_create_app_ui_package_command}
-  CreateAppUiPackage({
-    required super.logger,
-    required super.generatorFromBundle,
-  });
+  new({required super.logger, required super.generatorFromBundle});
 
   @override
   String get name => 'app_ui_package';
