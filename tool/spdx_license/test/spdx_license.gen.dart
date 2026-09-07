@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 738 SPDX licenses.
+/// A list of all 740 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -90,6 +90,7 @@ enum SpdxLicense {
   $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
+  $BSD_3_Clause_OpenWebUI._('BSD-3-Clause-OpenWebUI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
   $BSD_3_Clause_Tso._('BSD-3-Clause-Tso'),
   $BSD_3_Clause_acpica._('BSD-3-Clause-acpica'),
@@ -363,6 +364,7 @@ enum SpdxLicense {
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
+  $Hippocratic_3_0_core._('Hippocratic-3.0-core'),
   $IBM_pibs._('IBM-pibs'),
   $ICU._('ICU'),
   $IEC_Code_Components_EULA._('IEC-Code-Components-EULA'),
