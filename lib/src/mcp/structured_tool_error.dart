@@ -32,7 +32,7 @@ enum ToolFailureType {
   /// [ExitCode]; unknown codes fall back to [ToolFailureType.business], the
   /// safest default for an outcome we can't attribute to a transient failure
   /// or a bad input.
-  factory ToolFailureType.fromExitCode(int exitCode) {
+  factory fromExitCode(int exitCode) {
     if (exitCode == ExitCode.usage.code ||
         exitCode == ExitCode.data.code ||
         exitCode == ExitCode.noInput.code ||
@@ -110,7 +110,7 @@ List<String> alternativeApproachesFor(ToolFailureType failureType) {
 /// {@endtemplate}
 class StructuredToolError {
   /// {@macro structured_tool_error}
-  const StructuredToolError({
+  const new({
     required this.toolName,
     required this.reason,
     required this.failureType,

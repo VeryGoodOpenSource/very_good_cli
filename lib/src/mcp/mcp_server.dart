@@ -514,7 +514,7 @@ Only one value can be selected.
     );
   }
 
-  Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) {
+  Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
     final args = request.arguments ?? {};
 
     // Currently, 'packages check' only has 'licenses' as a subcommand
@@ -533,7 +533,7 @@ Only one value can be selected.
     }
 
     final cliArgs = _parsePackagesCheck(args);
-    return _runToolCommand(
+    return await _runToolCommand(
       cliArgs,
       toolName: 'packages check licenses',
       directory: args['directory'] as String?,
