@@ -9,20 +9,20 @@ import 'package:very_good_cli/src/commands/commands.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
-class _FakeLogger extends Fake implements Logger {}
+class _FakeLogger extends Fake implements Logger;
 
 class _FakeDirectoryGeneratorTarget extends Fake
-    implements DirectoryGeneratorTarget {}
+    implements DirectoryGeneratorTarget;
 
 final expectedUsage = [
   '''
@@ -65,10 +65,7 @@ void main() {
   group('can be instantiated', () {
     test('with default options', () {
       final logger = Logger();
-      final command = CreateDartCLI(
-        logger: logger,
-        generatorFromBundle: null,
-      );
+      final command = CreateDartCLI(logger: logger, generatorFromBundle: null);
       expect(command.name, equals('dart_cli'));
       expect(
         command.description,
@@ -172,13 +169,11 @@ void main() {
           logger: logger,
           generatorFromBundle: (_) async => generator,
         )..argResultOverrides = argResults;
-        when(
-          () => argResults['output-directory'] as String?,
-        ).thenReturn(tempDirectory.path);
+        when(() => argResults['output-directory'] as String?)
+            .thenReturn(tempDirectory.path);
         when(() => argResults.rest).thenReturn(['my_cli']);
-        when(
-          () => argResults['executable-name'] as String?,
-        ).thenReturn('my_executable');
+        when(() => argResults['executable-name'] as String?)
+            .thenReturn('my_executable');
 
         final result = await command.run();
 

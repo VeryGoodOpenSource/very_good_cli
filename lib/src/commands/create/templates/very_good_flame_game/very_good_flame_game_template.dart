@@ -9,7 +9,7 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@endtemplate}
 class VeryGoodFlameGameTemplate extends Template {
   /// {@macro flame_game_template}
-  VeryGoodFlameGameTemplate()
+  new()
     : super(
         name: 'flame_game',
         bundle: veryGoodFlameGameBundle,

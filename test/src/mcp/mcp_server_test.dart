@@ -11,14 +11,14 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
+
 /// Decodes a MCP tool result's text content as the structured error payload.
 Map<String, Object?> _errorPayload(CallToolResult result) {
   final text = (result.content.first as TextContent).text;
   return jsonDecode(text) as Map<String, Object?>;
 }
 
-class _MockVeryGoodCommandRunner extends Mock
-    implements VeryGoodCommandRunner {}
+class _MockVeryGoodCommandRunner extends Mock implements VeryGoodCommandRunner;
 
 int _idCounter = 1;
 
@@ -107,9 +107,8 @@ void main() {
         CallToolRequest(name: 'dummyTool', arguments: const {}),
       );
 
-      when(
-        () => mockCommandRunner.run(any()),
-      ).thenAnswer((_) async => ExitCode.success.code);
+      when(() => mockCommandRunner.run(any()))
+          .thenAnswer((_) async => ExitCode.success.code);
 
       // This is the handshake that
       // MUST happen before any other requests, to fix the timeout.
@@ -286,16 +285,12 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(
-          capturedArgs,
-          equals(['create', 'docs_site', 'my_docs']),
-        );
+        expect(capturedArgs, equals(['create', 'docs_site', 'my_docs']));
       });
 
       test('handles command runner failure', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.software.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.software.code);
 
         final response = await sendRequest(
           CallToolRequest.methodName,
@@ -490,9 +485,8 @@ void main() {
       });
 
       test('handles command failure', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.software.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.software.code);
         final response = await sendRequest(
           CallToolRequest.methodName,
           _params(CallToolRequest(name: 'test', arguments: {})),
@@ -512,10 +506,7 @@ void main() {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'timeout_seconds': 120},
-            ),
+            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 120}),
           ),
         );
 
@@ -850,9 +841,8 @@ void main() {
       });
 
       test('omits the output block when nothing was captured', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.success.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.success.code);
 
         final response = await sendRequest(
           CallToolRequest.methodName,
