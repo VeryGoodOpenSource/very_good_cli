@@ -250,6 +250,13 @@ Only one value can be selected.
                   '(e.g. // coverage:ignore-line). '
                   'Only applies to Dart tests (dart: true).',
             ),
+            'show_uncovered': BooleanSchema(
+              description:
+                  'Whether to list uncovered lines when coverage is below '
+                  '100%. Implicitly enables coverage collection when used '
+                  'alone. Useful for identifying which lines still need '
+                  'tests after a min_coverage failure.',
+            ),
             'timeout_seconds': IntegerSchema(
               description:
                   'Maximum seconds to wait for the test run before killing '
@@ -439,6 +446,9 @@ Only one value can be selected.
     }
     if (args['check_ignore'] == true) {
       cliArgs.add('--check-ignore');
+    }
+    if (args['show_uncovered'] == true) {
+      cliArgs.add('--show-uncovered');
     }
     if (args['timeout_seconds'] != null) {
       cliArgs.addAll([

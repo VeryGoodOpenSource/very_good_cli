@@ -123,9 +123,7 @@ class VeryGoodConfig extends Equatable {
         current = parent;
       }
     } on VeryGoodConfigParseException catch (e) {
-      logger.err(
-        'Could not read `$veryGoodConfigFileName`.\n${e.message}',
-      );
+      logger.err('Could not read `$veryGoodConfigFileName`.\n${e.message}');
       return null;
     }
   }
