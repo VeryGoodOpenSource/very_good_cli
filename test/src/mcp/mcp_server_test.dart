@@ -11,8 +11,13 @@ import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
-class _MockVeryGoodCommandRunner extends Mock
-    implements VeryGoodCommandRunner {}
+/// Decodes a MCP tool result's text content as the structured error payload.
+Map<String, Object?> _errorPayload(CallToolResult result) {
+  final text = (result.content.first as TextContent).text;
+  return jsonDecode(text) as Map<String, Object?>;
+}
+
+class _MockVeryGoodCommandRunner extends Mock implements VeryGoodCommandRunner;
 
 int _idCounter = 1;
 
@@ -101,9 +106,8 @@ void main() {
         CallToolRequest(name: 'dummyTool', arguments: const {}),
       );
 
-      when(
-        () => mockCommandRunner.run(any()),
-      ).thenAnswer((_) async => ExitCode.success.code);
+      when(() => mockCommandRunner.run(any()))
+          .thenAnswer((_) async => ExitCode.success.code);
 
       // This is the handshake that
       // MUST happen before any other requests, to fix the timeout.
@@ -280,16 +284,12 @@ void main() {
         final capturedArgs =
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
-        expect(
-          capturedArgs,
-          equals(['create', 'docs_site', 'my_docs']),
-        );
+        expect(capturedArgs, equals(['create', 'docs_site', 'my_docs']));
       });
 
       test('handles command runner failure', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.software.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.software.code);
 
         final response = await sendRequest(
           CallToolRequest.methodName,
@@ -306,9 +306,24 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('failure'));
+        expect(payload['failureType'], equals('business'));
+        expect(payload['reason'], contains('failed with exit code 70'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('create'));
+        expect(action['command'], contains('very_good create flutter_app'));
         expect(
-          (result.content.first as TextContent).text,
-          contains('"create" failed with exit code'),
+          action['arguments'],
+          equals({'subcommand': 'flutter_app', 'name': 'my_app'}),
+        );
+        expect(
+          payload['alternativeApproaches'],
+          isA<List<Object?>>().having(
+            (l) => l.length,
+            'length',
+            greaterThan(0),
+          ),
         );
       });
 
@@ -388,6 +403,7 @@ void main() {
                 'platform': 'chrome',
                 'run_skipped': true,
                 'check_ignore': true,
+                'show_uncovered': true,
                 'timeout_seconds': 60,
               },
             ),
@@ -426,6 +442,7 @@ void main() {
             'chrome',
             '--run-skipped',
             '--check-ignore',
+            '--show-uncovered',
             '--timeout',
             '60',
           ]),
@@ -467,9 +484,8 @@ void main() {
       });
 
       test('handles command failure', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.software.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.software.code);
         final response = await sendRequest(
           CallToolRequest.methodName,
           _params(CallToolRequest(name: 'test', arguments: {})),
@@ -480,20 +496,16 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          contains('"test" failed with exit code'),
-        );
+        final payload = _errorPayload(result);
+        expect(payload['reason'], contains('failed with exit code 70'));
+        expect(payload['failureType'], equals('business'));
       });
 
       test('passes --timeout when timeout_seconds is provided', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'timeout_seconds': 120},
-            ),
+            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 120}),
           ),
         );
 
@@ -610,10 +622,13 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        expect(
-          (result.content.first as TextContent).text,
-          contains('No check specified'),
-        );
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('failure'));
+        expect(payload['failureType'], equals('validation'));
+        expect(payload['reason'], contains('No check specified'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('packages check licenses'));
+        expect(action['arguments'], equals({'licenses': false}));
         verifyNever(() => mockCommandRunner.run(any()));
       });
     });
@@ -639,9 +654,11 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"create" usage error: bad usage'));
-        expect(text, contains('Command: very_good'));
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('validation'));
+        expect(payload['reason'], contains('usage error: bad usage'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['command'], contains('very_good'));
       });
 
       test('handles general Exception with descriptive message', () async {
@@ -664,10 +681,12 @@ void main() {
         );
 
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"create" threw an exception'));
-        expect(text, contains('big bad'));
-        expect(text, contains('Command: very_good'));
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('transient'));
+        expect(payload['reason'], contains('threw an exception'));
+        expect(payload['reason'], contains('big bad'));
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['command'], contains('very_good'));
       });
     });
 
@@ -735,10 +754,13 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"test" failed with exit code 69'));
-        expect(text, contains('compile error: boom'));
-        expect(text, contains('stderr detail'));
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('partial_failure'));
+        expect(payload['failureType'], equals('transient'));
+        expect(payload['reason'], contains('failed with exit code 69'));
+        final partial = payload['partialResults']! as String;
+        expect(partial, contains('compile error: boom'));
+        expect(partial, contains('stderr detail'));
       });
 
       test('includes captured output in a success result', () async {
@@ -787,9 +809,10 @@ void main() {
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('stdout via logger'));
-        expect(text, contains('stderr via logger'));
+        final payload = _errorPayload(result);
+        final partial = payload['partialResults']! as String;
+        expect(partial, contains('stdout via logger'));
+        expect(partial, contains('stderr via logger'));
       });
 
       test('includes captured output when the run throws', () async {
@@ -807,15 +830,18 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        final text = (result.content.first as TextContent).text;
-        expect(text, contains('"test" threw an exception'));
-        expect(text, contains('partial output before crash'));
+        final payload = _errorPayload(result);
+        expect(payload['status'], equals('partial_failure'));
+        expect(payload['reason'], contains('threw an exception'));
+        expect(
+          payload['partialResults'],
+          contains('partial output before crash'),
+        );
       });
 
       test('omits the output block when nothing was captured', () async {
-        when(
-          () => mockCommandRunner.run(any()),
-        ).thenAnswer((_) async => ExitCode.success.code);
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.success.code);
 
         final response = await sendRequest(
           CallToolRequest.methodName,

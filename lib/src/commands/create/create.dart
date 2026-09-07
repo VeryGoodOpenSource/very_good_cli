@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 /// - [CreateSubCommand] for the base class for all create subcommands.
 class CreateCommand extends Command<int> {
   /// {@macro create_command}
-  CreateCommand({
+  new({
     required Logger logger,
     @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
   }) {

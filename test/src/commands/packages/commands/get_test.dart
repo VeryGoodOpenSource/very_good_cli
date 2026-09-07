@@ -14,7 +14,7 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
 const _expectedPackagesGetUsage = [
   'Get packages in a Dart or Flutter project.\n'
@@ -93,9 +93,8 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(
-          path.join(tempDirectory.path, 'pubspec.yaml'),
-        ).writeAsStringSync('');
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync('');
         final result = await commandRunner.run([
           'packages',
           'get',
@@ -111,15 +110,14 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync('''
 name: example
 version: 0.1.0
 
 environment:
 sdk: ^3.13.0
-''',
-        );
+''');
 
         // Mock flutter process to simulate flutter not being installed
         Future<ProcessResult> mockProcess(
@@ -189,15 +187,14 @@ sdk: ^3.13.0
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(path.join(tempDirectory.path, 'pubspec.yaml')).writeAsStringSync(
-          '''
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync('''
           name: example
           version: 0.1.0
           
           environment:
             sdk: ^3.13.0
-          ''',
-        );
+          ''');
         final result = await commandRunner.run([
           'packages',
           'get',
@@ -612,12 +609,9 @@ sdk: ^3.13.0
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(
-            path.join(tempDirectory.path, 'pubspec.yaml'),
-          ).createSync();
-          File(
-            path.join(tempDirectory.path, 'very_good.yaml'),
-          ).writeAsStringSync('- not\n- a\n- map');
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          File(path.join(tempDirectory.path, 'very_good.yaml'))
+              .writeAsStringSync('- not\n- a\n- map');
 
           final result = await commandRunner.run([
             'packages',
@@ -659,9 +653,7 @@ sdk: ^3.13.0
         final argResults = _MockArgResults();
         when(() => argResults.wasParsed(any())).thenReturn(true);
         when<dynamic>(() => argResults['recursive']).thenReturn(false);
-        when<dynamic>(
-          () => argResults['ignore'],
-        ).thenReturn(<String>['cli']);
+        when<dynamic>(() => argResults['ignore']).thenReturn(<String>['cli']);
 
         final options = PackagesGetOptions.parse(
           argResults,
@@ -697,9 +689,8 @@ sdk: ^3.13.0
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(
-            path.join(tempDirectory.path, 'very_good.yaml'),
-          ).writeAsStringSync('''
+          File(path.join(tempDirectory.path, 'very_good.yaml'))
+              .writeAsStringSync('''
 packages:
   get:
     recursive: true
@@ -750,9 +741,8 @@ environment:
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(
-            path.join(tempDirectory.path, 'very_good.yaml'),
-          ).writeAsStringSync('''
+          File(path.join(tempDirectory.path, 'very_good.yaml'))
+              .writeAsStringSync('''
 packages:
   get:
     recursive: true

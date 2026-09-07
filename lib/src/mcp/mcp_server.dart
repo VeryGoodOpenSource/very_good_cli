@@ -10,6 +10,7 @@ import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/lock.dart';
+import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 import 'package:very_good_cli/src/version.dart';
 
 /// {@template command_runner_builder}
@@ -40,12 +41,10 @@ VeryGoodCommandRunner defaultCommandRunnerBuilder({required Logger logger}) =>
 /// {@endtemplate}
 final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
   /// {@macro very_good_mcp_server}
-  VeryGoodMCPServer({
+  new({
     required StreamChannel<String> channel,
-    CommandRunnerBuilder? commandRunnerBuilder,
-  }) : _commandRunnerBuilder =
-           commandRunnerBuilder ?? defaultCommandRunnerBuilder,
-       super.fromStreamChannel(
+    this._commandRunnerBuilder = defaultCommandRunnerBuilder,
+  }) : super.fromStreamChannel(
          channel,
          implementation: Implementation(
            name: 'very_good_cli',
@@ -251,6 +250,13 @@ Only one value can be selected.
                   '(e.g. // coverage:ignore-line). '
                   'Only applies to Dart tests (dart: true).',
             ),
+            'show_uncovered': BooleanSchema(
+              description:
+                  'Whether to list uncovered lines when coverage is below '
+                  '100%. Implicitly enables coverage collection when used '
+                  'alone. Useful for identifying which lines still need '
+                  'tests after a min_coverage failure.',
+            ),
             'timeout_seconds': IntegerSchema(
               description:
                   'Maximum seconds to wait for the test run before killing '
@@ -441,6 +447,9 @@ Only one value can be selected.
     if (args['check_ignore'] == true) {
       cliArgs.add('--check-ignore');
     }
+    if (args['show_uncovered'] == true) {
+      cliArgs.add('--show-uncovered');
+    }
     if (args['timeout_seconds'] != null) {
       cliArgs.addAll([
         '--timeout',
@@ -477,29 +486,31 @@ Only one value can be selected.
     return cliArgs;
   }
 
-  Future<CallToolResult> _handleCreate(CallToolRequest request) async {
+  Future<CallToolResult> _handleCreate(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseCreate(args);
-    return _runToolCommand(cliArgs, toolName: 'create');
+    return _runToolCommand(cliArgs, toolName: 'create', requestArguments: args);
   }
 
-  Future<CallToolResult> _handleTest(CallToolRequest request) async {
+  Future<CallToolResult> _handleTest(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
     return _runToolCommand(
       cliArgs,
       toolName: 'test',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
-  Future<CallToolResult> _handlePackagesGet(CallToolRequest request) async {
+  Future<CallToolResult> _handlePackagesGet(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parsePackagesGet(args);
     return _runToolCommand(
       cliArgs,
       toolName: 'packages get',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
@@ -511,23 +522,22 @@ Only one value can be selected.
     final checkLicenses = args['licenses'] as bool? ?? true;
 
     if (!checkLicenses) {
-      return CallToolResult(
-        content: [
-          TextContent(
-            text:
-                'No check specified. Currently only "licenses" check is '
-                'supported. Set licenses=true to run license checks.',
-          ),
-        ],
-        isError: true,
-      );
+      return StructuredToolError(
+        toolName: 'packages check licenses',
+        reason:
+            'No check specified. Currently only "licenses" check is '
+            'supported. Set licenses=true to run license checks.',
+        failureType: ToolFailureType.validation,
+        attemptedArguments: args,
+      ).toCallToolResult();
     }
 
     final cliArgs = _parsePackagesCheck(args);
-    return _runToolCommand(
+    return await _runToolCommand(
       cliArgs,
       toolName: 'packages check licenses',
       directory: args['directory'] as String?,
+      requestArguments: args,
     );
   }
 
@@ -552,6 +562,7 @@ Only one value can be selected.
     List<String> args, {
     required String toolName,
     String? directory,
+    Map<String, Object?>? requestArguments,
   }) {
     return _lock.run(() async {
       final commandString = 'very_good ${args.join(' ')}';
@@ -566,31 +577,34 @@ Only one value can be selected.
         );
       }
 
-      // Appends the captured command output (the real diagnostics) to a
-      // message, on every result path so partial output emitted before a throw
-      // is not lost. The buffer is populated whether the run returns or throws.
-      String withCapturedOutput(String message) {
+      // Builds a structured JSON failure result from [reason] and
+      // [failureType]. The captured command output is surfaced as
+      // `partialResults` so any diagnostics emitted before a failure or throw
+      // are preserved. A short human-readable summary is also logged to the
+      // real stderr (the stdio transport forbids non-JSON on stdout, so stderr
+      // is free for diagnostics).
+      CallToolResult errorResult(
+        String reason, {
+        required ToolFailureType failureType,
+        StackTrace? stackTrace,
+      }) {
         final captured = sanitizeCommandOutput(output.toString()).trim();
-        if (captured.isEmpty) return message;
-        return '$message\n\nOutput:\n$captured';
-      }
-
-      // Builds a failure result from [reason] (the human-readable cause). The
-      // message is logged once to the real stderr (the stdio transport forbids
-      // only non-JSON on stdout, so stderr is free for diagnostics) and also
-      // surfaced — with any captured output — in the tool result, so the same
-      // text never has to be written twice. [commandString] is appended to keep
-      // the failure reproducible.
-      CallToolResult errorResult(String reason, {StackTrace? stackTrace}) {
-        final message = '"$toolName" $reason\nCommand: $commandString';
-        stderr.writeln('[very_good_mcp] ${message.replaceAll('\n', ' ')}');
+        stderr.writeln(
+          '[very_good_mcp] "$toolName" ${failureType.name} error: $reason '
+          '(command: $commandString)',
+        );
         if (stackTrace != null) {
           stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
         }
-        return CallToolResult(
-          content: [TextContent(text: withCapturedOutput(message))],
-          isError: true,
-        );
+        return StructuredToolError(
+          toolName: toolName,
+          reason: reason,
+          failureType: failureType,
+          commandString: commandString,
+          directory: directory,
+          attemptedArguments: requestArguments,
+          capturedOutput: captured,
+        ).toCallToolResult();
       }
 
       // Apply [directory] as the real working directory for the duration of
@@ -617,11 +631,21 @@ Only one value can be selected.
           );
         }
 
-        return errorResult('failed with exit code $exitCode.');
+        return errorResult(
+          'failed with exit code $exitCode.',
+          failureType: ToolFailureType.fromExitCode(exitCode),
+        );
       } on UsageException catch (e) {
-        return errorResult('usage error: ${e.message}');
+        return errorResult(
+          'usage error: ${e.message}',
+          failureType: ToolFailureType.validation,
+        );
       } on Exception catch (e, stackTrace) {
-        return errorResult('threw an exception: $e', stackTrace: stackTrace);
+        return errorResult(
+          'threw an exception: $e',
+          failureType: ToolFailureType.transient,
+          stackTrace: stackTrace,
+        );
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }
@@ -639,7 +663,7 @@ Only one value can be selected.
 @visibleForTesting
 class CapturingStdout implements Stdout {
   /// Creates a [CapturingStdout] that appends all writes to [_buffer].
-  CapturingStdout(this._buffer);
+  new(this._buffer);
 
   final StringBuffer _buffer;
 
@@ -693,11 +717,14 @@ class CapturingStdout implements Stdout {
   bool get supportsAnsiEscapes => false;
 
   @override
-  int get terminalColumns =>
-      throw const StdoutException('No terminal attached');
+  int get terminalColumns {
+    throw const StdoutException('No terminal attached');
+  }
 
   @override
-  int get terminalLines => throw const StdoutException('No terminal attached');
+  int get terminalLines {
+    throw const StdoutException('No terminal attached');
+  }
 
   @override
   IOSink get nonBlocking => this;
@@ -724,9 +751,9 @@ String sanitizeCommandOutput(String raw) {
       .replaceAll(_ansiEscape, '')
       .replaceAll('\r\n', '\n')
       .split('\n')
-      .map(
-        (line) =>
-            (line.contains('\r') ? line.split('\r').last : line).trimRight(),
-      )
+      .map((line) {
+        final output = line.contains('\r') ? line.split('\r').last : line;
+        return output.trimRight();
+      })
       .join('\n');
 }

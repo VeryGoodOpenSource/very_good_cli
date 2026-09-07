@@ -138,7 +138,7 @@ class Dart {
     List<String>? reportOn,
     int? shardIndex,
     int? totalShards,
-  }) async {
+  }) {
     return TestCLIRunner.test(
       logger: logger,
       testType: TestRunType.dart,
