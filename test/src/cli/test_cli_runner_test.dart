@@ -793,7 +793,6 @@ void main() {
             ..createSync(recursive: true)
             ..writeAsStringSync('void foo() {}');
 
-          // Pub workspaces only write package_config.json at the root.
           File(p.join(workspaceRoot.path, '.dart_tool', 'package_config.json'))
             ..createSync(recursive: true)
             ..writeAsStringSync(

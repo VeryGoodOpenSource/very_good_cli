@@ -198,15 +198,6 @@ class TestCLIRunner {
                     p.join(cwd, 'coverage'),
                   );
 
-                  // Resolve package_config.json the way dart does: start at
-                  // the package cwd and walk up. In a pub workspace the file
-                  // lives at the workspace root, not in the member package.
-                  //
-                  // Canonicalize cwd first. On Windows the temp/workspace
-                  // directory is often a junction, and package:coverage
-                  // resolves files through that real path. reportOn: ['lib']
-                  // is canonicalized against the unresolved cwd, so the
-                  // prefix check drops every file and lcov comes out empty.
                   final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
                   final resolvedReportOn = [
                     for (final path in reportOn ?? ['lib'])
