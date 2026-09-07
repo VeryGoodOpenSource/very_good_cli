@@ -11,7 +11,7 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Dart test command.
 class DartTestOptions {
-  DartTestOptions._({
+  new _({
     required this.concurrency,
     required this.collectCoverage,
     required this.minCoverage,
@@ -36,7 +36,7 @@ class DartTestOptions {
   ///
   /// When [config] is provided, its values are used as defaults for any
   /// option that was not explicitly parsed on the command line.
-  factory DartTestOptions.parse(
+  factory parse(
     ArgResults argResults, {
     VeryGoodConfig config = VeryGoodConfig.empty,
   }) {
@@ -211,7 +211,7 @@ typedef DartTestCommandCall = Future<List<int>> Function({
 /// {@endtemplate}
 class DartTestCommand extends Command<int> {
   /// {@macro packages_command}
-  DartTestCommand({
+  new({
     required this._logger,
     DartTestCommandCall? dartTest,
     DartInstalledCommand? dartInstalled,

@@ -48,7 +48,7 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 /// [Workspace].
 abstract class CreateSubCommand extends Command<int> {
   /// {@macro create_subcommand}
-  CreateSubCommand({
+  new({
     required this.logger,
     @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
   }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle {
@@ -353,9 +353,7 @@ mixin MultiTemplates on CreateSubCommand {
         final source = argResults.wasParsed('template')
             ? 'option "--template"'
             : 'the `create.template` key in `$veryGoodConfigFileName`';
-        usageException(
-          '"$templateName" is not an allowed value for $source.',
-        );
+        usageException('"$templateName" is not an allowed value for $source.');
       },
     );
   }
