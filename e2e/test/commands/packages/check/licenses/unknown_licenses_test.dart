@@ -49,10 +49,7 @@ void main() {
         relativeProjectPath,
       ]);
 
-      expect(
-        result,
-        equals(ExitCode.success.code),
-      );
+      expect(result, equals(ExitCode.success.code));
 
       expect(
         progressLogs,

@@ -31,14 +31,13 @@ const _spdxTargetPath = 'license-list-data-main/json/details';
 /// {@endtemplate}
 class GenerateSpdxLicenseException implements Exception {
   /// {@macro generate_spdx_license_exception}
-  const GenerateSpdxLicenseException(String message)
-    : message = '[spdx_license] $message';
+  const new(String message) : message = '[spdx_license] $message';
 
   final String message;
 }
 
 /// {@macro pre_gen}
-Future<void> run(HookContext context) async => preGen(context);
+Future<void> run(HookContext context) => preGen(context);
 
 /// {@template pre_gen}
 /// Populates the context `licenses` variable with the SPDX license list, and

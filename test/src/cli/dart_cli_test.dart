@@ -33,11 +33,11 @@ class _TestProcess {
   }
 }
 
-class _MockProcess extends Mock implements _TestProcess {}
+class _MockProcess extends Mock implements _TestProcess;
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
 void main() {
   group('Dart', () {
@@ -160,12 +160,10 @@ void main() {
           p.join(tempDirectory.path, 'test_plugin'),
         )..createSync();
 
-        File(
-          p.join(nestedDirectory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_pubspec);
-        File(
-          p.join(ignoredDirectory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_pubspec);
+        File(p.join(nestedDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync(_pubspec);
+        File(p.join(ignoredDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync(_pubspec);
 
         final relativePathPrefix = '.${p.context.separator}';
 
@@ -252,9 +250,8 @@ void main() {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-        File(
-          p.join(tempDirectory.path, 'pubspec.yaml'),
-        ).writeAsStringSync(_unreachableGitUrlPubspec);
+        File(p.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync(_unreachableGitUrlPubspec);
 
         when(
           () => process.run(

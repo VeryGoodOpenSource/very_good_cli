@@ -44,7 +44,7 @@ typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
 /// {@endtemplate}
 class MinCoverageNotMet implements Exception {
   /// {@macro coverage_not_met}
-  const MinCoverageNotMet(this.coverage, {this.uncoveredLines});
+  const new(this.coverage, {this.uncoveredLines});
 
   /// The measured coverage percentage (total hits / total found * 100).
   final double coverage;
@@ -104,7 +104,7 @@ class TestCLIRunner {
     List<String>? reportOn,
     bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
-  }) async {
+  }) {
     final initialCwd = cwd;
 
     final testRunner =
@@ -162,7 +162,7 @@ class TestCLIRunner {
 
         final notOptimizedTests =
             vars['notOptimizedTests'] as List<dynamic>? ?? [];
-        return _overrideAnsiOutput(
+        return await _overrideAnsiOutput(
           forceAnsi,
           () =>
               _testCommand(

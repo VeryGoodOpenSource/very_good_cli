@@ -15,11 +15,11 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../../helpers/helpers.dart';
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _MockArgResults extends Mock implements ArgResults {}
+class _MockArgResults extends Mock implements ArgResults;
 
-class _MockDartTestCommand extends Mock implements DartTestCommandCall {}
+class _MockDartTestCommand extends Mock implements DartTestCommandCall;
 
 const expectedTestUsage = [
   'Run tests in a Dart project.\n'
@@ -56,7 +56,6 @@ const expectedTestUsage = [
 
 // A concrete class should have methods with body
 // and we just want to mock this class for the test.
-// ignore: one_member_abstracts
 abstract class DartTestCommandCall {
   Future<List<int>> call({
     String cwd = '.',
@@ -133,9 +132,8 @@ void main() {
       when<dynamic>(() => argResults['run-skipped']).thenReturn(false);
       when<dynamic>(() => argResults['optimization']).thenReturn(true);
       when<dynamic>(() => argResults['platform']).thenReturn(null);
-      when<dynamic>(
-        () => argResults['collect-coverage-from'],
-      ).thenReturn('imports');
+      when<dynamic>(() => argResults['collect-coverage-from'])
+          .thenReturn('imports');
       when<dynamic>(() => argResults['report-on']).thenReturn(<String>[]);
       when<dynamic>(() => argResults['file-reporter']).thenReturn(null);
       when(() => argResults.rest).thenReturn([]);
@@ -191,9 +189,8 @@ void main() {
         Directory.current = tempDirectory.path;
 
         Directory(path.join(Directory.current.path, 'project')).createSync();
-        File(
-          path.join(Directory.current.path, 'project', 'pubspec.yaml'),
-        ).createSync();
+        File(path.join(Directory.current.path, 'project', 'pubspec.yaml'))
+            .createSync();
 
         final result = await commandRunner.run(['dart', 'test', '-r']);
         expect(result, equals(ExitCode.success.code));
@@ -340,9 +337,8 @@ void main() {
     });
 
     test('completes normally --test-randomize-ordering-seed random', () async {
-      when<dynamic>(
-        () => argResults['test-randomize-ordering-seed'],
-      ).thenReturn('random');
+      when<dynamic>(() => argResults['test-randomize-ordering-seed'])
+          .thenReturn('random');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
@@ -361,9 +357,8 @@ void main() {
       'completes normally --test-randomize-ordering-seed 2305182648',
       () async {
         const randomSeed = '2305182648';
-        when<dynamic>(
-          () => argResults['test-randomize-ordering-seed'],
-        ).thenReturn(randomSeed);
+        when<dynamic>(() => argResults['test-randomize-ordering-seed'])
+            .thenReturn(randomSeed);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -467,9 +462,8 @@ void main() {
       'reports on a different directory when --report-on is supplied',
       () async {
         when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        when<dynamic>(
-          () => argResults['report-on'],
-        ).thenReturn(<String>['routes']);
+        when<dynamic>(() => argResults['report-on'])
+            .thenReturn(<String>['routes']);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -491,9 +485,8 @@ void main() {
       'splits space-separated paths when --report-on "lib test" is supplied',
       () async {
         when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        when<dynamic>(
-          () => argResults['report-on'],
-        ).thenReturn(<String>['lib test']);
+        when<dynamic>(() => argResults['report-on'])
+            .thenReturn(<String>['lib test']);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -515,9 +508,8 @@ void main() {
       'splits comma-separated paths when --report-on "lib,test" is supplied',
       () async {
         when<dynamic>(() => argResults['min-coverage']).thenReturn('0');
-        when<dynamic>(
-          () => argResults['report-on'],
-        ).thenReturn(<String>['lib,test']);
+        when<dynamic>(() => argResults['report-on'])
+            .thenReturn(<String>['lib,test']);
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -654,9 +646,8 @@ void main() {
       'exclude files from coverage when --exclude-coverage is used',
       () async {
         when<dynamic>(() => argResults['coverage']).thenReturn(true);
-        when<dynamic>(
-          () => argResults['exclude-coverage'],
-        ).thenReturn('*.g.dart');
+        when<dynamic>(() => argResults['exclude-coverage'])
+            .thenReturn('*.g.dart');
         final result = await testCommand.run();
         expect(result, equals(ExitCode.success.code));
         verify(
@@ -812,9 +803,8 @@ void main() {
     });
 
     test('completes normally --file-reporter json:test-report.json', () async {
-      when<dynamic>(
-        () => argResults['file-reporter'],
-      ).thenReturn('json:test-report.json');
+      when<dynamic>(() => argResults['file-reporter'])
+          .thenReturn('json:test-report.json');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
@@ -844,9 +834,8 @@ void main() {
 
           Directory.current = tempDirectory.path;
           File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          File(
-            path.join(tempDirectory.path, 'very_good.yaml'),
-          ).writeAsStringSync('- not\n- a\n- map');
+          File(path.join(tempDirectory.path, 'very_good.yaml'))
+              .writeAsStringSync('- not\n- a\n- map');
 
           final result = await commandRunner.run(['dart', 'test']);
           expect(result, equals(ExitCode.config.code));
@@ -937,9 +926,8 @@ void main() {
       test('CLI --file-reporter takes precedence over config value', () {
         when(() => argResults.wasParsed(any())).thenReturn(false);
         when(() => argResults.wasParsed('file-reporter')).thenReturn(true);
-        when<dynamic>(
-          () => argResults['file-reporter'],
-        ).thenReturn('json:cli.json');
+        when<dynamic>(() => argResults['file-reporter'])
+            .thenReturn('json:cli.json');
 
         final options = DartTestOptions.parse(
           argResults,
@@ -955,9 +943,8 @@ void main() {
       test('falls back to the CLI default when the parsed arg is null '
           'and the config is unset', () {
         when(() => argResults.wasParsed(any())).thenReturn(true);
-        when<dynamic>(
-          () => argResults['collect-coverage-from'],
-        ).thenReturn(null);
+        when<dynamic>(() => argResults['collect-coverage-from'])
+            .thenReturn(null);
 
         final options = DartTestOptions.parse(argResults);
 

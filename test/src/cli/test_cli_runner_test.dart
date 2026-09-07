@@ -14,15 +14,15 @@ import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 import '../../fixtures/fixtures.dart';
 
-class _MockMasonGenerator extends Mock implements MasonGenerator {}
+class _MockMasonGenerator extends Mock implements MasonGenerator;
 
-class _MockGeneratorHooks extends Mock implements GeneratorHooks {}
+class _MockGeneratorHooks extends Mock implements GeneratorHooks;
 
-class _MockProgress extends Mock implements Progress {}
+class _MockProgress extends Mock implements Progress;
 
-class _MockLogger extends Mock implements Logger {}
+class _MockLogger extends Mock implements Logger;
 
-class _FakeGeneratorTarget extends Fake implements GeneratorTarget {}
+class _FakeGeneratorTarget extends Fake implements GeneratorTarget;
 
 void main() {
   group(CoverageCollectionMode, () {
@@ -329,9 +329,8 @@ void main() {
             stderr: stderrLogs.add,
             overrideTestRunner: testRunner(
               Stream.fromIterable([
-                ...failingJsonOutput(
-                  tempDirectory.path,
-                ).map(TestEvent.fromJson),
+                ...failingJsonOutput(tempDirectory.path)
+                    .map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 1, time: 0),
               ]),
             ),
@@ -392,9 +391,8 @@ void main() {
             stderr: stderrLogs.add,
             overrideTestRunner: testRunner(
               Stream.fromIterable([
-                ...skipExceptionMessageJsonOutput(
-                  tempDirectory.path,
-                ).map(TestEvent.fromJson),
+                ...skipExceptionMessageJsonOutput(tempDirectory.path)
+                    .map(TestEvent.fromJson),
                 const ExitTestEvent(exitCode: 0, time: 0),
               ]),
             ),
@@ -559,9 +557,8 @@ void main() {
         File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 
         final testEventStream = Stream.fromIterable([
-          ...compilationErrorJsonOutput(
-            tempDirectory.path,
-          ).map(TestEvent.fromJson),
+          ...compilationErrorJsonOutput(tempDirectory.path)
+              .map(TestEvent.fromJson),
           const ExitTestEvent(exitCode: 1, time: 0),
         ]);
 
@@ -947,141 +944,131 @@ void main() {
         },
       );
 
-      test(
-        'runs tests w/coverage + min-coverage 100 + recursive (pass)',
-        () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      test('runs tests w/coverage + min-coverage 100 + recursive (pass)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final tempNestedDirectory = Directory(
-            p.join(tempDirectory.path, 'test'),
-          )..createSync();
-          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
+        final tempNestedDirectory = Directory(
+          p.join(tempDirectory.path, 'test'),
+        )..createSync();
+        File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              collectCoverage: true,
-              minCoverage: 100,
-              recursive: true,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-                onStart: () {
-                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
-                    ..createSync(recursive: true)
-                    ..writeAsStringSync(lcov100);
-                  File(
-                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
-                    )
-                    ..createSync(recursive: true)
-                    ..writeAsStringSync(lcov100);
-                },
-              ),
-              logger: logger,
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            recursive: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov100);
+                File(p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov100);
+              },
             ),
-            completion(equals([ExitCode.success.code, ExitCode.success.code])),
-          );
+            logger: logger,
+          ),
+          completion(equals([ExitCode.success.code, ExitCode.success.code])),
+        );
 
-          final nestedRelativePath = p.relative(
-            tempNestedDirectory.path,
-            from: tempDirectory.path,
-          );
-          final relativePathPrefix = '.${p.context.separator}';
+        final nestedRelativePath = p.relative(
+          tempNestedDirectory.path,
+          from: tempDirectory.path,
+        );
+        final relativePathPrefix = '.${p.context.separator}';
 
-          expect(
-            stdoutLogs,
-            unorderedEquals([
-              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
-              contains('All tests passed!'),
-              'Running "flutter test" in . ...\n',
-              contains('All tests passed!'),
-            ]),
-          );
-          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
-        },
-      );
+        expect(
+          stdoutLogs,
+          unorderedEquals([
+            '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+            contains('All tests passed!'),
+            'Running "flutter test" in . ...\n',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+      });
 
-      test(
-        'runs tests w/coverage + min-coverage 100 + recursive (fail)',
-        () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      test('runs tests w/coverage + min-coverage 100 + recursive (fail)', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
 
-          final tempNestedDirectory = Directory(
-            p.join(tempDirectory.path, 'test'),
-          )..createSync();
-          File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
+        final tempNestedDirectory = Directory(
+          p.join(tempDirectory.path, 'test'),
+        )..createSync();
+        File(p.join(tempNestedDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempNestedDirectory.path, 'test')).createSync();
 
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              collectCoverage: true,
-              minCoverage: 100,
-              recursive: true,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-                onStart: () {
-                  File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
-                    ..createSync(recursive: true)
-                    ..writeAsStringSync(lcov100);
-                  File(
-                      p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'),
-                    )
-                    ..createSync(recursive: true)
-                    ..writeAsStringSync(lcov95);
-                },
-              ),
-              logger: logger,
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            collectCoverage: true,
+            minCoverage: 100,
+            recursive: true,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+              onStart: () {
+                File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov100);
+                File(p.join(tempNestedDirectory.path, 'coverage', 'lcov.info'))
+                  ..createSync(recursive: true)
+                  ..writeAsStringSync(lcov95);
+              },
             ),
-            throwsA(
-              isA<MinCoverageNotMet>().having(
-                (e) => e.coverage,
-                'coverage',
-                95.0,
-              ),
+            logger: logger,
+          ),
+          throwsA(
+            isA<MinCoverageNotMet>().having(
+              (e) => e.coverage,
+              'coverage',
+              95.0,
             ),
-          );
+          ),
+        );
 
-          final nestedRelativePath = p.relative(
-            tempNestedDirectory.path,
-            from: tempDirectory.path,
-          );
-          final relativePathPrefix = '.${p.context.separator}';
+        final nestedRelativePath = p.relative(
+          tempNestedDirectory.path,
+          from: tempDirectory.path,
+        );
+        final relativePathPrefix = '.${p.context.separator}';
 
-          expect(
-            stdoutLogs,
-            unorderedEquals([
-              'Running "flutter test" in '
-                  '. ...\n',
-              contains('All tests passed!'),
-              '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
-              contains('All tests passed!'),
-            ]),
-          );
-          expect(stderrLogs, isEmpty);
-          expect(testRunnerArgs, equals(['--coverage', '--coverage']));
-        },
-      );
+        expect(
+          stdoutLogs,
+          unorderedEquals([
+            'Running "flutter test" in '
+                '. ...\n',
+            contains('All tests passed!'),
+            '''Running "flutter test" in $relativePathPrefix$nestedRelativePath ...\n''',
+            contains('All tests passed!'),
+          ]),
+        );
+        expect(stderrLogs, isEmpty);
+        expect(testRunnerArgs, equals(['--coverage', '--coverage']));
+      });
 
       test('runs tests w/optimizations (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
@@ -1437,9 +1424,8 @@ void main() {
                     final lcovDir = Directory(
                       p.join(tempDirectory.path, 'coverage'),
                     )..createSync(recursive: true);
-                    File(
-                      p.join(lcovDir.path, 'lcov.info'),
-                    ).writeAsStringSync('end_of_record\n');
+                    File(p.join(lcovDir.path, 'lcov.info'))
+                        .writeAsStringSync('end_of_record\n');
                   },
                 ),
               ),
@@ -1497,12 +1483,10 @@ void main() {
 
             final libDir = Directory(p.join(tempDirectory.path, 'lib'))
               ..createSync(recursive: true);
-            File(
-              p.join(libDir.path, 'tested.dart'),
-            ).writeAsStringSync('void tested() {}');
-            File(
-              p.join(libDir.path, 'untested.dart'),
-            ).writeAsStringSync('void unused() {}');
+            File(p.join(libDir.path, 'tested.dart'))
+                .writeAsStringSync('void tested() {}');
+            File(p.join(libDir.path, 'untested.dart'))
+                .writeAsStringSync('void unused() {}');
 
             File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
             Directory(p.join(tempDirectory.path, 'test')).createSync();
@@ -1568,12 +1552,10 @@ void main() {
 
           final libDir = Directory(p.join(tempDirectory.path, 'lib'))
             ..createSync(recursive: true);
-          File(
-            p.join(libDir.path, 'main.dart'),
-          ).writeAsStringSync('void main() {}');
-          File(
-            p.join(libDir.path, 'main.g.dart'),
-          ).writeAsStringSync('// Generated code');
+          File(p.join(libDir.path, 'main.dart'))
+              .writeAsStringSync('void main() {}');
+          File(p.join(libDir.path, 'main.g.dart'))
+              .writeAsStringSync('// Generated code');
 
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
