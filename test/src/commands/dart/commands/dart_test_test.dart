@@ -760,33 +760,28 @@ void main() {
         final result = await testCommand.run();
 
         expect(result, equals(ExitCode.usage.code));
-        verify(
-          () => logger.err(any(that: contains('--recursive'))),
-        ).called(1);
+        verify(() => logger.err(any(that: contains('--recursive')))).called(1);
       },
     );
 
-    test(
-      'allows --recursive when rest arguements are all options',
-      () async {
-        when<dynamic>(() => argResults['recursive']).thenReturn(true);
-        when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+    test('allows --recursive when rest arguements are all options', () async {
+      when<dynamic>(() => argResults['recursive']).thenReturn(true);
+      when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
 
-        final result = await testCommand.run();
+      final result = await testCommand.run();
 
-        expect(result, equals(ExitCode.success.code));
-        verify(
-          () => dartTest(
-            recursive: true,
-            optimizePerformance: true,
-            arguments: [...defaultArguments, '--track-wdiget-creation'],
-            logger: logger,
-            stdout: logger.write,
-            stderr: logger.err,
-          ),
-        ).called(1);
-      },
-    );
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => dartTest(
+          recursive: true,
+          optimizePerformance: true,
+          arguments: [...defaultArguments, '--track-wdiget-creation'],
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
 
     test(
       'enables optimizePerformance when rest arguement is an option',

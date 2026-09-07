@@ -564,10 +564,7 @@ void main() {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'paths': <String>[]},
-            ),
+            CallToolRequest(name: 'test', arguments: {'paths': <String>[]}),
           ),
         );
 
