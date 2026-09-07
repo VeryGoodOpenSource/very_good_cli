@@ -828,9 +828,8 @@ void main() {
             completion(equals([ExitCode.success.code])),
           );
           expect(
-            File(
-              p.join(member.path, '.dart_tool', 'package_config.json'),
-            ).existsSync(),
+            File(p.join(member.path, '.dart_tool', 'package_config.json'))
+                .existsSync(),
             isFalse,
           );
           expect(lcovFile.existsSync(), isTrue);
