@@ -7,9 +7,8 @@
 /// {@endtemplate}
 class DartIdentifierGenerator {
   /// {@macro dart_identifier_generator}
-  DartIdentifierGenerator([
-    this._chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  ]) : _nextId = [0];
+  new([this._chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'])
+    : _nextId = [0];
 
   final String _chars;
   final List<int> _nextId;

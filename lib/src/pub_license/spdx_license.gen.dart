@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 734 SPDX licenses.
+/// A list of all 740 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -78,6 +78,7 @@ enum SpdxLicense {
   $BSD_2_Clause_Views._('BSD-2-Clause-Views'),
   $BSD_2_Clause_first_lines._('BSD-2-Clause-first-lines'),
   $BSD_2_Clause_pkgconf_disclaimer._('BSD-2-Clause-pkgconf-disclaimer'),
+  $BSD_2_Clause_pos_unchanged._('BSD-2-Clause-pos-unchanged'),
   $BSD_3_Clause._('BSD-3-Clause'),
   $BSD_3_Clause_Attribution._('BSD-3-Clause-Attribution'),
   $BSD_3_Clause_Clear._('BSD-3-Clause-Clear'),
@@ -89,6 +90,7 @@ enum SpdxLicense {
   $BSD_3_Clause_No_Nuclear_License_2014._('BSD-3-Clause-No-Nuclear-License-2014'),
   $BSD_3_Clause_No_Nuclear_Warranty._('BSD-3-Clause-No-Nuclear-Warranty'),
   $BSD_3_Clause_Open_MPI._('BSD-3-Clause-Open-MPI'),
+  $BSD_3_Clause_OpenWebUI._('BSD-3-Clause-OpenWebUI'),
   $BSD_3_Clause_Sun._('BSD-3-Clause-Sun'),
   $BSD_3_Clause_Tso._('BSD-3-Clause-Tso'),
   $BSD_3_Clause_acpica._('BSD-3-Clause-acpica'),
@@ -104,9 +106,11 @@ enum SpdxLicense {
   $BSD_Mark_Modifications._('BSD-Mark-Modifications'),
   $BSD_Protection._('BSD-Protection'),
   $BSD_Source_Code._('BSD-Source-Code'),
+  $BSD_Source_Code_no_disclaimer._('BSD-Source-Code-no-disclaimer'),
   $BSD_Source_beginning_file._('BSD-Source-beginning-file'),
   $BSD_Systemics._('BSD-Systemics'),
   $BSD_Systemics_W3Works._('BSD-Systemics-W3Works'),
+  $BSD_ask_to_endorse._('BSD-ask-to-endorse'),
   $BSL_1_0._('BSL-1.0'),
   $BUSL_1_1._('BUSL-1.1'),
   $Baekmuk._('Baekmuk'),
@@ -261,6 +265,7 @@ enum SpdxLicense {
   $Eurosym._('Eurosym'),
   $FBM._('FBM'),
   $FDK_AAC._('FDK-AAC'),
+  $FDK_MPEG_H._('FDK-MPEG-H'),
   $FSFAP._('FSFAP'),
   $FSFAP_no_warranty_disclaimer._('FSFAP-no-warranty-disclaimer'),
   $FSFUL._('FSFUL'),
@@ -359,6 +364,7 @@ enum SpdxLicense {
   $HTMLTIDY._('HTMLTIDY'),
   $HaskellReport._('HaskellReport'),
   $Hippocratic_2_1._('Hippocratic-2.1'),
+  $Hippocratic_3_0_core._('Hippocratic-3.0-core'),
   $IBM_pibs._('IBM-pibs'),
   $ICU._('ICU'),
   $IEC_Code_Components_EULA._('IEC-Code-Components-EULA'),

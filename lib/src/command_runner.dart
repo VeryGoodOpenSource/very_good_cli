@@ -19,7 +19,7 @@ const packageName = 'very_good_cli';
 /// {@endtemplate}
 class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   /// {@macro very_good_command_runner}
-  VeryGoodCommandRunner({
+  new({
     Logger? logger,
     PubUpdater? pubUpdater,
     Map<String, String>? environment,
