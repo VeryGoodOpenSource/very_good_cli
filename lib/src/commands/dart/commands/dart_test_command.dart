@@ -7,7 +7,6 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/commands/test/test.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Dart test command.
@@ -33,6 +32,7 @@ class DartTestOptions {
     required this.fileReporter,
     required this.shardIndex,
     required this.totalShards,
+    required this.rawMinCoverage,
   });
 
   /// Parses [ArgResults] into a [DartTestOptions] instance.
@@ -107,6 +107,7 @@ class DartTestOptions {
     );
     final shardIndex = argResults['shard-index'] as String?;
     final totalShards = argResults['total-shards'] as String?;
+    final rawMinCoverage = argResults['min-coverage'] as String?;
     final rest = argResults.rest;
 
     return DartTestOptions._(
@@ -129,6 +130,7 @@ class DartTestOptions {
       fileReporter: fileReporter,
       shardIndex: shardIndex,
       totalShards: totalShards,
+      rawMinCoverage: rawMinCoverage,
       rest: rest,
     );
   }
@@ -186,11 +188,18 @@ class DartTestOptions {
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
   final String? fileReporter;
 
-  /// The raw `--shard-index` value, validated by [validateSharding].
+  /// The raw `--shard-index` value, validated by
+  /// [TestCLIRunner.validateSharding].
   final String? shardIndex;
 
-  /// The raw `--total-shards` value, validated by [validateSharding].
+  /// The raw `--total-shards` value, validated by
+  /// [TestCLIRunner.validateSharding].
   final String? totalShards;
+
+  /// The raw `--min-coverage` value, without the `very_good.yaml` fallback
+  /// that [minCoverage] applies, so sharding can reject an explicit threshold
+  /// while ignoring an inherited one.
+  final String? rawMinCoverage;
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
@@ -415,35 +424,43 @@ This command should be run from the root of your Dart project.''');
 
     final options = DartTestOptions.parse(_argResults, config: config);
 
-    final shardingError = validateSharding(
+    final optimizePerformance =
+        options.optimizePerformance &&
+        !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+        // Disabled optimization when platform is specified
+        // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+        options.platform == null;
+
+    final shardingError = TestCLIRunner.validateSharding(
       rawShardIndex: options.shardIndex,
       rawTotalShards: options.totalShards,
-      optimizePerformance: options.optimizePerformance,
-      minCoverage: options.minCoverage,
+      rawMinCoverage: options.rawMinCoverage,
+      optimizePerformance: optimizePerformance,
     );
     if (shardingError != null) {
       _logger.err(shardingError);
       return ExitCode.usage.code;
     }
 
+    // A threshold inherited from very_good.yaml only applies to un-sharded
+    // runs: a single shard covers a fraction of the code and would fail it.
+    final minCoverage = options.totalShards == null
+        ? options.minCoverage
+        : null;
+
     if (isDartInstalled) {
       try {
         final results = await _dartTest(
-          optimizePerformance:
-              options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              // Disabled optimization when platform is specified
-              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-              options.platform == null,
+          optimizePerformance: optimizePerformance,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
           stderr: _logger.err,
           collectCoverage:
               options.collectCoverage ||
-              options.minCoverage != null ||
+              minCoverage != null ||
               options.showUncovered,
-          minCoverage: options.minCoverage,
+          minCoverage: minCoverage,
           showUncovered: options.showUncovered,
           excludeFromCoverage: options.excludeFromCoverage,
           collectCoverageFrom: options.collectCoverageFrom,
@@ -471,7 +488,7 @@ This command should be run from the root of your Dart project.''');
       } on MinCoverageNotMet catch (e) {
         TestCLIRunner.handleMinCoverageNotMet(
           logger: _logger,
-          minCoverage: options.minCoverage,
+          minCoverage: minCoverage,
           e: e,
         );
         return ExitCode.unavailable.code;

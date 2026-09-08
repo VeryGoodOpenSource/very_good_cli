@@ -1192,6 +1192,56 @@ void main() {
         ).called(1);
       });
 
+      test(
+        'writes an empty lcov file for an empty shard with coverage',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(<String, dynamic>{
+                  'package-root': tempDirectory.path,
+                  'tests': <Map<String, String>>[],
+                  'notOptimizedTests': <String>[],
+                });
+          });
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              buildGenerator: generatorBuilder(),
+              optimizePerformance: true,
+              collectCoverage: true,
+              shardIndex: 3,
+              totalShards: 3,
+              overrideTestRunner: testRunner(const Stream.empty()),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          final lcov = File(
+            p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+          );
+          expect(lcov.existsSync(), isTrue);
+          expect(lcov.lengthSync(), 0);
+          expect(testRunnerArgs, isEmpty);
+        },
+      );
+
       test('succeeds without running tests when the shard is empty', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

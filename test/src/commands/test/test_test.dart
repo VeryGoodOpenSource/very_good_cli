@@ -1090,6 +1090,11 @@ void main() {
         ).called(1);
       });
 
+      const optimizerDisabledError =
+          'Sharding requires the test optimizer, which is disabled by '
+          '--no-optimization, --platform, --update-goldens or by targeting '
+          'specific test files.';
+
       test('fails when sharding with optimization disabled', () async {
         withShards('1', '3');
         when<dynamic>(() => argResults['optimization']).thenReturn(false);
@@ -1097,13 +1102,61 @@ void main() {
         final result = await testCommand.run();
 
         expect(result, equals(ExitCode.usage.code));
-        verify(
-          () => logger.err(
-            'Sharding requires optimization to be enabled. '
-            'Remove --no-optimization or --platform to use sharding.',
-          ),
-        ).called(1);
+        verify(() => logger.err(optimizerDisabledError)).called(1);
+        verifyNever(() => flutterTest(shardIndex: 1, totalShards: 3));
       });
+
+      test('fails when sharding with --platform', () async {
+        withShards('1', '3');
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(optimizerDisabledError)).called(1);
+      });
+
+      test('fails when sharding with --update-goldens', () async {
+        withShards('1', '3');
+        when<dynamic>(() => argResults['update-goldens']).thenReturn(true);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.usage.code));
+        verify(() => logger.err(optimizerDisabledError)).called(1);
+      });
+
+      test(
+        'ignores a min_coverage from very_good.yaml when sharding',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() {
+            Directory.current = cwd;
+            tempDirectory.deleteSync(recursive: true);
+          });
+          Directory.current = tempDirectory.path;
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          File(path.join(tempDirectory.path, 'very_good.yaml'))
+              .writeAsStringSync('test:\n  min_coverage: 90\n');
+          when(() => argResults.wasParsed(any())).thenReturn(false);
+          withShards('1', '3');
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.success.code));
+          verify(
+            () => flutterTest(
+              shardIndex: 1,
+              totalShards: 3,
+              optimizePerformance: true,
+              arguments: defaultArguments,
+              logger: logger,
+              stdout: logger.write,
+              stderr: logger.err,
+            ),
+          ).called(1);
+        },
+      );
 
       test('fails when sharding is combined with --min-coverage', () async {
         withShards('1', '3');
@@ -1162,6 +1215,7 @@ void main() {
           ),
         );
         expect(options.minCoverage, equals(90));
+        expect(options.rawMinCoverage, isNull);
         expect(options.excludeFromCoverage, equals('**/*.g.dart'));
         expect(options.reportOn, equals(['lib/']));
         expect(options.fileReporter, equals('json:reports/tests.json'));
@@ -1179,6 +1233,7 @@ void main() {
           ),
         );
         expect(options.minCoverage, equals(50));
+        expect(options.rawMinCoverage, equals('50'));
       });
 
       test('CLI --file-reporter takes precedence over config value', () {

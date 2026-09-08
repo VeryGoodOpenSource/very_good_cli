@@ -112,16 +112,20 @@ given runner executes a slice of every package. Balance therefore degrades when
 a workspace contains many packages with few tests each.
 
 :::caution
-Sharding cannot be combined with `--min-coverage`. Each shard only exercises a
-subset of the codebase, so its coverage is not representative of the whole
-suite. Collect coverage per shard with `--coverage`, merge the resulting lcov
-reports once every shard has finished, and enforce the threshold on the merged
-report in a separate job.
+Sharding cannot be combined with `--min-coverage`, and a `min_coverage` set in
+`very_good.yaml` is ignored while sharding. Each shard only exercises a subset
+of the codebase, so its coverage is not representative of the whole suite.
+Collect coverage per shard with `--coverage`, merge the resulting lcov reports
+once every shard has finished, and enforce the threshold on the merged report
+in a separate job. A shard without tests still writes an empty
+`coverage/lcov.info`; pass `--ignore-errors empty` to `lcov` when merging so it
+is accepted.
 :::
 
 :::info
-Sharding requires the test optimizer, so it cannot be used with
-`--no-optimization` or with `--platform` (which disables the optimizer).
+Sharding requires the test optimizer, so it is rejected whenever the optimizer
+is off: with `--no-optimization`, `--platform`, `--update-goldens`, or when
+targeting specific test files.
 :::
 
 ### Passing Flutter specific arguments

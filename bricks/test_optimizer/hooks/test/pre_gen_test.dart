@@ -189,6 +189,33 @@ dependencies:
         expect(context.vars['isFlutter'], isNull);
       });
 
+      test('when the shard values are out of range', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(path.join(tempDirectory.path, 'test')).createSync();
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+        context.vars['shard-index'] = 1;
+        context.vars['total-shards'] = 0;
+
+        await expectLater(
+          () => pre_gen.run(context),
+          throwsA(
+            isA<ProcessException>().having(
+              (ex) => ex.arguments.first,
+              'error code',
+              equals('1'),
+            ),
+          ),
+        );
+
+        verify(
+          () => context.logger.err(
+            'shard-index must be between 1 and total-shards, but got '
+            'shard-index 1 and total-shards 0',
+          ),
+        ).called(1);
+      });
+
       test('when target dir does not contain a pubspec.yaml', () async {
         final testDir = Directory(path.join(tempDirectory.path, 'test'))
           ..createSync();

@@ -36,11 +36,27 @@ Future<void> run(HookContext context) async {
   final shardIndex = context.vars['shard-index'] as int?;
   final totalShards = context.vars['total-shards'] as int?;
 
+  // The CLI validates these before it gets here, but `mason make` prompts for
+  // them directly, so guard the round-robin below against values that would
+  // never terminate or index out of range.
+  if (shardIndex != null &&
+      totalShards != null &&
+      (totalShards < 1 || shardIndex < 1 || shardIndex > totalShards)) {
+    context.logger.err(
+      'shard-index must be between 1 and total-shards, but got '
+      'shard-index $shardIndex and total-shards $totalShards',
+    );
+    exitFn(1);
+  }
+
   final tests = testDir
       .listSync(recursive: true)
       .where((entity) => entity.isTest);
 
-  final notOptimizedTests = await getNotOptimizedTests(tests, testDir.path);
+  final notOptimizedTests = (await getNotOptimizedTests(
+    tests,
+    testDir.path,
+  )).toSet();
 
   // Sorting guarantees a deterministic order across machines, which is what
   // makes sharding reproducible: `Directory.listSync` order is filesystem

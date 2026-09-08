@@ -86,6 +86,65 @@ class TestCLIRunner {
     return rest.where((arg) => !arg.startsWith('-')).isNotEmpty;
   }
 
+  /// Validates the `--shard-index` / `--total-shards` combination.
+  ///
+  /// Returns an error message describing the problem, or `null` when the
+  /// configuration is valid.
+  ///
+  /// [rawShardIndex], [rawTotalShards] and [rawMinCoverage] are the unparsed
+  /// command line values, so that "not provided" can be told apart from
+  /// "provided but not a number", and an explicit `--min-coverage` from one
+  /// inherited from `very_good.yaml`. [optimizePerformance] is the effective
+  /// value, after every option that disables the optimizer is accounted for.
+  static String? validateSharding({
+    required String? rawShardIndex,
+    required String? rawTotalShards,
+    required String? rawMinCoverage,
+    required bool optimizePerformance,
+  }) {
+    if (rawShardIndex == null && rawTotalShards == null) return null;
+
+    if (rawShardIndex == null || rawTotalShards == null) {
+      return '--shard-index and --total-shards must be used together.';
+    }
+
+    final totalShards = int.tryParse(rawTotalShards);
+    if (totalShards == null || totalShards < 1) {
+      return '--total-shards must be a positive integer, '
+          'but got "$rawTotalShards".';
+    }
+
+    final shardIndex = int.tryParse(rawShardIndex);
+    if (shardIndex == null || shardIndex < 1) {
+      return '--shard-index must be a positive integer, '
+          'but got "$rawShardIndex".';
+    }
+
+    if (shardIndex > totalShards) {
+      return '--shard-index ($shardIndex) must be less than or equal to '
+          '--total-shards ($totalShards).';
+    }
+
+    // Sharding partitions the test files consolidated by the optimizer, so it
+    // cannot work when the optimization is turned off.
+    if (!optimizePerformance) {
+      return 'Sharding requires the test optimizer, which is disabled by '
+          '--no-optimization, --platform, --update-goldens or by targeting '
+          'specific test files.';
+    }
+
+    // Each shard only exercises a fraction of the codebase, so its coverage is
+    // not representative of the whole suite. Merge the lcov files from every
+    // shard and enforce the threshold in a separate job instead.
+    if (rawMinCoverage != null) {
+      return '--min-coverage cannot be combined with sharding. Collect '
+          'coverage per shard with --coverage, merge the lcov reports, then '
+          'check the threshold in a separate job.';
+    }
+
+    return null;
+  }
+
   /// Run tests (`flutter test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({
@@ -184,6 +243,9 @@ class TestCLIRunner {
             notOptimizedTests.isEmpty) {
           stdout?.call('No tests found for shard $shardIndex in $path\n');
           await _cleanupOptimizerFile(cwd);
+          // The merge step downstream still expects a report from every
+          // shard, so leave an empty one behind.
+          if (collectCoverage) await lcovFile.create(recursive: true);
           return ExitCode.success.code;
         }
 
@@ -205,8 +267,10 @@ class TestCLIRunner {
                     p.join('test', _testOptimizerFileName),
                   // Include non-optimized tests that require separate execution
                   if (notOptimizedTests.isNotEmpty && optimizePerformance)
+                    // The hook emits forward slashes; keep the argument native.
                     ...notOptimizedTests.map(
-                      (e) => p.join('test', e.toString()),
+                      (e) =>
+                          p.joinAll(['test', ...p.posix.split(e.toString())]),
                     ),
                 ],
                 stdout: stdout ?? noop,
