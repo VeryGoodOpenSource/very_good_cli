@@ -123,9 +123,10 @@ Runs tests in a Dart or Flutter project.
   "tool": "test",
   "arguments": {
     "directory": "./my_app",
+    "paths": ["test/src/foo_test.dart", "test/widgets"],
     "dart": false,
     "coverage": true,
-    "recursive": true,
+    "recursive": false,
     "optimization": true,
     "concurrency": "4",
     "min_coverage": "100",
@@ -144,6 +145,8 @@ Runs tests in a Dart or Flutter project.
 ```
 
 All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default. When `timeout_seconds` is not specified, no timeout is applied.
+
+`directory` selects the package to test; `paths` selects test files or directories *within* that package. To run another package's tests, point `directory` at it — putting a package path in `paths` runs the wrong thing, or nothing at all. Passing `paths` disables the test optimization step, and it cannot be combined with `recursive`, since each package in a recursive run gets the same relative path and only one of them can resolve it.
 
 ### `packages_get`
 
