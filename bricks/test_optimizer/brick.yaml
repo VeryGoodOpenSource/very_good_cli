@@ -12,3 +12,11 @@ vars:
     default: "."
     description: The path to the package root.
     prompt: Please enter the path to the package root.
+  shard-index:
+    type: number
+    description: The 1-based index of the shard to generate tests for.
+    prompt: Please enter the shard index.
+  total-shards:
+    type: number
+    description: The total number of shards the test suite is split into.
+    prompt: Please enter the total number of shards.
