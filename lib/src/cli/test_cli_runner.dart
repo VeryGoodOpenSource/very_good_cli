@@ -198,25 +198,26 @@ class TestCLIRunner {
                     p.join(cwd, 'coverage'),
                   );
 
-                  final packagesPath = p.join(
-                    '.dart_tool',
-                    'package_config.json',
-                  );
+                  final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
+                  final resolvedReportOn = [
+                    for (final path in reportOn ?? ['lib'])
+                      p.join(resolvedCwd, path),
+                  ];
+
                   final hitmap = await coverage.HitMap.parseFiles(
                     files,
-                    packagePath: packagesPath,
+                    packagePath: resolvedCwd,
                     checkIgnoredLines: checkIgnore,
                   );
 
                   final resolver = await coverage.Resolver.create(
-                    packagesPath: packagesPath,
-                    packagePath: packagesPath,
+                    packagePath: resolvedCwd,
                   );
 
                   final output = hitmap.formatLcov(
                     resolver,
-                    reportOn: reportOn ?? ['lib'],
-                    basePath: cwd,
+                    reportOn: resolvedReportOn,
+                    basePath: resolvedCwd,
                   );
 
                   // Write the lcov output to the file.
