@@ -5,6 +5,9 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  # Kept in sync with the range `test_core` allows, so the hook resolves
+  # alongside whatever `package:test` brings in.
+  analyzer: ">=13.0.0 <15.0.0"
   mason: ^0.1.0
   path: ^1.8.1
 

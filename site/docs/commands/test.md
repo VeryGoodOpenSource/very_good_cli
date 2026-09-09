@@ -99,6 +99,21 @@ Golden tests are tests that compare the output of a test to a "golden" file. If 
 :::info For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html).
 :::
 
+### Library-level annotations
+
+Optimized test files keep their library-level `package:test` annotations. `@Skip`, `@Tags`, `@Timeout`, `@OnPlatform` and `@Retry` are forwarded to the group that wraps the file, so a `@Skip`ped file is skipped, a tagged file honors both `dart_test.yaml` and `--exclude-tags`, and a file-level timeout applies.
+
+As `package:test` only reads these annotations above the first `library` or `import` of the file, they have to be declared there to take effect.
+
+```dart
+@Timeout(Duration(minutes: 5))
+library;
+
+import 'package:test/test.dart';
+```
+
+A file is left out of the optimization, and run as its own suite instead, when its annotations cannot be reproduced on a group: `@TestOn`, whose platform selector usually implies platform-specific imports, and annotations whose arguments reference something the generated entrypoint cannot see, such as `@Timeout(myProjectTimeout)`.
+
 ### Skip optimization for specific tests
 
 By default, all tests run with optimizations enabled; use the `--no-optimization` flag to disable globally, or add the `skip_very_good_optimization` tag to specific test files to disable them individually.

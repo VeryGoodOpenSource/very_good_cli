@@ -1411,6 +1411,120 @@ void main() {
         },
       );
 
+      test(
+        'does not pass the generated entrypoint when every test file runs as '
+        'its own suite',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': <dynamic>[],
+            'notOptimizedTests': [
+              p.join('app', 'view', 'app_test.dart'),
+              'cubit_test.dart',
+            ],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              buildGenerator: generatorBuilder(),
+              optimizePerformance: true,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', 'app', 'view', 'app_test.dart'),
+              p.join('test', 'cubit_test.dart'),
+            ]),
+          );
+        },
+      );
+
+      test(
+        'passes the generated entrypoint when some test files are optimized',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final updatedVars = <String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {
+                'path': 'counter_test.dart',
+                'identifier': '_a',
+                'groupArguments': '',
+              },
+            ],
+            'notOptimizedTests': ['app_test.dart'],
+          };
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(updatedVars);
+          });
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              buildGenerator: generatorBuilder(),
+              optimizePerformance: true,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'app_test.dart'),
+            ]),
+          );
+        },
+      );
+
       group('collectCoverageFrom parameter', () {
         test('passes through collectCoverageFrom to test runner', () async {
           final tempDirectory = Directory.systemTemp.createTempSync();

@@ -165,8 +165,18 @@ class TestCLIRunner {
           }
         }
 
+        final optimizedTests = vars['tests'] as List<dynamic>?;
         final notOptimizedTests =
-            vars['notOptimizedTests'] as List<dynamic>? ?? [];
+            vars['notOptimizedTests'] as List<dynamic>? ?? const [];
+
+        // The generated entrypoint wraps nothing when every test file was
+        // excluded from the optimization, and each exclusion is passed on its
+        // own below, so running the entrypoint too would find no tests.
+        final optimizerFileIsEmpty =
+            optimizedTests != null &&
+            optimizedTests.isEmpty &&
+            notOptimizedTests.isNotEmpty;
+
         return await _overrideAnsiOutput(
           forceAnsi,
           () =>
@@ -181,12 +191,12 @@ class TestCLIRunner {
                     '--test-randomize-ordering-seed',
                     randomSeed,
                   ],
-                  if (optimizePerformance)
+                  if (optimizePerformance && !optimizerFileIsEmpty)
                     p.join('test', _testOptimizerFileName),
                   // Include non-optimized tests that require separate execution
-                  if (notOptimizedTests.isNotEmpty && optimizePerformance)
+                  if (optimizePerformance)
                     ...notOptimizedTests.map(
-                      (e) => p.join('test', e.toString()),
+                      (e) => p.join('test', p.normalize(e.toString())),
                     ),
                 ],
                 stdout: stdout ?? noop,

@@ -23,10 +23,16 @@ import 'counter/cubit/counter_cubit_test.dart' as _b;
 import 'counter/view/counter_page_test.dart' as _c;
 
 void main() {
-  group('app_view_app_test_dart', () { _a.main(); });
-  group('counter_cubit_counter_cubit_test_dart', () { _b.main(); });
-  group('counter_view_counter_page_test_dart', () { _c.main(); });
+  group('app/view/app_test.dart', () { _a.main(); });
+  group('counter/cubit/counter_cubit_test.dart', () { _b.main(); });
+  group('counter/view/counter_page_test.dart', () { _c.main(); }, tags: ['golden']);
 }
 ```
+
+The library-level `package:test` annotations of each test file are forwarded to
+its group, as `counter_page_test.dart` shows above. A file whose annotations
+cannot be reproduced on a group is left out of the generated entrypoint and
+reported in the `notOptimizedTests` variable, so the caller can run it as its
+own suite.
 
 [1]: https://github.com/felangel/mason

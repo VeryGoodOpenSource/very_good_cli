@@ -149,6 +149,101 @@ dependencies:
         expect(notOptimizedTests, contains('not_optimized_test.dart'));
         expect(notOptimizedTests, contains('another_not_optimized_test.dart'));
       });
+
+      test('with group arguments for suite-level annotations', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        File(path.join(testDir.path, 'plain_test.dart')).createSync();
+        File(path.join(testDir.path, 'annotated_test.dart'))
+            .writeAsStringSync('''
+@Tags(['slow'])
+@Timeout(Duration(seconds: 5))
+library;
+
+import 'package:test/test.dart';
+
+void main() {}
+''');
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+
+        await pre_gen.run(context);
+
+        final tests = context.vars['tests'] as List<Map<String, String>>;
+        final groupArguments = {
+          for (final test in tests) test['path']!: test['groupArguments'],
+        };
+
+        expect(
+          groupArguments['annotated_test.dart'],
+          equals(", tags: ['slow'], timeout: Timeout(Duration(seconds: 5))"),
+        );
+        expect(groupArguments['plain_test.dart'], isEmpty);
+        expect(context.vars['notOptimizedTests'], isEmpty);
+      });
+
+      test('with annotations that cannot run as a group excluded', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        File(path.join(testDir.path, 'plain_test.dart')).createSync();
+        File(path.join(testDir.path, 'test_on_test.dart')).writeAsStringSync('''
+@TestOn('browser')
+library;
+
+import 'package:test/test.dart';
+
+void main() {}
+''');
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+
+        await pre_gen.run(context);
+
+        final tests = context.vars['tests'] as List<Map<String, String>>;
+
+        expect(tests.map((test) => test['path']), equals(['plain_test.dart']));
+        expect(
+          context.vars['notOptimizedTests'],
+          equals(['test_on_test.dart']),
+        );
+        verify(
+          () => context.logger.detail(
+            'Excluded from optimization: test_on_test.dart',
+          ),
+        ).called(1);
+      });
+
+      test('with a nested excluded test reported once, with slashes', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        final nestedDir = Directory(path.join(testDir.path, 'nested'))
+          ..createSync();
+        File(path.join(nestedDir.path, 'test_on_test.dart'))
+            .writeAsStringSync('''
+@TestOn('browser')
+library;
+
+import 'package:test/test.dart';
+
+void main() {}
+''');
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+
+        await pre_gen.run(context);
+
+        expect(context.vars['tests'], isEmpty);
+        expect(
+          context.vars['notOptimizedTests'],
+          equals(['nested/test_on_test.dart']),
+        );
+      });
     });
 
     group('Fails', () {
