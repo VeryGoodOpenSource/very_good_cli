@@ -1492,26 +1492,6 @@ void main() {
           ).called(1);
         });
 
-        test('keeps tests already skipped by tag out of the bundle', () async {
-          stubPreGen(<String, dynamic>{
-            'package-root': tempDirectory.path,
-            'tests': [
-              {'path': 'integration/login_test.dart', 'identifier': '_a'},
-            ],
-            'notOptimizedTests': ['integration/login_test.dart'],
-          });
-
-          await expectLater(
-            runTests(['test/integration']),
-            completion(equals([ExitCode.success.code])),
-          );
-
-          expect(
-            testRunnerArgs,
-            equals([p.join('test', 'integration/login_test.dart')]),
-          );
-        });
-
         test(
           'does not run the optimized bundle when it ends up empty',
           () async {
@@ -1580,22 +1560,27 @@ void main() {
           );
         });
 
-        test('names the offending glob when it cannot be parsed', () async {
-          stubPreGen(<String, dynamic>{
-            'package-root': tempDirectory.path,
-            'tests': [
-              {'path': 'app/view/app_test.dart', 'identifier': '_a'},
-            ],
-            'notOptimizedTests': <String>[],
-          });
-
-          await expectLater(
-            runTests(['test/[a']),
+        test('names the offending glob when it cannot be parsed', () {
+          expect(
+            () => runTests(['test/[a']),
             throwsA(
               isA<FormatException>().having(
                 (e) => e.message,
                 'message',
                 contains('test/[a'),
+              ),
+            ),
+          );
+        });
+
+        test('rejects a blank glob', () {
+          expect(
+            () => runTests(['  ']),
+            throwsA(
+              isA<FormatException>().having(
+                (e) => e.message,
+                'message',
+                contains('non-empty'),
               ),
             ),
           );

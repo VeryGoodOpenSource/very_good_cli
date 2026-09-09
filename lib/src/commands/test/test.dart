@@ -188,8 +188,7 @@ class FlutterTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
-  /// Globs which will be used to exclude matching test files from the
-  /// optimized bundle.
+  /// Globs of test files to keep out of the optimized bundle.
   final List<String>? excludeOptimization;
 
   /// Whether "matchesGoldenFile()" calls within your test methods should update

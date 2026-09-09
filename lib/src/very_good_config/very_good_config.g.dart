@@ -68,7 +68,7 @@ VeryGoodOptimizationConfig _$VeryGoodOptimizationConfigFromJson(Map json) =>
       $checkKeys(json, allowedKeys: const ['enabled', 'exclude']);
       final val = VeryGoodOptimizationConfig(
         enabled: $checkedConvert('enabled', (v) => v as bool?),
-        exclude: $checkedConvert('exclude', (v) => _globList(v)),
+        exclude: $checkedConvert('exclude', (v) => _stringList(v)),
       );
       return val;
     });
