@@ -230,8 +230,10 @@ void main() {
       ).thenAnswer(
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
       );
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      await expectLater(
+        testCommand.run(),
+        completion(equals(ExitCode.software.code)),
+      );
     });
 
     test('completes normally --recursive', () async {
@@ -547,8 +549,10 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      await expectLater(
+        testCommand.run(),
+        completion(equals(ExitCode.software.code)),
+      );
       verify(
         () => dartTest(
           optimizePerformance: true,
@@ -591,8 +595,10 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      await expectLater(
+        testCommand.run(),
+        completion(equals(ExitCode.software.code)),
+      );
       verify(
         () => logger.err('Expected coverage >= 100.00% but actual is 95.00%.'),
       ).called(1);
@@ -622,8 +628,10 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      await expectLater(
+        testCommand.run(),
+        completion(equals(ExitCode.software.code)),
+      );
       verify(
         () => dartTest(
           optimizePerformance: true,

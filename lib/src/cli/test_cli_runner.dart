@@ -304,9 +304,9 @@ class TestCLIRunner {
   /// Handles the [MinCoverageNotMet] exception by logging the error message.
   ///
   /// If [e] contains uncovered lines, they are logged after the error message.
-  static void handleMinCoverageNotMet({
+  static void handleMinCoverageNotMet(
+    MinCoverageNotMet e, {
     required Logger logger,
-    required MinCoverageNotMet e,
     double? minCoverage,
   }) {
     var decimalPlaces = 2;

@@ -233,8 +233,10 @@ void main() {
         ).thenAnswer(
           (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
         );
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.unavailable.code));
+        await expectLater(
+          testCommand.run(),
+          completion(equals(ExitCode.software.code)),
+        );
       });
 
       test('throws when exception occurs', () async {
@@ -727,8 +729,10 @@ void main() {
             stderr: any(named: 'stderr'),
           ),
         ).thenThrow(exception);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.unavailable.code));
+        await expectLater(
+          testCommand.run(),
+          completion(equals(ExitCode.software.code)),
+        );
         verify(
           () => flutterTest(
             optimizePerformance: true,
@@ -770,8 +774,10 @@ void main() {
             stderr: any(named: 'stderr'),
           ),
         ).thenThrow(exception);
-        final result = await testCommand.run();
-        expect(result, equals(ExitCode.unavailable.code));
+        await expectLater(
+          testCommand.run(),
+          completion(equals(ExitCode.software.code)),
+        );
         verify(
           () =>
               logger.err('Expected coverage >= 100.00% but actual is 95.00%.'),
@@ -804,8 +810,10 @@ void main() {
               stderr: any(named: 'stderr'),
             ),
           ).thenThrow(exception);
-          final result = await testCommand.run();
-          expect(result, equals(ExitCode.unavailable.code));
+          await expectLater(
+            testCommand.run(),
+            completion(equals(ExitCode.software.code)),
+          );
           verify(
             () => flutterTest(
               optimizePerformance: true,

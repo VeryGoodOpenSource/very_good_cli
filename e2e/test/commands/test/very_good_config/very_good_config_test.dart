@@ -37,7 +37,7 @@ void main() {
 
         await expectLater(
           commandRunner.run(['test', '--coverage']),
-          completion(equals(ExitCode.unavailable.code)),
+          completion(equals(ExitCode.software.code)),
         );
         verify(
           () => logger.err(any(that: contains('Expected coverage >= 100.00%'))),
