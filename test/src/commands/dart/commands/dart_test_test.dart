@@ -30,8 +30,9 @@ const expectedTestUsage = [
       '-r, --recursive                              Run tests recursively for all nested packages.\n'
       '    --[no-]optimization                      Whether to apply optimizations for test performance.\n'
       '                                             Automatically disabled when --platform is specified.\n'
-      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
+      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.\n'
       '                                             (defaults to on)\n'
+      "    --exclude-optimization=<glob>            A glob which will be used to exclude matching test files from the optimized bundle (e.g. 'test/integration'). Excluded files still run, as their own test suites. Can be passed multiple times.\n"
       '-j, --concurrency                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                             (defaults to "4")\n'
       '-t, --tags                                   Run only tests associated with the specified tags.\n'
@@ -64,6 +65,7 @@ abstract class DartTestCommandCall {
     bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    List<String>? excludeOptimization,
     double? minCoverage,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
@@ -111,6 +113,7 @@ void main() {
           showUncovered: any(named: 'showUncovered'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           collectCoverageFrom: any(named: 'collectCoverageFrom'),
@@ -245,6 +248,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -564,6 +568,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -608,6 +613,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -639,6 +645,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -719,6 +726,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -915,7 +923,7 @@ void main() {
               test: VeryGoodDartTestConfig(
                 concurrency: '8',
                 tags: 'unit',
-                optimization: false,
+                optimization: VeryGoodOptimizationConfig(enabled: false),
                 platform: 'chrome',
                 checkIgnore: false,
                 minCoverage: '90',
@@ -952,7 +960,7 @@ void main() {
               test: VeryGoodDartTestConfig(
                 concurrency: '8',
                 tags: 'unit',
-                optimization: false,
+                optimization: VeryGoodOptimizationConfig(enabled: false),
                 platform: 'chrome',
                 checkIgnore: false,
               ),
@@ -964,6 +972,49 @@ void main() {
         expect(options.optimizePerformance, isTrue);
         expect(options.platform, equals('vm'));
         expect(options.checkIgnore, isTrue);
+      });
+
+      test('applies optimization exclude from config', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+
+        final options = DartTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(
+                optimization: VeryGoodOptimizationConfig(
+                  exclude: ['test/integration'],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.optimizePerformance, isTrue);
+        expect(options.excludeOptimization, equals(['test/integration']));
+      });
+
+      test('CLI --exclude-optimization replaces the config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('exclude-optimization'))
+            .thenReturn(true);
+        when<dynamic>(() => argResults['exclude-optimization'])
+            .thenReturn(['test/from_cli']);
+
+        final options = DartTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(
+                optimization: VeryGoodOptimizationConfig(
+                  exclude: ['test/from_config'],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.excludeOptimization, equals(['test/from_cli']));
       });
 
       test('CLI argument takes precedence over config value', () {

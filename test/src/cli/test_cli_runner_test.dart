@@ -1411,6 +1411,197 @@ void main() {
         },
       );
 
+      group('excludeOptimization', () {
+        late Directory tempDirectory;
+
+        setUp(() {
+          tempDirectory = Directory.systemTemp.createTempSync();
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+        });
+
+        tearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        void stubPreGen(Map<String, dynamic> updatedVars) {
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(updatedVars);
+          });
+        }
+
+        Future<List<int>> runTests(List<String> excludeOptimization) {
+          return TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            logger: logger,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            buildGenerator: generatorBuilder(),
+            optimizePerformance: true,
+            excludeOptimization: excludeOptimization,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+          );
+        }
+
+        test('runs matching tests outside of the optimized bundle', () async {
+          stubPreGen(<String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+              {'path': 'integration/login_test.dart', 'identifier': '_b'},
+            ],
+            'notOptimizedTests': <String>[],
+          });
+
+          await expectLater(
+            runTests(['test/integration']),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'integration/login_test.dart'),
+            ]),
+          );
+          verify(
+            () => generator.generate(
+              any(),
+              vars: <String, dynamic>{
+                'package-root': tempDirectory.path,
+                'tests': [
+                  {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+                ],
+                'notOptimizedTests': ['integration/login_test.dart'],
+              },
+              fileConflictResolution: FileConflictResolution.overwrite,
+            ),
+          ).called(1);
+        });
+
+        test('keeps tests already skipped by tag out of the bundle', () async {
+          stubPreGen(<String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {'path': 'integration/login_test.dart', 'identifier': '_a'},
+            ],
+            'notOptimizedTests': ['integration/login_test.dart'],
+          });
+
+          await expectLater(
+            runTests(['test/integration']),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            equals([p.join('test', 'integration/login_test.dart')]),
+          );
+        });
+
+        test(
+          'does not run the optimized bundle when it ends up empty',
+          () async {
+            stubPreGen(<String, dynamic>{
+              'package-root': tempDirectory.path,
+              'tests': [
+                {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+              ],
+              'notOptimizedTests': <String>[],
+            });
+
+            await expectLater(
+              runTests(['test']),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(
+              testRunnerArgs,
+              equals([p.join('test', 'app/view/app_test.dart')]),
+            );
+          },
+        );
+
+        test(
+          'runs the optimized bundle when there are no test files',
+          () async {
+            stubPreGen(<String, dynamic>{
+              'package-root': tempDirectory.path,
+              'tests': <dynamic>[],
+              'notOptimizedTests': <String>[],
+            });
+
+            await expectLater(
+              runTests(['test']),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(
+              testRunnerArgs,
+              equals([p.join('test', '.test_optimizer.dart')]),
+            );
+          },
+        );
+
+        test('matches `**` against nested tests only', () async {
+          stubPreGen(<String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {'path': 'serial_a_test.dart', 'identifier': '_a'},
+              {'path': 'nested/serial_b_test.dart', 'identifier': '_b'},
+            ],
+            'notOptimizedTests': <String>[],
+          });
+
+          await expectLater(
+            runTests(['test/**/serial_*_test.dart']),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'nested/serial_b_test.dart'),
+            ]),
+          );
+        });
+
+        test('names the offending glob when it cannot be parsed', () async {
+          stubPreGen(<String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+            ],
+            'notOptimizedTests': <String>[],
+          });
+
+          await expectLater(
+            runTests(['test/[a']),
+            throwsA(
+              isA<FormatException>().having(
+                (e) => e.message,
+                'message',
+                contains('test/[a'),
+              ),
+            ),
+          );
+        });
+      });
+
       group('collectCoverageFrom parameter', () {
         test('passes through collectCoverageFrom to test runner', () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
