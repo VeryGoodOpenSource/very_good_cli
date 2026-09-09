@@ -221,8 +221,6 @@ class VeryGoodCreateConfig extends Equatable {
 ///
 /// Accepts a boolean shorthand for [enabled], so `optimization: false` and
 /// `optimization: {enabled: false}` are equivalent.
-///
-/// Any field that is left as `null` retains its CLI default.
 /// {@endtemplate}
 @JsonSerializable(
   anyMap: true,
@@ -249,11 +247,10 @@ class VeryGoodOptimizationConfig extends Equatable {
   /// Whether to apply optimizations for test performance.
   final bool? enabled;
 
-  /// Globs which will be used to exclude matching test files from the
-  /// optimized bundle.
+  /// Globs of test files to keep out of the optimized bundle.
   ///
   /// Excluded files still run, as their own test suites.
-  @JsonKey(fromJson: _globList)
+  @JsonKey(fromJson: _stringList)
   final List<String>? exclude;
 
   @override
@@ -797,20 +794,6 @@ String? _reporter(Object? value) {
     throw FormatException('Expected `text` or `csv` but got `$value`.');
   }
   return value as String;
-}
-
-/// Coerces a single glob or a list of globs into a `List<String>`.
-///
-/// Rejects empty globs, which would otherwise fail when compiled.
-List<String>? _globList(Object? value) {
-  final values = _stringList(value);
-  if (values == null) return null;
-  for (final value in values) {
-    if (value.trim().isEmpty) {
-      throw const FormatException('Expected every glob to be non-empty.');
-    }
-  }
-  return values;
 }
 
 /// Coerces a single string or a list of strings into a `List<String>`.

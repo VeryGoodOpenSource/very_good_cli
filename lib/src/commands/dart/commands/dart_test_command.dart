@@ -162,8 +162,7 @@ class DartTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
-  /// Globs which will be used to exclude matching test files from the
-  /// optimized bundle.
+  /// Globs of test files to keep out of the optimized bundle.
   final List<String>? excludeOptimization;
 
   /// Whether to stop running tests after the first failure.

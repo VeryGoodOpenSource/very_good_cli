@@ -117,6 +117,8 @@ class TestCLIRunner {
         overrideTestRunner ??
         (testType == TestRunType.flutter ? flutterTest : dartTest);
 
+    final excludeOptimizationGlobs = _optimizationGlobs(excludeOptimization);
+
     return _runCommand<int>(
       cmd: (cwd) async {
         final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
@@ -156,7 +158,10 @@ class TestCLIRunner {
               onVarsChanged: (v) => vars = v,
               workingDirectory: workingDirectory,
             );
-            vars = _excludeFromOptimization(vars, excludeOptimization);
+            vars = _excludeFromOptimization(
+              vars: vars,
+              globs: excludeOptimizationGlobs,
+            );
             await generator.generate(
               target,
               vars: vars,
@@ -170,9 +175,9 @@ class TestCLIRunner {
         final notOptimizedTests =
             vars['notOptimizedTests'] as List<dynamic>? ?? [];
 
-        final optimizedTests = vars['tests'] as List<dynamic>?;
-        final isBundleEmpty = optimizedTests != null && optimizedTests.isEmpty;
-        final runBundle = !isBundleEmpty || notOptimizedTests.isEmpty;
+        final hasOptimizedTests =
+            (vars['tests'] as List<dynamic>?)?.isNotEmpty ?? true;
+        final runBundle = hasOptimizedTests || notOptimizedTests.isEmpty;
 
         return await _overrideAnsiOutput(
           forceAnsi,
@@ -673,18 +678,20 @@ Future<int> _testCommand({
   return completer.future;
 }
 
-/// The context used to match test paths against optimization exclusion globs.
-///
-/// Globs always use POSIX path syntax, so the context is pinned rather than
-/// inferred from the platform. `current` is pinned as well, since the process
-/// working directory is irrelevant to the relative paths being matched.
-final _optimizationGlobContext = p.Context(style: p.Style.posix, current: '.');
+/// Compiles the optimization exclusion globs.
+List<Glob> _optimizationGlobs(List<String>? patterns) =>
+    (patterns ?? const <String>[]).map(_optimizationGlob).toList();
 
-/// Compiles an optimization exclusion glob, naming the offending pattern when
-/// it cannot be parsed.
+/// Compiles a single exclusion glob, matched in [p.posix] because test paths
+/// are always POSIX.
 Glob _optimizationGlob(String pattern) {
+  if (pattern.trim().isEmpty) {
+    throw const FormatException(
+      'Expected every exclude-optimization glob to be non-empty.',
+    );
+  }
   try {
-    return Glob(pattern, context: _optimizationGlobContext, recursive: true);
+    return Glob(pattern, context: p.posix, recursive: true);
   } on FormatException catch (error) {
     throw FormatException(
       'Invalid exclude-optimization glob `$pattern`: ${error.message}',
@@ -692,29 +699,28 @@ Glob _optimizationGlob(String pattern) {
   }
 }
 
-/// Moves the tests matching [excludeOptimization] out of the optimized bundle
-/// and in with the tests that run as their own suites.
+/// Moves the tests matching [globs] out of the optimized bundle and in with the
+/// tests that run as their own suites.
 ///
-/// Globs are matched against the package relative POSIX path of each test file
-/// (e.g. `test/app/view/app_test.dart`). They are recursive, so a glob also
-/// matches everything nested underneath what it names and `test/integration`
-/// excludes every test within that directory.
-Map<String, dynamic> _excludeFromOptimization(
-  Map<String, dynamic> vars,
-  List<String>? excludeOptimization,
-) {
-  final patterns = excludeOptimization ?? const <String>[];
+/// [vars] is the pre-gen hook's output, shaped by
+/// `bricks/test_optimizer/hooks/lib/pre_gen.dart`, which keeps `tests` and
+/// `notOptimizedTests` disjoint. Globs are recursive and match the package
+/// relative POSIX path of each test file, so `test/integration` excludes every
+/// test within that directory.
+Map<String, dynamic> _excludeFromOptimization({
+  required Map<String, dynamic> vars,
+  List<Glob> globs = const [],
+}) {
   final tests = vars['tests'] as List<dynamic>?;
-  if (patterns.isEmpty || tests == null) return vars;
+  if (globs.isEmpty || tests == null) return vars;
 
-  final globs = patterns.map(_optimizationGlob).toList();
   final notOptimizedTests = [...?vars['notOptimizedTests'] as List<dynamic>?];
   final optimizedTests = <dynamic>[];
 
   for (final test in tests) {
     final path = (test as Map<dynamic, dynamic>)['path'] as String;
     if (globs.any((glob) => glob.matches('test/$path'))) {
-      if (!notOptimizedTests.contains(path)) notOptimizedTests.add(path);
+      notOptimizedTests.add(path);
     } else {
       optimizedTests.add(test);
     }

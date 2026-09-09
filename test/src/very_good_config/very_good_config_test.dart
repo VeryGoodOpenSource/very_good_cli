@@ -217,18 +217,6 @@ test:
         );
       });
 
-      test('throws when an optimization exclude glob is empty', () {
-        expect(
-          () => VeryGoodConfig.fromString('''
-test:
-  optimization:
-    exclude:
-      - '  '
-'''),
-          throwsA(isA<VeryGoodConfigParseException>()),
-        );
-      });
-
       test('parses all supported create options', () {
         final fixture = File(
           p.join(
