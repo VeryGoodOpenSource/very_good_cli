@@ -3,6 +3,10 @@ import 'package:test/test.dart';
 
 const _testImport = "import 'package:test/test.dart';";
 
+/// [suiteGroupArguments] for a Dart package.
+String? _dartGroupArguments(String contents) =>
+    suiteGroupArguments(contents, isFlutter: false);
+
 void main() {
   group('suiteAnnotationNames', () {
     test('covers every annotation package:test reads at the suite level', () {
@@ -17,7 +21,7 @@ void main() {
     group('forwards', () {
       test('a skip reason declared above the library directive', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip('not ready')
 library;
 
@@ -29,7 +33,7 @@ $_testImport
 
       test('a skip reason declared above the first import', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip('not ready')
 
 $_testImport
@@ -40,7 +44,7 @@ $_testImport
 
       test('a skip without a reason as an unconditional skip', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip()
 library;
 $_testImport
@@ -51,7 +55,7 @@ $_testImport
 
       test('tags', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Tags(['slow', 'golden'])
 library;
 $_testImport
@@ -62,7 +66,7 @@ $_testImport
 
       test('a timeout', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout(Duration(milliseconds: 100))
 library;
 $_testImport
@@ -73,7 +77,7 @@ $_testImport
 
       test('a timeout factor', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout.factor(2)
 library;
 $_testImport
@@ -84,7 +88,7 @@ $_testImport
 
       test('a retry count', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Retry(3)
 library;
 $_testImport
@@ -93,9 +97,31 @@ $_testImport
         );
       });
 
+      test('a platform selector satisfied by the Dart VM', () {
+        expect(
+          _dartGroupArguments('''
+@TestOn('vm')
+library;
+$_testImport
+'''),
+          equals(", testOn: 'vm'"),
+        );
+      });
+
+      test('a platform selector naming an operating system', () {
+        expect(
+          _dartGroupArguments('''
+@TestOn("mac-os")
+library;
+$_testImport
+'''),
+          equals(', testOn: "mac-os"'),
+        );
+      });
+
       test('platform overrides', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @OnPlatform({'browser': Skip('no dart:io')})
 library;
 $_testImport
@@ -106,7 +132,7 @@ $_testImport
 
       test('every annotation of a file that declares several', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Tags(['slow'])
 @Timeout(Duration(seconds: 5))
 library;
@@ -118,7 +144,7 @@ $_testImport
 
       test('a prefixed annotation', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @t.Skip('x')
 library;
 import 'package:test/test.dart' as t;
@@ -129,7 +155,7 @@ import 'package:test/test.dart' as t;
 
       test('a prefixed annotation with a named constructor', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @t.Timeout.factor(2)
 library;
 import 'package:test/test.dart' as t;
@@ -140,7 +166,7 @@ import 'package:test/test.dart' as t;
 
       test('arguments spread over several lines, as a single line', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout(
   Duration(
     seconds: 5,
@@ -155,7 +181,7 @@ $_testImport
 
       test('arguments without the comments between them', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout(Duration(seconds: 5) /* fast */)
 library;
 $_testImport
@@ -166,7 +192,7 @@ $_testImport
 
       test('a reason containing what looks like a comment', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip('see http://example.com')
 library;
 $_testImport
@@ -177,7 +203,7 @@ $_testImport
 
       test('an annotation below a block comment holding a directive', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 /*
 @Skip('x')
 import 'nope.dart';
@@ -192,7 +218,7 @@ $_testImport
 
       test('an annotation below a license header', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 // Copyright (c) 2026, Very Good Ventures.
 // Mentions @Skip in prose.
 
@@ -208,7 +234,7 @@ $_testImport
     group('forwards nothing', () {
       test('for a file without annotations', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 $_testImport
 
 void main() {}
@@ -219,7 +245,7 @@ void main() {}
 
       test('for a file with no directives, as package:test does', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip('x')
 void main() {}
 '''),
@@ -229,7 +255,7 @@ void main() {}
 
       test('for an annotation inside a line comment', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 // @Skip('x')
 $_testImport
 '''),
@@ -239,7 +265,7 @@ $_testImport
 
       test('for an annotation after the first directive', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 $_testImport
 
 @Skip('x')
@@ -251,7 +277,7 @@ void main() {}
 
       test('for an annotation on a directive other than the first', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 library;
 $_testImport
 @Skip('x')
@@ -263,7 +289,7 @@ import 'dart:async';
 
       test('for an unrelated annotation', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @MyTags(['x'])
 library;
 $_testImport
@@ -274,7 +300,7 @@ $_testImport
 
       test('for source the parser cannot make sense of', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 void main( {
 '''),
           isEmpty,
@@ -282,11 +308,59 @@ void main( {
       });
     });
 
-    group('returns null', () {
-      test('for @TestOn, which gates the whole suite on the platform', () {
+    group('forwards, on Flutter,', () {
+      test('a skip reason', () {
         expect(
           suiteGroupArguments('''
+@Skip('not ready')
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+''', isFlutter: true),
+          equals(", skip: 'not ready'"),
+        );
+      });
+
+      test('a retry count', () {
+        expect(
+          suiteGroupArguments('''
+@Retry(3)
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+''', isFlutter: true),
+          equals(', retry: 3'),
+        );
+      });
+
+      test('nothing for a file without annotations', () {
+        expect(
+          suiteGroupArguments('''
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {}
+''', isFlutter: true),
+          isEmpty,
+        );
+      });
+    });
+
+    group('returns null', () {
+      test('for a platform selector that implies web-only imports', () {
+        expect(
+          _dartGroupArguments('''
 @TestOn('browser')
+library;
+$_testImport
+'''),
+          isNull,
+        );
+      });
+
+      test('for a negated platform selector', () {
+        expect(
+          _dartGroupArguments('''
+@TestOn('!windows')
 library;
 $_testImport
 '''),
@@ -296,7 +370,7 @@ $_testImport
 
       test('for an argument that may not resolve in the entrypoint', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout(myProjectTimeout)
 library;
 $_testImport
@@ -307,7 +381,7 @@ $_testImport
 
       test('for an argument interpolating an identifier', () {
         expect(
-          suiteGroupArguments(r'''
+          _dartGroupArguments(r'''
 @Skip('flaky on $platform')
 library;
 import 'package:test/test.dart';
@@ -318,7 +392,7 @@ import 'package:test/test.dart';
 
       test('for a repeated annotation, which package:test rejects too', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip('a')
 @Skip('b')
 library;
@@ -330,7 +404,7 @@ $_testImport
 
       test('for a constant reference with no arguments to forward', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Timeout.none
 library;
 $_testImport
@@ -341,7 +415,7 @@ $_testImport
 
       test('for a named constructor on an annotation without one', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Skip.reason('x')
 library;
 $_testImport
@@ -350,11 +424,31 @@ $_testImport
         );
       });
 
+      test("for an annotation flutter_test's group cannot carry", () {
+        for (final annotation in [
+          "@Tags(['golden'])",
+          '@Timeout(Duration(seconds: 5))',
+          "@OnPlatform({'browser': Skip('no dart:io')})",
+          "@TestOn('vm')",
+        ]) {
+          expect(
+            suiteGroupArguments('''
+$annotation
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+''', isFlutter: true),
+            isNull,
+            reason: '$annotation should not be forwarded on Flutter',
+          );
+        }
+      });
+
       test('when only one of several annotations cannot be forwarded', () {
         expect(
-          suiteGroupArguments('''
+          _dartGroupArguments('''
 @Tags(['slow'])
-@TestOn('vm')
+@TestOn('browser')
 library;
 $_testImport
 '''),

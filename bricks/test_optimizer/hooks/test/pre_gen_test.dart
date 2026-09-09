@@ -217,6 +217,50 @@ void main() {}
         ).called(1);
       });
 
+      test('with annotations flutter_test cannot carry excluded', () async {
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
+          ..createSync()
+          ..writeAsStringSync('''
+dependencies:
+  flutter:
+    sdk: flutter''');
+
+        final testDir = Directory(path.join(tempDirectory.path, 'test'))
+          ..createSync();
+        File(path.join(testDir.path, 'skipped_test.dart')).writeAsStringSync('''
+@Skip('not ready')
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {}
+''');
+        File(path.join(testDir.path, 'tagged_test.dart')).writeAsStringSync('''
+@Tags(['golden'])
+library;
+
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {}
+''');
+
+        context.vars['package-root'] = tempDirectory.absolute.path;
+
+        await pre_gen.run(context);
+
+        final tests = context.vars['tests'] as List<Map<String, String>>;
+        final groupArguments = {
+          for (final test in tests) test['path']!: test['groupArguments'],
+        };
+
+        expect(groupArguments.keys, equals(['skipped_test.dart']));
+        expect(
+          groupArguments['skipped_test.dart'],
+          equals(", skip: 'not ready'"),
+        );
+        expect(context.vars['notOptimizedTests'], equals(['tagged_test.dart']));
+      });
+
       test('with a nested excluded test reported once, with slashes', () async {
         File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
 

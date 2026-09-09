@@ -45,6 +45,18 @@ void main() {
     );
 
     test(
+      'honors library-level annotations of a Flutter package',
+      timeout: const Timeout(Duration(minutes: 2)),
+      withRunner((commandRunner, logger, updater, logs, progressLogs) async {
+        await setUpFixture('flutter_fixture');
+        await expectLater(
+          commandRunner.run(['test', '-x', 'excluded']),
+          completion(equals(ExitCode.success.code)),
+        );
+      }),
+    );
+
+    test(
       'honors a library-level timeout of an optimized test file',
       timeout: const Timeout(Duration(minutes: 2)),
       withRunner((commandRunner, logger, updater, logs, progressLogs) async {

@@ -23,9 +23,9 @@ extension on FileSystemEntity {
 
 /// The `group` arguments to wrap a test file with [contents] in, or `null`
 /// when the file has to run as its own suite.
-String? getGroupArguments(String contents) {
+String? _groupArguments(String contents, {required bool isFlutter}) {
   if (skipVeryGoodOptimizationRegExp.hasMatch(contents)) return null;
-  return suiteGroupArguments(contents);
+  return suiteGroupArguments(contents, isFlutter: isFlutter);
 }
 
 Future<void> run(HookContext context) async {
@@ -48,35 +48,32 @@ Future<void> run(HookContext context) async {
   final isFlutter = flutterSdkRegExp.hasMatch(pubspecContents);
 
   final identifierGenerator = DartIdentifierGenerator();
-  final tests = testDir
-      .listSync(recursive: true)
-      .where((entity) => entity.isTest)
-      .toList();
 
-  // Reading the files one at a time dominates the hook on large packages, so
-  // read them all up front and inspect them in order afterwards.
-  final contents = await Future.wait(
-    tests.map((entity) => File(entity.path).readAsString()),
+  final tests = await Future.wait(
+    testDir
+        .listSync(recursive: true)
+        .where((entity) => entity.isTest)
+        .map(
+          (entity) async => (
+            relativePath: path.relative(entity.path, from: testDir.path),
+            contents: await File(entity.path).readAsString(),
+          ),
+        ),
   );
 
   final optimizedTests = <Map<String, String>>[];
   final notOptimizedTests = <String>[];
 
-  for (final (index, entity) in tests.indexed) {
-    final relativePath = path
-        .relative(entity.path, from: testDir.path)
-        .replaceAll(r'\', '/');
-    final groupArguments = getGroupArguments(contents[index]);
+  for (final test in tests) {
+    final groupArguments = _groupArguments(test.contents, isFlutter: isFlutter);
 
-    // A test file whose behavior cannot be reproduced on a `group` has to run
-    // as its own suite.
     if (groupArguments == null) {
-      notOptimizedTests.add(relativePath);
+      notOptimizedTests.add(test.relativePath);
       continue;
     }
 
     optimizedTests.add({
-      'path': relativePath,
+      'path': test.relativePath.replaceAll(r'\', '/'),
       'identifier': identifierGenerator.next(),
       'groupArguments': groupArguments,
     });

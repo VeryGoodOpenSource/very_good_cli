@@ -112,7 +112,15 @@ library;
 import 'package:test/test.dart';
 ```
 
-A file is left out of the optimization, and run as its own suite instead, when its annotations cannot be reproduced on a group: `@TestOn`, whose platform selector usually implies platform-specific imports, and annotations whose arguments reference something the generated entrypoint cannot see, such as `@Timeout(myProjectTimeout)`.
+`@TestOn` is forwarded only when its selector names the Dart VM or an operating system, such as `@TestOn('vm')` or `@TestOn('posix')`. Any other selector, such as `browser`, implies platform-specific imports that the generated entrypoint cannot compile.
+
+In a Flutter package the entrypoint is wrapped in `flutter_test`'s own `group`, which takes only `skip` and `retry`, so `@Skip` and `@Retry` are the only annotations forwarded there.
+
+:::caution
+Before these annotations were honored, a `@Skip`ped or excluded-tag test file still ran under the optimized entrypoint and contributed coverage. Now that it is skipped, its lines count as uncovered, so a project running `--coverage` with `--min-coverage` may need its threshold or its `--exclude-coverage` pattern revisited.
+:::
+
+A file is left out of the optimization, and run as its own suite instead, whenever its annotations cannot be reproduced on a group. That covers the cases above and annotations whose arguments reference something the generated entrypoint cannot see, such as `@Timeout(myProjectTimeout)`.
 
 ### Skip optimization for specific tests
 

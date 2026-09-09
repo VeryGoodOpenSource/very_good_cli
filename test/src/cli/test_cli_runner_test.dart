@@ -78,6 +78,53 @@ void main() {
         return (bundle) async => generator;
       }
 
+      /// Expects a successful optimized run whose pre-gen hook reports
+      /// [hookVars].
+      Future<void> expectSuccessfulOptimizedRun(
+        Map<String, dynamic> hookVars,
+      ) async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+        final updatedVars = <String, dynamic>{
+          'package-root': tempDirectory.path,
+          ...hookVars,
+        };
+        when(
+          () => hooks.preGen(
+            vars: any(named: 'vars'),
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((invocation) async {
+          (invocation.namedArguments[#onVarsChanged]
+                  as void Function(Map<String, dynamic> vars))
+              .call(updatedVars);
+        });
+
+        await expectLater(
+          TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            logger: logger,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            buildGenerator: generatorBuilder(),
+            optimizePerformance: true,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+          ),
+          completion(equals([ExitCode.success.code])),
+        );
+      }
+
       setUp(() {
         logger = _MockLogger();
         progress = _MockProgress();
@@ -1296,47 +1343,13 @@ void main() {
         'pass not optimized tests along with optimized tests when optimization '
         'is enabled but there are not optimized tests as well',
         () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-          final updatedVars = <String, dynamic>{
-            'package-root': tempDirectory.path,
+          await expectSuccessfulOptimizedRun({
             'notOptimizedTests': [
               p.join('app', 'view', 'app_test.dart'),
               p.join('app', 'cubit', 'cubit_test.dart'),
             ],
-          };
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
-          when(
-            () => hooks.preGen(
-              vars: any(named: 'vars'),
-              onVarsChanged: any(named: 'onVarsChanged'),
-              workingDirectory: any(named: 'workingDirectory'),
-            ),
-          ).thenAnswer((invocation) async {
-            (invocation.namedArguments[#onVarsChanged]
-                    as void Function(Map<String, dynamic> vars))
-                .call(updatedVars);
           });
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              logger: logger,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-              ),
-            ),
-            completion(equals([ExitCode.success.code])),
-          );
+
           expect(
             stdoutLogs,
             equals([
@@ -1359,44 +1372,8 @@ void main() {
         'do not pass not optimized tests along with optimized tests when '
         'optimization is enabled but there are no not optimized tests',
         () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+          await expectSuccessfulOptimizedRun({'notOptimizedTests': <String>[]});
 
-          final updatedVars = <String, dynamic>{
-            'package-root': tempDirectory.path,
-            'notOptimizedTests': <String>[],
-          };
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
-          when(
-            () => hooks.preGen(
-              vars: any(named: 'vars'),
-              onVarsChanged: any(named: 'onVarsChanged'),
-              workingDirectory: any(named: 'workingDirectory'),
-            ),
-          ).thenAnswer((invocation) async {
-            (invocation.namedArguments[#onVarsChanged]
-                    as void Function(Map<String, dynamic> vars))
-                .call(updatedVars);
-          });
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              logger: logger,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-              ),
-            ),
-            completion(equals([ExitCode.success.code])),
-          );
           expect(
             stdoutLogs,
             equals([
@@ -1415,48 +1392,14 @@ void main() {
         'does not pass the generated entrypoint when every test file runs as '
         'its own suite',
         () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-          final updatedVars = <String, dynamic>{
-            'package-root': tempDirectory.path,
+          await expectSuccessfulOptimizedRun({
             'tests': <dynamic>[],
             'notOptimizedTests': [
               p.join('app', 'view', 'app_test.dart'),
               'cubit_test.dart',
             ],
-          };
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
-          when(
-            () => hooks.preGen(
-              vars: any(named: 'vars'),
-              onVarsChanged: any(named: 'onVarsChanged'),
-              workingDirectory: any(named: 'workingDirectory'),
-            ),
-          ).thenAnswer((invocation) async {
-            (invocation.namedArguments[#onVarsChanged]
-                    as void Function(Map<String, dynamic> vars))
-                .call(updatedVars);
           });
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              logger: logger,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-              ),
-            ),
-            completion(equals([ExitCode.success.code])),
-          );
+
           expect(
             testRunnerArgs,
             equals([
@@ -1470,11 +1413,7 @@ void main() {
       test(
         'passes the generated entrypoint when some test files are optimized',
         () async {
-          final tempDirectory = Directory.systemTemp.createTempSync();
-          addTearDown(() => tempDirectory.deleteSync(recursive: true));
-
-          final updatedVars = <String, dynamic>{
-            'package-root': tempDirectory.path,
+          await expectSuccessfulOptimizedRun({
             'tests': [
               {
                 'path': 'counter_test.dart',
@@ -1483,38 +1422,8 @@ void main() {
               },
             ],
             'notOptimizedTests': ['app_test.dart'],
-          };
-          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
-          Directory(p.join(tempDirectory.path, 'test')).createSync();
-          when(
-            () => hooks.preGen(
-              vars: any(named: 'vars'),
-              onVarsChanged: any(named: 'onVarsChanged'),
-              workingDirectory: any(named: 'workingDirectory'),
-            ),
-          ).thenAnswer((invocation) async {
-            (invocation.namedArguments[#onVarsChanged]
-                    as void Function(Map<String, dynamic> vars))
-                .call(updatedVars);
           });
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              logger: logger,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const DoneTestEvent(success: true, time: 0),
-                  const ExitTestEvent(exitCode: 0, time: 0),
-                ]),
-              ),
-            ),
-            completion(equals([ExitCode.success.code])),
-          );
+
           expect(
             testRunnerArgs,
             equals([

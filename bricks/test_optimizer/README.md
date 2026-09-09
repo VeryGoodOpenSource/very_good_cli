@@ -25,7 +25,7 @@ import 'counter/view/counter_page_test.dart' as _c;
 void main() {
   group('app/view/app_test.dart', () { _a.main(); });
   group('counter/cubit/counter_cubit_test.dart', () { _b.main(); });
-  group('counter/view/counter_page_test.dart', () { _c.main(); }, tags: ['golden']);
+  group('counter/view/counter_page_test.dart', () { _c.main(); }, skip: 'not ready');
 }
 ```
 
@@ -34,5 +34,11 @@ its group, as `counter_page_test.dart` shows above. A file whose annotations
 cannot be reproduced on a group is left out of the generated entrypoint and
 reported in the `notOptimizedTests` variable, so the caller can run it as its
 own suite.
+
+Which annotations can be forwarded depends on the package. A Dart package's
+entrypoint calls `package:test`'s `group`, so it also takes `tags`, `timeout`,
+`onPlatform` and a VM or operating-system `testOn`. A Flutter package's
+entrypoint calls `flutter_test`'s own `group`, which takes only `skip` and
+`retry`, so every other annotation sends the file to `notOptimizedTests`.
 
 [1]: https://github.com/felangel/mason
