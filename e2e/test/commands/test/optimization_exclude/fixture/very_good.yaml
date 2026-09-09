@@ -1,0 +1,4 @@
+test:
+  optimization:
+    exclude:
+      - test/integration

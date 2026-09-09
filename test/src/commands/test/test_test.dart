@@ -30,8 +30,9 @@ const expectedTestUsage = [
       '-r, --recursive                                              Run tests recursively for all nested packages.\n'
       '    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'
       '                                                             Automatically disabled when --platform is specified.\n'
-      '                                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
+      '                                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.\n'
       '                                                             (defaults to on)\n'
+      "    --exclude-optimization=<glob>                            A glob which will be used to exclude matching test files from the optimized bundle (e.g. 'test/integration'). Excluded files still run, as their own test suites. Can be passed multiple times.\n"
       '-j, --concurrency                                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                                             (defaults to "4")\n'
       '-t, --tags                                                   Run only tests associated with the specified tags.\n'
@@ -65,6 +66,7 @@ abstract class FlutterTestCommand {
     bool recursive = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    List<String>? excludeOptimization,
     double? minCoverage,
     bool showUncovered = false,
     String? excludeFromCoverage,
@@ -111,6 +113,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -206,6 +209,25 @@ void main() {
       verify(
         () => flutterTest(
           optimizePerformance: true,
+          arguments: defaultArguments,
+          logger: logger,
+          stdout: logger.write,
+          stderr: logger.err,
+        ),
+      ).called(1);
+    });
+
+    test('forwards --exclude-optimization globs', () async {
+      when<dynamic>(() => argResults['exclude-optimization'])
+          .thenReturn(['test/integration']);
+
+      final result = await testCommand.run();
+
+      expect(result, equals(ExitCode.success.code));
+      verify(
+        () => flutterTest(
+          optimizePerformance: true,
+          excludeOptimization: ['test/integration'],
           arguments: defaultArguments,
           logger: logger,
           stdout: logger.write,
@@ -1029,6 +1051,46 @@ void main() {
           ),
         );
         expect(options.fileReporter, equals('json:cli.json'));
+      });
+
+      test('applies optimization config values when args were not parsed', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(
+              optimization: VeryGoodOptimizationConfig(
+                enabled: false,
+                exclude: ['test/integration'],
+              ),
+            ),
+          ),
+        );
+
+        expect(options.optimizePerformance, isFalse);
+        expect(options.excludeOptimization, equals(['test/integration']));
+      });
+
+      test('CLI --exclude-optimization replaces the config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('exclude-optimization'))
+            .thenReturn(true);
+        when<dynamic>(() => argResults['exclude-optimization'])
+            .thenReturn(['test/from_cli']);
+
+        final options = FlutterTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            test: VeryGoodTestConfig(
+              optimization: VeryGoodOptimizationConfig(
+                exclude: ['test/from_config'],
+              ),
+            ),
+          ),
+        );
+
+        expect(options.excludeOptimization, equals(['test/from_cli']));
       });
 
       test('falls back to the CLI default when the parsed arg is null '

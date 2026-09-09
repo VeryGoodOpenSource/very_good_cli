@@ -95,6 +95,7 @@ class TestCLIRunner {
     bool recursive = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    List<String>? excludeOptimization,
     Set<String> ignore = const {},
     double? minCoverage,
     bool showUncovered = false,
@@ -155,6 +156,7 @@ class TestCLIRunner {
               onVarsChanged: (v) => vars = v,
               workingDirectory: workingDirectory,
             );
+            vars = _excludeFromOptimization(vars, excludeOptimization);
             await generator.generate(
               target,
               vars: vars,
@@ -167,6 +169,11 @@ class TestCLIRunner {
 
         final notOptimizedTests =
             vars['notOptimizedTests'] as List<dynamic>? ?? [];
+
+        final optimizedTests = vars['tests'] as List<dynamic>?;
+        final isBundleEmpty = optimizedTests != null && optimizedTests.isEmpty;
+        final runBundle = !isBundleEmpty || notOptimizedTests.isEmpty;
+
         return await _overrideAnsiOutput(
           forceAnsi,
           () =>
@@ -181,7 +188,7 @@ class TestCLIRunner {
                     '--test-randomize-ordering-seed',
                     randomSeed,
                   ],
-                  if (optimizePerformance)
+                  if (optimizePerformance && runBundle)
                     p.join('test', _testOptimizerFileName),
                   // Include non-optimized tests that require separate execution
                   if (notOptimizedTests.isNotEmpty && optimizePerformance)
@@ -664,6 +671,60 @@ Future<int> _testCommand({
       );
 
   return completer.future;
+}
+
+/// The context used to match test paths against optimization exclusion globs.
+///
+/// Globs always use POSIX path syntax, so the context is pinned rather than
+/// inferred from the platform. `current` is pinned as well, since the process
+/// working directory is irrelevant to the relative paths being matched.
+final _optimizationGlobContext = p.Context(style: p.Style.posix, current: '.');
+
+/// Compiles an optimization exclusion glob, naming the offending pattern when
+/// it cannot be parsed.
+Glob _optimizationGlob(String pattern) {
+  try {
+    return Glob(pattern, context: _optimizationGlobContext, recursive: true);
+  } on FormatException catch (error) {
+    throw FormatException(
+      'Invalid exclude-optimization glob `$pattern`: ${error.message}',
+    );
+  }
+}
+
+/// Moves the tests matching [excludeOptimization] out of the optimized bundle
+/// and in with the tests that run as their own suites.
+///
+/// Globs are matched against the package relative POSIX path of each test file
+/// (e.g. `test/app/view/app_test.dart`). They are recursive, so a glob also
+/// matches everything nested underneath what it names and `test/integration`
+/// excludes every test within that directory.
+Map<String, dynamic> _excludeFromOptimization(
+  Map<String, dynamic> vars,
+  List<String>? excludeOptimization,
+) {
+  final patterns = excludeOptimization ?? const <String>[];
+  final tests = vars['tests'] as List<dynamic>?;
+  if (patterns.isEmpty || tests == null) return vars;
+
+  final globs = patterns.map(_optimizationGlob).toList();
+  final notOptimizedTests = [...?vars['notOptimizedTests'] as List<dynamic>?];
+  final optimizedTests = <dynamic>[];
+
+  for (final test in tests) {
+    final path = (test as Map<dynamic, dynamic>)['path'] as String;
+    if (globs.any((glob) => glob.matches('test/$path'))) {
+      if (!notOptimizedTests.contains(path)) notOptimizedTests.add(path);
+    } else {
+      optimizedTests.add(test);
+    }
+  }
+
+  return {
+    ...vars,
+    'tests': optimizedTests,
+    'notOptimizedTests': notOptimizedTests,
+  };
 }
 
 bool _isOptimizationApplied(TestSuite suite) =>

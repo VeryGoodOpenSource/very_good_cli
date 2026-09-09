@@ -22,6 +22,7 @@ class DartTestOptions {
     required this.collectCoverageFrom,
     required this.randomSeed,
     required this.optimizePerformance,
+    required this.excludeOptimization,
     required this.failFast,
     required this.forceAnsi,
     required this.platform,
@@ -80,7 +81,11 @@ class DartTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults.resolve(
       'optimization',
-      testConfig.optimization,
+      testConfig.optimization.enabled,
+    );
+    final excludeOptimization = argResults.resolve<List<String>?>(
+      'exclude-optimization',
+      testConfig.optimization.exclude,
     );
     final failFast = argResults.resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
@@ -115,6 +120,7 @@ class DartTestOptions {
       collectCoverageFrom: collectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
+      excludeOptimization: excludeOptimization,
       failFast: failFast,
       forceAnsi: forceAnsi,
       platform: platform,
@@ -156,6 +162,10 @@ class DartTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
+  /// Globs which will be used to exclude matching test files from the
+  /// optimized bundle.
+  final List<String>? excludeOptimization;
+
   /// Whether to stop running tests after the first failure.
   final bool failFast;
 
@@ -193,6 +203,7 @@ typedef DartTestCommandCall = Future<List<int>> Function({
   bool recursive,
   bool collectCoverage,
   bool optimizePerformance,
+  List<String>? excludeOptimization,
   double? minCoverage,
   bool showUncovered,
   String? excludeFromCoverage,
@@ -236,7 +247,18 @@ class DartTestCommand extends Command<int> {
             'Whether to apply optimizations for test performance.\n'
             'Automatically disabled when --platform is specified.\n'
             'Add the `skip_very_good_optimization` tag to specific test files '
-            'to disable them individually.',
+            'to disable them individually, or use --exclude-optimization to '
+            'exclude them by path.',
+      )
+      ..addMultiOption(
+        'exclude-optimization',
+        help:
+            'A glob which will be used to exclude matching test files from '
+            "the optimized bundle (e.g. 'test/integration'). Excluded files "
+            'still run, as their own test suites. Can be passed multiple '
+            'times.',
+        valueHelp: 'glob',
+        splitCommas: false,
       )
       ..addOption(
         'concurrency',
@@ -392,6 +414,7 @@ This command should be run from the root of your Dart project.''');
               // Disabled optimization when platform is specified
               // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
               options.platform == null,
+          excludeOptimization: options.excludeOptimization,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,

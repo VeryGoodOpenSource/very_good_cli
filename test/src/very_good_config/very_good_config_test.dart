@@ -50,7 +50,15 @@ void main() {
         final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
 
         expect(config.test.coverage, isTrue);
-        expect(config.test.optimization, isFalse);
+        expect(
+          config.test.optimization,
+          equals(
+            VeryGoodOptimizationConfig(
+              enabled: false,
+              exclude: ['test/integration', 'test/**serial_*_test.dart'],
+            ),
+          ),
+        );
         expect(config.test.concurrency, equals('8'));
         expect(config.test.tags, equals('my-tag'));
         expect(config.test.excludeCoverage, equals('**/*.g.dart'));
@@ -102,6 +110,123 @@ test:
   collect_coverage_from: imports
 ''');
         expect(config.test.collectCoverageFrom, equals('imports'));
+      });
+
+      test('parses optimization provided as a boolean', () {
+        expect(
+          VeryGoodConfig.fromString('test:\n  optimization: false')
+              .test
+              .optimization,
+          equals(VeryGoodOptimizationConfig(enabled: false)),
+        );
+        expect(
+          VeryGoodConfig.fromString('test:\n  optimization: true')
+              .test
+              .optimization,
+          equals(VeryGoodOptimizationConfig(enabled: true)),
+        );
+        expect(
+          VeryGoodConfig.fromString('dart:\n  test:\n    optimization: false')
+              .dart
+              .test
+              .optimization,
+          equals(VeryGoodOptimizationConfig(enabled: false)),
+        );
+      });
+
+      test('parses optimization with only exclude', () {
+        final config = VeryGoodConfig.fromString('''
+test:
+  optimization:
+    exclude:
+      - test/integration
+''');
+        expect(config.test.optimization.enabled, isNull);
+        expect(config.test.optimization.exclude, equals(['test/integration']));
+      });
+
+      test('parses optimization exclude provided as a single glob', () {
+        final config = VeryGoodConfig.fromString('''
+test:
+  optimization:
+    exclude: test/integration
+''');
+        expect(config.test.optimization.exclude, equals(['test/integration']));
+      });
+
+      test('defaults optimization to an empty config when omitted', () {
+        final config = VeryGoodConfig.fromString('test:\n  optimization:');
+        expect(
+          config.test.optimization,
+          equals(const VeryGoodOptimizationConfig()),
+        );
+      });
+
+      test('throws when optimization is neither a boolean nor a map', () {
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  optimization: 42'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+        expect(
+          () => VeryGoodConfig.fromString('test:\n  optimization:\n    - foo'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+        expect(
+          () =>
+              VeryGoodConfig.fromString('dart:\n  test:\n    optimization: 42'),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an unrecognized optimization key is present', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+test:
+  optimization:
+    enabled: true
+    exclud: test/integration
+'''),
+          throwsA(
+            isA<VeryGoodConfigParseException>().having(
+              (e) => e.message,
+              'message',
+              contains('exclud'),
+            ),
+          ),
+        );
+        expect(
+          () => VeryGoodConfig.fromString('''
+dart:
+  test:
+    optimization:
+      exclud: test/integration
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an optimization exclude glob is not a string', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+test:
+  optimization:
+    exclude:
+      - 42
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
+      });
+
+      test('throws when an optimization exclude glob is empty', () {
+        expect(
+          () => VeryGoodConfig.fromString('''
+test:
+  optimization:
+    exclude:
+      - '  '
+'''),
+          throwsA(isA<VeryGoodConfigParseException>()),
+        );
       });
 
       test('parses all supported create options', () {
@@ -219,7 +344,15 @@ test:
         final config = VeryGoodConfig.fromString(fixture.readAsStringSync());
 
         expect(config.dart.test.coverage, isTrue);
-        expect(config.dart.test.optimization, isFalse);
+        expect(
+          config.dart.test.optimization,
+          equals(
+            VeryGoodOptimizationConfig(
+              enabled: false,
+              exclude: ['test/integration', 'test/**serial_*_test.dart'],
+            ),
+          ),
+        );
         expect(config.dart.test.concurrency, equals('8'));
         expect(config.dart.test.tags, equals('my-tag'));
         expect(config.dart.test.excludeCoverage, equals('**/*.g.dart'));
@@ -693,6 +826,25 @@ test:
             ),
           ),
         ),
+      );
+    });
+  });
+
+  group(VeryGoodOptimizationConfig, () {
+    test('supports value equality', () {
+      expect(
+        VeryGoodOptimizationConfig(enabled: true, exclude: ['test/foo']),
+        equals(
+          VeryGoodOptimizationConfig(enabled: true, exclude: ['test/foo']),
+        ),
+      );
+      expect(
+        VeryGoodOptimizationConfig(enabled: true),
+        isNot(equals(VeryGoodOptimizationConfig(enabled: false))),
+      );
+      expect(
+        VeryGoodOptimizationConfig(exclude: ['test/foo']),
+        isNot(equals(VeryGoodOptimizationConfig(exclude: ['test/bar']))),
       );
     });
   });
