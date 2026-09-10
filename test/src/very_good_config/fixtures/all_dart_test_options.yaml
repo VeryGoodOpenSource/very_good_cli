@@ -1,7 +1,11 @@
 dart:
   test:
     coverage: true
-    optimization: false
+    optimization:
+      enabled: false
+      exclude:
+        - test/integration
+        - test/**serial_*_test.dart
     concurrency: 8
     tags: my-tag
     exclude_coverage: "**/*.g.dart"

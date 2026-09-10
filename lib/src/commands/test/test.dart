@@ -22,6 +22,7 @@ class FlutterTestOptions {
     required this.collectCoverageFrom,
     required this.randomSeed,
     required this.optimizePerformance,
+    required this.excludeOptimization,
     required this.updateGoldens,
     required this.failFast,
     required this.forceAnsi,
@@ -84,7 +85,11 @@ class FlutterTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults.resolve(
       'optimization',
-      testConfig.optimization,
+      testConfig.optimization.enabled,
+    );
+    final excludeOptimization = argResults.resolve<List<String>?>(
+      'exclude-optimization',
+      testConfig.optimization.exclude,
     );
     final updateGoldens = argResults.resolve(
       'update-goldens',
@@ -137,6 +142,7 @@ class FlutterTestOptions {
       collectCoverageFrom: effectiveCollectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
+      excludeOptimization: excludeOptimization,
       updateGoldens: updateGoldens,
       failFast: failFast,
       forceAnsi: forceAnsi,
@@ -182,6 +188,9 @@ class FlutterTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
+  /// Globs of test files to keep out of the optimized bundle.
+  final List<String>? excludeOptimization;
+
   /// Whether "matchesGoldenFile()" calls within your test methods should update
   /// the golden files.
   final bool updateGoldens;
@@ -220,6 +229,17 @@ class FlutterTestOptions {
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
+
+  /// Whether the test optimizer should run for this invocation.
+  ///
+  /// It rewrites which suites the runner loads, so it cannot apply to a run
+  /// that targets specific test files, updates goldens, or names a platform.
+  /// See https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+  bool get shouldOptimize =>
+      optimizePerformance &&
+      !TestCLIRunner.isTargettingTestFiles(rest) &&
+      !updateGoldens &&
+      platform == null;
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -234,6 +254,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   bool recursive,
   bool collectCoverage,
   bool optimizePerformance,
+  List<String>? excludeOptimization,
   double? minCoverage,
   bool showUncovered,
   String? excludeFromCoverage,
@@ -276,7 +297,18 @@ class TestCommand extends Command<int> {
             'Whether to apply optimizations for test performance.\n'
             'Automatically disabled when --platform is specified.\n'
             'Add the `skip_very_good_optimization` tag to specific test files '
-            'to disable them individually.',
+            'to disable them individually, or use --exclude-optimization to '
+            'exclude them by path.',
+      )
+      ..addMultiOption(
+        'exclude-optimization',
+        help:
+            'A glob which will be used to exclude matching test files from '
+            "the optimized bundle (e.g. 'test/integration'). Excluded files "
+            'still run, as their own test suites. Can be passed multiple '
+            'times.',
+        valueHelp: 'glob',
+        splitCommas: false,
       )
       ..addOption(
         'concurrency',
@@ -464,13 +496,8 @@ This command should be run from the root of your Flutter project.''');
     if (isFlutterInstalled) {
       try {
         final results = await _flutterTest(
-          optimizePerformance:
-              options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              !options.updateGoldens &&
-              // Disabled optimization when platform is specified
-              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-              options.platform == null,
+          optimizePerformance: options.shouldOptimize,
+          excludeOptimization: options.excludeOptimization,
           recursive: recursive,
           logger: _logger,
           stdout: _logger.write,
@@ -518,6 +545,9 @@ This command should be run from the root of your Flutter project.''');
           e: e,
         );
         return ExitCode.unavailable.code;
+      } on InvalidOptimizationGlob catch (error) {
+        _logger.err('$error');
+        return ExitCode.config.code;
       } on Exception catch (error) {
         _logger.err('$error');
         return ExitCode.unavailable.code;

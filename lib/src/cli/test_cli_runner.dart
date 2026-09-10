@@ -35,9 +35,6 @@ enum CoverageCollectionMode {
   }
 }
 
-/// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
-typedef GeneratorBuilder = Future<MasonGenerator> Function(MasonBundle);
-
 /// {@template coverage_not_met}
 /// Thrown when `flutter test ---coverage --min-coverage`
 /// does not meet the provided minimum coverage threshold.
@@ -94,7 +91,7 @@ class TestCLIRunner {
     String cwd = '.',
     bool recursive = false,
     bool collectCoverage = false,
-    bool optimizePerformance = false,
+    TestOptimizer optimizer = const TestOptimizer.disabled(),
     Set<String> ignore = const {},
     double? minCoverage,
     bool showUncovered = false,
@@ -105,7 +102,6 @@ class TestCLIRunner {
     List<String>? arguments,
     void Function(String)? stdout,
     void Function(String)? stderr,
-    GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
     List<String>? reportOn,
     bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
@@ -126,8 +122,7 @@ class TestCLIRunner {
         }
 
         void noop(String? _) {}
-        final target = DirectoryGeneratorTarget(Directory(p.normalize(cwd)));
-        final workingDirectory = target.dir.absolute.path;
+        final workingDirectory = Directory(p.normalize(cwd)).absolute.path;
         final relativePath = p.relative(workingDirectory, from: initialCwd);
         final path = relativePath == '.'
             ? '.'
@@ -135,7 +130,7 @@ class TestCLIRunner {
 
         stdout?.call('Running "${testType.name} test" in $path ...\n');
 
-        if (!Directory(p.join(target.dir.absolute.path, 'test')).existsSync()) {
+        if (!Directory(p.join(workingDirectory, 'test')).existsSync()) {
           stdout?.call('No test folder found in $path\n');
           return ExitCode.success.code;
         }
@@ -145,28 +140,11 @@ class TestCLIRunner {
             '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
           );
         }
-        var vars = <String, dynamic>{'package-root': workingDirectory};
-        if (optimizePerformance) {
-          final optimizationProgress = logger.progress('Optimizing tests');
-          try {
-            final generator = await buildGenerator(testOptimizerBundle);
-            await generator.hooks.preGen(
-              vars: vars,
-              onVarsChanged: (v) => vars = v,
-              workingDirectory: workingDirectory,
-            );
-            await generator.generate(
-              target,
-              vars: vars,
-              fileConflictResolution: FileConflictResolution.overwrite,
-            );
-          } finally {
-            optimizationProgress.complete();
-          }
-        }
+        final optimization = await optimizer.apply(
+          packageRoot: workingDirectory,
+          logger: logger,
+        );
 
-        final notOptimizedTests =
-            vars['notOptimizedTests'] as List<dynamic>? ?? [];
         return await _overrideAnsiOutput(
           forceAnsi,
           () =>
@@ -175,26 +153,19 @@ class TestCLIRunner {
                 collectCoverage: collectCoverage,
                 testRunner: testRunner,
                 testType: testType,
+                optimization: optimization,
                 arguments: [
                   ...?arguments,
                   if (randomSeed != null) ...[
                     '--test-randomize-ordering-seed',
                     randomSeed,
                   ],
-                  if (optimizePerformance)
-                    p.join('test', _testOptimizerFileName),
-                  // Include non-optimized tests that require separate execution
-                  if (notOptimizedTests.isNotEmpty && optimizePerformance)
-                    ...notOptimizedTests.map(
-                      (e) => p.join('test', e.toString()),
-                    ),
+                  ...optimization.testTargets,
                 ],
                 stdout: stdout ?? noop,
                 stderr: stderr ?? noop,
               ).whenComplete(() async {
-                if (optimizePerformance) {
-                  await _cleanupOptimizerFile(cwd);
-                }
+                await optimization.cleanUp();
 
                 // Dart don't directly generate lcov files, so we need
                 // to read the json that is generates and convert it to lcov.
@@ -458,6 +429,7 @@ Future<int> _testCommand({
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
   required TestRunType testType,
+  required TestOptimization optimization,
   String cwd = '.',
   bool collectCoverage = false,
   List<String>? arguments,
@@ -502,7 +474,7 @@ Future<int> _testCommand({
   late final StreamSubscription<ProcessSignal> sigintWatchSubscription;
 
   sigintWatchSubscription = sigintWatch.listen((_) async {
-    await _cleanupOptimizerFile(cwd);
+    await optimization.cleanUp();
     await subscription.cancel();
     await sigintWatchSubscription.cancel();
     return completer.complete(ExitCode.success.code);
@@ -548,29 +520,16 @@ Future<int> _testCommand({
             final suite = suites[test.suiteID]!;
             final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
 
-            final optimizationApplied = _isOptimizationApplied(suite);
+            final report = optimization.resolveReport(
+              suitePath: suite.path!,
+              testName: test.name,
+              groupName: _topGroupName(test, groups),
+            );
 
-            var testPath = suite.path!;
-            var testName = test.name;
-
-            // When there is a test error before any group is computed, it
-            // means that there is an error when compiling the test optimizer
-            // file.
-            if (optimizationApplied && groups.isNotEmpty) {
-              final topGroupName = _topGroupName(test, groups)!;
-
-              testPath = testPath.replaceFirst(
-                _testOptimizerFileName,
-                topGroupName,
-              );
-
-              testName = testName.replaceFirst(topGroupName, '').trim();
-            }
-
-            final relativeTestPath = p.relative(testPath, from: cwd);
+            final relativeTestPath = p.relative(report.path, from: cwd);
             failedTestErrorMessages[relativeTestPath] = [
               ...failedTestErrorMessages[relativeTestPath] ?? [],
-              '$prefix $testName',
+              '$prefix ${report.name}',
             ];
           }
 
@@ -579,19 +538,14 @@ Future<int> _testCommand({
 
             final test = tests[event.testID]!;
             final suite = suites[test.suiteID]!;
-            final optimizationApplied = _isOptimizationApplied(suite);
 
-            var testPath = suite.path!;
-            var testName = test.name;
-
-            if (optimizationApplied) {
-              final firstGroupName = _topGroupName(test, groups) ?? '';
-              testPath = testPath.replaceFirst(
-                _testOptimizerFileName,
-                firstGroupName,
-              );
-              testName = testName.replaceFirst(firstGroupName, '').trim();
-            }
+            final report = optimization.resolveReport(
+              suitePath: suite.path!,
+              testName: test.name,
+              groupName: _topGroupName(test, groups),
+            );
+            final testPath = report.path;
+            final testName = report.name;
 
             if (event.skipped) {
               stdout(
@@ -666,15 +620,14 @@ Future<int> _testCommand({
   return completer.future;
 }
 
-bool _isOptimizationApplied(TestSuite suite) =>
-    suite.path?.contains(_testOptimizerFileName) ?? false;
-
+/// The name of the outermost non-empty group [test] belongs to.
+///
+/// For a test running inside the optimized bundle this is the path of the file
+/// it was written in, relative to `test`, which is what
+/// [TestOptimization.resolveReport] needs to undo the bundling.
 String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
     .map((groupID) => groups[groupID]?.name)
     .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
-
-Future<void> _cleanupOptimizerFile(String cwd) async =>
-    File(p.join(cwd, 'test', _testOptimizerFileName)).delete().ignore();
 
 final int _lineLength = () {
   try {

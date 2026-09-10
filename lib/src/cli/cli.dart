@@ -10,8 +10,13 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:universal_io/io.dart';
-import 'package:very_good_cli/src/cli/templates/templates.dart';
+import 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
+
+// The optimizer is part of this library's surface: `Flutter.test`, `Dart.test`
+// and `TestCLIRunner.test` all take one, so every importer of `cli.dart` needs
+// its types without reaching for a second import.
+export 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
