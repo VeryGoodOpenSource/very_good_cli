@@ -301,11 +301,10 @@ class TestCLIRunner {
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
 
-  /// Handles the [MinCoverageNotMet] exception by logging the error message.
-  ///
-  /// If [e] contains uncovered lines, they are logged after the error message.
-  static void handleMinCoverageNotMet(
-    MinCoverageNotMet e, {
+  /// Logs [error], along with its uncovered lines when it carries any, and
+  /// returns the exit code an unmet coverage threshold reports.
+  static int handleMinCoverageNotMet(
+    MinCoverageNotMet error, {
     required Logger logger,
     double? minCoverage,
   }) {
@@ -316,22 +315,24 @@ class TestCLIRunner {
       return (x * b).roundToDouble() / b;
     }
 
-    if (e.coverage < minCoverage!) {
-      var rounded = round(e.coverage);
+    if (error.coverage < minCoverage!) {
+      var rounded = round(error.coverage);
       while (rounded == minCoverage) {
         decimalPlaces++;
-        rounded = round(e.coverage);
+        rounded = round(error.coverage);
       }
     }
 
     logger.err(
-      '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${e.coverage.toStringAsFixed(decimalPlaces)}%.''',
+      '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${error.coverage.toStringAsFixed(decimalPlaces)}%.''',
     );
 
-    final uncoveredLines = e.uncoveredLines;
+    final uncoveredLines = error.uncoveredLines;
     if (uncoveredLines != null && uncoveredLines.isNotEmpty) {
       logger.err(formatUncoveredLines(uncoveredLines));
     }
+
+    return ExitCode.software.code;
   }
 
   /// Formats a map of uncovered lines into a human-readable string.

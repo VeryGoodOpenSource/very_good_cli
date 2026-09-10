@@ -379,9 +379,9 @@ This command should be run from the root of your Dart project.''');
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    final isDartInstalled = await _dartInstalled(logger: _logger);
-
-    if (!isDartInstalled) return ExitCode.success.code;
+    if (!await _dartInstalled(logger: _logger)) {
+      return ExitCode.success.code;
+    }
 
     final options = DartTestOptions.parse(_argResults, config: config);
 
@@ -426,12 +426,11 @@ This command should be run from the root of your Dart project.''');
         return ExitCode.software.code;
       }
     } on MinCoverageNotMet catch (error) {
-      TestCLIRunner.handleMinCoverageNotMet(
+      return TestCLIRunner.handleMinCoverageNotMet(
         error,
         logger: _logger,
         minCoverage: options.minCoverage,
       );
-      return ExitCode.software.code;
     } on Exception catch (error) {
       _logger.err('$error');
       return ExitCode.unavailable.code;

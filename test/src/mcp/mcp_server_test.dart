@@ -842,47 +842,6 @@ void main() {
         expect(partial, contains('stderr detail'));
       });
 
-      test('does not advise a retry for a deterministic failure', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          stderr.write('Expected coverage >= 100.00% but actual is 95.00%.');
-          return ExitCode.software.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('business'));
-        expect(
-          payload['alternativeApproaches']! as List<Object?>,
-          everyElement(isNot(contains('Retry the command'))),
-        );
-      });
-
-      test('still advises a retry when the run could not complete', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          stderr.write('Instance of PubspecNotFound');
-          return ExitCode.unavailable.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('transient'));
-        expect(payload['reason'], contains('failed with exit code 69'));
-      });
-
       test('includes captured output in a success result', () async {
         when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
           stdout.write('All tests passed!');

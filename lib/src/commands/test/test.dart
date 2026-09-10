@@ -457,8 +457,9 @@ This command should be run from the root of your Flutter project.''');
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    final isFlutterInstalled = await _flutterInstalled(logger: _logger);
-    if (!isFlutterInstalled) return ExitCode.success.code;
+    if (!await _flutterInstalled(logger: _logger)) {
+      return ExitCode.success.code;
+    }
 
     final options = FlutterTestOptions.parse(_argResults, config: config);
 
@@ -508,16 +509,16 @@ This command should be run from the root of your Flutter project.''');
           ...options.rest,
         ],
       );
+
       if (results.any((code) => code != ExitCode.success.code)) {
         return ExitCode.software.code;
       }
     } on MinCoverageNotMet catch (error) {
-      TestCLIRunner.handleMinCoverageNotMet(
+      return TestCLIRunner.handleMinCoverageNotMet(
         error,
         logger: _logger,
         minCoverage: options.minCoverage,
       );
-      return ExitCode.software.code;
     } on Exception catch (error) {
       _logger.err('$error');
       return ExitCode.unavailable.code;

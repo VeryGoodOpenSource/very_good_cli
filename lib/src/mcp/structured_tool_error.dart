@@ -32,15 +32,10 @@ enum ToolFailureType {
   /// Classifies an [exitCode] into a [ToolFailureType].
   ///
   /// Codes follow the sysexits.h conventions surfaced by `package:io`'s
-  /// [ExitCode]; unknown codes fall back to [ToolFailureType.business], the
-  /// safest default for an outcome we can't attribute to a transient failure
-  /// or a bad input.
-  ///
-  /// [ExitCode.software] lands in [ToolFailureType.business] through that
-  /// fallback. The `test` commands return it deliberately for a suite that ran
-  /// and failed and for an unmet coverage threshold, reserving
-  /// [ExitCode.unavailable] and its [ToolFailureType.transient] mapping for a
-  /// run that could not complete at all.
+  /// [ExitCode]. A deterministic failure reports [ExitCode.software]; a run
+  /// that could not complete at all reports [ExitCode.unavailable]. Unknown
+  /// codes fall back to [ToolFailureType.business], the safest default for an
+  /// outcome we can't attribute to a transient failure or a bad input.
   factory fromExitCode(int exitCode) {
     if (exitCode == ExitCode.usage.code ||
         exitCode == ExitCode.data.code ||
@@ -91,8 +86,7 @@ List<String> alternativeApproachesFor(ToolFailureType failureType) {
     ],
     ToolFailureType.business: [
       'Read the captured output for the check that failed.',
-      'Fix the reported problem in the project, then run the command again.',
-      'Do not re-run unchanged. The same check fails the same way.',
+      'Fix the reported problem; an unchanged re-run fails the same way.',
       'Escalate to the user if the constraint cannot be satisfied.',
     ],
   };

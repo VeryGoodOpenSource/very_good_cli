@@ -211,6 +211,33 @@ void main() {
       ).called(1);
     });
 
+    test('completes normally without running tests '
+        'when Dart is not installed', () async {
+      isFlutterInstalled = false;
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verifyNever(
+        () => dartTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          checkIgnore: any(named: 'checkIgnore'),
+          showUncovered: any(named: 'showUncovered'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          collectCoverageFrom: any(named: 'collectCoverageFrom'),
+          randomSeed: any(named: 'randomSeed'),
+          arguments: any(named: 'arguments'),
+          logger: any(named: 'logger'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+          forceAnsi: any(named: 'forceAnsi'),
+          reportOn: any(named: 'reportOn'),
+        ),
+      );
+    });
+
     test('exits with 70 when tests do not pass', () async {
       when(
         () => dartTest(
@@ -230,10 +257,8 @@ void main() {
       ).thenAnswer(
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
       );
-      await expectLater(
-        testCommand.run(),
-        completion(equals(ExitCode.software.code)),
-      );
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.software.code));
     });
 
     test('completes normally --recursive', () async {
@@ -549,10 +574,8 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      await expectLater(
-        testCommand.run(),
-        completion(equals(ExitCode.software.code)),
-      );
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => dartTest(
           optimizePerformance: true,
@@ -595,10 +618,8 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      await expectLater(
-        testCommand.run(),
-        completion(equals(ExitCode.software.code)),
-      );
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => logger.err('Expected coverage >= 100.00% but actual is 95.00%.'),
       ).called(1);
@@ -628,10 +649,8 @@ void main() {
           checkIgnore: any(named: 'checkIgnore'),
         ),
       ).thenThrow(exception);
-      await expectLater(
-        testCommand.run(),
-        completion(equals(ExitCode.software.code)),
-      );
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => dartTest(
           optimizePerformance: true,

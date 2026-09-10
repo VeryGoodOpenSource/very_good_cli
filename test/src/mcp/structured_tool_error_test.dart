@@ -83,6 +83,13 @@ void main() {
         );
       }
     });
+
+    test('does not advise a retry for a deterministic failure', () {
+      expect(
+        alternativeApproachesFor(ToolFailureType.business),
+        everyElement(isNot(contains('Retry the command'))),
+      );
+    });
   });
 
   group(StructuredToolError, () {
