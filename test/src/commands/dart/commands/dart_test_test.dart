@@ -743,6 +743,35 @@ void main() {
       verify(() => logger.err('$exception')).called(1);
     });
 
+    test(
+      'exits with 78 when an exclude-optimization glob is invalid',
+      () async {
+        const exception = InvalidOptimizationGlob('bad glob');
+        when(
+          () => dartTest(
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            excludeOptimization: any(named: 'excludeOptimization'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
+            checkIgnore: any(named: 'checkIgnore'),
+          ),
+        ).thenThrow(exception);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.config.code));
+        verify(() => logger.err('$exception')).called(1);
+      },
+    );
+
     test('completes normally --force-ansi', () async {
       when<dynamic>(() => argResults['force-ansi']).thenReturn(true);
       final result = await testCommand.run();
@@ -878,6 +907,36 @@ void main() {
           stderr: logger.err,
         ),
       ).called(1);
+    });
+
+    group('DartTestOptions.shouldOptimize', () {
+      test('is true for a plain run', () {
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isTrue);
+      });
+
+      test('is false when --no-optimization was passed', () {
+        when<dynamic>(() => argResults['optimization']).thenReturn(false);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
+
+      test('is false when specific test files are targeted', () {
+        when(() => argResults.rest).thenReturn(['test/app_test.dart']);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
+
+      test('is true when the rest are options for the underlying runner', () {
+        when(() => argResults.rest).thenReturn(['--coverage']);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isTrue);
+      });
+
+      test('is false when a --platform was named', () {
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
     });
 
     group('very_good.yaml configuration', () {

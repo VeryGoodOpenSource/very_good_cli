@@ -190,6 +190,16 @@ class DartTestOptions {
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
+
+  /// Whether the test optimizer should run for this invocation.
+  ///
+  /// It rewrites which suites the runner loads, so it cannot apply to a run
+  /// that targets specific test files or names a platform.
+  /// See https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+  bool get shouldOptimize =>
+      optimizePerformance &&
+      !TestCLIRunner.isTargettingTestFiles(rest) &&
+      platform == null;
 }
 
 /// Signature for the [Dart.installed] method.
@@ -407,12 +417,7 @@ This command should be run from the root of your Dart project.''');
     if (isDartInstalled) {
       try {
         final results = await _dartTest(
-          optimizePerformance:
-              options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              // Disabled optimization when platform is specified
-              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-              options.platform == null,
+          optimizePerformance: options.shouldOptimize,
           excludeOptimization: options.excludeOptimization,
           recursive: recursive,
           logger: _logger,
@@ -452,6 +457,9 @@ This command should be run from the root of your Dart project.''');
           e: e,
         );
         return ExitCode.unavailable.code;
+      } on InvalidOptimizationGlob catch (error) {
+        _logger.err('$error');
+        return ExitCode.config.code;
       } on Exception catch (error) {
         _logger.err('$error');
         return ExitCode.unavailable.code;
