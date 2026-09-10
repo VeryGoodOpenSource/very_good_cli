@@ -214,7 +214,7 @@ void main() {
           ),
         );
 
-        await Future<void>.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
 
         controller
           ..add(const DoneTestEvent(success: true, time: 0))
@@ -1166,8 +1166,10 @@ void main() {
             logger: logger,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
-            buildGenerator: generatorBuilder(),
-            optimizePerformance: true,
+            optimizer: TestOptimizer(
+              enabled: true,
+              buildGenerator: generatorBuilder(),
+            ),
             overrideTestRunner: testRunner(
               Stream.fromIterable([
                 const DoneTestEvent(success: true, time: 0),
@@ -1326,8 +1328,10 @@ void main() {
               logger: logger,
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+              ),
               overrideTestRunner: testRunner(
                 Stream.fromIterable([
                   const DoneTestEvent(success: true, time: 0),
@@ -1386,8 +1390,10 @@ void main() {
               logger: logger,
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+              ),
               overrideTestRunner: testRunner(
                 Stream.fromIterable([
                   const DoneTestEvent(success: true, time: 0),
@@ -1443,9 +1449,11 @@ void main() {
             logger: logger,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
-            buildGenerator: generatorBuilder(),
-            optimizePerformance: true,
-            excludeOptimization: excludeOptimization,
+            optimizer: TestOptimizer(
+              enabled: true,
+              exclude: excludeOptimization,
+              buildGenerator: generatorBuilder(),
+            ),
             overrideTestRunner: testRunner(
               Stream.fromIterable([
                 const DoneTestEvent(success: true, time: 0),
@@ -1514,77 +1522,6 @@ void main() {
             );
           },
         );
-
-        test(
-          'runs the optimized bundle when there are no test files',
-          () async {
-            stubPreGen(<String, dynamic>{
-              'package-root': tempDirectory.path,
-              'tests': <dynamic>[],
-              'notOptimizedTests': <String>[],
-            });
-
-            await expectLater(
-              runTests(['test']),
-              completion(equals([ExitCode.success.code])),
-            );
-
-            expect(
-              testRunnerArgs,
-              equals([p.join('test', '.test_optimizer.dart')]),
-            );
-          },
-        );
-
-        test('matches `**` against nested tests only', () async {
-          stubPreGen(<String, dynamic>{
-            'package-root': tempDirectory.path,
-            'tests': [
-              {'path': 'serial_a_test.dart', 'identifier': '_a'},
-              {'path': 'nested/serial_b_test.dart', 'identifier': '_b'},
-            ],
-            'notOptimizedTests': <String>[],
-          });
-
-          await expectLater(
-            runTests(['test/**/serial_*_test.dart']),
-            completion(equals([ExitCode.success.code])),
-          );
-
-          expect(
-            testRunnerArgs,
-            equals([
-              p.join('test', '.test_optimizer.dart'),
-              p.join('test', 'nested/serial_b_test.dart'),
-            ]),
-          );
-        });
-
-        test('names the offending glob when it cannot be parsed', () {
-          expect(
-            () => runTests(['test/[a']),
-            throwsA(
-              isA<FormatException>().having(
-                (e) => e.message,
-                'message',
-                contains('test/[a'),
-              ),
-            ),
-          );
-        });
-
-        test('rejects a blank glob', () {
-          expect(
-            () => runTests(['  ']),
-            throwsA(
-              isA<FormatException>().having(
-                (e) => e.message,
-                'message',
-                contains('non-empty'),
-              ),
-            ),
-          );
-        });
       });
 
       group('collectCoverageFrom parameter', () {

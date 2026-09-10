@@ -229,6 +229,17 @@ class FlutterTestOptions {
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
+
+  /// Whether the test optimizer should run for this invocation.
+  ///
+  /// It rewrites which suites the runner loads, so it cannot apply to a run
+  /// that targets specific test files, updates goldens, or names a platform.
+  /// See https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+  bool get shouldOptimize =>
+      optimizePerformance &&
+      !TestCLIRunner.isTargettingTestFiles(rest) &&
+      !updateGoldens &&
+      platform == null;
 }
 
 /// Signature for the [Flutter.installed] method.

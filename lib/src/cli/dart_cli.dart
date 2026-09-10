@@ -146,8 +146,11 @@ class Dart {
       checkIgnore: checkIgnore,
       showUncovered: showUncovered,
       collectCoverage: collectCoverage,
-      optimizePerformance: optimizePerformance,
-      excludeOptimization: excludeOptimization,
+      optimizer: TestOptimizer(
+        enabled: optimizePerformance,
+        exclude: excludeOptimization,
+        buildGenerator: buildGenerator,
+      ),
       ignore: ignore,
       minCoverage: minCoverage,
       excludeFromCoverage: excludeFromCoverage,
@@ -158,7 +161,6 @@ class Dart {
       stdout: stdout,
       stderr: stderr,
       reportOn: reportOn,
-      buildGenerator: buildGenerator,
     );
   }
 }
