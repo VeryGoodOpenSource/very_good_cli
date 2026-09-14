@@ -379,62 +379,63 @@ This command should be run from the root of your Dart project.''');
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    final isDartInstalled = await _dartInstalled(logger: _logger);
+    if (!await _dartInstalled(logger: _logger)) {
+      return ExitCode.success.code;
+    }
 
     final options = DartTestOptions.parse(_argResults, config: config);
 
-    if (isDartInstalled) {
-      try {
-        final results = await _dartTest(
-          optimizePerformance:
-              options.optimizePerformance &&
-              !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-              // Disabled optimization when platform is specified
-              // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-              options.platform == null,
-          recursive: recursive,
-          logger: _logger,
-          stdout: _logger.write,
-          stderr: _logger.err,
-          collectCoverage:
-              options.collectCoverage ||
-              options.minCoverage != null ||
-              options.showUncovered,
-          minCoverage: options.minCoverage,
-          showUncovered: options.showUncovered,
-          excludeFromCoverage: options.excludeFromCoverage,
-          collectCoverageFrom: options.collectCoverageFrom,
-          randomSeed: options.randomSeed,
-          forceAnsi: options.forceAnsi,
-          arguments: [
-            if (options.excludeTags != null) ...['-x', options.excludeTags!],
-            if (options.tags != null) ...['-t', options.tags!],
-            if (options.failFast) '--fail-fast',
-            if (options.runSkipped) '--run-skipped',
-            if (options.platform != null) ...['--platform', options.platform!],
-            if (options.platform == null) ...['-j', options.concurrency],
-            if (options.fileReporter != null)
-              '--file-reporter=${options.fileReporter}',
-            ...options.rest,
-          ],
-          reportOn: options.reportOn.isEmpty ? null : options.reportOn,
-          checkIgnore: options.checkIgnore,
-        );
-        if (results.any((code) => code != ExitCode.success.code)) {
-          return ExitCode.unavailable.code;
-        }
-      } on MinCoverageNotMet catch (e) {
-        TestCLIRunner.handleMinCoverageNotMet(
-          logger: _logger,
-          minCoverage: options.minCoverage,
-          e: e,
-        );
-        return ExitCode.unavailable.code;
-      } on Exception catch (error) {
-        _logger.err('$error');
-        return ExitCode.unavailable.code;
+    try {
+      final results = await _dartTest(
+        optimizePerformance:
+            options.optimizePerformance &&
+            !TestCLIRunner.isTargettingTestFiles(options.rest) &&
+            // Disabled optimization when platform is specified
+            // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+            options.platform == null,
+        recursive: recursive,
+        logger: _logger,
+        stdout: _logger.write,
+        stderr: _logger.err,
+        collectCoverage:
+            options.collectCoverage ||
+            options.minCoverage != null ||
+            options.showUncovered,
+        minCoverage: options.minCoverage,
+        showUncovered: options.showUncovered,
+        excludeFromCoverage: options.excludeFromCoverage,
+        collectCoverageFrom: options.collectCoverageFrom,
+        randomSeed: options.randomSeed,
+        forceAnsi: options.forceAnsi,
+        arguments: [
+          if (options.excludeTags != null) ...['-x', options.excludeTags!],
+          if (options.tags != null) ...['-t', options.tags!],
+          if (options.failFast) '--fail-fast',
+          if (options.runSkipped) '--run-skipped',
+          if (options.platform != null) ...['--platform', options.platform!],
+          if (options.platform == null) ...['-j', options.concurrency],
+          if (options.fileReporter != null)
+            '--file-reporter=${options.fileReporter}',
+          ...options.rest,
+        ],
+        reportOn: options.reportOn.isEmpty ? null : options.reportOn,
+        checkIgnore: options.checkIgnore,
+      );
+
+      if (results.any((code) => code != ExitCode.success.code)) {
+        return ExitCode.software.code;
       }
+    } on MinCoverageNotMet catch (error) {
+      return TestCLIRunner.handleMinCoverageNotMet(
+        error,
+        logger: _logger,
+        minCoverage: options.minCoverage,
+      );
+    } on Exception catch (error) {
+      _logger.err('$error');
+      return ExitCode.unavailable.code;
     }
+
     return ExitCode.success.code;
   }
 }

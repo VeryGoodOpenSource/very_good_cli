@@ -2,7 +2,7 @@ import 'package:hooks/dart_identifier_generator.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('$DartIdentifierGenerator', () {
+  group(DartIdentifierGenerator, () {
     test('can be instantiated', () {
       expect(DartIdentifierGenerator.new, returnsNormally);
     });
