@@ -31,7 +31,7 @@ void main() {
 
       final result = await commandRunner.run(['test']);
 
-      expect(result, equals(ExitCode.unavailable.code));
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => logger.err(any(that: contains('- test/.test_optimizer.dart'))),
       ).called(1);
