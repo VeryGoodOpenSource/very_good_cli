@@ -11,8 +11,10 @@ import 'package:meta/meta.dart';
 /// * `permission` — the process lacks filesystem or credential access.
 /// * `transient` — an environment or infrastructure hiccup; retrying may
 ///   succeed.
-/// * `business` — a domain rule was violated; the safest default for an
-///   outcome that can't be attributed to the other three.
+/// * `business` — a deterministic check reported a failure: a failing test
+///   suite, an unmet coverage threshold, a violated project rule. Also the
+///   safest default for an outcome that can't be attributed to the other
+///   three.
 enum ToolFailureType {
   /// A caller-supplied argument was invalid.
   validation,
@@ -23,15 +25,17 @@ enum ToolFailureType {
   /// An environment or infrastructure hiccup; retrying may resolve it.
   transient,
 
-  /// A domain rule was violated.
+  /// A deterministic check reported a failure. Re-running the same command
+  /// reproduces the same outcome.
   business;
 
   /// Classifies an [exitCode] into a [ToolFailureType].
   ///
   /// Codes follow the sysexits.h conventions surfaced by `package:io`'s
-  /// [ExitCode]; unknown codes fall back to [ToolFailureType.business], the
-  /// safest default for an outcome we can't attribute to a transient failure
-  /// or a bad input.
+  /// [ExitCode]. A deterministic failure reports [ExitCode.software]; a run
+  /// that could not complete at all reports [ExitCode.unavailable]. Unknown
+  /// codes fall back to [ToolFailureType.business], the safest default for an
+  /// outcome we can't attribute to a transient failure or a bad input.
   factory fromExitCode(int exitCode) {
     if (exitCode == ExitCode.usage.code ||
         exitCode == ExitCode.data.code ||
@@ -81,8 +85,8 @@ List<String> alternativeApproachesFor(ToolFailureType failureType) {
       'Cannot be retried as-is without an authorization change.',
     ],
     ToolFailureType.business: [
-      'Inspect the captured output for the specific rule reported.',
-      'Try an alternate subcommand, template, or configuration.',
+      'Read the captured output for the check that failed.',
+      'Fix the reported problem; an unchanged re-run fails the same way.',
       'Escalate to the user if the constraint cannot be satisfied.',
     ],
   };
