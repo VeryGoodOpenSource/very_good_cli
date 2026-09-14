@@ -504,6 +504,7 @@ This command should be run from the root of your Flutter project.''');
             // Disabled optimization when platform is specified
             // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
             options.platform == null,
+        excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         logger: _logger,
         stdout: _logger.write,
@@ -551,6 +552,9 @@ This command should be run from the root of your Flutter project.''');
         logger: _logger,
         minCoverage: options.minCoverage,
       );
+    } on InvalidOptimizationGlob catch (error) {
+      _logger.err('$error');
+      return ExitCode.config.code;
     } on Exception catch (error) {
       _logger.err('$error');
       return ExitCode.unavailable.code;

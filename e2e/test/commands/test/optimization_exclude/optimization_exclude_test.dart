@@ -57,7 +57,7 @@ void main() {
             '--exclude-optimization',
             'test/nothing_here',
           ]),
-          completion(equals(ExitCode.unavailable.code)),
+          completion(equals(ExitCode.software.code)),
         );
       }),
     );
