@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.5.0...v1.6.0) (2026-09-14)
+
+
+### Features
+
+* **test:** exclude test files from the optimized bundle ([#1726](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1726)) ([2e53374](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2e53374956571725d07739ae25da3ff84c14367b))
+
+
+### Bug Fixes
+
+* **mcp:** transient test failures ([#1725](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1725)) ([74771fb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/74771fbce655891f7a7bc2cbf3fad51b6ab7ff97))
+
+
+### Docs
+
+* update ROADMAP.md for current quarter priorities ([#1728](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1728)) ([2478108](https://github.com/VeryGoodOpenSource/very_good_cli/commit/24781082dbf43f9dcb93788881fe35a398faba58)), closes [#1727](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1727)
+
 ## [1.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.4.0...v1.5.0) (2026-09-08)
 
 
