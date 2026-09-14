@@ -24,60 +24,35 @@ Each item carries a priority label that reflects both urgency and expected impac
 
 Fix what's broken and unblock users.
 
-The first priority is always a working tool. Before investing in new capabilities, we make sure existing behavior matches what's documented. This release cycle focuses on CI integration correctness.
+Two active bugs shape this cycle. The MCP `test` tool has been classifying deterministic failures as transient, which pushes agents to retry work that will never pass. The test optimizer silently drops library-level annotations (`@Skip`, `@Tags`, `@Timeout`), so opt-outs and other metadata that authors rely on quietly stop taking effect once tests run through the optimized bundle. Both directly undermine trust in the tool.
 
-- Fix `flutter_plugin` CI template to respect `--platforms` · P1 [#469](https://github.com/VeryGoodOpenSource/very_good_cli/issues/469)
-- Support `packages check licenses` with workspaces · P1 · [#1273](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1273)
+- Fix `test_optimizer` dropping library-level annotations (`@Skip`, `@Tags`, `@Timeout`) · P1 [#1723](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1723)
+- Fix MCP `test` tool classifying deterministic failures as transient · P1 [#1722](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1722)
 
 ---
 
-## Next — Q2 2026: Testing, coverage & compliance
+## Next — Q3 2026: MCP experience & test optimizer polish
 
-Make `very_good test` best-in-class and strengthen compliance tooling.
+Round out the MCP server and give the test optimizer finer-grained control.
 
-`very_good test` is one of the most-used commands in the CLI. We've seen teams hit coverage reporting limitations as they scale to multi-package monorepos, and the lack of workspace-aware license checking creates real friction for teams with compliance requirements. This cycle addresses both.
+The MCP server shipped earlier this year and agent adoption keeps growing. This cycle closes the gaps that show up most often when driving the CLI from an agent: live progress signalling for long-running commands, and richer configuration for which files land in the optimized test bundle. In parallel, `test_optimizer` gains sharding so large CI pipelines can parallelize across runners.
 
-- Single coverage report for multi-package apps · P1 [#804](https://github.com/VeryGoodOpenSource/very_good_cli/issues/804)
+- Stream MCP `notifications/progress` from long-running tools · P1 [#1616](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1616)
+- Allow excluding files from optimized bundles via `very_good.yaml` · P2 [#1713](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1713)
 - Support test sharding for CI parallelization with `test_optimizer` · P1 [#1538](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1538)
-- Enable optimization for platform tests · P2 [#1363](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363)
-- Add `--no-github` flag for monorepo use cases · P2 [#567](https://github.com/VeryGoodOpenSource/very_good_cli/issues/567)
 
 ---
 
-## Later — Q3 2026: CLI & developer experience
+## Later — Q4 2026: Developer experience, monorepo & telemetry
 
-Developer experience polish.
+Improve the day-to-day CLI experience and broaden monorepo support.
 
-With the foundation stable, we shift focus to the quality-of-life improvements that make the CLI feel like a first-class tool. YAML-based configuration, better failure recovery, and new commands that fill gaps we hear about consistently in the community.
+With MCP and testing stable, focus shifts to the CLI surface itself: better ergonomics for monorepo teams, telemetry that informs which Dart SDK versions we support, and the next round of test-runner improvements aimed at very large projects.
 
 - Add Dart SDK version telemetry · P1 [#682](https://github.com/VeryGoodOpenSource/very_good_cli/issues/682)
-- Add `--continue-on-failure` to `packages get -r` · P2 · [#737](https://github.com/VeryGoodOpenSource/very_good_cli/issues/737)
-- YAML config file for CLI parameters · P2 [360](https://github.com/VeryGoodOpenSource/very_good_cli/issues/360)
-- `very_good changelog` command · P3 [#385](https://github.com/VeryGoodOpenSource/very_good_cli/issues/385)
-- Mason brick for `dart_cli` commands · P3 [#758](https://github.com/VeryGoodOpenSource/very_good_cli/issues/758)
-
----
-
-## Ongoing — Documentation
-
-Reduce support burden and improve onboarding.
-
-Good documentation is the multiplier on everything else. We're investing in versioned docs and closing the gaps that surface repeatedly in community questions — the kind of thing that shouldn't require opening an issue to figure out.
-
-- Document app icon update process · P2 · [#768](https://github.com/VeryGoodOpenSource/very_good_cli/issues/768)
-- Add versioned documentation to docs site · P2 [#667](https://github.com/VeryGoodOpenSource/very_good_cli/issues/667)
-
----
-
-## Ongoing — Infrastructure
-
-Keep the project healthy and standards-compliant.
-
-Tooling that keeps the codebase maintainable and the contributor experience smooth. These improvements don't ship user-facing features, but they make everything else easier to build and review.
-
-- Add Claude Code GitHub workflows · P1 [#1493](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1493)
-- XDG Base Directory compliance · P3 · [#706](https://github.com/VeryGoodOpenSource/very_good_cli/issues/706)
-- Pass `--get-url` in git reachable check · P3 [#1097](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1097)
+- Add `--no-github` flag for monorepo use cases · P2 [#567](https://github.com/VeryGoodOpenSource/very_good_cli/issues/567)
+- Enable optimization for platform tests · P2 [#1363](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363)
+- Improve the test runner on large apps and projects · P2 [#1695](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1695)
 
 ---
 
@@ -85,10 +60,9 @@ Tooling that keeps the codebase maintainable and the contributor experience smoo
 
 Looking to contribute? These are well-scoped, clearly defined issues with enough context to get started without deep familiarity with the codebase:
 
-- [#1273 — Support `packages check licenses` with workspaces](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1273)
-- [#737 — Add `--continue-on-failure` to `packages get -r`](https://github.com/VeryGoodOpenSource/very_good_cli/issues/737)
-- [#706 — XDG Base Directory compliance (don't clutter `$HOME`)](https://github.com/VeryGoodOpenSource/very_good_cli/issues/706)
-- [#768 — Document app icon update process](https://github.com/VeryGoodOpenSource/very_good_cli/issues/768)
+- [#567 — Add `--no-github` flag for monorepo use cases](https://github.com/VeryGoodOpenSource/very_good_cli/issues/567)
+- [#1363 — Enable optimization for platform tests](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363)
+- [#1723 — Fix `test_optimizer` dropping library-level annotations](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1723)
 
 ---
 
