@@ -214,7 +214,7 @@ void main() {
           ),
         );
 
-        await Future<void>.delayed(const Duration(seconds: 1));
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
 
         controller
           ..add(const DoneTestEvent(success: true, time: 0))
@@ -1166,8 +1166,10 @@ void main() {
             logger: logger,
             stdout: stdoutLogs.add,
             stderr: stderrLogs.add,
-            buildGenerator: generatorBuilder(),
-            optimizePerformance: true,
+            optimizer: TestOptimizer(
+              enabled: true,
+              buildGenerator: generatorBuilder(),
+            ),
             overrideTestRunner: testRunner(
               Stream.fromIterable([
                 const DoneTestEvent(success: true, time: 0),
@@ -1326,8 +1328,10 @@ void main() {
               logger: logger,
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+              ),
               overrideTestRunner: testRunner(
                 Stream.fromIterable([
                   const DoneTestEvent(success: true, time: 0),
@@ -1386,8 +1390,10 @@ void main() {
               logger: logger,
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
-              buildGenerator: generatorBuilder(),
-              optimizePerformance: true,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+              ),
               overrideTestRunner: testRunner(
                 Stream.fromIterable([
                   const DoneTestEvent(success: true, time: 0),
@@ -1410,6 +1416,113 @@ void main() {
           );
         },
       );
+
+      group('excludeOptimization', () {
+        late Directory tempDirectory;
+
+        setUp(() {
+          tempDirectory = Directory.systemTemp.createTempSync();
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+        });
+
+        tearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        void stubPreGen(Map<String, dynamic> updatedVars) {
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(updatedVars);
+          });
+        }
+
+        Future<List<int>> runTests(List<String> excludeOptimization) {
+          return TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            logger: logger,
+            stdout: stdoutLogs.add,
+            stderr: stderrLogs.add,
+            optimizer: TestOptimizer(
+              enabled: true,
+              exclude: excludeOptimization,
+              buildGenerator: generatorBuilder(),
+            ),
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                const DoneTestEvent(success: true, time: 0),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+          );
+        }
+
+        test('runs matching tests outside of the optimized bundle', () async {
+          stubPreGen(<String, dynamic>{
+            'package-root': tempDirectory.path,
+            'tests': [
+              {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+              {'path': 'integration/login_test.dart', 'identifier': '_b'},
+            ],
+            'notOptimizedTests': <String>[],
+          });
+
+          await expectLater(
+            runTests(['test/integration']),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          expect(
+            testRunnerArgs,
+            equals([
+              p.join('test', '.test_optimizer.dart'),
+              p.join('test', 'integration/login_test.dart'),
+            ]),
+          );
+          verify(
+            () => generator.generate(
+              any(),
+              vars: <String, dynamic>{
+                'package-root': tempDirectory.path,
+                'tests': [
+                  {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+                ],
+                'notOptimizedTests': ['integration/login_test.dart'],
+              },
+              fileConflictResolution: FileConflictResolution.overwrite,
+            ),
+          ).called(1);
+        });
+
+        test(
+          'does not run the optimized bundle when it ends up empty',
+          () async {
+            stubPreGen(<String, dynamic>{
+              'package-root': tempDirectory.path,
+              'tests': [
+                {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+              ],
+              'notOptimizedTests': <String>[],
+            });
+
+            await expectLater(
+              runTests(['test']),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(
+              testRunnerArgs,
+              equals([p.join('test', 'app/view/app_test.dart')]),
+            );
+          },
+        );
+      });
 
       group('collectCoverageFrom parameter', () {
         test('passes through collectCoverageFrom to test runner', () async {

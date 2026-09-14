@@ -215,6 +215,48 @@ class VeryGoodCreateConfig extends Equatable {
   ];
 }
 
+/// {@template very_good_optimization_config}
+/// Configuration values that customize the test optimization applied by the
+/// `very_good test` and `very_good dart test` commands.
+///
+/// Accepts a boolean shorthand for [enabled], so `optimization: false` and
+/// `optimization: {enabled: false}` are equivalent.
+/// {@endtemplate}
+@JsonSerializable(
+  anyMap: true,
+  checked: true,
+  createToJson: false,
+  disallowUnrecognizedKeys: true,
+  fieldRename: FieldRename.snake,
+)
+class VeryGoodOptimizationConfig extends Equatable {
+  /// {@macro very_good_optimization_config}
+  const new({this.enabled, this.exclude});
+
+  /// Creates a [VeryGoodOptimizationConfig] from an [Object?] [value].
+  factory fromJson(Object? value) {
+    if (value == null) return const VeryGoodOptimizationConfig();
+    if (value is bool) return VeryGoodOptimizationConfig(enabled: value);
+    if (value is Map) return _$VeryGoodOptimizationConfigFromJson(value);
+    throw FormatException(
+      'Expected a boolean or a map with `enabled` and `exclude` '
+      'but got `$value`.',
+    );
+  }
+
+  /// Whether to apply optimizations for test performance.
+  final bool? enabled;
+
+  /// Globs of test files to keep out of the optimized bundle.
+  ///
+  /// Excluded files still run, as their own test suites.
+  @JsonKey(fromJson: _stringList)
+  final List<String>? exclude;
+
+  @override
+  List<Object?> get props => [enabled, exclude];
+}
+
 /// {@template very_good_test_config}
 /// Configuration values that customize the defaults of the
 /// `very_good test` command.
@@ -232,7 +274,7 @@ class VeryGoodTestConfig extends Equatable {
   /// {@macro very_good_test_config}
   const new({
     this.coverage,
-    this.optimization,
+    this.optimization = const VeryGoodOptimizationConfig(),
     this.concurrency,
     this.tags,
     this.excludeCoverage,
@@ -260,8 +302,9 @@ class VeryGoodTestConfig extends Equatable {
   /// Whether to collect coverage information.
   final bool? coverage;
 
-  /// Whether to apply optimizations for test performance.
-  final bool? optimization;
+  /// How to apply optimizations for test performance.
+  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
+  final VeryGoodOptimizationConfig optimization;
 
   /// The number of concurrent test suites run.
   @JsonKey(fromJson: _concurrency)
@@ -392,7 +435,7 @@ class VeryGoodDartTestConfig extends Equatable {
   /// {@macro very_good_dart_test_config}
   const new({
     this.coverage,
-    this.optimization,
+    this.optimization = const VeryGoodOptimizationConfig(),
     this.concurrency,
     this.tags,
     this.excludeCoverage,
@@ -416,8 +459,9 @@ class VeryGoodDartTestConfig extends Equatable {
   /// Whether to collect coverage information.
   final bool? coverage;
 
-  /// Whether to apply optimizations for test performance.
-  final bool? optimization;
+  /// How to apply optimizations for test performance.
+  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
+  final VeryGoodOptimizationConfig optimization;
 
   /// The number of concurrent test suites run.
   @JsonKey(fromJson: _concurrency)
