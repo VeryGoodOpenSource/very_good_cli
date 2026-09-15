@@ -17,8 +17,9 @@ very_good test [arguments]
 -r, --recursive                       Run tests recursively for all nested packages.
     --[no-]optimization               Whether to apply optimizations for test performance.
                                       Automatically disabled when --platform is specified.
-                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually.
+                                      Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.
                                       (defaults to on)
+    --exclude-optimization=<glob>     A glob which will be used to exclude matching test files from the optimized bundle (e.g. 'test/integration'). Excluded files still run, as their own test suites. Can be passed multiple times.
 -j, --concurrency                     The number of concurrent test suites run.
                                       (defaults to "4")
 -t, --tags                            Run only tests associated with the specified tags.
@@ -109,6 +110,28 @@ By default, all tests run with optimizations enabled; use the `--no-optimization
 import 'package:test/test.dart';
 ```
 
+To exclude tests by path instead of tagging each file, pass one or more globs to `--exclude-optimization`, or list them under `optimization.exclude` in [`very_good.yaml`](../configuration.md):
+
+```sh
+very_good test --exclude-optimization test/integration
+```
+
+```yaml
+# very_good.yaml
+test:
+  optimization:
+    exclude:
+      - test/integration
+```
+
+Globs are matched against each test file's path relative to the package root, and they match everything nested underneath what they name, so `test/integration` excludes every test in that directory. See [`optimization`](../configuration.md#optimization) for the glob syntax details.
+
+Excluded files are left out of the optimized bundle but still run, each as its own test suite. Because they run as their own suites, their file-level `@Tags` are honored again, so combining `--exclude-optimization test/integration` with `--exclude-tags integration` skips a suite annotated with `@Tags(['integration'])`.
+
+Prefer narrow globs. Every excluded file becomes its own suite with its own VM startup, so excluding hundreds of files gives up most of what the optimization buys you.
+
+Exclusions only matter while optimization is on. `--no-optimization`, `--platform`, `--update-goldens`, and targeting specific test files all disable optimization entirely, which makes the globs a no-op.
+
 ### Configuring defaults with `very_good.yaml`
 
 To avoid repeating flags every time you run `very_good test` locally or on CI, you may create a `very_good.yaml` file at the root of your project. The `test` section accepts the same names as the CLI flags in snake_case (e.g. `--min-coverage` becomes `min_coverage`). Values from `very_good.yaml` are used as defaults; anything you pass on the command line takes precedence.
@@ -123,6 +146,9 @@ test:
   dart_define:
     - FLAVOR=development
   file_reporter: json:reports/tests.json
+  optimization:
+    exclude:
+      - test/integration
 ```
 
 With the file above, running `very_good test` behaves the same as running `very_good test --min-coverage 100 --exclude-coverage '**/*.g.dart' --report-on lib/ --dart-define=FLAVOR=development`. You can still override any of these values on the command line, for example `very_good test --min-coverage 90` to lower the coverage threshold for a single run.
