@@ -4,7 +4,8 @@
 {{#isFlutter}}import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' hide group;
+import 'package:test_api/scaffolding.dart' show group;
 {{/isFlutter}}{{^isFlutter}}import 'package:test/test.dart';{{/isFlutter}}
 
 {{#tests}}import '{{{path}}}' as {{identifier}};
