@@ -135,8 +135,7 @@ so `test/**/serial_*_test.dart` matches both `test/serial_a_test.dart` and
 `test/nested/serial_a_test.dart`. Matching is case-sensitive on every
 platform.
 
-Excluded files still run, each as its own test suite, which also means their
-file-level `@Tags` are honored again. See
+Excluded files still run, each as its own test suite, in their own isolate. See
 [Skip optimization for specific tests](commands/test.md#skip-optimization-for-specific-tests).
 
 With `--recursive`, the closest `very_good.yaml` applies to every package in the

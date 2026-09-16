@@ -33,9 +33,7 @@ dart pub get
 dart test
 
 # 💻 Run `very_good test` end to end tests (from e2e/)
-dart test test/src/commands/test/async_main_test.dart &&
-dart test test/src/commands/test/no_project_test.dart &&
-dart test test/src/commands/test/spaced_golden_file_name.dart
+dart test test/commands/test --run-skipped
 ```
 
 If not all test passed out of the box please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose) so it can get fixed.
@@ -65,3 +63,9 @@ dart pub global activate --source path .
 ```
 
 💡 **Note**: After changing the test optimizer brick, make sure to always generate a new test optimizer bundle and commit this as part of your pull request.
+
+### Cost of the `analyzer` dependency
+
+Adding `analyzer` takes the hook's kernel compile from ~1.4s to ~3.4s and its
+compiled size from ~26MB to ~51MB, paid once per cold `.dart_tool/mason`.
+Resolution is unchanged, since `test` already pulled `analyzer` in.

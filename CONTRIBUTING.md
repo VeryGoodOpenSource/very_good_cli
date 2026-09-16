@@ -42,7 +42,7 @@ To develop for Very Good CLI you will need to become familiar with Very Good Ven
 very_good packages get -r
 
 # Or get project dependencies manually
-dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
+dart pub get && cd bricks/test_optimizer/hooks && dart pub get && cd ../../../
 ```
 
 3. Run all Very Good CLI tests:
@@ -82,7 +82,7 @@ Where `<branch-name>` is an appropriate name describing your change.
 very_good packages get -r
 
 # Or get project dependencies manually
-dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
+dart pub get && cd bricks/test_optimizer/hooks && dart pub get && cd ../../../
 ```
 
 3. Ensure you have a meaningful [semantic][conventional_commits_link] commit message.
