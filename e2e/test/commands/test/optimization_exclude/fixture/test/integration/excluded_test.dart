@@ -1,12 +1,10 @@
-@Tags(['integration'])
-library;
-
 import 'package:test/test.dart';
+import 'package:test_api/hooks.dart';
 
 void main() {
   group('optimization_exclude_fixture', () {
-    test('fails unless excluded, so a passing run proves it was', () {
-      fail('this test should have been excluded by its tag');
+    test('runs as its own suite, outside the optimized bundle', () {
+      expect(TestHandle.current.name, isNot(contains('excluded_test.dart')));
     });
   });
 }

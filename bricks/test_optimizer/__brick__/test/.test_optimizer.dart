@@ -11,7 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 {{/tests}}
 void main() {
 {{#isFlutter}}  goldenFileComparator = _TestOptimizationAwareGoldenFileComparator(goldenFileComparator as LocalFileComparator);{{/isFlutter}}
-{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); });
+{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); }{{{groupArguments}}});
 {{/tests}}}
 
 {{#isFlutter}}

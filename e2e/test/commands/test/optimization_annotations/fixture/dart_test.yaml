@@ -1,0 +1,4 @@
+tags:
+  integration:
+  slow:
+    skip: "Only run in CI"
