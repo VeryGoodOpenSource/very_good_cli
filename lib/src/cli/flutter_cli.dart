@@ -1,7 +1,5 @@
 part of 'cli.dart';
 
-const _testOptimizerFileName = '.test_optimizer.dart';
-
 /// This class facilitates overriding `ProcessSignal` related behavior.
 /// It should be extended by another class in client code with overrides
 /// that construct a custom implementation.
@@ -203,6 +201,7 @@ class Flutter {
     bool recursive = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    List<String>? excludeOptimization,
     Set<String> ignore = const {},
     double? minCoverage,
     bool showUncovered = false,
@@ -224,7 +223,13 @@ class Flutter {
       cwd: cwd,
       recursive: recursive,
       collectCoverage: collectCoverage,
-      optimizePerformance: optimizePerformance,
+      optimizer: TestOptimizer(
+        enabled: optimizePerformance,
+        exclude: excludeOptimization,
+        buildGenerator: buildGenerator,
+        shardIndex: shardIndex,
+        totalShards: totalShards,
+      ),
       ignore: ignore,
       minCoverage: minCoverage,
       showUncovered: showUncovered,
@@ -235,10 +240,7 @@ class Flutter {
       arguments: arguments,
       stdout: stdout,
       stderr: stderr,
-      buildGenerator: buildGenerator,
       reportOn: reportOn,
-      shardIndex: shardIndex,
-      totalShards: totalShards,
     );
   }
 }

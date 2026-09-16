@@ -36,8 +36,9 @@ the command line without editing the file.
 
 Each top-level key in `very_good.yaml` maps to a Very Good CLI command. Every
 field mirrors a CLI flag using `snake_case` (e.g. `--min-coverage` becomes
-`min_coverage`). Unrecognized keys cause the CLI to exit with a configuration
-error.
+`min_coverage`); `test.optimization` is the one field that also accepts a map,
+grouping `--optimization` and `--exclude-optimization` together. Unrecognized
+keys cause the CLI to exit with a configuration error.
 
 ```yaml
 # very_good.yaml
@@ -58,7 +59,10 @@ Defaults for [`very_good test`](commands/test.md).
 ```yaml
 test:
   coverage: true
-  optimization: false
+  optimization:
+    enabled: true
+    exclude:
+      - test/integration
   concurrency: 8
   tags: my-tag
   exclude_coverage: '**/*.g.dart'
@@ -82,27 +86,63 @@ test:
   file_reporter: json:reports/tests.json
 ```
 
-| Field                   | Type               | Notes                                                                         |
-| ----------------------- | ------------------ | ----------------------------------------------------------------------------- |
-| `coverage`              | `bool`             | Whether to collect coverage information.                                      |
-| `optimization`          | `bool`             | Whether to apply optimizations for test performance.                          |
-| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                   |
-| `tags`                  | `string`           | Run only tests associated with the specified tags.                            |
-| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                            |
-| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                           |
-| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                |
-| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                  |
-| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.            |
-| `update_goldens`        | `bool`             | Whether `matchesGoldenFile()` calls should update the golden files.           |
-| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                        |
-| `dart_define`           | `string` \| `list` | Additional `--dart-define` values.                                            |
-| `dart_define_from_file` | `string` \| `list` | Paths of `.json` or `.env` files with `--dart-define-from-file` values.       |
-| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`, `android`, `ios`).              |
-| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                 |
-| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                        |
-| `flavor`                | `string`           | The flavor to build for testing.                                              |
-| `timeout`               | `int`              | Positive integer (seconds). Maximum time tests may run before being killed.   |
-| `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`). |
+| Field                   | Type               | Notes                                                                                     |
+| ----------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
+| `coverage`              | `bool`             | Whether to collect coverage information.                                                  |
+| `optimization`          | `bool` \| `map`    | Whether to apply optimizations for test performance. See [`optimization`](#optimization). |
+| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                               |
+| `tags`                  | `string`           | Run only tests associated with the specified tags.                                        |
+| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                                        |
+| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                                       |
+| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                            |
+| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                              |
+| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.                        |
+| `update_goldens`        | `bool`             | Whether `matchesGoldenFile()` calls should update the golden files.                       |
+| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                                    |
+| `dart_define`           | `string` \| `list` | Additional `--dart-define` values.                                                        |
+| `dart_define_from_file` | `string` \| `list` | Paths of `.json` or `.env` files with `--dart-define-from-file` values.                   |
+| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`, `android`, `ios`).                          |
+| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                             |
+| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                                    |
+| `flavor`                | `string`           | The flavor to build for testing.                                                          |
+| `timeout`               | `int`              | Positive integer (seconds). Maximum time tests may run before being killed.               |
+| `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`).             |
+
+#### `optimization`
+
+`optimization` accepts either a boolean or a map. A boolean is shorthand for
+`enabled`, so `optimization: false` and `optimization: {enabled: false}` are
+equivalent.
+
+```yaml
+test:
+  optimization:
+    enabled: true
+    exclude:
+      - test/integration
+      - test/**/serial_*_test.dart
+```
+
+| Field     | Type               | Notes                                                                                      |
+| --------- | ------------------ | ------------------------------------------------------------------------------------------ |
+| `enabled` | `bool`             | Whether to apply optimizations for test performance. Mirrors `--optimization`.             |
+| `exclude` | `string` \| `list` | Globs of test files to keep out of the optimized bundle. Mirrors `--exclude-optimization`. |
+
+Globs are matched against each test file's path relative to the package root
+and match everything nested underneath what they name, so `test/integration`
+excludes every test in that directory. `**` matches zero or more directories,
+so `test/**/serial_*_test.dart` matches both `test/serial_a_test.dart` and
+`test/nested/serial_a_test.dart`. Matching is case-sensitive on every
+platform.
+
+Excluded files still run, each as its own test suite, which also means their
+file-level `@Tags` are honored again. See
+[Skip optimization for specific tests](commands/test.md#skip-optimization-for-specific-tests).
+
+With `--recursive`, the closest `very_good.yaml` applies to every package in the
+run and each glob is matched against the package currently being tested, so
+`test/integration` excludes that directory in every package. Per-package
+exclusions are not expressible.
 
 ### `create`
 
@@ -135,7 +175,10 @@ Defaults for [`very_good dart test`](commands/test.md). The fields mirror
 dart:
   test:
     coverage: true
-    optimization: false
+    optimization:
+      enabled: true
+      exclude:
+        - test/integration
     concurrency: 8
     tags: my-tag
     exclude_coverage: '**/*.g.dart'
@@ -153,23 +196,23 @@ dart:
     file_reporter: json:reports/tests.json
 ```
 
-| Field                   | Type               | Notes                                                                         |
-| ----------------------- | ------------------ | ----------------------------------------------------------------------------- |
-| `coverage`              | `bool`             | Whether to collect coverage information.                                      |
-| `optimization`          | `bool`             | Whether to apply optimizations for test performance.                          |
-| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                   |
-| `tags`                  | `string`           | Run only tests associated with the specified tags.                            |
-| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                            |
-| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                           |
-| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                |
-| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                  |
-| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.            |
-| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                        |
-| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`).                                |
-| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                 |
-| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                        |
-| `check_ignore`          | `bool`             | Whether to respect coverage ignore comments (e.g. `// coverage:ignore-line`). |
-| `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`). |
+| Field                   | Type               | Notes                                                                                     |
+| ----------------------- | ------------------ | ----------------------------------------------------------------------------------------- |
+| `coverage`              | `bool`             | Whether to collect coverage information.                                                  |
+| `optimization`          | `bool` \| `map`    | Whether to apply optimizations for test performance. See [`optimization`](#optimization). |
+| `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                               |
+| `tags`                  | `string`           | Run only tests associated with the specified tags.                                        |
+| `exclude_coverage`      | `string`           | A glob that excludes matching files from coverage.                                        |
+| `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                                       |
+| `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                            |
+| `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                              |
+| `collect_coverage_from` | `imports` \| `all` | Whether to collect coverage from imported files only or all files.                        |
+| `fail_fast`             | `bool`             | Whether to stop running tests after the first failure.                                    |
+| `platform`              | `string`           | The platform to run tests on (`chrome`, `vm`).                                            |
+| `report_on`             | `string` \| `list` | File paths to report coverage information to.                                             |
+| `run_skipped`           | `bool`             | Whether to run skipped tests instead of skipping them.                                    |
+| `check_ignore`          | `bool`             | Whether to respect coverage ignore comments (e.g. `// coverage:ignore-line`).             |
+| `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`).             |
 
 ### `packages.get`
 

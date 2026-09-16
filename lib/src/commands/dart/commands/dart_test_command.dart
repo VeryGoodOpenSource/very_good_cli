@@ -22,6 +22,7 @@ class DartTestOptions {
     required this.collectCoverageFrom,
     required this.randomSeed,
     required this.optimizePerformance,
+    required this.excludeOptimization,
     required this.failFast,
     required this.forceAnsi,
     required this.platform,
@@ -83,7 +84,11 @@ class DartTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults.resolve(
       'optimization',
-      testConfig.optimization,
+      testConfig.optimization.enabled,
+    );
+    final excludeOptimization = argResults.resolve<List<String>?>(
+      'exclude-optimization',
+      testConfig.optimization.exclude,
     );
     final failFast = argResults.resolve('fail-fast', testConfig.failFast);
     final forceAnsi = argResults['force-ansi'] as bool?;
@@ -121,6 +126,7 @@ class DartTestOptions {
       collectCoverageFrom: collectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
+      excludeOptimization: excludeOptimization,
       failFast: failFast,
       forceAnsi: forceAnsi,
       platform: platform,
@@ -165,6 +171,9 @@ class DartTestOptions {
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
 
+  /// Globs of test files to keep out of the optimized bundle.
+  final List<String>? excludeOptimization;
+
   /// Whether to stop running tests after the first failure.
   final bool failFast;
 
@@ -203,6 +212,16 @@ class DartTestOptions {
 
   /// The remaining arguments passed to the `dart test` command.
   final List<String> rest;
+
+  /// Whether the test optimizer should run for this invocation.
+  ///
+  /// It rewrites which suites the runner loads, so it cannot apply to a run
+  /// that targets specific test files or names a platform.
+  /// See https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+  bool get shouldOptimize =>
+      optimizePerformance &&
+      !TestCLIRunner.isTargettingTestFiles(rest) &&
+      platform == null;
 }
 
 /// Signature for the [Dart.installed] method.
@@ -215,6 +234,7 @@ typedef DartTestCommandCall = Future<List<int>> Function({
   bool recursive,
   bool collectCoverage,
   bool optimizePerformance,
+  List<String>? excludeOptimization,
   double? minCoverage,
   bool showUncovered,
   String? excludeFromCoverage,
@@ -260,7 +280,18 @@ class DartTestCommand extends Command<int> {
             'Whether to apply optimizations for test performance.\n'
             'Automatically disabled when --platform is specified.\n'
             'Add the `skip_very_good_optimization` tag to specific test files '
-            'to disable them individually.',
+            'to disable them individually, or use --exclude-optimization to '
+            'exclude them by path.',
+      )
+      ..addMultiOption(
+        'exclude-optimization',
+        help:
+            'A glob which will be used to exclude matching test files from '
+            "the optimized bundle (e.g. 'test/integration'). Excluded files "
+            'still run, as their own test suites. Can be passed multiple '
+            'times.',
+        valueHelp: 'glob',
+        splitCommas: false,
       )
       ..addOption(
         'concurrency',
@@ -420,22 +451,17 @@ This command should be run from the root of your Dart project.''');
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    final isDartInstalled = await _dartInstalled(logger: _logger);
+    if (!await _dartInstalled(logger: _logger)) {
+      return ExitCode.success.code;
+    }
 
     final options = DartTestOptions.parse(_argResults, config: config);
-
-    final optimizePerformance =
-        options.optimizePerformance &&
-        !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-        // Disabled optimization when platform is specified
-        // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-        options.platform == null;
 
     final shardingError = TestCLIRunner.validateSharding(
       rawShardIndex: options.shardIndex,
       rawTotalShards: options.totalShards,
       rawMinCoverage: options.rawMinCoverage,
-      optimizePerformance: optimizePerformance,
+      optimizePerformance: options.shouldOptimize,
     );
     if (shardingError != null) {
       _logger.err(shardingError);
@@ -448,55 +474,58 @@ This command should be run from the root of your Dart project.''');
         ? options.minCoverage
         : null;
 
-    if (isDartInstalled) {
-      try {
-        final results = await _dartTest(
-          optimizePerformance: optimizePerformance,
-          recursive: recursive,
-          logger: _logger,
-          stdout: _logger.write,
-          stderr: _logger.err,
-          collectCoverage:
-              options.collectCoverage ||
-              minCoverage != null ||
-              options.showUncovered,
-          minCoverage: minCoverage,
-          showUncovered: options.showUncovered,
-          excludeFromCoverage: options.excludeFromCoverage,
-          collectCoverageFrom: options.collectCoverageFrom,
-          randomSeed: options.randomSeed,
-          forceAnsi: options.forceAnsi,
-          arguments: [
-            if (options.excludeTags != null) ...['-x', options.excludeTags!],
-            if (options.tags != null) ...['-t', options.tags!],
-            if (options.failFast) '--fail-fast',
-            if (options.runSkipped) '--run-skipped',
-            if (options.platform != null) ...['--platform', options.platform!],
-            if (options.platform == null) ...['-j', options.concurrency],
-            if (options.fileReporter != null)
-              '--file-reporter=${options.fileReporter}',
-            ...options.rest,
-          ],
-          reportOn: options.reportOn.isEmpty ? null : options.reportOn,
-          checkIgnore: options.checkIgnore,
-          shardIndex: int.tryParse(options.shardIndex ?? ''),
-          totalShards: int.tryParse(options.totalShards ?? ''),
-        );
-        if (results.any((code) => code != ExitCode.success.code)) {
-          return ExitCode.unavailable.code;
-        }
-      } on MinCoverageNotMet catch (e) {
-        TestCLIRunner.handleMinCoverageNotMet(
-          logger: _logger,
-          minCoverage: minCoverage,
-          e: e,
-        );
-        return ExitCode.unavailable.code;
-      } on Exception catch (error) {
-        _logger.err('$error');
-        return ExitCode.unavailable.code;
+    try {
+      final results = await _dartTest(
+        optimizePerformance: options.shouldOptimize,
+        excludeOptimization: options.excludeOptimization,
+        recursive: recursive,
+        logger: _logger,
+        stdout: _logger.write,
+        stderr: _logger.err,
+        collectCoverage:
+            options.collectCoverage ||
+            minCoverage != null ||
+            options.showUncovered,
+        minCoverage: minCoverage,
+        showUncovered: options.showUncovered,
+        excludeFromCoverage: options.excludeFromCoverage,
+        collectCoverageFrom: options.collectCoverageFrom,
+        randomSeed: options.randomSeed,
+        forceAnsi: options.forceAnsi,
+        arguments: [
+          if (options.excludeTags != null) ...['-x', options.excludeTags!],
+          if (options.tags != null) ...['-t', options.tags!],
+          if (options.failFast) '--fail-fast',
+          if (options.runSkipped) '--run-skipped',
+          if (options.platform != null) ...['--platform', options.platform!],
+          if (options.platform == null) ...['-j', options.concurrency],
+          if (options.fileReporter != null)
+            '--file-reporter=${options.fileReporter}',
+          ...options.rest,
+        ],
+        reportOn: options.reportOn.isEmpty ? null : options.reportOn,
+        checkIgnore: options.checkIgnore,
+        shardIndex: int.tryParse(options.shardIndex ?? ''),
+        totalShards: int.tryParse(options.totalShards ?? ''),
+      );
+
+      if (results.any((code) => code != ExitCode.success.code)) {
+        return ExitCode.software.code;
       }
+    } on MinCoverageNotMet catch (error) {
+      return TestCLIRunner.handleMinCoverageNotMet(
+        error,
+        logger: _logger,
+        minCoverage: minCoverage,
+      );
+    } on InvalidOptimizationGlob catch (error) {
+      _logger.err('$error');
+      return ExitCode.config.code;
+    } on Exception catch (error) {
+      _logger.err('$error');
+      return ExitCode.unavailable.code;
     }
+
     return ExitCode.success.code;
   }
 }

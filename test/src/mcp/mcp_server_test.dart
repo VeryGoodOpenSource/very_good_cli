@@ -821,7 +821,7 @@ void main() {
         when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
           stdout.write('compile error: boom');
           stderr.write('stderr detail');
-          return ExitCode.unavailable.code;
+          return ExitCode.software.code;
         });
 
         final response = await sendRequest(
@@ -835,8 +835,8 @@ void main() {
         expect(result.isError, isTrue);
         final payload = _errorPayload(result);
         expect(payload['status'], equals('partial_failure'));
-        expect(payload['failureType'], equals('transient'));
-        expect(payload['reason'], contains('failed with exit code 69'));
+        expect(payload['failureType'], equals('business'));
+        expect(payload['reason'], contains('failed with exit code 70'));
         final partial = payload['partialResults']! as String;
         expect(partial, contains('compile error: boom'));
         expect(partial, contains('stderr detail'));

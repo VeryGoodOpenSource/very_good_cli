@@ -22,6 +22,7 @@ class FlutterTestOptions {
     required this.collectCoverageFrom,
     required this.randomSeed,
     required this.optimizePerformance,
+    required this.excludeOptimization,
     required this.updateGoldens,
     required this.failFast,
     required this.forceAnsi,
@@ -87,7 +88,11 @@ class FlutterTestOptions {
         : randomOrderingSeed;
     final optimizePerformance = argResults.resolve(
       'optimization',
-      testConfig.optimization,
+      testConfig.optimization.enabled,
+    );
+    final excludeOptimization = argResults.resolve<List<String>?>(
+      'exclude-optimization',
+      testConfig.optimization.exclude,
     );
     final updateGoldens = argResults.resolve(
       'update-goldens',
@@ -143,6 +148,7 @@ class FlutterTestOptions {
       collectCoverageFrom: effectiveCollectCoverageFrom,
       randomSeed: randomSeed,
       optimizePerformance: optimizePerformance,
+      excludeOptimization: excludeOptimization,
       updateGoldens: updateGoldens,
       failFast: failFast,
       forceAnsi: forceAnsi,
@@ -190,6 +196,9 @@ class FlutterTestOptions {
 
   /// Whether to apply optimizations for test performance.
   final bool optimizePerformance;
+
+  /// Globs of test files to keep out of the optimized bundle.
+  final List<String>? excludeOptimization;
 
   /// Whether "matchesGoldenFile()" calls within your test methods should update
   /// the golden files.
@@ -242,6 +251,17 @@ class FlutterTestOptions {
 
   /// The remaining arguments passed to the test command.
   final List<String> rest;
+
+  /// Whether the test optimizer should run for this invocation.
+  ///
+  /// It rewrites which suites the runner loads, so it cannot apply to a run
+  /// that targets specific test files, updates goldens, or names a platform.
+  /// See https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
+  bool get shouldOptimize =>
+      optimizePerformance &&
+      !TestCLIRunner.isTargettingTestFiles(rest) &&
+      !updateGoldens &&
+      platform == null;
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -256,6 +276,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   bool recursive,
   bool collectCoverage,
   bool optimizePerformance,
+  List<String>? excludeOptimization,
   double? minCoverage,
   bool showUncovered,
   String? excludeFromCoverage,
@@ -300,7 +321,18 @@ class TestCommand extends Command<int> {
             'Whether to apply optimizations for test performance.\n'
             'Automatically disabled when --platform is specified.\n'
             'Add the `skip_very_good_optimization` tag to specific test files '
-            'to disable them individually.',
+            'to disable them individually, or use --exclude-optimization to '
+            'exclude them by path.',
+      )
+      ..addMultiOption(
+        'exclude-optimization',
+        help:
+            'A glob which will be used to exclude matching test files from '
+            "the optimized bundle (e.g. 'test/integration'). Excluded files "
+            'still run, as their own test suites. Can be passed multiple '
+            'times.',
+        valueHelp: 'glob',
+        splitCommas: false,
       )
       ..addOption(
         'concurrency',
@@ -498,23 +530,17 @@ This command should be run from the root of your Flutter project.''');
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    final isFlutterInstalled = await _flutterInstalled(logger: _logger);
+    if (!await _flutterInstalled(logger: _logger)) {
+      return ExitCode.success.code;
+    }
 
     final options = FlutterTestOptions.parse(_argResults, config: config);
-
-    final optimizePerformance =
-        options.optimizePerformance &&
-        !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-        !options.updateGoldens &&
-        // Disabled optimization when platform is specified
-        // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-        options.platform == null;
 
     final shardingError = TestCLIRunner.validateSharding(
       rawShardIndex: options.shardIndex,
       rawTotalShards: options.totalShards,
       rawMinCoverage: options.rawMinCoverage,
-      optimizePerformance: optimizePerformance,
+      optimizePerformance: options.shouldOptimize,
     );
     if (shardingError != null) {
       _logger.err(shardingError);
@@ -527,64 +553,67 @@ This command should be run from the root of your Flutter project.''');
         ? options.minCoverage
         : null;
 
-    if (isFlutterInstalled) {
-      try {
-        final results = await _flutterTest(
-          optimizePerformance: optimizePerformance,
-          recursive: recursive,
-          logger: _logger,
-          stdout: _logger.write,
-          stderr: _logger.err,
-          collectCoverage:
-              options.collectCoverage ||
-              minCoverage != null ||
-              options.showUncovered,
-          minCoverage: minCoverage,
-          showUncovered: options.showUncovered,
-          excludeFromCoverage: options.excludeFromCoverage,
-          collectCoverageFrom: options.collectCoverageFrom,
-          randomSeed: options.randomSeed,
-          forceAnsi: options.forceAnsi,
-          reportOn: options.reportOn.isEmpty ? null : options.reportOn,
-          shardIndex: int.tryParse(options.shardIndex ?? ''),
-          totalShards: int.tryParse(options.totalShards ?? ''),
-          arguments: [
-            if (options.excludeTags != null) ...['-x', options.excludeTags!],
-            if (options.tags != null) ...['-t', options.tags!],
-            if (options.updateGoldens) '--update-goldens',
-            if (options.failFast) '--fail-fast',
-            if (options.runSkipped) '--run-skipped',
-            if (options.flavor != null) ...['--flavor', options.flavor!],
-            if (options.platform != null) ...['--platform', options.platform!],
-            if (options.dartDefine != null)
-              for (final value in options.dartDefine!) '--dart-define=$value',
-            if (options.dartDefineFromFile != null)
-              for (final value in options.dartDefineFromFile!)
-                '--dart-define-from-file=$value',
-            if (options.platform == null) ...['-j', options.concurrency],
-            '--no-pub',
-            if (options.timeout != null)
-              '--timeout=${options.timeout!.inSeconds}s',
-            if (options.fileReporter != null)
-              '--file-reporter=${options.fileReporter}',
-            ...options.rest,
-          ],
-        );
-        if (results.any((code) => code != ExitCode.success.code)) {
-          return ExitCode.unavailable.code;
-        }
-      } on MinCoverageNotMet catch (e) {
-        TestCLIRunner.handleMinCoverageNotMet(
-          logger: _logger,
-          minCoverage: minCoverage,
-          e: e,
-        );
-        return ExitCode.unavailable.code;
-      } on Exception catch (error) {
-        _logger.err('$error');
-        return ExitCode.unavailable.code;
+    try {
+      final results = await _flutterTest(
+        optimizePerformance: options.shouldOptimize,
+        excludeOptimization: options.excludeOptimization,
+        recursive: recursive,
+        logger: _logger,
+        stdout: _logger.write,
+        stderr: _logger.err,
+        collectCoverage:
+            options.collectCoverage ||
+            minCoverage != null ||
+            options.showUncovered,
+        minCoverage: minCoverage,
+        showUncovered: options.showUncovered,
+        excludeFromCoverage: options.excludeFromCoverage,
+        collectCoverageFrom: options.collectCoverageFrom,
+        randomSeed: options.randomSeed,
+        forceAnsi: options.forceAnsi,
+        reportOn: options.reportOn.isEmpty ? null : options.reportOn,
+        shardIndex: int.tryParse(options.shardIndex ?? ''),
+        totalShards: int.tryParse(options.totalShards ?? ''),
+        arguments: [
+          if (options.excludeTags != null) ...['-x', options.excludeTags!],
+          if (options.tags != null) ...['-t', options.tags!],
+          if (options.updateGoldens) '--update-goldens',
+          if (options.failFast) '--fail-fast',
+          if (options.runSkipped) '--run-skipped',
+          if (options.flavor != null) ...['--flavor', options.flavor!],
+          if (options.platform != null) ...['--platform', options.platform!],
+          if (options.dartDefine != null)
+            for (final value in options.dartDefine!) '--dart-define=$value',
+          if (options.dartDefineFromFile != null)
+            for (final value in options.dartDefineFromFile!)
+              '--dart-define-from-file=$value',
+          if (options.platform == null) ...['-j', options.concurrency],
+          '--no-pub',
+          if (options.timeout != null)
+            '--timeout=${options.timeout!.inSeconds}s',
+          if (options.fileReporter != null)
+            '--file-reporter=${options.fileReporter}',
+          ...options.rest,
+        ],
+      );
+
+      if (results.any((code) => code != ExitCode.success.code)) {
+        return ExitCode.software.code;
       }
+    } on MinCoverageNotMet catch (error) {
+      return TestCLIRunner.handleMinCoverageNotMet(
+        error,
+        logger: _logger,
+        minCoverage: minCoverage,
+      );
+    } on InvalidOptimizationGlob catch (error) {
+      _logger.err('$error');
+      return ExitCode.config.code;
+    } on Exception catch (error) {
+      _logger.err('$error');
+      return ExitCode.unavailable.code;
     }
+
     return ExitCode.success.code;
   }
 }

@@ -30,8 +30,9 @@ const expectedTestUsage = [
       '-r, --recursive                              Run tests recursively for all nested packages.\n'
       '    --[no-]optimization                      Whether to apply optimizations for test performance.\n'
       '                                             Automatically disabled when --platform is specified.\n'
-      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually.\n'
+      '                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.\n'
       '                                             (defaults to on)\n'
+      "    --exclude-optimization=<glob>            A glob which will be used to exclude matching test files from the optimized bundle (e.g. 'test/integration'). Excluded files still run, as their own test suites. Can be passed multiple times.\n"
       '-j, --concurrency                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                             (defaults to "4")\n'
       '-t, --tags                                   Run only tests associated with the specified tags.\n'
@@ -66,6 +67,7 @@ abstract class DartTestCommandCall {
     bool showUncovered = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
+    List<String>? excludeOptimization,
     double? minCoverage,
     String? excludeFromCoverage,
     CoverageCollectionMode collectCoverageFrom = CoverageCollectionMode.imports,
@@ -115,6 +117,7 @@ void main() {
           showUncovered: any(named: 'showUncovered'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
           collectCoverageFrom: any(named: 'collectCoverageFrom'),
@@ -219,6 +222,33 @@ void main() {
       ).called(1);
     });
 
+    test('completes normally without running tests '
+        'when Dart is not installed', () async {
+      isFlutterInstalled = false;
+      final result = await testCommand.run();
+      expect(result, equals(ExitCode.success.code));
+      verifyNever(
+        () => dartTest(
+          cwd: any(named: 'cwd'),
+          recursive: any(named: 'recursive'),
+          checkIgnore: any(named: 'checkIgnore'),
+          showUncovered: any(named: 'showUncovered'),
+          collectCoverage: any(named: 'collectCoverage'),
+          optimizePerformance: any(named: 'optimizePerformance'),
+          minCoverage: any(named: 'minCoverage'),
+          excludeFromCoverage: any(named: 'excludeFromCoverage'),
+          collectCoverageFrom: any(named: 'collectCoverageFrom'),
+          randomSeed: any(named: 'randomSeed'),
+          arguments: any(named: 'arguments'),
+          logger: any(named: 'logger'),
+          stdout: any(named: 'stdout'),
+          stderr: any(named: 'stderr'),
+          forceAnsi: any(named: 'forceAnsi'),
+          reportOn: any(named: 'reportOn'),
+        ),
+      );
+    });
+
     test('exits with 70 when tests do not pass', () async {
       when(
         () => dartTest(
@@ -226,6 +256,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -239,7 +270,7 @@ void main() {
         (_) async => [ExitCode.success.code, ExitCode.unavailable.code],
       );
       final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      expect(result, equals(ExitCode.software.code));
     });
 
     test('completes normally --recursive', () async {
@@ -545,6 +576,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -556,7 +588,7 @@ void main() {
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => dartTest(
           optimizePerformance: true,
@@ -589,6 +621,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -600,7 +633,7 @@ void main() {
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => logger.err('Expected coverage >= 100.00% but actual is 95.00%.'),
       ).called(1);
@@ -620,6 +653,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -631,7 +665,7 @@ void main() {
         ),
       ).thenThrow(exception);
       final result = await testCommand.run();
-      expect(result, equals(ExitCode.unavailable.code));
+      expect(result, equals(ExitCode.software.code));
       verify(
         () => dartTest(
           optimizePerformance: true,
@@ -700,6 +734,7 @@ void main() {
           recursive: any(named: 'recursive'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
+          excludeOptimization: any(named: 'excludeOptimization'),
           minCoverage: any(named: 'minCoverage'),
           showUncovered: any(named: 'showUncovered'),
           excludeFromCoverage: any(named: 'excludeFromCoverage'),
@@ -723,6 +758,35 @@ void main() {
       ).called(1);
       verify(() => logger.err('$exception')).called(1);
     });
+
+    test(
+      'exits with 78 when an exclude-optimization glob is invalid',
+      () async {
+        const exception = InvalidOptimizationGlob('bad glob');
+        when(
+          () => dartTest(
+            cwd: any(named: 'cwd'),
+            recursive: any(named: 'recursive'),
+            collectCoverage: any(named: 'collectCoverage'),
+            optimizePerformance: any(named: 'optimizePerformance'),
+            excludeOptimization: any(named: 'excludeOptimization'),
+            minCoverage: any(named: 'minCoverage'),
+            showUncovered: any(named: 'showUncovered'),
+            excludeFromCoverage: any(named: 'excludeFromCoverage'),
+            arguments: any(named: 'arguments'),
+            logger: any(named: 'logger'),
+            stdout: any(named: 'stdout'),
+            stderr: any(named: 'stderr'),
+            checkIgnore: any(named: 'checkIgnore'),
+          ),
+        ).thenThrow(exception);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.config.code));
+        verify(() => logger.err('$exception')).called(1);
+      },
+    );
 
     test('completes normally --force-ansi', () async {
       when<dynamic>(() => argResults['force-ansi']).thenReturn(true);
@@ -998,6 +1062,36 @@ void main() {
       });
     });
 
+    group('DartTestOptions.shouldOptimize', () {
+      test('is true for a plain run', () {
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isTrue);
+      });
+
+      test('is false when --no-optimization was passed', () {
+        when<dynamic>(() => argResults['optimization']).thenReturn(false);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
+
+      test('is false when specific test files are targeted', () {
+        when(() => argResults.rest).thenReturn(['test/app_test.dart']);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
+
+      test('is true when the rest are options for the underlying runner', () {
+        when(() => argResults.rest).thenReturn(['--coverage']);
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isTrue);
+      });
+
+      test('is false when a --platform was named', () {
+        when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+
+        expect(DartTestOptions.parse(argResults).shouldOptimize, isFalse);
+      });
+    });
+
     group('very_good.yaml configuration', () {
       test(
         'fails with exit code ${ExitCode.config.code} '
@@ -1033,7 +1127,7 @@ void main() {
               test: VeryGoodDartTestConfig(
                 concurrency: '8',
                 tags: 'unit',
-                optimization: false,
+                optimization: VeryGoodOptimizationConfig(enabled: false),
                 platform: 'chrome',
                 checkIgnore: false,
                 minCoverage: '90',
@@ -1070,7 +1164,7 @@ void main() {
               test: VeryGoodDartTestConfig(
                 concurrency: '8',
                 tags: 'unit',
-                optimization: false,
+                optimization: VeryGoodOptimizationConfig(enabled: false),
                 platform: 'chrome',
                 checkIgnore: false,
               ),
@@ -1082,6 +1176,49 @@ void main() {
         expect(options.optimizePerformance, isTrue);
         expect(options.platform, equals('vm'));
         expect(options.checkIgnore, isTrue);
+      });
+
+      test('applies optimization exclude from config', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+
+        final options = DartTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(
+                optimization: VeryGoodOptimizationConfig(
+                  exclude: ['test/integration'],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.optimizePerformance, isTrue);
+        expect(options.excludeOptimization, equals(['test/integration']));
+      });
+
+      test('CLI --exclude-optimization replaces the config value', () {
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+        when(() => argResults.wasParsed('exclude-optimization'))
+            .thenReturn(true);
+        when<dynamic>(() => argResults['exclude-optimization'])
+            .thenReturn(['test/from_cli']);
+
+        final options = DartTestOptions.parse(
+          argResults,
+          config: const VeryGoodConfig(
+            dart: VeryGoodDartConfig(
+              test: VeryGoodDartTestConfig(
+                optimization: VeryGoodOptimizationConfig(
+                  exclude: ['test/from_config'],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(options.excludeOptimization, equals(['test/from_cli']));
       });
 
       test('CLI argument takes precedence over config value', () {

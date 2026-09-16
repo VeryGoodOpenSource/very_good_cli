@@ -63,6 +63,16 @@ VeryGoodCreateConfig _$VeryGoodCreateConfigFromJson(Map json) =>
       return val;
     }, fieldKeyMap: const {'orgName': 'org_name'});
 
+VeryGoodOptimizationConfig _$VeryGoodOptimizationConfigFromJson(Map json) =>
+    $checkedCreate('VeryGoodOptimizationConfig', json, ($checkedConvert) {
+      $checkKeys(json, allowedKeys: const ['enabled', 'exclude']);
+      final val = VeryGoodOptimizationConfig(
+        enabled: $checkedConvert('enabled', (v) => v as bool?),
+        exclude: $checkedConvert('exclude', (v) => _stringList(v)),
+      );
+      return val;
+    });
+
 VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
   'VeryGoodTestConfig',
   json,
@@ -93,7 +103,12 @@ VeryGoodTestConfig _$VeryGoodTestConfigFromJson(Map json) => $checkedCreate(
     );
     final val = VeryGoodTestConfig(
       coverage: $checkedConvert('coverage', (v) => v as bool?),
-      optimization: $checkedConvert('optimization', (v) => v as bool?),
+      optimization: $checkedConvert(
+        'optimization',
+        (v) => v == null
+            ? const VeryGoodOptimizationConfig()
+            : VeryGoodOptimizationConfig.fromJson(v),
+      ),
       concurrency: $checkedConvert('concurrency', (v) => _concurrency(v)),
       tags: $checkedConvert('tags', (v) => v as String?),
       excludeCoverage: $checkedConvert('exclude_coverage', (v) => v as String?),
@@ -177,7 +192,12 @@ VeryGoodDartTestConfig _$VeryGoodDartTestConfigFromJson(Map json) =>
         );
         final val = VeryGoodDartTestConfig(
           coverage: $checkedConvert('coverage', (v) => v as bool?),
-          optimization: $checkedConvert('optimization', (v) => v as bool?),
+          optimization: $checkedConvert(
+            'optimization',
+            (v) => v == null
+                ? const VeryGoodOptimizationConfig()
+                : VeryGoodOptimizationConfig.fromJson(v),
+          ),
           concurrency: $checkedConvert('concurrency', (v) => _concurrency(v)),
           tags: $checkedConvert('tags', (v) => v as String?),
           excludeCoverage: $checkedConvert(

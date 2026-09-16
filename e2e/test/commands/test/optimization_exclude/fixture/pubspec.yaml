@@ -1,0 +1,10 @@
+name: optimization_exclude_fixture
+description: Fixture for testing optimization exclusions.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dev_dependencies:
+  test: ^1.24.3
