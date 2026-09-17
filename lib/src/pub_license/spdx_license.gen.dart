@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 740 SPDX licenses.
+/// A list of all 741 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -107,6 +107,7 @@ enum SpdxLicense {
   $BSD_Protection._('BSD-Protection'),
   $BSD_Source_Code._('BSD-Source-Code'),
   $BSD_Source_Code_no_disclaimer._('BSD-Source-Code-no-disclaimer'),
+  $BSD_Source_alt_GPL._('BSD-Source-alt-GPL'),
   $BSD_Source_beginning_file._('BSD-Source-beginning-file'),
   $BSD_Systemics._('BSD-Systemics'),
   $BSD_Systemics_W3Works._('BSD-Systemics-W3Works'),
