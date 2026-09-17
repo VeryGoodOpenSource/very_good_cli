@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:hooks/pre_gen.dart' as pre_gen;
+import 'package:hooks/test_metadata.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
@@ -16,9 +17,11 @@ class _FakeContext extends Fake implements HookContext {
   Map<String, Object?> vars = {};
 }
 
-final notOptimizedTestContent =
+const notOptimizedTestContent =
     '''
 @Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])
+library;
+
 void main() {
   test('test', () {
     expect(1, 1);
@@ -26,9 +29,11 @@ void main() {
 }
 ''';
 
-final anotherNotOptimizedTestContent =
+const anotherNotOptimizedTestContent =
     '''
 @Tags(['${pre_gen.skipVeryGoodOptimizationTag}', 'another_tag'])
+import 'package:test/test.dart';
+
 void main() {
   test('another test', () {
     expect(1, 1);
@@ -85,6 +90,12 @@ void main() {
           testsMap.values.toSet().length,
           equals(tests.length),
           reason: 'All tests files should have unique identifiers',
+        );
+
+        expect(
+          tests.map((test) => test['groupArguments']),
+          everyElement(isEmpty),
+          reason: 'Files without annotations forward no group arguments',
         );
 
         expect(context.vars['isFlutter'], false);
@@ -149,6 +160,112 @@ dependencies:
         expect(notOptimizedTests, contains('not_optimized_test.dart'));
         expect(notOptimizedTests, contains('another_not_optimized_test.dart'));
       });
+
+      test(
+        'with file level annotations forwarded as group arguments',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          File(path.join(testDir.path, 'annotated_test.dart'))
+              .writeAsStringSync('''
+@Tags(['slow'])
+@Timeout(Duration(minutes: 5))
+library;
+
+void main() {}
+''');
+
+          context.vars['package-root'] = tempDirectory.absolute.path;
+
+          await pre_gen.run(context);
+
+          final tests = context.vars['tests'] as List<Map<String, String>>;
+          expect(tests, hasLength(1));
+          expect(
+            tests.single['groupArguments'],
+            equals(", timeout: Timeout(Duration(minutes: 5)), tags: ['slow']"),
+          );
+        },
+      );
+
+      test(
+        'with a skip tag package:test would ignore left optimized',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          File(path.join(testDir.path, 'no_directive_test.dart'))
+              .writeAsStringSync('''
+@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])
+void main() {}
+''');
+
+          context.vars['package-root'] = tempDirectory.absolute.path;
+
+          await pre_gen.run(context);
+
+          final tests = context.vars['tests'] as List<Map<String, String>>;
+          expect(
+            tests.map((test) => test['path']),
+            contains('no_directive_test.dart'),
+          );
+          expect(context.vars['notOptimizedTests'], isEmpty);
+
+          verify(
+            () => context.logger.warn(
+              any(
+                that: allOf(
+                  contains('no_directive_test.dart'),
+                  contains(pre_gen.skipVeryGoodOptimizationTag),
+                ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      test(
+        'with an unresolvable annotation left out and warned about',
+        () async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+
+          final testDir = Directory(path.join(tempDirectory.path, 'test'))
+            ..createSync();
+          File(path.join(testDir.path, 'unresolvable_test.dart'))
+              .writeAsStringSync('''
+@Timeout(kSlowSuite)
+@Retry(2)
+library;
+
+void main() {}
+''');
+
+          context.vars['package-root'] = tempDirectory.absolute.path;
+
+          await pre_gen.run(context);
+
+          final tests = context.vars['tests'] as List<Map<String, String>>;
+          expect(
+            tests.single['groupArguments'],
+            equals(', retry: 2'),
+            reason: 'The resolvable sibling is still forwarded',
+          );
+
+          verify(
+            () => context.logger.warn(
+              any(
+                that: allOf(
+                  contains('unresolvable_test.dart'),
+                  contains('@Timeout(kSlowSuite)'),
+                ),
+              ),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('Fails', () {
@@ -218,65 +335,82 @@ dependencies:
         expect(context.vars['isFlutter'], isNull);
       });
     });
+  });
 
-    group('skipVeryGoodOptimizationRegExp regex', () {
-      final regex = pre_gen.skipVeryGoodOptimizationRegExp;
-      test('matches single-line tag', () {
-        final content = "@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])";
-        expect(regex.hasMatch(content), isTrue);
+  group('TestMetadataBundle', () {
+    group('groupArguments', () {
+      test('is empty without annotations', () {
+        final metadata = parseTestMetadata('void main() {}');
+
+        expect(metadata.groupArguments, isEmpty);
       });
 
-      test('matches single-line with multiple tags', () {
-        final content =
-            "@Tags(['${pre_gen.skipVeryGoodOptimizationTag}', 'chrome'])";
-        expect(regex.hasMatch(content), isTrue);
+      test('emits a single annotation', () {
+        final metadata = parseTestMetadata("@Skip('not ready')\nlibrary;");
+
+        expect(metadata.groupArguments, equals(", skip: 'not ready'"));
       });
 
-      test('matches multi-line tag list', () {
-        final content =
-            '''
-      @Tags([
-        '${pre_gen.skipVeryGoodOptimizationTag}',
-        'chrome',
-        'test',
-      ])
-      ''';
-        expect(regex.hasMatch(content), isTrue);
+      test('emits a fixed order regardless of source order', () {
+        final metadata = parseTestMetadata('''
+@Retry(3)
+@Tags(['slow'])
+@Skip()
+@Timeout.none
+@TestOn('vm')
+library;
+''');
+
+        expect(
+          metadata.groupArguments,
+          equals(
+            ", testOn: 'vm', timeout: Timeout.none, skip: true, "
+            "tags: ['slow'], retry: 3",
+          ),
+        );
+      });
+    });
+
+    group('skipsOptimization', () {
+      test('is true for the skip tag on its own', () {
+        final metadata = parseTestMetadata(
+          "@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])\nlibrary;",
+        );
+
+        expect(metadata.skipsOptimization, isTrue);
       });
 
-      test('matches multi-line where tag is not the first', () {
-        final content =
-            '''
-      @Tags([
-        'chrome',
-        '${pre_gen.skipVeryGoodOptimizationTag}',
-        'test',
-      ])
-      ''';
-        expect(regex.hasMatch(content), isTrue);
+      test('is true when the skip tag is not first', () {
+        final metadata = parseTestMetadata(
+          "@Tags(['other', '${pre_gen.skipVeryGoodOptimizationTag}'])\n"
+          'library;',
+        );
+
+        expect(metadata.skipsOptimization, isTrue);
       });
 
-      test('does not match when tag missing', () {
-        const content = "@Tags(['chrome', 'test'])";
-        expect(regex.hasMatch(content), isFalse);
+      test('is false without the tag', () {
+        final metadata = parseTestMetadata("@Tags(['other'])\nlibrary;");
+
+        expect(metadata.skipsOptimization, isFalse);
       });
 
-      test(
-        'does not match substring only (e.g. skip_very_good_optimization,test)',
-        () {
-          final content =
-              '''
-      @Tags([
-        '${pre_gen.skipVeryGoodOptimizationTag},test',
-        'chrome',
-      ])
-      ''';
-          expect(
-            regex.hasMatch(content),
-            isFalse,
-          ); // only exact tag should match
-        },
-      );
+      test('is false when the tag is only a substring', () {
+        final metadata = parseTestMetadata(
+          "@Tags(['${pre_gen.skipVeryGoodOptimizationTag},test'])\nlibrary;",
+        );
+
+        expect(metadata.skipsOptimization, isFalse);
+      });
+
+      test('is false when the annotation is not on the first directive', () {
+        final metadata = parseTestMetadata('''
+@Tags(['${pre_gen.skipVeryGoodOptimizationTag}'])
+void main() {}
+''');
+
+        expect(metadata.skipsOptimization, isFalse);
+      });
     });
   });
 }

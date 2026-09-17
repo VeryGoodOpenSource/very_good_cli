@@ -4,14 +4,15 @@
 {{#isFlutter}}import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart' hide group;
+import 'package:test_api/scaffolding.dart' show group;
 {{/isFlutter}}{{^isFlutter}}import 'package:test/test.dart';{{/isFlutter}}
 
 {{#tests}}import '{{{path}}}' as {{identifier}};
 {{/tests}}
 void main() {
 {{#isFlutter}}  goldenFileComparator = _TestOptimizationAwareGoldenFileComparator(goldenFileComparator as LocalFileComparator);{{/isFlutter}}
-{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); });
+{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); }{{{groupArguments}}});
 {{/tests}}}
 
 {{#isFlutter}}

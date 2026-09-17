@@ -1,0 +1,15 @@
+name: optimization_annotations_flutter_fixture
+description: Fixture for testing file level annotations in a Flutter bundle.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

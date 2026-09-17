@@ -1,5 +1,5 @@
-name: optimization_exclude_fixture
-description: Fixture for testing optimization exclusions.
+name: optimization_annotations_fixture
+description: Fixture for testing file level test annotations.
 version: 0.1.0+1
 publish_to: none
 

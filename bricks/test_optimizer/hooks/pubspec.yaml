@@ -5,6 +5,7 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  analyzer: ^14.0.0
   mason: ^0.1.0
   path: ^1.8.1
 
