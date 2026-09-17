@@ -392,7 +392,9 @@ void main() {
 
         expect(
           (await optimize(exclude: const ['test/integration'])).testTargets,
-          equals([p.join('test', 'integration/login_test.dart')]),
+          equals([
+            p.joinAll(['test', 'integration', 'login_test.dart']),
+          ]),
         );
       });
 

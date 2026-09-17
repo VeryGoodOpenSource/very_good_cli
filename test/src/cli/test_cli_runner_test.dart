@@ -1694,7 +1694,7 @@ void main() {
             testRunnerArgs,
             equals([
               p.join('test', '.test_optimizer.dart'),
-              p.join('test', 'integration/login_test.dart'),
+              p.joinAll(['test', 'integration', 'login_test.dart']),
             ]),
           );
           verify(
@@ -1730,7 +1730,9 @@ void main() {
 
             expect(
               testRunnerArgs,
-              equals([p.join('test', 'app/view/app_test.dart')]),
+              equals([
+                p.joinAll(['test', 'app', 'view', 'app_test.dart']),
+              ]),
             );
           },
         );
