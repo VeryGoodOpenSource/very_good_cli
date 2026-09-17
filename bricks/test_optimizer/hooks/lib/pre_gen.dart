@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:hooks/dart_identifier_generator.dart';
+import 'package:hooks/test_metadata.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as path;
 
@@ -8,11 +9,17 @@ typedef ExitFn = Never Function(int code);
 
 ExitFn exitFn = exit;
 
-String skipVeryGoodOptimizationTag = 'skip_very_good_optimization';
-RegExp skipVeryGoodOptimizationRegExp = RegExp(
-  "@Tags\\s*\\(\\s*\\[[\\s\\S]*?[\"']$skipVeryGoodOptimizationTag[\"'][\\s\\S]*?\\]\\s*\\)",
-  multiLine: true,
-);
+/// The tag that opts a test file out of the optimized bundle.
+const skipVeryGoodOptimizationTag = 'skip_very_good_optimization';
+
+extension TestMetadataBundle on TestMetadata {
+  bool get skipsOptimization => tagNames.contains(skipVeryGoodOptimizationTag);
+
+  /// The named arguments to append to a `group` call, each prefixed by `, `.
+  String get groupArguments {
+    return arguments.entries.map((e) => ', ${e.key}: ${e.value}').join();
+  }
+}
 
 Future<void> run(HookContext context) async {
   final packageRoot = context.vars['package-root'] as String;
@@ -49,77 +56,97 @@ Future<void> run(HookContext context) async {
     exitFn(1);
   }
 
+  final identifierGenerator = DartIdentifierGenerator();
+  final optimizedTests = <Map<String, String>>[];
+  final notOptimizedTests = <String>[];
+
   final tests = testDir
       .listSync(recursive: true)
-      .where((entity) => entity.isTest);
-
-  final notOptimizedTests = (await getNotOptimizedTests(
-    tests,
-    testDir.path,
-  )).toSet();
+      .where((entity) => entity.isTest)
+      .cast<File>();
+  final parsedTests = await Future.wait(
+    tests.map((file) => _parse(file, testDir: testDir.path)),
+  );
 
   // Sorting guarantees a deterministic order across machines, which is what
   // makes sharding reproducible: `Directory.listSync` order is filesystem
   // dependent, so without this two runners could disagree on the partition
-  // and either skip or duplicate tests.
-  final testPaths =
-      tests
-          .map(
-            (entity) => path
-                .relative(entity.path, from: testDir.path)
-                .replaceAll(r'\', '/'),
-          )
-          .toList()
-        ..sort();
-
-  // Non optimized tests run as standalone files alongside the optimizer
-  // entrypoint, so they are sharded too, and in the same deal as the
-  // optimized ones: dealing out one list keeps every shard within one file
-  // of the others, whereas dealing out the two lists separately would hand
-  // the first shards a file from each.
-  final shardPaths = _shardOf(
-    testPaths,
+  // and either skip or duplicate tests. Tests kept out of the bundle are
+  // dealt out in the same round as the optimized ones, which keeps every
+  // shard within one file of the others.
+  final shard = _shardOf(
+    parsedTests..sort((a, b) => a.relativePath.compareTo(b.relativePath)),
     shardIndex: shardIndex,
     totalShards: totalShards,
   );
-  final optimizedTestPaths = shardPaths
-      .where((p) => !notOptimizedTests.contains(p))
-      .toList();
-  final shardedNotOptimizedTests = shardPaths
-      .where(notOptimizedTests.contains)
-      .toList();
 
-  final identifierGenerator = DartIdentifierGenerator();
-  final optimizedTestsIdentifierTable = [
-    for (final relativePath in optimizedTestPaths)
-      {'path': relativePath, 'identifier': identifierGenerator.next()},
-  ];
+  for (final (:relativePath, :content, :metadata) in shard) {
+    if (metadata.skipsOptimization) {
+      notOptimizedTests.add(relativePath);
+      continue;
+    }
+
+    if (content.contains(skipVeryGoodOptimizationTag)) {
+      context.logger.warn(
+        '$relativePath names $skipVeryGoodOptimizationTag but was optimized '
+        'anyway: package:test reads @Tags only from the metadata of the '
+        "file's first directive.",
+      );
+    }
+
+    for (final annotation in metadata.droppedAnnotations) {
+      context.logger.warn(
+        '$relativePath: left $annotation out of the optimized bundle, which '
+        'cannot resolve every name it references.',
+      );
+    }
+
+    optimizedTests.add({
+      'path': relativePath,
+      'identifier': identifierGenerator.next(),
+      'groupArguments': metadata.groupArguments,
+    });
+  }
 
   context.vars = {
-    'tests': optimizedTestsIdentifierTable,
+    'tests': optimizedTests,
     'isFlutter': isFlutter,
-    'notOptimizedTests': shardedNotOptimizedTests,
+    'notOptimizedTests': notOptimizedTests,
   };
 }
 
-/// Returns the subset of [paths] that belongs to the shard [shardIndex] out of
-/// [totalShards].
+typedef _ParsedTest = ({
+  String relativePath,
+  String content,
+  TestMetadata metadata,
+});
+
+/// Reads and parses [file], keyed by its POSIX path relative to [testDir].
+Future<_ParsedTest> _parse(File file, {required String testDir}) async {
+  final content = await file.readAsString();
+  return (
+    relativePath: path.relative(file.path, from: testDir).replaceAll(r'\', '/'),
+    content: content,
+    metadata: parseTestMetadata(content, path: file.path),
+  );
+}
+
+/// Returns the subset of [items] that belongs to the shard [shardIndex] out of
+/// [totalShards], or [items] unchanged when sharding is not enabled (either
+/// value is `null`).
 ///
-/// Returns [paths] unchanged when sharding is not enabled (either value is
-/// `null`).
-///
-/// Files are dealt out round-robin (index modulo [totalShards]) over the
-/// already sorted [paths], which keeps shards balanced in file count and makes
+/// Items are dealt out round-robin (index modulo [totalShards]) over the
+/// already sorted [items], which keeps shards balanced in file count and makes
 /// the partition stable for a given test suite.
-List<String> _shardOf(
-  List<String> paths, {
+List<T> _shardOf<T>(
+  List<T> items, {
   required int? shardIndex,
   required int? totalShards,
 }) {
-  if (shardIndex == null || totalShards == null) return paths;
+  if (shardIndex == null || totalShards == null) return items;
 
   return [
-    for (var i = shardIndex - 1; i < paths.length; i += totalShards) paths[i],
+    for (var i = shardIndex - 1; i < items.length; i += totalShards) items[i],
   ];
 }
 
@@ -127,38 +154,4 @@ extension on FileSystemEntity {
   bool get isTest {
     return this is File && path.basename(this.path).endsWith('_test.dart');
   }
-}
-
-Future<List<String>> getNotOptimizedTests(
-  Iterable<FileSystemEntity> tests,
-  String testDir,
-) async {
-  final paths = tests.map((e) => e.path).toList();
-  final formattedPaths = paths.map((e) => e.replaceAll('/./', '/')).toList();
-
-  final fileFutures = formattedPaths.map(_checkFileForSkipVeryGoodOptimization);
-  final fileResults = await Future.wait(fileFutures);
-
-  final testWithVeryGoodTest = <String>[];
-  for (var i = 0; i < formattedPaths.length; i++) {
-    if (fileResults[i]) {
-      testWithVeryGoodTest.add(formattedPaths[i]);
-    }
-  }
-
-  /// Format to relative path, normalizing separators so the paths compare
-  /// equal to the ones built in [run] on Windows too.
-  final relativePaths = testWithVeryGoodTest
-      .map((e) => path.relative(e, from: testDir).replaceAll(r'\', '/'))
-      .toList();
-
-  return relativePaths;
-}
-
-/// Check if a single file contains skip_very_good_optimization tag
-Future<bool> _checkFileForSkipVeryGoodOptimization(String path) async {
-  final file = File(path);
-  if (!file.existsSync()) return false;
-  final content = await file.readAsString();
-  return skipVeryGoodOptimizationRegExp.hasMatch(content);
 }

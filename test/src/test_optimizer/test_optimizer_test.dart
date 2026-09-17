@@ -220,8 +220,16 @@ void main() {
 
       test('moves tests matching a glob out of the bundle', () async {
         preGenVars['tests'] = <dynamic>[
-          {'path': 'app/view/app_test.dart', 'identifier': '_a'},
-          {'path': 'integration/login_test.dart', 'identifier': '_b'},
+          {
+            'path': 'app/view/app_test.dart',
+            'identifier': '_a',
+            'groupArguments': ", tags: ['slow']",
+          },
+          {
+            'path': 'integration/login_test.dart',
+            'identifier': '_b',
+            'groupArguments': '',
+          },
         ];
 
         final optimization = await buildOptimizer(
@@ -237,7 +245,11 @@ void main() {
             any(),
             vars: <String, dynamic>{
               'tests': [
-                {'path': 'app/view/app_test.dart', 'identifier': '_a'},
+                {
+                  'path': 'app/view/app_test.dart',
+                  'identifier': '_a',
+                  'groupArguments': ", tags: ['slow']",
+                },
               ],
               'notOptimizedTests': ['integration/login_test.dart'],
             },

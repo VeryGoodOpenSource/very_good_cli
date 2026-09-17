@@ -33,12 +33,12 @@ void main() {
     }
 
     test(
-      'runs an excluded suite on its own, so its file-level tags are honored',
+      'runs an excluded suite on its own, outside the optimized bundle',
       timeout: const Timeout(Duration(minutes: 2)),
       withRunner((commandRunner, logger, updater, logs, progressLogs) async {
         await setUpFixture('optimization_exclude');
         await expectLater(
-          commandRunner.run(['test', '-x', 'integration']),
+          commandRunner.run(['test']),
           completion(equals(ExitCode.success.code)),
         );
       }),
@@ -52,8 +52,6 @@ void main() {
         await expectLater(
           commandRunner.run([
             'test',
-            '-x',
-            'integration',
             '--exclude-optimization',
             'test/nothing_here',
           ]),
