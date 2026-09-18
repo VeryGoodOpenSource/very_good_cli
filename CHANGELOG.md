@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.5.0...v1.6.0) (2026-09-18)
+
+
+### Features
+
+* **test:** exclude test files from the optimized bundle ([#1726](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1726)) ([2e53374](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2e53374956571725d07739ae25da3ff84c14367b))
+* **test:** preserve test annotations in optimized bundle ([#1735](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1735)) ([e144286](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e144286c67fc92e68ae4eb5c0babf5ce6fa32a49))
+
+
+### Bug Fixes
+
+* **mcp:** transient test failures ([#1725](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1725)) ([74771fb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/74771fbce655891f7a7bc2cbf3fad51b6ab7ff97))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml ([#1739](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1739)) ([995afe2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/995afe2ea849c99f4b15c98a3e43d1ff7aef2196))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml ([#1742](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1742)) ([e34d382](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e34d3820256f4748f447419abcba3afeda5ee0d7))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml ([#1741](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1741)) ([892d4ec](https://github.com/VeryGoodOpenSource/very_good_cli/commit/892d4ecb2aa7d2571b52cd9ac897079cc1fd6531))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml ([#1743](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1743)) ([df0b387](https://github.com/VeryGoodOpenSource/very_good_cli/commit/df0b387c1d6caa581a1c1553b26b5e43d726ad40))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml ([#1740](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1740)) ([b2c9193](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b2c9193513ccdbe562414ebee68556b3cc15b1e9))
+* update SPDX licenses ([#1738](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1738)) ([33ef762](https://github.com/VeryGoodOpenSource/very_good_cli/commit/33ef762bc86c1878e4e66f2ec09a83d6c0bd5cf6))
+
+
+### Docs
+
+* document test optimization annotation ([#1736](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1736)) ([1a08452](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1a08452294da455ea26ea4a5d93e55e6f70a18eb))
+* update ROADMAP.md for current quarter priorities ([#1728](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1728)) ([2478108](https://github.com/VeryGoodOpenSource/very_good_cli/commit/24781082dbf43f9dcb93788881fe35a398faba58)), closes [#1727](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1727)
+
 ## [1.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.4.0...v1.5.0) (2026-09-08)
 
 
