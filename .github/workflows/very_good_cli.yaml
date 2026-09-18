@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1.20.1
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1.21.0
     with:
       runs_on: ${{ matrix.os }}
       flutter_version: "3.47.x"
