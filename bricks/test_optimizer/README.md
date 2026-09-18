@@ -18,15 +18,40 @@ The above command will generate a `.test_optimizer.dart` in the `test` directory
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // Consider adding this file to your .gitignore.
 
+import 'package:test/test.dart';
+
 import 'app/view/app_test.dart' as _a;
 import 'counter/cubit/counter_cubit_test.dart' as _b;
 import 'counter/view/counter_page_test.dart' as _c;
 
 void main() {
-  group('app_view_app_test_dart', () { _a.main(); });
-  group('counter_cubit_counter_cubit_test_dart', () { _b.main(); });
-  group('counter_view_counter_page_test_dart', () { _c.main(); });
+  group('app/view/app_test.dart', () { _a.main(); });
+  group('counter/cubit/counter_cubit_test.dart', () { _b.main(); });
+  group('counter/view/counter_page_test.dart', () { _c.main(); }, tags: ['slow']);
 }
+```
+
+## Annotations
+
+`package:test` reads `@Skip`, `@Tags`, `@Timeout`, `@TestOn`, `@OnPlatform` and
+`@Retry` only from the metadata of a file's first directive, which a bundled
+file no longer has. The pre-gen hook parses each file and forwards those
+annotations to its `group` call, as `tags` is forwarded above, so a bundled file
+behaves the way it does under plain `dart test`.
+
+Arguments are forwarded as source text into a file that imports only
+`package:test` and `dart:core`, so an annotation naming anything else, such as
+`@Timeout(kSlowSuite)`, is left out with a warning instead of breaking the
+bundle. `@TestOn` cannot save a file that imports something platform-specific,
+since every optimized file is imported regardless of platform.
+
+Tag a file with `skip_very_good_optimization` to keep it out of the bundle. The
+tag needs a directive such as `library;` beneath it, the only place
+`package:test` reads metadata from:
+
+```dart
+@Tags(['skip_very_good_optimization'])
+library;
 ```
 
 [1]: https://github.com/felangel/mason

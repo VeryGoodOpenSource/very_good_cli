@@ -33,9 +33,7 @@ dart pub get
 dart test
 
 # 💻 Run `very_good test` end to end tests (from e2e/)
-dart test test/src/commands/test/async_main_test.dart &&
-dart test test/src/commands/test/no_project_test.dart &&
-dart test test/src/commands/test/spaced_golden_file_name.dart
+dart test test/commands/test --run-skipped
 ```
 
 If not all test passed out of the box please submit an [issue](https://github.com/VeryGoodOpenSource/very_good_cli/issues/new/choose) so it can get fixed.
