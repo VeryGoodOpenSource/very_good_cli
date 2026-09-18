@@ -64,13 +64,23 @@ class TestOptimizer {
     required bool enabled,
     List<String>? exclude,
     GeneratorBuilder buildGenerator = MasonGenerator.fromBundle,
+    int? shardIndex,
+    int? totalShards,
   }) : this._(
          enabled,
          (exclude ?? const <String>[]).map((str) => str.toGlob).toList(),
          buildGenerator,
+         shardIndex: shardIndex,
+         totalShards: totalShards,
        );
 
-  const new _(this._enabled, this._exclusions, this._buildGenerator);
+  const new _(
+    this._enabled,
+    this._exclusions,
+    this._buildGenerator, {
+    this.shardIndex,
+    this.totalShards,
+  });
 
   /// An optimizer that generates nothing and always yields
   /// [TestOptimization.none].
@@ -80,6 +90,15 @@ class TestOptimizer {
   final bool _enabled;
   final List<Glob> _exclusions;
   final GeneratorBuilder _buildGenerator;
+
+  /// The 1-based shard to keep out of [totalShards], or `null` to keep every
+  /// test. The brick's pre-gen hook deals the sorted test files out
+  /// round-robin, so every shard holds a disjoint slice of the suite.
+  final int? shardIndex;
+
+  /// The number of shards the suite is split into, or `null` when not
+  /// sharding.
+  final int? totalShards;
 
   /// Generates the entrypoint for the package rooted at [packageRoot], which
   /// must be absolute: the brick's pre-gen hook resolves the package's `test`
@@ -94,7 +113,11 @@ class TestOptimizer {
     if (!_enabled) return TestOptimization.none;
 
     final progress = logger.progress('Optimizing tests');
-    var vars = <String, dynamic>{'package-root': packageRoot};
+    var vars = <String, dynamic>{
+      'package-root': packageRoot,
+      'shard-index': ?shardIndex,
+      'total-shards': ?totalShards,
+    };
     try {
       final generator = await _buildGenerator(testOptimizerBundle);
       await generator.hooks.preGen(
@@ -118,6 +141,7 @@ class TestOptimizer {
     return TestOptimization._(
       hasOptimizedTests,
       packageRoot: packageRoot,
+      shardIndex: shardIndex,
       serialTests: [
         ...?(vars['notOptimizedTests'] as List<dynamic>?)?.map(
           (test) => test.toString(),
@@ -163,6 +187,7 @@ class TestOptimization {
   const new _(
     this._hasOptimizedTests, {
     this.packageRoot,
+    this.shardIndex,
     this.serialTests = const <String>[],
   });
 
@@ -176,7 +201,18 @@ class TestOptimization {
   /// Test files kept out of the bundle, which run as their own suites.
   final List<String> serialTests;
 
+  /// The shard the bundle was generated for, or `null` when the run is not
+  /// sharded.
+  final int? shardIndex;
+
   final bool _hasOptimizedTests;
+
+  /// Whether a sharded run ended up with nothing to do, which happens when
+  /// there are more shards than test files. That is not a failure: the runner
+  /// reports success instead of letting the test runner exit with "No tests
+  /// were found", which would fail the CI job.
+  bool get isEmptyShard =>
+      shardIndex != null && !_hasOptimizedTests && serialTests.isEmpty;
 
   /// The paths to append to the test runner's arguments, empty for [none].
   List<String> get testTargets {
@@ -184,7 +220,9 @@ class TestOptimization {
     return [
       if (_hasOptimizedTests || serialTests.isEmpty)
         p.join('test', testOptimizerFileName),
-      for (final test in serialTests) p.join('test', test),
+      // The hook emits POSIX paths; keep the argument native.
+      for (final test in serialTests)
+        p.joinAll(['test', ...p.posix.split(test)]),
     ];
   }
 
