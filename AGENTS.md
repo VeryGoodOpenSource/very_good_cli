@@ -28,7 +28,7 @@ Very Good CLI is a Dart command-line tool by Very Good Ventures for generating s
 
 ```bash
 # Install dependencies
-dart pub get && cd bricks/test_optimizer && dart pub get && cd ../../
+dart pub get && cd bricks/test_optimizer/hooks && dart pub get && cd ../../../
 
 # Run unit tests (excludes expensive pull-request-only and e2e tests)
 flutter test -x pull-request-only -x e2e

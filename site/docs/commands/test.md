@@ -157,12 +157,33 @@ Golden tests are tests that compare the output of a test to a "golden" file. If 
 :::info For an example on specifying a custom [`GoldenFileComparator`](https://api.flutter.dev/flutter/flutter_test/GoldenFileComparator-class.html) that accepts a certain amount of difference (toleration threshold), refer to the [`goldenFileComparator` Flutter documentation](https://api.flutter.dev/flutter/flutter_test/goldenFileComparator.html).
 :::
 
+### File-level annotations
+
+`package:test` reads `@Skip`, `@Tags`, `@Timeout`, `@TestOn`, `@OnPlatform` and `@Retry` only from the metadata of a file's first directive. The optimizer forwards them to the group that wraps each bundled file, so an optimized run behaves the way the same suite does under plain `dart test` or `flutter test`.
+
+```dart
+@Tags(['integration'])
+@Timeout(Duration(minutes: 5))
+library;
+
+import 'package:test/test.dart';
+```
+
+The file above keeps its five minute timeout inside the bundle, is skipped when `dart_test.yaml` marks `integration` as `skip:`, and is left out by `--exclude-tags integration`.
+
+Arguments are forwarded as source text into a file that imports only `package:test` and `dart:core`, so an annotation naming anything else, such as `@Timeout(kSlowSuite)`, is left out with a warning instead of breaking the bundle. Inline the value to keep the annotation.
+
+`@TestOn` cannot save a file that imports something platform-specific, such as `dart:html`, since every optimized file is imported regardless of platform. Keep those files out with the `skip_very_good_optimization` tag or `--exclude-optimization`.
+
 ### Skip optimization for specific tests
 
 By default, all tests run with optimizations enabled; use the `--no-optimization` flag to disable globally, or add the `skip_very_good_optimization` tag to specific test files to disable them individually.
 
-```js
+The tag needs a directive such as `library;` beneath it, the only place `package:test` reads metadata from.
+
+```dart
 @Tags(['skip_very_good_optimization'])
+library;
 
 import 'package:test/test.dart';
 ```
@@ -183,7 +204,7 @@ test:
 
 Globs are matched against each test file's path relative to the package root, and they match everything nested underneath what they name, so `test/integration` excludes every test in that directory. See [`optimization`](../configuration.md#optimization) for the glob syntax details.
 
-Excluded files are left out of the optimized bundle but still run, each as its own test suite. Because they run as their own suites, their file-level `@Tags` are honored again, so combining `--exclude-optimization test/integration` with `--exclude-tags integration` skips a suite annotated with `@Tags(['integration'])`.
+Excluded files are left out of the optimized bundle but still run, each as its own test suite, in their own isolate. Exclude a file when it cannot share an isolate with the rest of the suite, for example because it mutates global state or installs its own bindings. File-level annotations do not need an exclusion, as the bundle forwards them.
 
 Prefer narrow globs. Every excluded file becomes its own suite with its own VM startup, so excluding hundreds of files gives up most of what the optimization buys you.
 
