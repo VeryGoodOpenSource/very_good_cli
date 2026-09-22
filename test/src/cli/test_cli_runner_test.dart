@@ -1347,6 +1347,86 @@ void main() {
         },
       );
 
+      group('when no tests ran', () {
+        // The exit code of `dart test` and `flutter test` when every test was
+        // filtered out, for example by `--exclude-tags`.
+        const noTestsRanExitCode = 79;
+
+        late Directory tempDirectory;
+
+        setUp(() {
+          tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          when(
+            () => hooks.preGen(
+              vars: any(named: 'vars'),
+              onVarsChanged: any(named: 'onVarsChanged'),
+              workingDirectory: any(named: 'workingDirectory'),
+            ),
+          ).thenAnswer((invocation) async {
+            (invocation.namedArguments[#onVarsChanged]
+                    as void Function(Map<String, dynamic> vars))
+                .call(<String, dynamic>{
+                  'package-root': tempDirectory.path,
+                  'tests': [
+                    {'path': 'golden_test.dart', 'identifier': 'golden'},
+                  ],
+                });
+          });
+        });
+
+        test('succeeds when sharding', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+                shardIndex: 2,
+                totalShards: 3,
+              ),
+              arguments: ['--exclude-tags', 'golden'],
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+        });
+
+        test('fails when not sharding', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+              ),
+              arguments: ['--exclude-tags', 'golden'],
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+        });
+      });
+
       test('runs tests w/optimizations (passing)', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

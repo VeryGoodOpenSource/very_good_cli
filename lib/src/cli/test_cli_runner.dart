@@ -495,6 +495,10 @@ class TestCLIRunner {
   }
 }
 
+/// The exit code `dart test` and `flutter test` use when no test ran, for
+/// example because `--exclude-tags` filtered out every test.
+const _noTestsRanExitCode = 79;
+
 Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
@@ -675,8 +679,14 @@ Future<int> _testCommand({
             unawaited(subscription.cancel());
             unawaited(sigintWatchSubscription.cancel());
 
+            // A shard can end up holding only tests that the given tags
+            // filter out, which is expected and not a failure.
+            final noTestsRanInShard =
+                optimization.shardIndex != null &&
+                event.exitCode == _noTestsRanExitCode;
+
             completer.complete(
-              event.exitCode == ExitCode.success.code
+              event.exitCode == ExitCode.success.code || noTestsRanInShard
                   ? ExitCode.success.code
                   : ExitCode.unavailable.code,
             );
