@@ -180,6 +180,44 @@ void main() {
         expect(optimization.serialTests, equals(['tagged_test.dart']));
       });
 
+      test('forwards the shard to the hook', () async {
+        final optimization = await TestOptimizer(
+          enabled: true,
+          buildGenerator: (_) async => generator,
+          shardIndex: 2,
+          totalShards: 3,
+        ).apply(packageRoot: tempDirectory.path, logger: logger);
+
+        verify(
+          () => hooks.preGen(
+            vars: {
+              'package-root': tempDirectory.path,
+              'shard-index': 2,
+              'total-shards': 3,
+            },
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: tempDirectory.path,
+          ),
+        ).called(1);
+        expect(optimization.shardIndex, equals(2));
+      });
+
+      test('leaves the shard vars out when not sharding', () async {
+        final optimization = await buildOptimizer().apply(
+          packageRoot: tempDirectory.path,
+          logger: logger,
+        );
+
+        verify(
+          () => hooks.preGen(
+            vars: {'package-root': tempDirectory.path},
+            onVarsChanged: any(named: 'onVarsChanged'),
+            workingDirectory: tempDirectory.path,
+          ),
+        ).called(1);
+        expect(optimization.shardIndex, isNull);
+      });
+
       test('moves tests matching a glob out of the bundle', () async {
         preGenVars['tests'] = <dynamic>[
           {
@@ -275,6 +313,49 @@ void main() {
       });
     });
 
+    group('.isEmptyShard', () {
+      Future<TestOptimization> shard(int index) {
+        return TestOptimizer(
+          enabled: true,
+          buildGenerator: (_) async => generator,
+          shardIndex: index,
+          totalShards: 3,
+        ).apply(packageRoot: tempDirectory.path, logger: logger);
+      }
+
+      test('is true when the shard holds no tests at all', () async {
+        preGenVars['tests'] = <dynamic>[];
+
+        expect((await shard(3)).isEmptyShard, isTrue);
+      });
+
+      test('is false when the shard holds bundled tests', () async {
+        expect((await shard(1)).isEmptyShard, isFalse);
+      });
+
+      test('is false when the shard only holds tests kept out', () async {
+        preGenVars['tests'] = <dynamic>[];
+        preGenVars['notOptimizedTests'] = <dynamic>['tagged_test.dart'];
+
+        expect((await shard(2)).isEmptyShard, isFalse);
+      });
+
+      test('is false for an empty package that is not sharded', () async {
+        preGenVars['tests'] = <dynamic>[];
+
+        final optimization = await buildOptimizer().apply(
+          packageRoot: tempDirectory.path,
+          logger: logger,
+        );
+
+        expect(optimization.isEmptyShard, isFalse);
+      });
+
+      test('is false when nothing was optimized', () {
+        expect(TestOptimization.none.isEmptyShard, isFalse);
+      });
+    });
+
     group('.testTargets', () {
       Future<TestOptimization> optimize({List<String>? exclude}) {
         return buildOptimizer(exclude: exclude)
@@ -311,7 +392,9 @@ void main() {
 
         expect(
           (await optimize(exclude: const ['test/integration'])).testTargets,
-          equals([p.join('test', 'integration/login_test.dart')]),
+          equals([
+            p.joinAll(['test', 'integration', 'login_test.dart']),
+          ]),
         );
       });
 

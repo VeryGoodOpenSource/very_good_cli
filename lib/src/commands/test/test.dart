@@ -34,6 +34,9 @@ class FlutterTestOptions {
     required this.flavor,
     required this.timeout,
     required this.fileReporter,
+    required this.shardIndex,
+    required this.totalShards,
+    required this.rawMinCoverage,
     required this.rest,
   });
 
@@ -129,6 +132,9 @@ class FlutterTestOptions {
       'file-reporter',
       testConfig.fileReporter,
     );
+    final shardIndex = argResults['shard-index'] as String?;
+    final totalShards = argResults['total-shards'] as String?;
+    final rawMinCoverage = argResults['min-coverage'] as String?;
     final rest = argResults.rest;
 
     return FlutterTestOptions._(
@@ -154,6 +160,9 @@ class FlutterTestOptions {
       flavor: flavor,
       timeout: effectiveTimeout,
       fileReporter: fileReporter,
+      shardIndex: shardIndex,
+      totalShards: totalShards,
+      rawMinCoverage: rawMinCoverage,
       rest: rest,
     );
   }
@@ -227,6 +236,19 @@ class FlutterTestOptions {
   /// `<name>:<path>` (e.g. `json:reports/tests.json`).
   final String? fileReporter;
 
+  /// The raw `--shard-index` value, validated by
+  /// [TestCLIRunner.validateSharding].
+  final String? shardIndex;
+
+  /// The raw `--total-shards` value, validated by
+  /// [TestCLIRunner.validateSharding].
+  final String? totalShards;
+
+  /// The raw `--min-coverage` value, without the `very_good.yaml` fallback
+  /// that [minCoverage] applies, so sharding can reject an explicit threshold
+  /// while ignoring an inherited one.
+  final String? rawMinCoverage;
+
   /// The remaining arguments passed to the test command.
   final List<String> rest;
 
@@ -265,6 +287,8 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   void Function(String)? stdout,
   void Function(String)? stderr,
   List<String>? reportOn,
+  int? shardIndex,
+  int? totalShards,
 });
 
 /// {@template test_command}
@@ -443,6 +467,23 @@ class TestCommand extends Command<int> {
             'Enable an additional reporter writing test results to a file. '
             'Should be in the form <name>:<path> (e.g. "json:reports/tests.json").',
         valueHelp: 'name:path',
+      )
+      ..addOption(
+        'shard-index',
+        help:
+            'The 1-based index of the shard to run. '
+            'Must be used together with --total-shards. '
+            'Requires optimization to be enabled. '
+            'When omitted, no sharding is applied.',
+        valueHelp: 'index',
+      )
+      ..addOption(
+        'total-shards',
+        help:
+            'Split the test suite into this many shards and run only the one '
+            'selected by --shard-index. Useful to parallelize tests across '
+            'multiple CI runners. When omitted, no sharding is applied.',
+        valueHelp: 'count',
       );
   }
 
@@ -495,15 +536,26 @@ This command should be run from the root of your Flutter project.''');
 
     final options = FlutterTestOptions.parse(_argResults, config: config);
 
+    final shardingError = TestCLIRunner.validateSharding(
+      rawShardIndex: options.shardIndex,
+      rawTotalShards: options.totalShards,
+      rawMinCoverage: options.rawMinCoverage,
+      optimizePerformance: options.shouldOptimize,
+    );
+    if (shardingError != null) {
+      _logger.err(shardingError);
+      return ExitCode.usage.code;
+    }
+
+    // A threshold inherited from very_good.yaml only applies to un-sharded
+    // runs: a single shard covers a fraction of the code and would fail it.
+    final minCoverage = options.totalShards == null
+        ? options.minCoverage
+        : null;
+
     try {
       final results = await _flutterTest(
-        optimizePerformance:
-            options.optimizePerformance &&
-            !TestCLIRunner.isTargettingTestFiles(options.rest) &&
-            !options.updateGoldens &&
-            // Disabled optimization when platform is specified
-            // https://github.com/VeryGoodOpenSource/very_good_cli/issues/1363
-            options.platform == null,
+        optimizePerformance: options.shouldOptimize,
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         logger: _logger,
@@ -511,15 +563,17 @@ This command should be run from the root of your Flutter project.''');
         stderr: _logger.err,
         collectCoverage:
             options.collectCoverage ||
-            options.minCoverage != null ||
+            minCoverage != null ||
             options.showUncovered,
-        minCoverage: options.minCoverage,
+        minCoverage: minCoverage,
         showUncovered: options.showUncovered,
         excludeFromCoverage: options.excludeFromCoverage,
         collectCoverageFrom: options.collectCoverageFrom,
         randomSeed: options.randomSeed,
         forceAnsi: options.forceAnsi,
         reportOn: options.reportOn.isEmpty ? null : options.reportOn,
+        shardIndex: int.tryParse(options.shardIndex ?? ''),
+        totalShards: int.tryParse(options.totalShards ?? ''),
         arguments: [
           if (options.excludeTags != null) ...['-x', options.excludeTags!],
           if (options.tags != null) ...['-t', options.tags!],
@@ -550,7 +604,7 @@ This command should be run from the root of your Flutter project.''');
       return TestCLIRunner.handleMinCoverageNotMet(
         error,
         logger: _logger,
-        minCoverage: options.minCoverage,
+        minCoverage: minCoverage,
       );
     } on InvalidOptimizationGlob catch (error) {
       _logger.err('$error');

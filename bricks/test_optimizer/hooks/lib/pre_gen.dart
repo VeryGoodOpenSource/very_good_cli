@@ -40,6 +40,22 @@ Future<void> run(HookContext context) async {
   final flutterSdkRegExp = RegExp(r'sdk:\s*flutter$', multiLine: true);
   final isFlutter = flutterSdkRegExp.hasMatch(pubspecContents);
 
+  final shardIndex = context.vars['shard-index'] as int?;
+  final totalShards = context.vars['total-shards'] as int?;
+
+  // The CLI validates these before it gets here, but `mason make` prompts for
+  // them directly, so guard the round-robin below against values that would
+  // never terminate or index out of range.
+  if (shardIndex != null &&
+      totalShards != null &&
+      (totalShards < 1 || shardIndex < 1 || shardIndex > totalShards)) {
+    context.logger.err(
+      'shard-index must be between 1 and total-shards, but got '
+      'shard-index $shardIndex and total-shards $totalShards',
+    );
+    exitFn(1);
+  }
+
   final identifierGenerator = DartIdentifierGenerator();
   final optimizedTests = <Map<String, String>>[];
   final notOptimizedTests = <String>[];
@@ -48,13 +64,23 @@ Future<void> run(HookContext context) async {
       .listSync(recursive: true)
       .where((entity) => entity.isTest)
       .cast<File>();
-  final parsedTests = await Future.wait(tests.map(_parse));
+  final parsedTests = await Future.wait(
+    tests.map((file) => _parse(file, testDir: testDir.path)),
+  );
 
-  for (final (file, content, metadata) in parsedTests) {
-    final relativePath = path
-        .relative(file.path, from: testDir.path)
-        .replaceAll(r'\', '/');
+  // Sorting guarantees a deterministic order across machines, which is what
+  // makes sharding reproducible: `Directory.listSync` order is filesystem
+  // dependent, so without this two runners could disagree on the partition
+  // and either skip or duplicate tests. Tests kept out of the bundle are
+  // dealt out in the same round as the optimized ones, which keeps every
+  // shard within one file of the others.
+  final shard = _shardOf(
+    parsedTests..sort((a, b) => a.relativePath.compareTo(b.relativePath)),
+    shardIndex: shardIndex,
+    totalShards: totalShards,
+  );
 
+  for (final (:relativePath, :content, :metadata) in shard) {
     if (metadata.skipsOptimization) {
       notOptimizedTests.add(relativePath);
       continue;
@@ -89,11 +115,39 @@ Future<void> run(HookContext context) async {
   };
 }
 
-typedef _ParsedTest = (File file, String content, TestMetadata metadata);
+typedef _ParsedTest = ({
+  String relativePath,
+  String content,
+  TestMetadata metadata,
+});
 
-Future<_ParsedTest> _parse(File file) async {
+/// Reads and parses [file], keyed by its POSIX path relative to [testDir].
+Future<_ParsedTest> _parse(File file, {required String testDir}) async {
   final content = await file.readAsString();
-  return (file, content, parseTestMetadata(content, path: file.path));
+  return (
+    relativePath: path.relative(file.path, from: testDir).replaceAll(r'\', '/'),
+    content: content,
+    metadata: parseTestMetadata(content, path: file.path),
+  );
+}
+
+/// Returns the subset of [items] that belongs to the shard [shardIndex] out of
+/// [totalShards], or [items] unchanged when sharding is not enabled (either
+/// value is `null`).
+///
+/// Items are dealt out round-robin (index modulo [totalShards]) over the
+/// already sorted [items], which keeps shards balanced in file count and makes
+/// the partition stable for a given test suite.
+List<T> _shardOf<T>(
+  List<T> items, {
+  required int? shardIndex,
+  required int? totalShards,
+}) {
+  if (shardIndex == null || totalShards == null) return items;
+
+  return [
+    for (var i = shardIndex - 1; i < items.length; i += totalShards) items[i],
+  ];
 }
 
 extension on FileSystemEntity {
