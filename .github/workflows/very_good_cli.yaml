@@ -42,6 +42,9 @@ jobs:
       # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
       run_cognitive_complexity: true
+      # TEMP: diffing against the root commit simulates the push-to-main full
+      # scan on a pull request. Revert before review.
+      cognitive_complexity_diff_base: aed35ed622031513fc2b7f046b081a647ef34f21
 
   pana:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1.21.1
