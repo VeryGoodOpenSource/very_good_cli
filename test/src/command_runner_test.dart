@@ -35,6 +35,7 @@ const expectedUsage = [
   '''    --[no-]verbose    Noisy logging, including all shell commands executed.\n''',
   '\n',
   'Available commands:\n',
+  '  coverage   Command for working with coverage reports.\n',
   '  create     very_good create <subcommand> <project-name> [arguments]\n',
   '''             Creates a new very good project in the specified directory.\n''',
   '  dart       Command for running dart related commands.\n',

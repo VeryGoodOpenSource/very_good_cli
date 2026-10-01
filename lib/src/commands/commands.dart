@@ -1,3 +1,4 @@
+export 'coverage/coverage.dart';
 export 'create/commands/commands.dart';
 export 'create/create.dart';
 export 'dart/dart.dart';

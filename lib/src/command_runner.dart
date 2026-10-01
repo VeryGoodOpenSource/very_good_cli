@@ -33,6 +33,7 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
         'verbose',
         help: 'Noisy logging, including all shell commands executed.',
       );
+    addCommand(CoverageCommand(logger: _logger));
     addCommand(CreateCommand(logger: _logger));
     addCommand(PackagesCommand(logger: _logger));
     addCommand(TestCommand(logger: _logger));
