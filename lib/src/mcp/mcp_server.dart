@@ -403,89 +403,65 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
+    final timeoutSeconds = args['timeout_seconds'] as num?;
+    final paths = args['paths'] as List<Object?>? ?? const [];
+
     // NOTE: 'directory' is intentionally not added here. It is applied as the
     // working directory in [_runToolCommand], not as a positional test target.
-    final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
-
-    if (args['coverage'] == true) {
-      cliArgs.add('--coverage');
-    }
-    if (args['recursive'] == true) {
-      cliArgs.add('-r');
-    }
-    if (args['optimization'] == false) {
-      cliArgs.add('--no-optimization');
-    }
-    if (args['concurrency'] != null) {
-      cliArgs.addAll(['-j', args['concurrency']! as String]);
-    }
-    if (args['tags'] != null) {
-      cliArgs.addAll(['-t', args['tags']! as String]);
-    }
-    if (args['exclude_coverage'] != null) {
-      cliArgs.addAll([
-        '--exclude-coverage',
-        args['exclude_coverage']! as String,
-      ]);
-    }
-    if (args['exclude_tags'] != null) {
-      cliArgs.addAll(['-x', args['exclude_tags']! as String]);
-    }
-    if (args['min_coverage'] != null) {
-      cliArgs.addAll(['--min-coverage', args['min_coverage']! as String]);
-    }
-    if (args['test_randomize_ordering_seed'] != null) {
-      cliArgs.addAll([
+    return [
+      ..._flag(args, 'dart', 'dart'),
+      'test',
+      ..._flag(args, 'coverage', '--coverage'),
+      ..._flag(args, 'recursive', '-r'),
+      ..._flag(args, 'optimization', '--no-optimization', whenValue: false),
+      ..._option(args, 'concurrency', '-j'),
+      ..._option(args, 'tags', '-t'),
+      ..._option(args, 'exclude_coverage', '--exclude-coverage'),
+      ..._option(args, 'exclude_tags', '-x'),
+      ..._option(args, 'min_coverage', '--min-coverage'),
+      ..._option(
+        args,
+        'test_randomize_ordering_seed',
         '--test-randomize-ordering-seed',
-        args['test_randomize_ordering_seed']! as String,
-      ]);
-    }
-    if (args['update_goldens'] == true) {
-      cliArgs.add('--update-goldens');
-    }
-    if (args['force_ansi'] == true) {
-      cliArgs.add('--force-ansi');
-    }
-    if (args['dart-define'] != null) {
-      cliArgs.addAll(['--dart-define', args['dart-define']! as String]);
-    }
-    if (args['dart-define-from-file'] != null) {
-      cliArgs.addAll([
-        '--dart-define-from-file',
-        args['dart-define-from-file']! as String,
-      ]);
-    }
-    if (args['platform'] != null) {
-      cliArgs.addAll(['--platform', args['platform']! as String]);
-    }
-    if (args['run_skipped'] == true) {
-      cliArgs.add('--run-skipped');
-    }
-    if (args['check_ignore'] == true) {
-      cliArgs.add('--check-ignore');
-    }
-    if (args['show_uncovered'] == true) {
-      cliArgs.add('--show-uncovered');
-    }
-    if (args['timeout_seconds'] != null) {
-      cliArgs.addAll([
+      ),
+      ..._flag(args, 'update_goldens', '--update-goldens'),
+      ..._flag(args, 'force_ansi', '--force-ansi'),
+      ..._option(args, 'dart-define', '--dart-define'),
+      ..._option(args, 'dart-define-from-file', '--dart-define-from-file'),
+      ..._option(args, 'platform', '--platform'),
+      ..._flag(args, 'run_skipped', '--run-skipped'),
+      ..._flag(args, 'check_ignore', '--check-ignore'),
+      ..._flag(args, 'show_uncovered', '--show-uncovered'),
+      if (timeoutSeconds != null) ...[
         '--timeout',
-        (args['timeout_seconds']! as num).toInt().toString(),
-      ]);
-    }
-
-    // Positional test targets go last, after every option, so that they are
-    // parsed as `rest` rather than as a value for the preceding option. The
-    // `--` terminator keeps a target that begins with `-` from being read as
-    // an option; the parser strips it back out of `rest`, so the test command
-    // sees the paths and nothing else.
-    final paths = args['paths'] as List<Object?>?;
-    if (paths != null && paths.isNotEmpty) {
-      cliArgs.addAll(['--', ...paths.cast<String>()]);
-    }
-
-    return cliArgs;
+        timeoutSeconds.toInt().toString(),
+      ],
+      // Positional test targets go last, after every option, so that they are
+      // parsed as `rest` rather than as a value for the preceding option. The
+      // `--` terminator keeps a target that begins with `-` from being read as
+      // an option; the parser strips it back out of `rest`, so the test command
+      // sees the paths and nothing else.
+      if (paths.isNotEmpty) ...['--', ...paths.cast<String>()],
+    ];
   }
+
+  /// Returns `[flag]` when `args[key]` equals [whenValue], else nothing.
+  static List<String> _flag(
+    Map<String, Object?> args,
+    String key,
+    String flag, {
+    bool whenValue = true,
+  }) => args[key] == whenValue ? [flag] : const [];
+
+  /// Returns `[option, value]` when `args[key]` is set, else nothing.
+  static List<String> _option(
+    Map<String, Object?> args,
+    String key,
+    String option,
+  ) => switch (args[key] as String?) {
+    final value? => [option, value],
+    null => const [],
+  };
 
   List<String> _parsePackagesGet(Map<String, Object?> args) {
     // NOTE: 'directory' is applied as the working directory in
@@ -592,47 +568,12 @@ Only one value can be selected.
     Map<String, Object?>? requestArguments,
   }) {
     return _lock.run(() async {
-      final commandString = 'very_good ${args.join(' ')}';
-      final output = StringBuffer();
-
-      Future<T> runCaptured<T>(Future<T> Function(Logger logger) body) {
-        final sink = CapturingStdout(output);
-        return IOOverrides.runZoned(
-          () => body(Logger()),
-          stdout: () => sink,
-          stderr: () => sink,
-        );
-      }
-
-      // Builds a structured JSON failure result from [reason] and
-      // [failureType]. The captured command output is surfaced as
-      // `partialResults` so any diagnostics emitted before a failure or throw
-      // are preserved. A short human-readable summary is also logged to the
-      // real stderr (the stdio transport forbids non-JSON on stdout, so stderr
-      // is free for diagnostics).
-      CallToolResult errorResult(
-        String reason, {
-        required ToolFailureType failureType,
-        StackTrace? stackTrace,
-      }) {
-        final captured = sanitizeCommandOutput(output.toString()).trim();
-        stderr.writeln(
-          '[very_good_mcp] "$toolName" ${failureType.name} error: $reason '
-          '(command: $commandString)',
-        );
-        if (stackTrace != null) {
-          stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
-        }
-        return StructuredToolError(
-          toolName: toolName,
-          reason: reason,
-          failureType: failureType,
-          commandString: commandString,
-          directory: directory,
-          attemptedArguments: requestArguments,
-          capturedOutput: captured,
-        ).toCallToolResult();
-      }
+      final run = _ToolRun(
+        toolName: toolName,
+        commandString: 'very_good ${args.join(' ')}',
+        directory: directory,
+        requestArguments: requestArguments,
+      );
 
       // Apply [directory] as the real working directory for the duration of
       // the run, restoring it afterwards. The underlying commands resolve their
@@ -643,32 +584,17 @@ Only one value can be selected.
 
       try {
         if (directory != null) Directory.current = directory;
-        final exitCode = await runCaptured(
+        final exitCode = await run.capture(
           (logger) => _commandRunnerBuilder(logger: logger).run(args),
         );
-
-        if (exitCode == ExitCode.success.code) {
-          final captured = sanitizeCommandOutput(output.toString()).trim();
-          return CallToolResult(
-            content: [
-              TextContent(text: '"$toolName" completed successfully.'),
-              if (captured.isNotEmpty) TextContent(text: captured),
-            ],
-            isError: false,
-          );
-        }
-
-        return errorResult(
-          'failed with exit code $exitCode.',
-          failureType: ToolFailureType.fromExitCode(exitCode),
-        );
+        return run.resultFor(exitCode);
       } on UsageException catch (e) {
-        return errorResult(
+        return run.failure(
           'usage error: ${e.message}',
           failureType: ToolFailureType.validation,
         );
       } on Exception catch (e, stackTrace) {
-        return errorResult(
+        return run.failure(
           'threw an exception: $e',
           failureType: ToolFailureType.transient,
           stackTrace: stackTrace,
@@ -677,6 +603,91 @@ Only one value can be selected.
         if (directory != null) Directory.current = previousDirectory;
       }
     });
+  }
+}
+
+/// A single in-process tool invocation run by
+/// [VeryGoodMCPServer._runToolCommand].
+///
+/// Owns the buffer that captures the command's output and turns the outcome
+/// of the run into a [CallToolResult].
+class _ToolRun {
+  new({
+    required this.toolName,
+    required this.commandString,
+    required this.directory,
+    required this.requestArguments,
+  });
+
+  final String toolName;
+  final String commandString;
+  final String? directory;
+  final Map<String, Object?>? requestArguments;
+  final StringBuffer _output = StringBuffer();
+
+  String get _capturedOutput =>
+      sanitizeCommandOutput(_output.toString()).trim();
+
+  /// Runs [body] with `stdout`/`stderr` redirected into this run's buffer.
+  ///
+  /// The [Logger] is built inside the zone because mason captures
+  /// `IOOverrides.current` at construction time.
+  Future<T> capture<T>(Future<T> Function(Logger logger) body) {
+    final sink = CapturingStdout(_output);
+    return IOOverrides.runZoned(
+      () => body(Logger()),
+      stdout: () => sink,
+      stderr: () => sink,
+    );
+  }
+
+  /// Maps the command's [exitCode] to a success or failure result.
+  CallToolResult resultFor(int exitCode) => exitCode == ExitCode.success.code
+      ? _success()
+      : failure(
+          'failed with exit code $exitCode.',
+          failureType: ToolFailureType.fromExitCode(exitCode),
+        );
+
+  CallToolResult _success() {
+    final captured = _capturedOutput;
+    return CallToolResult(
+      content: [
+        TextContent(text: '"$toolName" completed successfully.'),
+        if (captured.isNotEmpty) TextContent(text: captured),
+      ],
+      isError: false,
+    );
+  }
+
+  /// Builds a structured JSON failure result from [reason] and [failureType].
+  ///
+  /// The captured command output is surfaced as `partialResults` so any
+  /// diagnostics emitted before a failure or throw are preserved. A short
+  /// human-readable summary is also logged to the real stderr (the stdio
+  /// transport forbids non-JSON on stdout, so stderr is free for diagnostics).
+  CallToolResult failure(
+    String reason, {
+    required ToolFailureType failureType,
+    StackTrace? stackTrace,
+  }) {
+    final captured = _capturedOutput;
+    stderr.writeln(
+      '[very_good_mcp] "$toolName" ${failureType.name} error: $reason '
+      '(command: $commandString)',
+    );
+    if (stackTrace != null) {
+      stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
+    }
+    return StructuredToolError(
+      toolName: toolName,
+      reason: reason,
+      failureType: failureType,
+      commandString: commandString,
+      directory: directory,
+      attemptedArguments: requestArguments,
+      capturedOutput: captured,
+    ).toCallToolResult();
   }
 }
 
