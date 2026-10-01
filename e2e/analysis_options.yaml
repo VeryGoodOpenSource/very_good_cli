@@ -1,6 +1,7 @@
 include: package:very_good_analysis/analysis_options.yaml
 analyzer:
   exclude:
+    - test/commands/coverage/merge/fixture/**
     - test/commands/test/**
     - build/**
     - android/**

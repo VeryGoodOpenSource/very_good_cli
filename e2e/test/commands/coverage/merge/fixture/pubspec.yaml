@@ -1,0 +1,15 @@
+name: coverage_merge_fixture
+description: Fixture for testing the merge of sharded coverage reports.
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
