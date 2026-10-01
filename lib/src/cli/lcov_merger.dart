@@ -38,6 +38,15 @@ class LcovRecord {
   /// Times taken per branch (`BRDA:`).
   final Map<LcovBranch, int> branches;
 
+  /// A copy of this record for the source [file].
+  LcovRecord withFile(String file) => LcovRecord(
+    file,
+    lines: {...lines},
+    functionLines: {...functionLines},
+    functionHits: {...functionHits},
+    branches: {...branches},
+  );
+
   /// Adds the hits of [other] into this record.
   void addAll(LcovRecord other) {
     void sum<K>(Map<K, int> target, Map<K, int> source) {
@@ -162,6 +171,48 @@ List<LcovRecord> parseLcov(String content) {
 
   if (record != null) records.add(record);
   return records;
+}
+
+/// Normalizes the source path of [records] so that reports produced on
+/// different runners, or for different packages, key the same file the same
+/// way.
+///
+/// * Separators become `/`.
+/// * Relative paths are rebased onto [packagePath] (relative to the current
+///   directory of [context]) when given, so that `lib/a.dart` from two
+///   packages stay distinct.
+/// * Absolute paths under the current directory of [context] become relative
+///   to it. Others are kept, and reported through [onExternalPath].
+///
+/// [context] defaults to the platform's [p.context].
+List<LcovRecord> normalizeLcovRecords(
+  Iterable<LcovRecord> records, {
+  String? packagePath,
+  p.Context? context,
+  void Function(String path)? onExternalPath,
+}) {
+  final ctx = context ?? p.context;
+
+  String normalize(String file) {
+    final path = file.replaceAll(r'\', '/');
+
+    final String resolved;
+    if (ctx.isAbsolute(path) && ctx.isWithin(ctx.current, path)) {
+      resolved = ctx.relative(path);
+    } else if (ctx.isAbsolute(path) || p.windows.isAbsolute(path)) {
+      // Also checked as Windows, since a report from a Windows runner can be
+      // merged on any other platform.
+      onExternalPath?.call(path);
+      resolved = path;
+    } else {
+      resolved = packagePath == null ? path : ctx.join(packagePath, path);
+    }
+    return ctx.normalize(resolved).replaceAll(r'\', '/');
+  }
+
+  return [
+    for (final record in records) record.withFile(normalize(record.file)),
+  ];
 }
 
 /// Merges [records] that describe the same source file, summing their hits.

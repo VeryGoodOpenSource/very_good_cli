@@ -1,4 +1,5 @@
 import 'package:lcov_parser/lcov_parser.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
@@ -227,6 +228,93 @@ end_of_record
         RegExp('BRDA:(.*)').allMatches(record.toLcov()).map((m) => m[1]),
         equals(['1,0,0,1', '1,0,1,1', '1,1,0,1', '2,0,0,1']),
       );
+    });
+  });
+
+  group(normalizeLcovRecords, () {
+    final posix = p.Context(style: p.Style.posix, current: '/repo');
+    final windows = p.Context(style: p.Style.windows, current: r'C:\repo');
+
+    List<String> normalize(
+      List<String> files, {
+      String? packagePath,
+      p.Context? context,
+      void Function(String)? onExternalPath,
+    }) => normalizeLcovRecords(
+      files.map(LcovRecord.new),
+      packagePath: packagePath,
+      context: context ?? posix,
+      onExternalPath: onExternalPath,
+    ).map((record) => record.file).toList();
+
+    test('keeps relative paths without a package path', () {
+      expect(normalize(['lib/a.dart', './lib/b.dart']), [
+        'lib/a.dart',
+        'lib/b.dart',
+      ]);
+    });
+
+    test('rebases relative paths onto the package path', () {
+      expect(
+        normalize(['lib/a.dart'], packagePath: 'packages/foo'),
+        equals(['packages/foo/lib/a.dart']),
+      );
+      expect(normalize(['lib/a.dart'], packagePath: '.'), ['lib/a.dart']);
+    });
+
+    test('converts Windows separators', () {
+      expect(
+        normalize([r'lib\src\a.dart'], packagePath: 'packages/foo'),
+        equals(['packages/foo/lib/src/a.dart']),
+      );
+      expect(
+        normalize(
+          [r'lib\src\a.dart'],
+          packagePath: r'packages\foo',
+          context: windows,
+        ),
+        equals(['packages/foo/lib/src/a.dart']),
+      );
+    });
+
+    test('makes absolute paths under the current directory relative', () {
+      expect(
+        normalize([
+          '/repo/packages/foo/lib/a.dart',
+        ], packagePath: 'packages/foo'),
+        equals(['packages/foo/lib/a.dart']),
+      );
+      expect(
+        normalize([r'c:\repo\lib\a.dart'], context: windows),
+        equals(['lib/a.dart']),
+      );
+    });
+
+    test('keeps and reports absolute paths outside the current directory', () {
+      final external = <String>[];
+
+      final files = normalize(
+        ['/other/lib/a.dart', r'D:\runner\lib\a.dart', 'lib/b.dart'],
+        packagePath: 'packages/foo',
+        onExternalPath: external.add,
+      );
+
+      expect(files, [
+        '/other/lib/a.dart',
+        'D:/runner/lib/a.dart',
+        'packages/foo/lib/b.dart',
+      ]);
+      expect(external, ['/other/lib/a.dart', 'D:/runner/lib/a.dart']);
+    });
+
+    test('does not modify the given records', () {
+      final record = LcovRecord('lib/a.dart', lines: {1: 1});
+
+      final [normalized] = normalizeLcovRecords([record], packagePath: 'foo');
+      normalized.lines[1] = 2;
+
+      expect(record.file, equals('lib/a.dart'));
+      expect(record.lines, equals({1: 1}));
     });
   });
 }
