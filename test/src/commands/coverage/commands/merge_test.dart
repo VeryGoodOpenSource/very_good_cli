@@ -231,18 +231,116 @@ void main() {
       }),
     );
 
-    group('fails', () {
+    group('without lcov files', () {
+      void writePackage(String path, String lcov) {
+        _writeFile(p.join(path, 'pubspec.yaml'), 'name: ${p.basename(path)}');
+        _writeFile(p.join(path, 'coverage', 'lcov.info'), lcov);
+      }
+
       test(
-        'when no lcov file is given',
+        'merges the report of every package, keeping their files distinct',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           _enterTempDirectory();
+          writePackage(p.join('packages', 'foo'), _shard1);
+          writePackage(p.join('packages', 'bar'), _shard2);
+          for (final ignored in ['build', '.dart_tool', '.fvm', 'ios']) {
+            writePackage(p.join('packages', 'foo', ignored, 'pkg'), _shard1);
+          }
+          // A package without tests leaves no report behind.
+          _writeFile(p.join('packages', 'baz', 'pubspec.yaml'), 'name: baz');
 
           final result = await commandRunner.run(['coverage', 'merge']);
 
-          expect(result, equals(ExitCode.usage.code));
+          expect(result, equals(ExitCode.success.code));
+          expect(
+            _readOutput(),
+            equals('''
+SF:packages/bar/lib/a.dart
+DA:1,0
+DA:2,2
+LF:2
+LH:1
+end_of_record
+SF:packages/foo/lib/a.dart
+DA:1,1
+DA:2,0
+LF:2
+LH:1
+end_of_record
+SF:packages/foo/lib/b.dart
+DA:1,0
+LF:1
+LH:0
+end_of_record
+'''),
+          );
+          verify(
+            () =>
+                logger.info('Merged 2 lcov report(s) into coverage/lcov.info'),
+          ).called(1);
+        }),
+      );
+
+      test(
+        'skips the --output report',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          writePackage('.', 'SF:stale.dart\nDA:1,1\nend_of_record\n');
+          writePackage('foo', _shard2);
+
+          final result = await commandRunner.run(['coverage', 'merge']);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(_readOutput(), startsWith('SF:foo/lib/a.dart\n'));
+          expect(_readOutput(), isNot(contains('stale.dart')));
+          verify(
+            () => logger.warn(
+              'Skipping ${p.join('coverage', 'lcov.info')}, since it is the '
+              '--output report. Pass a different --output to merge it too.',
+            ),
+          ).called(1);
+        }),
+      );
+
+      test(
+        'merges the root report into a different --output',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          writePackage('.', _shard1);
+          writePackage('foo', _shard2);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            '-o',
+            'merged.info',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(
+            _readOutput('merged.info'),
+            allOf(contains('SF:lib/a.dart\n'), contains('SF:foo/lib/a.dart\n')),
+          );
+        }),
+      );
+    });
+
+    group('fails', () {
+      test(
+        'when no lcov file is given and none is found',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          final cwd = _enterTempDirectory();
+          // A package without a report.
+          _writeFile('pubspec.yaml', 'name: root');
+
+          final result = await commandRunner.run(['coverage', 'merge']);
+
+          expect(result, equals(ExitCode.noInput.code));
           verify(
             () => logger.err(
-              'No lcov reports to merge. Pass the lcov files or globs to merge.',
+              'No lcov reports found in ${cwd.path}. Run '
+              '"very_good test --recursive --coverage" first, or pass the lcov '
+              'files or globs to merge.',
             ),
           ).called(1);
         }),

@@ -215,6 +215,23 @@ List<LcovRecord> normalizeLcovRecords(
   ];
 }
 
+/// The directories of the packages under [cwd], relative to it, that have a
+/// `coverage/lcov.info` report, as left behind by
+/// `very_good test --recursive --coverage`.
+///
+/// Packages are found the same way as with `--recursive`, so platform, build
+/// and tool directories are skipped.
+List<String> discoverLcovPackages(String cwd) => Directory(cwd)
+    .listSync(recursive: true)
+    .where(_isPubspec)
+    .map((pubspec) => p.relative(pubspec.parent.path, from: cwd))
+    .where((package) => !p.split(package).any(_ignoredDirectories.contains))
+    .where(
+      (package) =>
+          File(p.join(cwd, package, 'coverage', 'lcov.info')).existsSync(),
+    )
+    .sorted();
+
 /// Merges [records] that describe the same source file, summing their hits.
 ///
 /// The result keeps the order in which each file first appears.

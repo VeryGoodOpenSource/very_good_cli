@@ -91,7 +91,9 @@ class CoverageMergeCommand extends Command<int> {
         );
       }
 
-      final inputs = _resolveInputs(argResults.rest, cwd: cwd);
+      final inputs = argResults.rest.isEmpty
+          ? _discoverInputs(cwd: cwd, output: output)
+          : _resolveInputs(argResults.rest, cwd: cwd);
       final externalPaths = <String>{};
       final records = [
         for (final input in inputs)
@@ -150,13 +152,6 @@ class CoverageMergeCommand extends Command<int> {
     List<String> args, {
     required String cwd,
   }) {
-    if (args.isEmpty) {
-      throw _MergeError(
-        'No lcov reports to merge. Pass the lcov files or globs to merge.',
-        ExitCode.usage.code,
-      );
-    }
-
     final paths = <String>{};
     for (final arg in args) {
       if (File(p.join(cwd, arg)).existsSync()) {
@@ -188,6 +183,41 @@ class CoverageMergeCommand extends Command<int> {
     }
 
     return [for (final path in paths) (path: path, packagePath: null)];
+  }
+
+  /// The `coverage/lcov.info` report of every package under [cwd], with their
+  /// relative source paths rebased onto their package, so the same
+  /// `lib/a.dart` from two packages stays distinct.
+  ///
+  /// The [output] report is left out, so that merging again doesn't count the
+  /// previous merge.
+  List<({String path, String? packagePath})> _discoverInputs({
+    required String cwd,
+    required String output,
+  }) {
+    final outputPath = p.join(cwd, output);
+    final inputs = <({String path, String? packagePath})>[];
+    for (final package in discoverLcovPackages(cwd)) {
+      final path = p.normalize(p.join(package, 'coverage', 'lcov.info'));
+      if (p.equals(p.join(cwd, path), outputPath)) {
+        _logger.warn(
+          'Skipping $path, since it is the --output report. Pass a different '
+          '--output to merge it too.',
+        );
+        continue;
+      }
+      inputs.add((path: path, packagePath: package));
+    }
+
+    if (inputs.isEmpty) {
+      throw _MergeError(
+        'No lcov reports found in $cwd. Run '
+        '"very_good test --recursive --coverage" first, or pass the lcov files '
+        'or globs to merge.',
+        ExitCode.noInput.code,
+      );
+    }
+    return inputs;
   }
 
   List<LcovRecord> _parse(String path) {
