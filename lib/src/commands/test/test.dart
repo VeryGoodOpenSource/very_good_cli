@@ -262,6 +262,30 @@ class FlutterTestOptions {
       !TestCLIRunner.isTargettingTestFiles(rest) &&
       !updateGoldens &&
       platform == null;
+
+  /// The arguments forwarded to `flutter test`.
+  List<String> get _flutterTestArguments => [
+    if (excludeTags != null) ...['-x', excludeTags!],
+    if (tags != null) ...['-t', tags!],
+    if (updateGoldens) '--update-goldens',
+    if (failFast) '--fail-fast',
+    if (runSkipped) '--run-skipped',
+    if (flavor != null) ...['--flavor', flavor!],
+    if (platform != null) ...['--platform', platform!],
+    ..._dartDefineArguments,
+    if (platform == null) ...['-j', concurrency],
+    '--no-pub',
+    if (timeout != null) '--timeout=${timeout!.inSeconds}s',
+    if (fileReporter != null) '--file-reporter=$fileReporter',
+    ...rest,
+  ];
+
+  /// The `--dart-define` and `--dart-define-from-file` arguments.
+  List<String> get _dartDefineArguments => [
+    for (final value in dartDefine ?? const <String>[]) '--dart-define=$value',
+    for (final value in dartDefineFromFile ?? const <String>[])
+      '--dart-define-from-file=$value',
+  ];
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -508,24 +532,10 @@ class TestCommand extends Command<int> {
   @override
   Future<int> run() async {
     final targetPath = path.normalize(Directory.current.absolute.path);
-    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
     final recursive = _argResults['recursive'] as bool;
 
-    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
-      _logger.err('''
-Cannot target specific test files together with --recursive.
-Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
-that contains them.''');
-      return ExitCode.usage.code;
-    }
-
-    if (!recursive && !pubspec.existsSync()) {
-      _logger.err('''
-Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''');
-      return ExitCode.noInput.code;
-    }
+    final targetError = _validateTarget(targetPath, recursive: recursive);
+    if (targetError != null) return targetError;
 
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
@@ -547,6 +557,37 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.usage.code;
     }
 
+    return await _runFlutterTest(options, recursive: recursive);
+  }
+
+  /// Logs and returns the exit code for a [targetPath] the command cannot run
+  /// against, or returns `null` when the target is valid.
+  int? _validateTarget(String targetPath, {required bool recursive}) {
+    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
+      _logger.err('''
+Cannot target specific test files together with --recursive.
+Test targets are resolved against a single package root, so the same path
+cannot apply to every package. Drop --recursive and run from the package
+that contains them.''');
+      return ExitCode.usage.code;
+    }
+
+    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
+    if (!recursive && !pubspec.existsSync()) {
+      _logger.err('''
+Could not find a pubspec.yaml in $targetPath.
+This command should be run from the root of your Flutter project.''');
+      return ExitCode.noInput.code;
+    }
+
+    return null;
+  }
+
+  /// Runs `flutter test` with [options] and maps its outcome to an exit code.
+  Future<int> _runFlutterTest(
+    FlutterTestOptions options, {
+    required bool recursive,
+  }) async {
     // A threshold inherited from very_good.yaml only applies to un-sharded
     // runs: a single shard covers a fraction of the code and would fail it.
     final minCoverage = options.totalShards == null
@@ -574,27 +615,7 @@ This command should be run from the root of your Flutter project.''');
         reportOn: options.reportOn.isEmpty ? null : options.reportOn,
         shardIndex: int.tryParse(options.shardIndex ?? ''),
         totalShards: int.tryParse(options.totalShards ?? ''),
-        arguments: [
-          if (options.excludeTags != null) ...['-x', options.excludeTags!],
-          if (options.tags != null) ...['-t', options.tags!],
-          if (options.updateGoldens) '--update-goldens',
-          if (options.failFast) '--fail-fast',
-          if (options.runSkipped) '--run-skipped',
-          if (options.flavor != null) ...['--flavor', options.flavor!],
-          if (options.platform != null) ...['--platform', options.platform!],
-          if (options.dartDefine != null)
-            for (final value in options.dartDefine!) '--dart-define=$value',
-          if (options.dartDefineFromFile != null)
-            for (final value in options.dartDefineFromFile!)
-              '--dart-define-from-file=$value',
-          if (options.platform == null) ...['-j', options.concurrency],
-          '--no-pub',
-          if (options.timeout != null)
-            '--timeout=${options.timeout!.inSeconds}s',
-          if (options.fileReporter != null)
-            '--file-reporter=${options.fileReporter}',
-          ...options.rest,
-        ],
+        arguments: options._flutterTestArguments,
       );
 
       if (results.any((code) => code != ExitCode.success.code)) {

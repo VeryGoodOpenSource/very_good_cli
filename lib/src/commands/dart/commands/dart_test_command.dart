@@ -222,6 +222,18 @@ class DartTestOptions {
       optimizePerformance &&
       !TestCLIRunner.isTargettingTestFiles(rest) &&
       platform == null;
+
+  /// The arguments forwarded verbatim to `dart test`.
+  List<String> get _testArguments => [
+    if (excludeTags != null) ...['-x', excludeTags!],
+    if (tags != null) ...['-t', tags!],
+    if (failFast) '--fail-fast',
+    if (runSkipped) '--run-skipped',
+    if (platform != null) ...['--platform', platform!],
+    if (platform == null) ...['-j', concurrency],
+    if (fileReporter != null) '--file-reporter=$fileReporter',
+    ...rest,
+  ];
 }
 
 /// Signature for the [Dart.installed] method.
@@ -429,24 +441,10 @@ class DartTestCommand extends Command<int> {
   @override
   Future<int> run() async {
     final targetPath = path.normalize(Directory.current.absolute.path);
-    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
     final recursive = _argResults['recursive'] as bool;
 
-    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
-      _logger.err('''
-Cannot target specific test files together with --recursive.
-Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
-that contains them.''');
-      return ExitCode.usage.code;
-    }
-
-    if (!recursive && !pubspec.existsSync()) {
-      _logger.err('''
-Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Dart project.''');
-      return ExitCode.noInput.code;
-    }
+    final targetError = _validateTarget(targetPath, recursive: recursive);
+    if (targetError != null) return targetError;
 
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
@@ -468,6 +466,37 @@ This command should be run from the root of your Dart project.''');
       return ExitCode.usage.code;
     }
 
+    return await _runTests(options, recursive: recursive);
+  }
+
+  /// Returns the exit code to stop with when the run cannot target
+  /// [targetPath], or `null` when it can proceed.
+  int? _validateTarget(String targetPath, {required bool recursive}) {
+    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
+      _logger.err('''
+Cannot target specific test files together with --recursive.
+Test targets are resolved against a single package root, so the same path
+cannot apply to every package. Drop --recursive and run from the package
+that contains them.''');
+      return ExitCode.usage.code;
+    }
+
+    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
+    if (!recursive && !pubspec.existsSync()) {
+      _logger.err('''
+Could not find a pubspec.yaml in $targetPath.
+This command should be run from the root of your Dart project.''');
+      return ExitCode.noInput.code;
+    }
+
+    return null;
+  }
+
+  /// Runs `dart test` with [options] and maps its outcome to an exit code.
+  Future<int> _runTests(
+    DartTestOptions options, {
+    required bool recursive,
+  }) async {
     // A threshold inherited from very_good.yaml only applies to un-sharded
     // runs: a single shard covers a fraction of the code and would fail it.
     final minCoverage = options.totalShards == null
@@ -492,17 +521,7 @@ This command should be run from the root of your Dart project.''');
         collectCoverageFrom: options.collectCoverageFrom,
         randomSeed: options.randomSeed,
         forceAnsi: options.forceAnsi,
-        arguments: [
-          if (options.excludeTags != null) ...['-x', options.excludeTags!],
-          if (options.tags != null) ...['-t', options.tags!],
-          if (options.failFast) '--fail-fast',
-          if (options.runSkipped) '--run-skipped',
-          if (options.platform != null) ...['--platform', options.platform!],
-          if (options.platform == null) ...['-j', options.concurrency],
-          if (options.fileReporter != null)
-            '--file-reporter=${options.fileReporter}',
-          ...options.rest,
-        ],
+        arguments: options._testArguments,
         reportOn: options.reportOn.isEmpty ? null : options.reportOn,
         checkIgnore: options.checkIgnore,
         shardIndex: int.tryParse(options.shardIndex ?? ''),
