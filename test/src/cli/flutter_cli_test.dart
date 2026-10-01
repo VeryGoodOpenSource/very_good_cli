@@ -536,5 +536,45 @@ void main() {
         });
       });
     });
+
+    group('fromLcov', () {
+      test('derives the totals and uncovered lines from the line hits', () {
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('lib/a.dart', lines: {3: 0, 1: 2, 2: 0}),
+          LcovRecord('lib/b.dart', lines: {1: 1}),
+        ]);
+
+        expect(metrics.totalFound, equals(4));
+        expect(metrics.totalHits, equals(2));
+        expect(
+          metrics.uncoveredLines,
+          equals({
+            'lib/a.dart': [2, 3],
+          }),
+        );
+      });
+
+      test('keeps source paths that contain a colon', () {
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('C:/runner/lib/a.dart', lines: {1: 0}),
+          LcovRecord('D:/runner/lib/b.dart', lines: {1: 0}),
+        ]);
+
+        expect(
+          metrics.uncoveredLines.keys,
+          equals(['C:/runner/lib/a.dart', 'D:/runner/lib/b.dart']),
+        );
+      });
+
+      test('excludes source paths that contain a colon', () {
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('lib/a.dart', lines: {1: 1}),
+          LcovRecord('C:/runner/lib/b.g.dart', lines: {1: 0}),
+        ], excludeFromCoverage: '**/*.g.dart');
+
+        expect(metrics.totalFound, equals(1));
+        expect(metrics.totalHits, equals(1));
+      });
+    });
   });
 }

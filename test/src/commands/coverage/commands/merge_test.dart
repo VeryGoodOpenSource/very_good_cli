@@ -501,6 +501,31 @@ end_of_record
           expect(result, equals(ExitCode.success.code));
         }),
       );
+
+      test(
+        'ignores external Windows source paths matching --exclude-coverage',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeFile(
+            'shard.info',
+            'SF:lib/a.dart\nDA:1,1\nend_of_record\n'
+                'SF:C:\\runner\\lib\\a.g.dart\nDA:1,0\nend_of_record\n',
+          );
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shard.info',
+            '--min-coverage',
+            '100',
+            '--exclude-coverage',
+            '**/*.g.dart',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(_readOutput(), contains('SF:C:/runner/lib/a.g.dart\n'));
+        }),
+      );
     });
 
     test(

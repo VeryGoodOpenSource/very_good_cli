@@ -85,6 +85,25 @@ class CoverageMetrics {
       ),
   ], excludeFromCoverage: excludeFromCoverage);
 
+  /// Generate coverage metrics from a list of [LcovRecord]s, as returned by
+  /// [parseLcov].
+  factory fromLcov(
+    Iterable<LcovRecord> records, {
+    String? excludeFromCoverage,
+  }) => ._fromFiles([
+    for (final record in records)
+      (
+        file: record.file,
+        found: record.lines.length,
+        hit: record.lines.values.where((hits) => hits > 0).length,
+        uncovered: [
+          for (final MapEntry(key: line, value: hits)
+              in record.lines.entries.sortedBy<num>((entry) => entry.key))
+            if (hits == 0) line,
+        ],
+      ),
+  ], excludeFromCoverage: excludeFromCoverage);
+
   factory _fromFiles(
     List<({String? file, int found, int hit, List<int> uncovered})> files, {
     String? excludeFromCoverage,

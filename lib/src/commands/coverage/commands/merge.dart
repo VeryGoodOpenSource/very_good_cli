@@ -2,7 +2,6 @@ import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
-import 'package:lcov_parser/lcov_parser.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
@@ -95,14 +94,14 @@ class CoverageMergeCommand extends Command<int> {
           ? _discoverInputs(cwd: cwd, output: output)
           : _resolveInputs(argResults.rest, cwd: cwd);
       final externalPaths = <String>{};
-      final records = [
+      final records = mergeLcovRecords([
         for (final input in inputs)
           ...normalizeLcovRecords(
             _parse(input.path),
             packagePath: input.packagePath,
             onExternalPath: externalPaths.add,
           ),
-      ];
+      ]);
 
       if (externalPaths.isNotEmpty) {
         _logger.warn(
@@ -114,15 +113,13 @@ class CoverageMergeCommand extends Command<int> {
 
       final outputFile = File(p.join(cwd, output));
       await outputFile.create(recursive: true);
-      await outputFile.writeAsString(
-        formatLcovRecords(mergeLcovRecords(records)),
-      );
+      await outputFile.writeAsString(formatLcovRecords(records));
       _logger.info('Merged ${inputs.length} lcov report(s) into $output');
 
       if (minCoverage != null || showUncovered) {
         checkCoverage(
-          CoverageMetrics.fromLcovRecords(
-            await Parser.parse(outputFile.path),
+          CoverageMetrics.fromLcov(
+            records,
             excludeFromCoverage: excludeFromCoverage,
           ),
           minCoverage: minCoverage,
