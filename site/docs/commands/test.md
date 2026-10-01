@@ -116,15 +116,53 @@ given runner executes a slice of every package. Balance therefore degrades when
 a workspace contains many packages with few tests each.
 
 :::caution
-Sharding cannot be combined with `--min-coverage`, and a `min_coverage` set in
-`very_good.yaml` is ignored while sharding. Each shard only exercises a subset
-of the codebase, so its coverage is not representative of the whole suite.
-Collect coverage per shard with `--coverage`, merge the resulting lcov reports
-once every shard has finished, and enforce the threshold on the merged report
-in a separate job. A shard without tests still writes an empty
-`coverage/lcov.info`; pass `--ignore-errors empty` to `lcov` when merging so it
-is accepted.
+Sharding cannot be combined with `--min-coverage`. Each shard only exercises a
+subset of the codebase, so its coverage is not representative of the whole
+suite. Collect coverage per shard with `--coverage`, and enforce the threshold
+on the merged reports with
+[`very_good coverage merge`](coverage.md) once every shard has finished.
 :::
+
+A `min_coverage` set in `very_good.yaml` is not enforced while sharding either.
+Instead of failing, the command warns once per run, and the exit code only
+reflects the test results:
+
+```
+[WARN] min_coverage (100%) from very_good.yaml is not enforced while sharding, since each shard only covers part of the suite.
+Enforce it on the merged report instead: very_good coverage merge <lcov files>
+```
+
+`very_good coverage merge` reads the same `min_coverage`, so the merge job
+enforces it without repeating the threshold. The full workflow, where a matrix
+of shards uploads its reports and a final job downloads and merges them, looks
+like this:
+
+```yaml
+jobs:
+  test:
+    strategy:
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - run: very_good test --coverage --shard-index ${{ matrix.shard }} --total-shards 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.shard }}
+          path: coverage/lcov.info
+
+  coverage:
+    needs: test
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-*
+          path: shards
+      - run: very_good coverage merge 'shards/*/lcov.info'
+```
+
+A shard without tests still writes an empty `coverage/lcov.info`, which
+`very_good coverage merge` accepts. See [Coverage](coverage.md) for the
+complete workflow, including `--recursive` runs.
 
 :::info
 Sharding requires the test optimizer, so it is rejected whenever the optimizer

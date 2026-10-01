@@ -142,6 +142,18 @@ very_good test -r
 very_good test --platform chrome
 ```
 
+### [`very_good coverage merge`](https://cli.vgv.dev/docs/commands/coverage)
+
+Merge the lcov reports of sharded or recursive test runs, and enforce a minimum coverage on the result.
+
+```sh
+# Merge the reports of every shard and enforce 100% coverage
+very_good coverage merge 'shards/*/lcov.info' --min-coverage 100
+
+# Merge the reports of every package, after `very_good test -r --coverage`
+very_good coverage merge
+```
+
 ### [`very_good packages get`](https://cli.vgv.dev/docs/commands/get_pkgs)
 
 Get packages in a Dart or Flutter project.
