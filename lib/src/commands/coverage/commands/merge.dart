@@ -112,7 +112,7 @@ class CoverageMergeCommand extends Command<int> {
         );
       }
 
-      final outputFile = File(p.join(cwd, output));
+      final outputFile = File(outputPath);
       await outputFile.create(recursive: true);
       await outputFile.writeAsString(formatLcovRecords(records));
       _logger.info('Merged ${inputs.length} lcov report(s) into $output');
