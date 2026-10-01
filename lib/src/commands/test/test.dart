@@ -552,6 +552,10 @@ This command should be run from the root of your Flutter project.''');
     final minCoverage = options.totalShards == null
         ? options.minCoverage
         : null;
+    final configMinCoverage = config.test.minCoverage;
+    if (options.totalShards != null && configMinCoverage != null) {
+      _logger.warn(TestCLIRunner.shardedMinCoverageWarning(configMinCoverage));
+    }
 
     try {
       final results = await _flutterTest(

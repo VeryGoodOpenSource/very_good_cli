@@ -135,12 +135,20 @@ class TestCLIRunner {
     // shard and enforce the threshold in a separate job instead.
     if (rawMinCoverage != null) {
       return '--min-coverage cannot be combined with sharding. Collect '
-          'coverage per shard with --coverage, merge the lcov reports, then '
-          'check the threshold in a separate job.';
+          'coverage per shard with --coverage, then enforce the threshold on '
+          'the merged reports with "very_good coverage merge".';
     }
 
     return null;
   }
+
+  /// The warning shown when a sharded run doesn't enforce the [minCoverage]
+  /// set in `very_good.yaml`, since each shard only covers part of the suite.
+  static String shardedMinCoverageWarning(String minCoverage) =>
+      'min_coverage ($minCoverage%) from very_good.yaml is not enforced while '
+      'sharding, since each shard only covers part of the suite.\n'
+      'Enforce it on the merged report instead: '
+      'very_good coverage merge <lcov files>';
 
   /// Run tests (`flutter test`).
   /// Returns a list of exit codes for each test process.

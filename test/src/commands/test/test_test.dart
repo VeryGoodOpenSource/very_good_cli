@@ -1211,8 +1211,42 @@ void main() {
               stderr: logger.err,
             ),
           ).called(1);
+          verify(
+            () => logger.warn(TestCLIRunner.shardedMinCoverageWarning('90')),
+          ).called(1);
         },
       );
+
+      test(
+        'does not warn about min_coverage when sharding without one',
+        () async {
+          withShards('1', '3');
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.success.code));
+          verifyNever(() => logger.warn(any()));
+        },
+      );
+
+      test('does not warn about min_coverage from very_good.yaml when not '
+          'sharding', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() {
+          Directory.current = cwd;
+          tempDirectory.deleteSync(recursive: true);
+        });
+        Directory.current = tempDirectory.path;
+        File(path.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        File(path.join(tempDirectory.path, 'very_good.yaml'))
+            .writeAsStringSync('test:\n  min_coverage: 90\n');
+        when(() => argResults.wasParsed(any())).thenReturn(false);
+
+        final result = await testCommand.run();
+
+        expect(result, equals(ExitCode.success.code));
+        verifyNever(() => logger.warn(any()));
+      });
 
       test('fails when sharding is combined with --min-coverage', () async {
         withShards('1', '3');
@@ -1224,8 +1258,8 @@ void main() {
         verify(
           () => logger.err(
             '--min-coverage cannot be combined with sharding. Collect '
-            'coverage per shard with --coverage, merge the lcov reports, '
-            'then check the threshold in a separate job.',
+            'coverage per shard with --coverage, then enforce the threshold '
+            'on the merged reports with "very_good coverage merge".',
           ),
         ).called(1);
       });
