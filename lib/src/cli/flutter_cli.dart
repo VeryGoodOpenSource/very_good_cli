@@ -70,50 +70,48 @@ class CoverageMetrics {
 
   /// Generate coverage metrics from a list of lcov records.
   factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
-    final globs = <Glob>[];
+    final excludedGlobs = _parseGlobs(excludeFromCoverage);
+    return records
+        .whereNot((record) => _isExcluded(record.file, excludedGlobs))
+        .fold(
+          const CoverageMetrics(),
+          (metrics, record) => metrics._add(record),
+        );
+  }
 
-    if (excludeFromCoverage != null && excludeFromCoverage.isNotEmpty) {
-      for (final glob in excludeFromCoverage.trim().split(' ')) {
-        if (glob.isNotEmpty) globs.add(Glob(glob));
-      }
-    }
+  /// Parses space-separated glob patterns, ignoring empty segments.
+  static List<Glob> _parseGlobs(String? excludeFromCoverage) => [
+    for (final pattern in (excludeFromCoverage ?? '').trim().split(' '))
+      if (pattern.isNotEmpty) Glob(pattern),
+  ];
 
-    return records.fold<CoverageMetrics>(const CoverageMetrics(), (
-      current,
-      record,
-    ) {
-      final found = record.lines?.found ?? 0;
-      final hit = record.lines?.hit ?? 0;
-      if (globs.isNotEmpty && record.file != null) {
-        for (final glob in globs) {
-          if (glob.matches(record.file!)) return current;
-        }
-      }
+  static bool _isExcluded(String? file, List<Glob> excludedGlobs) =>
+      file != null && excludedGlobs.any((glob) => glob.matches(file));
 
-      final file = record.file;
-      final details = record.lines?.details;
-      final uncoveredLines = Map<String, List<int>>.from(
-        current.uncoveredLines,
-      );
+  /// Line numbers in [record] that were instrumented but never hit.
+  static List<int> _uncoveredLineNumbersOf(Record record) => [
+    for (final detail in record.lines?.details ?? const <Never>[])
+      if (detail.line case final line? when (detail.hit ?? 1) == 0) line,
+  ];
 
-      if (file != null && details != null) {
-        for (final line in details) {
-          if ((line.hit ?? 1) == 0 && line.line != null) {
-            uncoveredLines.update(
-              file,
-              (lines) => [...lines, line.line!],
-              ifAbsent: () => [line.line!],
-            );
-          }
-        }
-      }
+  /// Returns new metrics with the counts and uncovered lines of [record].
+  CoverageMetrics _add(Record record) {
+    final lines = record.lines;
+    return CoverageMetrics(
+      totalFound: totalFound + (lines?.found ?? 0),
+      totalHits: totalHits + (lines?.hit ?? 0),
+      uncoveredLines: _uncoveredLinesWith(record),
+    );
+  }
 
-      return CoverageMetrics(
-        totalFound: current.totalFound + found,
-        totalHits: current.totalHits + hit,
-        uncoveredLines: uncoveredLines,
-      );
-    });
+  Map<String, List<int>> _uncoveredLinesWith(Record record) {
+    final file = record.file;
+    final newLines = _uncoveredLineNumbersOf(record);
+    return {
+      ...uncoveredLines,
+      if (file != null && newLines.isNotEmpty)
+        file: [...?uncoveredLines[file], ...newLines],
+    };
   }
 
   /// Total number of lines hit (covered) across all included files.
