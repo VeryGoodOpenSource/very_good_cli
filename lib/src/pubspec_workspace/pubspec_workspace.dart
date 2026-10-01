@@ -87,71 +87,92 @@ Map<String, PubspecDependencyType>? resolveWorkspaceDependencies(
   final workspace = rootPubspec.workspace;
   if (workspace == null || workspace.isEmpty) return null;
 
-  final visited = <String>{};
-  final directDev = <String>{};
-  final directMain = <String>{};
-  final directOverridden = <String>{};
+  final collector = _WorkspaceDependencyCollector(logger: logger)
+    ..visit(rootDirectory, rootPubspec);
+  return collector.classify();
+}
 
+/// Walks a Pub workspace depth-first and collects the dependency names each
+/// visited package declares, grouped by declaration kind.
+class _WorkspaceDependencyCollector {
+  new({required this.logger});
+
+  final Logger logger;
+
+  final _visited = <String>{};
+  final _directMain = <String>{};
+  final _directDev = <String>{};
+  final _directOverridden = <String>{};
+
+  /// Records the dependencies of [pubspec] and recurses into its members.
+  ///
+  /// Each directory is visited at most once, keyed by its resolved path.
   void visit(Directory directory, Pubspec pubspec) {
-    if (!visited.add(directory.resolveSymbolicLinksSync())) return;
+    if (!_visited.add(directory.resolveSymbolicLinksSync())) return;
 
-    directMain.addAll(pubspec.dependencies.keys);
-    directDev.addAll(pubspec.devDependencies.keys);
-    directOverridden.addAll(pubspec.dependencyOverrides.keys);
+    _directMain.addAll(pubspec.dependencies.keys);
+    _directDev.addAll(pubspec.devDependencies.keys);
+    _directOverridden.addAll(pubspec.dependencyOverrides.keys);
 
     for (final entry in pubspec.workspace ?? const <String>[]) {
-      final isLiteral = !_globCharacters.hasMatch(entry);
-      for (final memberDirectory in _expandMembers(
-        directory,
-        entry,
-        isLiteral: isLiteral,
-        logger: logger,
-      )) {
-        final memberPubspecFile = File(
-          path.join(memberDirectory.path, _pubspecBasename),
-        );
-        final memberPubspec = _tryParsePubspecWithOverrides(memberDirectory);
-        if (memberPubspec == null) {
-          // Silently skip glob-matched directories that don't contain a
-          // pubspec.yaml — a common `packages/*` workspace should not warn
-          // for documentation or fixture folders sitting next to packages.
-          // For literal entries, or for glob-matched directories where a
-          // pubspec.yaml IS present but unparseable, keep the warning so
-          // real misconfigurations are still surfaced.
-          if (isLiteral || memberPubspecFile.existsSync()) {
-            logger.warn(
-              '''Skipping workspace member at ${memberDirectory.path}: missing or unparseable $_pubspecBasename.''',
-            );
-          }
-          continue;
-        }
-        visit(memberDirectory, memberPubspec);
-      }
+      _visitEntry(directory, entry);
     }
   }
 
-  visit(rootDirectory, rootPubspec);
-
-  // Build highest precedence first so lower-precedence writes of the same name
-  // are no-ops: directMain > directDev > directOverridden.
-  final dependencies = <String, PubspecDependencyType>{};
-
-  for (final name in directMain) {
-    dependencies[name] = PubspecDependencyType.directMain;
-  }
-
-  for (final name in directDev) {
-    dependencies.putIfAbsent(name, () => PubspecDependencyType.directDev);
-  }
-
-  for (final name in directOverridden) {
-    dependencies.putIfAbsent(
-      name,
-      () => PubspecDependencyType.directOverridden,
+  /// Visits every member directory matched by a single `workspace:` [entry].
+  void _visitEntry(Directory directory, String entry) {
+    final isLiteral = !_globCharacters.hasMatch(entry);
+    final memberDirectories = _expandMembers(
+      directory,
+      entry,
+      isLiteral: isLiteral,
+      logger: logger,
     );
+    for (final memberDirectory in memberDirectories) {
+      final memberPubspec = _parseMember(memberDirectory, isLiteral: isLiteral);
+      if (memberPubspec != null) visit(memberDirectory, memberPubspec);
+    }
   }
 
-  return dependencies;
+  /// Parses the member pubspec at [memberDirectory], warning when it is
+  /// skipped.
+  ///
+  /// Glob-matched directories without a pubspec.yaml are skipped silently, so
+  /// a common `packages/*` workspace does not warn for documentation or
+  /// fixture folders sitting next to packages. Literal entries, and
+  /// glob-matched directories whose pubspec.yaml is present but unparseable,
+  /// keep the warning so real misconfigurations are still surfaced.
+  Pubspec? _parseMember(Directory memberDirectory, {required bool isLiteral}) {
+    final memberPubspec = _tryParsePubspecWithOverrides(memberDirectory);
+    final memberPubspecFile = File(
+      path.join(memberDirectory.path, _pubspecBasename),
+    );
+    if (memberPubspec == null &&
+        (isLiteral || memberPubspecFile.existsSync())) {
+      logger.warn(
+        '''Skipping workspace member at ${memberDirectory.path}: missing or unparseable $_pubspecBasename.''',
+      );
+    }
+    return memberPubspec;
+  }
+
+  /// Maps every collected name to its workspace-wide type.
+  ///
+  /// Builds highest precedence first so lower-precedence writes of the same
+  /// name are no-ops: directMain > directDev > directOverridden.
+  Map<String, PubspecDependencyType> classify() {
+    final dependencies = <String, PubspecDependencyType>{};
+    for (final (names, type) in [
+      (_directMain, PubspecDependencyType.directMain),
+      (_directDev, PubspecDependencyType.directDev),
+      (_directOverridden, PubspecDependencyType.directOverridden),
+    ]) {
+      for (final name in names) {
+        dependencies.putIfAbsent(name, () => type);
+      }
+    }
+    return dependencies;
+  }
 }
 
 /// Whether the package rooted at [directory] declares `resolution: workspace`,
