@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -19,6 +20,7 @@ part 'coverage_reporter.dart';
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
 part 'git_cli.dart';
+part 'lcov_merger.dart';
 part 'test_cli_runner.dart';
 
 const R Function<R>(
