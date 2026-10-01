@@ -121,10 +121,12 @@ class CoverageMergeCommand extends Command<int> {
 
       if (minCoverage != null || showUncovered) {
         checkCoverage(
-          await Parser.parse(outputFile.path),
+          CoverageMetrics.fromLcovRecords(
+            await Parser.parse(outputFile.path),
+            excludeFromCoverage: excludeFromCoverage,
+          ),
           minCoverage: minCoverage,
           showUncovered: showUncovered,
-          excludeFromCoverage: excludeFromCoverage,
           stdout: _logger.write,
         );
       }

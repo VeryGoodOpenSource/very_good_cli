@@ -311,10 +311,12 @@ class TestCLIRunner {
 
                 if (minCoverage != null || showUncovered) {
                   checkCoverage(
-                    await Parser.parse(lcovPath),
+                    CoverageMetrics.fromLcovRecords(
+                      await Parser.parse(lcovPath),
+                      excludeFromCoverage: excludeFromCoverage,
+                    ),
                     minCoverage: minCoverage,
                     showUncovered: showUncovered,
-                    excludeFromCoverage: excludeFromCoverage,
                     stdout: stdout,
                   );
                 }

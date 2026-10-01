@@ -91,13 +91,7 @@ class LcovRecord {
       ..writeln('LH:${lines.values.where((hits) => hits > 0).length}');
 
     if (branches.isNotEmpty) {
-      final keys = branches.keys.sorted(
-        (a, b) => [
-          a.$1 - b.$1,
-          a.$2 - b.$2,
-          a.$3 - b.$3,
-        ].firstWhere((order) => order != 0, orElse: () => 0),
-      );
+      final keys = branches.keys.sorted(_compareBranches);
       for (final key in keys) {
         buffer.writeln('BRDA:${key.$1},${key.$2},${key.$3},${branches[key]}');
       }
@@ -109,6 +103,15 @@ class LcovRecord {
     buffer.writeln('end_of_record');
     return buffer.toString();
   }
+}
+
+/// Orders branches by line, then block, then branch number.
+int _compareBranches(LcovBranch a, LcovBranch b) {
+  final (aLine, aBlock, aBranch) = a;
+  final (bLine, bBlock, bBranch) = b;
+  if (aLine != bLine) return aLine.compareTo(bLine);
+  if (aBlock != bBlock) return aBlock.compareTo(bBlock);
+  return aBranch.compareTo(bBranch);
 }
 
 /// Parses the lcov [content] into one [LcovRecord] per `end_of_record`.

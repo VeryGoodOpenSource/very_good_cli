@@ -6,40 +6,42 @@ void main() {
   group(checkCoverage, () {
     late List<String> stdoutLogs;
 
-    final records = Parser.parseLines([
-      'SF:lib/a.dart',
-      'DA:1,1',
-      'DA:2,0',
-      'LF:2',
-      'LH:1',
-      'end_of_record',
-      'SF:lib/b.dart',
-      'DA:1,1',
-      'DA:2,1',
-      'LF:2',
-      'LH:2',
-      'end_of_record',
-    ]);
+    final metrics = CoverageMetrics.fromLcovRecords(
+      Parser.parseLines([
+        'SF:lib/a.dart',
+        'DA:1,1',
+        'DA:2,0',
+        'LF:2',
+        'LH:1',
+        'end_of_record',
+        'SF:lib/b.dart',
+        'DA:1,1',
+        'DA:2,1',
+        'LF:2',
+        'LH:2',
+        'end_of_record',
+      ]),
+    );
 
     setUp(() {
       stdoutLogs = [];
     });
 
     test('does nothing when no threshold is set', () {
-      checkCoverage(records, stdout: stdoutLogs.add);
+      checkCoverage(metrics, stdout: stdoutLogs.add);
 
       expect(stdoutLogs, isEmpty);
     });
 
     test('completes when the threshold is met', () {
-      checkCoverage(records, minCoverage: 75, stdout: stdoutLogs.add);
+      checkCoverage(metrics, minCoverage: 75, stdout: stdoutLogs.add);
 
       expect(stdoutLogs, isEmpty);
     });
 
     test('throws $MinCoverageNotMet when the threshold is not met', () {
       expect(
-        () => checkCoverage(records, minCoverage: 80),
+        () => checkCoverage(metrics, minCoverage: 80),
         throwsA(
           isA<MinCoverageNotMet>()
               .having((e) => e.coverage, 'coverage', equals(75))
@@ -50,7 +52,7 @@ void main() {
 
     test('throws with uncovered lines when show uncovered is set', () {
       expect(
-        () => checkCoverage(records, minCoverage: 80, showUncovered: true),
+        () => checkCoverage(metrics, minCoverage: 80, showUncovered: true),
         throwsA(
           isA<MinCoverageNotMet>().having(
             (e) => e.uncoveredLines,
@@ -65,7 +67,7 @@ void main() {
 
     test('logs uncovered lines when the threshold is met', () {
       checkCoverage(
-        records,
+        metrics,
         minCoverage: 75,
         showUncovered: true,
         stdout: stdoutLogs.add,
@@ -78,22 +80,13 @@ void main() {
       'logs nothing when show uncovered is set and all lines are covered',
       () {
         checkCoverage(
-          records,
+          const CoverageMetrics(totalHits: 2, totalFound: 2),
           showUncovered: true,
-          excludeFromCoverage: 'lib/a.dart',
           stdout: stdoutLogs.add,
         );
 
         expect(stdoutLogs, isEmpty);
       },
     );
-
-    test('ignores files matching the exclude globs', () {
-      checkCoverage(
-        records,
-        minCoverage: 100,
-        excludeFromCoverage: 'lib/a.dart lib/c.dart',
-      );
-    });
   });
 }

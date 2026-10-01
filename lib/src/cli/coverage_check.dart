@@ -1,29 +1,20 @@
 part of 'cli.dart';
 
-/// Checks the coverage of [records] against [minCoverage].
-///
-/// Files matching [excludeFromCoverage] (space separated globs) are left out
-/// of the measurement.
+/// Checks the coverage [metrics] against [minCoverage].
 ///
 /// Throws [MinCoverageNotMet] when the coverage is below [minCoverage],
 /// carrying the uncovered lines when [showUncovered] is set. Otherwise, when
 /// [showUncovered] is set and some lines are not covered, they are written to
 /// [stdout] as informational output.
 void checkCoverage(
-  List<Record> records, {
+  CoverageMetrics metrics, {
   double? minCoverage,
   bool showUncovered = false,
-  String? excludeFromCoverage,
   void Function(String)? stdout,
 }) {
-  final coverageMetrics = CoverageMetrics.fromLcovRecords(
-    records,
-    excludeFromCoverage: excludeFromCoverage,
-  );
-  final coverage = coverageMetrics.percentage;
-  final uncoveredLines =
-      showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
-      ? coverageMetrics.uncoveredLines
+  final coverage = metrics.percentage;
+  final uncoveredLines = showUncovered && metrics.uncoveredLines.isNotEmpty
+      ? metrics.uncoveredLines
       : null;
 
   if (minCoverage != null && coverage < minCoverage) {
