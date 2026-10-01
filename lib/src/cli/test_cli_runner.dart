@@ -302,31 +302,13 @@ class TestCLIRunner {
                 }
 
                 if (minCoverage != null || showUncovered) {
-                  final records = await Parser.parse(lcovPath);
-                  final coverageMetrics = CoverageMetrics.fromLcovRecords(
-                    records,
+                  checkCoverage(
+                    await Parser.parse(lcovPath),
+                    minCoverage: minCoverage,
+                    showUncovered: showUncovered,
                     excludeFromCoverage: excludeFromCoverage,
+                    stdout: stdout,
                   );
-                  final coverage = coverageMetrics.percentage;
-                  final uncoveredLines =
-                      showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
-                      ? coverageMetrics.uncoveredLines
-                      : null;
-
-                  if (minCoverage != null && coverage < minCoverage) {
-                    throw MinCoverageNotMet(
-                      coverage,
-                      uncoveredLines: uncoveredLines,
-                    );
-                  }
-
-                  // When coverage passes but is below 100%,
-                  // show uncovered lines as informational output.
-                  if (showUncovered &&
-                      uncoveredLines != null &&
-                      uncoveredLines.isNotEmpty) {
-                    stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
-                  }
                 }
               }),
         );
