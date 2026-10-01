@@ -80,7 +80,7 @@ class CoverageMergeCommand extends Command<int> {
       'show-uncovered',
       testConfig.showUncovered ?? dartTestConfig.showUncovered,
     );
-    final output = argResults['output'] as String;
+    final output = p.normalize(argResults['output'] as String);
 
     try {
       if (rawMinCoverage != null && minCoverage == null) {
@@ -90,9 +90,10 @@ class CoverageMergeCommand extends Command<int> {
         );
       }
 
+      final outputPath = p.join(cwd, output);
       final inputs = argResults.rest.isEmpty
-          ? _discoverInputs(cwd: cwd, output: output)
-          : _resolveInputs(argResults.rest, cwd: cwd);
+          ? _discoverInputs(cwd: cwd, outputPath: outputPath)
+          : _resolveInputs(argResults.rest, cwd: cwd, outputPath: outputPath);
       final externalPaths = <String>{};
       final records = mergeLcovRecords([
         for (final input in inputs)
@@ -141,20 +142,25 @@ class CoverageMergeCommand extends Command<int> {
     return ExitCode.success.code;
   }
 
-  /// The lcov reports to merge, and the package directory their relative
-  /// source paths should be rebased onto.
+  /// The lcov reports to merge, as paths relative to [cwd], and the package
+  /// directory their relative source paths should be rebased onto.
   ///
   /// Each of [args] is a path to an lcov file or, when no such file exists, a
   /// glob relative to [cwd]. Expanding globs here, rather than relying on the
   /// shell, makes quoted patterns behave the same on every platform.
-  List<({String path, String? packagePath})> _resolveInputs(
+  ///
+  /// Glob matches skip the report at [outputPath], while an explicit path to
+  /// it is merged, so that it can be overwritten on purpose.
+  List<_MergeInput> _resolveInputs(
     List<String> args, {
     required String cwd,
+    required String outputPath,
   }) {
     final paths = <String>{};
     for (final arg in args) {
-      if (File(p.join(cwd, arg)).existsSync()) {
-        paths.add(p.normalize(arg));
+      final file = File(p.join(cwd, arg));
+      if (file.existsSync()) {
+        paths.add(p.relative(file.path, from: cwd));
         continue;
       }
 
@@ -164,6 +170,9 @@ class CoverageMergeCommand extends Command<int> {
             .listSync(root: cwd)
             .whereType<File>()
             .map((file) => p.relative(file.path, from: cwd))
+            .whereNot(
+              (path) => _isOutput(path, cwd: cwd, outputPath: outputPath),
+            )
             .sorted();
       } on FormatException catch (error) {
         throw _MergeError(
@@ -188,25 +197,18 @@ class CoverageMergeCommand extends Command<int> {
   /// relative source paths rebased onto their package, so the same
   /// `lib/a.dart` from two packages stays distinct.
   ///
-  /// The [output] report is left out, so that merging again doesn't count the
-  /// previous merge.
-  List<({String path, String? packagePath})> _discoverInputs({
+  /// The report at [outputPath] is skipped.
+  List<_MergeInput> _discoverInputs({
     required String cwd,
-    required String output,
+    required String outputPath,
   }) {
-    final outputPath = p.join(cwd, output);
-    final inputs = <({String path, String? packagePath})>[];
-    for (final package in discoverLcovPackages(cwd)) {
-      final path = p.normalize(p.join(package, 'coverage', 'lcov.info'));
-      if (p.equals(p.join(cwd, path), outputPath)) {
-        _logger.warn(
-          'Skipping $path, since it is the --output report. Pass a different '
-          '--output to merge it too.',
-        );
-        continue;
-      }
-      inputs.add((path: path, packagePath: package));
-    }
+    final inputs = <_MergeInput>[
+      for (final package in discoverLcovPackages(cwd))
+        if (p.normalize(p.join(package, 'coverage', 'lcov.info'))
+            case final path
+            when !_isOutput(path, cwd: cwd, outputPath: outputPath))
+          (path: path, packagePath: package),
+    ];
 
     if (inputs.isEmpty) {
       throw _MergeError(
@@ -217,6 +219,23 @@ class CoverageMergeCommand extends Command<int> {
       );
     }
     return inputs;
+  }
+
+  /// Whether [path], relative to [cwd], is the report at [outputPath].
+  ///
+  /// Such a report is likely a previous merge, so it is reported as skipped,
+  /// since merging it again would count its hits twice.
+  bool _isOutput(
+    String path, {
+    required String cwd,
+    required String outputPath,
+  }) {
+    if (!p.equals(p.join(cwd, path), outputPath)) return false;
+    _logger.warn(
+      'Skipping $path, since it is the --output report. Pass a different '
+      '--output to merge it too.',
+    );
+    return true;
   }
 
   List<LcovRecord> _parse(String path) {
@@ -230,6 +249,10 @@ class CoverageMergeCommand extends Command<int> {
     }
   }
 }
+
+/// An lcov report to merge, and the package directory its relative source
+/// paths should be rebased onto, if any.
+typedef _MergeInput = ({String path, String? packagePath});
 
 /// A failure that stops the merge, reported with [message] and [exitCode].
 class _MergeError implements Exception {

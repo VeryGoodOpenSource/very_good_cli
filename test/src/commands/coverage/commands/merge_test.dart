@@ -185,6 +185,54 @@ void main() {
     );
 
     test(
+      'merges a file once when given as an absolute path and by a glob',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        final cwd = _enterTempDirectory();
+        _writeShards();
+
+        final result = await commandRunner.run([
+          'coverage',
+          'merge',
+          p.join(cwd.path, 'shards', '1', 'lcov.info'),
+          'shards/*/lcov.info',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+        expect(_readOutput(), equals(_merged));
+        verify(
+          () => logger.info('Merged 2 lcov report(s) into coverage/lcov.info'),
+        ).called(1);
+      }),
+    );
+
+    test(
+      'skips the --output report when matched by a glob',
+      withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+        _enterTempDirectory();
+        _writeShards();
+        _writeFile(p.join('coverage', 'lcov.info'), _merged);
+
+        final result = await commandRunner.run([
+          'coverage',
+          'merge',
+          '**/lcov.info',
+        ]);
+
+        expect(result, equals(ExitCode.success.code));
+        expect(_readOutput(), equals(_merged));
+        verify(
+          () => logger.warn(
+            'Skipping ${p.join('coverage', 'lcov.info')}, since it is the '
+            '--output report. Pass a different --output to merge it too.',
+          ),
+        ).called(1);
+        verify(
+          () => logger.info('Merged 2 lcov report(s) into coverage/lcov.info'),
+        ).called(1);
+      }),
+    );
+
+    test(
       'makes absolute source paths under the current directory relative',
       withRunner((commandRunner, logger, pubUpdater, printLogs) async {
         final cwd = _enterTempDirectory();
@@ -398,6 +446,24 @@ end_of_record
               'Invalid lcov line "not lcov".',
             ),
           ).called(1);
+        }),
+      );
+
+      test(
+        'when a glob only matches the --output report',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeFile(p.join('coverage', 'lcov.info'), _merged);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'coverage/*.info',
+          ]);
+
+          expect(result, equals(ExitCode.noInput.code));
+          verify(() => logger.err('No lcov report found at "coverage/*.info".'))
+              .called(1);
         }),
       );
 
