@@ -56,84 +56,6 @@ class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
 /// Thrown when `flutter pub get` is executed without a `pubspec.yaml`.
 class PubspecNotFound implements Exception;
 
-/// {@template coverage_metrics}
-/// Aggregated coverage metrics computed from a list of LCOV records.
-/// {@endtemplate}
-class CoverageMetrics {
-  /// {@macro coverage_metrics}
-  @visibleForTesting
-  const new({
-    this.totalHits = 0,
-    this.totalFound = 0,
-    this.uncoveredLines = const {},
-  });
-
-  /// Generate coverage metrics from a list of lcov records.
-  factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
-    final globs = <Glob>[];
-
-    if (excludeFromCoverage != null && excludeFromCoverage.isNotEmpty) {
-      for (final glob in excludeFromCoverage.trim().split(' ')) {
-        if (glob.isNotEmpty) globs.add(Glob(glob));
-      }
-    }
-
-    return records.fold<CoverageMetrics>(const CoverageMetrics(), (
-      current,
-      record,
-    ) {
-      final found = record.lines?.found ?? 0;
-      final hit = record.lines?.hit ?? 0;
-      if (globs.isNotEmpty && record.file != null) {
-        for (final glob in globs) {
-          if (glob.matches(record.file!)) return current;
-        }
-      }
-
-      final file = record.file;
-      final details = record.lines?.details;
-      final uncoveredLines = Map<String, List<int>>.from(
-        current.uncoveredLines,
-      );
-
-      if (file != null && details != null) {
-        for (final line in details) {
-          if ((line.hit ?? 1) == 0 && line.line != null) {
-            uncoveredLines.update(
-              file,
-              (lines) => [...lines, line.line!],
-              ifAbsent: () => [line.line!],
-            );
-          }
-        }
-      }
-
-      return CoverageMetrics(
-        totalFound: current.totalFound + found,
-        totalHits: current.totalHits + hit,
-        uncoveredLines: uncoveredLines,
-      );
-    });
-  }
-
-  /// Total number of lines hit (covered) across all included files.
-  final int totalHits;
-
-  /// Total number of instrumented lines found across all included files.
-  final int totalFound;
-
-  /// Lines not covered.
-  /// Keyed by file path, values are sorted line numbers.
-  final Map<String, List<int>> uncoveredLines;
-
-  /// Coverage percentage: [totalHits] / [totalFound] * 100.
-  ///
-  /// Returns `0` when [totalFound] is less than 1.
-  double get percentage {
-    return totalFound < 1 ? 0 : (totalHits / totalFound * 100);
-  }
-}
-
 /// Flutter CLI
 class Flutter {
   /// Determine whether flutter is installed.
@@ -295,7 +217,7 @@ Future<List<T>> _runCommand<T>({
 
   final processes = _Cmd.runWhere<T>(
     run: (entity) => cmd(entity.parent.path),
-    where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
+    where: (entity) => _isPackagePubspec(entity, ignore: ignore),
     cwd: cwd,
   );
 

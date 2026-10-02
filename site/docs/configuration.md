@@ -213,6 +213,14 @@ dart:
 | `check_ignore`          | `bool`             | Whether to respect coverage ignore comments (e.g. `// coverage:ignore-line`).             |
 | `file_reporter`         | `string`           | Additional file reporter as `<name>:<path>` (e.g. `json:reports/tests.json`).             |
 
+### `coverage merge`
+
+[`very_good coverage merge`](commands/coverage.md) has no section of its own.
+When a flag isn't passed, it reads `min_coverage`, `exclude_coverage`, and
+`show_uncovered` from the `test` section or, when it sets none of them, from
+the `dart.test` section, without mixing the two. The threshold you enforce in
+un-sharded runs then also applies to the merged report.
+
 ### `packages.get`
 
 Defaults for [`very_good packages get`](commands/get_pkgs.md).

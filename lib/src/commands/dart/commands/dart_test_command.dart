@@ -473,6 +473,10 @@ This command should be run from the root of your Dart project.''');
     final minCoverage = options.totalShards == null
         ? options.minCoverage
         : null;
+    final configMinCoverage = config.dart.test.minCoverage;
+    if (options.totalShards != null && configMinCoverage != null) {
+      _logger.warn(TestCLIRunner.shardedMinCoverageWarning(configMinCoverage));
+    }
 
     try {
       final results = await _dartTest(
@@ -513,7 +517,7 @@ This command should be run from the root of your Dart project.''');
         return ExitCode.software.code;
       }
     } on MinCoverageNotMet catch (error) {
-      return TestCLIRunner.handleMinCoverageNotMet(
+      return handleMinCoverageNotMet(
         error,
         logger: _logger,
         minCoverage: minCoverage,

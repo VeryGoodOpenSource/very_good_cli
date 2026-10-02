@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:lcov_parser/lcov_parser.dart';
 import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as p;
@@ -319,48 +318,23 @@ void main() {
   });
 
   group(CoverageMetrics, () {
-    List<Record> parseRecords(List<String> lines) => Parser.parseLines(lines);
-
-    group('.fromLcovRecords', () {
+    group('fromLcov', () {
       test('returns empty metrics for an empty record list', () {
-        final metrics = CoverageMetrics.fromLcovRecords([]);
+        final metrics = CoverageMetrics.fromLcov([]);
 
         expect(metrics.totalHits, equals(0));
         expect(metrics.totalFound, equals(0));
         expect(metrics.uncoveredLines, isEmpty);
       });
 
-      test('aggregates hits and found across records', () {
-        final records = parseRecords([
-          'SF:lib/a.dart',
-          'LF:10',
-          'LH:8',
-          'end_of_record',
-          'SF:lib/b.dart',
-          'LF:5',
-          'LH:5',
-          'end_of_record',
+      test('derives the totals and uncovered lines from the line hits', () {
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('lib/a.dart', lines: {3: 0, 1: 2, 2: 0}),
+          LcovRecord('lib/b.dart', lines: {1: 1}),
         ]);
 
-        final metrics = CoverageMetrics.fromLcovRecords(records);
-
-        expect(metrics.totalFound, equals(15));
-        expect(metrics.totalHits, equals(13));
-      });
-
-      test('collects uncovered lines per file', () {
-        final records = parseRecords([
-          'SF:lib/a.dart',
-          'DA:1,1',
-          'DA:2,0',
-          'DA:3,0',
-          'LF:3',
-          'LH:1',
-          'end_of_record',
-        ]);
-
-        final metrics = CoverageMetrics.fromLcovRecords(records);
-
+        expect(metrics.totalFound, equals(4));
+        expect(metrics.totalHits, equals(2));
         expect(
           metrics.uncoveredLines,
           equals({
@@ -370,22 +344,10 @@ void main() {
       });
 
       test('accumulates uncovered lines across multiple records', () {
-        final records = parseRecords([
-          'SF:lib/a.dart',
-          'DA:10,0',
-          'DA:20,1',
-          'LF:2',
-          'LH:1',
-          'end_of_record',
-          'SF:lib/b.dart',
-          'DA:5,0',
-          'DA:6,0',
-          'LF:2',
-          'LH:0',
-          'end_of_record',
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('lib/a.dart', lines: {10: 0, 20: 1}),
+          LcovRecord('lib/b.dart', lines: {5: 0, 6: 0}),
         ]);
-
-        final metrics = CoverageMetrics.fromLcovRecords(records);
 
         expect(
           metrics.uncoveredLines,
@@ -397,142 +359,105 @@ void main() {
       });
 
       test('handles records with no DA entries', () {
-        final records = parseRecords([
-          'SF:lib/a.dart',
-          'LF:0',
-          'LH:0',
-          'end_of_record',
-          'SF:lib/b.dart',
-          'LF:4',
-          'LH:4',
-          'end_of_record',
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('lib/a.dart'),
+          LcovRecord('lib/b.dart', lines: {1: 1, 2: 1}),
         ]);
 
-        final metrics = CoverageMetrics.fromLcovRecords(records);
-
-        expect(metrics.totalFound, equals(4));
-        expect(metrics.totalHits, equals(4));
+        expect(metrics.totalFound, equals(2));
+        expect(metrics.totalHits, equals(2));
         expect(metrics.uncoveredLines, isEmpty);
       });
 
+      test('keeps source paths that contain a colon', () {
+        final metrics = CoverageMetrics.fromLcov([
+          LcovRecord('C:/runner/lib/a.dart', lines: {1: 0}),
+          LcovRecord('D:/runner/lib/b.dart', lines: {1: 0}),
+        ]);
+
+        expect(
+          metrics.uncoveredLines.keys,
+          equals(['C:/runner/lib/a.dart', 'D:/runner/lib/b.dart']),
+        );
+      });
+
       group('excludeFromCoverage', () {
-        test('handles null', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:3',
-            'LH:3',
-            'end_of_record',
-          ]);
+        final records = [
+          LcovRecord('lib/a.dart', lines: {1: 1, 2: 0}),
+          LcovRecord('lib/generated/b.g.dart', lines: {1: 0}),
+          LcovRecord('lib/mocks/mock_c.dart', lines: {1: 0}),
+        ];
 
-          final metrics = CoverageMetrics.fromLcovRecords(records);
+        for (final (description, excludeFromCoverage) in [
+          ('handles null', null),
+          ('handles empty string', ''),
+          ('does not exclude files when no glob matches', 'lib/other/**'),
+        ]) {
+          test(description, () {
+            final metrics = CoverageMetrics.fromLcov(
+              records,
+              excludeFromCoverage: excludeFromCoverage,
+            );
 
-          expect(metrics.totalFound, equals(3));
-          expect(metrics.totalHits, equals(3));
-        });
-
-        test('handles empty string', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:3',
-            'LH:3',
-            'end_of_record',
-          ]);
-
-          final metrics = CoverageMetrics.fromLcovRecords(
-            records,
-            excludeFromCoverage: '',
-          );
-
-          expect(metrics.totalFound, equals(3));
-          expect(metrics.totalHits, equals(3));
-        });
+            expect(metrics.totalFound, equals(4));
+            expect(metrics.totalHits, equals(1));
+          });
+        }
 
         test('excludes a single glob-matched file', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:10',
-            'LH:8',
-            'end_of_record',
-            'SF:lib/generated/b.g.dart',
-            'LF:5',
-            'LH:5',
-            'end_of_record',
-          ]);
-
-          final metrics = CoverageMetrics.fromLcovRecords(
+          final metrics = CoverageMetrics.fromLcov(
             records,
             excludeFromCoverage: 'lib/generated/**',
           );
 
-          expect(metrics.totalFound, equals(10));
-          expect(metrics.totalHits, equals(8));
+          expect(metrics.totalFound, equals(3));
+          expect(
+            metrics.uncoveredLines.keys,
+            isNot(contains(startsWith('lib/generated'))),
+          );
         });
 
-        test('excludes multiple space-separated globs', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:10',
-            'LH:8',
-            'end_of_record',
-            'SF:lib/generated/b.g.dart',
-            'LF:5',
-            'LH:5',
-            'end_of_record',
-            'SF:lib/mocks/mock_c.dart',
-            'LF:4',
-            'LH:4',
-            'end_of_record',
-          ]);
+        for (final excludeFromCoverage in [
+          'lib/generated/** lib/mocks/**',
+          'lib/generated/**  lib/mocks/**',
+        ]) {
+          test('excludes space-separated globs "$excludeFromCoverage"', () {
+            final metrics = CoverageMetrics.fromLcov(
+              records,
+              excludeFromCoverage: excludeFromCoverage,
+            );
 
-          final metrics = CoverageMetrics.fromLcovRecords(
-            records,
-            excludeFromCoverage: 'lib/generated/** lib/mocks/**',
-          );
+            expect(metrics.totalFound, equals(2));
+            expect(metrics.totalHits, equals(1));
+          });
+        }
 
-          expect(metrics.totalFound, equals(10));
-          expect(metrics.totalHits, equals(8));
+        test('excludes source paths that contain a colon', () {
+          final metrics = CoverageMetrics.fromLcov([
+            LcovRecord('lib/a.dart', lines: {1: 1}),
+            LcovRecord('C:/runner/lib/b.g.dart', lines: {1: 0}),
+          ], excludeFromCoverage: '**/*.g.dart');
+
+          expect(metrics.totalFound, equals(1));
+          expect(metrics.totalHits, equals(1));
         });
 
-        test('handles multiple consecutive spaces between globs', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:10',
-            'LH:8',
-            'end_of_record',
-            'SF:lib/generated/b.g.dart',
-            'LF:5',
-            'LH:5',
-            'end_of_record',
-            'SF:lib/mocks/mock_c.dart',
-            'LF:4',
-            'LH:4',
-            'end_of_record',
-          ]);
-
-          final metrics = CoverageMetrics.fromLcovRecords(
-            records,
-            excludeFromCoverage: 'lib/generated/**  lib/mocks/**',
+        test('matches globs against paths relative to packagePaths', () {
+          final metrics = CoverageMetrics.fromLcov(
+            [
+              LcovRecord('packages/foo/lib/a.dart', lines: {1: 1}),
+              LcovRecord('packages/foo/lib/gen/b.dart', lines: {1: 0}),
+              LcovRecord('packages/bar/lib/gen/c.dart', lines: {1: 0}),
+            ],
+            excludeFromCoverage: 'lib/gen/**',
+            packagePaths: ['packages/foo'],
           );
 
-          expect(metrics.totalFound, equals(10));
-          expect(metrics.totalHits, equals(8));
-        });
-
-        test('does not exclude file when glob does not match', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:5',
-            'LH:5',
-            'end_of_record',
-          ]);
-
-          final metrics = CoverageMetrics.fromLcovRecords(
-            records,
-            excludeFromCoverage: 'lib/generated/**',
+          expect(metrics.totalFound, equals(2));
+          expect(
+            metrics.uncoveredLines.keys,
+            equals(['packages/bar/lib/gen/c.dart']),
           );
-
-          expect(metrics.totalFound, equals(5));
-          expect(metrics.totalHits, equals(5));
         });
       });
     });

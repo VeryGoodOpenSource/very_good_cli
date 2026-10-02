@@ -37,6 +37,9 @@ jobs:
           - test/commands/test/spaced_golden_file_name/spaced_golden_file_name_test.dart
           - test/commands/test/very_good_config/very_good_config_test.dart
 
+          # E2E tests for the coverage command
+          - test/commands/coverage/merge/merge_test.dart
+
           # E2E tests for the create command
           - test/commands/create/flutter_app/core_test.dart
           - test/commands/create/dart_cli/dart_cli_test.dart

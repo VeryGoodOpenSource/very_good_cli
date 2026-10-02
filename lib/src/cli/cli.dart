@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
-import 'package:lcov_parser/lcov_parser.dart';
+import 'package:glob/list_local_fs.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -15,9 +16,11 @@ import 'package:very_good_test_runner/very_good_test_runner.dart';
 
 export 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 
+part 'coverage_check.dart';
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
 part 'git_cli.dart';
+part 'lcov.dart';
 part 'test_cli_runner.dart';
 
 const R Function<R>(
@@ -187,10 +190,23 @@ const _ignoredDirectories = {
   '.fvm',
 };
 
+/// Whether the relative [path] goes through a platform, build or tool
+/// directory, which recursive commands skip.
+bool isInIgnoredDirectory(String path) =>
+    p.split(path).any(_ignoredDirectories.contains);
+
 bool _isPubspec(FileSystemEntity entity) {
   if (entity is! File) return false;
   return p.basename(entity.path) == 'pubspec.yaml';
 }
+
+/// Whether [entity] is the `pubspec.yaml` of a package that recursive commands
+/// run on, skipping platform, build and tool directories and the [ignore]d
+/// ones.
+bool _isPackagePubspec(
+  FileSystemEntity entity, {
+  Set<String> ignore = const {},
+}) => _isPubspec(entity) && !ignore.excludes(entity);
 
 extension on Set<String> {
   bool excludes(FileSystemEntity entity) {
