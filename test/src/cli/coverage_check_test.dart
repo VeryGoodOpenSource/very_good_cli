@@ -1,4 +1,3 @@
-import 'package:lcov_parser/lcov_parser.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 
@@ -6,22 +5,10 @@ void main() {
   group(checkCoverage, () {
     late List<String> stdoutLogs;
 
-    final metrics = CoverageMetrics.fromLcovRecords(
-      Parser.parseLines([
-        'SF:lib/a.dart',
-        'DA:1,1',
-        'DA:2,0',
-        'LF:2',
-        'LH:1',
-        'end_of_record',
-        'SF:lib/b.dart',
-        'DA:1,1',
-        'DA:2,1',
-        'LF:2',
-        'LH:2',
-        'end_of_record',
-      ]),
-    );
+    final metrics = CoverageMetrics.fromLcov([
+      LcovRecord('lib/a.dart', lines: {1: 1, 2: 0}),
+      LcovRecord('lib/b.dart', lines: {1: 1, 2: 1}),
+    ]);
 
     setUp(() {
       stdoutLogs = [];

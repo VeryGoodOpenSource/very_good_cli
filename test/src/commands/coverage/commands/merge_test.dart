@@ -82,6 +82,11 @@ void _writeFile(String path, String content) {
     ..writeAsStringSync(content);
 }
 
+void _writePackage(String path, String lcov) {
+  _writeFile(p.join(path, 'pubspec.yaml'), 'name: ${p.basename(path)}');
+  _writeFile(p.join(path, 'coverage', 'lcov.info'), lcov);
+}
+
 void _writeShards() {
   _writeFile(p.join('shards', '1', 'lcov.info'), _shard1);
   _writeFile(p.join('shards', '2', 'lcov.info'), _shard2);
@@ -279,20 +284,91 @@ void main() {
       }),
     );
 
-    group('without lcov files', () {
-      void writePackage(String path, String lcov) {
-        _writeFile(p.join(path, 'pubspec.yaml'), 'name: ${p.basename(path)}');
-        _writeFile(p.join(path, 'coverage', 'lcov.info'), lcov);
-      }
+    group('with package reports', () {
+      test(
+        'rebases the given reports onto their package',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writePackage(p.join('packages', 'foo'), _shard1);
+          _writePackage(p.join('packages', 'bar'), _shard2);
 
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'packages/foo/coverage/lcov.info',
+            'packages/bar/coverage/lcov.info',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(
+            _readOutput(),
+            allOf(
+              contains('SF:packages/foo/lib/a.dart\n'),
+              contains('SF:packages/foo/lib/b.dart\n'),
+              contains('SF:packages/bar/lib/a.dart\n'),
+              isNot(contains('SF:lib/')),
+            ),
+          );
+        }),
+      );
+
+      test(
+        'does not rebase a coverage/lcov.info report outside of a package',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeFile(p.join('shard', 'coverage', 'lcov.info'), _shard2);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shard/coverage/lcov.info',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(_readOutput(), startsWith('SF:lib/a.dart\n'));
+        }),
+      );
+
+      test(
+        'skips glob matches in platform, build and tool directories',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writePackage(p.join('packages', 'foo'), _shard1);
+          _writePackage(p.join('packages', 'foo', 'build', 'pkg'), _shard2);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'packages/**/lcov.info',
+          ]);
+
+          expect(result, equals(ExitCode.success.code));
+          expect(_readOutput(), isNot(contains('build')));
+          verify(
+            () => logger.warn(
+              'Skipping these reports matched by "packages/**/lcov.info", '
+              'since they are in platform, build or tool directories. Pass '
+              'their paths to merge them too:\n'
+              '  - ${p.join('packages', 'foo', 'build', 'pkg', 'coverage', 'lcov.info')}',
+            ),
+          ).called(1);
+          verify(
+            () =>
+                logger.info('Merged 1 lcov report(s) into coverage/lcov.info'),
+          ).called(1);
+        }),
+      );
+    });
+
+    group('without lcov files', () {
       test(
         'merges the report of every package, keeping their files distinct',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           _enterTempDirectory();
-          writePackage(p.join('packages', 'foo'), _shard1);
-          writePackage(p.join('packages', 'bar'), _shard2);
+          _writePackage(p.join('packages', 'foo'), _shard1);
+          _writePackage(p.join('packages', 'bar'), _shard2);
           for (final ignored in ['build', '.dart_tool', '.fvm', 'ios']) {
-            writePackage(p.join('packages', 'foo', ignored, 'pkg'), _shard1);
+            _writePackage(p.join('packages', 'foo', ignored, 'pkg'), _shard1);
           }
           // A package without tests leaves no report behind.
           _writeFile(p.join('packages', 'baz', 'pubspec.yaml'), 'name: baz');
@@ -333,8 +409,8 @@ end_of_record
         'skips the --output report',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           _enterTempDirectory();
-          writePackage('.', 'SF:stale.dart\nDA:1,1\nend_of_record\n');
-          writePackage('foo', _shard2);
+          _writePackage('.', 'SF:stale.dart\nDA:1,1\nend_of_record\n');
+          _writePackage('foo', _shard2);
 
           final result = await commandRunner.run(['coverage', 'merge']);
 
@@ -354,8 +430,8 @@ end_of_record
         'merges the root report into a different --output',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           _enterTempDirectory();
-          writePackage('.', _shard1);
-          writePackage('foo', _shard2);
+          _writePackage('.', _shard1);
+          _writePackage('foo', _shard2);
 
           final result = await commandRunner.run([
             'coverage',
@@ -446,6 +522,68 @@ end_of_record
               'Invalid lcov line "not lcov".',
             ),
           ).called(1);
+        }),
+      );
+
+      test(
+        'when a glob only matches reports in ignored directories',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeFile(p.join('build', 'coverage', 'lcov.info'), _shard1);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'build/**.info',
+          ]);
+
+          expect(result, equals(ExitCode.noInput.code));
+          verify(
+            () => logger.warn(
+              any(that: contains(p.join('build', 'coverage', 'lcov.info'))),
+            ),
+          ).called(1);
+          verify(() => logger.err('No lcov report found at "build/**.info".'))
+              .called(1);
+        }),
+      );
+
+      test(
+        'when an lcov file cannot be read',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          File('shard.info').writeAsBytesSync([0xff, 0xfe, 0xfd]);
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shard.info',
+          ]);
+
+          expect(result, equals(ExitCode.ioError.code));
+          verify(() => logger.err(any(that: contains('FileSystemException'))))
+              .called(1);
+        }),
+      );
+
+      test(
+        'when the --output cannot be written',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeShards();
+          Directory('out').createSync();
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shards/1/lcov.info',
+            '-o',
+            'out',
+          ]);
+
+          expect(result, equals(ExitCode.ioError.code));
+          verify(() => logger.err(any(that: contains('FileSystemException'))))
+              .called(1);
         }),
       );
 
@@ -567,6 +705,35 @@ end_of_record
           expect(result, equals(ExitCode.success.code));
         }),
       );
+
+      for (final glob in ['lib/src/gen/**', '**/*.g.dart']) {
+        test(
+          'ignores package files matching the --exclude-coverage $glob',
+          withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+            _enterTempDirectory();
+            _writePackage(
+              p.join('packages', 'foo'),
+              'SF:lib/a.dart\nDA:1,1\nend_of_record\n'
+              'SF:lib/src/gen/b.g.dart\nDA:1,0\nend_of_record\n',
+            );
+
+            final result = await commandRunner.run([
+              'coverage',
+              'merge',
+              '--min-coverage',
+              '100',
+              '--exclude-coverage',
+              glob,
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+            expect(
+              _readOutput(),
+              contains('SF:packages/foo/lib/src/gen/b.g.dart\n'),
+            );
+          }),
+        );
+      }
 
       test(
         'ignores external Windows source paths matching --exclude-coverage',

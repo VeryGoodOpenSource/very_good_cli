@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:lcov_parser/lcov_parser.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
@@ -94,6 +96,17 @@ void main() {
       final [record] = parseLcov('SF:a.dart\nDA:1,1');
 
       expect(record.lines, equals({1: 1}));
+    });
+
+    test('keeps a record without end_of_record before the next SF', () {
+      final [a, b] = parseLcov(
+        'SF:a.dart\nDA:1,1\nSF:b.dart\nDA:2,0\nend_of_record\n',
+      );
+
+      expect(a.file, equals('a.dart'));
+      expect(a.lines, equals({1: 1}));
+      expect(b.file, equals('b.dart'));
+      expect(b.lines, equals({2: 0}));
     });
 
     group('throws $FormatException', () {
@@ -212,10 +225,12 @@ end_of_record
       final records = Parser.parseLines(merged.split('\n'));
       final expected = Parser.parseLines(lcov95.split('\n'));
 
-      expect(
-        CoverageMetrics.fromLcovRecords(records).percentage,
-        equals(CoverageMetrics.fromLcovRecords(expected).percentage),
-      );
+      List<(String?, int?, int?)> summaries(List<Record> records) => [
+        for (final record in records)
+          (record.file, record.lines?.found, record.lines?.hit),
+      ];
+
+      expect(summaries(records), equals(summaries(expected)));
     });
 
     test('sorts branches by line, block and branch', () {
@@ -228,6 +243,63 @@ end_of_record
         RegExp('BRDA:(.*)').allMatches(record.toLcov()).map((m) => m[1]),
         equals(['1,0,0,1', '1,0,1,1', '1,1,0,1', '2,0,0,1']),
       );
+    });
+  });
+
+  group(discoverLcovPackages, () {
+    late Directory directory;
+
+    setUp(() {
+      directory = Directory.systemTemp.createTempSync();
+      addTearDown(() => directory.deleteSync(recursive: true));
+    });
+
+    void createPackage(String path, {bool withReport = true}) {
+      File(p.join(directory.path, path, 'pubspec.yaml'))
+        ..createSync(recursive: true)
+        ..writeAsStringSync('name: package');
+      if (withReport) {
+        File(p.join(directory.path, path, 'coverage', 'lcov.info'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync('');
+      }
+    }
+
+    test('returns the packages with a report, sorted', () {
+      createPackage('.');
+      createPackage(p.join('packages', 'b'));
+      createPackage(p.join('packages', 'a'));
+
+      expect(
+        discoverLcovPackages(directory.path),
+        equals(['.', p.join('packages', 'a'), p.join('packages', 'b')]),
+      );
+    });
+
+    test('skips packages without a report', () {
+      createPackage(p.join('packages', 'a'));
+      createPackage(p.join('packages', 'b'), withReport: false);
+
+      expect(
+        discoverLcovPackages(directory.path),
+        equals([p.join('packages', 'a')]),
+      );
+    });
+
+    test('skips platform, build and tool directories', () {
+      createPackage(p.join('packages', 'a'));
+      createPackage(p.join('packages', 'a', 'build', 'generated'));
+      createPackage(p.join('packages', 'a', 'ios', 'plugin'));
+      createPackage(p.join('.dart_tool', 'cache'));
+
+      expect(
+        discoverLcovPackages(directory.path),
+        equals([p.join('packages', 'a')]),
+      );
+    });
+
+    test('returns nothing without packages', () {
+      expect(discoverLcovPackages(directory.path), isEmpty);
     });
   });
 

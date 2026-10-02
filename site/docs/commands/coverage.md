@@ -44,15 +44,21 @@ very_good coverage merge 'shards/*/lcov.info' --output coverage/merged.info
 Each argument is either the path to an lcov file or a glob, relative to the
 current directory. The CLI expands globs itself, so quote them to get the same
 result in bash, zsh, PowerShell, and `cmd`. Use `/` as the separator in globs,
-on every platform. A glob that matches no file is an error.
+on every platform. A glob that matches no file is an error. Globs skip the
+same directories as `--recursive` (such as `build`, `.dart_tool`, and the
+platform folders), with a warning; pass a report's path to merge it anyway.
 
 Without arguments, the command looks for the `coverage/lcov.info` of every
-package under the current directory, skipping the same directories as
-`--recursive` (such as `build`, `.dart_tool`, and the platform folders). The
-source paths of each report are prefixed with the path of its package, so
-`lib/main.dart` from two packages counts as two files. The `--output` report is
-never merged into itself; pass a different `--output` when the root package has
-its own tests.
+package under the current directory, skipping those same directories.
+
+Whether it was found or passed as an argument, a package's
+`coverage/lcov.info` report has its source paths prefixed with the path of its
+package, so `lib/main.dart` from two packages counts as two files. Other
+reports, such as shards downloaded to `shards/1/lcov.info`, are merged as they
+are. `exclude_coverage` globs match both the prefixed paths and the paths
+within each package, so `lib/src/generated/**` still excludes those files in
+every package. The `--output` report is never merged into itself; pass a
+different `--output` when the root package has its own tests.
 
 ### How reports are merged
 

@@ -152,6 +152,9 @@ List<LcovRecord> parseLcov(String content) {
 
     switch ((tag, record)) {
       case ('SF', _):
+        // A record left without `end_of_record` is kept, as at the end of the
+        // report, rather than dropped.
+        if (record != null) records.add(record);
         record = LcovRecord(value);
       case ('DA' || 'FN' || 'FNDA' || 'BRDA', null):
         throw FormatException('Found "$line" before any "SF:" line.');
@@ -226,9 +229,8 @@ List<LcovRecord> normalizeLcovRecords(
 /// and tool directories are skipped.
 List<String> discoverLcovPackages(String cwd) => Directory(cwd)
     .listSync(recursive: true)
-    .where(_isPubspec)
+    .where(_isPackagePubspec)
     .map((pubspec) => p.relative(pubspec.parent.path, from: cwd))
-    .where((package) => !p.split(package).any(_ignoredDirectories.contains))
     .where(
       (package) =>
           File(p.join(cwd, package, 'coverage', 'lcov.info')).existsSync(),

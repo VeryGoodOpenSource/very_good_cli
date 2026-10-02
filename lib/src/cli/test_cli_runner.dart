@@ -35,23 +35,6 @@ enum CoverageCollectionMode {
   }
 }
 
-/// {@template coverage_not_met}
-/// Thrown when `flutter test ---coverage --min-coverage`
-/// does not meet the provided minimum coverage threshold.
-/// {@endtemplate}
-class MinCoverageNotMet implements Exception {
-  /// {@macro coverage_not_met}
-  const new(this.coverage, {this.uncoveredLines});
-
-  /// The measured coverage percentage (total hits / total found * 100).
-  final double coverage;
-
-  /// Lines not covered, keyed by file path, values are line numbers.
-  ///
-  /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines;
-}
-
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
 ///
 /// It abstracts common functionalities like the test optimization, coverage
@@ -311,8 +294,8 @@ class TestCLIRunner {
 
                 if (minCoverage != null || showUncovered) {
                   checkCoverage(
-                    CoverageMetrics.fromLcovRecords(
-                      await Parser.parse(lcovPath),
+                    CoverageMetrics.fromLcov(
+                      parseLcov(await lcovFile.readAsString()),
                       excludeFromCoverage: excludeFromCoverage,
                     ),
                     minCoverage: minCoverage,
@@ -333,59 +316,6 @@ class TestCLIRunner {
       enableAnsiOutput == null
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
-
-  /// Logs [error], along with its uncovered lines when it carries any, and
-  /// returns the exit code an unmet coverage threshold reports.
-  static int handleMinCoverageNotMet(
-    MinCoverageNotMet error, {
-    required Logger logger,
-    double? minCoverage,
-  }) {
-    var decimalPlaces = 2;
-
-    double round(double x) {
-      final b = pow(10, decimalPlaces);
-      return (x * b).roundToDouble() / b;
-    }
-
-    if (error.coverage < minCoverage!) {
-      var rounded = round(error.coverage);
-      while (rounded == minCoverage) {
-        decimalPlaces++;
-        rounded = round(error.coverage);
-      }
-    }
-
-    logger.err(
-      '''Expected coverage >= ${minCoverage.toStringAsFixed(decimalPlaces)}% but actual is ${error.coverage.toStringAsFixed(decimalPlaces)}%.''',
-    );
-
-    final uncoveredLines = error.uncoveredLines;
-    if (uncoveredLines != null && uncoveredLines.isNotEmpty) {
-      logger.err(formatUncoveredLines(uncoveredLines));
-    }
-
-    return ExitCode.software.code;
-  }
-
-  /// Formats a map of uncovered lines into a human-readable string.
-  ///
-  /// The [uncoveredLines] map is keyed by file path, with values being lists
-  /// of uncovered line numbers.
-  ///
-  /// Example output:
-  /// ```dart
-  /// Lines not covered:
-  ///   - lib/src/foo.dart: 10, 20, 30
-  ///   - lib/src/bar.dart: 5
-  /// ```
-  static String formatUncoveredLines(Map<String, List<int>> uncoveredLines) {
-    final lines = uncoveredLines.entries.map((entry) {
-      final sortedLines = [...entry.value]..sort();
-      return '\t- ${entry.key}: ${sortedLines.join(', ')}';
-    });
-    return 'Lines not covered:\n${lines.join('\n')}';
-  }
 
   /// Discovers all Dart files in the specified directories for coverage.
   static List<String> _discoverDartFilesForCoverage({
@@ -426,11 +356,8 @@ class TestCLIRunner {
     );
 
     // Parse existing lcov to find covered files
-    final existingRecords = await Parser.parse(lcovPath);
-    final coveredFiles = existingRecords
-        .where((r) => r.file != null)
-        .map((r) => r.file!)
-        .toSet();
+    final existingRecords = parseLcov(await lcovFile.readAsString());
+    final coveredFiles = existingRecords.map((r) => r.file).toSet();
 
     // Find uncovered files
     final uncoveredFiles = allDartFiles.where((file) {

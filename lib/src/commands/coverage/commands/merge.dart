@@ -91,15 +91,18 @@ class CoverageMergeCommand extends Command<int> {
       }
 
       final outputPath = p.join(cwd, output);
-      final inputs = argResults.rest.isEmpty
+      final paths = argResults.rest.isEmpty
           ? _discoverInputs(cwd: cwd, outputPath: outputPath)
           : _resolveInputs(argResults.rest, cwd: cwd, outputPath: outputPath);
+      final inputs = {
+        for (final path in paths) path: _packageOf(path, cwd: cwd),
+      };
       final externalPaths = <String>{};
       final records = mergeLcovRecords([
-        for (final input in inputs)
+        for (final MapEntry(key: path, value: packagePath) in inputs.entries)
           ...normalizeLcovRecords(
-            _parse(input.path),
-            packagePath: input.packagePath,
+            _parse(path),
+            packagePath: packagePath,
             onExternalPath: externalPaths.add,
           ),
       ]);
@@ -122,6 +125,10 @@ class CoverageMergeCommand extends Command<int> {
           CoverageMetrics.fromLcov(
             records,
             excludeFromCoverage: excludeFromCoverage,
+            packagePaths: [
+              for (final package in inputs.values.nonNulls)
+                package.replaceAll(r'\', '/'),
+            ],
           ),
           minCoverage: minCoverage,
           showUncovered: showUncovered,
@@ -132,26 +139,29 @@ class CoverageMergeCommand extends Command<int> {
       _logger.err(error.message);
       return error.exitCode;
     } on MinCoverageNotMet catch (error) {
-      return TestCLIRunner.handleMinCoverageNotMet(
+      return handleMinCoverageNotMet(
         error,
         logger: _logger,
         minCoverage: minCoverage,
       );
+    } on FileSystemException catch (error) {
+      _logger.err('$error');
+      return ExitCode.ioError.code;
     }
 
     return ExitCode.success.code;
   }
 
-  /// The lcov reports to merge, as paths relative to [cwd], and the package
-  /// directory their relative source paths should be rebased onto.
+  /// The lcov reports to merge, as paths relative to [cwd].
   ///
   /// Each of [args] is a path to an lcov file or, when no such file exists, a
   /// glob relative to [cwd]. Expanding globs here, rather than relying on the
   /// shell, makes quoted patterns behave the same on every platform.
   ///
-  /// Glob matches skip the report at [outputPath], while an explicit path to
-  /// it is merged, so that it can be overwritten on purpose.
-  List<_MergeInput> _resolveInputs(
+  /// Glob matches skip the report at [outputPath] and the reports in platform,
+  /// build and tool directories, while an explicit path to them is merged, so
+  /// that they can be merged on purpose.
+  List<String> _resolveInputs(
     List<String> args, {
     required String cwd,
     required String outputPath,
@@ -181,33 +191,42 @@ class CoverageMergeCommand extends Command<int> {
         );
       }
 
-      if (matches.isEmpty) {
+      final skipped = matches.where(isInIgnoredDirectory).toList();
+      if (skipped.isNotEmpty) {
+        _logger.warn(
+          'Skipping these reports matched by "$arg", since they are in '
+          'platform, build or tool directories. Pass their paths to merge '
+          'them too:\n'
+          '${skipped.map((path) => '  - $path').join('\n')}',
+        );
+      }
+
+      final kept = matches.whereNot(isInIgnoredDirectory).toList();
+      if (kept.isEmpty) {
         throw _MergeError(
           'No lcov report found at "$arg".',
           ExitCode.noInput.code,
         );
       }
-      paths.addAll(matches);
+      paths.addAll(kept);
     }
 
-    return [for (final path in paths) (path: path, packagePath: null)];
+    return paths.toList();
   }
 
-  /// The `coverage/lcov.info` report of every package under [cwd], with their
-  /// relative source paths rebased onto their package, so the same
-  /// `lib/a.dart` from two packages stays distinct.
+  /// The `coverage/lcov.info` report of every package under [cwd].
   ///
   /// The report at [outputPath] is skipped.
-  List<_MergeInput> _discoverInputs({
+  List<String> _discoverInputs({
     required String cwd,
     required String outputPath,
   }) {
-    final inputs = <_MergeInput>[
+    final inputs = [
       for (final package in discoverLcovPackages(cwd))
         if (p.normalize(p.join(package, 'coverage', 'lcov.info'))
             case final path
             when !_isOutput(path, cwd: cwd, outputPath: outputPath))
-          (path: path, packagePath: package),
+          path,
     ];
 
     if (inputs.isEmpty) {
@@ -238,6 +257,20 @@ class CoverageMergeCommand extends Command<int> {
     return true;
   }
 
+  /// The package directory, relative to [cwd], that the relative source paths
+  /// of the report at [path] are rebased onto, so that the same `lib/a.dart`
+  /// from two packages stays distinct.
+  ///
+  /// Only a package's `coverage/lcov.info` report, as left behind by
+  /// `very_good test --coverage`, is rebased.
+  String? _packageOf(String path, {required String cwd}) {
+    final package = p.dirname(p.dirname(path));
+    final isPackageReport =
+        p.equals(path, p.join(package, 'coverage', 'lcov.info')) &&
+        File(p.join(cwd, package, 'pubspec.yaml')).existsSync();
+    return isPackageReport ? package : null;
+  }
+
   List<LcovRecord> _parse(String path) {
     try {
       return parseLcov(File(path).readAsStringSync());
@@ -249,10 +282,6 @@ class CoverageMergeCommand extends Command<int> {
     }
   }
 }
-
-/// An lcov report to merge, and the package directory its relative source
-/// paths should be rebased onto, if any.
-typedef _MergeInput = ({String path, String? packagePath});
 
 /// A failure that stops the merge, reported with [message] and [exitCode].
 class _MergeError implements Exception {

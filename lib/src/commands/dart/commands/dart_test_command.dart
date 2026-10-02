@@ -517,7 +517,7 @@ This command should be run from the root of your Dart project.''');
         return ExitCode.software.code;
       }
     } on MinCoverageNotMet catch (error) {
-      return TestCLIRunner.handleMinCoverageNotMet(
+      return handleMinCoverageNotMet(
         error,
         logger: _logger,
         minCoverage: minCoverage,
