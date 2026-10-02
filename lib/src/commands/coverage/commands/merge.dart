@@ -1,7 +1,5 @@
 import 'package:args/command_runner.dart';
 import 'package:collection/collection.dart';
-import 'package:glob/glob.dart';
-import 'package:glob/list_local_fs.dart';
 import 'package:mason/mason.dart';
 import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
@@ -67,18 +65,37 @@ class CoverageMergeCommand extends Command<int> {
     final testConfig = config.test;
     final dartTestConfig = config.dart.test;
 
+    // The coverage options all come from the first section that sets any of
+    // them, so that a run never mixes the `test` and `dart.test` sections.
+    final (configMinCoverage, configExcludeCoverage, configShowUncovered) =
+        [
+          (
+            testConfig.minCoverage,
+            testConfig.excludeCoverage,
+            testConfig.showUncovered,
+          ),
+          (
+            dartTestConfig.minCoverage,
+            dartTestConfig.excludeCoverage,
+            dartTestConfig.showUncovered,
+          ),
+        ].firstWhere(
+          (section) => section != (null, null, null),
+          orElse: () => (null, null, null),
+        );
+
     final rawMinCoverage = argResults.resolve<String?>(
       'min-coverage',
-      testConfig.minCoverage ?? dartTestConfig.minCoverage,
+      configMinCoverage,
     );
     final minCoverage = double.tryParse(rawMinCoverage ?? '');
     final excludeFromCoverage = argResults.resolve<String?>(
       'exclude-coverage',
-      testConfig.excludeCoverage ?? dartTestConfig.excludeCoverage,
+      configExcludeCoverage,
     );
     final showUncovered = argResults.resolve<bool>(
       'show-uncovered',
-      testConfig.showUncovered ?? dartTestConfig.showUncovered,
+      configShowUncovered,
     );
     final output = p.normalize(argResults['output'] as String);
 
@@ -176,14 +193,7 @@ class CoverageMergeCommand extends Command<int> {
 
       final List<String> matches;
       try {
-        matches = Glob(arg)
-            .listSync(root: cwd)
-            .whereType<File>()
-            .map((file) => p.relative(file.path, from: cwd))
-            .whereNot(
-              (path) => _isOutput(path, cwd: cwd, outputPath: outputPath),
-            )
-            .sorted();
+        matches = expandLcovGlob(arg, cwd: cwd);
       } on FormatException catch (error) {
         throw _MergeError(
           'Invalid glob "$arg": ${error.message}',
@@ -191,17 +201,15 @@ class CoverageMergeCommand extends Command<int> {
         );
       }
 
-      final skipped = matches.where(isInIgnoredDirectory).toList();
-      if (skipped.isNotEmpty) {
-        _logger.warn(
-          'Skipping these reports matched by "$arg", since they are in '
-          'platform, build or tool directories. Pass their paths to merge '
-          'them too:\n'
-          '${skipped.map((path) => '  - $path').join('\n')}',
-        );
-      }
-
-      final kept = matches.whereNot(isInIgnoredDirectory).toList();
+      final kept = _skip(
+        _skipOutput(matches, cwd: cwd, outputPath: outputPath),
+        where: isInIgnoredDirectory,
+        warning: (skipped) =>
+            'Skipping these reports matched by "$arg", since they are in '
+            'platform, build or tool directories. Pass their paths to merge '
+            'them too:\n'
+            '${skipped.map((path) => '  - $path').join('\n')}',
+      );
       if (kept.isEmpty) {
         throw _MergeError(
           'No lcov report found at "$arg".',
@@ -221,13 +229,14 @@ class CoverageMergeCommand extends Command<int> {
     required String cwd,
     required String outputPath,
   }) {
-    final inputs = [
-      for (final package in discoverLcovPackages(cwd))
-        if (p.normalize(p.join(package, 'coverage', 'lcov.info'))
-            case final path
-            when !_isOutput(path, cwd: cwd, outputPath: outputPath))
-          path,
-    ];
+    final inputs = _skipOutput(
+      [
+        for (final package in discoverLcovPackages(cwd))
+          p.normalize(p.join(package, 'coverage', 'lcov.info')),
+      ],
+      cwd: cwd,
+      outputPath: outputPath,
+    );
 
     if (inputs.isEmpty) {
       throw _MergeError(
@@ -240,21 +249,32 @@ class CoverageMergeCommand extends Command<int> {
     return inputs;
   }
 
-  /// Whether [path], relative to [cwd], is the report at [outputPath].
+  /// [paths], relative to [cwd], without the report at [outputPath].
   ///
   /// Such a report is likely a previous merge, so it is reported as skipped,
   /// since merging it again would count its hits twice.
-  bool _isOutput(
-    String path, {
+  List<String> _skipOutput(
+    List<String> paths, {
     required String cwd,
     required String outputPath,
+  }) => _skip(
+    paths,
+    where: (path) => p.equals(p.join(cwd, path), outputPath),
+    warning: (skipped) =>
+        'Skipping ${skipped.join(', ')}, since it is the --output report. '
+        'Pass a different --output to merge it too.',
+  );
+
+  /// [paths] without the ones matching [where], which are reported with the
+  /// [warning] built from them.
+  List<String> _skip(
+    List<String> paths, {
+    required bool Function(String path) where,
+    required String Function(List<String> skipped) warning,
   }) {
-    if (!p.equals(p.join(cwd, path), outputPath)) return false;
-    _logger.warn(
-      'Skipping $path, since it is the --output report. Pass a different '
-      '--output to merge it too.',
-    );
-    return true;
+    final skipped = paths.where(where).toList();
+    if (skipped.isNotEmpty) _logger.warn(warning(skipped));
+    return paths.whereNot(where).toList();
   }
 
   /// The package directory, relative to [cwd], that the relative source paths

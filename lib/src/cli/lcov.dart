@@ -14,14 +14,14 @@ class LcovRecord {
   /// {@macro lcov_record}
   new(
     this.file, {
-    Map<int, int>? lines,
-    Map<String, int>? functionLines,
-    Map<String, int>? functionHits,
-    Map<LcovBranch, int>? branches,
-  }) : lines = lines ?? {},
-       functionLines = functionLines ?? {},
-       functionHits = functionHits ?? {},
-       branches = branches ?? {};
+    Map<int, int> lines = const {},
+    Map<String, int> functionLines = const {},
+    Map<String, int> functionHits = const {},
+    Map<LcovBranch, int> branches = const {},
+  }) : lines = Map.unmodifiable(lines),
+       functionLines = Map.unmodifiable(functionLines),
+       functionHits = Map.unmodifiable(functionHits),
+       branches = Map.unmodifiable(branches);
 
   /// The source file path (`SF:`).
   final String file;
@@ -41,46 +41,33 @@ class LcovRecord {
   /// A copy of this record for the source [file].
   LcovRecord withFile(String file) => LcovRecord(
     file,
-    lines: {...lines},
-    functionLines: {...functionLines},
-    functionHits: {...functionHits},
-    branches: {...branches},
+    lines: lines,
+    functionLines: functionLines,
+    functionHits: functionHits,
+    branches: branches,
   );
-
-  /// Adds the hits of [other] into this record.
-  void addAll(LcovRecord other) {
-    void sum<K>(Map<K, int> target, Map<K, int> source) {
-      for (final MapEntry(:key, :value) in source.entries) {
-        target[key] = (target[key] ?? 0) + value;
-      }
-    }
-
-    sum(lines, other.lines);
-    sum(functionHits, other.functionHits);
-    sum(branches, other.branches);
-    for (final MapEntry(:key, :value) in other.functionLines.entries) {
-      functionLines.putIfAbsent(key, () => value);
-    }
-  }
 
   /// Serializes this record to lcov, ending with `end_of_record`.
   String toLcov() {
     final buffer = StringBuffer()..writeln('SF:$file');
 
     if (functionLines.isNotEmpty) {
-      final names = functionLines.keys.sortedBy<num>((n) => functionLines[n]!);
-      for (final name in names) {
-        buffer.writeln('FN:${functionLines[name]},$name');
+      final functions = functionLines.entries.sortedBy<num>(
+        (function) => function.value,
+      );
+      for (final MapEntry(key: name, value: line) in functions) {
+        buffer.writeln('FN:$line,$name');
       }
-      for (final name in names) {
-        final hits = functionHits[name] ?? 0;
-        if (hits > 0) buffer.writeln('FNDA:$hits,$name');
+      final hitNames = [
+        for (final MapEntry(key: name) in functions)
+          if ((functionHits[name] ?? 0) > 0) name,
+      ];
+      for (final name in hitNames) {
+        buffer.writeln('FNDA:${functionHits[name]},$name');
       }
       buffer
-        ..writeln('FNF:${names.length}')
-        ..writeln(
-          'FNH:${names.where((n) => (functionHits[n] ?? 0) > 0).length}',
-        );
+        ..writeln('FNF:${functions.length}')
+        ..writeln('FNH:${hitNames.length}');
     }
 
     for (final line in lines.keys.sorted((a, b) => a - b)) {
@@ -105,6 +92,52 @@ class LcovRecord {
   }
 }
 
+/// Sums the hits of the lcov details of a single source [file], while parsing
+/// or merging, then [build]s its [LcovRecord].
+class _LcovRecordBuilder {
+  new(this.file);
+
+  final String file;
+
+  final _lines = <int, int>{};
+
+  final _functionLines = <String, int>{};
+
+  final _functionHits = <String, int>{};
+
+  final _branches = <LcovBranch, int>{};
+
+  void addLine(int line, int hits) => _sum(_lines, line, hits);
+
+  void addFunction(String name, int line) =>
+      _functionLines.putIfAbsent(name, () => line);
+
+  void addFunctionHits(String name, int hits) =>
+      _sum(_functionHits, name, hits);
+
+  void addBranch(LcovBranch branch, int taken) =>
+      _sum(_branches, branch, taken);
+
+  /// Adds the hits of [record].
+  void addAll(LcovRecord record) {
+    record.lines.forEach(addLine);
+    record.functionLines.forEach(addFunction);
+    record.functionHits.forEach(addFunctionHits);
+    record.branches.forEach(addBranch);
+  }
+
+  LcovRecord build() => LcovRecord(
+    file,
+    lines: _lines,
+    functionLines: _functionLines,
+    functionHits: _functionHits,
+    branches: _branches,
+  );
+
+  static void _sum<K>(Map<K, int> hits, K key, int value) =>
+      hits[key] = (hits[key] ?? 0) + value;
+}
+
 /// Orders branches by line, then block, then branch number.
 int _compareBranches(LcovBranch a, LcovBranch b) {
   final (aLine, aBlock, aBranch) = a;
@@ -118,19 +151,22 @@ int _compareBranches(LcovBranch a, LcovBranch b) {
 ///
 /// Unlike `package:lcov_parser`, this tolerates CRLF line endings, blank
 /// lines, `:` and `,` in source paths and tags it doesn't know about, which
-/// are ignored along with the `LF/LH/FNF/FNH/BRF/BRH` summaries.
+/// are ignored along with the `LF/LH/FNF/FNH/BRF/BRH` summaries. Both the
+/// `FN:<line>,<name>` layout of `package:coverage` and the
+/// `FN:<line>,<end line>,<name>` one of lcov 2 are read, the end line being
+/// ignored.
 ///
 /// Throws a [FormatException] when a line is malformed.
 List<LcovRecord> parseLcov(String content) {
   final records = <LcovRecord>[];
-  LcovRecord? record;
+  _LcovRecordBuilder? record;
 
   for (final rawLine in const LineSplitter().convert(content)) {
     final line = rawLine.trim();
     if (line.isEmpty) continue;
 
     if (line == 'end_of_record') {
-      if (record != null) records.add(record);
+      if (record != null) records.add(record.build());
       record = null;
       continue;
     }
@@ -143,39 +179,42 @@ List<LcovRecord> parseLcov(String content) {
     final value = line.substring(separator + 1);
     final fields = value.split(',');
 
+    Never invalid() => throw FormatException('Invalid lcov line "$line".');
+
     int number(int index) =>
-        int.tryParse(fields.elementAtOrNull(index) ?? '') ??
-        (throw FormatException('Invalid lcov line "$line".'));
+        int.tryParse(fields.elementAtOrNull(index) ?? '') ?? invalid();
 
     // Function names may contain commas, so they span the remaining fields.
-    String name() => fields.skip(1).join(',');
+    String name(int index) => switch (fields.skip(index).join(',')) {
+      '' => invalid(),
+      final name => name,
+    };
 
     switch ((tag, record)) {
       case ('SF', _):
         // A record left without `end_of_record` is kept, as at the end of the
         // report, rather than dropped.
-        if (record != null) records.add(record);
-        record = LcovRecord(value);
+        if (record != null) records.add(record.build());
+        record = _LcovRecordBuilder(value);
       case ('DA' || 'FN' || 'FNDA' || 'BRDA', null):
         throw FormatException('Found "$line" before any "SF:" line.');
-      case ('DA', final LcovRecord current):
-        final lineNumber = number(0);
-        current.lines[lineNumber] =
-            (current.lines[lineNumber] ?? 0) + number(1);
-      case ('FN', final LcovRecord current):
-        current.functionLines[name()] = number(0);
-      case ('FNDA', final LcovRecord current):
-        current.functionHits[name()] =
-            (current.functionHits[name()] ?? 0) + number(0);
-      case ('BRDA', final LcovRecord current):
-        final branch = (number(0), number(1), number(2));
+      case ('DA', final _LcovRecordBuilder current):
+        current.addLine(number(0), number(1));
+      case ('FN', final _LcovRecordBuilder current):
+        // Dart function names can't start with a digit, so a numeric second
+        // field is the end line of lcov 2.
+        final hasEndLine = fields.length > 2 && int.tryParse(fields[1]) != null;
+        current.addFunction(name(hasEndLine ? 2 : 1), number(0));
+      case ('FNDA', final _LcovRecordBuilder current):
+        current.addFunctionHits(name(1), number(0));
+      case ('BRDA', final _LcovRecordBuilder current):
         // A `-` means the branch was never reached, which counts as not taken.
         final taken = fields.elementAtOrNull(3) == '-' ? 0 : number(3);
-        current.branches[branch] = (current.branches[branch] ?? 0) + taken;
+        current.addBranch((number(0), number(1), number(2)), taken);
     }
   }
 
-  if (record != null) records.add(record);
+  if (record != null) records.add(record.build());
   return records;
 }
 
@@ -237,17 +276,27 @@ List<String> discoverLcovPackages(String cwd) => Directory(cwd)
     )
     .sorted();
 
+/// The files matched by [glob], relative to [cwd] and sorted.
+///
+/// Throws a [FormatException] when [glob] is invalid.
+List<String> expandLcovGlob(String glob, {required String cwd}) =>
+    Glob(glob)
+        .listSync(root: cwd)
+        .whereType<File>()
+        .map((file) => p.relative(file.path, from: cwd))
+        .sorted();
+
 /// Merges [records] that describe the same source file, summing their hits.
 ///
 /// The result keeps the order in which each file first appears.
 List<LcovRecord> mergeLcovRecords(Iterable<LcovRecord> records) {
-  final merged = <String, LcovRecord>{};
+  final merged = <String, _LcovRecordBuilder>{};
   for (final record in records) {
     merged
-        .putIfAbsent(record.file, () => LcovRecord(record.file))
+        .putIfAbsent(record.file, () => _LcovRecordBuilder(record.file))
         .addAll(record);
   }
-  return merged.values.toList();
+  return [for (final record in merged.values) record.build()];
 }
 
 /// Serializes [records] to lcov.

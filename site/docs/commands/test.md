@@ -133,36 +133,12 @@ Enforce it on the merged report instead: very_good coverage merge <lcov files>
 ```
 
 `very_good coverage merge` reads the same `min_coverage`, so the merge job
-enforces it without repeating the threshold. The full workflow, where a matrix
-of shards uploads its reports and a final job downloads and merges them, looks
-like this:
-
-```yaml
-jobs:
-  test:
-    strategy:
-      matrix:
-        shard: [1, 2, 3]
-    steps:
-      - run: very_good test --coverage --shard-index ${{ matrix.shard }} --total-shards 3
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.shard }}
-          path: coverage/lcov.info
-
-  coverage:
-    needs: test
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: coverage-*
-          path: shards
-      - run: very_good coverage merge 'shards/*/lcov.info'
-```
+enforces it without repeating the threshold. See the
+[example CI workflow](coverage.md#example-ci-workflow), where a matrix of shards
+uploads its reports and a final job downloads and merges them.
 
 A shard without tests still writes an empty `coverage/lcov.info`, which
-`very_good coverage merge` accepts. See [Coverage](coverage.md) for the
-complete workflow, including `--recursive` runs.
+`very_good coverage merge` accepts.
 
 :::info
 Sharding requires the test optimizer, so it is rejected whenever the optimizer

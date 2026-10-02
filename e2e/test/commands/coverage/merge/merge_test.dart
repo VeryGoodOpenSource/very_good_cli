@@ -3,13 +3,19 @@ import 'package:mocktail/mocktail.dart';
 import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:universal_io/io.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 
 import '../../../../helpers/helpers.dart';
 
-/// The lines of the lcov report at [filePath], sorted so reports listing the
-/// same files in a different order compare equal.
-List<String> _sortedLines(String filePath) =>
-    File(filePath).readAsLinesSync()..sort();
+/// The records of the lcov report at [filePath], merged and serialized per
+/// source file, so reports listing the same files in a different order compare
+/// equal while lines moved between files do not.
+Map<String, String> _recordsByFile(String filePath) => {
+  for (final record in mergeLcovRecords(
+    parseLcov(File(filePath).readAsStringSync()),
+  ))
+    record.file: record.toLcov(),
+};
 
 void main() {
   test(
@@ -72,7 +78,10 @@ void main() {
         ]),
         completion(equals(ExitCode.success.code)),
       );
-      expect(_sortedLines('merged.info'), equals(_sortedLines(unshardedPath)));
+      expect(
+        _recordsByFile('merged.info'),
+        equals(_recordsByFile(unshardedPath)),
+      );
 
       await expectLater(
         commandRunner.run([

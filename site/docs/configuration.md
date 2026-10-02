@@ -217,9 +217,9 @@ dart:
 
 [`very_good coverage merge`](commands/coverage.md) has no section of its own.
 When a flag isn't passed, it reads `min_coverage`, `exclude_coverage`, and
-`show_uncovered` from the `test` section, and then from the `dart.test`
-section, so the threshold you enforce in un-sharded runs also applies to the
-merged report.
+`show_uncovered` from the `test` section or, when it sets none of them, from
+the `dart.test` section, without mixing the two. The threshold you enforce in
+un-sharded runs then also applies to the merged report.
 
 ### `packages.get`
 

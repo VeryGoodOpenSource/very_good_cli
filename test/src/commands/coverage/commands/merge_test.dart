@@ -627,6 +627,28 @@ end_of_record
       );
 
       test(
+        'when --min-coverage is empty',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeShards();
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shards/1/lcov.info',
+            '--min-coverage',
+            '',
+          ]);
+
+          expect(result, equals(ExitCode.usage.code));
+          verify(
+            () => logger.err('--min-coverage must be a number, but got "".'),
+          ).called(1);
+          expect(File('coverage/lcov.info').existsSync(), isFalse);
+        }),
+      );
+
+      test(
         'when very_good.yaml is invalid',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           _enterTempDirectory();
@@ -822,6 +844,32 @@ end_of_record
           ]);
 
           expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
+        'does not mix the test and dart test sections',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          _enterTempDirectory();
+          _writeShards();
+          _writeFile(
+            'very_good.yaml',
+            'test:\n  min_coverage: 100\n'
+                'dart:\n  test:\n    exclude_coverage: lib/b.dart\n',
+          );
+
+          final result = await commandRunner.run([
+            'coverage',
+            'merge',
+            'shards/*/lcov.info',
+          ]);
+
+          expect(result, equals(ExitCode.software.code));
+          verify(
+            () => logger.err(
+              'Expected coverage >= 100.00% but actual is 66.67%.',
+            ),
+          ).called(1);
         }),
       );
 

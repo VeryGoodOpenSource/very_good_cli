@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
+import 'package:glob/list_local_fs.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -19,7 +20,7 @@ part 'coverage_check.dart';
 part 'dart_cli.dart';
 part 'flutter_cli.dart';
 part 'git_cli.dart';
-part 'lcov_merger.dart';
+part 'lcov.dart';
 part 'test_cli_runner.dart';
 
 const R Function<R>(

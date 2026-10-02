@@ -80,8 +80,9 @@ Reports are merged by source file:
 The command has no section of its own in
 [`very_good.yaml`](../configuration.md). When a flag isn't passed, it reads the
 `min_coverage`, `exclude_coverage`, and `show_uncovered` values from the
-`test` section, and then from the `dart.test` section. This lets the threshold
-you already enforce in un-sharded runs apply to the merged report.
+`test` section or, when it sets none of them, from the `dart.test` section. The
+values of the two sections are never mixed. This lets the threshold you already
+enforce in un-sharded runs apply to the merged report.
 
 ## Example CI workflow
 

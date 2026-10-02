@@ -28,6 +28,32 @@ end_of_record
 ''';
 
 void main() {
+  group(LcovRecord, () {
+    test('cannot be modified', () {
+      final record = LcovRecord(
+        'a.dart',
+        lines: {1: 1},
+        functionLines: {'f': 1},
+        functionHits: {'f': 1},
+        branches: {(1, 0, 0): 1},
+      );
+
+      expect(() => record.lines[1] = 2, throwsUnsupportedError);
+      expect(() => record.functionLines['f'] = 2, throwsUnsupportedError);
+      expect(() => record.functionHits['f'] = 2, throwsUnsupportedError);
+      expect(() => record.branches[(1, 0, 0)] = 2, throwsUnsupportedError);
+    });
+
+    test('is not affected by changes to the given maps', () {
+      final lines = {1: 1};
+      final record = LcovRecord('a.dart', lines: lines);
+
+      lines[1] = 2;
+
+      expect(record.lines, equals({1: 1}));
+    });
+  });
+
   group(parseLcov, () {
     test('parses lines, functions and branches', () {
       final [record] = parseLcov(_dartLcov);
@@ -70,6 +96,22 @@ void main() {
 
       expect(record.functionLines, equals({'f<int,int>': 1}));
       expect(record.functionHits, equals({'f<int,int>': 1}));
+    });
+
+    test('reads the lcov 2 function layout, ignoring the end line', () {
+      final [record] = parseLcov(
+        'SF:a.dart\nFN:1,3,main\nFN:5,9,f<int,int>\nFNDA:1,main\n'
+        'end_of_record\n',
+      );
+
+      expect(record.functionLines, equals({'main': 1, 'f<int,int>': 5}));
+      expect(record.functionHits, equals({'main': 1}));
+    });
+
+    test('ignores extra branch fields', () {
+      final [record] = parseLcov('SF:a.dart\nBRDA:1,0,0,2,9\nend_of_record\n');
+
+      expect(record.branches, equals({(1, 0, 0): 2}));
     });
 
     test('ignores unknown tags and summaries', () {
@@ -115,6 +157,8 @@ void main() {
         ('for details before any SF', 'DA:1,1\n'),
         ('for a non numeric value', 'SF:a.dart\nDA:1,x\n'),
         ('for a missing value', 'SF:a.dart\nBRDA:1,0\n'),
+        ('for a function without a name', 'SF:a.dart\nFN:1\n'),
+        ('for function hits without a name', 'SF:a.dart\nFNDA:1,\n'),
       ]) {
         test(description, () {
           expect(() => parseLcov(content), throwsFormatException);
@@ -242,6 +286,39 @@ end_of_record
       expect(
         RegExp('BRDA:(.*)').allMatches(record.toLcov()).map((m) => m[1]),
         equals(['1,0,0,1', '1,0,1,1', '1,1,0,1', '2,0,0,1']),
+      );
+    });
+  });
+
+  group(expandLcovGlob, () {
+    late Directory directory;
+
+    setUp(() {
+      directory = Directory.systemTemp.createTempSync();
+      addTearDown(() => directory.deleteSync(recursive: true));
+    });
+
+    test('returns the matched files, relative and sorted', () {
+      for (final shard in ['2', '1']) {
+        File(p.join(directory.path, 'shards', shard, 'lcov.info'))
+          ..createSync(recursive: true)
+          ..writeAsStringSync('');
+      }
+      Directory(p.join(directory.path, 'shards', 'dir.info')).createSync();
+
+      expect(
+        expandLcovGlob('shards/**.info', cwd: directory.path),
+        equals([
+          p.join('shards', '1', 'lcov.info'),
+          p.join('shards', '2', 'lcov.info'),
+        ]),
+      );
+    });
+
+    test('throws $FormatException for an invalid glob', () {
+      expect(
+        () => expandLcovGlob('[', cwd: directory.path),
+        throwsFormatException,
       );
     });
   });
@@ -383,10 +460,10 @@ end_of_record
       final record = LcovRecord('lib/a.dart', lines: {1: 1});
 
       final [normalized] = normalizeLcovRecords([record], packagePath: 'foo');
-      normalized.lines[1] = 2;
 
+      expect(normalized.file, equals('foo/lib/a.dart'));
+      expect(normalized.lines, equals({1: 1}));
       expect(record.file, equals('lib/a.dart'));
-      expect(record.lines, equals({1: 1}));
     });
   });
 }
