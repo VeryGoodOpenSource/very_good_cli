@@ -10,6 +10,7 @@ import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
+import 'package:very_good_cli/src/mcp/tool_run.dart';
 
 /// Decodes a MCP tool result's text content as the structured error payload.
 Map<String, Object?> _errorPayload(CallToolResult result) {
