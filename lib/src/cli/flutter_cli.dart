@@ -106,11 +106,12 @@ class CoverageMetrics {
 
   Map<String, List<int>> _uncoveredLinesWith(Record record) {
     final file = record.file;
+    if (file == null) return uncoveredLines;
+
     final newLines = _uncoveredLineNumbersOf(record);
     return {
       ...uncoveredLines,
-      if (file != null && newLines.isNotEmpty)
-        file: [...?uncoveredLines[file], ...newLines],
+      if (newLines.isNotEmpty) file: [...?uncoveredLines[file], ...newLines],
     };
   }
 

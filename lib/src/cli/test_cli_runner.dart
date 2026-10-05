@@ -328,8 +328,8 @@ class TestCLIRunner {
     required TestRunType testType,
     required _CoverageOptions options,
   }) async {
-    // Dart don't directly generate lcov files, so we need
-    // to read the json that is generates and convert it to lcov.
+    // Dart doesn't generate lcov files directly, so convert the json
+    // coverage it writes into lcov.
     if (testType == TestRunType.dart) {
       await _convertDartCoverageToLcov(
         cwd: cwd,
@@ -591,7 +591,7 @@ class _CoverageOptions {
   /// Whether to list the lines left uncovered.
   final bool showUncovered;
 
-  /// A glob of the files left out of the coverage.
+  /// Space-separated globs of the files left out of the coverage.
   final String? excludeFromCoverage;
 
   /// The directories, relative to the package, the coverage reports on.
@@ -658,7 +658,7 @@ Future<int> _testCommand({
         ],
         runInShell: true,
       ).listen(
-        (event) async {
+        (event) {
           if (event.shouldCancelTimer()) unawaited(timerSubscription.cancel());
           reporter.report(event);
 

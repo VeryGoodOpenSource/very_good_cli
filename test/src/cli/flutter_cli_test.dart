@@ -396,6 +396,21 @@ void main() {
         );
       });
 
+      test('counts records without a source file but skips their lines', () {
+        final records = parseRecords([
+          'DA:1,0',
+          'LF:1',
+          'LH:0',
+          'end_of_record',
+        ]);
+
+        final metrics = CoverageMetrics.fromLcovRecords(records);
+
+        expect(records.single.file, isNull);
+        expect(metrics.totalFound, equals(1));
+        expect(metrics.uncoveredLines, isEmpty);
+      });
+
       test('handles records with no DA entries', () {
         final records = parseRecords([
           'SF:lib/a.dart',
