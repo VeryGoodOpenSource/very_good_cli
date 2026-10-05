@@ -15,6 +15,9 @@ doc/api/
 # Files generated during tests
 .test_coverage.dart
 coverage/
+# The coverage library and its tests are sources, not reports.
+!lib/src/coverage/
+!test/src/coverage/
 .test_optimizer.dart
 !bricks/test_optimizer/__brick__/test/.test_optimizer.dart
 *.vm.json

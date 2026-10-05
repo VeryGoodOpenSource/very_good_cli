@@ -7,6 +7,7 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Dart test command.

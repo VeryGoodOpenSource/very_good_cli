@@ -18,40 +18,6 @@ enum TestRunType {
   dart,
 }
 
-/// How to collect coverage.
-enum CoverageCollectionMode {
-  /// Collect coverage from imported files only (default behavior).
-  imports,
-
-  /// Collect coverage from all files in the project.
-  all;
-
-  /// Parses a string value into a [CoverageCollectionMode].
-  static CoverageCollectionMode fromString(String value) {
-    return CoverageCollectionMode.values.firstWhere(
-      (mode) => mode.name == value,
-      orElse: () => CoverageCollectionMode.imports,
-    );
-  }
-}
-
-/// {@template coverage_not_met}
-/// Thrown when `flutter test ---coverage --min-coverage`
-/// does not meet the provided minimum coverage threshold.
-/// {@endtemplate}
-class MinCoverageNotMet implements Exception {
-  /// {@macro coverage_not_met}
-  const new(this.coverage, {this.uncoveredLines});
-
-  /// The measured coverage percentage (total hits / total found * 100).
-  final double coverage;
-
-  /// Lines not covered, keyed by file path, values are line numbers.
-  ///
-  /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines;
-}
-
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
 ///
 /// It abstracts common functionalities like the test optimization, coverage
@@ -204,7 +170,7 @@ This command should be run from the root of your $projectKind project.''');
         overrideTestRunner ??
         (testType == TestRunType.flutter ? flutterTest : dartTest);
 
-    final coverageOptions = _CoverageOptions(
+    final coverageOptions = CoverageOptions(
       collect: collectCoverage,
       collectFrom: collectCoverageFrom,
       minCoverage: minCoverage,
@@ -214,6 +180,17 @@ This command should be run from the root of your $projectKind project.''');
       checkIgnore: checkIgnore,
     );
 
+    CoverageReport coverageReportOf(String packageRoot) => switch (testType) {
+      TestRunType.flutter => FlutterCoverageReport(
+        packageRoot: packageRoot,
+        options: coverageOptions,
+      ),
+      TestRunType.dart => DartCoverageReport(
+        packageRoot: packageRoot,
+        options: coverageOptions,
+      ),
+    };
+
     return _runCommand<int>(
       cmd: (cwd) => _testPackage(
         cwd: cwd,
@@ -222,7 +199,7 @@ This command should be run from the root of your $projectKind project.''');
         testType: testType,
         testRunner: testRunner,
         optimizer: optimizer,
-        coverageOptions: coverageOptions,
+        coverageReport: coverageReportOf(cwd),
         randomSeed: randomSeed,
         forceAnsi: forceAnsi,
         arguments: arguments,
@@ -243,19 +220,14 @@ This command should be run from the root of your $projectKind project.''');
     required TestRunType testType,
     required VeryGoodTestRunner testRunner,
     required TestOptimizer optimizer,
-    required _CoverageOptions coverageOptions,
+    required CoverageReport coverageReport,
     required String? randomSeed,
     required bool? forceAnsi,
     required List<String>? arguments,
     required void Function(String)? stdout,
     required void Function(String)? stderr,
   }) async {
-    final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
-    final lcovFile = File(lcovPath);
-
-    if (coverageOptions.collect && lcovFile.existsSync()) {
-      await lcovFile.delete();
-    }
+    await coverageReport.clean();
 
     void noop(String? _) {}
     final workingDirectory = Directory(p.normalize(cwd)).absolute.path;
@@ -285,7 +257,7 @@ This command should be run from the root of your $projectKind project.''');
       await optimization.cleanUp();
       // The merge step downstream still expects a report from every
       // shard, so leave an empty one behind.
-      if (coverageOptions.collect) await lcovFile.create(recursive: true);
+      await coverageReport.writeEmpty();
       return ExitCode.success.code;
     }
 
@@ -294,11 +266,10 @@ This command should be run from the root of your $projectKind project.''');
       () =>
           _testCommand(
             cwd: cwd,
-            collectCoverage: coverageOptions.collect,
             testRunner: testRunner,
-            testType: testType,
             optimization: optimization,
             arguments: [
+              ...coverageReport.collectArguments,
               ...?arguments,
               if (randomSeed != null) ...[
                 '--test-randomize-ordering-seed',
@@ -310,13 +281,7 @@ This command should be run from the root of your $projectKind project.''');
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             await optimization.cleanUp();
-            await _reportCoverage(
-              cwd: cwd,
-              lcovPath: lcovPath,
-              testType: testType,
-              options: coverageOptions,
-              stdout: stdout,
-            );
+            await coverageReport.finalize(stdout: stdout);
           }),
     );
   }
@@ -325,123 +290,6 @@ This command should be run from the root of your $projectKind project.''');
   static String _displayPath(String workingDirectory, {required String from}) {
     final relativePath = p.relative(workingDirectory, from: from);
     return relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
-  }
-
-  /// Writes the lcov report of a finished test run when coverage is
-  /// collected, then enforces the coverage threshold when one is set.
-  static Future<void> _reportCoverage({
-    required String cwd,
-    required String lcovPath,
-    required TestRunType testType,
-    required _CoverageOptions options,
-    required void Function(String)? stdout,
-  }) async {
-    if (options.collect) {
-      await _writeLcov(
-        cwd: cwd,
-        lcovPath: lcovPath,
-        testType: testType,
-        options: options,
-      );
-    }
-
-    if (options.minCoverage != null || options.showUncovered) {
-      await _checkCoverage(
-        lcovPath: lcovPath,
-        options: options,
-        stdout: stdout,
-      );
-    }
-  }
-
-  /// Leaves the coverage of the test run in `coverage/lcov.info`.
-  static Future<void> _writeLcov({
-    required String cwd,
-    required String lcovPath,
-    required TestRunType testType,
-    required _CoverageOptions options,
-  }) async {
-    // Dart doesn't generate lcov files directly, so convert the json
-    // coverage it writes into lcov.
-    if (testType == TestRunType.dart) {
-      await _convertDartCoverageToLcov(
-        cwd: cwd,
-        lcovFile: File(lcovPath),
-        options: options,
-      );
-    }
-
-    assert(File(lcovPath).existsSync(), 'coverage/lcov.info must exist');
-
-    if (options.collectFrom == CoverageCollectionMode.all) {
-      await _enhanceLcovWithUntestedFiles(
-        lcovPath: lcovPath,
-        cwd: cwd,
-        reportOn: options.reportOn,
-        excludeFromCoverage: options.excludeFromCoverage,
-      );
-    }
-  }
-
-  /// Converts the json coverage `dart test` writes into [lcovFile].
-  static Future<void> _convertDartCoverageToLcov({
-    required String cwd,
-    required File lcovFile,
-    required _CoverageOptions options,
-  }) async {
-    final files = _dartCoverageFilesToProcess(p.join(cwd, 'coverage'));
-
-    final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
-    final resolvedReportOn = [
-      for (final path in options.reportOn) p.join(resolvedCwd, path),
-    ];
-
-    final hitmap = await coverage.HitMap.parseFiles(
-      files,
-      packagePath: resolvedCwd,
-      checkIgnoredLines: options.checkIgnore,
-    );
-
-    final resolver = await coverage.Resolver.create(packagePath: resolvedCwd);
-
-    final output = hitmap.formatLcov(
-      resolver,
-      reportOn: resolvedReportOn,
-      basePath: resolvedCwd,
-    );
-
-    await lcovFile.create(recursive: true);
-    await lcovFile.writeAsString(output);
-  }
-
-  /// Throws [MinCoverageNotMet] when the coverage in [lcovPath] is below the
-  /// threshold, and otherwise lists the uncovered lines when asked to.
-  static Future<void> _checkCoverage({
-    required String lcovPath,
-    required _CoverageOptions options,
-    required void Function(String)? stdout,
-  }) async {
-    final records = await Parser.parse(lcovPath);
-    final coverageMetrics = CoverageMetrics.fromLcovRecords(
-      records,
-      excludeFromCoverage: options.excludeFromCoverage,
-    );
-    final percentage = coverageMetrics.percentage;
-    final uncoveredLines =
-        options.showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
-        ? coverageMetrics.uncoveredLines
-        : null;
-
-    final minCoverage = options.minCoverage;
-    if (minCoverage != null && percentage < minCoverage) {
-      throw MinCoverageNotMet(percentage, uncoveredLines: uncoveredLines);
-    }
-
-    // When coverage passes but is below 100%,
-    // show uncovered lines as informational output.
-    if (uncoveredLines != null) {
-      stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
-    }
   }
 
   static T _overrideAnsiOutput<T>(bool? enableAnsiOutput, T Function() body) =>
@@ -482,156 +330,6 @@ This command should be run from the root of your $projectKind project.''');
 
     return ExitCode.software.code;
   }
-
-  /// Formats a map of uncovered lines into a human-readable string.
-  ///
-  /// The [uncoveredLines] map is keyed by file path, with values being lists
-  /// of uncovered line numbers.
-  ///
-  /// Example output:
-  /// ```dart
-  /// Lines not covered:
-  ///   - lib/src/foo.dart: 10, 20, 30
-  ///   - lib/src/bar.dart: 5
-  /// ```
-  static String formatUncoveredLines(Map<String, List<int>> uncoveredLines) {
-    final lines = uncoveredLines.entries.map((entry) {
-      final sortedLines = [...entry.value]..sort();
-      return '\t- ${entry.key}: ${sortedLines.join(', ')}';
-    });
-    return 'Lines not covered:\n${lines.join('\n')}';
-  }
-
-  /// Discovers all Dart files in the specified directories for coverage.
-  static List<String> _discoverDartFilesForCoverage({
-    required String cwd,
-    required List<String> reportOn,
-    String? excludeFromCoverage,
-  }) {
-    final excludedGlobs = _parseExcludeGlobs(excludeFromCoverage);
-
-    return reportOn.expand((dir) {
-      final reportOnPath = p.join(cwd, dir);
-      final directory = Directory(reportOnPath);
-
-      if (!directory.existsSync()) return <String>[];
-
-      return directory
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((file) => file.path.endsWith('.dart'))
-          .map((file) => p.relative(file.path, from: cwd))
-          .whereNot((file) => excludedGlobs.any((glob) => glob.matches(file)));
-    }).toList();
-  }
-
-  /// Enhances an existing lcov file by adding uncovered files with 0% coverage.
-  static Future<void> _enhanceLcovWithUntestedFiles({
-    required String lcovPath,
-    required String cwd,
-    required List<String> reportOn,
-    String? excludeFromCoverage,
-  }) async {
-    final lcovFile = File(lcovPath);
-
-    final allDartFiles = _discoverDartFilesForCoverage(
-      cwd: cwd,
-      reportOn: reportOn,
-      excludeFromCoverage: excludeFromCoverage,
-    );
-
-    // Parse existing lcov to find covered files
-    final existingRecords = await Parser.parse(lcovPath);
-    final coveredFiles = existingRecords.map((r) => r.file).nonNulls.toSet();
-
-    final uncoveredFiles = allDartFiles.where((file) {
-      final normalizedFile = p.normalize(file);
-      return !coveredFiles.any(
-        (covered) => p.normalize(covered).endsWith(normalizedFile),
-      );
-    }).toList();
-
-    if (uncoveredFiles.isEmpty) return;
-
-    // Append uncovered files to lcov
-    final buffer = StringBuffer(await lcovFile.readAsString());
-
-    for (final file in uncoveredFiles) {
-      final dartFile = File(p.join(cwd, file));
-      if (!dartFile.existsSync()) continue;
-      buffer.write(_untestedFileRecord(file, await dartFile.readAsLines()));
-    }
-
-    await lcovFile.writeAsString(buffer.toString());
-  }
-
-  /// The lcov record of a [file] no test reached, given its [lines], where
-  /// every non-trivial line is marked as uncovered.
-  static String _untestedFileRecord(String file, List<String> lines) {
-    final uncoveredLineNumbers = [
-      for (final (index, line) in lines.indexed)
-        if (_isCoverableLine(line.trim())) index + 1,
-    ];
-
-    final record = StringBuffer()..writeln('SF:${file.replaceAll(r'\', '/')}');
-    for (final lineNumber in uncoveredLineNumbers) {
-      record.writeln('DA:$lineNumber,0');
-    }
-    record
-      ..writeln('LF:${uncoveredLineNumbers.length}')
-      ..writeln('LH:0')
-      ..writeln('end_of_record');
-    return record.toString();
-  }
-
-  /// Whether a [trimmedLine] of source counts towards coverage.
-  static bool _isCoverableLine(String trimmedLine) =>
-      trimmedLine.isNotEmpty &&
-      !_nonCoverableLinePrefixes.any(trimmedLine.startsWith);
-
-  static const _nonCoverableLinePrefixes = ['//', 'import', 'export', 'part'];
-
-  static List<File> _dartCoverageFilesToProcess(String absPath) {
-    return Directory(absPath)
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.endsWith('.json'))
-        .toList();
-  }
-}
-
-/// The coverage settings of a [TestCLIRunner.test] run.
-class _CoverageOptions {
-  const new({
-    required this.collect,
-    required this.collectFrom,
-    required this.minCoverage,
-    required this.showUncovered,
-    required this.excludeFromCoverage,
-    required this.reportOn,
-    required this.checkIgnore,
-  });
-
-  /// Whether to collect coverage into `coverage/lcov.info`.
-  final bool collect;
-
-  /// Which files the lcov report accounts for.
-  final CoverageCollectionMode collectFrom;
-
-  /// The minimum coverage percentage the run must reach, if any.
-  final double? minCoverage;
-
-  /// Whether to list the lines left uncovered.
-  final bool showUncovered;
-
-  /// Space-separated globs of the files left out of the coverage.
-  final String? excludeFromCoverage;
-
-  /// The directories, relative to the package, the coverage reports on.
-  final List<String> reportOn;
-
-  /// Whether to honor the `coverage:ignore` comments.
-  final bool checkIgnore;
 }
 
 /// The exit code `dart test` and `flutter test` use when no test ran, for
@@ -645,10 +343,8 @@ Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
-  required TestRunType testType,
   required TestOptimization optimization,
   String cwd = '.',
-  bool collectCoverage = false,
   List<String>? arguments,
 }) {
   final completer = Completer<int>();
@@ -685,10 +381,7 @@ Future<int> _testCommand({
   subscription =
       testRunner(
         workingDirectory: cwd,
-        arguments: [
-          if (collectCoverage) _coverageArgument(testType),
-          ...?arguments,
-        ],
+        arguments: arguments,
         runInShell: true,
       ).listen(
         (event) {
@@ -708,12 +401,6 @@ Future<int> _testCommand({
 
   return completer.future;
 }
-
-/// The argument that makes [testType] collect coverage.
-String _coverageArgument(TestRunType testType) => switch (testType) {
-  TestRunType.flutter => '--coverage',
-  TestRunType.dart => '--coverage=coverage',
-};
 
 /// The exit code a test run that ended with [event] reports.
 int _exitCodeOf(ExitTestEvent event, TestOptimization optimization) {

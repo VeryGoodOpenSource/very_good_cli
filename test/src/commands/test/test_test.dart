@@ -11,6 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/commands/test/test.dart';
+import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../helpers/helpers.dart';

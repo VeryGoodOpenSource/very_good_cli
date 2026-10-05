@@ -2,14 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:coverage/coverage.dart' as coverage;
 import 'package:glob/glob.dart';
-import 'package:lcov_parser/lcov_parser.dart';
 import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:pubspec_parse/pubspec_parse.dart';
 import 'package:universal_io/io.dart';
+import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
