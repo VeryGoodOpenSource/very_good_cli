@@ -70,7 +70,7 @@ class CoverageMetrics {
 
   /// Generate coverage metrics from a list of lcov records.
   factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
-    final excludedGlobs = _parseGlobs(excludeFromCoverage);
+    final excludedGlobs = _parseExcludeGlobs(excludeFromCoverage);
     return records
         .whereNot((record) => _isExcluded(record.file, excludedGlobs))
         .fold(
@@ -78,12 +78,6 @@ class CoverageMetrics {
           (metrics, record) => metrics._add(record),
         );
   }
-
-  /// Parses space-separated glob patterns, ignoring empty segments.
-  static List<Glob> _parseGlobs(String? excludeFromCoverage) => [
-    for (final pattern in (excludeFromCoverage ?? '').trim().split(' '))
-      if (pattern.isNotEmpty) Glob(pattern),
-  ];
 
   static bool _isExcluded(String? file, List<Glob> excludedGlobs) =>
       file != null && excludedGlobs.any((glob) => glob.matches(file));
@@ -132,6 +126,13 @@ class CoverageMetrics {
     return totalFound < 1 ? 0 : (totalHits / totalFound * 100);
   }
 }
+
+/// Parses the space-separated glob patterns of an `--exclude-coverage`
+/// value, ignoring empty segments.
+List<Glob> _parseExcludeGlobs(String? excludeFromCoverage) => [
+  for (final pattern in (excludeFromCoverage ?? '').trim().split(' '))
+    if (pattern.isNotEmpty) Glob(pattern),
+];
 
 /// Flutter CLI
 class Flutter {

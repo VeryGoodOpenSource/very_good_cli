@@ -2071,6 +2071,66 @@ void main() {
 
           expect(lcovFile.existsSync(), isTrue);
         });
+
+        test('respects every space-separated exclude-coverage pattern '
+            'when enhancing lcov', () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final libDir = Directory(p.join(tempDirectory.path, 'lib'))
+            ..createSync(recursive: true);
+          for (final name in [
+            'main.dart',
+            'untested.dart',
+            'main.g.dart',
+            'main.freezed.dart',
+          ]) {
+            File(p.join(libDir.path, name)).writeAsStringSync('void f() {}');
+          }
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+
+          final lcovFile = File(
+            p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+          );
+
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              collectCoverage: true,
+              collectCoverageFrom: CoverageCollectionMode.all,
+              excludeFromCoverage: '**/*.g.dart **/*.freezed.dart',
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]),
+                onStart: () {
+                  lcovFile
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(
+                      'SF:lib/main.dart\n'
+                      'DA:1,1\n'
+                      'LF:1\n'
+                      'LH:1\n'
+                      'end_of_record\n',
+                    );
+                },
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          final lcov = lcovFile.readAsStringSync();
+          expect(lcov, contains('SF:lib/untested.dart'));
+          expect(lcov, isNot(contains('main.g.dart')));
+          expect(lcov, isNot(contains('main.freezed.dart')));
+        });
       });
 
       test(

@@ -508,7 +508,7 @@ This command should be run from the root of your $projectKind project.''');
     required List<String> reportOn,
     String? excludeFromCoverage,
   }) {
-    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
+    final excludedGlobs = _parseExcludeGlobs(excludeFromCoverage);
 
     return reportOn.expand((dir) {
       final reportOnPath = p.join(cwd, dir);
@@ -520,8 +520,8 @@ This command should be run from the root of your $projectKind project.''');
           .listSync(recursive: true)
           .whereType<File>()
           .where((file) => file.path.endsWith('.dart'))
-          .where((file) => glob == null || !glob.matches(file.path))
-          .map((file) => p.relative(file.path, from: cwd));
+          .map((file) => p.relative(file.path, from: cwd))
+          .whereNot((file) => excludedGlobs.any((glob) => glob.matches(file)));
     }).toList();
   }
 
