@@ -11,7 +11,6 @@ import 'package:path/path.dart' as path;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/commands/dart/commands/commands.dart';
-import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 import '../../../../helpers/helpers.dart';
@@ -37,7 +36,7 @@ const expectedTestUsage = [
       '-j, --concurrency                            The number of concurrent test suites run. Automatically set to 1 when --platform is specified.\n'
       '                                             (defaults to "4")\n'
       '-t, --tags                                   Run only tests associated with the specified tags.\n'
-      "    --exclude-coverage                       One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').\n"
+      "    --exclude-coverage                       One or more space-separated globs, relative to the package root, which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').\n"
       '-x, --exclude-tags                           Run only tests that do not have the specified tags.\n'
       '    --min-coverage                           Whether to enforce a minimum coverage percentage. Implicitly enables coverage collection when used alone.\n'
       '    --show-uncovered                         Whether to show uncovered lines when coverage is below 100%. Requires --coverage or --min-coverage to be set, or implicitly enables coverage collection when used alone.\n'
@@ -570,7 +569,7 @@ void main() {
     test('fails when coverage not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-      const exception = MinCoverageNotMet(0);
+      const exception = MinCoverageNotMet(0, minCoverage: 100);
       when(
         () => dartTest(
           cwd: any(named: 'cwd'),
@@ -612,6 +611,7 @@ void main() {
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(true);
       const exception = MinCoverageNotMet(
         95,
+        minCoverage: 100,
         uncoveredLines: {
           'lib/src/foo.dart': [10, 20, 30],
         },
@@ -647,7 +647,7 @@ void main() {
     test('displays required precision see why coverage was not met', () async {
       when<dynamic>(() => argResults['coverage']).thenReturn(true);
       when<dynamic>(() => argResults['min-coverage']).thenReturn('100');
-      const exception = MinCoverageNotMet(99.999995);
+      const exception = MinCoverageNotMet(99.999995, minCoverage: 100);
       when(
         () => dartTest(
           cwd: any(named: 'cwd'),
@@ -808,6 +808,8 @@ void main() {
     test(
       '''disables optimizePerformance when rest arguement is not an option''',
       () async {
+        // Reading argResults.rest inside verify() would make mocktail verify
+        // that getter instead of the test runner call.
         final rest = ['my-test.dart'];
         when(() => argResults.rest).thenReturn(rest);
 
@@ -860,6 +862,8 @@ void main() {
     test(
       'enables optimizePerformance when rest arguement is an option',
       () async {
+        // Reading argResults.rest inside verify() would make mocktail verify
+        // that getter instead of the test runner call.
         final rest = ['--track-wdiget-creation'];
         when(() => argResults.rest).thenReturn(rest);
 

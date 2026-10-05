@@ -1,41 +1,23 @@
 part of 'coverage.dart';
 
-/// {@template coverage_options}
-/// The coverage settings shared by every package of a test run.
+/// {@template coverage_not_met}
+/// Thrown when `flutter test ---coverage --min-coverage`
+/// does not meet the provided minimum coverage threshold.
 /// {@endtemplate}
-@immutable
-class CoverageOptions {
-  /// {@macro coverage_options}
-  const new({
-    this.collect = false,
-    this.collectFrom = CoverageCollectionMode.imports,
-    this.minCoverage,
-    this.showUncovered = false,
-    this.excludeFromCoverage,
-    this.reportOn = const ['lib'],
-    this.checkIgnore = false,
-  });
+class MinCoverageNotMet implements Exception {
+  /// {@macro coverage_not_met}
+  const new(this.coverage, {required this.minCoverage, this.uncoveredLines});
 
-  /// Whether to collect coverage into `coverage/lcov.info`.
-  final bool collect;
+  /// The measured coverage percentage (total hits / total found * 100).
+  final double coverage;
 
-  /// Which files the lcov report accounts for.
-  final CoverageCollectionMode collectFrom;
+  /// The minimum coverage percentage the run had to reach.
+  final double minCoverage;
 
-  /// The minimum coverage percentage the run must reach, if any.
-  final double? minCoverage;
-
-  /// Whether to list the lines left uncovered.
-  final bool showUncovered;
-
-  /// Space-separated globs of the files left out of the coverage.
-  final String? excludeFromCoverage;
-
-  /// The directories, relative to the package, the coverage reports on.
-  final List<String> reportOn;
-
-  /// Whether to honor the `coverage:ignore` comments.
-  final bool checkIgnore;
+  /// Lines not covered, keyed by file path, values are line numbers.
+  ///
+  /// Only populated when `--show-uncovered` is set.
+  final Map<String, List<int>>? uncoveredLines;
 }
 
 /// {@template coverage_report}
@@ -120,7 +102,11 @@ sealed class CoverageReport {
 
     final minCoverage = options.minCoverage;
     if (minCoverage != null && percentage < minCoverage) {
-      throw MinCoverageNotMet(percentage, uncoveredLines: uncoveredLines);
+      throw MinCoverageNotMet(
+        percentage,
+        minCoverage: minCoverage,
+        uncoveredLines: uncoveredLines,
+      );
     }
 
     // When coverage passes but is below 100%,

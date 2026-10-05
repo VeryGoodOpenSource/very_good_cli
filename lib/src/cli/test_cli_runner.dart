@@ -12,10 +12,37 @@ typedef VeryGoodTestRunner = Stream<TestEvent> Function({
 /// Which test runner to use for running tests.
 enum TestRunType {
   /// Run tests using `flutter test`.
-  flutter,
+  flutter('Flutter'),
 
   /// Run tests using `dart test`.
-  dart,
+  dart('Dart');
+
+  new(this.projectKind);
+
+  /// The kind of project the runner tests, as named in messages.
+  final String projectKind;
+
+  /// The command of `package:very_good_test_runner` that runs the tests.
+  VeryGoodTestRunner get runner => switch (this) {
+    TestRunType.flutter => flutterTest,
+    TestRunType.dart => dartTest,
+  };
+
+  /// The [CoverageReport] of a run of the tests of the package at
+  /// [packageRoot].
+  CoverageReport coverageReportOf(
+    String packageRoot, {
+    required CoverageOptions options,
+  }) => switch (this) {
+    TestRunType.flutter => FlutterCoverageReport(
+      packageRoot: packageRoot,
+      options: options,
+    ),
+    TestRunType.dart => DartCoverageReport(
+      packageRoot: packageRoot,
+      options: options,
+    ),
+  };
 }
 
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
@@ -112,13 +139,12 @@ class TestCLIRunner {
   ///
   /// Logs the problem and returns the exit code to stop with, or returns
   /// `null` when the run can proceed. [rest] are the positional arguments of
-  /// the command and [projectKind] names the project in the messages, such as
-  /// `Flutter` or `Dart`.
+  /// the command and [testType] names the project in the messages.
   static int? validateTarget({
     required String targetPath,
     required bool recursive,
     required List<String> rest,
-    required String projectKind,
+    required TestRunType testType,
     required Logger logger,
   }) {
     if (recursive && isTargettingTestFiles(rest)) {
@@ -132,9 +158,11 @@ that contains them.''');
 
     final pubspec = File(p.join(targetPath, 'pubspec.yaml'));
     if (!recursive && !pubspec.existsSync()) {
-      logger.err('''
+      logger.err(
+        '''
 Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your $projectKind project.''');
+This command should be run from the root of your ${testType.projectKind} project.''',
+      );
       return ExitCode.noInput.code;
     }
 
@@ -166,9 +194,7 @@ This command should be run from the root of your $projectKind project.''');
   }) {
     final initialCwd = cwd;
 
-    final testRunner =
-        overrideTestRunner ??
-        (testType == TestRunType.flutter ? flutterTest : dartTest);
+    final testRunner = overrideTestRunner ?? testType.runner;
 
     final coverageOptions = CoverageOptions(
       collect: collectCoverage,
@@ -180,17 +206,6 @@ This command should be run from the root of your $projectKind project.''');
       checkIgnore: checkIgnore,
     );
 
-    CoverageReport coverageReportOf(String packageRoot) => switch (testType) {
-      TestRunType.flutter => FlutterCoverageReport(
-        packageRoot: packageRoot,
-        options: coverageOptions,
-      ),
-      TestRunType.dart => DartCoverageReport(
-        packageRoot: packageRoot,
-        options: coverageOptions,
-      ),
-    };
-
     return _runCommand<int>(
       cmd: (cwd) => _testPackage(
         cwd: cwd,
@@ -199,7 +214,10 @@ This command should be run from the root of your $projectKind project.''');
         testType: testType,
         testRunner: testRunner,
         optimizer: optimizer,
-        coverageReport: coverageReportOf(cwd),
+        coverageReport: testType.coverageReportOf(
+          cwd,
+          options: coverageOptions,
+        ),
         randomSeed: randomSeed,
         forceAnsi: forceAnsi,
         arguments: arguments,
@@ -297,13 +315,35 @@ This command should be run from the root of your $projectKind project.''');
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
 
+  /// Awaits the exit codes of [runTests] and maps the outcome of the run to
+  /// the exit code of the command, logging any failure.
+  static Future<int> exitCodeOf(
+    Future<List<int>> Function() runTests, {
+    required Logger logger,
+  }) async {
+    try {
+      final results = await runTests();
+      return results.every((code) => code == ExitCode.success.code)
+          ? ExitCode.success.code
+          : ExitCode.software.code;
+    } on MinCoverageNotMet catch (error) {
+      return _handleMinCoverageNotMet(error, logger: logger);
+    } on InvalidOptimizationGlob catch (error) {
+      logger.err('$error');
+      return ExitCode.config.code;
+    } on Exception catch (error) {
+      logger.err('$error');
+      return ExitCode.unavailable.code;
+    }
+  }
+
   /// Logs [error], along with its uncovered lines when it carries any, and
   /// returns the exit code an unmet coverage threshold reports.
-  static int handleMinCoverageNotMet(
+  static int _handleMinCoverageNotMet(
     MinCoverageNotMet error, {
     required Logger logger,
-    double? minCoverage,
   }) {
+    final minCoverage = error.minCoverage;
     var decimalPlaces = 2;
 
     double round(double x) {
@@ -311,7 +351,7 @@ This command should be run from the root of your $projectKind project.''');
       return (x * b).roundToDouble() / b;
     }
 
-    if (error.coverage < minCoverage!) {
+    if (error.coverage < minCoverage) {
       var rounded = round(error.coverage);
       while (rounded == minCoverage) {
         decimalPlaces++;
@@ -335,9 +375,6 @@ This command should be run from the root of your $projectKind project.''');
 /// The exit code `dart test` and `flutter test` use when no test ran, for
 /// example because `--exclude-tags` filtered out every test.
 const _noTestsRanExitCode = 79;
-
-/// Clears the current terminal line and moves the cursor to its start.
-const _clearLine = '\u001B[2K\r';
 
 Future<int> _testCommand({
   required void Function(String) stdout,
@@ -391,7 +428,7 @@ Future<int> _testCommand({
           if (event is! ExitTestEvent || completer.isCompleted) return;
           unawaited(subscription.cancel());
           unawaited(sigintWatchSubscription.cancel());
-          completer.complete(_exitCodeOf(event, optimization));
+          completer.complete(_exitCodeOfEvent(event, optimization));
         },
         onError: (Object error, StackTrace stackTrace) {
           stderr('$_clearLine$error');
@@ -403,7 +440,7 @@ Future<int> _testCommand({
 }
 
 /// The exit code a test run that ended with [event] reports.
-int _exitCodeOf(ExitTestEvent event, TestOptimization optimization) {
+int _exitCodeOfEvent(ExitTestEvent event, TestOptimization optimization) {
   // A shard can end up holding only tests that the given tags
   // filter out, which is expected and not a failure.
   final noTestsRanInShard =

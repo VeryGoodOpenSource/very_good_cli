@@ -12,6 +12,7 @@ import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 import 'package:very_good_test_runner/very_good_test_runner.dart';
 
+export 'package:very_good_cli/src/coverage/coverage.dart';
 export 'package:very_good_cli/src/test_optimizer/test_optimizer.dart';
 
 part 'dart_cli.dart';

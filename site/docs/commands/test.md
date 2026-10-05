@@ -23,7 +23,7 @@ very_good test [arguments]
 -j, --concurrency                     The number of concurrent test suites run.
                                       (defaults to "4")
 -t, --tags                            Run only tests associated with the specified tags.
-    --exclude-coverage                One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').
+    --exclude-coverage                One or more space-separated globs, relative to the package root, which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').
 -x, --exclude-tags                    Run only tests that do not have the specified tags.
     --min-coverage                    Whether to enforce a minimum coverage percentage.
                                       Implicitly enables coverage collection when used alone.

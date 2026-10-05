@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
@@ -186,8 +185,8 @@ class FlutterTestOptions {
   /// Run only tests associated with the specified tags.
   final String? tags;
 
-  /// One or more space-separated globs which will be used to exclude files that
-  /// match from the coverage.
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
   final String? excludeFromCoverage;
 
   /// How to collect coverage.
@@ -265,8 +264,18 @@ class FlutterTestOptions {
       !updateGoldens &&
       platform == null;
 
+  /// The coverage threshold the run enforces. A threshold inherited from
+  /// `very_good.yaml` only applies to un-sharded runs: a single shard covers a
+  /// fraction of the code and would fail it.
+  double? get _enforcedMinCoverage => totalShards == null ? minCoverage : null;
+
+  /// Whether the run collects coverage, which enforcing a threshold and
+  /// listing the uncovered lines need too.
+  bool get _shouldCollectCoverage =>
+      collectCoverage || _enforcedMinCoverage != null || showUncovered;
+
   /// The arguments forwarded to `flutter test`.
-  List<String> get _flutterTestArguments => [
+  List<String> get _runnerArguments => [
     if (excludeTags != null) ...['-x', excludeTags!],
     if (tags != null) ...['-t', tags!],
     if (updateGoldens) '--update-goldens',
@@ -373,13 +382,7 @@ class TestCommand extends Command<int> {
         abbr: 't',
         help: 'Run only tests associated with the specified tags.',
       )
-      ..addOption(
-        'exclude-coverage',
-        help:
-            'One or more space-separated globs which will be used to exclude '
-            'files that match from the coverage '
-            "(e.g. '**/*.g.dart **/*.freezed.dart').",
-      )
+      ..addOption('exclude-coverage', help: excludeCoverageHelp)
       ..addOption(
         'exclude-tags',
         abbr: 'x',
@@ -541,7 +544,7 @@ class TestCommand extends Command<int> {
       targetPath: targetPath,
       recursive: recursive,
       rest: _argResults.rest,
-      projectKind: 'Flutter',
+      testType: TestRunType.flutter,
       logger: _logger,
     );
     if (targetError != null) return targetError;
@@ -570,29 +573,17 @@ class TestCommand extends Command<int> {
   }
 
   /// Runs `flutter test` with [options] and maps its outcome to an exit code.
-  Future<int> _runTests(
-    FlutterTestOptions options, {
-    required bool recursive,
-  }) async {
-    // A threshold inherited from very_good.yaml only applies to un-sharded
-    // runs: a single shard covers a fraction of the code and would fail it.
-    final minCoverage = options.totalShards == null
-        ? options.minCoverage
-        : null;
-
-    try {
-      final results = await _flutterTest(
+  Future<int> _runTests(FlutterTestOptions options, {required bool recursive}) {
+    return TestCLIRunner.exitCodeOf(
+      () => _flutterTest(
         optimizePerformance: options.shouldOptimize,
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         logger: _logger,
         stdout: _logger.write,
         stderr: _logger.err,
-        collectCoverage:
-            options.collectCoverage ||
-            minCoverage != null ||
-            options.showUncovered,
-        minCoverage: minCoverage,
+        collectCoverage: options._shouldCollectCoverage,
+        minCoverage: options._enforcedMinCoverage,
         showUncovered: options.showUncovered,
         excludeFromCoverage: options.excludeFromCoverage,
         collectCoverageFrom: options.collectCoverageFrom,
@@ -601,26 +592,9 @@ class TestCommand extends Command<int> {
         reportOn: options.reportOn.isEmpty ? null : options.reportOn,
         shardIndex: int.tryParse(options.shardIndex ?? ''),
         totalShards: int.tryParse(options.totalShards ?? ''),
-        arguments: options._flutterTestArguments,
-      );
-
-      if (results.any((code) => code != ExitCode.success.code)) {
-        return ExitCode.software.code;
-      }
-    } on MinCoverageNotMet catch (error) {
-      return TestCLIRunner.handleMinCoverageNotMet(
-        error,
-        logger: _logger,
-        minCoverage: minCoverage,
-      );
-    } on InvalidOptimizationGlob catch (error) {
-      _logger.err('$error');
-      return ExitCode.config.code;
-    } on Exception catch (error) {
-      _logger.err('$error');
-      return ExitCode.unavailable.code;
-    }
-
-    return ExitCode.success.code;
+        arguments: options._runnerArguments,
+      ),
+      logger: _logger,
+    );
   }
 }

@@ -1,39 +1,5 @@
 part of 'coverage.dart';
 
-/// How to collect coverage.
-enum CoverageCollectionMode {
-  /// Collect coverage from imported files only (default behavior).
-  imports,
-
-  /// Collect coverage from all files in the project.
-  all;
-
-  /// Parses a string value into a [CoverageCollectionMode].
-  static CoverageCollectionMode fromString(String value) {
-    return CoverageCollectionMode.values.firstWhere(
-      (mode) => mode.name == value,
-      orElse: () => CoverageCollectionMode.imports,
-    );
-  }
-}
-
-/// {@template coverage_not_met}
-/// Thrown when `flutter test ---coverage --min-coverage`
-/// does not meet the provided minimum coverage threshold.
-/// {@endtemplate}
-class MinCoverageNotMet implements Exception {
-  /// {@macro coverage_not_met}
-  const new(this.coverage, {this.uncoveredLines});
-
-  /// The measured coverage percentage (total hits / total found * 100).
-  final double coverage;
-
-  /// Lines not covered, keyed by file path, values are line numbers.
-  ///
-  /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines;
-}
-
 /// {@template coverage_metrics}
 /// Aggregated coverage metrics computed from a list of LCOV records.
 /// {@endtemplate}
@@ -94,7 +60,8 @@ class CoverageMetrics {
   final int totalFound;
 
   /// Lines not covered.
-  /// Keyed by file path, values are sorted line numbers.
+  /// Keyed by file path, values are line numbers in the order the records
+  /// list them.
   final Map<String, List<int>> uncoveredLines;
 
   /// Coverage percentage: [totalHits] / [totalFound] * 100.
@@ -104,13 +71,6 @@ class CoverageMetrics {
     return totalFound < 1 ? 0 : (totalHits / totalFound * 100);
   }
 }
-
-/// Parses the space-separated glob patterns of an `--exclude-coverage`
-/// value, ignoring empty segments.
-List<Glob> _parseExcludeGlobs(String? excludeFromCoverage) => [
-  for (final pattern in (excludeFromCoverage ?? '').trim().split(' '))
-    if (pattern.isNotEmpty) Glob(pattern),
-];
 
 /// Formats a map of uncovered lines into a human-readable string.
 ///

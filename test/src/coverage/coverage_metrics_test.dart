@@ -193,30 +193,35 @@ void main() {
           expect(metrics.totalHits, equals(8));
         });
 
-        test('handles multiple consecutive spaces between globs', () {
-          final records = parseRecords([
-            'SF:lib/a.dart',
-            'LF:10',
-            'LH:8',
-            'end_of_record',
-            'SF:lib/generated/b.g.dart',
-            'LF:5',
-            'LH:5',
-            'end_of_record',
-            'SF:lib/mocks/mock_c.dart',
-            'LF:4',
-            'LH:4',
-            'end_of_record',
-          ]);
+        for (final (description, separator) in [
+          ('multiple consecutive spaces', '  '),
+          ('tabs and newlines', '\t\n'),
+        ]) {
+          test('handles $description between globs', () {
+            final records = parseRecords([
+              'SF:lib/a.dart',
+              'LF:10',
+              'LH:8',
+              'end_of_record',
+              'SF:lib/generated/b.g.dart',
+              'LF:5',
+              'LH:5',
+              'end_of_record',
+              'SF:lib/mocks/mock_c.dart',
+              'LF:4',
+              'LH:4',
+              'end_of_record',
+            ]);
 
-          final metrics = CoverageMetrics.fromLcovRecords(
-            records,
-            excludeFromCoverage: 'lib/generated/**  lib/mocks/**',
-          );
+            final metrics = CoverageMetrics.fromLcovRecords(
+              records,
+              excludeFromCoverage: 'lib/generated/**${separator}lib/mocks/**',
+            );
 
-          expect(metrics.totalFound, equals(10));
-          expect(metrics.totalHits, equals(8));
-        });
+            expect(metrics.totalFound, equals(10));
+            expect(metrics.totalHits, equals(8));
+          });
+        }
 
         test('does not exclude file when glob does not match', () {
           final records = parseRecords([

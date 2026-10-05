@@ -92,7 +92,7 @@ test:
 | `optimization`          | `bool` \| `map`    | Whether to apply optimizations for test performance. See [`optimization`](#optimization). |
 | `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                               |
 | `tags`                  | `string`           | Run only tests associated with the specified tags.                                        |
-| `exclude_coverage`      | `string`           | Space-separated globs that exclude matching files from coverage.                          |
+| `exclude_coverage`      | `string`           | Space-separated globs, relative to each package root, that exclude files from coverage.   |
 | `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                                       |
 | `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                            |
 | `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                              |
@@ -201,7 +201,7 @@ dart:
 | `optimization`          | `bool` \| `map`    | Whether to apply optimizations for test performance. See [`optimization`](#optimization). |
 | `concurrency`           | `int`              | Positive integer. The number of concurrent test suites run.                               |
 | `tags`                  | `string`           | Run only tests associated with the specified tags.                                        |
-| `exclude_coverage`      | `string`           | Space-separated globs that exclude matching files from coverage.                          |
+| `exclude_coverage`      | `string`           | Space-separated globs, relative to each package root, that exclude files from coverage.   |
 | `exclude_tags`          | `string`           | Run only tests that do not have the specified tags.                                       |
 | `min_coverage`          | `number`           | Between `0` and `100`. Enforces a minimum coverage percentage.                            |
 | `show_uncovered`        | `bool`             | Whether to show uncovered lines when coverage is below 100%.                              |

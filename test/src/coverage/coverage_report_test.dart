@@ -6,20 +6,6 @@ import 'package:universal_io/io.dart';
 import 'package:very_good_cli/src/coverage/coverage.dart';
 
 void main() {
-  group(CoverageOptions, () {
-    test('has defaults that collect nothing', () {
-      const options = CoverageOptions();
-
-      expect(options.collect, isFalse);
-      expect(options.collectFrom, equals(CoverageCollectionMode.imports));
-      expect(options.minCoverage, isNull);
-      expect(options.showUncovered, isFalse);
-      expect(options.excludeFromCoverage, isNull);
-      expect(options.reportOn, equals(['lib']));
-      expect(options.checkIgnore, isFalse);
-    });
-  });
-
   group(CoverageReport, () {
     late Directory packageRoot;
     late File lcovFile;
@@ -172,6 +158,63 @@ void main() {
         );
       });
 
+      test('matches the exclude globs relative to the package root', () async {
+        writeLcov(coveredLcov);
+        writeSource('lib/generated/c.dart', 'void c() {}\n');
+
+        await flutterReport(
+          const CoverageOptions(
+            collect: true,
+            collectFrom: CoverageCollectionMode.all,
+            excludeFromCoverage: 'lib/generated/**',
+          ),
+        ).finalize();
+
+        expect(lcovFile.readAsStringSync(), equals(coveredLcov));
+      });
+
+      test('marks every line but directives as untested', () async {
+        writeLcov(coveredLcov);
+        writeSource(
+          'lib/b.dart',
+          "export 'a.dart';\n"
+              "part 'b.part.dart';\n"
+              'void b() {}\n',
+        );
+
+        await flutterReport(
+          const CoverageOptions(
+            collect: true,
+            collectFrom: CoverageCollectionMode.all,
+          ),
+        ).finalize();
+
+        expect(
+          lcovFile.readAsStringSync(),
+          equals(
+            '${coveredLcov}SF:lib/b.dart\n'
+            'DA:3,0\n'
+            'LF:1\n'
+            'LH:0\n'
+            'end_of_record\n',
+          ),
+        );
+      });
+
+      test('adds nothing for a report-on directory that is missing', () async {
+        writeLcov(coveredLcov);
+
+        await flutterReport(
+          const CoverageOptions(
+            collect: true,
+            collectFrom: CoverageCollectionMode.all,
+            reportOn: ['missing'],
+          ),
+        ).finalize();
+
+        expect(lcovFile.readAsStringSync(), equals(coveredLcov));
+      });
+
       test('throws $MinCoverageNotMet when below the threshold', () async {
         writeLcov(coveredLcov);
 
@@ -186,6 +229,11 @@ void main() {
           throwsA(
             isA<MinCoverageNotMet>()
                 .having((error) => error.coverage, 'coverage', equals(50))
+                .having(
+                  (error) => error.minCoverage,
+                  'minCoverage',
+                  equals(100),
+                )
                 .having(
                   (error) => error.uncoveredLines,
                   'uncoveredLines',
@@ -265,7 +313,9 @@ void main() {
         expect(
           lcovFile.readAsStringSync(),
           equals(
-            'SF:lib/a.dart\n'
+            // The coverage package writes the paths with the separator of the
+            // platform.
+            'SF:${p.join('lib', 'a.dart')}\n'
             'DA:1,1\n'
             'DA:2,0\n'
             'LF:2\n'

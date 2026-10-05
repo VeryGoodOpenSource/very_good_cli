@@ -7,5 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:universal_io/io.dart';
 
 part 'coverage_metrics.dart';
+part 'coverage_options.dart';
 part 'coverage_report.dart';
+part 'exclude_globs.dart';
 part 'untested_files.dart';
