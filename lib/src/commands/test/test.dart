@@ -186,7 +186,8 @@ class FlutterTestOptions {
   /// Run only tests associated with the specified tags.
   final String? tags;
 
-  /// A glob which will be used to exclude files that match from the coverage.
+  /// One or more space-separated globs which will be used to exclude files that
+  /// match from the coverage.
   final String? excludeFromCoverage;
 
   /// How to collect coverage.
@@ -375,8 +376,9 @@ class TestCommand extends Command<int> {
       ..addOption(
         'exclude-coverage',
         help:
-            'A glob which will be used to exclude files that match from the '
-            "coverage (e.g. '**/*.g.dart').",
+            'One or more space-separated globs which will be used to exclude '
+            'files that match from the coverage '
+            "(e.g. '**/*.g.dart **/*.freezed.dart').",
       )
       ..addOption(
         'exclude-tags',

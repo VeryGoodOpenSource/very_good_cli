@@ -216,7 +216,7 @@ Automatically set to 1 when --platform is specified.
                   '''Run only tests associated with the specified tags.''',
             ),
             'exclude_coverage': StringSchema(
-              description: '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
+              description: '''One or more space-separated globs which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart **/*.freezed.dart').''',
             ),
             'exclude_tags': StringSchema(
               description:
