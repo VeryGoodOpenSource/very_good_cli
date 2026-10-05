@@ -411,7 +411,7 @@ Only one value can be selected.
       'test',
       ..._flag(args, 'coverage', '--coverage'),
       ..._flag(args, 'recursive', '-r'),
-      ..._flag(args, 'optimization', '--no-optimization', whenValue: false),
+      if (args['optimization'] == false) '--no-optimization',
       ..._option(args, 'concurrency', '-j'),
       ..._option(args, 'tags', '-t'),
       ..._option(args, 'exclude_coverage', '--exclude-coverage'),
@@ -443,13 +443,12 @@ Only one value can be selected.
     ];
   }
 
-  /// Returns `[flag]` when `args[key]` equals [whenValue], else nothing.
+  /// Returns `[flag]` when `args[key]` is `true`, else nothing.
   static List<String> _flag(
     Map<String, Object?> args,
     String key,
-    String flag, {
-    bool whenValue = true,
-  }) => args[key] == whenValue ? [flag] : const [];
+    String flag,
+  ) => args[key] == true ? [flag] : const [];
 
   /// Returns `[option, value]` when `args[key]` is set, else nothing.
   static List<String> _option(
@@ -556,9 +555,7 @@ Only one value can be selected.
   ///   right package (`directory` is the working directory, not a positional
   ///   argument).
   ///
-  /// The [Logger] is constructed *inside* the zone on purpose: mason captures
-  /// `IOOverrides.current` at [Logger] construction time, so building it
-  /// outside the zone would defeat the redirect.
+  /// See [ToolRun.capture] for why the [Logger] is built inside the zone.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
