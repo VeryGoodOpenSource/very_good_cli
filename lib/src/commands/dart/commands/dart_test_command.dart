@@ -443,7 +443,13 @@ class DartTestCommand extends Command<int> {
     final targetPath = path.normalize(Directory.current.absolute.path);
     final recursive = _argResults['recursive'] as bool;
 
-    final targetError = _validateTarget(targetPath, recursive: recursive);
+    final targetError = TestCLIRunner.validateTarget(
+      targetPath: targetPath,
+      recursive: recursive,
+      rest: _argResults.rest,
+      projectKind: 'Dart',
+      logger: _logger,
+    );
     if (targetError != null) return targetError;
 
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
@@ -467,29 +473,6 @@ class DartTestCommand extends Command<int> {
     }
 
     return await _runTests(options, recursive: recursive);
-  }
-
-  /// Returns the exit code to stop with when the run cannot target
-  /// [targetPath], or `null` when it can proceed.
-  int? _validateTarget(String targetPath, {required bool recursive}) {
-    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
-      _logger.err('''
-Cannot target specific test files together with --recursive.
-Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
-that contains them.''');
-      return ExitCode.usage.code;
-    }
-
-    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
-    if (!recursive && !pubspec.existsSync()) {
-      _logger.err('''
-Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Dart project.''');
-      return ExitCode.noInput.code;
-    }
-
-    return null;
   }
 
   /// Runs `dart test` with [options] and maps its outcome to an exit code.

@@ -142,6 +142,39 @@ class TestCLIRunner {
     return null;
   }
 
+  /// Validates that the tests can run against [targetPath].
+  ///
+  /// Logs the problem and returns the exit code to stop with, or returns
+  /// `null` when the run can proceed. [rest] are the positional arguments of
+  /// the command and [projectKind] names the project in the messages, such as
+  /// `Flutter` or `Dart`.
+  static int? validateTarget({
+    required String targetPath,
+    required bool recursive,
+    required List<String> rest,
+    required String projectKind,
+    required Logger logger,
+  }) {
+    if (recursive && isTargettingTestFiles(rest)) {
+      logger.err('''
+Cannot target specific test files together with --recursive.
+Test targets are resolved against a single package root, so the same path
+cannot apply to every package. Drop --recursive and run from the package
+that contains them.''');
+      return ExitCode.usage.code;
+    }
+
+    final pubspec = File(p.join(targetPath, 'pubspec.yaml'));
+    if (!recursive && !pubspec.existsSync()) {
+      logger.err('''
+Could not find a pubspec.yaml in $targetPath.
+This command should be run from the root of your $projectKind project.''');
+      return ExitCode.noInput.code;
+    }
+
+    return null;
+  }
+
   /// Run tests (`flutter test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({

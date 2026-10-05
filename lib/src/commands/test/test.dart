@@ -534,7 +534,13 @@ class TestCommand extends Command<int> {
     final targetPath = path.normalize(Directory.current.absolute.path);
     final recursive = _argResults['recursive'] as bool;
 
-    final targetError = _validateTarget(targetPath, recursive: recursive);
+    final targetError = TestCLIRunner.validateTarget(
+      targetPath: targetPath,
+      recursive: recursive,
+      rest: _argResults.rest,
+      projectKind: 'Flutter',
+      logger: _logger,
+    );
     if (targetError != null) return targetError;
 
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
@@ -557,34 +563,11 @@ class TestCommand extends Command<int> {
       return ExitCode.usage.code;
     }
 
-    return await _runFlutterTest(options, recursive: recursive);
-  }
-
-  /// Logs and returns the exit code for a [targetPath] the command cannot run
-  /// against, or returns `null` when the target is valid.
-  int? _validateTarget(String targetPath, {required bool recursive}) {
-    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
-      _logger.err('''
-Cannot target specific test files together with --recursive.
-Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
-that contains them.''');
-      return ExitCode.usage.code;
-    }
-
-    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
-    if (!recursive && !pubspec.existsSync()) {
-      _logger.err('''
-Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''');
-      return ExitCode.noInput.code;
-    }
-
-    return null;
+    return await _runTests(options, recursive: recursive);
   }
 
   /// Runs `flutter test` with [options] and maps its outcome to an exit code.
-  Future<int> _runFlutterTest(
+  Future<int> _runTests(
     FlutterTestOptions options, {
     required bool recursive,
   }) async {

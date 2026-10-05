@@ -807,14 +807,15 @@ void main() {
     test(
       '''disables optimizePerformance when rest arguement is not an option''',
       () async {
-        when(() => argResults.rest).thenReturn(['my-test.dart']);
+        final rest = ['my-test.dart'];
+        when(() => argResults.rest).thenReturn(rest);
 
         final result = await testCommand.run();
 
         expect(result, equals(ExitCode.success.code));
         verify(
           () => dartTest(
-            arguments: [...defaultArguments, ...argResults.rest],
+            arguments: [...defaultArguments, ...rest],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
@@ -858,7 +859,8 @@ void main() {
     test(
       'enables optimizePerformance when rest arguement is an option',
       () async {
-        when(() => argResults.rest).thenReturn(['--track-wdiget-creation']);
+        final rest = ['--track-wdiget-creation'];
+        when(() => argResults.rest).thenReturn(rest);
 
         final result = await testCommand.run();
 
@@ -866,7 +868,7 @@ void main() {
         verify(
           () => dartTest(
             optimizePerformance: true,
-            arguments: [...defaultArguments, ...argResults.rest],
+            arguments: [...defaultArguments, ...rest],
             logger: logger,
             stdout: logger.write,
             stderr: logger.err,
