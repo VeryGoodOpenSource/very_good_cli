@@ -69,8 +69,9 @@ const _defaultDetectionThreshold = 0.95;
 
 /// Defines a [Map] with dependencies as keys and their licenses as values.
 ///
-/// If a dependency's license failed to be retrieved its license will be `null`.
-typedef _DependencyLicenseMap = Map<String, Set<String>?>;
+/// If a dependency's license failed to be retrieved its license will be
+/// [SpdxLicense.$unknown].
+typedef _DependencyLicenseMap = Map<String, Set<String>>;
 
 /// Defines a [Map] with banned dependencies as keys and their banned licenses
 /// as values.
@@ -369,7 +370,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     required PackagesCheckLicensesOptions options,
     required Progress progress,
   }) async {
-    final licenses = <String, Set<String>?>{};
+    final licenses = <String, Set<String>>{};
     final detectLicense = detectLicenseOverride ?? detector.detectLicense;
     final packageWord = dependencies.length == 1 ? 'package' : 'packages';
 
@@ -533,11 +534,7 @@ _BannedDependencyLicenseMap? _bannedDependencies({
   required bool Function(String license) isAllowed,
 }) {
   _BannedDependencyLicenseMap? bannedDependencies;
-  for (final dependency in licenses.entries) {
-    final name = dependency.key;
-    final license = dependency.value;
-    if (license == null) continue;
-
+  for (final MapEntry(key: name, value: license) in licenses.entries) {
     for (final licenseType in license) {
       if (isAllowed(licenseType)) continue;
 
@@ -591,9 +588,7 @@ String _composeReport({
       bannedDependencies?.values.expand((licenses) => licenses).toSet() ??
       const <String>{};
 
-  final licenseTypes = licenses.values.nonNulls
-      .expand((licenses) => licenses)
-      .toList();
+  final licenseTypes = licenses.values.expand((licenses) => licenses).toList();
   final totalLicenseCount = licenseTypes.length;
 
   final licenseCount = <String, int>{};
@@ -634,7 +629,7 @@ String _composeLicenseListing(
   final listing = StringBuffer('\n');
   for (final MapEntry(key: packageName, value: dependencyLicenses)
       in licenses.entries) {
-    for (final licenseName in dependencyLicenses ?? const <String>{}) {
+    for (final licenseName in dependencyLicenses) {
       listing.writeln(
         reporterOutputFormat.formatLicense(
           packageName: packageName,
