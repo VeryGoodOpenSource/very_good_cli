@@ -396,19 +396,10 @@ class PackagesCheckLicensesCommand extends Command<int> {
   }
 }
 
-/// {@template license_retrieval_failure}
-/// Signals that the license of a dependency failed to be retrieved.
-/// {@endtemplate}
-class _LicenseRetrievalFailure implements Exception {
-  /// {@macro license_retrieval_failure}
-  const new(this.message, this.exitCode);
-
-  /// A human friendly description of the failure.
-  final String message;
-
-  /// The exit code to return when the failure is not ignored.
-  final ExitCode exitCode;
-}
+/// Signals that the license of a dependency failed to be retrieved, carrying a
+/// human friendly [message] and the [exitCode] to return when not ignored.
+class _LicenseRetrievalFailure(final String message, final ExitCode exitCode)
+    implements Exception;
 
 /// Retrieves the licenses of the package named [dependencyName] from its
 /// cached `LICENSE` file.
@@ -694,16 +685,6 @@ extension on Iterable<Object> {
     if (length == 1) return first.toString();
     return '${take(length - 1).join(', ')} and $last';
   }
-}
-
-extension on PubspecDependencyType {
-  /// The `--dependency-type` option value that selects this dependency type.
-  String get optionName => switch (this) {
-    PubspecDependencyType.directMain => 'direct-main',
-    PubspecDependencyType.directDev => 'direct-dev',
-    PubspecDependencyType.transitive => 'transitive',
-    PubspecDependencyType.directOverridden => 'direct-overridden',
-  };
 }
 
 extension on List<String> {
