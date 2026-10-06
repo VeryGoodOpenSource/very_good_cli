@@ -14,6 +14,8 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:path/path.dart' as path;
+import 'package:very_good_cli/src/pubspec/pubspec.dart'
+    show PubspecDependencyType;
 
 part 'very_good_config.g.dart';
 
@@ -747,11 +749,8 @@ const collectCoverageFromAllowedValues = ['imports', 'all'];
 /// The dependency types accepted by `very_good packages check licenses`, shared
 /// between the CLI argument parser and the `very_good.yaml` validator so they
 /// cannot drift apart.
-const dependencyTypeAllowedValues = [
-  'direct-main',
-  'direct-dev',
-  'direct-overridden',
-  'transitive',
+final List<String> dependencyTypeAllowedValues = [
+  for (final type in PubspecDependencyType.values) type.optionName,
 ];
 
 /// The values accepted by the license `reporter` option, shared between the
