@@ -12,44 +12,37 @@ typedef VeryGoodTestRunner = Stream<TestEvent> Function({
 /// Which test runner to use for running tests.
 enum TestRunType {
   /// Run tests using `flutter test`.
-  flutter,
+  flutter('Flutter'),
 
   /// Run tests using `dart test`.
-  dart,
-}
+  dart('Dart');
 
-/// How to collect coverage.
-enum CoverageCollectionMode {
-  /// Collect coverage from imported files only (default behavior).
-  imports,
+  new(this.projectKind);
 
-  /// Collect coverage from all files in the project.
-  all;
+  /// The kind of project the runner tests, as named in messages.
+  final String projectKind;
 
-  /// Parses a string value into a [CoverageCollectionMode].
-  static CoverageCollectionMode fromString(String value) {
-    return CoverageCollectionMode.values.firstWhere(
-      (mode) => mode.name == value,
-      orElse: () => CoverageCollectionMode.imports,
-    );
-  }
-}
+  /// The command of `package:very_good_test_runner` that runs the tests.
+  VeryGoodTestRunner get runner => switch (this) {
+    TestRunType.flutter => flutterTest,
+    TestRunType.dart => dartTest,
+  };
 
-/// {@template coverage_not_met}
-/// Thrown when `flutter test ---coverage --min-coverage`
-/// does not meet the provided minimum coverage threshold.
-/// {@endtemplate}
-class MinCoverageNotMet implements Exception {
-  /// {@macro coverage_not_met}
-  const new(this.coverage, {this.uncoveredLines});
-
-  /// The measured coverage percentage (total hits / total found * 100).
-  final double coverage;
-
-  /// Lines not covered, keyed by file path, values are line numbers.
-  ///
-  /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines;
+  /// The [CoverageReport] of a run of the tests of the package at
+  /// [packageRoot].
+  CoverageReport coverageReportOf(
+    String packageRoot, {
+    required CoverageOptions options,
+  }) => switch (this) {
+    TestRunType.flutter => FlutterCoverageReport(
+      packageRoot: packageRoot,
+      options: options,
+    ),
+    TestRunType.dart => DartCoverageReport(
+      packageRoot: packageRoot,
+      options: options,
+    ),
+  };
 }
 
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
@@ -142,6 +135,40 @@ class TestCLIRunner {
     return null;
   }
 
+  /// Validates that the tests can run against [targetPath].
+  ///
+  /// Logs the problem and returns the exit code to stop with, or returns
+  /// `null` when the run can proceed. [rest] are the positional arguments of
+  /// the command and [testType] names the project in the messages.
+  static int? validateTarget({
+    required String targetPath,
+    required bool recursive,
+    required List<String> rest,
+    required TestRunType testType,
+    required Logger logger,
+  }) {
+    if (recursive && isTargettingTestFiles(rest)) {
+      logger.err('''
+Cannot target specific test files together with --recursive.
+Test targets are resolved against a single package root, so the same path
+cannot apply to every package. Drop --recursive and run from the package
+that contains them.''');
+      return ExitCode.usage.code;
+    }
+
+    final pubspec = File(p.join(targetPath, 'pubspec.yaml'));
+    if (!recursive && !pubspec.existsSync()) {
+      logger.err(
+        '''
+Could not find a pubspec.yaml in $targetPath.
+This command should be run from the root of your ${testType.projectKind} project.''',
+      );
+      return ExitCode.noInput.code;
+    }
+
+    return null;
+  }
+
   /// Run tests (`flutter test`).
   /// Returns a list of exit codes for each test process.
   static Future<List<int>> test({
@@ -167,174 +194,120 @@ class TestCLIRunner {
   }) {
     final initialCwd = cwd;
 
-    final testRunner =
-        overrideTestRunner ??
-        (testType == TestRunType.flutter ? flutterTest : dartTest);
+    final testRunner = overrideTestRunner ?? testType.runner;
+
+    final coverageOptions = CoverageOptions(
+      collect: collectCoverage,
+      collectFrom: collectCoverageFrom,
+      minCoverage: minCoverage,
+      showUncovered: showUncovered,
+      excludeFromCoverage: excludeFromCoverage,
+      reportOn: reportOn ?? const ['lib'],
+      checkIgnore: checkIgnore,
+    );
 
     return _runCommand<int>(
-      cmd: (cwd) async {
-        final lcovPath = p.join(cwd, 'coverage', 'lcov.info');
-        final lcovFile = File(lcovPath);
-
-        if (collectCoverage && lcovFile.existsSync()) {
-          await lcovFile.delete();
-        }
-
-        void noop(String? _) {}
-        final workingDirectory = Directory(p.normalize(cwd)).absolute.path;
-        final relativePath = p.relative(workingDirectory, from: initialCwd);
-        final path = relativePath == '.'
-            ? '.'
-            : '.${p.context.separator}$relativePath';
-
-        stdout?.call('Running "${testType.name} test" in $path ...\n');
-
-        if (!Directory(p.join(workingDirectory, 'test')).existsSync()) {
-          stdout?.call('No test folder found in $path\n');
-          return ExitCode.success.code;
-        }
-
-        if (randomSeed != null) {
-          stdout?.call(
-            '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
-          );
-        }
-        final optimization = await optimizer.apply(
-          packageRoot: workingDirectory,
-          logger: logger,
-        );
-
-        if (optimization.isEmptyShard) {
-          stdout?.call(
-            'No tests found for shard ${optimization.shardIndex} in $path\n',
-          );
-          await optimization.cleanUp();
-          // The merge step downstream still expects a report from every
-          // shard, so leave an empty one behind.
-          if (collectCoverage) await lcovFile.create(recursive: true);
-          return ExitCode.success.code;
-        }
-
-        return await _overrideAnsiOutput(
-          forceAnsi,
-          () =>
-              _testCommand(
-                cwd: cwd,
-                collectCoverage: collectCoverage,
-                testRunner: testRunner,
-                testType: testType,
-                optimization: optimization,
-                arguments: [
-                  ...?arguments,
-                  if (randomSeed != null) ...[
-                    '--test-randomize-ordering-seed',
-                    randomSeed,
-                  ],
-                  ...optimization.testTargets,
-                ],
-                stdout: stdout ?? noop,
-                stderr: stderr ?? noop,
-              ).whenComplete(() async {
-                await optimization.cleanUp();
-
-                // Dart don't directly generate lcov files, so we need
-                // to read the json that is generates and convert it to lcov.
-                if (testType == TestRunType.dart && collectCoverage) {
-                  final files = _dartCoverageFilesToProcess(
-                    p.join(cwd, 'coverage'),
-                  );
-
-                  final resolvedCwd = Directory(cwd).resolveSymbolicLinksSync();
-                  final resolvedReportOn = [
-                    for (final path in reportOn ?? ['lib'])
-                      p.join(resolvedCwd, path),
-                  ];
-
-                  final hitmap = await coverage.HitMap.parseFiles(
-                    files,
-                    packagePath: resolvedCwd,
-                    checkIgnoredLines: checkIgnore,
-                  );
-
-                  final resolver = await coverage.Resolver.create(
-                    packagePath: resolvedCwd,
-                  );
-
-                  final output = hitmap.formatLcov(
-                    resolver,
-                    reportOn: resolvedReportOn,
-                    basePath: resolvedCwd,
-                  );
-
-                  // Write the lcov output to the file.
-                  await lcovFile.create(recursive: true);
-                  await lcovFile.writeAsString(output);
-
-                  // If collectCoverageFrom is 'all', enhance with untested
-                  // files
-                  if (collectCoverageFrom == CoverageCollectionMode.all) {
-                    await _enhanceLcovWithUntestedFiles(
-                      cwd: cwd,
-                      lcovPath: lcovPath,
-                      reportOn: reportOn ?? ['lib'],
-                      excludeFromCoverage: excludeFromCoverage,
-                    );
-                  }
-                }
-
-                if (collectCoverage) {
-                  assert(
-                    lcovFile.existsSync(),
-                    'coverage/lcov.info must exist',
-                  );
-
-                  // For Flutter tests with collectCoverageFrom = all,
-                  // enhance lcov.
-                  if (testType == TestRunType.flutter &&
-                      collectCoverageFrom == CoverageCollectionMode.all) {
-                    await _enhanceLcovWithUntestedFiles(
-                      lcovPath: lcovPath,
-                      cwd: cwd,
-                      reportOn: reportOn ?? ['lib'],
-                      excludeFromCoverage: excludeFromCoverage,
-                    );
-                  }
-                }
-
-                if (minCoverage != null || showUncovered) {
-                  final records = await Parser.parse(lcovPath);
-                  final coverageMetrics = CoverageMetrics.fromLcovRecords(
-                    records,
-                    excludeFromCoverage: excludeFromCoverage,
-                  );
-                  final coverage = coverageMetrics.percentage;
-                  final uncoveredLines =
-                      showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
-                      ? coverageMetrics.uncoveredLines
-                      : null;
-
-                  if (minCoverage != null && coverage < minCoverage) {
-                    throw MinCoverageNotMet(
-                      coverage,
-                      uncoveredLines: uncoveredLines,
-                    );
-                  }
-
-                  // When coverage passes but is below 100%,
-                  // show uncovered lines as informational output.
-                  if (showUncovered &&
-                      uncoveredLines != null &&
-                      uncoveredLines.isNotEmpty) {
-                    stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
-                  }
-                }
-              }),
-        );
-      },
+      cmd: (cwd) => _testPackage(
+        cwd: cwd,
+        initialCwd: initialCwd,
+        logger: logger,
+        testType: testType,
+        testRunner: testRunner,
+        optimizer: optimizer,
+        coverageReport: testType.coverageReportOf(
+          cwd,
+          options: coverageOptions,
+        ),
+        randomSeed: randomSeed,
+        forceAnsi: forceAnsi,
+        arguments: arguments,
+        stdout: stdout,
+        stderr: stderr,
+      ),
       cwd: cwd,
       ignore: ignore,
       recursive: recursive,
     );
+  }
+
+  /// Runs the tests of the single package rooted at [cwd].
+  static Future<int> _testPackage({
+    required String cwd,
+    required String initialCwd,
+    required Logger logger,
+    required TestRunType testType,
+    required VeryGoodTestRunner testRunner,
+    required TestOptimizer optimizer,
+    required CoverageReport coverageReport,
+    required String? randomSeed,
+    required bool? forceAnsi,
+    required List<String>? arguments,
+    required void Function(String)? stdout,
+    required void Function(String)? stderr,
+  }) async {
+    await coverageReport.clean();
+
+    void noop(String? _) {}
+    final workingDirectory = Directory(p.normalize(cwd)).absolute.path;
+    final path = _displayPath(workingDirectory, from: initialCwd);
+
+    stdout?.call('Running "${testType.name} test" in $path ...\n');
+
+    if (!Directory(p.join(workingDirectory, 'test')).existsSync()) {
+      stdout?.call('No test folder found in $path\n');
+      return ExitCode.success.code;
+    }
+
+    if (randomSeed != null) {
+      stdout?.call(
+        '''Shuffling test order with --test-randomize-ordering-seed=$randomSeed\n''',
+      );
+    }
+    final optimization = await optimizer.apply(
+      packageRoot: workingDirectory,
+      logger: logger,
+    );
+
+    if (optimization.isEmptyShard) {
+      stdout?.call(
+        'No tests found for shard ${optimization.shardIndex} in $path\n',
+      );
+      await optimization.cleanUp();
+      // The merge step downstream still expects a report from every
+      // shard, so leave an empty one behind.
+      await coverageReport.writeEmpty();
+      return ExitCode.success.code;
+    }
+
+    return await _overrideAnsiOutput(
+      forceAnsi,
+      () =>
+          _testCommand(
+            cwd: cwd,
+            testRunner: testRunner,
+            optimization: optimization,
+            arguments: [
+              ...coverageReport.collectArguments,
+              ...?arguments,
+              if (randomSeed != null) ...[
+                '--test-randomize-ordering-seed',
+                randomSeed,
+              ],
+              ...optimization.testTargets,
+            ],
+            stdout: stdout ?? noop,
+            stderr: stderr ?? noop,
+          ).whenComplete(() async {
+            await optimization.cleanUp();
+            await coverageReport.finalize(stdout: stdout);
+          }),
+    );
+  }
+
+  /// The path of [workingDirectory] relative to [from], as shown to the user.
+  static String _displayPath(String workingDirectory, {required String from}) {
+    final relativePath = p.relative(workingDirectory, from: from);
+    return relativePath == '.' ? '.' : '.${p.context.separator}$relativePath';
   }
 
   static T _overrideAnsiOutput<T>(bool? enableAnsiOutput, T Function() body) =>
@@ -342,13 +315,35 @@ class TestCLIRunner {
       ? body.call()
       : overrideAnsiOutput(enableAnsiOutput, body);
 
+  /// Awaits the exit codes of [runTests] and maps the outcome of the run to
+  /// the exit code of the command, logging any failure.
+  static Future<int> exitCodeOf(
+    Future<List<int>> Function() runTests, {
+    required Logger logger,
+  }) async {
+    try {
+      final results = await runTests();
+      return results.every((code) => code == ExitCode.success.code)
+          ? ExitCode.success.code
+          : ExitCode.software.code;
+    } on MinCoverageNotMet catch (error) {
+      return _handleMinCoverageNotMet(error, logger: logger);
+    } on InvalidOptimizationGlob catch (error) {
+      logger.err('$error');
+      return ExitCode.config.code;
+    } on Exception catch (error) {
+      logger.err('$error');
+      return ExitCode.unavailable.code;
+    }
+  }
+
   /// Logs [error], along with its uncovered lines when it carries any, and
   /// returns the exit code an unmet coverage threshold reports.
-  static int handleMinCoverageNotMet(
+  static int _handleMinCoverageNotMet(
     MinCoverageNotMet error, {
     required Logger logger,
-    double? minCoverage,
   }) {
+    final minCoverage = error.minCoverage;
     var decimalPlaces = 2;
 
     double round(double x) {
@@ -356,7 +351,7 @@ class TestCLIRunner {
       return (x * b).roundToDouble() / b;
     }
 
-    if (error.coverage < minCoverage!) {
+    if (error.coverage < minCoverage) {
       var rounded = round(error.coverage);
       while (rounded == minCoverage) {
         decimalPlaces++;
@@ -375,124 +370,6 @@ class TestCLIRunner {
 
     return ExitCode.software.code;
   }
-
-  /// Formats a map of uncovered lines into a human-readable string.
-  ///
-  /// The [uncoveredLines] map is keyed by file path, with values being lists
-  /// of uncovered line numbers.
-  ///
-  /// Example output:
-  /// ```dart
-  /// Lines not covered:
-  ///   - lib/src/foo.dart: 10, 20, 30
-  ///   - lib/src/bar.dart: 5
-  /// ```
-  static String formatUncoveredLines(Map<String, List<int>> uncoveredLines) {
-    final lines = uncoveredLines.entries.map((entry) {
-      final sortedLines = [...entry.value]..sort();
-      return '\t- ${entry.key}: ${sortedLines.join(', ')}';
-    });
-    return 'Lines not covered:\n${lines.join('\n')}';
-  }
-
-  /// Discovers all Dart files in the specified directories for coverage.
-  static List<String> _discoverDartFilesForCoverage({
-    required String cwd,
-    required List<String> reportOn,
-    String? excludeFromCoverage,
-  }) {
-    final glob = excludeFromCoverage != null ? Glob(excludeFromCoverage) : null;
-
-    return reportOn.expand((dir) {
-      final reportOnPath = p.join(cwd, dir);
-      final directory = Directory(reportOnPath);
-
-      if (!directory.existsSync()) return <String>[];
-
-      return directory
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((file) => file.path.endsWith('.dart'))
-          .where((file) => glob == null || !glob.matches(file.path))
-          .map((file) => p.relative(file.path, from: cwd));
-    }).toList();
-  }
-
-  /// Enhances an existing lcov file by adding uncovered files with 0% coverage.
-  static Future<void> _enhanceLcovWithUntestedFiles({
-    required String lcovPath,
-    required String cwd,
-    required List<String> reportOn,
-    String? excludeFromCoverage,
-  }) async {
-    final lcovFile = File(lcovPath);
-
-    final allDartFiles = _discoverDartFilesForCoverage(
-      cwd: cwd,
-      reportOn: reportOn,
-      excludeFromCoverage: excludeFromCoverage,
-    );
-
-    // Parse existing lcov to find covered files
-    final existingRecords = await Parser.parse(lcovPath);
-    final coveredFiles = existingRecords
-        .where((r) => r.file != null)
-        .map((r) => r.file!)
-        .toSet();
-
-    // Find uncovered files
-    final uncoveredFiles = allDartFiles.where((file) {
-      final normalizedFile = p.normalize(file);
-      for (final covered in coveredFiles) {
-        if (p.normalize(covered).endsWith(normalizedFile)) {
-          return false; // File is covered
-        }
-      }
-      return true; // File is uncovered
-    }).toList();
-
-    if (uncoveredFiles.isEmpty) return;
-
-    // Append uncovered files to lcov
-    final lcovContent = await lcovFile.readAsString();
-    final buffer = StringBuffer(lcovContent);
-
-    for (final file in uncoveredFiles) {
-      final absolutePath = p.join(cwd, file);
-      final dartFile = File(absolutePath);
-      if (dartFile.existsSync()) {
-        final lines = await dartFile.readAsLines();
-        buffer.writeln('SF:${file.replaceAll(r'\', '/')}');
-        // Mark non-trivial lines as uncovered
-        var linesFound = 0;
-        for (var i = 1; i <= lines.length; i++) {
-          final line = lines[i - 1].trim();
-          if (line.isNotEmpty &&
-              !line.startsWith('//') &&
-              !line.startsWith('import') &&
-              !line.startsWith('export') &&
-              !line.startsWith('part')) {
-            buffer.writeln('DA:$i,0');
-            linesFound++;
-          }
-        }
-        buffer
-          ..writeln('LF:$linesFound')
-          ..writeln('LH:0')
-          ..writeln('end_of_record');
-      }
-    }
-
-    await lcovFile.writeAsString(buffer.toString());
-  }
-
-  static List<File> _dartCoverageFilesToProcess(String absPath) {
-    return Directory(absPath)
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.endsWith('.json'))
-        .toList();
-  }
 }
 
 /// The exit code `dart test` and `flutter test` use when no test ran, for
@@ -503,37 +380,20 @@ Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
-  required TestRunType testType,
   required TestOptimization optimization,
   String cwd = '.',
-  bool collectCoverage = false,
   List<String>? arguments,
 }) {
-  const clearLine = '\u001B[2K\r';
-
   final completer = Completer<int>();
-  final suites = <int, TestSuite>{};
-  final groups = <int, TestGroup>{};
-  final tests = <int, Test>{};
-  final failedTestErrorMessages = <String, List<String>>{};
+  final reporter = _TestEventReporter(
+    stdout: stdout,
+    stderr: stderr,
+    optimization: optimization,
+    cwd: cwd,
+  );
   final sigintWatch =
       ProcessSignalOverrides.current?.sigintWatch ??
       ProcessSignal.sigint.watch();
-
-  var successCount = 0;
-  var skipCount = 0;
-
-  String computeStats() {
-    final passingTests = successCount.formatSuccess();
-    final failingTests = failedTestErrorMessages.values
-        .expand((e) => e)
-        .length
-        .formatFailure();
-    final skippedTests = skipCount.formatSkipped();
-    final result = [passingTests, failingTests, skippedTests]
-      ..removeWhere((element) => element.isEmpty);
-    return result.join(' ');
-  }
 
   final timerSubscription =
       Stream.periodic(
@@ -542,7 +402,7 @@ Future<int> _testCommand({
       ).listen((tick) {
         if (completer.isCompleted) return;
         final timeElapsed = Duration(seconds: tick).formatted();
-        stdout('$clearLine$timeElapsed ...');
+        stdout('$_clearLine$timeElapsed ...');
       });
 
   late final StreamSubscription<TestEvent> subscription;
@@ -558,162 +418,35 @@ Future<int> _testCommand({
   subscription =
       testRunner(
         workingDirectory: cwd,
-        arguments: [
-          if (collectCoverage)
-            if (testType == TestRunType.flutter)
-              '--coverage'
-            else
-              '--coverage=coverage',
-          ...?arguments,
-        ],
+        arguments: arguments,
         runInShell: true,
       ).listen(
-        (event) async {
+        (event) {
           if (event.shouldCancelTimer()) unawaited(timerSubscription.cancel());
-          if (event is SuiteTestEvent) suites[event.suite.id] = event.suite;
-          if (event is GroupTestEvent) groups[event.group.id] = event.group;
-          if (event is TestStartEvent) tests[event.test.id] = event.test;
+          reporter.report(event);
 
-          if (event is MessageTestEvent) {
-            if (event.message.startsWith('Skip:')) {
-              stdout('$clearLine${lightYellow.wrap(event.message)}\n');
-            } else if (event.message.contains('EXCEPTION')) {
-              stderr('$clearLine${event.message}');
-            } else {
-              stdout('$clearLine${event.message}\n');
-            }
-          }
-
-          if (event is ErrorTestEvent) {
-            stderr('$clearLine${event.error}');
-
-            if (event.stackTrace.trim().isNotEmpty) {
-              stderr('$clearLine${event.stackTrace}');
-            }
-
-            final test = tests[event.testID]!;
-            final suite = suites[test.suiteID]!;
-            final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
-
-            final report = optimization.resolveReport(
-              suitePath: suite.path!,
-              testName: test.name,
-              groupName: _topGroupName(test, groups),
-            );
-
-            final relativeTestPath = p.relative(report.path, from: cwd);
-            failedTestErrorMessages[relativeTestPath] = [
-              ...failedTestErrorMessages[relativeTestPath] ?? [],
-              '$prefix ${report.name}',
-            ];
-          }
-
-          if (event is TestDoneEvent) {
-            if (event.hidden) return;
-
-            final test = tests[event.testID]!;
-            final suite = suites[test.suiteID]!;
-
-            final report = optimization.resolveReport(
-              suitePath: suite.path!,
-              testName: test.name,
-              groupName: _topGroupName(test, groups),
-            );
-            final testPath = report.path;
-            final testName = report.name;
-
-            if (event.skipped) {
-              stdout(
-                '''$clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
-              );
-              skipCount++;
-            } else if (event.result == TestResult.success) {
-              successCount++;
-            } else {
-              stderr('$clearLine$testName $testPath (FAILED)');
-            }
-
-            final timeElapsed = Duration(milliseconds: event.time).formatted();
-            final stats = computeStats();
-            final truncatedTestName = testName.toSingleLine().truncated(
-              _lineLength - (timeElapsed.length + stats.length + 2),
-            );
-            stdout('''$clearLine$timeElapsed $stats: $truncatedTestName''');
-          }
-
-          if (event is DoneTestEvent) {
-            final timeElapsed = Duration(milliseconds: event.time).formatted();
-            final stats = computeStats();
-            final summary = event.success ?? false
-                ? lightGreen.wrap('All tests passed!')!
-                : lightRed.wrap('Some tests failed.')!;
-
-            stdout(
-              '$clearLine${darkGray.wrap(timeElapsed)} $stats: $summary\n',
-            );
-
-            if (event.success != true) {
-              assert(
-                failedTestErrorMessages.isNotEmpty,
-                'Invalid state: test event report as failed '
-                'but no failed tests were gathered',
-              );
-              final title = styleBold.wrap('Failing Tests:');
-
-              final lines = StringBuffer('$clearLine$title\n');
-              for (final testSuiteErrorMessages
-                  in failedTestErrorMessages.entries) {
-                lines.writeln('$clearLine - ${testSuiteErrorMessages.key} ');
-
-                for (final errorMessage in testSuiteErrorMessages.value) {
-                  lines.writeln('$clearLine \t- $errorMessage');
-                }
-              }
-
-              stderr(lines.toString());
-            }
-          }
-
-          if (event is ExitTestEvent) {
-            if (completer.isCompleted) return;
-            unawaited(subscription.cancel());
-            unawaited(sigintWatchSubscription.cancel());
-
-            // A shard can end up holding only tests that the given tags
-            // filter out, which is expected and not a failure.
-            final noTestsRanInShard =
-                optimization.shardIndex != null &&
-                event.exitCode == _noTestsRanExitCode;
-
-            completer.complete(
-              event.exitCode == ExitCode.success.code || noTestsRanInShard
-                  ? ExitCode.success.code
-                  : ExitCode.unavailable.code,
-            );
-          }
+          if (event is! ExitTestEvent || completer.isCompleted) return;
+          unawaited(subscription.cancel());
+          unawaited(sigintWatchSubscription.cancel());
+          completer.complete(_exitCodeOfEvent(event, optimization));
         },
         onError: (Object error, StackTrace stackTrace) {
-          stderr('$clearLine$error');
-          stderr('$clearLine$stackTrace');
+          stderr('$_clearLine$error');
+          stderr('$_clearLine$stackTrace');
         },
       );
 
   return completer.future;
 }
 
-/// The name of the outermost non-empty group [test] belongs to.
-///
-/// For a test running inside the optimized bundle this is the path of the file
-/// it was written in, relative to `test`, which is what
-/// [TestOptimization.resolveReport] needs to undo the bundling.
-String? _topGroupName(Test test, Map<int, TestGroup> groups) => test.groupIDs
-    .map((groupID) => groups[groupID]?.name)
-    .firstWhereOrNull((groupName) => groupName?.isNotEmpty ?? false);
+/// The exit code a test run that ended with [event] reports.
+int _exitCodeOfEvent(ExitTestEvent event, TestOptimization optimization) {
+  // A shard can end up holding only tests that the given tags
+  // filter out, which is expected and not a failure.
+  final noTestsRanInShard =
+      optimization.shardIndex != null && event.exitCode == _noTestsRanExitCode;
 
-final int _lineLength = () {
-  try {
-    return stdout.terminalColumns;
-  } on StdoutException {
-    return 80;
-  }
-}();
+  return event.exitCode == ExitCode.success.code || noTestsRanInShard
+      ? ExitCode.success.code
+      : ExitCode.unavailable.code;
+}

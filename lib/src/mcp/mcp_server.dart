@@ -9,6 +9,7 @@ import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:very_good_cli/src/command_runner.dart';
+import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/mcp/lock.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 import 'package:very_good_cli/src/version.dart';
@@ -215,9 +216,7 @@ Automatically set to 1 when --platform is specified.
               description:
                   '''Run only tests associated with the specified tags.''',
             ),
-            'exclude_coverage': StringSchema(
-              description: '''A glob which will be used to exclude files that match from the coverage (e.g. '**/*.g.dart').''',
-            ),
+            'exclude_coverage': StringSchema(description: excludeCoverageHelp),
             'exclude_tags': StringSchema(
               description:
                   'Run only tests that do not have the specified tags.',

@@ -313,7 +313,8 @@ class VeryGoodTestConfig extends Equatable {
   /// Run only tests associated with the specified tags.
   final String? tags;
 
-  /// A glob which will be used to exclude files that match from the coverage.
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
   final String? excludeCoverage;
 
   /// Run only tests that do not have the specified tags.
@@ -470,7 +471,8 @@ class VeryGoodDartTestConfig extends Equatable {
   /// Run only tests associated with the specified tags.
   final String? tags;
 
-  /// A glob which will be used to exclude files that match from the coverage.
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
   final String? excludeCoverage;
 
   /// Run only tests that do not have the specified tags.

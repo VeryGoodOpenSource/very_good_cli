@@ -25,21 +25,23 @@ class _MockLogger extends Mock implements Logger;
 class _FakeGeneratorTarget extends Fake implements GeneratorTarget;
 
 void main() {
-  group(CoverageCollectionMode, () {
-    group('.fromString', () {
-      test('returns matching mode for known value', () {
-        expect(
-          CoverageCollectionMode.fromString('all'),
-          equals(CoverageCollectionMode.all),
-        );
-      });
+  group(TestRunType, () {
+    test('runs the tests with the command of its runner', () {
+      expect(TestRunType.flutter.runner, equals(flutterTest));
+      expect(TestRunType.dart.runner, equals(dartTest));
+    });
 
-      test('returns imports for unrecognized value', () {
-        expect(
-          CoverageCollectionMode.fromString('unknown'),
-          equals(CoverageCollectionMode.imports),
-        );
-      });
+    test('keeps the coverage the way its runner writes it', () {
+      const options = CoverageOptions();
+
+      expect(
+        TestRunType.flutter.coverageReportOf('.', options: options),
+        isA<FlutterCoverageReport>(),
+      );
+      expect(
+        TestRunType.dart.coverageReportOf('.', options: options),
+        isA<DartCoverageReport>(),
+      );
     });
   });
 
@@ -47,6 +49,132 @@ void main() {
     setUpAll(() {
       registerFallbackValue(_FakeGeneratorTarget());
       registerFallbackValue(FileConflictResolution.prompt);
+    });
+
+    group('.validateTarget', () {
+      late Logger logger;
+      late Directory targetDirectory;
+
+      setUp(() {
+        logger = _MockLogger();
+        targetDirectory = Directory.systemTemp.createTempSync(
+          'validate_target_',
+        );
+        addTearDown(() => targetDirectory.deleteSync(recursive: true));
+      });
+
+      int? validateTarget({
+        bool recursive = false,
+        List<String> rest = const [],
+      }) => TestCLIRunner.validateTarget(
+        targetPath: targetDirectory.path,
+        recursive: recursive,
+        rest: rest,
+        testType: TestRunType.dart,
+        logger: logger,
+      );
+
+      test('lets the tests of a package run', () {
+        File(p.join(targetDirectory.path, 'pubspec.yaml')).createSync();
+
+        expect(validateTarget(), isNull);
+        verifyNever(() => logger.err(any()));
+      });
+
+      test('lets a recursive run go without a pubspec', () {
+        expect(validateTarget(recursive: true), isNull);
+        verifyNever(() => logger.err(any()));
+      });
+
+      test('rejects test targets together with --recursive', () {
+        expect(
+          validateTarget(recursive: true, rest: ['test/a_test.dart']),
+          equals(ExitCode.usage.code),
+        );
+        verify(
+          () => logger.err(
+            any(
+              that: contains(
+                'Cannot target specific test files together with --recursive.',
+              ),
+            ),
+          ),
+        ).called(1);
+      });
+
+      test('rejects a directory without a pubspec', () {
+        expect(validateTarget(), equals(ExitCode.noInput.code));
+        verify(
+          () => logger.err(
+            any(
+              that: contains(
+                'This command should be run from the root of your Dart '
+                'project.',
+              ),
+            ),
+          ),
+        ).called(1);
+      });
+    });
+
+    group('.exitCodeOf', () {
+      late Logger logger;
+
+      setUp(() => logger = _MockLogger());
+
+      test('succeeds when every test process succeeds', () async {
+        await expectLater(
+          TestCLIRunner.exitCodeOf(
+            () async => [ExitCode.success.code, ExitCode.success.code],
+            logger: logger,
+          ),
+          completion(equals(ExitCode.success.code)),
+        );
+      });
+
+      test('fails when a test process fails', () async {
+        await expectLater(
+          TestCLIRunner.exitCodeOf(
+            () async => [ExitCode.success.code, ExitCode.unavailable.code],
+            logger: logger,
+          ),
+          completion(equals(ExitCode.software.code)),
+        );
+      });
+
+      test('reports an unmet coverage threshold', () async {
+        await expectLater(
+          TestCLIRunner.exitCodeOf(
+            () => throw const MinCoverageNotMet(50, minCoverage: 80),
+            logger: logger,
+          ),
+          completion(equals(ExitCode.software.code)),
+        );
+        verify(
+          () => logger.err('Expected coverage >= 80.00% but actual is 50.00%.'),
+        ).called(1);
+      });
+
+      test('reports an invalid optimization glob as a config error', () async {
+        const exception = InvalidOptimizationGlob('bad glob');
+
+        await expectLater(
+          TestCLIRunner.exitCodeOf(() => throw exception, logger: logger),
+          completion(equals(ExitCode.config.code)),
+        );
+        verify(() => logger.err('$exception')).called(1);
+      });
+
+      test('reports any other exception as unavailable', () async {
+        await expectLater(
+          TestCLIRunner.exitCodeOf(
+            () => throw Exception('oops'),
+            logger: logger,
+          ),
+          completion(equals(ExitCode.unavailable.code)),
+        );
+        verify(() => logger.err('Exception: oops')).called(1);
+      });
     });
 
     group('.test', () {
@@ -2018,16 +2146,21 @@ void main() {
           },
         );
 
-        test('respects exclude-coverage pattern when enhancing lcov', () async {
+        test('respects every space-separated exclude-coverage pattern '
+            'when enhancing lcov', () async {
           final tempDirectory = Directory.systemTemp.createTempSync();
           addTearDown(() => tempDirectory.deleteSync(recursive: true));
 
           final libDir = Directory(p.join(tempDirectory.path, 'lib'))
             ..createSync(recursive: true);
-          File(p.join(libDir.path, 'main.dart'))
-              .writeAsStringSync('void main() {}');
-          File(p.join(libDir.path, 'main.g.dart'))
-              .writeAsStringSync('// Generated code');
+          for (final name in [
+            'main.dart',
+            'untested.dart',
+            'main.g.dart',
+            'main.freezed.dart',
+          ]) {
+            File(p.join(libDir.path, name)).writeAsStringSync('void f() {}');
+          }
 
           File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
           Directory(p.join(tempDirectory.path, 'test')).createSync();
@@ -2038,12 +2171,12 @@ void main() {
 
           await expectLater(
             TestCLIRunner.test(
-              testType: TestRunType.dart,
+              testType: TestRunType.flutter,
               cwd: tempDirectory.path,
               logger: logger,
               collectCoverage: true,
               collectCoverageFrom: CoverageCollectionMode.all,
-              excludeFromCoverage: '**/*.g.dart',
+              excludeFromCoverage: '**/*.g.dart **/*.freezed.dart',
               stdout: stdoutLogs.add,
               stderr: stderrLogs.add,
               overrideTestRunner: testRunner(
@@ -2052,15 +2185,13 @@ void main() {
                   const ExitTestEvent(exitCode: 0, time: 0),
                 ]),
                 onStart: () {
-                  // Create LCOV with covered file for main.dart only
                   lcovFile
                     ..createSync(recursive: true)
                     ..writeAsStringSync(
-                      'TN:test\n'
                       'SF:lib/main.dart\n'
                       'DA:1,1\n'
-                      'LH:1\n'
                       'LF:1\n'
+                      'LH:1\n'
                       'end_of_record\n',
                     );
                 },
@@ -2069,7 +2200,10 @@ void main() {
             completion(equals([ExitCode.success.code])),
           );
 
-          expect(lcovFile.existsSync(), isTrue);
+          final lcov = lcovFile.readAsStringSync();
+          expect(lcov, contains('SF:lib/untested.dart'));
+          expect(lcov, isNot(contains('main.g.dart')));
+          expect(lcov, isNot(contains('main.freezed.dart')));
         });
       });
 

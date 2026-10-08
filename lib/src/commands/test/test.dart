@@ -185,7 +185,8 @@ class FlutterTestOptions {
   /// Run only tests associated with the specified tags.
   final String? tags;
 
-  /// A glob which will be used to exclude files that match from the coverage.
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
   final String? excludeFromCoverage;
 
   /// How to collect coverage.
@@ -262,6 +263,40 @@ class FlutterTestOptions {
       !TestCLIRunner.isTargettingTestFiles(rest) &&
       !updateGoldens &&
       platform == null;
+
+  /// The coverage threshold the run enforces. A threshold inherited from
+  /// `very_good.yaml` only applies to un-sharded runs: a single shard covers a
+  /// fraction of the code and would fail it.
+  double? get _enforcedMinCoverage => totalShards == null ? minCoverage : null;
+
+  /// Whether the run collects coverage, which enforcing a threshold and
+  /// listing the uncovered lines need too.
+  bool get _shouldCollectCoverage =>
+      collectCoverage || _enforcedMinCoverage != null || showUncovered;
+
+  /// The arguments forwarded to `flutter test`.
+  List<String> get _runnerArguments => [
+    if (excludeTags != null) ...['-x', excludeTags!],
+    if (tags != null) ...['-t', tags!],
+    if (updateGoldens) '--update-goldens',
+    if (failFast) '--fail-fast',
+    if (runSkipped) '--run-skipped',
+    if (flavor != null) ...['--flavor', flavor!],
+    if (platform != null) ...['--platform', platform!],
+    ..._dartDefineArguments,
+    if (platform == null) ...['-j', concurrency],
+    '--no-pub',
+    if (timeout != null) '--timeout=${timeout!.inSeconds}s',
+    if (fileReporter != null) '--file-reporter=$fileReporter',
+    ...rest,
+  ];
+
+  /// The `--dart-define` and `--dart-define-from-file` arguments.
+  List<String> get _dartDefineArguments => [
+    for (final value in dartDefine ?? const <String>[]) '--dart-define=$value',
+    for (final value in dartDefineFromFile ?? const <String>[])
+      '--dart-define-from-file=$value',
+  ];
 }
 
 /// Signature for the [Flutter.installed] method.
@@ -347,12 +382,7 @@ class TestCommand extends Command<int> {
         abbr: 't',
         help: 'Run only tests associated with the specified tags.',
       )
-      ..addOption(
-        'exclude-coverage',
-        help:
-            'A glob which will be used to exclude files that match from the '
-            "coverage (e.g. '**/*.g.dart').",
-      )
+      ..addOption('exclude-coverage', help: excludeCoverageHelp)
       ..addOption(
         'exclude-tags',
         abbr: 'x',
@@ -508,24 +538,16 @@ class TestCommand extends Command<int> {
   @override
   Future<int> run() async {
     final targetPath = path.normalize(Directory.current.absolute.path);
-    final pubspec = File(path.join(targetPath, 'pubspec.yaml'));
     final recursive = _argResults['recursive'] as bool;
 
-    if (recursive && TestCLIRunner.isTargettingTestFiles(_argResults.rest)) {
-      _logger.err('''
-Cannot target specific test files together with --recursive.
-Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
-that contains them.''');
-      return ExitCode.usage.code;
-    }
-
-    if (!recursive && !pubspec.existsSync()) {
-      _logger.err('''
-Could not find a pubspec.yaml in $targetPath.
-This command should be run from the root of your Flutter project.''');
-      return ExitCode.noInput.code;
-    }
+    final targetError = TestCLIRunner.validateTarget(
+      targetPath: targetPath,
+      recursive: recursive,
+      rest: _argResults.rest,
+      testType: TestRunType.flutter,
+      logger: _logger,
+    );
+    if (targetError != null) return targetError;
 
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
@@ -547,25 +569,21 @@ This command should be run from the root of your Flutter project.''');
       return ExitCode.usage.code;
     }
 
-    // A threshold inherited from very_good.yaml only applies to un-sharded
-    // runs: a single shard covers a fraction of the code and would fail it.
-    final minCoverage = options.totalShards == null
-        ? options.minCoverage
-        : null;
+    return await _runTests(options, recursive: recursive);
+  }
 
-    try {
-      final results = await _flutterTest(
+  /// Runs `flutter test` with [options] and maps its outcome to an exit code.
+  Future<int> _runTests(FlutterTestOptions options, {required bool recursive}) {
+    return TestCLIRunner.exitCodeOf(
+      () => _flutterTest(
         optimizePerformance: options.shouldOptimize,
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         logger: _logger,
         stdout: _logger.write,
         stderr: _logger.err,
-        collectCoverage:
-            options.collectCoverage ||
-            minCoverage != null ||
-            options.showUncovered,
-        minCoverage: minCoverage,
+        collectCoverage: options._shouldCollectCoverage,
+        minCoverage: options._enforcedMinCoverage,
         showUncovered: options.showUncovered,
         excludeFromCoverage: options.excludeFromCoverage,
         collectCoverageFrom: options.collectCoverageFrom,
@@ -574,46 +592,9 @@ This command should be run from the root of your Flutter project.''');
         reportOn: options.reportOn.isEmpty ? null : options.reportOn,
         shardIndex: int.tryParse(options.shardIndex ?? ''),
         totalShards: int.tryParse(options.totalShards ?? ''),
-        arguments: [
-          if (options.excludeTags != null) ...['-x', options.excludeTags!],
-          if (options.tags != null) ...['-t', options.tags!],
-          if (options.updateGoldens) '--update-goldens',
-          if (options.failFast) '--fail-fast',
-          if (options.runSkipped) '--run-skipped',
-          if (options.flavor != null) ...['--flavor', options.flavor!],
-          if (options.platform != null) ...['--platform', options.platform!],
-          if (options.dartDefine != null)
-            for (final value in options.dartDefine!) '--dart-define=$value',
-          if (options.dartDefineFromFile != null)
-            for (final value in options.dartDefineFromFile!)
-              '--dart-define-from-file=$value',
-          if (options.platform == null) ...['-j', options.concurrency],
-          '--no-pub',
-          if (options.timeout != null)
-            '--timeout=${options.timeout!.inSeconds}s',
-          if (options.fileReporter != null)
-            '--file-reporter=${options.fileReporter}',
-          ...options.rest,
-        ],
-      );
-
-      if (results.any((code) => code != ExitCode.success.code)) {
-        return ExitCode.software.code;
-      }
-    } on MinCoverageNotMet catch (error) {
-      return TestCLIRunner.handleMinCoverageNotMet(
-        error,
-        logger: _logger,
-        minCoverage: minCoverage,
-      );
-    } on InvalidOptimizationGlob catch (error) {
-      _logger.err('$error');
-      return ExitCode.config.code;
-    } on Exception catch (error) {
-      _logger.err('$error');
-      return ExitCode.unavailable.code;
-    }
-
-    return ExitCode.success.code;
+        arguments: options._runnerArguments,
+      ),
+      logger: _logger,
+    );
   }
 }
