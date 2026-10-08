@@ -9,7 +9,19 @@ import 'package:very_good_cli/src/pubspec_workspace/pubspec_workspace.dart';
 
 class _MockLogger extends Mock implements Logger;
 
+class _MockWorkspaceDependencyCollector extends Mock
+    implements WorkspaceDependencyCollector;
+
+class _FakeDirectory extends Fake implements Directory;
+
+class _FakePubspec extends Fake implements Pubspec;
+
 void main() {
+  setUpAll(() {
+    registerFallbackValue(_FakeDirectory());
+    registerFallbackValue(_FakePubspec());
+  });
+
   /// Writes a `pubspec.yaml` with [content] into a subdirectory [name]
   /// (which maybe a nested path) of [root], creating directories as needed.
   Directory writePubspec(Directory root, String name, String content) {
@@ -734,6 +746,70 @@ environment:
       );
 
       expect(result, isEmpty);
+    });
+
+    test('walks the workspace with the injected collector', () {
+      writePubspec(tempDirectory, '.', '''
+name: root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/a
+''');
+      final collector = _MockWorkspaceDependencyCollector();
+      const dependencies = {'http': PubspecDependencyType.directMain};
+      when(collector.classify).thenReturn(dependencies);
+
+      final result = resolveWorkspaceDependencies(
+        tempDirectory,
+        logger: logger,
+        collector: collector,
+      );
+
+      expect(result, equals(dependencies));
+      final visitedDirectory =
+          verify(() => collector.visit(captureAny(), any())).captured.single
+              as Directory;
+      expect(visitedDirectory.path, equals(tempDirectory.path));
+    });
+  });
+
+  group(WorkspaceDependencyCollector, () {
+    late Directory tempDirectory;
+    late Logger logger;
+
+    setUp(() {
+      tempDirectory = Directory.systemTemp.createTempSync();
+      addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      logger = _MockLogger();
+    });
+
+    test('classify returns an empty map before any visit', () {
+      expect(WorkspaceDependencyCollector(logger: logger).classify(), isEmpty);
+    });
+
+    test('visits each directory at most once', () {
+      final pubspec = Pubspec(
+        'root',
+        dependencies: {'http': HostedDependency()},
+        devDependencies: {'test': HostedDependency()},
+        dependencyOverrides: {'meta': HostedDependency()},
+      );
+      final collector = WorkspaceDependencyCollector(logger: logger)
+        ..visit(tempDirectory, pubspec)
+        ..visit(
+          tempDirectory,
+          Pubspec('root', dependencies: {'args': HostedDependency()}),
+        );
+
+      expect(
+        collector.classify(),
+        equals({
+          'http': PubspecDependencyType.directMain,
+          'test': PubspecDependencyType.directDev,
+          'meta': PubspecDependencyType.directOverridden,
+        }),
+      );
     });
   });
 

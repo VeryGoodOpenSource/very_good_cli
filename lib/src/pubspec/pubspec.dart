@@ -23,14 +23,14 @@ enum PubspecDependencyType {
   /// See also:
   ///
   /// * [Dart's dependency documentation](https://dart.dev/tools/pub/dependencies)
-  directMain._('direct main'),
+  directMain._('direct main', 'direct-main'),
 
   /// Another package that your package needs during development.
   ///
   /// See also:
   ///
   /// * [Dart's developer dependency documentation](https://dart.dev/tools/pub/dependencies#dev-dependencies)
-  directDev._('direct dev'),
+  directDev._('direct dev', 'direct-dev'),
 
   /// A dependency that your package indirectly uses because one of its
   /// dependencies requires it.
@@ -38,7 +38,7 @@ enum PubspecDependencyType {
   /// See also:
   ///
   /// * [Dart's transitive dependency documentation](https://dart.dev/tools/pub/glossary#transitive-)
-  transitive._('transitive'),
+  transitive._('transitive', 'transitive'),
 
   ///  A dependency that your package overrides that is not already a
   /// `direct main` or `direct dev` dependency.
@@ -46,9 +46,9 @@ enum PubspecDependencyType {
   /// See also:
   ///
   /// * [Dart's dependency override documentation](https://dart.dev/tools/pub/dependencies#dependency-overrides)
-  directOverridden._('direct overridden');
+  directOverridden._('direct overridden', 'direct-overridden');
 
-  new _(this.value);
+  new _(this.value, this.optionName);
 
   /// Parses a [PubspecDependencyType] from its `pubspec.lock` textual form.
   ///
@@ -70,6 +70,10 @@ enum PubspecDependencyType {
   /// The textual representation of the [PubspecDependencyType] as it appears in
   /// the `dependency` field of a `pubspec.lock` file.
   final String value;
+
+  /// The `--dependency-type` option value of the `packages check licenses`
+  /// command that selects this dependency type.
+  final String optionName;
 }
 
 /// Tolerantly parses a [Pubspec] from [pubspecFile].

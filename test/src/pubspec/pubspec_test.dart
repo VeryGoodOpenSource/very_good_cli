@@ -42,6 +42,21 @@ void main() {
         );
       });
     });
+
+    test('optionName matches the --dependency-type option values', () {
+      expect(
+        {
+          for (final type in PubspecDependencyType.values)
+            type: type.optionName,
+        },
+        equals({
+          PubspecDependencyType.directMain: 'direct-main',
+          PubspecDependencyType.directDev: 'direct-dev',
+          PubspecDependencyType.transitive: 'transitive',
+          PubspecDependencyType.directOverridden: 'direct-overridden',
+        }),
+      );
+    });
   });
 
   group('tryParsePubspec', () {

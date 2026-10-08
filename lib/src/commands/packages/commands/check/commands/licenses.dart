@@ -69,8 +69,9 @@ const _defaultDetectionThreshold = 0.95;
 
 /// Defines a [Map] with dependencies as keys and their licenses as values.
 ///
-/// If a dependency's license failed to be retrieved its license will be `null`.
-typedef _DependencyLicenseMap = Map<String, Set<String>?>;
+/// If a dependency's license failed to be retrieved its license will be
+/// [SpdxLicense.$unknown].
+typedef _DependencyLicenseMap = Map<String, Set<String>>;
 
 /// Defines a [Map] with banned dependencies as keys and their banned licenses
 /// as values.
@@ -212,41 +213,19 @@ class PackagesCheckLicensesCommand extends Command<int> {
       usageException('Too many arguments');
     }
 
-    final target = _argResults.rest.length == 1 ? _argResults.rest[0] : '.';
+    final target = _argResults.rest.firstOrNull ?? '.';
     final targetPath = path.normalize(Directory(target).absolute.path);
+    final targetDirectory = Directory(targetPath);
 
-    final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
+    final config = VeryGoodConfig.load(targetDirectory, logger: _logger);
     if (config == null) return ExitCode.config.code;
 
     final options = PackagesCheckLicensesOptions.parse(
       _argResults,
       config: config,
     );
+    _validateLicenseOptions(options);
 
-    final allowedLicenses = options.allowedLicenses;
-    final forbiddenLicenses = options.forbiddenLicenses;
-
-    if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
-      usageException(
-        '''Cannot specify both ${styleItalic.wrap('allowed')} and ${styleItalic.wrap('forbidden')} options.''',
-      );
-    }
-
-    final invalidLicenses = _invalidLicenses([
-      ...allowedLicenses,
-      ...forbiddenLicenses,
-    ]);
-    if (invalidLicenses.isNotEmpty) {
-      final documentationLink = link(
-        uri: licenseDocumentationUri,
-        message: 'documentation',
-      );
-      _logger.warn(
-        '''Some licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the $documentationLink for a list of valid licenses.''',
-      );
-    }
-
-    final targetDirectory = Directory(targetPath);
     if (!targetDirectory.existsSync()) {
       _logger.err(
         '''Could not find directory at $targetPath. Specify a valid path to a Dart or Flutter project.''',
@@ -259,15 +238,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
     final pubspecLockFile = File(path.join(targetPath, pubspecLockBasename));
     if (!pubspecLockFile.existsSync()) {
       progress.cancel();
-      if (declaresWorkspaceResolution(targetDirectory)) {
-        _logger.err(
-          'Could not find a $pubspecLockBasename in $targetPath.\n'
-          'This package resolves as part of a Pub workspace. '
-          'Run the command from the workspace root instead.',
-        );
-      } else {
-        _logger.err('Could not find a $pubspecLockBasename in $targetPath');
-      }
+      _logger.err(_missingPubspecLockMessage(targetDirectory));
       return ExitCode.noInput.code;
     }
 
@@ -278,29 +249,12 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
-    final resolveWorkspace =
-        resolveWorkspaceOverride ?? resolveWorkspaceDependencies;
-    final workspaceDeps = resolveWorkspace(targetDirectory, logger: _logger);
-
-    final filteredDependencies = pubspecLock.packages.where((dependency) {
-      if (!dependency.isPubHosted) return false;
-
-      if (options.skippedPackages.contains(dependency.name)) return false;
-
-      final dependencyType = workspaceDeps == null
-          ? dependency.type
-          : workspaceDeps[dependency.name] ?? PubspecDependencyType.transitive;
-      return (options.dependencyTypes.contains('direct-main') &&
-              dependencyType == PubspecDependencyType.directMain) ||
-          (options.dependencyTypes.contains('direct-dev') &&
-              dependencyType == PubspecDependencyType.directDev) ||
-          (options.dependencyTypes.contains('transitive') &&
-              dependencyType == PubspecDependencyType.transitive) ||
-          (options.dependencyTypes.contains('direct-overridden') &&
-              dependencyType == PubspecDependencyType.directOverridden);
-    });
-
-    if (filteredDependencies.isEmpty) {
+    final dependencies = _dependenciesToCheck(
+      pubspecLock,
+      targetDirectory: targetDirectory,
+      options: options,
+    );
+    if (dependencies.isEmpty) {
       progress.cancel();
       _logger.info(
         '''No hosted dependencies found in $targetPath of type: ${options.dependencyTypes.stringify()}.''',
@@ -317,101 +271,21 @@ class PackagesCheckLicensesCommand extends Command<int> {
       return ExitCode.noInput.code;
     }
 
-    final licenses = <String, Set<String>?>{};
-    final detectLicense = detectLicenseOverride ?? detector.detectLicense;
-    for (final dependency in filteredDependencies) {
-      progress.update(
-        '''Collecting licenses from ${licenses.length + 1} out of ${filteredDependencies.length} ${filteredDependencies.length == 1 ? 'package' : 'packages'}''',
+    final _DependencyLicenseMap licenses;
+    try {
+      licenses = await _collectLicenses(
+        dependencies,
+        packageConfig: packageConfig,
+        options: options,
+        progress: progress,
       );
-
-      final dependencyName = dependency.name;
-      final cachePackageEntry = packageConfig.packages.firstWhereOrNull(
-        (package) => package.name == dependencyName,
-      );
-      if (cachePackageEntry == null) {
-        final errorMessage =
-            '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''';
-        if (!options.ignoreRetrievalFailures) {
-          progress.cancel();
-          _logger.err(errorMessage);
-          return ExitCode.noInput.code;
-        }
-
-        _logger.err('\n$errorMessage');
-        licenses[dependencyName] = {SpdxLicense.$unknown.value};
-        continue;
-      }
-
-      final packagePath = path.normalize(cachePackageEntry.root.toFilePath());
-      final packageDirectory = Directory(packagePath);
-      if (!packageDirectory.existsSync()) {
-        final errorMessage =
-            '''[$dependencyName] Could not find package directory at $packagePath.''';
-        if (!options.ignoreRetrievalFailures) {
-          progress.cancel();
-          _logger.err(errorMessage);
-          return ExitCode.noInput.code;
-        }
-
-        _logger.err('\n$errorMessage');
-        licenses[dependencyName] = {SpdxLicense.$unknown.value};
-        continue;
-      }
-
-      final licenseFile = File(path.join(packagePath, 'LICENSE'));
-      if (!licenseFile.existsSync()) {
-        licenses[dependencyName] = {SpdxLicense.$unknown.value};
-        continue;
-      }
-
-      final licenseFileContent = licenseFile.readAsStringSync();
-
-      late final detector.Result detectorResult;
-      try {
-        detectorResult = await detectLicense(
-          licenseFileContent,
-          _defaultDetectionThreshold,
-        );
-      } on Exception catch (e) {
-        final errorMessage =
-            '''[$dependencyName] Failed to detect license from $packagePath: $e''';
-        if (!options.ignoreRetrievalFailures) {
-          progress.cancel();
-          _logger.err(errorMessage);
-          return ExitCode.software.code;
-        }
-
-        _logger.err('\n$errorMessage');
-        licenses[dependencyName] = {SpdxLicense.$unknown.value};
-        continue;
-      }
-
-      final rawLicense = detectorResult.matches
-          // Accessing license is necessary to get the identifier of the license
-          // ignore: invalid_use_of_visible_for_testing_member
-          .map((match) => match.license.identifier)
-          .toSet();
-      licenses[dependencyName] = {
-        ...rawLicense,
-        // If there are no matches, we add the unknown license
-        if (rawLicense.isEmpty) SpdxLicense.$unknown.value,
-      };
+    } on _LicenseRetrievalFailure catch (failure) {
+      progress.cancel();
+      _logger.err(failure.message);
+      return failure.exitCode.code;
     }
 
-    late final _BannedDependencyLicenseMap? bannedDependencies;
-    if (allowedLicenses.isNotEmpty) {
-      bannedDependencies = _bannedDependencies(
-        licenses: licenses,
-        isAllowed: allowedLicenses.contains,
-      );
-    } else if (forbiddenLicenses.isNotEmpty) {
-      bannedDependencies = _bannedDependencies(
-        licenses: licenses,
-        isAllowed: (license) => !forbiddenLicenses.contains(license),
-      );
-    } else {
-      bannedDependencies = null;
-    }
+    final bannedDependencies = _bannedDependenciesFor(licenses, options);
 
     progress.complete(
       _composeReport(
@@ -428,6 +302,176 @@ class PackagesCheckLicensesCommand extends Command<int> {
 
     return ExitCode.success.code;
   }
+
+  /// Rejects combining allowed and forbidden licenses, and warns about any
+  /// license that is not a recognized SPDX identifier.
+  void _validateLicenseOptions(PackagesCheckLicensesOptions options) {
+    final PackagesCheckLicensesOptions(:allowedLicenses, :forbiddenLicenses) =
+        options;
+
+    if (allowedLicenses.isNotEmpty && forbiddenLicenses.isNotEmpty) {
+      usageException(
+        '''Cannot specify both ${styleItalic.wrap('allowed')} and ${styleItalic.wrap('forbidden')} options.''',
+      );
+    }
+
+    final invalidLicenses = _invalidLicenses([
+      ...allowedLicenses,
+      ...forbiddenLicenses,
+    ]);
+    if (invalidLicenses.isEmpty) return;
+
+    final documentationLink = link(
+      uri: licenseDocumentationUri,
+      message: 'documentation',
+    );
+    _logger.warn(
+      '''Some licenses failed to be recognized: ${invalidLicenses.stringify()}. Refer to the $documentationLink for a list of valid licenses.''',
+    );
+  }
+
+  /// The hosted dependencies in [pubspecLock] whose licenses should be
+  /// checked according to [options].
+  ///
+  /// When [targetDirectory] is part of a Pub workspace, dependency types are
+  /// resolved from the workspace instead of the [pubspecLock].
+  List<PubspecLockPackage> _dependenciesToCheck(
+    PubspecLock pubspecLock, {
+    required Directory targetDirectory,
+    required PackagesCheckLicensesOptions options,
+  }) {
+    final resolveWorkspace =
+        resolveWorkspaceOverride ?? resolveWorkspaceDependencies;
+    final workspaceDeps = resolveWorkspace(targetDirectory, logger: _logger);
+
+    PubspecDependencyType typeOf(PubspecLockPackage dependency) =>
+        workspaceDeps == null
+        ? dependency.type
+        : workspaceDeps[dependency.name] ?? PubspecDependencyType.transitive;
+
+    return pubspecLock.packages
+        .where(
+          (dependency) =>
+              dependency.isPubHosted &&
+              !options.skippedPackages.contains(dependency.name) &&
+              options.dependencyTypes.contains(typeOf(dependency).optionName),
+        )
+        .toList();
+  }
+
+  /// Retrieves the licenses of every dependency in [dependencies].
+  ///
+  /// Throws a [_LicenseRetrievalFailure] when a license fails to be retrieved,
+  /// unless [PackagesCheckLicensesOptions.ignoreRetrievalFailures] is set, in
+  /// which case the failure is logged and the license is reported as unknown.
+  Future<_DependencyLicenseMap> _collectLicenses(
+    List<PubspecLockPackage> dependencies, {
+    required package_config.PackageConfig packageConfig,
+    required PackagesCheckLicensesOptions options,
+    required Progress progress,
+  }) async {
+    final licenses = <String, Set<String>>{};
+    final detectLicense = detectLicenseOverride ?? detector.detectLicense;
+    final packageWord = dependencies.length == 1 ? 'package' : 'packages';
+
+    for (final PubspecLockPackage(:name) in dependencies) {
+      progress.update(
+        '''Collecting licenses from ${licenses.length + 1} out of ${dependencies.length} $packageWord''',
+      );
+
+      try {
+        licenses[name] = await _retrieveLicenses(
+          name,
+          packageConfig: packageConfig,
+          detectLicense: detectLicense,
+        );
+      } on _LicenseRetrievalFailure catch (failure) {
+        if (!options.ignoreRetrievalFailures) rethrow;
+
+        _logger.err('\n${failure.message}');
+        licenses[name] = {SpdxLicense.$unknown.value};
+      }
+    }
+
+    return licenses;
+  }
+}
+
+/// Signals that the license of a dependency failed to be retrieved, carrying a
+/// human friendly [message] and the [exitCode] to return when not ignored.
+class _LicenseRetrievalFailure(final String message, final ExitCode exitCode)
+    implements Exception;
+
+/// Retrieves the licenses of the package named [dependencyName] from its
+/// cached `LICENSE` file.
+///
+/// Returns an unknown license when the package has no `LICENSE` file, or when
+/// no license is detected in it.
+///
+/// Throws a [_LicenseRetrievalFailure] when the cached package cannot be found
+/// or its license fails to be detected.
+Future<Set<String>> _retrieveLicenses(
+  String dependencyName, {
+  required package_config.PackageConfig packageConfig,
+  required Future<detector.Result> Function(String, double) detectLicense,
+}) async {
+  final cachePackageEntry = packageConfig.packages.firstWhereOrNull(
+    (package) => package.name == dependencyName,
+  );
+  if (cachePackageEntry == null) {
+    throw _LicenseRetrievalFailure(
+      '''[$dependencyName] Could not find cached package path. Consider running `dart pub get` or `flutter pub get` to generate a new `package_config.json`.''',
+      ExitCode.noInput,
+    );
+  }
+
+  final packagePath = path.normalize(cachePackageEntry.root.toFilePath());
+  if (!Directory(packagePath).existsSync()) {
+    throw _LicenseRetrievalFailure(
+      '''[$dependencyName] Could not find package directory at $packagePath.''',
+      ExitCode.noInput,
+    );
+  }
+
+  final licenseFile = File(path.join(packagePath, 'LICENSE'));
+  if (!licenseFile.existsSync()) return {SpdxLicense.$unknown.value};
+
+  final licenseFileContent = licenseFile.readAsStringSync();
+
+  final detector.Result detectorResult;
+  try {
+    detectorResult = await detectLicense(
+      licenseFileContent,
+      _defaultDetectionThreshold,
+    );
+  } on Exception catch (e) {
+    throw _LicenseRetrievalFailure(
+      '''[$dependencyName] Failed to detect license from $packagePath: $e''',
+      ExitCode.software,
+    );
+  }
+
+  final rawLicense = detectorResult.matches
+      // Accessing license is necessary to get the identifier of the license
+      // ignore: invalid_use_of_visible_for_testing_member
+      .map((match) => match.license.identifier)
+      .toSet();
+  return {
+    ...rawLicense,
+    // If there are no matches, we add the unknown license
+    if (rawLicense.isEmpty) SpdxLicense.$unknown.value,
+  };
+}
+
+/// The error message reported when the `pubspec.lock` file is missing from
+/// [targetDirectory].
+String _missingPubspecLockMessage(Directory targetDirectory) {
+  final targetPath = targetDirectory.path;
+  return declaresWorkspaceResolution(targetDirectory)
+      ? 'Could not find a $pubspecLockBasename in $targetPath.\n'
+            'This package resolves as part of a Pub workspace. '
+            'Run the command from the workspace root instead.'
+      : 'Could not find a $pubspecLockBasename in $targetPath';
 }
 
 /// Attempts to parse a [PubspecLock] file in the given [path].
@@ -490,11 +534,7 @@ _BannedDependencyLicenseMap? _bannedDependencies({
   required bool Function(String license) isAllowed,
 }) {
   _BannedDependencyLicenseMap? bannedDependencies;
-  for (final dependency in licenses.entries) {
-    final name = dependency.key;
-    final license = dependency.value;
-    if (license == null) continue;
-
+  for (final MapEntry(key: name, value: license) in licenses.entries) {
     for (final licenseType in license) {
       if (isAllowed(licenseType)) continue;
 
@@ -507,6 +547,33 @@ _BannedDependencyLicenseMap? _bannedDependencies({
   return bannedDependencies;
 }
 
+/// Returns the banned dependencies in [licenses] according to the allowed or
+/// forbidden licenses in [options].
+///
+/// Returns `null` when neither allowed nor forbidden licenses are specified,
+/// or when no dependency is banned.
+_BannedDependencyLicenseMap? _bannedDependenciesFor(
+  _DependencyLicenseMap licenses,
+  PackagesCheckLicensesOptions options,
+) {
+  final PackagesCheckLicensesOptions(:allowedLicenses, :forbiddenLicenses) =
+      options;
+
+  if (allowedLicenses.isNotEmpty) {
+    return _bannedDependencies(
+      licenses: licenses,
+      isAllowed: allowedLicenses.contains,
+    );
+  }
+  if (forbiddenLicenses.isNotEmpty) {
+    return _bannedDependencies(
+      licenses: licenses,
+      isAllowed: (license) => !forbiddenLicenses.contains(license),
+    );
+  }
+  return null;
+}
+
 /// Composes a human friendly [String] to report the result of the retrieved
 /// licenses.
 ///
@@ -517,38 +584,23 @@ String _composeReport({
   required _BannedDependencyLicenseMap? bannedDependencies,
   ReporterOutputFormat? reporterOutputFormat,
 }) {
-  final bannedLicenseTypes = bannedDependencies?.values.fold(<String>{}, (
-    previousValue,
-    licenses,
-  ) {
-    if (licenses.isEmpty) return previousValue;
-    return previousValue..addAll(licenses);
-  });
+  final bannedLicenseTypes =
+      bannedDependencies?.values.expand((licenses) => licenses).toSet() ??
+      const <String>{};
 
-  final licenseTypes = licenses.values.fold(<String>[], (
-    previousValue,
-    licenses,
-  ) {
-    if (licenses == null) return previousValue;
-    return previousValue..addAll(licenses);
-  });
+  final licenseTypes = licenses.values.expand((licenses) => licenses).toList();
+  final totalLicenseCount = licenseTypes.length;
 
   final licenseCount = <String, int>{};
   for (final license in licenseTypes) {
     licenseCount.update(license, (value) => value + 1, ifAbsent: () => 1);
   }
-  final totalLicenseCount = licenseCount.values.fold(
-    0,
-    (previousValue, count) => previousValue + count,
-  );
 
-  final formattedLicenseTypes = licenseTypes.toSet().map((license) {
-    final colorWrapper =
-        bannedLicenseTypes != null && bannedLicenseTypes.contains(license)
+  final formattedLicenseTypes = licenseCount.entries.map((entry) {
+    final MapEntry(key: license, value: count) = entry;
+    final colorWrapper = bannedLicenseTypes.contains(license)
         ? red.wrap
         : green.wrap;
-
-    final count = licenseCount[license];
     final formattedCount = darkGray.wrap('($count)');
 
     return '${colorWrapper(license)} $formattedCount';
@@ -559,25 +611,34 @@ String _composeReport({
   final suffix = formattedLicenseTypes.isEmpty
       ? ''
       : ' of type: ${formattedLicenseTypes.toList().stringify()}';
+  final listing = _composeLicenseListing(licenses, reporterOutputFormat);
 
-  final licenseBuilder = StringBuffer();
-  if (reporterOutputFormat case final ReporterOutputFormat outputFormat) {
-    licenseBuilder.write('\n');
-    for (final license in licenses.entries) {
-      if (license.value case final Set<String> dependencyLicenses) {
-        for (final dependencyLicense in dependencyLicenses) {
-          licenseBuilder.writeln(
-            outputFormat.formatLicense(
-              packageName: license.key,
-              licenseName: dependencyLicense,
-            ),
-          );
-        }
-      }
+  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.$listing''';
+}
+
+/// Lists every license of every dependency in [licenses] using
+/// [reporterOutputFormat], one per line.
+///
+/// Returns an empty [String] when no [reporterOutputFormat] is given.
+String _composeLicenseListing(
+  _DependencyLicenseMap licenses,
+  ReporterOutputFormat? reporterOutputFormat,
+) {
+  if (reporterOutputFormat == null) return '';
+
+  final listing = StringBuffer('\n');
+  for (final MapEntry(key: packageName, value: dependencyLicenses)
+      in licenses.entries) {
+    for (final licenseName in dependencyLicenses) {
+      listing.writeln(
+        reporterOutputFormat.formatLicense(
+          packageName: packageName,
+          licenseName: licenseName,
+        ),
+      );
     }
   }
-
-  return '''Retrieved $totalLicenseCount $licenseWord from ${licenses.length} $packageWord$suffix.$licenseBuilder''';
+  return listing.toString();
 }
 
 String _composeBannedReport(_BannedDependencyLicenseMap bannedDependencies) {
