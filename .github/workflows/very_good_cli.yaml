@@ -25,9 +25,13 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v1.21.1
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@vgv-ai-bot/issue-519
     with:
       runs_on: ${{ matrix.os }}
       flutter_version: "3.47.x"
@@ -38,6 +42,10 @@ jobs:
       # The CLI's own test suite is run directly rather than through the test optimizer,
       # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
+      run_cognitive_complexity: true
+      # TEMP: diffing against the root commit simulates the push-to-main full
+      # scan on a pull request. Revert before review.
+      cognitive_complexity_diff_base: aed35ed622031513fc2b7f046b081a647ef34f21
 
   pana:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1.21.1
