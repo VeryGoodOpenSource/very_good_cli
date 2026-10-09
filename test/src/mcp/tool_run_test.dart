@@ -1,11 +1,138 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:args/command_runner.dart';
+import 'package:dart_mcp/server.dart';
+import 'package:mason/mason.dart' show ExitCode;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/mcp/tool_run.dart';
 
 void main() {
-  group('CapturingStdout', () {
+  group(ToolRun, () {
+    late StringBuffer stderrBuffer;
+    late ToolRun run;
+
+    setUp(() {
+      stderrBuffer = StringBuffer();
+      run = ToolRun(
+        toolName: 'test',
+        commandString: 'very_good test',
+        directory: '/tmp/project',
+        requestArguments: {'dart': true},
+      );
+    });
+
+    T withStderr<T>(T Function() body) =>
+        IOOverrides.runZoned(body, stderr: () => CapturingStdout(stderrBuffer));
+
+    String textOf(CallToolResult result, [int index = 0]) =>
+        (result.content[index] as TextContent).text;
+
+    Map<String, Object?> jsonOf(CallToolResult result) =>
+        jsonDecode(textOf(result)) as Map<String, Object?>;
+
+    group('capture', () {
+      test('returns the exit code of the command', () async {
+        final exitCode = await run.capture((_) async => 42);
+        expect(exitCode, equals(42));
+      });
+
+      test('redirects stdout and logger output into the run', () async {
+        await run.capture((logger) async {
+          stdout.write('\x1B[31mfrom stdout\x1B[0m\n');
+          logger.info('from logger');
+          return ExitCode.success.code;
+        });
+
+        final result = run.resultFor(ExitCode.success.code);
+        expect(textOf(result, 1), equals('from stdout\nfrom logger'));
+      });
+    });
+
+    group('resultFor', () {
+      test('returns a success result without output', () {
+        final result = run.resultFor(ExitCode.success.code);
+
+        expect(result.isError, isFalse);
+        expect(result.content, hasLength(1));
+        expect(textOf(result), equals('"test" completed successfully.'));
+      });
+
+      test('returns a structured failure for a non-zero exit code', () async {
+        await run.capture((logger) async {
+          logger.info('partial');
+          return ExitCode.software.code;
+        });
+
+        final result = withStderr(() => run.resultFor(ExitCode.software.code));
+
+        expect(result.isError, isTrue);
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('status', 'partial_failure'),
+            containsPair('failureType', 'business'),
+            containsPair('reason', 'failed with exit code 70.'),
+            containsPair('partialResults', 'partial'),
+            containsPair('attemptedAction', {
+              'tool': 'test',
+              'command': 'very_good test',
+              'directory': '/tmp/project',
+              'arguments': {'dart': true},
+            }),
+          ),
+        );
+        expect(
+          stderrBuffer.toString(),
+          equals(
+            '[very_good_mcp] "test" business error: '
+            'failed with exit code 70. (command: very_good test)\n',
+          ),
+        );
+      });
+    });
+
+    group('resultForException', () {
+      test('maps a UsageException to a validation failure', () {
+        final result = withStderr(
+          () => run.resultForException(
+            UsageException('bad flag', 'usage'),
+            StackTrace.empty,
+          ),
+        );
+
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('failureType', 'validation'),
+            containsPair('reason', 'usage error: bad flag'),
+          ),
+        );
+        expect(stderrBuffer.toString(), isNot(contains('Stack trace')));
+      });
+
+      test('maps any other exception to a transient failure', () {
+        final stackTrace = StackTrace.current;
+        final result = withStderr(
+          () => run.resultForException(Exception('boom'), stackTrace),
+        );
+
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('failureType', 'transient'),
+            containsPair('reason', 'threw an exception: Exception: boom'),
+          ),
+        );
+        expect(
+          stderrBuffer.toString(),
+          contains('[very_good_mcp] Stack trace: $stackTrace'),
+        );
+      });
+    });
+  });
+
+  group(CapturingStdout, () {
     late StringBuffer buffer;
     late CapturingStdout capturing;
 
@@ -57,7 +184,7 @@ void main() {
     });
   });
 
-  group('sanitizeCommandOutput', () {
+  group(sanitizeCommandOutput, () {
     test('strips ANSI escape sequences', () {
       expect(
         sanitizeCommandOutput('\x1B[31mred\x1B[0m and \x1B[1mbold\x1B[0m'),

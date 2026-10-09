@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show IOOverrides, IOSink, Stdout, StdoutException, stderr;
 
+import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
@@ -56,10 +57,29 @@ class ToolRun {
   /// Maps the command's [exitCode] to a success or failure result.
   CallToolResult resultFor(int exitCode) => exitCode == ExitCode.success.code
       ? _success()
-      : failure(
+      : _failure(
           'failed with exit code $exitCode.',
           failureType: ToolFailureType.fromExitCode(exitCode),
         );
+
+  /// Maps an [exception] thrown by the command to a failure result.
+  ///
+  /// A [UsageException] is a validation failure; anything else is transient
+  /// and logs its [stackTrace].
+  CallToolResult resultForException(
+    Exception exception,
+    StackTrace stackTrace,
+  ) => switch (exception) {
+    UsageException(:final message) => _failure(
+      'usage error: $message',
+      failureType: ToolFailureType.validation,
+    ),
+    _ => _failure(
+      'threw an exception: $exception',
+      failureType: ToolFailureType.transient,
+      stackTrace: stackTrace,
+    ),
+  };
 
   CallToolResult _success() {
     final captured = _capturedOutput;
@@ -78,7 +98,7 @@ class ToolRun {
   /// diagnostics emitted before a failure or throw are preserved. A short
   /// human-readable summary is also logged to the real stderr (the stdio
   /// transport forbids non-JSON on stdout, so stderr is free for diagnostics).
-  CallToolResult failure(
+  CallToolResult _failure(
     String reason, {
     required ToolFailureType failureType,
     StackTrace? stackTrace,

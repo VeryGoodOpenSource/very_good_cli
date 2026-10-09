@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Directory, IOOverrides;
 
-import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
@@ -363,41 +362,25 @@ Only one value can be selected.
     final subcommand = args['subcommand']! as String;
     final name = args['name']! as String;
 
-    final cliArgs = <String>['create', subcommand, name];
-
-    if (args['description'] != null) {
-      cliArgs.addAll(['--desc', args['description']! as String]);
-    }
-    if (args['org_name'] != null) {
-      cliArgs.addAll(['--org-name', args['org_name']! as String]);
-    }
-    if (args['output_directory'] != null) {
-      cliArgs.addAll(['-o', args['output_directory']! as String]);
-    }
-    if (args['application_id'] != null) {
-      cliArgs.addAll(['--application-id', args['application_id']! as String]);
-    }
-    if (args['platforms'] != null) {
-      cliArgs.addAll(['--platforms', args['platforms']! as String]);
-    }
-    if (args['publishable'] == true) {
-      cliArgs.add('--publishable');
-    }
-    if (_workspaceSubcommands.contains(subcommand)) {
-      if (args['workspace'] == true) {
-        cliArgs.add('--workspace');
-      } else if (args['workspace'] == false) {
-        cliArgs.add('--no-workspace');
-      }
-    }
-    if (args['executable-name'] != null) {
-      cliArgs.addAll(['--executable-name', args['executable-name']! as String]);
-    }
-    if (args['template'] != null) {
-      cliArgs.addAll(['-t', args['template']! as String]);
-    }
-
-    return cliArgs;
+    return [
+      'create',
+      subcommand,
+      name,
+      ..._option(args, 'description', '--desc'),
+      ..._option(args, 'org_name', '--org-name'),
+      ..._option(args, 'output_directory', '-o'),
+      ..._option(args, 'application_id', '--application-id'),
+      ..._option(args, 'platforms', '--platforms'),
+      ..._flag(args, 'publishable', '--publishable'),
+      if (_workspaceSubcommands.contains(subcommand))
+        ...switch (args['workspace']) {
+          true => ['--workspace'],
+          false => ['--no-workspace'],
+          _ => const <String>[],
+        },
+      ..._option(args, 'executable-name', '--executable-name'),
+      ..._option(args, 'template', '-t'),
+    ];
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
@@ -583,17 +566,8 @@ Only one value can be selected.
           (logger) => _commandRunnerBuilder(logger: logger).run(args),
         );
         return run.resultFor(exitCode);
-      } on UsageException catch (e) {
-        return run.failure(
-          'usage error: ${e.message}',
-          failureType: ToolFailureType.validation,
-        );
       } on Exception catch (e, stackTrace) {
-        return run.failure(
-          'threw an exception: $e',
-          failureType: ToolFailureType.transient,
-          stackTrace: stackTrace,
-        );
+        return run.resultForException(e, stackTrace);
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }
