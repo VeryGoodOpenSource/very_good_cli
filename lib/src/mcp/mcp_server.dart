@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io'
-    show Directory, IOOverrides, IOSink, Stdout, StdoutException, stderr;
+import 'dart:io' show Directory, IOOverrides;
 
-import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
@@ -12,6 +9,7 @@ import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/mcp/lock.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
+import 'package:very_good_cli/src/mcp/tool_run.dart';
 import 'package:very_good_cli/src/version.dart';
 
 /// {@template command_runner_builder}
@@ -364,127 +362,86 @@ Only one value can be selected.
     final subcommand = args['subcommand']! as String;
     final name = args['name']! as String;
 
-    final cliArgs = <String>['create', subcommand, name];
-
-    if (args['description'] != null) {
-      cliArgs.addAll(['--desc', args['description']! as String]);
-    }
-    if (args['org_name'] != null) {
-      cliArgs.addAll(['--org-name', args['org_name']! as String]);
-    }
-    if (args['output_directory'] != null) {
-      cliArgs.addAll(['-o', args['output_directory']! as String]);
-    }
-    if (args['application_id'] != null) {
-      cliArgs.addAll(['--application-id', args['application_id']! as String]);
-    }
-    if (args['platforms'] != null) {
-      cliArgs.addAll(['--platforms', args['platforms']! as String]);
-    }
-    if (args['publishable'] == true) {
-      cliArgs.add('--publishable');
-    }
-    if (_workspaceSubcommands.contains(subcommand)) {
-      if (args['workspace'] == true) {
-        cliArgs.add('--workspace');
-      } else if (args['workspace'] == false) {
-        cliArgs.add('--no-workspace');
-      }
-    }
-    if (args['executable-name'] != null) {
-      cliArgs.addAll(['--executable-name', args['executable-name']! as String]);
-    }
-    if (args['template'] != null) {
-      cliArgs.addAll(['-t', args['template']! as String]);
-    }
-
-    return cliArgs;
+    return [
+      'create',
+      subcommand,
+      name,
+      ..._option(args, 'description', '--desc'),
+      ..._option(args, 'org_name', '--org-name'),
+      ..._option(args, 'output_directory', '-o'),
+      ..._option(args, 'application_id', '--application-id'),
+      ..._option(args, 'platforms', '--platforms'),
+      ..._flag(args, 'publishable', '--publishable'),
+      if (_workspaceSubcommands.contains(subcommand))
+        ...switch (args['workspace']) {
+          true => ['--workspace'],
+          false => ['--no-workspace'],
+          _ => const <String>[],
+        },
+      ..._option(args, 'executable-name', '--executable-name'),
+      ..._option(args, 'template', '-t'),
+    ];
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
+    final timeoutSeconds = args['timeout_seconds'] as num?;
+    final paths = args['paths'] as List<Object?>? ?? const [];
+
     // NOTE: 'directory' is intentionally not added here. It is applied as the
     // working directory in [_runToolCommand], not as a positional test target.
-    final cliArgs = <String>[if (args['dart'] == true) 'dart', 'test'];
-
-    if (args['coverage'] == true) {
-      cliArgs.add('--coverage');
-    }
-    if (args['recursive'] == true) {
-      cliArgs.add('-r');
-    }
-    if (args['optimization'] == false) {
-      cliArgs.add('--no-optimization');
-    }
-    if (args['concurrency'] != null) {
-      cliArgs.addAll(['-j', args['concurrency']! as String]);
-    }
-    if (args['tags'] != null) {
-      cliArgs.addAll(['-t', args['tags']! as String]);
-    }
-    if (args['exclude_coverage'] != null) {
-      cliArgs.addAll([
-        '--exclude-coverage',
-        args['exclude_coverage']! as String,
-      ]);
-    }
-    if (args['exclude_tags'] != null) {
-      cliArgs.addAll(['-x', args['exclude_tags']! as String]);
-    }
-    if (args['min_coverage'] != null) {
-      cliArgs.addAll(['--min-coverage', args['min_coverage']! as String]);
-    }
-    if (args['test_randomize_ordering_seed'] != null) {
-      cliArgs.addAll([
+    return [
+      ..._flag(args, 'dart', 'dart'),
+      'test',
+      ..._flag(args, 'coverage', '--coverage'),
+      ..._flag(args, 'recursive', '-r'),
+      if (args['optimization'] == false) '--no-optimization',
+      ..._option(args, 'concurrency', '-j'),
+      ..._option(args, 'tags', '-t'),
+      ..._option(args, 'exclude_coverage', '--exclude-coverage'),
+      ..._option(args, 'exclude_tags', '-x'),
+      ..._option(args, 'min_coverage', '--min-coverage'),
+      ..._option(
+        args,
+        'test_randomize_ordering_seed',
         '--test-randomize-ordering-seed',
-        args['test_randomize_ordering_seed']! as String,
-      ]);
-    }
-    if (args['update_goldens'] == true) {
-      cliArgs.add('--update-goldens');
-    }
-    if (args['force_ansi'] == true) {
-      cliArgs.add('--force-ansi');
-    }
-    if (args['dart-define'] != null) {
-      cliArgs.addAll(['--dart-define', args['dart-define']! as String]);
-    }
-    if (args['dart-define-from-file'] != null) {
-      cliArgs.addAll([
-        '--dart-define-from-file',
-        args['dart-define-from-file']! as String,
-      ]);
-    }
-    if (args['platform'] != null) {
-      cliArgs.addAll(['--platform', args['platform']! as String]);
-    }
-    if (args['run_skipped'] == true) {
-      cliArgs.add('--run-skipped');
-    }
-    if (args['check_ignore'] == true) {
-      cliArgs.add('--check-ignore');
-    }
-    if (args['show_uncovered'] == true) {
-      cliArgs.add('--show-uncovered');
-    }
-    if (args['timeout_seconds'] != null) {
-      cliArgs.addAll([
+      ),
+      ..._flag(args, 'update_goldens', '--update-goldens'),
+      ..._flag(args, 'force_ansi', '--force-ansi'),
+      ..._option(args, 'dart-define', '--dart-define'),
+      ..._option(args, 'dart-define-from-file', '--dart-define-from-file'),
+      ..._option(args, 'platform', '--platform'),
+      ..._flag(args, 'run_skipped', '--run-skipped'),
+      ..._flag(args, 'check_ignore', '--check-ignore'),
+      ..._flag(args, 'show_uncovered', '--show-uncovered'),
+      if (timeoutSeconds != null) ...[
         '--timeout',
-        (args['timeout_seconds']! as num).toInt().toString(),
-      ]);
-    }
-
-    // Positional test targets go last, after every option, so that they are
-    // parsed as `rest` rather than as a value for the preceding option. The
-    // `--` terminator keeps a target that begins with `-` from being read as
-    // an option; the parser strips it back out of `rest`, so the test command
-    // sees the paths and nothing else.
-    final paths = args['paths'] as List<Object?>?;
-    if (paths != null && paths.isNotEmpty) {
-      cliArgs.addAll(['--', ...paths.cast<String>()]);
-    }
-
-    return cliArgs;
+        timeoutSeconds.toInt().toString(),
+      ],
+      // Positional test targets go last, after every option, so that they are
+      // parsed as `rest` rather than as a value for the preceding option. The
+      // `--` terminator keeps a target that begins with `-` from being read as
+      // an option; the parser strips it back out of `rest`, so the test command
+      // sees the paths and nothing else.
+      if (paths.isNotEmpty) ...['--', ...paths.cast<String>()],
+    ];
   }
+
+  /// Returns `[flag]` when `args[key]` is `true`, else nothing.
+  static List<String> _flag(
+    Map<String, Object?> args,
+    String key,
+    String flag,
+  ) => args[key] == true ? [flag] : const [];
+
+  /// Returns `[option, value]` when `args[key]` is set, else nothing.
+  static List<String> _option(
+    Map<String, Object?> args,
+    String key,
+    String option,
+  ) => switch (args[key] as String?) {
+    final value? => [option, value],
+    null => const [],
+  };
 
   List<String> _parsePackagesGet(Map<String, Object?> args) {
     // NOTE: 'directory' is applied as the working directory in
@@ -581,9 +538,7 @@ Only one value can be selected.
   ///   right package (`directory` is the working directory, not a positional
   ///   argument).
   ///
-  /// The [Logger] is constructed *inside* the zone on purpose: mason captures
-  /// `IOOverrides.current` at [Logger] construction time, so building it
-  /// outside the zone would defeat the redirect.
+  /// See [ToolRun.capture] for why the [Logger] is built inside the zone.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
@@ -591,47 +546,12 @@ Only one value can be selected.
     Map<String, Object?>? requestArguments,
   }) {
     return _lock.run(() async {
-      final commandString = 'very_good ${args.join(' ')}';
-      final output = StringBuffer();
-
-      Future<T> runCaptured<T>(Future<T> Function(Logger logger) body) {
-        final sink = CapturingStdout(output);
-        return IOOverrides.runZoned(
-          () => body(Logger()),
-          stdout: () => sink,
-          stderr: () => sink,
-        );
-      }
-
-      // Builds a structured JSON failure result from [reason] and
-      // [failureType]. The captured command output is surfaced as
-      // `partialResults` so any diagnostics emitted before a failure or throw
-      // are preserved. A short human-readable summary is also logged to the
-      // real stderr (the stdio transport forbids non-JSON on stdout, so stderr
-      // is free for diagnostics).
-      CallToolResult errorResult(
-        String reason, {
-        required ToolFailureType failureType,
-        StackTrace? stackTrace,
-      }) {
-        final captured = sanitizeCommandOutput(output.toString()).trim();
-        stderr.writeln(
-          '[very_good_mcp] "$toolName" ${failureType.name} error: $reason '
-          '(command: $commandString)',
-        );
-        if (stackTrace != null) {
-          stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
-        }
-        return StructuredToolError(
-          toolName: toolName,
-          reason: reason,
-          failureType: failureType,
-          commandString: commandString,
-          directory: directory,
-          attemptedArguments: requestArguments,
-          capturedOutput: captured,
-        ).toCallToolResult();
-      }
+      final run = ToolRun(
+        toolName: toolName,
+        commandString: 'very_good ${args.join(' ')}',
+        directory: directory,
+        requestArguments: requestArguments,
+      );
 
       // Apply [directory] as the real working directory for the duration of
       // the run, restoring it afterwards. The underlying commands resolve their
@@ -642,144 +562,15 @@ Only one value can be selected.
 
       try {
         if (directory != null) Directory.current = directory;
-        final exitCode = await runCaptured(
+        final exitCode = await run.capture(
           (logger) => _commandRunnerBuilder(logger: logger).run(args),
         );
-
-        if (exitCode == ExitCode.success.code) {
-          final captured = sanitizeCommandOutput(output.toString()).trim();
-          return CallToolResult(
-            content: [
-              TextContent(text: '"$toolName" completed successfully.'),
-              if (captured.isNotEmpty) TextContent(text: captured),
-            ],
-            isError: false,
-          );
-        }
-
-        return errorResult(
-          'failed with exit code $exitCode.',
-          failureType: ToolFailureType.fromExitCode(exitCode),
-        );
-      } on UsageException catch (e) {
-        return errorResult(
-          'usage error: ${e.message}',
-          failureType: ToolFailureType.validation,
-        );
+        return run.resultFor(exitCode);
       } on Exception catch (e, stackTrace) {
-        return errorResult(
-          'threw an exception: $e',
-          failureType: ToolFailureType.transient,
-          stackTrace: stackTrace,
-        );
+        return run.resultForException(e, stackTrace);
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }
     });
   }
-}
-
-/// A [Stdout] that captures everything written to it into a [StringBuffer]
-/// instead of the real process stdout/stderr.
-///
-/// Used to redirect a command's in-process [Logger] output (which mason routes
-/// through `stdout`/`stderr`, including progress spinners) away from the real
-/// stdout shared with the MCP JSON-RPC stream. It reports no terminal so mason
-/// emits plain, animation-free lines.
-@visibleForTesting
-class CapturingStdout implements Stdout {
-  /// Creates a [CapturingStdout] that appends all writes to [_buffer].
-  new(this._buffer);
-
-  final StringBuffer _buffer;
-
-  @override
-  Encoding encoding = utf8;
-
-  @override
-  String lineTerminator = '\n';
-
-  @override
-  void write(Object? object) => _buffer.write(object ?? 'null');
-
-  @override
-  void writeln([Object? object = '']) => _buffer.writeln(object ?? '');
-
-  @override
-  void writeAll(Iterable<dynamic> objects, [String separator = '']) =>
-      _buffer.writeAll(objects, separator);
-
-  @override
-  void writeCharCode(int charCode) => _buffer.writeCharCode(charCode);
-
-  @override
-  void add(List<int> data) {
-    try {
-      _buffer.write(encoding.decode(data));
-    } on FormatException {
-      _buffer.write(String.fromCharCodes(data));
-    }
-  }
-
-  @override
-  void addError(Object error, [StackTrace? stackTrace]) {}
-
-  @override
-  Future<void> addStream(Stream<List<int>> stream) => stream.forEach(add);
-
-  @override
-  Future<void> flush() async {}
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<void> get done => Future<void>.value();
-
-  @override
-  bool get hasTerminal => false;
-
-  @override
-  bool get supportsAnsiEscapes => false;
-
-  @override
-  int get terminalColumns {
-    throw const StdoutException('No terminal attached');
-  }
-
-  @override
-  int get terminalLines {
-    throw const StdoutException('No terminal attached');
-  }
-
-  @override
-  IOSink get nonBlocking => this;
-}
-
-/// Matches a CSI ANSI escape sequence (colors, cursor moves, line erases).
-final _ansiEscape = RegExp(r'\x1B\[[0-?]*[ -/]*[@-~]');
-
-/// Renders raw captured command output as plain text for a tool result.
-///
-/// In-process commands (and the test subprocesses they reformat) animate
-/// progress with ANSI escape sequences and carriage returns: a spinner redraws
-/// a single line in place with `\r` and erases it with `\x1B[2K`. A terminal
-/// resolves those to clean lines, but the raw bytes surfaced to an MCP client
-/// collapse into one run-on line. This reproduces the terminal's settled view:
-///
-/// * strips ANSI escape sequences;
-/// * normalizes `\r\n` to `\n`; and
-/// * collapses carriage-return redraws to the text after the last `\r` on each
-///   line (the final state the user would see), trimming trailing padding.
-@visibleForTesting
-String sanitizeCommandOutput(String raw) {
-  return raw
-      .replaceAll(_ansiEscape, '')
-      .replaceAll('\r\n', '\n')
-      .split('\n')
-      .map((line) {
-        final output = line.contains('\r') ? line.split('\r').last : line;
-        return output.trimRight();
-      })
-      .join('\n');
 }
