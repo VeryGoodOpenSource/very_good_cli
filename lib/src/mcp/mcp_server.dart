@@ -273,10 +273,17 @@ Only one value can be selected.
             ),
             'timeout_seconds': IntegerSchema(
               description:
-                  'Maximum seconds to wait for the test run before killing '
-                  'the Flutter test process. Flutter tests can hang '
-                  'indefinitely when pumpAndSettle() is called without a '
-                  'timeout argument. When omitted, no timeout is applied.',
+                  'Wall-clock budget for the whole test run, in seconds. '
+                  'When exceeded, the MCP tool call gives up and returns a '
+                  '"timeout" failure so the server lock is released and '
+                  'queued calls can proceed. Use this to bound tests that '
+                  'can hang indefinitely, such as a tester.pumpAndSettle() '
+                  'call without a timeout argument or a tester.runAsync() '
+                  'that awaits a future that never completes — the '
+                  'underlying test runner cannot catch these hangs on its '
+                  'own. The underlying flutter_tester process may still '
+                  'linger after the timeout. When omitted, no timeout is '
+                  'applied.',
             ),
           },
         ),
@@ -384,11 +391,15 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
-    final timeoutSeconds = args['timeout_seconds'] as num?;
     final paths = args['paths'] as List<Object?>? ?? const [];
 
     // NOTE: 'directory' is intentionally not added here. It is applied as the
     // working directory in [_runToolCommand], not as a positional test target.
+    // 'timeout_seconds' is also intentionally not forwarded as a flag: it is
+    // enforced as a wall-clock budget in [_runToolCommand]. The `dart test`
+    // subcommand would reject a `--timeout` flag, and `flutter test`'s own
+    // per-test timeout does not fire when a test awaits a future that never
+    // completes, which is the hang [timeout_seconds] exists to bound.
     return [
       ..._flag(args, 'dart', 'dart'),
       'test',
@@ -413,10 +424,6 @@ Only one value can be selected.
       ..._flag(args, 'run_skipped', '--run-skipped'),
       ..._flag(args, 'check_ignore', '--check-ignore'),
       ..._flag(args, 'show_uncovered', '--show-uncovered'),
-      if (timeoutSeconds != null) ...[
-        '--timeout',
-        timeoutSeconds.toInt().toString(),
-      ],
       // Positional test targets go last, after every option, so that they are
       // parsed as `rest` rather than as a value for the preceding option. The
       // `--` terminator keeps a target that begins with `-` from being read as
@@ -478,11 +485,15 @@ Only one value can be selected.
   Future<CallToolResult> _handleTest(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
+    final timeoutSeconds = (args['timeout_seconds'] as num?)?.toInt();
     return _runToolCommand(
       cliArgs,
       toolName: 'test',
       directory: args['directory'] as String?,
       requestArguments: args,
+      timeout: timeoutSeconds != null
+          ? Duration(seconds: timeoutSeconds)
+          : null,
     );
   }
 
@@ -538,12 +549,18 @@ Only one value can be selected.
   ///   right package (`directory` is the working directory, not a positional
   ///   argument).
   ///
+  /// When [timeout] is provided, the call returns a timeout failure if the
+  /// command hasn't completed within that budget. Returning early lets the
+  /// server lock release so queued calls can proceed, even if the underlying
+  /// run is still unwinding in the background.
+  ///
   /// See [ToolRun.capture] for why the [Logger] is built inside the zone.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
     String? directory,
     Map<String, Object?>? requestArguments,
+    Duration? timeout,
   }) {
     return _lock.run(() async {
       final run = ToolRun(
@@ -562,10 +579,18 @@ Only one value can be selected.
 
       try {
         if (directory != null) Directory.current = directory;
-        final exitCode = await run.capture(
+        final commandFuture = run.capture(
           (logger) => _commandRunnerBuilder(logger: logger).run(args),
         );
+        final exitCode = timeout == null
+            ? await commandFuture
+            : await commandFuture.timeout(
+                timeout,
+                onTimeout: () => throw _ToolRunTimeout(timeout),
+              );
         return run.resultFor(exitCode);
+      } on _ToolRunTimeout catch (e) {
+        return run.resultForTimeout(e.timeout);
       } on Exception catch (e, stackTrace) {
         return run.resultForException(e, stackTrace);
       } finally {
@@ -573,4 +598,16 @@ Only one value can be selected.
       }
     });
   }
+}
+
+/// Internal sentinel raised when a tool run exceeds its wall-clock budget.
+///
+/// `Future.timeout` demands a non-null return from `onTimeout`, but there is
+/// no sentinel exit code we can produce without colliding with a real one.
+/// Throwing instead keeps the normal exit-code path uncontaminated and lets
+/// the catch block build a dedicated timeout result from the budget it carries.
+class _ToolRunTimeout implements Exception {
+  const new(this.timeout);
+
+  final Duration timeout;
 }
