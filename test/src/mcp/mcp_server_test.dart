@@ -8,6 +8,7 @@ import 'package:mason/mason.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
@@ -404,7 +405,6 @@ void main() {
                 'run_skipped': true,
                 'check_ignore': true,
                 'show_uncovered': true,
-                'timeout_seconds': 60,
               },
             ),
           ),
@@ -443,8 +443,6 @@ void main() {
             '--run-skipped',
             '--check-ignore',
             '--show-uncovered',
-            '--timeout',
-            '60',
           ]),
         );
       });
@@ -501,19 +499,29 @@ void main() {
         expect(payload['failureType'], equals('business'));
       });
 
-      test('passes --timeout when timeout_seconds is provided', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 120}),
-          ),
-        );
+      test(
+        'does not forward timeout_seconds as a flag to the test subcommand',
+        () async {
+          // The wall-clock budget is enforced by the MCP server, not forwarded
+          // to `very_good test` — `dart test` would reject the flag and
+          // `flutter test`'s per-test `--timeout` does not fire for a hang in
+          // tester.runAsync.
+          await sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(
+                name: 'test',
+                arguments: {'timeout_seconds': 120},
+              ),
+            ),
+          );
 
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test', '--timeout', '120']));
-      });
+          final capturedArgs =
+              verify(() => mockCommandRunner.run(captureAny())).captured.first
+                  as List<String>;
+          expect(capturedArgs, equals(['test']));
+        },
+      );
 
       test('passes paths as positional test targets behind `--`', () async {
         await sendRequest(
@@ -592,6 +600,185 @@ void main() {
             verify(() => mockCommandRunner.run(captureAny())).captured.first
                 as List<String>;
         expect(capturedArgs, equals(['test']));
+      });
+
+      group('timeout_seconds (wall-clock)', () {
+        // Mimics `_testCommand`'s SIGINT path: wait on
+        // `ProcessSignalOverrides.current?.sigintWatch` and return
+        // `ExitCode.success` when it fires. Unlike the real `flutter_tester`,
+        // the mock also has to tolerate `sigintWatch` being null (the plain
+        // `test` tool without `timeout_seconds` doesn't open the override
+        // zone) and resolve as if the test suite had passed.
+        Future<int> sigintResponsive() async {
+          final sigintWatch = ProcessSignalOverrides.current?.sigintWatch;
+          if (sigintWatch != null) await sigintWatch.first;
+          return ExitCode.success.code;
+        }
+
+        test('returns a timeout failure when the budget elapses', () async {
+          when(() => mockCommandRunner.run(any()))
+              .thenAnswer((_) => sigintResponsive());
+
+          final response = await sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(name: 'test', arguments: {'timeout_seconds': 1}),
+            ),
+          );
+
+          expect(response['error'], isNull);
+          final result = CallToolResult.fromMap(
+            response['result'] as Map<String, Object?>,
+          );
+          expect(result.isError, isTrue);
+          final payload = _errorPayload(result);
+          expect(payload['failureType'], equals('timeout'));
+          expect(payload['reason'], contains('timed out after 1 seconds'));
+          final action = payload['attemptedAction']! as Map<String, Object?>;
+          expect(action['tool'], equals('test'));
+        });
+
+        test(
+          'synthesizes a SIGINT so the test runner tears down its subprocess',
+          () async {
+            // The server advertises that it kills the hung process tree on
+            // timeout. The real test runner subscribes to
+            // `ProcessSignalOverrides.current?.sigintWatch` and cancels its
+            // subprocess subscription on SIGINT; the mock proves the same
+            // signal is delivered by waiting on that stream and completing
+            // only once it fires.
+            var sigintObserved = false;
+            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+              final sigintWatch = ProcessSignalOverrides.current?.sigintWatch;
+              expect(
+                sigintWatch,
+                isNotNull,
+                reason:
+                    'the timeout flow must open a '
+                    'ProcessSignalOverrides zone so the test runner can '
+                    'kill its subprocess tree',
+              );
+              await sigintWatch!.first;
+              sigintObserved = true;
+              return ExitCode.success.code;
+            });
+
+            final response = await sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'timeout_seconds': 1},
+                ),
+              ),
+            );
+
+            expect(
+              sigintObserved,
+              isTrue,
+              reason:
+                  'the server must deliver a SIGINT to the test runner, '
+                  'not just abandon the run',
+            );
+            final result = CallToolResult.fromMap(
+              response['result'] as Map<String, Object?>,
+            );
+            expect(_errorPayload(result)['failureType'], equals('timeout'));
+          },
+        );
+
+        test(
+          'reports success when the command completes before the budget',
+          () async {
+            // A fast-finishing command inside the timeout flow must not be
+            // misclassified as a timeout. Only an actually elapsed budget
+            // flips the flag.
+            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+              await Future<void>.delayed(const Duration(milliseconds: 10));
+              return ExitCode.success.code;
+            });
+
+            final response = await sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'timeout_seconds': 30},
+                ),
+              ),
+            );
+
+            final result = CallToolResult.fromMap(
+              response['result'] as Map<String, Object?>,
+            );
+            expect(result.isError, isFalse);
+          },
+        );
+
+        test('releases the lock so a queued call runs even when the first '
+            'never completes', () async {
+          // First call responds to the server's synthetic SIGINT; second
+          // call returns normally. The lock must release when the first
+          // times out, otherwise the second would never dispatch.
+          var callNumber = 0;
+          when(() => mockCommandRunner.run(any())).thenAnswer((_) {
+            callNumber++;
+            return callNumber == 1
+                ? sigintResponsive()
+                : Future.value(ExitCode.success.code);
+          });
+
+          final first = sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(name: 'test', arguments: {'timeout_seconds': 1}),
+            ),
+          );
+          final second = sendRequest(
+            CallToolRequest.methodName,
+            _params(CallToolRequest(name: 'test', arguments: {})),
+          );
+
+          final firstResponse = await first;
+          final secondResponse = await second;
+
+          final firstResult = CallToolResult.fromMap(
+            firstResponse['result'] as Map<String, Object?>,
+          );
+          expect(firstResult.isError, isTrue);
+          expect(_errorPayload(firstResult)['failureType'], equals('timeout'));
+
+          final secondResult = CallToolResult.fromMap(
+            secondResponse['result'] as Map<String, Object?>,
+          );
+          expect(
+            secondResult.isError,
+            isFalse,
+            reason: 'queued call must run after a timeout releases the lock',
+          );
+        });
+
+        test(
+          'omits the wall-clock timeout when timeout_seconds is not set',
+          () async {
+            // The command runner only completes after a short delay. Without a
+            // timeout budget, the call must wait for it rather than giving up.
+            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+              await Future<void>.delayed(const Duration(milliseconds: 50));
+              return ExitCode.success.code;
+            });
+
+            final response = await sendRequest(
+              CallToolRequest.methodName,
+              _params(CallToolRequest(name: 'test', arguments: {})),
+            );
+
+            final result = CallToolResult.fromMap(
+              response['result'] as Map<String, Object?>,
+            );
+            expect(result.isError, isFalse);
+          },
+        );
       });
     });
 

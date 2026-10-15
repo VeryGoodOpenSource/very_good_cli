@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:io' show Directory, IOOverrides;
+import 'dart:io' show Directory, IOOverrides, ProcessSignal;
 
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/mcp/lock.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 import 'package:very_good_cli/src/mcp/tool_run.dart';
@@ -273,10 +273,17 @@ Only one value can be selected.
             ),
             'timeout_seconds': IntegerSchema(
               description:
-                  'Maximum seconds to wait for the test run before killing '
-                  'the Flutter test process. Flutter tests can hang '
-                  'indefinitely when pumpAndSettle() is called without a '
-                  'timeout argument. When omitted, no timeout is applied.',
+                  'Wall-clock budget for the whole test run, in seconds. '
+                  'When exceeded, the MCP server signals the test runner to '
+                  'tear down its flutter_tester subprocess, awaits the '
+                  'unwind, and returns a "timeout" failure so the server '
+                  'lock is released and queued calls can proceed. Use this '
+                  'to bound tests that can hang indefinitely, such as a '
+                  'tester.pumpAndSettle() call without a timeout argument '
+                  'or a tester.runAsync() that awaits a future that never '
+                  'completes — the underlying test runner cannot catch '
+                  'these hangs on its own. When omitted, no timeout is '
+                  'applied.',
             ),
           },
         ),
@@ -384,11 +391,15 @@ Only one value can be selected.
   }
 
   List<String> _parseTest(Map<String, Object?> args) {
-    final timeoutSeconds = args['timeout_seconds'] as num?;
     final paths = args['paths'] as List<Object?>? ?? const [];
 
     // NOTE: 'directory' is intentionally not added here. It is applied as the
     // working directory in [_runToolCommand], not as a positional test target.
+    // 'timeout_seconds' is also intentionally not forwarded as a flag: it is
+    // enforced as a wall-clock budget in [_runToolCommand]. The `dart test`
+    // subcommand would reject a `--timeout` flag, and `flutter test`'s own
+    // per-test timeout does not fire when a test awaits a future that never
+    // completes, which is the hang [timeout_seconds] exists to bound.
     return [
       ..._flag(args, 'dart', 'dart'),
       'test',
@@ -413,10 +424,6 @@ Only one value can be selected.
       ..._flag(args, 'run_skipped', '--run-skipped'),
       ..._flag(args, 'check_ignore', '--check-ignore'),
       ..._flag(args, 'show_uncovered', '--show-uncovered'),
-      if (timeoutSeconds != null) ...[
-        '--timeout',
-        timeoutSeconds.toInt().toString(),
-      ],
       // Positional test targets go last, after every option, so that they are
       // parsed as `rest` rather than as a value for the preceding option. The
       // `--` terminator keeps a target that begins with `-` from being read as
@@ -478,11 +485,15 @@ Only one value can be selected.
   Future<CallToolResult> _handleTest(CallToolRequest request) {
     final args = request.arguments ?? {};
     final cliArgs = _parseTest(args);
+    final timeoutSeconds = (args['timeout_seconds'] as num?)?.toInt();
     return _runToolCommand(
       cliArgs,
       toolName: 'test',
       directory: args['directory'] as String?,
       requestArguments: args,
+      timeout: timeoutSeconds != null
+          ? Duration(seconds: timeoutSeconds)
+          : null,
     );
   }
 
@@ -538,12 +549,25 @@ Only one value can be selected.
   ///   right package (`directory` is the working directory, not a positional
   ///   argument).
   ///
+  /// When [timeout] is provided, the command is additionally wrapped in a
+  /// [ProcessSignalOverrides] zone and a budget timer. On expiry the server
+  /// synthesizes a SIGINT through [ProcessSignalOverrides.addSIGINT]; the test
+  /// runner's SIGINT handler cancels its subprocess subscription, which kills
+  /// the `flutter_tester` process tree. The call then awaits the command's own
+  /// unwind to completion before releasing the lock, so [Directory.current] is
+  /// only restored once the hung subprocess is gone — a queued call cannot
+  /// have its working directory clobbered by a run that was signalled but
+  /// kept spawning subprocesses. A `timedOut` flag disambiguates the server's
+  /// synthetic SIGINT from a user Ctrl+C (both complete the test command with
+  /// [ExitCode.success]).
+  ///
   /// See [ToolRun.capture] for why the [Logger] is built inside the zone.
   Future<CallToolResult> _runToolCommand(
     List<String> args, {
     required String toolName,
     String? directory,
     Map<String, Object?>? requestArguments,
+    Duration? timeout,
   }) {
     return _lock.run(() async {
       final run = ToolRun(
@@ -562,15 +586,46 @@ Only one value can be selected.
 
       try {
         if (directory != null) Directory.current = directory;
-        final exitCode = await run.capture(
-          (logger) => _commandRunnerBuilder(logger: logger).run(args),
-        );
-        return run.resultFor(exitCode);
+        return await _runWithOptionalTimeout(run, args, timeout);
       } on Exception catch (e, stackTrace) {
         return run.resultForException(e, stackTrace);
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }
     });
+  }
+
+  Future<CallToolResult> _runWithOptionalTimeout(
+    ToolRun run,
+    List<String> args,
+    Duration? timeout,
+  ) async {
+    if (timeout == null) {
+      final exitCode = await run.capture(
+        (logger) => _commandRunnerBuilder(logger: logger).run(args),
+      );
+      return run.resultFor(exitCode);
+    }
+
+    var timedOut = false;
+    // `ProcessSignalOverrides` only inspects `sigintStream` for non-null to
+    // decide whether to install the override; the stream itself is never
+    // read because the server routes signals through `addSIGINT()`. An empty
+    // stream is enough and leaves nothing to clean up.
+    final exitCode = await ProcessSignalOverrides.runZoned(() async {
+      final commandFuture = run.capture(
+        (logger) => _commandRunnerBuilder(logger: logger).run(args),
+      );
+      final budget = Timer(timeout, () {
+        timedOut = true;
+        ProcessSignalOverrides.current?.addSIGINT();
+      });
+      try {
+        return await commandFuture;
+      } finally {
+        budget.cancel();
+      }
+    }, sigintStream: const Stream<ProcessSignal>.empty());
+    return timedOut ? run.resultForTimeout(timeout) : run.resultFor(exitCode);
   }
 }

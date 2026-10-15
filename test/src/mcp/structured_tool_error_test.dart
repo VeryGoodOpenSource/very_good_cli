@@ -90,6 +90,13 @@ void main() {
         everyElement(isNot(contains('Retry the command'))),
       );
     });
+
+    test('does not advise a retry for a timeout', () {
+      expect(
+        alternativeApproachesFor(ToolFailureType.timeout),
+        everyElement(isNot(contains('Retry the command'))),
+      );
+    });
   });
 
   group(StructuredToolError, () {

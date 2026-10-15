@@ -3,7 +3,11 @@ part of 'cli.dart';
 /// This class facilitates overriding `ProcessSignal` related behavior.
 /// It should be extended by another class in client code with overrides
 /// that construct a custom implementation.
-@visibleForTesting
+///
+/// The MCP server uses this to deliver a synthetic SIGINT when a tool call
+/// exceeds its wall-clock budget: [_testCommand] already listens on
+/// [sigintWatch] and kills the underlying `flutter_tester` subscription on
+/// SIGINT, so sending one through here tears down the hung test process tree.
 abstract class ProcessSignalOverrides {
   static final _token = Object();
   StreamController<ProcessSignal>? _sigintStreamController;
