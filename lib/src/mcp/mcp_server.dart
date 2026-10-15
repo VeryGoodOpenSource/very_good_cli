@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:io' show Directory, IOOverrides;
+import 'dart:io' show Directory, IOOverrides, ProcessSignal;
 
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:stream_channel/stream_channel.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/coverage/coverage.dart';
 import 'package:very_good_cli/src/mcp/lock.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 import 'package:very_good_cli/src/mcp/tool_run.dart';
@@ -274,15 +274,15 @@ Only one value can be selected.
             'timeout_seconds': IntegerSchema(
               description:
                   'Wall-clock budget for the whole test run, in seconds. '
-                  'When exceeded, the MCP tool call gives up and returns a '
-                  '"timeout" failure so the server lock is released and '
-                  'queued calls can proceed. Use this to bound tests that '
-                  'can hang indefinitely, such as a tester.pumpAndSettle() '
-                  'call without a timeout argument or a tester.runAsync() '
-                  'that awaits a future that never completes — the '
-                  'underlying test runner cannot catch these hangs on its '
-                  'own. The underlying flutter_tester process may still '
-                  'linger after the timeout. When omitted, no timeout is '
+                  'When exceeded, the MCP server signals the test runner to '
+                  'tear down its flutter_tester subprocess, awaits the '
+                  'unwind, and returns a "timeout" failure so the server '
+                  'lock is released and queued calls can proceed. Use this '
+                  'to bound tests that can hang indefinitely, such as a '
+                  'tester.pumpAndSettle() call without a timeout argument '
+                  'or a tester.runAsync() that awaits a future that never '
+                  'completes — the underlying test runner cannot catch '
+                  'these hangs on its own. When omitted, no timeout is '
                   'applied.',
             ),
           },
@@ -549,10 +549,17 @@ Only one value can be selected.
   ///   right package (`directory` is the working directory, not a positional
   ///   argument).
   ///
-  /// When [timeout] is provided, the call returns a timeout failure if the
-  /// command hasn't completed within that budget. Returning early lets the
-  /// server lock release so queued calls can proceed, even if the underlying
-  /// run is still unwinding in the background.
+  /// When [timeout] is provided, the command is additionally wrapped in a
+  /// [ProcessSignalOverrides] zone and a budget timer. On expiry the server
+  /// synthesizes a SIGINT through [ProcessSignalOverrides.addSIGINT]; the test
+  /// runner's SIGINT handler cancels its subprocess subscription, which kills
+  /// the `flutter_tester` process tree. The call then awaits the command's own
+  /// unwind to completion before releasing the lock, so [Directory.current] is
+  /// only restored once the hung subprocess is gone — a queued call cannot
+  /// have its working directory clobbered by a run that was signalled but
+  /// kept spawning subprocesses. A `timedOut` flag disambiguates the server's
+  /// synthetic SIGINT from a user Ctrl+C (both complete the test command with
+  /// [ExitCode.success]).
   ///
   /// See [ToolRun.capture] for why the [Logger] is built inside the zone.
   Future<CallToolResult> _runToolCommand(
@@ -579,18 +586,7 @@ Only one value can be selected.
 
       try {
         if (directory != null) Directory.current = directory;
-        final commandFuture = run.capture(
-          (logger) => _commandRunnerBuilder(logger: logger).run(args),
-        );
-        final exitCode = timeout == null
-            ? await commandFuture
-            : await commandFuture.timeout(
-                timeout,
-                onTimeout: () => throw _ToolRunTimeout(timeout),
-              );
-        return run.resultFor(exitCode);
-      } on _ToolRunTimeout catch (e) {
-        return run.resultForTimeout(e.timeout);
+        return await _runWithOptionalTimeout(run, args, timeout);
       } on Exception catch (e, stackTrace) {
         return run.resultForException(e, stackTrace);
       } finally {
@@ -598,16 +594,38 @@ Only one value can be selected.
       }
     });
   }
-}
 
-/// Internal sentinel raised when a tool run exceeds its wall-clock budget.
-///
-/// `Future.timeout` demands a non-null return from `onTimeout`, but there is
-/// no sentinel exit code we can produce without colliding with a real one.
-/// Throwing instead keeps the normal exit-code path uncontaminated and lets
-/// the catch block build a dedicated timeout result from the budget it carries.
-class _ToolRunTimeout implements Exception {
-  const new(this.timeout);
+  Future<CallToolResult> _runWithOptionalTimeout(
+    ToolRun run,
+    List<String> args,
+    Duration? timeout,
+  ) async {
+    if (timeout == null) {
+      final exitCode = await run.capture(
+        (logger) => _commandRunnerBuilder(logger: logger).run(args),
+      );
+      return run.resultFor(exitCode);
+    }
 
-  final Duration timeout;
+    var timedOut = false;
+    // `ProcessSignalOverrides` only inspects `sigintStream` for non-null to
+    // decide whether to install the override; the stream itself is never
+    // read because the server routes signals through `addSIGINT()`. An empty
+    // stream is enough and leaves nothing to clean up.
+    final exitCode = await ProcessSignalOverrides.runZoned(() async {
+      final commandFuture = run.capture(
+        (logger) => _commandRunnerBuilder(logger: logger).run(args),
+      );
+      final budget = Timer(timeout, () {
+        timedOut = true;
+        ProcessSignalOverrides.current?.addSIGINT();
+      });
+      try {
+        return await commandFuture;
+      } finally {
+        budget.cancel();
+      }
+    }, sigintStream: const Stream<ProcessSignal>.empty());
+    return timedOut ? run.resultForTimeout(timeout) : run.resultFor(exitCode);
+  }
 }
