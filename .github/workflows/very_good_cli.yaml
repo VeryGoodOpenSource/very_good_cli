@@ -38,14 +38,13 @@ jobs:
       coverage_excludes: "**/*.{gen,g}.dart"
       concurrency: 1
       run_skipped: true
-      run_bloc_lint: false
       # The CLI's own test suite is run directly rather than through the test optimizer,
       # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
-      run_cognitive_complexity: true
-      cognitive_complexity_diff_base: HEAD
+      # Run once per workflow so the matrix jobs do not race on the sticky PR comment.
+      run_cognitive_complexity: ${{ matrix.os == 'ubuntu-latest' }}
 
   pana:
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v1.21.1
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v2
     with:
       pana_version: 0.22.22
