@@ -43,11 +43,6 @@ jobs:
       # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
       run_cognitive_complexity: true
-      # TEMP: `flutter_package.yml@v2` checks the repo out with the default
-      # shallow depth, so `kevmoo/analytica.dart` cannot resolve a merge base
-      # against `origin/main` and the step exits 1. Pinning the diff base to
-      # HEAD skips the merge-base lookup; remove this once the shared workflow
-      # checks out with `fetch-depth: 0`.
       cognitive_complexity_diff_base: HEAD
 
   pana:
