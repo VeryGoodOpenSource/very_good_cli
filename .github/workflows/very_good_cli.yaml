@@ -43,6 +43,7 @@ jobs:
       test_optimization: false
       # Run once per workflow so the matrix jobs do not race on the sticky PR comment.
       run_cognitive_complexity: ${{ matrix.os == 'ubuntu-latest' }}
+      cognitive_complexity_fail_on_increase: true
 
   pana:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v2
