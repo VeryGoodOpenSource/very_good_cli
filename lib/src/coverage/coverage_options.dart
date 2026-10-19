@@ -8,7 +8,7 @@ const excludeCoverageHelp =
     "(e.g. '**/*.g.dart **/*.freezed.dart').";
 
 /// How to collect coverage.
-enum CoverageCollectionMode() {
+enum CoverageCollectionMode {
   /// Collect coverage from imported files only (default behavior).
   imports,
 

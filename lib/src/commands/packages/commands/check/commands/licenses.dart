@@ -680,7 +680,7 @@ extension on List<String> {
 }
 
 /// Format type for listing all licenses via --reporter option.
-enum ReporterOutputFormat() {
+enum ReporterOutputFormat {
   /// List all licenses separated by a dash.
   ///
   /// Example: very_good_cli - MIT
