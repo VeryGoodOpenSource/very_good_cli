@@ -4,9 +4,12 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_dart_package_command}
 /// A [CreateSubCommand] for creating Dart packages.
 /// {@endtemplate}
-class CreateDartPackage extends CreateSubCommand with Publishable, Workspace {
+class CreateDartPackage({
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends CreateSubCommand with Publishable, Workspace {
   /// {@macro very_good_create_dart_package_command}
-  new({required super.logger, required super.generatorFromBundle});
+  this;
 
   @override
   String get name => 'dart_package';

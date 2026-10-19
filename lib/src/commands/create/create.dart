@@ -9,12 +9,12 @@ import 'package:very_good_cli/src/commands/create/commands/commands.dart';
 ///
 /// See also:
 /// - [CreateSubCommand] for the base class for all create subcommands.
-class CreateCommand extends Command<int> {
+class CreateCommand({
+  required Logger logger,
+  @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
+}) extends Command<int> {
   /// {@macro create_command}
-  new({
-    required Logger logger,
-    @visibleForTesting MasonGeneratorFromBundle? generatorFromBundle,
-  }) {
+  this {
     // very_good create app_ui_package <args>
     addSubcommand(
       CreateAppUiPackage(

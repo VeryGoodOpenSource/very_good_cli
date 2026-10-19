@@ -6,18 +6,18 @@ import 'package:universal_io/io.dart';
 /// Each template consists of a [MasonBundle], name,
 /// and help text describing the template.
 /// {@endtemplate}
-abstract class Template {
-  /// {@macro template}
-  const new({required this.name, required this.bundle, required this.help});
-
+abstract class const Template({
   /// The name associated with this template.
-  final String name;
+  required final String name,
 
   /// The [MasonBundle] used to generate this template.
-  final MasonBundle bundle;
+  required final MasonBundle bundle,
 
   /// The help text shown in the usage information for the CLI.
-  final String help;
+  required final String help,
+}) {
+  /// {@macro template}
+  this;
 
   /// Callback invoked after template generation has completed.
   Future<void> onGenerateComplete(Logger logger, Directory outputDir);

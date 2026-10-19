@@ -4,10 +4,12 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_flame_game_command}
 /// A [CreateSubCommand] for creating Flame games.
 /// {@endtemplate}
-class CreateFlameGame extends CreateSubCommand
-    with OrgName, Publishable, Workspace {
+class CreateFlameGame({
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends CreateSubCommand with OrgName, Publishable, Workspace {
   /// {@macro very_good_create_flame_game_command}
-  new({required super.logger, required super.generatorFromBundle}) {
+  this {
     argParser.addMultiOption(
       'platforms',
       help:

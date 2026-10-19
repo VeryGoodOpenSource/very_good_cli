@@ -4,10 +4,12 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_flutter_package_command}
 /// A [CreateSubCommand] for creating Flutter packages.
 /// {@endtemplate}
-class CreateFlutterPackage extends CreateSubCommand
-    with Publishable, Workspace {
+class CreateFlutterPackage({
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends CreateSubCommand with Publishable, Workspace {
   /// {@macro very_good_create_flutter_package_command}
-  new({required super.logger, required super.generatorFromBundle});
+  this;
 
   @override
   String get name => 'flutter_package';
