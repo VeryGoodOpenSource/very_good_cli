@@ -32,6 +32,7 @@
     "fluttium",
     "clsx",
     "Dartdoc",
-    "mockingjay"
+    "mockingjay",
+    "unicoder"
   ]
 }
