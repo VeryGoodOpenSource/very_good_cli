@@ -17,7 +17,15 @@ export 'package:pubspec_parse/pubspec_parse.dart';
 /// {@template pubspec_dependency_type}
 /// The classification of a package dependency.
 /// {@endtemplate}
-enum PubspecDependencyType {
+enum PubspecDependencyType._(
+  /// The textual representation of the [PubspecDependencyType] as it appears in
+  /// the `dependency` field of a `pubspec.lock` file.
+  final String value,
+
+  /// The `--dependency-type` option value of the `packages check licenses`
+  /// command that selects this dependency type.
+  final String optionName,
+) {
   /// Another package that your package needs to work.
   ///
   /// See also:
@@ -48,8 +56,6 @@ enum PubspecDependencyType {
   /// * [Dart's dependency override documentation](https://dart.dev/tools/pub/dependencies#dependency-overrides)
   directOverridden._('direct overridden', 'direct-overridden');
 
-  new _(this.value, this.optionName);
-
   /// Parses a [PubspecDependencyType] from its `pubspec.lock` textual form.
   ///
   /// Throws an [ArgumentError] if the string is not a valid dependency type.
@@ -66,14 +72,6 @@ enum PubspecDependencyType {
   static final Map<String, PubspecDependencyType> _valueMap = {
     for (final type in PubspecDependencyType.values) type.value: type,
   };
-
-  /// The textual representation of the [PubspecDependencyType] as it appears in
-  /// the `dependency` field of a `pubspec.lock` file.
-  final String value;
-
-  /// The `--dependency-type` option value of the `packages check licenses`
-  /// command that selects this dependency type.
-  final String optionName;
 }
 
 /// Tolerantly parses a [Pubspec] from [pubspecFile].

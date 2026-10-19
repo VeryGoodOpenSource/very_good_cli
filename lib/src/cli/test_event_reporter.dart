@@ -2,19 +2,12 @@ part of 'cli.dart';
 
 /// Prints the progress of a test run as its [TestEvent]s arrive, and keeps
 /// the tally of passing, skipped and failing tests the summary is made of.
-class _TestEventReporter {
-  new({
-    required this.stdout,
-    required this.stderr,
-    required this.optimization,
-    required this.cwd,
-  });
-
-  final void Function(String) stdout;
-  final void Function(String) stderr;
-  final TestOptimization optimization;
-  final String cwd;
-
+class _TestEventReporter({
+  required final void Function(String) stdout,
+  required final void Function(String) stderr,
+  required final TestOptimization optimization,
+  required final String cwd,
+}) {
   final _suites = <int, TestSuite>{};
   final _groups = <int, TestGroup>{};
   final _tests = <int, Test>{};

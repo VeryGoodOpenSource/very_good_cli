@@ -6,9 +6,9 @@ import 'package:very_good_cli/src/commands/packages/commands/check/commands/comm
 /// `very_good packages check` command for performing checks in a Dart or
 /// Flutter project.
 /// {@endtemplate}
-class PackagesCheckCommand extends Command<int> {
+class PackagesCheckCommand({Logger? logger}) extends Command<int> {
   /// {@macro packages_check_command}
-  new({Logger? logger}) {
+  this {
     addSubcommand(PackagesCheckLicensesCommand(logger: logger));
   }
 

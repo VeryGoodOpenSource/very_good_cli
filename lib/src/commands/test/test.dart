@@ -10,36 +10,93 @@ import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the Flutter test command.
-class FlutterTestOptions {
-  new _({
-    required this.concurrency,
-    required this.collectCoverage,
-    required this.minCoverage,
-    required this.showUncovered,
-    required this.excludeTags,
-    required this.tags,
-    required this.excludeFromCoverage,
-    required this.collectCoverageFrom,
-    required this.randomSeed,
-    required this.optimizePerformance,
-    required this.excludeOptimization,
-    required this.updateGoldens,
-    required this.failFast,
-    required this.forceAnsi,
-    required this.dartDefine,
-    required this.dartDefineFromFile,
-    required this.platform,
-    required this.reportOn,
-    required this.runSkipped,
-    required this.flavor,
-    required this.timeout,
-    required this.fileReporter,
-    required this.shardIndex,
-    required this.totalShards,
-    required this.rawMinCoverage,
-    required this.rest,
-  });
+class FlutterTestOptions._({
+  /// The number of concurrent test suites run.
+  required final String concurrency,
 
+  /// Whether to collect coverage information.
+  required final bool collectCoverage,
+
+  /// Whether to enforce a minimum coverage percentage.
+  required final double? minCoverage,
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  required final bool showUncovered,
+
+  /// Run only tests that do not have the specified tags.
+  required final String? excludeTags,
+
+  /// Run only tests associated with the specified tags.
+  required final String? tags,
+
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
+  required final String? excludeFromCoverage,
+
+  /// How to collect coverage.
+  required final CoverageCollectionMode collectCoverageFrom,
+
+  /// The seed to randomize the execution order of test cases within test files.
+  required final String? randomSeed,
+
+  /// Whether to apply optimizations for test performance.
+  required final bool optimizePerformance,
+
+  /// Globs of test files to keep out of the optimized bundle.
+  required final List<String>? excludeOptimization,
+
+  /// Whether "matchesGoldenFile()" calls within your test methods should update
+  /// the golden files.
+  required final bool updateGoldens,
+
+  /// Whether to stop running tests after the first failure.
+  required final bool failFast,
+
+  /// Whether to force ansi output. If not specified, it will maintain the
+  /// default behavior based on stdout and stderr.
+  required final bool? forceAnsi,
+
+  /// Optional list of dart defines
+  required final List<String>? dartDefine,
+
+  /// Optional list of dart define from files
+  required final List<String>? dartDefineFromFile,
+
+  /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
+  required final String? platform,
+
+  /// An optional list of file paths to report coverage information to.
+  required final List<String> reportOn,
+
+  /// Whether to run skipped tests instead of skipping them.
+  required final bool runSkipped,
+
+  /// The flavor to build for testing.
+  required final String? flavor,
+
+  /// Maximum time to let tests run before killing the process.
+  required final Duration? timeout,
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  required final String? fileReporter,
+
+  /// The raw `--shard-index` value, validated by
+  /// [TestCLIRunner.validateSharding].
+  required final String? shardIndex,
+
+  /// The raw `--total-shards` value, validated by
+  /// [TestCLIRunner.validateSharding].
+  required final String? totalShards,
+
+  /// The raw `--min-coverage` value, without the `very_good.yaml` fallback
+  /// that [minCoverage] applies, so sharding can reject an explicit threshold
+  /// while ignoring an inherited one.
+  required final String? rawMinCoverage,
+
+  /// The remaining arguments passed to the test command.
+  required final List<String> rest,
+}) {
   /// Parses [ArgResults] into a [FlutterTestOptions] instance.
   ///
   /// When [config] is provided, its values are used as defaults for any
@@ -167,92 +224,6 @@ class FlutterTestOptions {
     );
   }
 
-  /// The number of concurrent test suites run.
-  final String concurrency;
-
-  /// Whether to collect coverage information.
-  final bool collectCoverage;
-
-  /// Whether to enforce a minimum coverage percentage.
-  final double? minCoverage;
-
-  /// Whether to show uncovered lines when coverage is below 100%.
-  final bool showUncovered;
-
-  /// Run only tests that do not have the specified tags.
-  final String? excludeTags;
-
-  /// Run only tests associated with the specified tags.
-  final String? tags;
-
-  /// One or more space-separated globs, relative to the package root, which
-  /// will be used to exclude files that match from the coverage.
-  final String? excludeFromCoverage;
-
-  /// How to collect coverage.
-  final CoverageCollectionMode collectCoverageFrom;
-
-  /// The seed to randomize the execution order of test cases within test files.
-  final String? randomSeed;
-
-  /// Whether to apply optimizations for test performance.
-  final bool optimizePerformance;
-
-  /// Globs of test files to keep out of the optimized bundle.
-  final List<String>? excludeOptimization;
-
-  /// Whether "matchesGoldenFile()" calls within your test methods should update
-  /// the golden files.
-  final bool updateGoldens;
-
-  /// Whether to stop running tests after the first failure.
-  final bool failFast;
-
-  /// Whether to force ansi output. If not specified, it will maintain the
-  /// default behavior based on stdout and stderr.
-  final bool? forceAnsi;
-
-  /// Optional list of dart defines
-  final List<String>? dartDefine;
-
-  /// Optional list of dart define from files
-  final List<String>? dartDefineFromFile;
-
-  /// The platform to run tests on (e.g., 'chrome', 'vm', 'android', 'ios').
-  final String? platform;
-
-  /// An optional list of file paths to report coverage information to.
-  final List<String> reportOn;
-
-  /// Whether to run skipped tests instead of skipping them.
-  final bool runSkipped;
-
-  /// The flavor to build for testing.
-  final String? flavor;
-
-  /// Maximum time to let tests run before killing the process.
-  final Duration? timeout;
-
-  /// Additional reporter that writes test results to a file, expressed as
-  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
-  final String? fileReporter;
-
-  /// The raw `--shard-index` value, validated by
-  /// [TestCLIRunner.validateSharding].
-  final String? shardIndex;
-
-  /// The raw `--total-shards` value, validated by
-  /// [TestCLIRunner.validateSharding].
-  final String? totalShards;
-
-  /// The raw `--min-coverage` value, without the `very_good.yaml` fallback
-  /// that [minCoverage] applies, so sharding can reject an explicit threshold
-  /// while ignoring an inherited one.
-  final String? rawMinCoverage;
-
-  /// The remaining arguments passed to the test command.
-  final List<String> rest;
-
   /// Whether the test optimizer should run for this invocation.
   ///
   /// It rewrites which suites the runner loads, so it cannot apply to a run
@@ -329,14 +300,13 @@ typedef FlutterTestCommand = Future<List<int>> Function({
 /// {@template test_command}
 /// `very_good test` command for running tests.
 /// {@endtemplate}
-class TestCommand extends Command<int> {
+class TestCommand({
+  required final Logger _logger,
+  @visibleForTesting FlutterTestCommand? flutterTest,
+  @visibleForTesting FlutterInstalledCommand? flutterInstalled,
+}) extends Command<int> {
   /// {@macro test_command}
-  new({
-    required this._logger,
-    @visibleForTesting FlutterTestCommand? flutterTest,
-    @visibleForTesting FlutterInstalledCommand? flutterInstalled,
-  }) : _flutterTest = flutterTest ?? Flutter.test,
-       _flutterInstalled = flutterInstalled ?? Flutter.installed {
+  this {
     argParser
       ..addFlag(
         'coverage',
@@ -517,9 +487,9 @@ class TestCommand extends Command<int> {
       );
   }
 
-  final Logger _logger;
-  final FlutterInstalledCommand _flutterInstalled;
-  final FlutterTestCommand _flutterTest;
+  final FlutterInstalledCommand _flutterInstalled =
+      flutterInstalled ?? Flutter.installed;
+  final FlutterTestCommand _flutterTest = flutterTest ?? Flutter.test;
 
   @override
   String get description =>

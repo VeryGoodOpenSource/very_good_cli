@@ -4,9 +4,11 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@template very_good_create_dart_cli_command}
 /// A [CreateSubCommand] for creating Dart command line interfaces.
 /// {@endtemplate}
-class CreateDartCLI extends CreateSubCommand with Publishable, Workspace {
+class CreateDartCLI({required super.logger, required super.generatorFromBundle})
+    extends CreateSubCommand
+    with Publishable, Workspace {
   /// {@macro very_good_create_dart_cli_command}
-  new({required super.logger, required super.generatorFromBundle}) {
+  this {
     argParser.addOption(
       'executable-name',
       help: 'The CLI executable name (defaults to the project name)',

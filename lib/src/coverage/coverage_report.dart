@@ -4,20 +4,20 @@ part of 'coverage.dart';
 /// Thrown when `flutter test ---coverage --min-coverage`
 /// does not meet the provided minimum coverage threshold.
 /// {@endtemplate}
-class MinCoverageNotMet implements Exception {
-  /// {@macro coverage_not_met}
-  const new(this.coverage, {required this.minCoverage, this.uncoveredLines});
-
+class const MinCoverageNotMet(
   /// The measured coverage percentage (total hits / total found * 100).
-  final double coverage;
+  final double coverage, {
 
   /// The minimum coverage percentage the run had to reach.
-  final double minCoverage;
+  required final double minCoverage,
 
   /// Lines not covered, keyed by file path, values are line numbers.
   ///
   /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines;
+  final Map<String, List<int>>? uncoveredLines,
+}) implements Exception {
+  /// {@macro coverage_not_met}
+  this;
 }
 
 /// {@template coverage_report}
@@ -27,15 +27,15 @@ class MinCoverageNotMet implements Exception {
 /// Each test runner writes coverage differently, so there is one report per
 /// runner: [FlutterCoverageReport] and [DartCoverageReport].
 /// {@endtemplate}
-sealed class CoverageReport {
-  /// {@macro coverage_report}
-  const new({required this.packageRoot, required this.options});
-
+sealed class const CoverageReport({
   /// The root of the package whose tests are covered.
-  final String packageRoot;
+  required final String packageRoot,
 
   /// The coverage settings of the test run.
-  final CoverageOptions options;
+  required final CoverageOptions options,
+}) {
+  /// {@macro coverage_report}
+  this;
 
   /// The lcov file the report is kept in.
   File get lcovFile => File(p.join(packageRoot, 'coverage', 'lcov.info'));
@@ -121,9 +121,12 @@ sealed class CoverageReport {
 /// The [CoverageReport] of a `flutter test` run, which writes the lcov file
 /// itself.
 /// {@endtemplate}
-final class FlutterCoverageReport extends CoverageReport {
+final class const FlutterCoverageReport({
+  required super.packageRoot,
+  required super.options,
+}) extends CoverageReport {
   /// {@macro flutter_coverage_report}
-  const new({required super.packageRoot, required super.options});
+  this;
 
   @override
   String get _collectArgument => '--coverage';
@@ -136,9 +139,12 @@ final class FlutterCoverageReport extends CoverageReport {
 /// The [CoverageReport] of a `dart test` run, which writes json coverage
 /// that the report converts into lcov.
 /// {@endtemplate}
-final class DartCoverageReport extends CoverageReport {
+final class const DartCoverageReport({
+  required super.packageRoot,
+  required super.options,
+}) extends CoverageReport {
   /// {@macro dart_coverage_report}
-  const new({required super.packageRoot, required super.options});
+  this;
 
   @override
   String get _collectArgument => '--coverage=coverage';

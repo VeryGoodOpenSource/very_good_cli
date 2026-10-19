@@ -6,9 +6,9 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@template app_ui_template}
 /// A Flutter app UI package template.
 /// {@endtemplate}
-class AppUiTemplate extends Template {
+class AppUiTemplate() extends Template {
   /// {@macro app_ui_template}
-  new()
+  this
     : super(
         name: 'app_ui',
         bundle: veryGoodAppUiBundle,

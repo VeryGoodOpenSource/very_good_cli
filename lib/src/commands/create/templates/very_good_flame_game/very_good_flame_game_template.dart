@@ -7,9 +7,9 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@template flame_game_template}
 /// A Flame Game template.
 /// {@endtemplate}
-class VeryGoodFlameGameTemplate extends Template {
+class VeryGoodFlameGameTemplate() extends Template {
   /// {@macro flame_game_template}
-  new()
+  this
     : super(
         name: 'flame_game',
         bundle: veryGoodFlameGameBundle,
