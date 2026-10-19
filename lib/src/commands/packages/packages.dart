@@ -6,9 +6,9 @@ import 'package:very_good_cli/src/commands/packages/commands/commands.dart';
 /// {@template packages_command}
 /// `very_good packages` command for managing packages.
 /// {@endtemplate}
-class PackagesCommand extends Command<int> {
+class PackagesCommand({Logger? logger}) extends Command<int> {
   /// {@macro packages_command}
-  new({Logger? logger}) {
+  this {
     addSubcommand(PackagesGetCommand(logger: logger));
     addSubcommand(PackagesCheckCommand(logger: logger));
   }

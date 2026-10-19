@@ -40,8 +40,9 @@ abstract class ProcessSignalOverrides {
   }
 }
 
-class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
-  new(Stream<ProcessSignal>? mockSigintStream) {
+class _ProcessSignalOverridesScope(Stream<ProcessSignal>? mockSigintStream)
+    extends ProcessSignalOverrides {
+  this {
     if (mockSigintStream != null) {
       _sigintStreamController = StreamController<ProcessSignal>();
     }

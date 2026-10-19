@@ -17,16 +17,13 @@ const packageName = 'very_good_cli';
 /// {@template very_good_command_runner}
 /// A [CommandRunner] for the Very Good CLI.
 /// {@endtemplate}
-class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
+class VeryGoodCommandRunner({
+  Logger? logger,
+  PubUpdater? pubUpdater,
+  Map<String, String>? environment,
+}) extends CompletionCommandRunner<int> {
   /// {@macro very_good_command_runner}
-  new({
-    Logger? logger,
-    PubUpdater? pubUpdater,
-    Map<String, String>? environment,
-  }) : _logger = logger ?? Logger(),
-       _pubUpdater = pubUpdater ?? PubUpdater(),
-       _environment = environment ?? Platform.environment,
-       super('very_good', '🦄 A Very Good Command-Line Interface') {
+  this : super('very_good', '🦄 A Very Good Command-Line Interface') {
     argParser
       ..addFlag('version', negatable: false, help: 'Print the current version.')
       ..addFlag(
@@ -44,12 +41,12 @@ class VeryGoodCommandRunner extends CompletionCommandRunner<int> {
   /// Standard timeout duration for the CLI.
   static const timeout = Duration(milliseconds: 500);
 
-  final Logger _logger;
-  final PubUpdater _pubUpdater;
+  final Logger _logger = logger ?? Logger();
+  final PubUpdater _pubUpdater = pubUpdater ?? PubUpdater();
 
   /// Map of environments information.
   Map<String, String> get environment => environmentOverride ?? _environment;
-  final Map<String, String> _environment;
+  final Map<String, String> _environment = environment ?? Platform.environment;
 
   /// Boolean for checking if windows, which can be overridden for
   /// testing purposes.

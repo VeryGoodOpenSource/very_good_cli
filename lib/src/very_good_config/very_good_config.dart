@@ -46,12 +46,12 @@ extension ArgResultsResolver on ArgResults {
 /// {@template very_good_config_parse_exception}
 /// Thrown when a [VeryGoodConfig] fails to parse.
 /// {@endtemplate}
-class VeryGoodConfigParseException implements Exception {
-  /// {@macro very_good_config_parse_exception}
-  const new(this.message);
-
+class const VeryGoodConfigParseException(
   /// A human readable description of the parse failure.
-  final String message;
+  final String message,
+) implements Exception {
+  /// {@macro very_good_config_parse_exception}
+  this;
 
   @override
   String toString() => 'VeryGoodConfigParseException: $message';
@@ -71,14 +71,21 @@ class VeryGoodConfigParseException implements Exception {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodConfig extends Equatable {
+class const VeryGoodConfig({
+  /// Configuration values for the `very_good test` command.
+  final VeryGoodTestConfig test = const VeryGoodTestConfig(),
+
+  /// Configuration values for the `very_good create` command.
+  final VeryGoodCreateConfig create = const VeryGoodCreateConfig(),
+
+  /// Configuration values for the `very_good dart test` command.
+  final VeryGoodDartConfig dart = const VeryGoodDartConfig(),
+
+  /// Configuration values for the `very_good packages` command.
+  final VeryGoodPackagesConfig packages = const VeryGoodPackagesConfig(),
+}) extends Equatable {
   /// {@macro very_good_config}
-  const new({
-    this.test = const VeryGoodTestConfig(),
-    this.create = const VeryGoodCreateConfig(),
-    this.dart = const VeryGoodDartConfig(),
-    this.packages = const VeryGoodPackagesConfig(),
-  });
+  this;
 
   /// Creates a [VeryGoodConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
@@ -147,18 +154,6 @@ class VeryGoodConfig extends Equatable {
   /// An empty [VeryGoodConfig] with no values set.
   static const VeryGoodConfig empty = VeryGoodConfig();
 
-  /// Configuration values for the `very_good test` command.
-  final VeryGoodTestConfig test;
-
-  /// Configuration values for the `very_good create` command.
-  final VeryGoodCreateConfig create;
-
-  /// Configuration values for the `very_good dart test` command.
-  final VeryGoodDartConfig dart;
-
-  /// Configuration values for the `very_good packages` command.
-  final VeryGoodPackagesConfig packages;
-
   @override
   List<Object?> get props => [test, create, dart, packages];
 }
@@ -176,36 +171,30 @@ class VeryGoodConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodCreateConfig extends Equatable {
+class const VeryGoodCreateConfig({
+  /// The description for the generated project.
+  final String? description,
+
+  /// The organization for the generated project.
+  final String? orgName,
+
+  /// Whether the generated project is intended to be published.
+  final bool? publishable,
+
+  /// The template used to generate the project.
+  final String? template,
+
+  /// Whether the generated project should resolve its dependencies from a
+  /// parent Pub workspace.
+  final bool? workspace,
+}) extends Equatable {
   /// {@macro very_good_create_config}
-  const new({
-    this.description,
-    this.orgName,
-    this.publishable,
-    this.template,
-    this.workspace,
-  });
+  this;
 
   /// Creates a [VeryGoodCreateConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodCreateConfigFromJson(json);
   }
-
-  /// The description for the generated project.
-  final String? description;
-
-  /// The organization for the generated project.
-  final String? orgName;
-
-  /// Whether the generated project is intended to be published.
-  final bool? publishable;
-
-  /// The template used to generate the project.
-  final String? template;
-
-  /// Whether the generated project should resolve its dependencies from a
-  /// parent Pub workspace.
-  final bool? workspace;
 
   @override
   List<Object?> get props => [
@@ -231,9 +220,17 @@ class VeryGoodCreateConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodOptimizationConfig extends Equatable {
+class const VeryGoodOptimizationConfig({
+  /// Whether to apply optimizations for test performance.
+  final bool? enabled,
+
+  /// Globs of test files to keep out of the optimized bundle.
+  ///
+  /// Excluded files still run, as their own test suites.
+  @JsonKey(fromJson: _stringList) final List<String>? exclude,
+}) extends Equatable {
   /// {@macro very_good_optimization_config}
-  const new({this.enabled, this.exclude});
+  this;
 
   /// Creates a [VeryGoodOptimizationConfig] from an [Object?] [value].
   factory fromJson(Object? value) {
@@ -245,15 +242,6 @@ class VeryGoodOptimizationConfig extends Equatable {
       'but got `$value`.',
     );
   }
-
-  /// Whether to apply optimizations for test performance.
-  final bool? enabled;
-
-  /// Globs of test files to keep out of the optimized bundle.
-  ///
-  /// Excluded files still run, as their own test suites.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? exclude;
 
   @override
   List<Object?> get props => [enabled, exclude];
@@ -272,101 +260,75 @@ class VeryGoodOptimizationConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodTestConfig extends Equatable {
+class const VeryGoodTestConfig({
+  /// Whether to collect coverage information.
+  final bool? coverage,
+
+  /// How to apply optimizations for test performance.
+  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
+  final VeryGoodOptimizationConfig optimization =
+      const VeryGoodOptimizationConfig(),
+
+  /// The number of concurrent test suites run.
+  @JsonKey(fromJson: _concurrency) final String? concurrency,
+
+  /// Run only tests associated with the specified tags.
+  final String? tags,
+
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
+  final String? excludeCoverage,
+
+  /// Run only tests that do not have the specified tags.
+  final String? excludeTags,
+
+  /// The minimum coverage percentage enforced.
+  @JsonKey(fromJson: _minCoverage) final String? minCoverage,
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  final bool? showUncovered,
+
+  /// Whether to collect coverage from imported files only or all files.
+  @JsonKey(fromJson: _collectCoverageFrom) final String? collectCoverageFrom,
+
+  /// Whether `matchesGoldenFile()` calls should update the golden files.
+  final bool? updateGoldens,
+
+  /// Whether to stop running tests after the first failure.
+  final bool? failFast,
+
+  /// Additional `--dart-define` values.
+  @JsonKey(fromJson: _stringList) final List<String>? dartDefine,
+
+  /// Paths of `.json` or `.env` files with `--dart-define-from-file` values.
+  @JsonKey(fromJson: _stringList) final List<String>? dartDefineFromFile,
+
+  /// The platform to run tests on (e.g. `chrome`, `vm`, `android`, `ios`).
+  final String? platform,
+
+  /// Optional file paths to report coverage information to.
+  @JsonKey(fromJson: _stringList) final List<String>? reportOn,
+
+  /// Whether to run skipped tests instead of skipping them.
+  final bool? runSkipped,
+
+  /// The flavor to build for testing.
+  final String? flavor,
+
+  /// Maximum seconds to let tests run before killing the process.
+  @JsonKey(fromJson: _timeout) final String? timeout,
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  final String? fileReporter,
+}) extends Equatable {
   /// {@macro very_good_test_config}
-  const new({
-    this.coverage,
-    this.optimization = const VeryGoodOptimizationConfig(),
-    this.concurrency,
-    this.tags,
-    this.excludeCoverage,
-    this.excludeTags,
-    this.minCoverage,
-    this.showUncovered,
-    this.collectCoverageFrom,
-    this.updateGoldens,
-    this.failFast,
-    this.dartDefine,
-    this.dartDefineFromFile,
-    this.platform,
-    this.reportOn,
-    this.runSkipped,
-    this.flavor,
-    this.timeout,
-    this.fileReporter,
-  });
+  this;
 
   /// Creates a [VeryGoodTestConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodTestConfigFromJson(json);
   }
-
-  /// Whether to collect coverage information.
-  final bool? coverage;
-
-  /// How to apply optimizations for test performance.
-  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
-  final VeryGoodOptimizationConfig optimization;
-
-  /// The number of concurrent test suites run.
-  @JsonKey(fromJson: _concurrency)
-  final String? concurrency;
-
-  /// Run only tests associated with the specified tags.
-  final String? tags;
-
-  /// One or more space-separated globs, relative to the package root, which
-  /// will be used to exclude files that match from the coverage.
-  final String? excludeCoverage;
-
-  /// Run only tests that do not have the specified tags.
-  final String? excludeTags;
-
-  /// The minimum coverage percentage enforced.
-  @JsonKey(fromJson: _minCoverage)
-  final String? minCoverage;
-
-  /// Whether to show uncovered lines when coverage is below 100%.
-  final bool? showUncovered;
-
-  /// Whether to collect coverage from imported files only or all files.
-  @JsonKey(fromJson: _collectCoverageFrom)
-  final String? collectCoverageFrom;
-
-  /// Whether `matchesGoldenFile()` calls should update the golden files.
-  final bool? updateGoldens;
-
-  /// Whether to stop running tests after the first failure.
-  final bool? failFast;
-
-  /// Additional `--dart-define` values.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? dartDefine;
-
-  /// Paths of `.json` or `.env` files with `--dart-define-from-file` values.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? dartDefineFromFile;
-
-  /// The platform to run tests on (e.g. `chrome`, `vm`, `android`, `ios`).
-  final String? platform;
-
-  /// Optional file paths to report coverage information to.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? reportOn;
-
-  /// Whether to run skipped tests instead of skipping them.
-  final bool? runSkipped;
-
-  /// The flavor to build for testing.
-  final String? flavor;
-
-  /// Maximum seconds to let tests run before killing the process.
-  @JsonKey(fromJson: _timeout)
-  final String? timeout;
-
-  /// Additional reporter that writes test results to a file, expressed as
-  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
-  final String? fileReporter;
 
   @override
   List<Object?> get props => [
@@ -405,17 +367,17 @@ class VeryGoodTestConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodDartConfig extends Equatable {
+class const VeryGoodDartConfig({
+  /// Configuration values for the `very_good dart test` subcommand.
+  final VeryGoodDartTestConfig test = const VeryGoodDartTestConfig(),
+}) extends Equatable {
   /// {@macro very_good_dart_config}
-  const new({this.test = const VeryGoodDartTestConfig()});
+  this;
 
   /// Creates a [VeryGoodDartConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodDartConfigFromJson(json);
   }
-
-  /// Configuration values for the `very_good dart test` subcommand.
-  final VeryGoodDartTestConfig test;
 
   @override
   List<Object?> get props => [test];
@@ -434,82 +396,63 @@ class VeryGoodDartConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodDartTestConfig extends Equatable {
+class const VeryGoodDartTestConfig({
+  /// Whether to collect coverage information.
+  final bool? coverage,
+
+  /// How to apply optimizations for test performance.
+  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
+  final VeryGoodOptimizationConfig optimization =
+      const VeryGoodOptimizationConfig(),
+
+  /// The number of concurrent test suites run.
+  @JsonKey(fromJson: _concurrency) final String? concurrency,
+
+  /// Run only tests associated with the specified tags.
+  final String? tags,
+
+  /// One or more space-separated globs, relative to the package root, which
+  /// will be used to exclude files that match from the coverage.
+  final String? excludeCoverage,
+
+  /// Run only tests that do not have the specified tags.
+  final String? excludeTags,
+
+  /// The minimum coverage percentage enforced.
+  @JsonKey(fromJson: _minCoverage) final String? minCoverage,
+
+  /// Whether to show uncovered lines when coverage is below 100%.
+  final bool? showUncovered,
+
+  /// Whether to collect coverage from imported files only or all files.
+  @JsonKey(fromJson: _collectCoverageFrom) final String? collectCoverageFrom,
+
+  /// Whether to stop running tests after the first failure.
+  final bool? failFast,
+
+  /// The platform to run tests on (e.g. `chrome`, `vm`).
+  final String? platform,
+
+  /// Optional file paths to report coverage information to.
+  @JsonKey(fromJson: _stringList) final List<String>? reportOn,
+
+  /// Whether to run skipped tests instead of skipping them.
+  final bool? runSkipped,
+
+  /// Whether to check for and respect coverage ignore comments.
+  final bool? checkIgnore,
+
+  /// Additional reporter that writes test results to a file, expressed as
+  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
+  final String? fileReporter,
+}) extends Equatable {
   /// {@macro very_good_dart_test_config}
-  const new({
-    this.coverage,
-    this.optimization = const VeryGoodOptimizationConfig(),
-    this.concurrency,
-    this.tags,
-    this.excludeCoverage,
-    this.excludeTags,
-    this.minCoverage,
-    this.showUncovered,
-    this.collectCoverageFrom,
-    this.failFast,
-    this.platform,
-    this.reportOn,
-    this.runSkipped,
-    this.checkIgnore,
-    this.fileReporter,
-  });
+  this;
 
   /// Creates a [VeryGoodDartTestConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodDartTestConfigFromJson(json);
   }
-
-  /// Whether to collect coverage information.
-  final bool? coverage;
-
-  /// How to apply optimizations for test performance.
-  @JsonKey(fromJson: VeryGoodOptimizationConfig.fromJson)
-  final VeryGoodOptimizationConfig optimization;
-
-  /// The number of concurrent test suites run.
-  @JsonKey(fromJson: _concurrency)
-  final String? concurrency;
-
-  /// Run only tests associated with the specified tags.
-  final String? tags;
-
-  /// One or more space-separated globs, relative to the package root, which
-  /// will be used to exclude files that match from the coverage.
-  final String? excludeCoverage;
-
-  /// Run only tests that do not have the specified tags.
-  final String? excludeTags;
-
-  /// The minimum coverage percentage enforced.
-  @JsonKey(fromJson: _minCoverage)
-  final String? minCoverage;
-
-  /// Whether to show uncovered lines when coverage is below 100%.
-  final bool? showUncovered;
-
-  /// Whether to collect coverage from imported files only or all files.
-  @JsonKey(fromJson: _collectCoverageFrom)
-  final String? collectCoverageFrom;
-
-  /// Whether to stop running tests after the first failure.
-  final bool? failFast;
-
-  /// The platform to run tests on (e.g. `chrome`, `vm`).
-  final String? platform;
-
-  /// Optional file paths to report coverage information to.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? reportOn;
-
-  /// Whether to run skipped tests instead of skipping them.
-  final bool? runSkipped;
-
-  /// Whether to check for and respect coverage ignore comments.
-  final bool? checkIgnore;
-
-  /// Additional reporter that writes test results to a file, expressed as
-  /// `<name>:<path>` (e.g. `json:reports/tests.json`).
-  final String? fileReporter;
 
   @override
   List<Object?> get props => [
@@ -542,23 +485,20 @@ class VeryGoodDartTestConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodPackagesConfig extends Equatable {
+class const VeryGoodPackagesConfig({
+  /// Configuration values for the `very_good packages get` command.
+  final VeryGoodPackagesGetConfig get = const VeryGoodPackagesGetConfig(),
+
+  /// Configuration values for the `very_good packages check` command.
+  final VeryGoodPackagesCheckConfig check = const VeryGoodPackagesCheckConfig(),
+}) extends Equatable {
   /// {@macro very_good_packages_config}
-  const new({
-    this.get = const VeryGoodPackagesGetConfig(),
-    this.check = const VeryGoodPackagesCheckConfig(),
-  });
+  this;
 
   /// Creates a [VeryGoodPackagesConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesConfigFromJson(json);
   }
-
-  /// Configuration values for the `very_good packages get` command.
-  final VeryGoodPackagesGetConfig get;
-
-  /// Configuration values for the `very_good packages check` command.
-  final VeryGoodPackagesCheckConfig check;
 
   @override
   List<Object?> get props => [get, check];
@@ -577,21 +517,20 @@ class VeryGoodPackagesConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodPackagesGetConfig extends Equatable {
+class const VeryGoodPackagesGetConfig({
+  /// Whether to install dependencies recursively for all nested packages.
+  final bool? recursive,
+
+  /// Packages to exclude from installing dependencies.
+  @JsonKey(fromJson: _stringList) final List<String>? ignore,
+}) extends Equatable {
   /// {@macro very_good_packages_get_config}
-  const new({this.recursive, this.ignore});
+  this;
 
   /// Creates a [VeryGoodPackagesGetConfig] from a decoded YAML/JSON [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesGetConfigFromJson(json);
   }
-
-  /// Whether to install dependencies recursively for all nested packages.
-  final bool? recursive;
-
-  /// Packages to exclude from installing dependencies.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? ignore;
 
   @override
   List<Object?> get props => [recursive, ignore];
@@ -608,18 +547,19 @@ class VeryGoodPackagesGetConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodPackagesCheckConfig extends Equatable {
+class const VeryGoodPackagesCheckConfig({
+  /// Configuration values for the `very_good packages check licenses` command.
+  final VeryGoodPackagesCheckLicensesConfig licenses =
+      const VeryGoodPackagesCheckLicensesConfig(),
+}) extends Equatable {
   /// {@macro very_good_packages_check_config}
-  const new({this.licenses = const VeryGoodPackagesCheckLicensesConfig()});
+  this;
 
   /// Creates a [VeryGoodPackagesCheckConfig] from a decoded YAML/JSON [json]
   /// map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesCheckConfigFromJson(json);
   }
-
-  /// Configuration values for the `very_good packages check licenses` command.
-  final VeryGoodPackagesCheckLicensesConfig licenses;
 
   @override
   List<Object?> get props => [licenses];
@@ -638,45 +578,33 @@ class VeryGoodPackagesCheckConfig extends Equatable {
   disallowUnrecognizedKeys: true,
   fieldRename: FieldRename.snake,
 )
-class VeryGoodPackagesCheckLicensesConfig extends Equatable {
+class const VeryGoodPackagesCheckLicensesConfig({
+  /// Whether to disregard licenses that failed to be retrieved.
+  final bool? ignoreRetrievalFailures,
+
+  /// The type of dependencies to check licenses for.
+  @JsonKey(fromJson: _dependencyType) final List<String>? dependencyType,
+
+  /// Only allow the use of certain licenses.
+  @JsonKey(fromJson: _stringList) final List<String>? allowed,
+
+  /// Deny the use of certain licenses.
+  @JsonKey(fromJson: _stringList) final List<String>? forbidden,
+
+  /// Packages to skip from having their licenses checked.
+  @JsonKey(fromJson: _stringList) final List<String>? skipPackages,
+
+  /// The format used to list all licenses.
+  @JsonKey(fromJson: _reporter) final String? reporter,
+}) extends Equatable {
   /// {@macro very_good_packages_check_licenses_config}
-  const new({
-    this.ignoreRetrievalFailures,
-    this.dependencyType,
-    this.allowed,
-    this.forbidden,
-    this.skipPackages,
-    this.reporter,
-  });
+  this;
 
   /// Creates a [VeryGoodPackagesCheckLicensesConfig] from a decoded YAML/JSON
   /// [json] map.
   factory fromJson(Map<dynamic, dynamic> json) {
     return _$VeryGoodPackagesCheckLicensesConfigFromJson(json);
   }
-
-  /// Whether to disregard licenses that failed to be retrieved.
-  final bool? ignoreRetrievalFailures;
-
-  /// The type of dependencies to check licenses for.
-  @JsonKey(fromJson: _dependencyType)
-  final List<String>? dependencyType;
-
-  /// Only allow the use of certain licenses.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? allowed;
-
-  /// Deny the use of certain licenses.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? forbidden;
-
-  /// Packages to skip from having their licenses checked.
-  @JsonKey(fromJson: _stringList)
-  final List<String>? skipPackages;
-
-  /// The format used to list all licenses.
-  @JsonKey(fromJson: _reporter)
-  final String? reporter;
 
   @override
   List<Object?> get props => [

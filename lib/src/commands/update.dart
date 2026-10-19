@@ -9,13 +9,12 @@ import 'package:very_good_cli/src/version.dart';
 /// {@template update_command}
 /// `very_good update` command which updates very_good cli.
 /// {@endtemplate}
-class UpdateCommand extends Command<int> {
+class UpdateCommand({required final Logger _logger, PubUpdater? pubUpdater})
+    extends Command<int> {
   /// {@macro update_command}
-  new({required this._logger, PubUpdater? pubUpdater})
-    : _pubUpdater = pubUpdater ?? PubUpdater();
+  this;
 
-  final Logger _logger;
-  final PubUpdater _pubUpdater;
+  final PubUpdater _pubUpdater = pubUpdater ?? PubUpdater();
 
   @override
   String get description => 'Update Very Good CLI.';

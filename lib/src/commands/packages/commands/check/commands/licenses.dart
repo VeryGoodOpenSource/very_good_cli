@@ -78,16 +78,25 @@ typedef _DependencyLicenseMap = Map<String, Set<String>>;
 typedef _BannedDependencyLicenseMap = Map<String, Set<String>>;
 
 /// Options for configuring the `very_good packages check licenses` command.
-class PackagesCheckLicensesOptions {
-  new _({
-    required this.ignoreRetrievalFailures,
-    required this.dependencyTypes,
-    required this.allowedLicenses,
-    required this.forbiddenLicenses,
-    required this.skippedPackages,
-    required this.reporterOutputFormat,
-  });
+class PackagesCheckLicensesOptions._({
+  /// Whether to disregard licenses that failed to be retrieved.
+  required final bool ignoreRetrievalFailures,
 
+  /// The type of dependencies to check licenses for.
+  required final Set<String> dependencyTypes,
+
+  /// The only licenses allowed to be used.
+  required final List<String> allowedLicenses,
+
+  /// The licenses denied from being used.
+  required final List<String> forbiddenLicenses,
+
+  /// Packages skipped from having their licenses checked.
+  required final Set<String> skippedPackages,
+
+  /// The format used to list all licenses.
+  required final ReporterOutputFormat? reporterOutputFormat,
+}) {
   /// Parses [ArgResults] into a [PackagesCheckLicensesOptions] instance.
   ///
   /// When [config] is provided, its values are used as defaults for any
@@ -132,32 +141,14 @@ class PackagesCheckLicensesOptions {
       reporterOutputFormat: ReporterOutputFormat.fromString(reporter),
     );
   }
-
-  /// Whether to disregard licenses that failed to be retrieved.
-  final bool ignoreRetrievalFailures;
-
-  /// The type of dependencies to check licenses for.
-  final Set<String> dependencyTypes;
-
-  /// The only licenses allowed to be used.
-  final List<String> allowedLicenses;
-
-  /// The licenses denied from being used.
-  final List<String> forbiddenLicenses;
-
-  /// Packages skipped from having their licenses checked.
-  final Set<String> skippedPackages;
-
-  /// The format used to list all licenses.
-  final ReporterOutputFormat? reporterOutputFormat;
 }
 
 /// {@template packages_check_licenses_command}
 /// `very_good packages check licenses` command for checking packages licenses.
 /// {@endtemplate}
-class PackagesCheckLicensesCommand extends Command<int> {
+class PackagesCheckLicensesCommand({Logger? logger}) extends Command<int> {
   /// {@macro packages_check_licenses_command}
-  new({Logger? logger}) : _logger = logger ?? Logger() {
+  this {
     argParser
       ..addFlag(
         'ignore-retrieval-failures',
@@ -196,7 +187,7 @@ class PackagesCheckLicensesCommand extends Command<int> {
       );
   }
 
-  final Logger _logger;
+  final Logger _logger = logger ?? Logger();
 
   @override
   String get description =>
@@ -689,7 +680,7 @@ extension on List<String> {
 }
 
 /// Format type for listing all licenses via --reporter option.
-enum ReporterOutputFormat {
+enum ReporterOutputFormat() {
   /// List all licenses separated by a dash.
   ///
   /// Example: very_good_cli - MIT

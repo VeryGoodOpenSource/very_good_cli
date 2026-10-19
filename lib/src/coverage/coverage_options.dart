@@ -8,7 +8,7 @@ const excludeCoverageHelp =
     "(e.g. '**/*.g.dart **/*.freezed.dart').";
 
 /// How to collect coverage.
-enum CoverageCollectionMode {
+enum CoverageCollectionMode() {
   /// Collect coverage from imported files only (default behavior).
   imports,
 
@@ -28,37 +28,29 @@ enum CoverageCollectionMode {
 /// The coverage settings shared by every package of a test run.
 /// {@endtemplate}
 @immutable
-class CoverageOptions {
-  /// {@macro coverage_options}
-  const new({
-    this.collect = false,
-    this.collectFrom = CoverageCollectionMode.imports,
-    this.minCoverage,
-    this.showUncovered = false,
-    this.excludeFromCoverage,
-    this.reportOn = const ['lib'],
-    this.checkIgnore = false,
-  });
-
+class const CoverageOptions({
   /// Whether to collect coverage into `coverage/lcov.info`.
-  final bool collect;
+  final bool collect = false,
 
   /// Which files the lcov report accounts for.
-  final CoverageCollectionMode collectFrom;
+  final CoverageCollectionMode collectFrom = CoverageCollectionMode.imports,
 
   /// The minimum coverage percentage the run must reach, if any.
-  final double? minCoverage;
+  final double? minCoverage,
 
   /// Whether to list the lines left uncovered.
-  final bool showUncovered;
+  final bool showUncovered = false,
 
   /// Whitespace-separated globs of the files left out of the coverage,
   /// matched against paths relative to the package root.
-  final String? excludeFromCoverage;
+  final String? excludeFromCoverage,
 
   /// The directories, relative to the package, the coverage reports on.
-  final List<String> reportOn;
+  final List<String> reportOn = const ['lib'],
 
   /// Whether to honor the `coverage:ignore` comments.
-  final bool checkIgnore;
+  final bool checkIgnore = false,
+}) {
+  /// {@macro coverage_options}
+  this;
 }

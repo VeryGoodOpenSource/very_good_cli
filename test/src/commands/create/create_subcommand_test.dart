@@ -32,74 +32,53 @@ class _FakeDirectoryGeneratorTarget extends Fake
 
 class _FakeDirectory extends Fake implements Directory;
 
-class _TestCreateSubCommand extends CreateSubCommand {
-  new({
-    required this.template,
-    required super.logger,
-    required super.generatorFromBundle,
-  });
-
+class _TestCreateSubCommand({
+  @override required final Template template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends CreateSubCommand {
   @override
   final String name = 'create_subcommand';
 
   @override
   final String description = 'Create command';
-
-  @override
-  final Template template;
 }
 
-class _TestCreateSubCommandWithOrgName extends _TestCreateSubCommand
-    with OrgName {
-  new({
-    required super.template,
-    required super.logger,
-    required super.generatorFromBundle,
-  });
-}
+class _TestCreateSubCommandWithOrgName({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand with OrgName;
 
-class _TestCreateSubCommandWithPublishable extends _TestCreateSubCommand
-    with Publishable {
-  new({
-    required super.template,
-    required super.logger,
-    required super.generatorFromBundle,
-  });
-}
+class _TestCreateSubCommandWithPublishable({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand with Publishable;
 
-class _TestCreateSubCommandWithWorkspace extends _TestCreateSubCommand
-    with Workspace {
-  new({
-    required super.template,
-    required super.logger,
-    required super.generatorFromBundle,
-  });
-}
+class _TestCreateSubCommandWithWorkspace({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand with Workspace;
 
-class _TestCreateSubCommandMultiTemplate extends CreateSubCommand
-    with MultiTemplates {
-  new({
-    required this.templates,
-    required super.logger,
-    required super.generatorFromBundle,
-  });
-
+class _TestCreateSubCommandMultiTemplate({
+  @override required final List<Template> templates,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends CreateSubCommand with MultiTemplates {
   @override
   final String name = 'create_subcommand';
 
   @override
   final String description = 'Create command';
-
-  @override
-  final List<Template> templates;
 }
 
-class _TestCommandRunner extends CommandRunner<int> {
-  new({required this.command}) : super('runner', 'Test command runner') {
+class _TestCommandRunner({required final Command<int> command})
+    extends CommandRunner<int> {
+  this : super('runner', 'Test command runner') {
     addCommand(command);
   }
-
-  final Command<int> command;
 }
 
 void main() {

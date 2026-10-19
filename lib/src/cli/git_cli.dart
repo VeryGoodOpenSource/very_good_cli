@@ -3,12 +3,12 @@ part of 'cli.dart';
 /// {@template unreachable_git_dependency}
 /// Thrown when `flutter pub get` encounters an unreachable git dependency.
 /// {@endtemplate}
-class UnreachableGitDependency implements Exception {
-  /// {@macro unreachable_git_dependency}
-  const new({required this.remote});
-
+class const UnreachableGitDependency({
   /// The associated git remote [Uri].
-  final Uri remote;
+  required final Uri remote,
+}) implements Exception {
+  /// {@macro unreachable_git_dependency}
+  this;
 
   @override
   String toString() {

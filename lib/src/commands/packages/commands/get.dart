@@ -8,9 +8,13 @@ import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// Options for configuring the `very_good packages get` command.
-class PackagesGetOptions {
-  new _({required this.recursive, required this.ignore});
+class PackagesGetOptions._({
+  /// Whether to install dependencies recursively for all nested packages.
+  required final bool recursive,
 
+  /// Packages to exclude from installing dependencies.
+  required final Set<String> ignore,
+}) {
   /// Parses [ArgResults] into a [PackagesGetOptions] instance.
   ///
   /// When [config] is provided, its values are used as defaults for any
@@ -26,20 +30,14 @@ class PackagesGetOptions {
 
     return PackagesGetOptions._(recursive: recursive, ignore: ignore.toSet());
   }
-
-  /// Whether to install dependencies recursively for all nested packages.
-  final bool recursive;
-
-  /// Packages to exclude from installing dependencies.
-  final Set<String> ignore;
 }
 
 /// {@template packages_get_command}
 /// `very_good packages get` command for installing packages.
 /// {@endtemplate}
-class PackagesGetCommand extends Command<int> {
+class PackagesGetCommand({Logger? logger}) extends Command<int> {
   /// {@macro packages_get_command}
-  new({Logger? logger}) : _logger = logger ?? Logger() {
+  this {
     argParser
       ..addFlag(
         'recursive',
@@ -53,7 +51,7 @@ class PackagesGetCommand extends Command<int> {
       );
   }
 
-  final Logger _logger;
+  final Logger _logger = logger ?? Logger();
 
   @override
   String get description => 'Get packages in a Dart or Flutter project.';
