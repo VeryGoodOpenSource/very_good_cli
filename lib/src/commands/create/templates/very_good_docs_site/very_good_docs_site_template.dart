@@ -7,9 +7,9 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@template docs_site_template}
 /// A documentation site template.
 /// {@endtemplate}
-class VeryGoodDocsSiteTemplate extends Template {
+class VeryGoodDocsSiteTemplate() extends Template {
   /// {@macro docs_site_template}
-  new()
+  this
     : super(
         name: 'docs_site',
         bundle: veryGoodDocsSiteBundle,

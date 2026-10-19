@@ -10,17 +10,15 @@ typedef VeryGoodTestRunner = Stream<TestEvent> Function({
 });
 
 /// Which test runner to use for running tests.
-enum TestRunType {
+enum TestRunType(
+  /// The kind of project the runner tests, as named in messages.
+  final String projectKind,
+) {
   /// Run tests using `flutter test`.
   flutter('Flutter'),
 
   /// Run tests using `dart test`.
   dart('Dart');
-
-  new(this.projectKind);
-
-  /// The kind of project the runner tests, as named in messages.
-  final String projectKind;
 
   /// The command of `package:very_good_test_runner` that runs the tests.
   VeryGoodTestRunner get runner => switch (this) {

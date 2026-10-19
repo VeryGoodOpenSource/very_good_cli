@@ -6,9 +6,9 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@template dart_pkg_template}
 /// A Dart package template.
 /// {@endtemplate}
-class DartPkgTemplate extends Template {
+class DartPkgTemplate() extends Template {
   /// {@macro dart_pkg_template}
-  new()
+  this
     : super(
         name: 'dart_pkg',
         bundle: veryGoodDartPackageBundle,

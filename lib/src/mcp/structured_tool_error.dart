@@ -112,38 +112,30 @@ List<String> alternativeApproachesFor(ToolFailureType failureType) {
 /// * `alternativeApproaches` — recovery suggestions from
 ///   [alternativeApproachesFor].
 /// {@endtemplate}
-class StructuredToolError {
-  /// {@macro structured_tool_error}
-  const new({
-    required this.toolName,
-    required this.reason,
-    required this.failureType,
-    this.commandString,
-    this.directory,
-    this.capturedOutput,
-    this.attemptedArguments,
-  });
-
+class const StructuredToolError({
   /// The name of the tool that failed.
-  final String toolName;
+  required final String toolName,
 
   /// The human-readable failure cause.
-  final String reason;
+  required final String reason,
 
   /// The bucket this failure falls into.
-  final ToolFailureType failureType;
+  required final ToolFailureType failureType,
 
   /// The concrete CLI command that was invoked, when known.
-  final String? commandString;
+  final String? commandString,
 
   /// The working directory the command ran in, when set.
-  final String? directory;
+  final String? directory,
 
   /// The sanitized captured command output, when any.
-  final String? capturedOutput;
+  final String? capturedOutput,
 
   /// The raw caller-supplied arguments.
-  final Map<String, Object?>? attemptedArguments;
+  final Map<String, Object?>? attemptedArguments,
+}) {
+  /// {@macro structured_tool_error}
+  this;
 
   bool get _hasPartialResults =>
       capturedOutput != null && capturedOutput!.isNotEmpty;

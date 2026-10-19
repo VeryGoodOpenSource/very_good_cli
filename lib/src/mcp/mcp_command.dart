@@ -24,11 +24,10 @@ StreamChannel<String> _defaultChannelFactory() {
 /// {@template mcp_command}
 /// `very_good mcp` command starts the MCP (Model Context Protocol) server.
 /// {@endtemplate}
-class MCPCommand extends Command<int> {
+class MCPCommand({ChannelFactory? channelFactory, ServerFactory? serverFactory})
+    extends Command<int> {
   /// {@macro mcp_command}
-  new({ChannelFactory? channelFactory, ServerFactory? serverFactory})
-    : _channelFactory = channelFactory ?? _defaultChannelFactory,
-      _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
+  this;
 
   /// The [name] of the command. But static.
   static const String commandName = 'mcp';
@@ -40,9 +39,10 @@ Start the MCP (Model Context Protocol) server. WARNING: This is an experimental 
   @override
   String get name => commandName;
 
-  final ChannelFactory _channelFactory;
+  final ChannelFactory _channelFactory =
+      channelFactory ?? _defaultChannelFactory;
 
-  final ServerFactory _serverFactory;
+  final ServerFactory _serverFactory = serverFactory ?? VeryGoodMCPServer.new;
 
   @override
   Future<int> run() async {

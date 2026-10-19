@@ -27,9 +27,9 @@ const testOptimizerFileName = '.test_optimizer.dart';
 /// which the user must fix in `very_good.yaml` or on the command line, apart
 /// from the malformed input a test run reports on its own.
 /// {@endtemplate}
-class InvalidOptimizationGlob extends FormatException {
+class const InvalidOptimizationGlob(super.message) extends FormatException {
   /// {@macro invalid_optimization_glob}
-  const new(super.message);
+  this;
 }
 
 extension on String {
@@ -58,7 +58,20 @@ extension on String {
 /// Configuration is per test run, while [apply] is per package, so a single
 /// optimizer serves every package of a `--recursive` run.
 /// {@endtemplate}
-class TestOptimizer {
+class const TestOptimizer._(
+  final bool _enabled,
+  final List<Glob> _exclusions,
+  final GeneratorBuilder _buildGenerator, {
+
+  /// The 1-based shard to keep out of [totalShards], or `null` to keep every
+  /// test. The brick's pre-gen hook deals the sorted test files out
+  /// round-robin, so every shard holds a disjoint slice of the suite.
+  final int? shardIndex,
+
+  /// The number of shards the suite is split into, or `null` when not
+  /// sharding.
+  final int? totalShards,
+}) {
   /// {@macro test_optimizer}
   new({
     required bool enabled,
@@ -74,31 +87,10 @@ class TestOptimizer {
          totalShards: totalShards,
        );
 
-  const new _(
-    this._enabled,
-    this._exclusions,
-    this._buildGenerator, {
-    this.shardIndex,
-    this.totalShards,
-  });
-
   /// An optimizer that generates nothing and always yields
   /// [TestOptimization.none].
   const new disabled()
     : this._(false, const <Glob>[], MasonGenerator.fromBundle);
-
-  final bool _enabled;
-  final List<Glob> _exclusions;
-  final GeneratorBuilder _buildGenerator;
-
-  /// The 1-based shard to keep out of [totalShards], or `null` to keep every
-  /// test. The brick's pre-gen hook deals the sorted test files out
-  /// round-robin, so every shard holds a disjoint slice of the suite.
-  final int? shardIndex;
-
-  /// The number of shards the suite is split into, or `null` when not
-  /// sharding.
-  final int? totalShards;
 
   /// Generates the entrypoint for the package rooted at [packageRoot], which
   /// must be absolute: the brick's pre-gen hook resolves the package's `test`
@@ -183,29 +175,22 @@ class TestOptimizer {
 /// {@template test_optimization}
 /// The outcome of applying a [TestOptimizer] to a single package.
 /// {@endtemplate}
-class TestOptimization {
-  const new _(
-    this._hasOptimizedTests, {
-    this.packageRoot,
-    this.shardIndex,
-    this.serialTests = const <String>[],
-  });
-
-  /// The outcome of a run in which nothing was optimized.
-  static const none = TestOptimization._(false);
+class const TestOptimization._(
+  final bool _hasOptimizedTests, {
 
   /// Absolute path of the package the bundle was generated for, or `null` when
   /// nothing was generated.
-  final String? packageRoot;
-
-  /// Test files kept out of the bundle, which run as their own suites.
-  final List<String> serialTests;
+  final String? packageRoot,
 
   /// The shard the bundle was generated for, or `null` when the run is not
   /// sharded.
-  final int? shardIndex;
+  final int? shardIndex,
 
-  final bool _hasOptimizedTests;
+  /// Test files kept out of the bundle, which run as their own suites.
+  final List<String> serialTests = const <String>[],
+}) {
+  /// The outcome of a run in which nothing was optimized.
+  static const none = TestOptimization._(false);
 
   /// Whether a sharded run ended up with nothing to do, which happens when
   /// there are more shards than test files. That is not a failure: the runner
