@@ -31,7 +31,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@fix/cognitive-complexity-fetch-depth
+    uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v2
     with:
       runs_on: ${{ matrix.os }}
       flutter_version: "3.47.x"
