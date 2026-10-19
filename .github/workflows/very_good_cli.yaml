@@ -28,9 +28,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    permissions:
-      contents: read
-      pull-requests: write
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v2
     with:
       runs_on: ${{ matrix.os }}
@@ -41,9 +38,30 @@ jobs:
       # The CLI's own test suite is run directly rather than through the test optimizer,
       # matching the CI behavior prior to adopting this shared workflow.
       test_optimization: false
-      # Run once per workflow so the matrix jobs do not race on the sticky PR comment.
-      run_cognitive_complexity: ${{ matrix.os == 'ubuntu-latest' }}
-      cognitive_complexity_fail_on_increase: true
+
+  cognitive_complexity:
+    # Runs the audit from a dedicated job so the checkout can request full
+    # history: `flutter_package.yml@v2` checks the repo out at the default
+    # shallow depth, which prevents `kevmoo/analytica.dart` from resolving a
+    # merge base against `origin/main` and makes the step exit 1.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: 🎯 Setup Dart
+        uses: dart-lang/setup-dart@v1.8.1
+
+      - name: 🧠 Cognitive Complexity
+        uses: kevmoo/analytica.dart/packages/cognitive_complexity@main
+        with:
+          fail-threshold: "15"
+          fail-on-increase: "true"
 
   pana:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml@v2
