@@ -20,11 +20,7 @@ class _MockLogger extends Mock implements Logger;
 
 class _MockProgress extends Mock implements Progress;
 
-class _TestHookContext implements HookContext {
-  new({required this._logger});
-
-  final Logger _logger;
-
+class _TestHookContext({required final Logger _logger}) implements HookContext {
   @override
   Map<String, dynamic> vars = {};
 

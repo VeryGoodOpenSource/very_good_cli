@@ -8,7 +8,7 @@ import '../../../../helpers/helpers.dart';
 void main() {
   test(
     'create docs_site',
-    timeout: const Timeout(Duration(minutes: 2)),
+    timeout: const Timeout(Duration(minutes: 5)),
     withRunner((commandRunner, logger, updater, logs, progressLogs) async {
       final tempDirectory = Directory.systemTemp.createTempSync();
       addTearDown(() => tempDirectory.deleteSync(recursive: true));
@@ -29,7 +29,7 @@ void main() {
 
       await expectSuccessfulProcessResult(
         'npm',
-        ['install'],
+        ['install', '--no-audit', '--no-fund', '--prefer-offline'],
         workingDirectory: workingDirectory,
         validateStderr: false,
       );

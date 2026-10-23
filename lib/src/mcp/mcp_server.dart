@@ -38,24 +38,25 @@ VeryGoodCommandRunner defaultCommandRunnerBuilder({required Logger logger}) =>
 /// Model Context Protocol, allowing AI assistants to interact
 /// with the CLI programmatically.
 /// {@endtemplate}
-final class VeryGoodMCPServer extends MCPServer with ToolsSupport {
-  /// {@macro very_good_mcp_server}
-  new({
-    required StreamChannel<String> channel,
-    this._commandRunnerBuilder = defaultCommandRunnerBuilder,
-  }) : super.fromStreamChannel(
-         channel,
-         implementation: Implementation(
-           name: 'very_good_cli',
-           version: packageVersion,
-         ),
-         instructions:
-             'A Very Good CLI MCP server that provides tools '
-             'for creating and managing Dart/Flutter projects.',
-       );
+final class VeryGoodMCPServer({
+  required StreamChannel<String> channel,
 
   /// {@macro command_runner_builder}
-  final CommandRunnerBuilder _commandRunnerBuilder;
+  final CommandRunnerBuilder _commandRunnerBuilder =
+      defaultCommandRunnerBuilder,
+}) extends MCPServer with ToolsSupport {
+  /// {@macro very_good_mcp_server}
+  this
+    : super.fromStreamChannel(
+        channel,
+        implementation: Implementation(
+          name: 'very_good_cli',
+          version: packageVersion,
+        ),
+        instructions:
+            'A Very Good CLI MCP server that provides tools '
+            'for creating and managing Dart/Flutter projects.',
+      );
 
   /// Serializes tool runs.
   ///

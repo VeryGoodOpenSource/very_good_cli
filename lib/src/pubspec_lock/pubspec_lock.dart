@@ -15,17 +15,18 @@ import 'package:yaml/yaml.dart';
 /// {@template PubspecLockParseException}
 /// Thrown when a [PubspecLock] fails to parse.
 /// {@endtemplate}
-class PubspecLockParseException implements Exception {
+class const PubspecLockParseException() implements Exception {
   /// {@macro PubspecLockParseException}
-  const new();
+  this;
 }
 
 /// {@template PubspecLock}
 /// A representation of a pubspec.lock file.
 /// {@endtemplate}
-class PubspecLock {
-  const new _({required this.packages});
-
+class const PubspecLock._({
+  /// All the dependencies in the pubspec.lock file.
+  required final UnmodifiableListView<PubspecLockPackage> packages,
+}) {
   /// Parses a [PubspecLock] from a string.
   ///
   /// If no packages are found, an empty [PubspecLock] is returned. Those
@@ -67,21 +68,23 @@ class PubspecLock {
 
   /// An empty [PubspecLock].
   static PubspecLock empty = PubspecLock._(packages: UnmodifiableListView([]));
-
-  /// All the dependencies in the pubspec.lock file.
-  final UnmodifiableListView<PubspecLockPackage> packages;
 }
 
 /// {@template PubspecLockDependency}
 /// A representation of a dependency in a pubspec.lock file.
 /// {@endtemplate}
-class PubspecLockPackage extends Equatable {
+class const PubspecLockPackage({
+  /// The name of the dependency.
+  required final String name,
+
+  /// {@macro pubspec_dependency_type}
+  required final PubspecDependencyType type,
+
+  /// Whether the dependency is hosted on pub.dev or not.
+  required final bool isPubHosted,
+}) extends Equatable {
   /// {@macro PubspecLockDependency}
-  const new({
-    required this.name,
-    required this.type,
-    required this.isPubHosted,
-  });
+  this;
 
   /// Parses a [PubspecLockPackage] from a [YamlMap].
   factory fromYamlMap({required String name, required YamlMap data}) {
@@ -104,15 +107,6 @@ class PubspecLockPackage extends Equatable {
       isPubHosted: isPubHosted,
     );
   }
-
-  /// The name of the dependency.
-  final String name;
-
-  /// {@macro pubspec_dependency_type}
-  final PubspecDependencyType type;
-
-  /// Whether the dependency is hosted on pub.dev or not.
-  final bool isPubHosted;
 
   @override
   List<Object?> get props => [type, isPubHosted];

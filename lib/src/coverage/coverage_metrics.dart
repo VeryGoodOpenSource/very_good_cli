@@ -3,14 +3,21 @@ part of 'coverage.dart';
 /// {@template coverage_metrics}
 /// Aggregated coverage metrics computed from a list of LCOV records.
 /// {@endtemplate}
-class CoverageMetrics {
+class const CoverageMetrics({
+  /// Total number of lines hit (covered) across all included files.
+  final int totalHits = 0,
+
+  /// Total number of instrumented lines found across all included files.
+  final int totalFound = 0,
+
+  /// Lines not covered.
+  /// Keyed by file path, values are line numbers in the order the records
+  /// list them.
+  final Map<String, List<int>> uncoveredLines = const {},
+}) {
   /// {@macro coverage_metrics}
   @visibleForTesting
-  const new({
-    this.totalHits = 0,
-    this.totalFound = 0,
-    this.uncoveredLines = const {},
-  });
+  this;
 
   /// Generate coverage metrics from a list of lcov records.
   factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
@@ -52,17 +59,6 @@ class CoverageMetrics {
       if (newLines.isNotEmpty) file: [...?uncoveredLines[file], ...newLines],
     };
   }
-
-  /// Total number of lines hit (covered) across all included files.
-  final int totalHits;
-
-  /// Total number of instrumented lines found across all included files.
-  final int totalFound;
-
-  /// Lines not covered.
-  /// Keyed by file path, values are line numbers in the order the records
-  /// list them.
-  final Map<String, List<int>> uncoveredLines;
 
   /// Coverage percentage: [totalHits] / [totalFound] * 100.
   ///

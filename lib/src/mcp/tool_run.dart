@@ -14,26 +14,21 @@ import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 /// Owns the buffer that captures the command's output and turns the outcome
 /// of the run into a [CallToolResult].
 /// {@endtemplate}
-class ToolRun {
-  /// {@macro tool_run}
-  new({
-    required this.toolName,
-    required this.commandString,
-    required this.directory,
-    required this.requestArguments,
-  });
-
+class ToolRun({
   /// The name of the MCP tool being run.
-  final String toolName;
+  required final String toolName,
 
   /// The equivalent `very_good` command line, used for diagnostics.
-  final String commandString;
+  required final String commandString,
 
   /// The working directory the command runs in, if any.
-  final String? directory;
+  required final String? directory,
 
   /// The raw arguments of the MCP tool request, if any.
-  final Map<String, Object?>? requestArguments;
+  required final Map<String, Object?>? requestArguments,
+}) {
+  /// {@macro tool_run}
+  this;
 
   final StringBuffer _output = StringBuffer();
 
@@ -143,11 +138,9 @@ class ToolRun {
 /// stdout shared with the MCP JSON-RPC stream. It reports no terminal so mason
 /// emits plain, animation-free lines.
 @visibleForTesting
-class CapturingStdout implements Stdout {
+class CapturingStdout(final StringBuffer _buffer) implements Stdout {
   /// Creates a [CapturingStdout] that appends all writes to [_buffer].
-  new(this._buffer);
-
-  final StringBuffer _buffer;
+  this;
 
   @override
   Encoding encoding = utf8;

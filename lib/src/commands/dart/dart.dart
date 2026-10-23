@@ -5,9 +5,9 @@ import 'package:very_good_cli/src/commands/dart/commands/commands.dart';
 /// {@template dart_command}
 /// `very_good dart` command for running dart related commands.
 /// {@endtemplate}
-class DartCommand extends Command<int> {
+class DartCommand({required Logger logger}) extends Command<int> {
   /// {@macro packages_command}
-  new({required Logger logger}) {
+  this {
     addSubcommand(DartTestCommand(logger: logger));
   }
 

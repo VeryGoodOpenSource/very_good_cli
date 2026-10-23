@@ -46,12 +46,13 @@ typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 ///
 /// For sub commands that receive a workspace flag, sub classes must mix with
 /// [Workspace].
-abstract class CreateSubCommand extends Command<int> {
+abstract class CreateSubCommand({
+  /// The logger user to notify the user of the command's progress.
+  required final Logger logger,
+  @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
+}) extends Command<int> {
   /// {@macro create_subcommand}
-  new({
-    required this.logger,
-    @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
-  }) : _generatorFromBundle = generatorFromBundle ?? MasonGenerator.fromBundle {
+  this {
     argParser
       ..addOption(
         'output-directory',
@@ -115,9 +116,8 @@ abstract class CreateSubCommand extends Command<int> {
     }
   }
 
-  /// The logger user to notify the user of the command's progress.
-  final Logger logger;
-  final MasonGeneratorFromBundle _generatorFromBundle;
+  final MasonGeneratorFromBundle _generatorFromBundle =
+      generatorFromBundle ?? MasonGenerator.fromBundle;
 
   /// The resolved `very_good create` configuration read from the closest
   /// `very_good.yaml` file.

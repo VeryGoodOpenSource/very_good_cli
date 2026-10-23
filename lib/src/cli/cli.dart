@@ -67,12 +67,9 @@ abstract class ProcessOverrides {
   RunProcess get runProcess => Process.run;
 }
 
-class _ProcessOverridesScope extends ProcessOverrides {
-  new(this._runProcess);
-
+class _ProcessOverridesScope(final RunProcess? _runProcess)
+    extends ProcessOverrides {
   final ProcessOverrides? _previous = ProcessOverrides.current;
-  final RunProcess? _runProcess;
-
   @override
   RunProcess get runProcess {
     return _runProcess ?? _previous?.runProcess ?? super.runProcess;

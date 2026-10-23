@@ -7,9 +7,9 @@ import 'package:very_good_cli/src/logger_extension.dart';
 /// {@template very_good_core_template}
 /// A core Flutter app template.
 /// {@endtemplate}
-class VeryGoodCoreTemplate extends Template {
+class VeryGoodCoreTemplate() extends Template {
   /// {@macro very_good_core_template}
-  new()
+  this
     : super(
         name: 'core',
         bundle: veryGoodCoreBundle,
