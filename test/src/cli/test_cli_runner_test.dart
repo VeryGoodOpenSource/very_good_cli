@@ -429,6 +429,77 @@ void main() {
             }, sigintStream: streamController.stream);
           },
         );
+
+        test('does not spawn the test runner when SIGINT fires before '
+            '_testCommand subscribes', () async {
+          // The broadcast [sigintWatch] does not replay events to late
+          // listeners, so a SIGINT fired while [_testPackage] awaited
+          // [coverageReport.clean] or [optimizer.apply] would be dropped
+          // and the test subprocess would start and never be signalled.
+          // Fire SIGINT from inside the preGen stub — which runs during
+          // [optimizer.apply], before [_testCommand] subscribes — and prove
+          // the runner is never asked for its stream.
+          final streamController = StreamController<ProcessSignal>();
+          await ProcessSignalOverrides.runZoned(() async {
+            final tempDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+            File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+            Directory(p.join(tempDirectory.path, 'test')).createSync();
+            when(
+              () => hooks.preGen(
+                vars: any(named: 'vars'),
+                onVarsChanged: any(named: 'onVarsChanged'),
+                workingDirectory: any(named: 'workingDirectory'),
+              ),
+            ).thenAnswer((invocation) async {
+              ProcessSignalOverrides.current?.addSIGINT();
+              (invocation.namedArguments[#onVarsChanged]
+                      as void Function(Map<String, dynamic> vars))
+                  .call(<String, dynamic>{
+                    'package-root': tempDirectory.path,
+                    'tests': [
+                      {'path': 'a_test.dart', 'identifier': 'a'},
+                    ],
+                  });
+            });
+
+            var runnerCalled = false;
+            Stream<TestEvent> runner({
+              List<String>? arguments,
+              String? workingDirectory,
+              Map<String, String>? environment,
+              bool runInShell = false,
+            }) {
+              runnerCalled = true;
+              return StreamController<TestEvent>().stream;
+            }
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                logger: logger,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                optimizer: TestOptimizer(
+                  enabled: true,
+                  buildGenerator: generatorBuilder(),
+                ),
+                overrideTestRunner: runner,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+
+            expect(
+              runnerCalled,
+              isFalse,
+              reason:
+                  '_testCommand must not spawn the test runner when SIGINT '
+                  'was already emitted before its subscription',
+            );
+          }, sigintStream: streamController.stream);
+        });
       });
 
       test('runs tests and shows timer until tests start', () async {
