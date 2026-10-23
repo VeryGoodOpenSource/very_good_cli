@@ -1,5 +1,57 @@
 # Changelog
 
+## [1.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.5.0...v1.6.0) (2026-10-23)
+
+
+### Features
+
+* **test:** exclude test files from the optimized bundle ([#1726](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1726)) ([2e53374](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2e53374956571725d07739ae25da3ff84c14367b))
+* **test:** preserve test annotations in optimized bundle ([#1735](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1735)) ([e144286](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e144286c67fc92e68ae4eb5c0babf5ce6fa32a49))
+* **test:** support sharding tests across CI runners ([#1707](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1707)) ([1c867db](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1c867dbf24efc21d7d5d8c1386fa0c9791a14113))
+
+
+### Bug Fixes
+
+* **e2e:** increase docs_site test timeout and optimize npm install ([#1778](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1778)) ([6291358](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6291358e0a3319ad6865c77184a695d1f00fe2b3)), closes [#1763](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1763)
+* **mcp:** enforce wall-clock timeout for test runs ([#1766](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1766)) ([a2ec7d8](https://github.com/VeryGoodOpenSource/very_good_cli/commit/a2ec7d874641c10f5aa60798f5254d44d39456a3))
+* **mcp:** transient test failures ([#1725](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1725)) ([74771fb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/74771fbce655891f7a7bc2cbf3fad51b6ab7ff97))
+
+
+### Refactors
+
+* **mcp:** reduce cognitive complexity of the test tool ([#1758](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1758)) ([2964dd6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/2964dd6324a21d66c3c251a9ebb0aac5bbae5e17))
+* **packages:** reduce cognitive complexity of check licenses ([#1757](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1757)) ([4c6232f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4c6232f9efaed78346d9d978021e01f77915d9e1))
+* **test:** reduce cognitive complexity of the test runners ([#1756](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1756)) ([f424dd4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f424dd48dc90fefeb4b4ca731f3d148bd6e19093))
+* use primary constructors ([#1777](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1777)) ([8c772f3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8c772f3ed255a4b11568e119699bd4b50c7c7cdb))
+
+
+### Miscellaneous Chores
+
+* add unicoder.yaml with VGV preset ([#1767](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1767)) ([8f6d0a6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/8f6d0a6e50ec70f3913e242ac67e3467e94bba53))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml ([#1739](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1739)) ([995afe2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/995afe2ea849c99f4b15c98a3e43d1ff7aef2196))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml ([#1745](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1745)) ([72ef96a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/72ef96aa61c3ee4f24152d853c61e4fca27fd4cf))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml from 1.21.1 to 2.0.1 ([#1769](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1769)) ([b04e383](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b04e38388f91308d62418492f22de5e5dccc890e))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml ([#1742](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1742)) ([e34d382](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e34d3820256f4748f447419abcba3afeda5ee0d7))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml ([#1747](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1747)) ([ec83fcb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ec83fcb1eb9af47d526ffb23e7fefa52dd7533f5))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml from 1.21.1 to 2.0.1 ([#1772](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1772)) ([1ed4457](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1ed445768ea807078b2d5187b78b15aa4ba7f8c7))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml ([#1741](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1741)) ([892d4ec](https://github.com/VeryGoodOpenSource/very_good_cli/commit/892d4ecb2aa7d2571b52cd9ac897079cc1fd6531))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml ([#1744](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1744)) ([e894c29](https://github.com/VeryGoodOpenSource/very_good_cli/commit/e894c295d720cd9ee04fc33f1ccbb409b9426be4))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/pana.yml from 1.21.1 to 2.0.1 ([#1771](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1771)) ([4a89d6f](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4a89d6fab23ab2f4fffb62475d50d55ab2f25b5e))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml ([#1743](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1743)) ([df0b387](https://github.com/VeryGoodOpenSource/very_good_cli/commit/df0b387c1d6caa581a1c1553b26b5e43d726ad40))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml ([#1748](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1748)) ([3caa42c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/3caa42cea47538bc97014a47e47e114a5472de07))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/semantic_pull_request.yml from 1.21.1 to 2.0.1 ([#1770](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1770)) ([1ba9368](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1ba9368ccd766bd2cc4229ac246ed710b05819ad))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml ([#1740](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1740)) ([b2c9193](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b2c9193513ccdbe562414ebee68556b3cc15b1e9))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml ([#1746](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1746)) ([f77dd77](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f77dd7772dec52fba24b8b99562fc970d9072c51))
+* **deps:** bump VeryGoodOpenSource/very_good_workflows/.github/workflows/spell_check.yml from 1.21.1 to 2.0.1 ([#1768](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1768)) ([0060b66](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0060b66172505cf36c40166a11def767c9573230))
+* remove Very Good Start disclaimer ([#1750](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1750)) ([effd295](https://github.com/VeryGoodOpenSource/very_good_cli/commit/effd295507ac517c6f82205d8614f534a2347740))
+* update SPDX licenses ([#1738](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1738)) ([33ef762](https://github.com/VeryGoodOpenSource/very_good_cli/commit/33ef762bc86c1878e4e66f2ec09a83d6c0bd5cf6))
+
+
+### Docs
+
+* document test optimization annotation ([#1736](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1736)) ([1a08452](https://github.com/VeryGoodOpenSource/very_good_cli/commit/1a08452294da455ea26ea4a5d93e55e6f70a18eb))
+* update ROADMAP.md for current quarter priorities ([#1728](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1728)) ([2478108](https://github.com/VeryGoodOpenSource/very_good_cli/commit/24781082dbf43f9dcb93788881fe35a398faba58)), closes [#1727](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1727)
+
 ## [1.5.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.4.0...v1.5.0) (2026-09-08)
 
 
