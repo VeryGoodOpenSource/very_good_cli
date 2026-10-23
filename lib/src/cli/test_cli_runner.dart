@@ -413,6 +413,18 @@ Future<int> _testCommand({
     return completer.complete(ExitCode.success.code);
   });
 
+  // The broadcast [sigintWatch] does not replay events to late listeners, so a
+  // SIGINT emitted before this subscription — for example while [_testPackage]
+  // awaited [coverageReport.clean] or [optimizer.apply] — would be dropped and
+  // the test subprocess would still be spawned and never signalled. Honour the
+  // sticky [isSigintEmitted] flag here and tear down before starting the run.
+  if (ProcessSignalOverrides.current?.isSigintEmitted ?? false) {
+    unawaited(timerSubscription.cancel());
+    unawaited(sigintWatchSubscription.cancel());
+    completer.complete(ExitCode.success.code);
+    return completer.future;
+  }
+
   subscription =
       testRunner(
         workingDirectory: cwd,

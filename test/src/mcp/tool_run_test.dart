@@ -130,6 +130,50 @@ void main() {
         );
       });
     });
+
+    group('resultForTimeout', () {
+      test('builds a timeout failure that names the budget', () {
+        final result = withStderr(
+          () => run.resultForTimeout(const Duration(seconds: 30)),
+        );
+
+        expect(result.isError, isTrue);
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('failureType', 'timeout'),
+            containsPair('reason', 'timed out after 30 seconds.'),
+          ),
+        );
+        expect(
+          stderrBuffer.toString(),
+          contains(
+            '[very_good_mcp] "test" timeout error: '
+            'timed out after 30 seconds.',
+          ),
+        );
+      });
+
+      test('includes captured output as partialResults when any', () async {
+        await run.capture((logger) async {
+          logger.info('started a long task');
+          return ExitCode.success.code;
+        });
+
+        final result = withStderr(
+          () => run.resultForTimeout(const Duration(seconds: 5)),
+        );
+
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('status', 'partial_failure'),
+            containsPair('failureType', 'timeout'),
+            containsPair('partialResults', contains('started a long task')),
+          ),
+        );
+      });
+    });
   });
 
   group(CapturingStdout, () {
