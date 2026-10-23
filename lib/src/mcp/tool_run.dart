@@ -81,13 +81,13 @@ class ToolRun {
     ),
   };
 
-  /// Builds a timeout failure result for a run that was abandoned after
-  /// [timeout] without completing.
+  /// Builds a timeout failure result for a run that exceeded its wall-clock
+  /// budget.
   ///
   /// Used by the MCP server to bound a tool call's wall-clock duration: when
-  /// the budget is exceeded the result returns immediately so the server lock
-  /// is released and queued calls can proceed, even if the underlying run is
-  /// still unwinding in the background.
+  /// the budget is exceeded the server signals the run to tear down its
+  /// subprocess, awaits the unwind, and then returns this result so the
+  /// server lock is released and queued calls can proceed.
   CallToolResult resultForTimeout(Duration timeout) => _failure(
     'timed out after ${timeout.inSeconds} seconds.',
     failureType: ToolFailureType.timeout,

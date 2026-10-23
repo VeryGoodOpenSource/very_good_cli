@@ -132,26 +132,36 @@ class _Cmd {
     required bool Function(FileSystemEntity) where,
     String cwd = '.',
   }) {
-    final directories =
-        Directory(cwd).listSync(recursive: true).where(where).toList()
-          ..sort((a, b) {
-            /// Linux and macOS have different sorting behaviors
-            /// regarding the order that the list of folders/files are returned.
-            /// To ensure consistency across platforms, we apply a
-            /// uniform sorting logic.
-            final aSplit = p.split(a.path);
-            final bSplit = p.split(b.path);
-            final aLevel = aSplit.length;
-            final bLevel = bSplit.length;
+    return sortedPubspecs(where: where, cwd: cwd).map(run);
+  }
 
-            if (aLevel == bLevel) {
-              return aSplit.last.compareTo(bSplit.last);
-            } else {
-              return aLevel.compareTo(bLevel);
-            }
-          });
+  /// Returns the pubspec entries under [cwd] that match [where], sorted
+  /// deterministically across platforms.
+  ///
+  /// Factored out of [runWhere] so callers that need to iterate the matches
+  /// sequentially (and short-circuit between iterations) can do so without
+  /// eagerly starting the next future on each `moveNext` the way `.map` does.
+  static List<FileSystemEntity> sortedPubspecs({
+    required bool Function(FileSystemEntity) where,
+    String cwd = '.',
+  }) {
+    return Directory(cwd).listSync(recursive: true).where(where).toList()
+      ..sort((a, b) {
+        /// Linux and macOS have different sorting behaviors
+        /// regarding the order that the list of folders/files are returned.
+        /// To ensure consistency across platforms, we apply a
+        /// uniform sorting logic.
+        final aSplit = p.split(a.path);
+        final bSplit = p.split(b.path);
+        final aLevel = aSplit.length;
+        final bLevel = bSplit.length;
 
-    return directories.map(run);
+        if (aLevel == bLevel) {
+          return aSplit.last.compareTo(bSplit.last);
+        } else {
+          return aLevel.compareTo(bLevel);
+        }
+      });
   }
 
   static void _throwIfProcessFailed(

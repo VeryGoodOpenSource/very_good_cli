@@ -323,6 +323,114 @@ void main() {
         });
       }
 
+      group('recursive with SIGINT', () {
+        test('short-circuits the remaining packages when SIGINT is emitted '
+            'during the first package', () async {
+          final streamController = StreamController<ProcessSignal>();
+          await ProcessSignalOverrides.runZoned(() async {
+            final rootDirectory = Directory.systemTemp.createTempSync();
+            addTearDown(() => rootDirectory.deleteSync(recursive: true));
+
+            for (final name in ['package_a', 'package_b']) {
+              final pkgDir = Directory(p.join(rootDirectory.path, name))
+                ..createSync();
+              File(p.join(pkgDir.path, 'pubspec.yaml')).createSync();
+              Directory(p.join(pkgDir.path, 'test')).createSync();
+            }
+
+            final startedPackages = <String>[];
+            Stream<TestEvent> runner({
+              List<String>? arguments,
+              String? workingDirectory,
+              Map<String, String>? environment,
+              bool runInShell = false,
+            }) {
+              if (workingDirectory != null) {
+                startedPackages.add(workingDirectory);
+              }
+              // Fire SIGINT once the first package has subscribed. A
+              // broadcast [sigintWatch] delivers it to the live subscription;
+              // the sticky [isSigintEmitted] flag then stops the loop from
+              // starting the second package.
+              Timer.run(() {
+                ProcessSignalOverrides.current?.addSIGINT();
+              });
+              // Never emits; the SIGINT handler is what tears the run down.
+              return StreamController<TestEvent>().stream;
+            }
+
+            final results = await TestCLIRunner.test(
+              cwd: rootDirectory.path,
+              recursive: true,
+              logger: logger,
+              testType: TestRunType.flutter,
+              overrideTestRunner: runner,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+            );
+
+            expect(results, equals([ExitCode.success.code]));
+            expect(
+              startedPackages,
+              hasLength(1),
+              reason:
+                  'the second package must not be started once SIGINT has '
+                  'been emitted',
+            );
+          }, sigintStream: streamController.stream);
+        });
+
+        test(
+          'does not throw when subscribing to sigintWatch across packages',
+          () async {
+            // Prior to broadcasting [sigintWatch], a second package's
+            // subscription on the single-subscription controller threw
+            // "Bad state: Stream has already been listened to." The test
+            // exercises the two-subscription path through the real
+            // [TestCLIRunner] to lock the fix in.
+            final streamController = StreamController<ProcessSignal>();
+            await ProcessSignalOverrides.runZoned(() async {
+              final rootDirectory = Directory.systemTemp.createTempSync();
+              addTearDown(() => rootDirectory.deleteSync(recursive: true));
+
+              for (final name in ['package_a', 'package_b']) {
+                final pkgDir = Directory(p.join(rootDirectory.path, name))
+                  ..createSync();
+                File(p.join(pkgDir.path, 'pubspec.yaml')).createSync();
+                Directory(p.join(pkgDir.path, 'test')).createSync();
+              }
+
+              Stream<TestEvent> runner({
+                List<String>? arguments,
+                String? workingDirectory,
+                Map<String, String>? environment,
+                bool runInShell = false,
+              }) {
+                return Stream.fromIterable([
+                  const DoneTestEvent(success: true, time: 0),
+                  const ExitTestEvent(exitCode: 0, time: 0),
+                ]);
+              }
+
+              await expectLater(
+                TestCLIRunner.test(
+                  cwd: rootDirectory.path,
+                  recursive: true,
+                  logger: logger,
+                  testType: TestRunType.flutter,
+                  overrideTestRunner: runner,
+                  stdout: stdoutLogs.add,
+                  stderr: stderrLogs.add,
+                ),
+                completion(
+                  equals([ExitCode.success.code, ExitCode.success.code]),
+                ),
+              );
+            }, sigintStream: streamController.stream);
+          },
+        );
+      });
+
       test('runs tests and shows timer until tests start', () async {
         final tempDirectory = Directory.systemTemp.createTempSync();
         addTearDown(() => tempDirectory.deleteSync(recursive: true));

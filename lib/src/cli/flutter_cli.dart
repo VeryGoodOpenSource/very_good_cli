@@ -8,9 +8,18 @@ part of 'cli.dart';
 /// exceeds its wall-clock budget: [_testCommand] already listens on
 /// [sigintWatch] and kills the underlying `flutter_tester` subscription on
 /// SIGINT, so sending one through here tears down the hung test process tree.
+///
+/// The [sigintWatch] stream is a broadcast stream so a recursive run — which
+/// invokes [_testCommand] once per package and therefore subscribes once per
+/// package — does not fail its second subscription. The signal is also sticky:
+/// [isSigintEmitted] stays `true` after the first [addSIGINT] call so a loop
+/// that iterates packages can short-circuit when a prior iteration has already
+/// been signalled (broadcast streams do not buffer events, so a late listener
+/// would otherwise miss the signal).
 abstract class ProcessSignalOverrides {
   static final _token = Object();
   StreamController<ProcessSignal>? _sigintStreamController;
+  bool _sigintEmitted = false;
 
   /// Returns the current [ProcessSignalOverrides] instance.
   ///
@@ -36,10 +45,18 @@ abstract class ProcessSignalOverrides {
   /// Provides a custom [Stream] of [ProcessSignal.sigint] events.
   Stream<ProcessSignal>? get sigintWatch;
 
+  /// Whether [addSIGINT] has been called in this scope.
+  ///
+  /// Once set, this remains `true` for the lifetime of the scope so that a
+  /// caller iterating packages can see the signal even after the broadcast
+  /// stream has delivered it.
+  bool get isSigintEmitted => _sigintEmitted;
+
   /// Emits a [ProcessSignal.sigint] event on the [sigintWatch] stream.
   ///
   /// If no custom [sigintWatch] stream is provided, this method does nothing.
   void addSIGINT() {
+    _sigintEmitted = true;
     _sigintStreamController?.add(ProcessSignal.sigint);
   }
 }
@@ -47,7 +64,7 @@ abstract class ProcessSignalOverrides {
 class _ProcessSignalOverridesScope extends ProcessSignalOverrides {
   new(Stream<ProcessSignal>? mockSigintStream) {
     if (mockSigintStream != null) {
-      _sigintStreamController = StreamController<ProcessSignal>();
+      _sigintStreamController = StreamController<ProcessSignal>.broadcast();
     }
   }
 
@@ -219,17 +236,21 @@ Future<List<T>> _runCommand<T>({
     return [await cmd(cwd)];
   }
 
-  final processes = _Cmd.runWhere<T>(
-    run: (entity) => cmd(entity.parent.path),
+  final pubspecs = _Cmd.sortedPubspecs(
     where: (entity) => !ignore.excludes(entity) && _isPubspec(entity),
     cwd: cwd,
   );
 
-  if (processes.isEmpty) throw PubspecNotFound();
+  if (pubspecs.isEmpty) throw PubspecNotFound();
 
   final results = <T>[];
-  for (final process in processes) {
-    results.add(await process);
+  for (final pubspec in pubspecs) {
+    // If a signal (such as the MCP server's wall-clock budget) tore down a
+    // prior package's test subprocess, don't start another one — the signal
+    // is sticky, so a late listener on the broadcast stream would never see
+    // the event anyway.
+    if (ProcessSignalOverrides.current?.isSigintEmitted ?? false) break;
+    results.add(await cmd(pubspec.parent.path));
   }
   return results;
 }
