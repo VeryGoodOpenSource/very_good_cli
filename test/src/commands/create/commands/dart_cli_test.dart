@@ -210,6 +210,79 @@ void main() {
           () => logger.info('Created a Very Good Dart CLI application! 🦄'),
         ).called(1);
       });
+
+      group('entrypoint permissions', () {
+        Future<Directory> runWithBinFiles(List<String> binFiles) async {
+          when(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          ).thenAnswer((invocation) async {
+            final target =
+                invocation.positionalArguments.first
+                    as DirectoryGeneratorTarget;
+            File(path.join(target.dir.path, 'pubspec.yaml'))
+              ..createSync(recursive: true)
+              ..writeAsStringSync(pubspec);
+            for (final binFile in binFiles) {
+              File(path.join(target.dir.path, 'bin', binFile))
+                  .createSync(recursive: true);
+            }
+            return generatedFiles;
+          });
+
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          final argResults = _MockArgResults();
+          when(() => argResults.wasParsed(any())).thenReturn(true);
+          final command = CreateDartCLI(
+            logger: logger,
+            generatorFromBundle: (_) async => generator,
+          )..argResultOverrides = argResults;
+          when(() => argResults['output-directory'] as String?)
+              .thenReturn(tempDirectory.path);
+          when(() => argResults.rest).thenReturn(['my_cli']);
+          when(() => argResults['executable-name'] as String?)
+              .thenReturn('my_executable');
+
+          final result = await command.run();
+          expect(result, equals(ExitCode.success.code));
+
+          return Directory(path.join(tempDirectory.path, 'my_cli', 'bin'));
+        }
+
+        bool isExecutable(File file) => file.statSync().mode & 0x40 != 0;
+
+        test('marks the entrypoint as executable', () async {
+          final binDirectory = await runWithBinFiles([
+            'my_executable.dart',
+            'README.md',
+          ]);
+
+          expect(
+            isExecutable(
+              File(path.join(binDirectory.path, 'my_executable.dart')),
+            ),
+            isTrue,
+          );
+          expect(
+            isExecutable(File(path.join(binDirectory.path, 'README.md'))),
+            isFalse,
+          );
+        }, testOn: '!windows');
+
+        test('does nothing when bin has no Dart files', () async {
+          final binDirectory = await runWithBinFiles(['README.md']);
+
+          expect(
+            isExecutable(File(path.join(binDirectory.path, 'README.md'))),
+            isFalse,
+          );
+        }, testOn: '!windows');
+      });
     });
   });
 }

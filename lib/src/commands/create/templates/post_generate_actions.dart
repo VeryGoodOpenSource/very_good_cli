@@ -93,3 +93,28 @@ Future<void> applyDartFixes(
 
   applyFixesProgress.complete();
 }
+
+/// Marks the Dart files in the `bin` directory of [outputDir] as executable,
+/// so entrypoints with a `#!/usr/bin/env dart` shebang can be run directly.
+///
+/// Mason does not preserve file permissions, so this is done after
+/// generation. This is a no-op on Windows or when there are no entrypoints.
+Future<void> makeEntrypointsExecutable(
+  Logger logger,
+  Directory outputDir,
+) async {
+  if (Platform.isWindows) return;
+
+  final binDirectory = Directory(p.join(outputDir.path, 'bin'));
+  if (!binDirectory.existsSync()) return;
+
+  final entrypoints = binDirectory
+      .listSync()
+      .whereType<File>()
+      .where((file) => p.extension(file.path) == '.dart')
+      .map((file) => file.path)
+      .toList();
+  if (entrypoints.isEmpty) return;
+
+  await Chmod.makeExecutable(entrypoints, logger: logger);
+}

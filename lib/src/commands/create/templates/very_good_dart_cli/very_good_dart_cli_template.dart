@@ -21,6 +21,7 @@ class VeryGoodDartCLITemplate() extends Template {
     if (await installDartPackages(logger, outputDir)) {
       await applyDartFixes(logger, outputDir);
     }
+    await makeEntrypointsExecutable(logger, outputDir);
     _logSummary(logger);
   }
 
