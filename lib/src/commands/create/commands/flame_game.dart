@@ -37,10 +37,8 @@ class CreateFlameGame({
   Template get template => VeryGoodFlameGameTemplate();
 
   @override
-  Map<String, dynamic> getTemplateVars() {
-    final vars = super.getTemplateVars();
-    final platforms = argResults['platforms'] as List<String>;
-    vars['platforms'] = platforms;
-    return vars;
-  }
+  TemplateVarResolvers get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'platforms': () => argResults['platforms'] as List<String>,
+  };
 }

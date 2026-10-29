@@ -22,6 +22,9 @@ const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 
+/// Lazy resolvers for template vars, keyed by the brick var name.
+typedef TemplateVarResolvers = Map<String, Object? Function()>;
+
 /// {@template create_subcommand}
 /// Generic class for sub commands of [CreateCommand].
 /// {@endtemplate}
@@ -259,28 +262,32 @@ abstract class CreateSubCommand({
     return ExitCode.success.code;
   }
 
-  /// Responsible for returns the template parameters to be passed to the
-  /// template brick.
+  /// The template vars this command handles, keyed by the brick var name.
   ///
-  /// Override if the create sub command requires additional template
-  /// parameters.
+  /// Each resolver is only invoked by [getTemplateVars], so the keys can be
+  /// read without parsing any arguments.
+  ///
+  /// Override to handle additional template vars, spreading
+  /// `super.templateVarResolvers` into the returned map.
   ///
   /// For subcommands that mix with [OrgName], it includes 'org_name'.
   /// For subcommands that mix with [Publishable], it includes 'publishable'.
   /// For subcommands that mix with [Workspace], it includes 'workspace'.
   @mustCallSuper
-  Map<String, dynamic> getTemplateVars() {
-    final projectName = this.projectName;
-    final projectDescription = this.projectDescription;
+  TemplateVarResolvers get templateVarResolvers => {
+    'project_name': () => projectName,
+    'description': () => projectDescription,
+  };
 
-    return <String, dynamic>{
-      'project_name': projectName,
-      'description': projectDescription,
-      if (this is OrgName) 'org_name': (this as OrgName).orgName,
-      if (this is Publishable) 'publishable': (this as Publishable).publishable,
-      if (this is Workspace) 'workspace': (this as Workspace).workspace,
-    };
-  }
+  /// Returns the template parameters to be passed to the template brick.
+  ///
+  /// Computed from [templateVarResolvers]. Vars that resolve to `null` are
+  /// omitted so the template falls back to its default value.
+  @nonVirtual
+  Map<String, dynamic> getTemplateVars() => <String, dynamic>{
+    for (final MapEntry(:key, value: resolve) in templateVarResolvers.entries)
+      key: ?resolve(),
+  };
 }
 
 /// Mixin for [CreateSubCommand] subclasses that receives the org name
@@ -288,6 +295,12 @@ abstract class CreateSubCommand({
 ///
 /// Takes care of parsing from [argResults] and validating the org name.
 mixin OrgName on CreateSubCommand {
+  @override
+  TemplateVarResolvers get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'org_name': () => orgName,
+  };
+
   /// Gets the organization name.
   String get orgName {
     final orgName = argResults.resolve<String>(
@@ -365,6 +378,12 @@ mixin MultiTemplates on CreateSubCommand {
 /// Takes care of parsing it from [argResults] and pass it
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
+  @override
+  TemplateVarResolvers get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'publishable': () => publishable,
+  };
+
   /// Gets the publishable flag.
   bool get publishable => argResults.resolve<bool>(
     'publishable',
@@ -378,6 +397,12 @@ mixin Publishable on CreateSubCommand {
 /// Takes care of parsing it from [argResults] and pass it
 /// to the brick generator.
 mixin Workspace on CreateSubCommand {
+  @override
+  TemplateVarResolvers get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'workspace': () => workspace,
+  };
+
   /// Gets the workspace flag.
   bool get workspace => argResults.resolve<bool>(
     'workspace',
