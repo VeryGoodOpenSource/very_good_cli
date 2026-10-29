@@ -62,6 +62,19 @@ class _TestCreateSubCommandWithWorkspace({
   required super.generatorFromBundle,
 }) extends _TestCreateSubCommand with Workspace;
 
+class _TestCreateSubCommandWithNullableVar({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand {
+  @override
+  Map<String, Object? Function()> get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'nullable': () => null,
+    'present': () => 'value',
+  };
+}
+
 class _TestCreateSubCommandMultiTemplate({
   @override required final List<Template> templates,
   required super.logger,
@@ -159,6 +172,68 @@ Run "runner help" to see global options.''';
               .having((o) => o.mandatory, 'mandatory', false),
         });
         expect(command.argParser.commands, isEmpty);
+      });
+    });
+
+    group('templateVarResolvers', () {
+      test('keys can be read without parsing arguments', () {
+        CreateSubCommand create(
+          CreateSubCommand Function({
+            required Template template,
+            required Logger logger,
+            required MasonGeneratorFromBundle? generatorFromBundle,
+          })
+          constructor,
+        ) => constructor(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        );
+
+        expect(
+          create(_TestCreateSubCommand.new).templateVarResolvers.keys,
+          equals(['project_name', 'description']),
+        );
+        expect(
+          create(_TestCreateSubCommandWithOrgName.new)
+              .templateVarResolvers
+              .keys,
+          equals(['project_name', 'description', 'org_name']),
+        );
+        expect(
+          create(_TestCreateSubCommandWithPublishable.new)
+              .templateVarResolvers
+              .keys,
+          equals(['project_name', 'description', 'publishable']),
+        );
+        expect(
+          create(_TestCreateSubCommandWithWorkspace.new)
+              .templateVarResolvers
+              .keys,
+          equals(['project_name', 'description', 'workspace']),
+        );
+      });
+
+      test('getTemplateVars omits vars that resolve to null', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.rest).thenReturn(['test_project']);
+        when(() => argResults['description']).thenReturn('description');
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+
+        final command = _TestCreateSubCommandWithNullableVar(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(
+          command.getTemplateVars(),
+          equals({
+            'project_name': 'test_project',
+            'description': 'description',
+            'present': 'value',
+          }),
+        );
       });
     });
 
