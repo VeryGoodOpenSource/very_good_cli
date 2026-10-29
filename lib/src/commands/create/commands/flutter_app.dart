@@ -42,19 +42,11 @@ class CreateFlutterApp({
   String get description => 'Generate a Very Good Flutter application.';
 
   @override
-  Map<String, dynamic> getTemplateVars() {
-    final vars = super.getTemplateVars();
-
-    final applicationId = argResults['application-id'] as String?;
-    if (applicationId != null) {
-      vars['application_id'] = applicationId;
-    }
-
-    final platforms = argResults['platforms'] as List<String>;
-    vars['platforms'] = platforms;
-
-    return vars;
-  }
+  Map<String, Object? Function()> get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'application_id': () => argResults['application-id'] as String?,
+    'platforms': () => argResults['platforms'] as List<String>,
+  };
 
   @override
   final List<Template> templates = [VeryGoodCoreTemplate()];

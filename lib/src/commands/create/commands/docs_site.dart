@@ -28,16 +28,14 @@ class CreateDocsSite({
   String get description => 'Generate a Very Good documentation site.';
 
   @override
-  Map<String, dynamic> getTemplateVars() {
-    return <String, dynamic>{
-      ...super.getTemplateVars(),
-      'org_name': argResults.resolve<String>(
-        'org-name',
-        createConfig.orgName,
-        fallbackValue: _defaultOrgName,
-      ),
-    };
-  }
+  Map<String, Object? Function()> get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'org_name': () => argResults.resolve<String>(
+      'org-name',
+      createConfig.orgName,
+      fallbackValue: _defaultOrgName,
+    ),
+  };
 
   @override
   Template get template => VeryGoodDocsSiteTemplate();

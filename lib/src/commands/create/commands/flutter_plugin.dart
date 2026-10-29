@@ -38,13 +38,8 @@ class CreateFlutterPlugin({
   Template get template => FlutterPluginTemplate();
 
   @override
-  Map<String, dynamic> getTemplateVars() {
-    final vars = super.getTemplateVars();
-
-    final platforms = argResults['platforms'] as List<String>;
-
-    vars['platforms'] = platforms;
-
-    return vars;
-  }
+  Map<String, Object? Function()> get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'platforms': () => argResults['platforms'] as List<String>,
+  };
 }
