@@ -16,6 +16,9 @@ Use `-o` or `--output-directory` to specify a custom output directory for the ge
 # Create a new Dart package named my_dart_package
 very_good create dart_package my_dart_package --desc "My new Dart package"
 
+# Create a new Dart package named my_dart_package with a custom copyright holder
+very_good create dart_package my_dart_package --desc "My new Dart package" --org-name "My Company"
+
 # Create a new Dart package named my_dart_package that is publishable
 very_good create dart_package my_dart_package --desc "My new Dart package" --publishable
 

@@ -19,6 +19,9 @@ generated project.
 # Create a new App UI package named my_app_ui
 very_good create app_ui_package my_app_ui --desc "My new App UI package"
 
+# Create a new App UI package with a custom copyright holder
+very_good create app_ui_package my_app_ui --desc "My new App UI package" --org-name "My Company"
+
 # Create a new App UI package that is publishable
 very_good create app_ui_package my_app_ui --desc "My new App UI package" --publishable
 

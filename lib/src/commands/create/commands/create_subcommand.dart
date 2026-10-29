@@ -49,6 +49,9 @@ typedef TemplateVarResolvers = Map<String, Object? Function()>;
 ///
 /// For sub commands that receive a workspace flag, sub classes must mix with
 /// [Workspace].
+///
+/// For sub commands that receive a free-form org name, sub classes must mix
+/// with [FreeFormOrgName].
 abstract class CreateSubCommand({
   /// The logger user to notify the user of the command's progress.
   required final Logger logger,
@@ -115,6 +118,15 @@ abstract class CreateSubCommand({
         help:
             'Whether the generated project should resolve its dependencies '
             'from a parent Pub workspace.',
+      );
+    }
+
+    if (this is FreeFormOrgName) {
+      argParser.addOption(
+        'org-name',
+        help: 'The organization for this new project.',
+        defaultsTo: (this as FreeFormOrgName).defaultOrgName,
+        aliases: ['org'],
       );
     }
   }
@@ -408,5 +420,33 @@ mixin Workspace on CreateSubCommand {
     'workspace',
     createConfig.workspace,
     fallbackValue: false,
+  );
+}
+
+/// Mixin for [CreateSubCommand] subclasses that receive a free-form org name,
+/// such as a copyright holder or a GitHub organization.
+///
+/// Unlike [OrgName], the value is not validated as a reverse-domain
+/// identifier. Both mixins register the `org-name` option, so combining them
+/// throws an [ArgumentError] when the command is constructed.
+///
+/// The org name resolves from the `--org-name` option, then the
+/// `create.org_name` key in `very_good.yaml`, then [defaultOrgName].
+mixin FreeFormOrgName on CreateSubCommand {
+  /// The org name used when neither the `--org-name` option nor the
+  /// `create.org_name` configuration value is provided.
+  String get defaultOrgName;
+
+  @override
+  Map<String, Object? Function()> get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'org_name': () => orgName,
+  };
+
+  /// Gets the organization name.
+  String get orgName => argResults.resolve<String>(
+    'org-name',
+    createConfig.orgName,
+    fallbackValue: defaultOrgName,
   );
 }

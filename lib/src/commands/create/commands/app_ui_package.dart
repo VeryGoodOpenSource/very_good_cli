@@ -7,9 +7,12 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateAppUiPackage({
   required super.logger,
   required super.generatorFromBundle,
-}) extends CreateSubCommand with Publishable, Workspace {
+}) extends CreateSubCommand with Publishable, Workspace, FreeFormOrgName {
   /// {@macro very_good_create_app_ui_package_command}
   this;
+
+  @override
+  String get defaultOrgName => 'com.example.verygoodapp';
 
   @override
   String get name => 'app_ui_package';
