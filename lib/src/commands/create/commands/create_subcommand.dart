@@ -282,7 +282,8 @@ abstract class CreateSubCommand({
   /// Override to handle additional template vars, spreading
   /// `super.templateVarResolvers` into the returned map.
   ///
-  /// For subcommands that mix with [OrgName], it includes 'org_name'.
+  /// For subcommands that mix with [OrgName] or [FreeFormOrgName], it
+  /// includes 'org_name'.
   /// For subcommands that mix with [Publishable], it includes 'publishable'.
   /// For subcommands that mix with [Workspace], it includes 'workspace'.
   @mustCallSuper
@@ -438,7 +439,7 @@ mixin FreeFormOrgName on CreateSubCommand {
   String get defaultOrgName;
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'org_name': () => orgName,
   };
