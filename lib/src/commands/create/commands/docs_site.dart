@@ -28,7 +28,7 @@ class CreateDocsSite({
   String get description => 'Generate a Very Good documentation site.';
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'org_name': () => argResults.resolve<String>(
       'org-name',

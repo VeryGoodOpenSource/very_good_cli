@@ -22,6 +22,9 @@ const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
 
+/// Lazy resolvers for template vars, keyed by the brick var name.
+typedef TemplateVarResolvers = Map<String, Object? Function()>;
+
 /// {@template create_subcommand}
 /// Generic class for sub commands of [CreateCommand].
 /// {@endtemplate}
@@ -271,7 +274,7 @@ abstract class CreateSubCommand({
   /// For subcommands that mix with [Publishable], it includes 'publishable'.
   /// For subcommands that mix with [Workspace], it includes 'workspace'.
   @mustCallSuper
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     'project_name': () => projectName,
     'description': () => projectDescription,
   };
@@ -293,7 +296,7 @@ abstract class CreateSubCommand({
 /// Takes care of parsing from [argResults] and validating the org name.
 mixin OrgName on CreateSubCommand {
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'org_name': () => orgName,
   };
@@ -376,7 +379,7 @@ mixin MultiTemplates on CreateSubCommand {
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'publishable': () => publishable,
   };
@@ -395,7 +398,7 @@ mixin Publishable on CreateSubCommand {
 /// to the brick generator.
 mixin Workspace on CreateSubCommand {
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'workspace': () => workspace,
   };

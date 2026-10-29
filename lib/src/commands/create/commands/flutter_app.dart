@@ -42,7 +42,7 @@ class CreateFlutterApp({
   String get description => 'Generate a Very Good Flutter application.';
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'application_id': () => argResults['application-id'] as String?,
     'platforms': () => argResults['platforms'] as List<String>,
