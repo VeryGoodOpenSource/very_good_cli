@@ -16,6 +16,9 @@ Use `-o` or `--output-directory` to specify a custom output directory for the ge
 # Create a new Flutter package named my_flutter_package
 very_good create flutter_package my_flutter_package --desc "My new Flutter package"
 
+# Create a new Flutter package named my_flutter_package with a custom copyright holder
+very_good create flutter_package my_flutter_package --desc "My new Flutter package" --org-name "My Company"
+
 # Create a new Flutter package named my_flutter_package that is publishable
 very_good create flutter_package my_flutter_package --desc "My new Flutter package" --publishable
 

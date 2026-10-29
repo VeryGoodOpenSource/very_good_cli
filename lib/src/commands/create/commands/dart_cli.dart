@@ -6,7 +6,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 /// {@endtemplate}
 class CreateDartCLI({required super.logger, required super.generatorFromBundle})
     extends CreateSubCommand
-    with Publishable, Workspace {
+    with Publishable, Workspace, FreeFormOrgName {
   /// {@macro very_good_create_dart_cli_command}
   this {
     argParser.addOption(
@@ -14,6 +14,9 @@ class CreateDartCLI({required super.logger, required super.generatorFromBundle})
       help: 'The CLI executable name (defaults to the project name)',
     );
   }
+
+  @override
+  String get defaultOrgName => 'Very Good Ventures';
 
   @override
   String get name => 'dart_cli';

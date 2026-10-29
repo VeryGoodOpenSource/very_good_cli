@@ -62,6 +62,24 @@ class _TestCreateSubCommandWithWorkspace({
   required super.generatorFromBundle,
 }) extends _TestCreateSubCommand with Workspace;
 
+class _TestCreateSubCommandWithFreeFormOrgName({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand with FreeFormOrgName {
+  @override
+  String get defaultOrgName => 'Default Org';
+}
+
+class _TestCreateSubCommandWithBothOrgNames({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand with OrgName, FreeFormOrgName {
+  @override
+  String get defaultOrgName => 'Default Org';
+}
+
 class _TestCreateSubCommandWithNullableVar({
   required super.template,
   required super.logger,
@@ -1835,6 +1853,98 @@ Run "runner help" to see global options.''';
           ),
         ).called(1);
       });
+    });
+  });
+
+  group('FreeFormOrgName', () {
+    late Template template;
+
+    setUp(() {
+      template = _MockTemplate();
+    });
+
+    _TestCreateSubCommandWithFreeFormOrgName parse(
+      List<String> args, {
+      VeryGoodCreateConfig createConfig = const VeryGoodCreateConfig(),
+    }) {
+      final command = _TestCreateSubCommandWithFreeFormOrgName(
+        template: template,
+        logger: logger,
+        generatorFromBundle: null,
+      )..createConfig = createConfig;
+      return command
+        ..argResultOverrides = command.argParser.parse([
+          'test_project',
+          ...args,
+        ]);
+    }
+
+    test('adds the org-name option', () {
+      final command = _TestCreateSubCommandWithFreeFormOrgName(
+        template: template,
+        logger: logger,
+        generatorFromBundle: null,
+      );
+
+      expect(
+        command.argParser.options['org-name'],
+        isA<Option>()
+            .having((o) => o.isSingle, 'isSingle', true)
+            .having((o) => o.defaultsTo, 'defaultsTo', 'Default Org')
+            .having((o) => o.aliases, 'aliases', ['org']),
+      );
+      expect(command.templateVarResolvers.keys, [
+        'project_name',
+        'description',
+        'org_name',
+      ]);
+    });
+
+    test('passes a free-form org name', () {
+      final command = parse(['--org-name', 'Very Good Ventures']);
+
+      expect(command.getTemplateVars()['org_name'], 'Very Good Ventures');
+    });
+
+    test('parses org name from alias', () {
+      final command = parse(['--org', 'Acme']);
+
+      expect(command.orgName, 'Acme');
+    });
+
+    test('resolves the org name from the config value', () {
+      final command = parse(
+        [],
+        createConfig: const VeryGoodCreateConfig(orgName: 'From config'),
+      );
+
+      expect(command.orgName, 'From config');
+    });
+
+    test('prefers the CLI argument over the config value', () {
+      final command = parse([
+        '--org-name',
+        'From CLI',
+      ], createConfig: const VeryGoodCreateConfig(orgName: 'From config'));
+
+      expect(command.orgName, 'From CLI');
+    });
+
+    test('falls back to defaultOrgName when neither is set', () {
+      final command = parse([]);
+
+      expect(command.orgName, 'Default Org');
+    });
+
+    test('cannot be combined with OrgName', () {
+      expect(
+        () => _TestCreateSubCommandWithBothOrgNames(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        ),
+        throwsArgumentError,
+      );
     });
   });
 }
