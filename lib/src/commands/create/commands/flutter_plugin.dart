@@ -41,5 +41,6 @@ class CreateFlutterPlugin({
   TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'platforms': () => argResults['platforms'] as List<String>,
+    'dart_fix_output': () => true,
   };
 }
