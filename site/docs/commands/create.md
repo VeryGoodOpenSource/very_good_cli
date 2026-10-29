@@ -84,6 +84,10 @@ create:
 
 With the file above, running `very_good create flutter_app my_app` behaves the same as running `very_good create flutter_app my_app --desc 'A Very Good project.' --org-name com.very.good --publishable --template core`. You can still override any of these values on the command line, for example `very_good create flutter_app my_app --org-name com.example` to use a different org name for a single run.
 
+:::note
+For `app_ui_package`, `dart_cli`, `dart_package`, and `flutter_package`, the org name is the copyright holder in the generated `LICENSE` and accepts any text. Setting `org_name` in `very_good.yaml` applies to these subcommands too.
+:::
+
 The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged. This lets a single `very_good.yaml` at the repository root apply to commands run from any nested package.
 
 ## Available templates

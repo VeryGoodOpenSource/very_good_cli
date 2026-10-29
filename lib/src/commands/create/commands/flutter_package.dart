@@ -7,9 +7,12 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlutterPackage({
   required super.logger,
   required super.generatorFromBundle,
-}) extends CreateSubCommand with Publishable, Workspace {
+}) extends CreateSubCommand with Publishable, Workspace, FreeFormOrgName {
   /// {@macro very_good_create_flutter_package_command}
   this;
+
+  @override
+  String get defaultOrgName => 'Very Good Ventures';
 
   @override
   String get name => 'flutter_package';
