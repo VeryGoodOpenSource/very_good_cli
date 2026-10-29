@@ -16,6 +16,11 @@ class VeryGoodFlameGameTemplate() extends Template {
         help: 'Generate a Very Good Flame game.',
       );
 
+  /// `application_id` is derived from `org_name` and `project_name` by the
+  /// template when omitted.
+  @override
+  Set<String> get defaultedVars => const {'application_id'};
+
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     if (await installFlutterPackages(logger, outputDir)) {
