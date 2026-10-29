@@ -95,12 +95,7 @@ abstract class CreateSubCommand({
     }
 
     if (this is OrgName) {
-      argParser.addOption(
-        'org-name',
-        help: 'The organization for this new project.',
-        defaultsTo: _defaultOrgName,
-        aliases: ['org'],
-      );
+      _addOrgNameOption(defaultsTo: _defaultOrgName);
     }
 
     if (this is Publishable) {
@@ -122,13 +117,17 @@ abstract class CreateSubCommand({
     }
 
     if (this is FreeFormOrgName) {
-      argParser.addOption(
-        'org-name',
-        help: 'The organization for this new project.',
-        defaultsTo: (this as FreeFormOrgName).defaultOrgName,
-        aliases: ['org'],
-      );
+      _addOrgNameOption(defaultsTo: (this as FreeFormOrgName).defaultOrgName);
     }
+  }
+
+  void _addOrgNameOption({required String defaultsTo}) {
+    argParser.addOption(
+      'org-name',
+      help: 'The organization for this new project.',
+      defaultsTo: defaultsTo,
+      aliases: ['org'],
+    );
   }
 
   final MasonGeneratorFromBundle _generatorFromBundle =
