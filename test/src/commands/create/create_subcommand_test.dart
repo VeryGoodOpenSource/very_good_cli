@@ -68,7 +68,7 @@ class _TestCreateSubCommandWithNullableVar({
   required super.generatorFromBundle,
 }) extends _TestCreateSubCommand {
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'nullable': () => null,
     'present': () => 'value',

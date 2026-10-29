@@ -37,7 +37,7 @@ class CreateFlameGame({
   Template get template => VeryGoodFlameGameTemplate();
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'platforms': () => argResults['platforms'] as List<String>,
   };

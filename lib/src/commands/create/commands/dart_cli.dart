@@ -25,7 +25,7 @@ class CreateDartCLI({required super.logger, required super.generatorFromBundle})
   Template get template => VeryGoodDartCLITemplate();
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'executable_name': () =>
         argResults['executable-name'] as String? ?? projectName,

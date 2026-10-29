@@ -38,7 +38,7 @@ class CreateFlutterPlugin({
   Template get template => FlutterPluginTemplate();
 
   @override
-  Map<String, Object? Function()> get templateVarResolvers => {
+  TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'platforms': () => argResults['platforms'] as List<String>,
   };
