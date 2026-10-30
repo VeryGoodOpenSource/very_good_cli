@@ -485,6 +485,20 @@ Only one value can be selected.
 
   Future<CallToolResult> _handleTest(CallToolRequest request) {
     final args = request.arguments ?? {};
+    if (args['check_ignore'] == true && args['dart'] != true) {
+      return Future.value(
+        StructuredToolError(
+          toolName: 'test',
+          reason:
+              '"check_ignore" is only supported by the Dart test runner and '
+              'requires "dart": true. Flutter\'s test command does not accept '
+              '--check-ignore; omit the argument or set "check_ignore": false '
+              'for Flutter runs.',
+          failureType: ToolFailureType.validation,
+          attemptedArguments: args,
+        ).toCallToolResult(),
+      );
+    }
     final cliArgs = _parseTest(args);
     final timeoutSeconds = (args['timeout_seconds'] as num?)?.toInt();
     return _runToolCommand(
