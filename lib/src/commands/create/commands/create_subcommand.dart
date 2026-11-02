@@ -59,6 +59,17 @@ abstract class CreateSubCommand({
 }) extends Command<int> {
   /// {@macro create_subcommand}
   this {
+    addOptions();
+  }
+
+  /// Registers the options this command accepts on [argParser].
+  ///
+  /// Called once, when the command is constructed. Mixins override it to add
+  /// their own options after calling `super.addOptions()`, so options are
+  /// listed in the order the mixins are applied.
+  @protected
+  @mustCallSuper
+  void addOptions() {
     argParser
       ..addOption(
         'output-directory',
@@ -71,54 +82,6 @@ abstract class CreateSubCommand({
         aliases: ['desc'],
         defaultsTo: _defaultDescription,
       );
-
-    // Add the templates arg if the command has multiple templates.
-    if (this is MultiTemplates) {
-      final multiTemplates = this as MultiTemplates;
-      final templates = multiTemplates.templates;
-      final defaultTemplateName = multiTemplates.defaultTemplateName;
-
-      argParser.addOption(
-        'template',
-        abbr: 't',
-        help: 'The template used to generate this new project.',
-        defaultsTo: defaultTemplateName,
-        allowed: templates.map((template) => template.name).toList(),
-        allowedHelp: templates.fold<Map<String, String>>(
-          {},
-          (previousTemplate, template) => {
-            ...previousTemplate,
-            template.name: template.help,
-          },
-        ),
-      );
-    }
-
-    if (this is OrgName) {
-      _addOrgNameOption(defaultsTo: _defaultOrgName);
-    }
-
-    if (this is Publishable) {
-      argParser.addFlag(
-        'publishable',
-        negatable: false,
-        help: 'Whether the generated project is intended to be published.',
-      );
-    }
-
-    if (this is Workspace) {
-      argParser.addFlag(
-        'workspace',
-        aliases: ['ws'],
-        help:
-            'Whether the generated project should resolve its dependencies '
-            'from a parent Pub workspace.',
-      );
-    }
-
-    if (this is FreeFormOrgName) {
-      _addOrgNameOption(defaultsTo: (this as FreeFormOrgName).defaultOrgName);
-    }
   }
 
   void _addOrgNameOption({required String defaultsTo}) {
@@ -309,6 +272,12 @@ abstract class CreateSubCommand({
 /// Takes care of parsing from [argResults] and validating the org name.
 mixin OrgName on CreateSubCommand {
   @override
+  void addOptions() {
+    super.addOptions();
+    _addOrgNameOption(defaultsTo: _defaultOrgName);
+  }
+
+  @override
   TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'org_name': () => orgName,
@@ -352,6 +321,25 @@ mixin OrgName on CreateSubCommand {
 /// Takes care of parsing the desired template from [argResults] and
 /// validating the org name.
 mixin MultiTemplates on CreateSubCommand {
+  @override
+  void addOptions() {
+    super.addOptions();
+    argParser.addOption(
+      'template',
+      abbr: 't',
+      help: 'The template used to generate this new project.',
+      defaultsTo: defaultTemplateName,
+      allowed: templates.map((template) => template.name).toList(),
+      allowedHelp: templates.fold<Map<String, String>>(
+        {},
+        (previousTemplate, template) => {
+          ...previousTemplate,
+          template.name: template.help,
+        },
+      ),
+    );
+  }
+
   /// Gets the desired template to be created during a command run when the
   /// template argument is not provided.
   ///
@@ -392,6 +380,16 @@ mixin MultiTemplates on CreateSubCommand {
 /// to the brick generator.
 mixin Publishable on CreateSubCommand {
   @override
+  void addOptions() {
+    super.addOptions();
+    argParser.addFlag(
+      'publishable',
+      negatable: false,
+      help: 'Whether the generated project is intended to be published.',
+    );
+  }
+
+  @override
   TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
     'publishable': () => publishable,
@@ -410,6 +408,18 @@ mixin Publishable on CreateSubCommand {
 /// Takes care of parsing it from [argResults] and pass it
 /// to the brick generator.
 mixin Workspace on CreateSubCommand {
+  @override
+  void addOptions() {
+    super.addOptions();
+    argParser.addFlag(
+      'workspace',
+      aliases: ['ws'],
+      help:
+          'Whether the generated project should resolve its dependencies '
+          'from a parent Pub workspace.',
+    );
+  }
+
   @override
   TemplateVarResolvers get templateVarResolvers => {
     ...super.templateVarResolvers,
@@ -431,12 +441,18 @@ mixin Workspace on CreateSubCommand {
 /// identifier. Both mixins register the `org-name` option, so combining them
 /// throws an [ArgumentError] when the command is constructed.
 ///
-/// The org name resolves from the `--org-name` option, then the
-/// `create.org_name` key in `very_good.yaml`, then [defaultOrgName].
+/// The org name resolves from the `--org-name` option, then [defaultOrgName].
+/// The `create.org_name` key in `very_good.yaml` is ignored, since it holds
+/// the reverse-domain identifier that [OrgName] validates.
 mixin FreeFormOrgName on CreateSubCommand {
-  /// The org name used when neither the `--org-name` option nor the
-  /// `create.org_name` configuration value is provided.
+  /// The org name used when the `--org-name` option is not provided.
   String get defaultOrgName;
+
+  @override
+  void addOptions() {
+    super.addOptions();
+    _addOrgNameOption(defaultsTo: defaultOrgName);
+  }
 
   @override
   TemplateVarResolvers get templateVarResolvers => {
@@ -445,9 +461,5 @@ mixin FreeFormOrgName on CreateSubCommand {
   };
 
   /// Gets the organization name.
-  String get orgName => argResults.resolve<String>(
-    'org-name',
-    createConfig.orgName,
-    fallbackValue: defaultOrgName,
-  );
+  String get orgName => argResults['org-name'] as String? ?? defaultOrgName;
 }

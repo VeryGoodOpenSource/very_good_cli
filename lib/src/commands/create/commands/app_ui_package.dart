@@ -12,7 +12,7 @@ class CreateAppUiPackage({
   this;
 
   @override
-  String get defaultOrgName => 'com.example.verygoodapp';
+  String get defaultOrgName => 'Very Good Ventures';
 
   @override
   String get name => 'app_ui_package';

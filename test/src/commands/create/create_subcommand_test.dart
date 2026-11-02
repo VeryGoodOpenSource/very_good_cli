@@ -1912,25 +1912,16 @@ Run "runner help" to see global options.''';
       expect(command.orgName, 'Acme');
     });
 
-    test('resolves the org name from the config value', () {
+    test('ignores the create.org_name config value', () {
       final command = parse(
         [],
-        createConfig: const VeryGoodCreateConfig(orgName: 'From config'),
+        createConfig: const VeryGoodCreateConfig(orgName: 'com.very.good'),
       );
 
-      expect(command.orgName, 'From config');
+      expect(command.orgName, 'Default Org');
     });
 
-    test('prefers the CLI argument over the config value', () {
-      final command = parse([
-        '--org-name',
-        'From CLI',
-      ], createConfig: const VeryGoodCreateConfig(orgName: 'From config'));
-
-      expect(command.orgName, 'From CLI');
-    });
-
-    test('falls back to defaultOrgName when neither is set', () {
+    test('falls back to defaultOrgName when the option is omitted', () {
       final command = parse([]);
 
       expect(command.orgName, 'Default Org');

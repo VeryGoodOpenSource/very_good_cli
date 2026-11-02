@@ -8,7 +8,7 @@ class CreateFlutterApp({
   required super.logger,
   required super.generatorFromBundle,
 }) extends CreateSubCommand
-    with OrgName, MultiTemplates, Publishable, Workspace {
+    with MultiTemplates, OrgName, Publishable, Workspace {
   /// {@macro very_good_create_flutter_app_command}
   this {
     argParser
