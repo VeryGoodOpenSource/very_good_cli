@@ -282,7 +282,8 @@ abstract class CreateSubCommand({
   /// Returns the template parameters to be passed to the template brick.
   ///
   /// Computed from [templateVarResolvers]. Vars that resolve to `null` are
-  /// omitted so the template falls back to its default value.
+  /// omitted. Mason does not apply a brick's default values, so an omitted
+  /// var renders empty unless the brick's `pre_gen` hook derives it.
   @nonVirtual
   Map<String, dynamic> getTemplateVars() => <String, dynamic>{
     for (final MapEntry(:key, value: resolve) in templateVarResolvers.entries)
