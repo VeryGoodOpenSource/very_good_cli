@@ -19,7 +19,10 @@ abstract class const Template({
   /// {@macro template}
   this;
 
-  /// The [bundle] vars intentionally left to the template's default value.
+  /// The [bundle] vars that `very_good create` intentionally does not pass.
+  ///
+  /// Mason does not apply a brick's default values, so each var listed here
+  /// must be derived by the brick's `pre_gen` hook or be safe to render empty.
   ///
   /// Every bundle var must either be passed by the `very_good create`
   /// subcommand that uses this template or be listed here.

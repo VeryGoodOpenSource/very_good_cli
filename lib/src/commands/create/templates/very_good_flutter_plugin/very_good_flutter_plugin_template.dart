@@ -15,6 +15,11 @@ class FlutterPluginTemplate() extends Template {
         help: 'Generate a Very Good Flutter plugin.',
       );
 
+  /// `dart_fix_output` only gates the brick's `post_gen` hook, which
+  /// `very_good create` does not run. [onGenerateComplete] applies the fixes.
+  @override
+  Set<String> get defaultedVars => const {'dart_fix_output'};
+
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     if (await installFlutterPackages(logger, outputDir, recursive: true)) {
