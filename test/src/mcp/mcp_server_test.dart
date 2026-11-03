@@ -602,6 +602,97 @@ void main() {
         expect(capturedArgs, equals(['test']));
       });
 
+      group('check_ignore validation', () {
+        test(
+          'rejects check_ignore: true without dart: true (dart omitted)',
+          () async {
+            // `--check-ignore` is only registered on `very_good dart test`.
+            // Forwarding it to `very_good test` (Flutter) exits with 64; the
+            // handler must reject the combination before invoking the runner.
+            final response = await sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'check_ignore': true},
+                ),
+              ),
+            );
+
+            expect(response['error'], isNull);
+            final result = CallToolResult.fromMap(
+              response['result'] as Map<String, Object?>,
+            );
+            expect(result.isError, isTrue);
+            final payload = _errorPayload(result);
+            expect(payload['failureType'], equals('validation'));
+            expect(payload['reason'], contains('check_ignore'));
+            expect(payload['reason'], contains('dart'));
+            verifyNever(() => mockCommandRunner.run(any()));
+          },
+        );
+
+        test('rejects check_ignore: true with dart: false', () async {
+          final response = await sendRequest(
+            CallToolRequest.methodName,
+            _params(
+              CallToolRequest(
+                name: 'test',
+                arguments: {'check_ignore': true, 'dart': false},
+              ),
+            ),
+          );
+
+          final result = CallToolResult.fromMap(
+            response['result'] as Map<String, Object?>,
+          );
+          expect(result.isError, isTrue);
+          final payload = _errorPayload(result);
+          expect(payload['failureType'], equals('validation'));
+          verifyNever(() => mockCommandRunner.run(any()));
+        });
+
+        test(
+          'allows check_ignore: false on Flutter without validation error',
+          () async {
+            await sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'check_ignore': false},
+                ),
+              ),
+            );
+
+            final capturedArgs =
+                verify(() => mockCommandRunner.run(captureAny())).captured.first
+                    as List<String>;
+            expect(capturedArgs, equals(['test']));
+          },
+        );
+
+        test(
+          'allows check_ignore: false on Dart without validation error',
+          () async {
+            await sendRequest(
+              CallToolRequest.methodName,
+              _params(
+                CallToolRequest(
+                  name: 'test',
+                  arguments: {'dart': true, 'check_ignore': false},
+                ),
+              ),
+            );
+
+            final capturedArgs =
+                verify(() => mockCommandRunner.run(captureAny())).captured.first
+                    as List<String>;
+            expect(capturedArgs, equals(['dart', 'test']));
+          },
+        );
+      });
+
       group('timeout_seconds (wall-clock)', () {
         // Mimics `_testCommand`'s SIGINT path: wait on
         // `ProcessSignalOverrides.current?.sigintWatch` and return
