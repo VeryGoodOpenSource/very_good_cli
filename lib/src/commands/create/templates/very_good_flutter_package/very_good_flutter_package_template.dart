@@ -15,6 +15,11 @@ class FlutterPkgTemplate() extends Template {
         help: 'Generate a Very Good Flutter package.',
       );
 
+  /// `org_name` is not passed yet, so the copyright holder in `LICENSE`
+  /// renders empty.
+  @override
+  Set<String> get defaultedVars => const {'org_name'};
+
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     if (await installFlutterPackages(logger, outputDir)) {
