@@ -35,6 +35,8 @@ Usage: very_good create dart_cli <project-name> [arguments]
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --publishable         Whether the generated project is intended to be published.
     --[no-]workspace      Whether the generated project should resolve its dependencies from a parent Pub workspace.
+    --org-name            The organization for this new project.
+                          (defaults to "Very Good Ventures")
     --executable-name     The CLI executable name (defaults to the project name)
 
 Run "very_good help" to see global options.''',
@@ -101,6 +103,17 @@ void main() {
         expect(resultAbbr, equals(ExitCode.success.code));
       }),
     );
+
+    test('passes the org name', () {
+      final command = CreateDartCLI(logger: logger, generatorFromBundle: null);
+      command.argResultOverrides = command.argParser.parse([
+        'my_cli',
+        '--org-name',
+        'Acme',
+      ]);
+
+      expect(command.getTemplateVars(), containsPair('org_name', 'Acme'));
+    });
 
     group('running the command', () {
       final generatedFiles = List.filled(
@@ -188,6 +201,7 @@ void main() {
               'description': '',
               'publishable': false,
               'workspace': false,
+              'org_name': 'Very Good Ventures',
               'executable_name': 'my_executable',
             },
             onVarsChanged: any(named: 'onVarsChanged'),
@@ -201,6 +215,7 @@ void main() {
               'description': '',
               'publishable': false,
               'workspace': false,
+              'org_name': 'Very Good Ventures',
               'executable_name': 'my_executable',
             },
             logger: logger,

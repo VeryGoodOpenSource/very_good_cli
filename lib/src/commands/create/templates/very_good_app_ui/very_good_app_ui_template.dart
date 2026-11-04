@@ -15,11 +15,6 @@ class AppUiTemplate() extends Template {
         help: 'Generate a Very Good App UI package.',
       );
 
-  /// `org_name` is not passed yet, so the copyright holder in `LICENSE`
-  /// renders empty.
-  @override
-  Set<String> get defaultedVars => const {'org_name'};
-
   @override
   Future<void> onGenerateComplete(Logger logger, Directory outputDir) async {
     if (await installFlutterPackages(logger, outputDir)) {

@@ -7,7 +7,7 @@ import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 class CreateFlutterPlugin({
   required super.logger,
   required super.generatorFromBundle,
-}) extends CreateSubCommand with Publishable, OrgName, Workspace {
+}) extends CreateSubCommand with OrgName, Publishable, Workspace {
   /// {@macro very_good_create_flutter_plugin_command}
   this {
     argParser.addMultiOption(
