@@ -232,6 +232,31 @@ void main() {
             );
           });
 
+          test('omits application_id when it is not provided', () async {
+            await testMultiTemplateCommand(
+              multiTemplatesCommand: CreateFlutterApp(
+                logger: logger,
+                generatorFromBundle: (_) async => generator,
+              ),
+              logger: logger,
+              hooks: hooks,
+              generator: generator,
+              templateName: 'core',
+              mockArgs: {
+                'platforms': const ['android', 'ios'],
+              },
+              expectedVars: {
+                'project_name': 'my_app',
+                'description': '',
+                'org_name': 'com.example.verygoodcore',
+                'publishable': false,
+                'workspace': false,
+                'platforms': const ['android', 'ios'],
+              },
+              expectedLogSummary: 'Created a Very Good App! 🦄',
+            );
+          });
+
           test('logs getting started information', () async {
             final tempDirectory = Directory.systemTemp.createTempSync();
             addTearDown(() => tempDirectory.deleteSync(recursive: true));

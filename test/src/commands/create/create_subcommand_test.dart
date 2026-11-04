@@ -62,6 +62,19 @@ class _TestCreateSubCommandWithWorkspace({
   required super.generatorFromBundle,
 }) extends _TestCreateSubCommand with Workspace;
 
+class _TestCreateSubCommandWithNullableVar({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand {
+  @override
+  TemplateVarResolvers get templateVarResolvers => {
+    ...super.templateVarResolvers,
+    'nullable': () => null,
+    'present': () => 'value',
+  };
+}
+
 class _TestCreateSubCommandMultiTemplate({
   @override required final List<Template> templates,
   required super.logger,
@@ -159,6 +172,34 @@ Run "runner help" to see global options.''';
               .having((o) => o.mandatory, 'mandatory', false),
         });
         expect(command.argParser.commands, isEmpty);
+        expect(command.templateVarResolvers.keys, [
+          'project_name',
+          'description',
+        ]);
+      });
+    });
+
+    group('templateVarResolvers', () {
+      test('getTemplateVars omits vars that resolve to null', () {
+        final argResults = _MockArgResults();
+        when(() => argResults.rest).thenReturn(['test_project']);
+        when(() => argResults['description']).thenReturn('description');
+        when(() => argResults.wasParsed(any())).thenReturn(true);
+
+        final command = _TestCreateSubCommandWithNullableVar(
+          template: template,
+          logger: logger,
+          generatorFromBundle: null,
+        )..argResultOverrides = argResults;
+
+        expect(
+          command.getTemplateVars(),
+          equals({
+            'project_name': 'test_project',
+            'description': 'description',
+            'present': 'value',
+          }),
+        );
       });
     });
 
@@ -611,6 +652,11 @@ Run "runner help" to see global options.''';
               .having((o) => o.aliases, 'aliases', ['org']),
         );
         expect(command.argParser.commands, isEmpty);
+        expect(command.templateVarResolvers.keys, [
+          'project_name',
+          'description',
+          'org_name',
+        ]);
       });
     });
 
@@ -1391,6 +1437,11 @@ Run "runner help" to see global options.''';
               .having((o) => o.aliases, 'aliases', <String>[]),
         );
         expect(command.argParser.commands, isEmpty);
+        expect(command.templateVarResolvers.keys, [
+          'project_name',
+          'description',
+          'publishable',
+        ]);
       });
     });
 
@@ -1585,6 +1636,11 @@ Run "runner help" to see global options.''';
               .having((o) => o.aliases, 'aliases', ['ws']),
         );
         expect(command.argParser.commands, isEmpty);
+        expect(command.templateVarResolvers.keys, [
+          'project_name',
+          'description',
+          'workspace',
+        ]);
       });
     });
 
