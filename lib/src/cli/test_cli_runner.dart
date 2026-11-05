@@ -551,7 +551,14 @@ Future<int> _testCommand({
     // SIGKILL after a grace period so the budget actually releases the
     // lock on a torn-down subprocess.
     await subscription.cancel();
+    // The `onForceKill` branch is only non-null when
+    // [TestCLIRunner.test] is called without `overrideTestRunner`, which
+    // means the runner spawns a real `dart test` / `flutter test`
+    // subprocess — behaviour the unit suite intentionally avoids and
+    // which is covered end-to-end through the MCP tool run.
+    // coverage:ignore-start
     if (onForceKill != null) await onForceKill();
+    // coverage:ignore-end
     await sigintWatchSubscription.cancel();
     return completer.complete(ExitCode.success.code);
   });
