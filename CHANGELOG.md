@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.6.0...v1.6.1) (2026-11-05)
+
+
+### Bug Fixes
+
+* isolate site and CLI releases ([#1792](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1792)) ([294f36a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/294f36a8d71776c07dc5201dbb929b77ecc47d4a))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.2.0 ([#1794](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1794)) ([0402470](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0402470aacf2b872d87aa1be4a9d40b94912f2d0))
+
 ## [1.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.5.0...v1.6.0) (2026-11-03)
 
 
