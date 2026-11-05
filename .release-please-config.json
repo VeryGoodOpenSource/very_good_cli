@@ -20,8 +20,9 @@
         "lib/src/version.dart"
       ],
       "exclude-paths": [
+        ".github",
         "site",
-        ".release-please-manifest.json"
+        "tool"
       ]
     },
     "site": {
@@ -31,13 +32,5 @@
       "include-component-in-tag": true,
       "pull-request-title-pattern": "chore(site): ${version}"
     }
-  },
-  "exclude-paths": [
-    ".github",
-    ".release-please-manifest.json",
-    ".release-please-config.json",
-    "CONTRIBUTING.md",
-    "site",
-    "tool"
-  ]
+  }
 }
