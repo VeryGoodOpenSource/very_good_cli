@@ -24,6 +24,42 @@ class _MockLogger extends Mock implements Logger;
 
 class _FakeGeneratorTarget extends Fake implements GeneratorTarget;
 
+/// A stand-in [Process] whose exit is driven by the test so
+/// [CancellableTestRunner.forceKillAfterGrace]'s teardown logic can be
+/// exercised without spawning a real subprocess.
+class _FakeProcess({
+  /// When `true` (the default) [kill] completes [exitCode] on SIGKILL,
+  /// mirroring the kernel. Set to `false` to simulate a process that even
+  /// SIGKILL cannot reap — the safety-valve branch that keeps the MCP lock
+  /// from hanging on a zombie.
+  final bool exitsOnSigkill = true,
+}) extends Fake implements Process {
+  /// Creates a [Process] stand-in.
+  this;
+
+  final Completer<int> _exitCode = Completer<int>();
+
+  /// Signals captured in the order [kill] received them, so a test can
+  /// assert that SIGKILL was delivered after the grace period.
+  final List<ProcessSignal> killCalls = [];
+
+  @override
+  Future<int> get exitCode => _exitCode.future;
+
+  @override
+  bool kill([ProcessSignal signal = ProcessSignal.sigterm]) {
+    killCalls.add(signal);
+    if (signal == ProcessSignal.sigkill && exitsOnSigkill) exit(-9);
+    return true;
+  }
+
+  /// Completes [exitCode] with [code] so a test can simulate the subprocess
+  /// finishing on its own before the grace period elapses.
+  void exit(int code) {
+    if (!_exitCode.isCompleted) _exitCode.complete(code);
+  }
+}
+
 void main() {
   group(TestRunType, () {
     test('runs the tests with the command of its runner', () {
@@ -43,6 +79,94 @@ void main() {
         isA<DartCoverageReport>(),
       );
     });
+  });
+
+  group(CancellableTestRunner, () {
+    for (final testType in TestRunType.values) {
+      group('with ${testType.name}', () {
+        test('forceKillAfterGrace is a no-op when no process was spawned', () {
+          final runner = CancellableTestRunner(testType);
+          expect(runner.attachedProcess, isNull);
+          // Completes without touching a process.
+          expect(runner.forceKillAfterGrace(), completes);
+        });
+
+        test(
+          'returns without SIGKILL when the subprocess exits in time',
+          () async {
+            final runner = CancellableTestRunner(testType);
+            final process = _FakeProcess();
+            runner.attachedProcess = process;
+
+            // The subprocess acts like a well-behaved `flutter test`: after
+            // SIGTERM reaches it (sent by very_good_test_runner's onCancel in
+            // the real flow), it exits well under the grace period.
+            Timer(
+              const Duration(milliseconds: 20),
+              () => process.exit(ExitCode.success.code),
+            );
+
+            await runner.forceKillAfterGrace(const Duration(milliseconds: 200));
+
+            expect(
+              process.killCalls,
+              isEmpty,
+              reason:
+                  'forceKillAfterGrace must not escalate to SIGKILL when the '
+                  'subprocess has already exited under SIGTERM',
+            );
+          },
+        );
+
+        test(
+          'escalates to SIGKILL when the subprocess ignores SIGTERM',
+          () async {
+            final runner = CancellableTestRunner(testType);
+            final process = _FakeProcess();
+            runner.attachedProcess = process;
+
+            // The subprocess acts like a `dart test` run that is blocked on a
+            // `Timeout.none` test awaiting a future that never completes:
+            // SIGTERM does not finish exitCode within the grace, so SIGKILL
+            // must be delivered.
+            await runner.forceKillAfterGrace(const Duration(milliseconds: 50));
+
+            expect(
+              process.killCalls,
+              equals([ProcessSignal.sigkill]),
+              reason:
+                  'a subprocess that outlives the grace period must be sent '
+                  'SIGKILL so the MCP wall-clock budget releases the lock on '
+                  'a torn-down process tree',
+            );
+          },
+        );
+
+        test(
+          'returns even when the subprocess never reaps after SIGKILL',
+          () async {
+            // Degenerate case: the subprocess is a zombie that even SIGKILL
+            // cannot reap (for example, a kernel thread that ignored it, or
+            // a process stuck in uninterruptible IO). The MCP lock is more
+            // important than observing the exit, so forceKillAfterGrace
+            // must still unblock.
+            final runner = CancellableTestRunner(testType);
+            final process = _FakeProcess(exitsOnSigkill: false);
+            runner.attachedProcess = process;
+
+            await runner
+                .forceKillAfterGrace(const Duration(milliseconds: 50))
+                .timeout(const Duration(seconds: 2));
+
+            expect(
+              process.killCalls,
+              equals([ProcessSignal.sigkill]),
+              reason: 'SIGKILL is still attempted before giving up',
+            );
+          },
+        );
+      });
+    }
   });
 
   group(TestCLIRunner, () {
