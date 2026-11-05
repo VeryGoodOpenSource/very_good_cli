@@ -43,6 +43,129 @@ enum TestRunType(
   };
 }
 
+/// How long [_testCommand] waits for the test subprocess to exit after
+/// SIGTERM (sent by `package:very_good_test_runner`'s `onCancel`) before
+/// escalating to SIGKILL.
+///
+/// `flutter test` tears down its `flutter_tester` subprocess under SIGTERM
+/// within well under a second. `dart test` instead treats SIGTERM as a
+/// request to shut down gracefully: it waits for every in-progress test to
+/// finish, and a test with `Timeout.none` awaiting a future that never
+/// completes blocks that shutdown indefinitely — leaving the `dart test`
+/// process (and the `frontend_server` it spawned) running past the MCP
+/// wall-clock budget. The grace period should be short enough to feel
+/// responsive and long enough that a well-behaved runner is never
+/// hard-killed mid-cleanup.
+const _forceKillGrace = Duration(seconds: 2);
+
+/// Wraps [dartTest] / [flutterTest] so the subprocess they spawn can be
+/// force-killed if SIGTERM alone does not tear it down.
+///
+/// The wrapper injects a `startProcess` override into the underlying runner
+/// to capture the [Process] handle, then exposes [forceKillAfterGrace] so
+/// the caller can escalate to SIGKILL after
+/// `package:very_good_test_runner`'s `onCancel` has had a chance to exit
+/// the subprocess gracefully.
+@visibleForTesting
+class CancellableTestRunner(final TestRunType _testType) {
+  /// Builds a cancellable runner for [_testType] (`dart test` or
+  /// `flutter test`).
+  this;
+
+  /// The subprocess the underlying test runner last spawned, tracked by
+  /// [_startProcess] so [forceKillAfterGrace] can tear it down.
+  Process? _process;
+
+  /// The subprocess the underlying test runner last spawned, if any.
+  ///
+  /// Exposed so tests can inject a fake [Process] and verify
+  /// [forceKillAfterGrace]'s teardown behaviour without having to run a real
+  /// `dart test` / `flutter test` subprocess.
+  @visibleForTesting
+  Process? get attachedProcess => _process;
+  @visibleForTesting
+  set attachedProcess(Process? process) => _process = process;
+
+  /// A [VeryGoodTestRunner] that delegates to [dartTest] / [flutterTest]
+  /// while capturing the spawned subprocess for later force-kill.
+  // Thin pass-through to `package:very_good_test_runner`. Exercising it
+  // means actually spawning `dart test` / `flutter test`, which the unit
+  // test suite intentionally avoids; the behaviour is covered end-to-end
+  // through the MCP tool run.
+  // coverage:ignore-start
+  Stream<TestEvent> run({
+    List<String>? arguments,
+    String? workingDirectory,
+    Map<String, String>? environment,
+    bool runInShell = false,
+  }) => switch (_testType) {
+    TestRunType.flutter => flutterTest(
+      arguments: arguments,
+      workingDirectory: workingDirectory,
+      environment: environment,
+      runInShell: runInShell,
+      startProcess: _startProcess,
+    ),
+    TestRunType.dart => dartTest(
+      arguments: arguments,
+      workingDirectory: workingDirectory,
+      environment: environment,
+      runInShell: runInShell,
+      startProcess: _startProcess,
+    ),
+  };
+
+  Future<Process> _startProcess(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+    Map<String, String>? environment,
+    bool includeParentEnvironment = true,
+    bool runInShell = false,
+    ProcessStartMode mode = ProcessStartMode.normal,
+  }) async {
+    final process = await Process.start(
+      executable,
+      arguments,
+      workingDirectory: workingDirectory,
+      environment: environment,
+      includeParentEnvironment: includeParentEnvironment,
+      runInShell: runInShell,
+      mode: mode,
+    );
+    _process = process;
+    return process;
+  }
+  // coverage:ignore-end
+
+  /// Waits up to [grace] for the spawned subprocess to exit after SIGTERM,
+  /// then sends SIGKILL if it is still alive and awaits its exit.
+  ///
+  /// Returns promptly when no subprocess was spawned (for example because
+  /// cancellation fired before `onListen` could call `Process.start`), or
+  /// when the subprocess already exited on its own.
+  Future<void> forceKillAfterGrace([Duration grace = _forceKillGrace]) async {
+    final process = _process;
+    if (process == null) return;
+    try {
+      await process.exitCode.timeout(grace);
+    } on TimeoutException {
+      process.kill(ProcessSignal.sigkill);
+      // Give the kernel a brief moment to reap the process so the caller
+      // observes a fully torn-down subtree. SIGKILL is uncatchable and
+      // should resolve almost instantly; the extra timeout is a safety
+      // valve so a stuck caller is never held up indefinitely.
+      try {
+        await process.exitCode.timeout(grace);
+      } on TimeoutException {
+        // The process did not reap within the extra grace. Unusual, but we
+        // refuse to block the MCP lock on it: whichever queue is waiting
+        // for us is more important than reporting the exit of a zombie.
+      }
+    }
+  }
+}
+
 /// A class to run test command from a CLI command, like `flutter` or `dart`.
 ///
 /// It abstracts common functionalities like the test optimization, coverage
@@ -192,8 +315,6 @@ This command should be run from the root of your ${testType.projectKind} project
   }) {
     final initialCwd = cwd;
 
-    final testRunner = overrideTestRunner ?? testType.runner;
-
     final coverageOptions = CoverageOptions(
       collect: collectCoverage,
       collectFrom: collectCoverageFrom,
@@ -205,23 +326,32 @@ This command should be run from the root of your ${testType.projectKind} project
     );
 
     return _runCommand<int>(
-      cmd: (cwd) => _testPackage(
-        cwd: cwd,
-        initialCwd: initialCwd,
-        logger: logger,
-        testType: testType,
-        testRunner: testRunner,
-        optimizer: optimizer,
-        coverageReport: testType.coverageReportOf(
-          cwd,
-          options: coverageOptions,
-        ),
-        randomSeed: randomSeed,
-        forceAnsi: forceAnsi,
-        arguments: arguments,
-        stdout: stdout,
-        stderr: stderr,
-      ),
+      cmd: (cwd) {
+        // One cancellable runner per package so a recursive run tears down the
+        // in-flight subprocess, not a prior iteration's.
+        final cancellable = overrideTestRunner == null
+            ? CancellableTestRunner(testType)
+            : null;
+        final testRunner = overrideTestRunner ?? cancellable!.run;
+        return _testPackage(
+          cwd: cwd,
+          initialCwd: initialCwd,
+          logger: logger,
+          testType: testType,
+          testRunner: testRunner,
+          onForceKill: cancellable?.forceKillAfterGrace,
+          optimizer: optimizer,
+          coverageReport: testType.coverageReportOf(
+            cwd,
+            options: coverageOptions,
+          ),
+          randomSeed: randomSeed,
+          forceAnsi: forceAnsi,
+          arguments: arguments,
+          stdout: stdout,
+          stderr: stderr,
+        );
+      },
       cwd: cwd,
       ignore: ignore,
       recursive: recursive,
@@ -242,6 +372,7 @@ This command should be run from the root of your ${testType.projectKind} project
     required List<String>? arguments,
     required void Function(String)? stdout,
     required void Function(String)? stderr,
+    Future<void> Function()? onForceKill,
   }) async {
     await coverageReport.clean();
 
@@ -295,6 +426,7 @@ This command should be run from the root of your ${testType.projectKind} project
             ],
             stdout: stdout ?? noop,
             stderr: stderr ?? noop,
+            onForceKill: onForceKill,
           ).whenComplete(() async {
             await optimization.cleanUp();
             await coverageReport.finalize(stdout: stdout);
@@ -381,6 +513,7 @@ Future<int> _testCommand({
   required TestOptimization optimization,
   String cwd = '.',
   List<String>? arguments,
+  Future<void> Function()? onForceKill,
 }) {
   final completer = Completer<int>();
   final reporter = _TestEventReporter(
@@ -408,7 +541,24 @@ Future<int> _testCommand({
 
   sigintWatchSubscription = sigintWatch.listen((_) async {
     await optimization.cleanUp();
+    // `subscription.cancel()` triggers `onCancel` in
+    // `package:very_good_test_runner`, which sends SIGTERM to the test
+    // subprocess. SIGTERM alone is not enough when the subprocess is
+    // `dart test` running a test with `Timeout.none` awaiting a future
+    // that never completes: `dart test` waits for in-progress tests to
+    // finish before honouring the signal and the whole process tree
+    // outlives the MCP wall-clock budget. [onForceKill] escalates to
+    // SIGKILL after a grace period so the budget actually releases the
+    // lock on a torn-down subprocess.
     await subscription.cancel();
+    // The `onForceKill` branch is only non-null when
+    // [TestCLIRunner.test] is called without `overrideTestRunner`, which
+    // means the runner spawns a real `dart test` / `flutter test`
+    // subprocess — behaviour the unit suite intentionally avoids and
+    // which is covered end-to-end through the MCP tool run.
+    // coverage:ignore-start
+    if (onForceKill != null) await onForceKill();
+    // coverage:ignore-end
     await sigintWatchSubscription.cancel();
     return completer.complete(ExitCode.success.code);
   });
