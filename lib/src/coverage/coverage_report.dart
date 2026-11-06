@@ -11,10 +11,16 @@ class const MinCoverageNotMet(
   /// The minimum coverage percentage the run had to reach.
   required final double minCoverage,
 
-  /// Lines not covered, keyed by file path, values are line numbers.
-  ///
-  /// Only populated when `--show-uncovered` is set.
-  final Map<String, List<int>>? uncoveredLines,
+  /// Lines not covered, keyed by file path relative to [packageRoot], values
+  /// are line numbers.
+  final Map<String, List<int>> uncoveredLines = const {},
+
+  /// Whether to list the [uncoveredLines] along with the error, as asked by
+  /// `--show-uncovered`.
+  final bool showUncovered = false,
+
+  /// The root of the package whose coverage was not met.
+  final String packageRoot = '.',
 }) implements Exception {
   /// {@macro coverage_not_met}
   this;
@@ -131,10 +137,7 @@ sealed class const CoverageReport({
       excludeFromCoverage: options.excludeFromCoverage,
     );
     final percentage = coverageMetrics.percentage;
-    final uncoveredLines =
-        options.showUncovered && coverageMetrics.uncoveredLines.isNotEmpty
-        ? coverageMetrics.uncoveredLines
-        : null;
+    final uncoveredLines = coverageMetrics.uncoveredLines;
 
     final minCoverage = options.minCoverage;
     if (minCoverage != null && percentage < minCoverage) {
@@ -142,12 +145,14 @@ sealed class const CoverageReport({
         percentage,
         minCoverage: minCoverage,
         uncoveredLines: uncoveredLines,
+        showUncovered: options.showUncovered,
+        packageRoot: packageRoot,
       );
     }
 
     // When coverage passes but is below 100%,
     // show uncovered lines as informational output.
-    if (uncoveredLines != null) {
+    if (options.showUncovered && uncoveredLines.isNotEmpty) {
       stdout?.call('${formatUncoveredLines(uncoveredLines)}\n');
     }
   }
