@@ -21,8 +21,29 @@ void main() {
     test('records nothing by default', () {
       final recorder = TestRunRecorder();
 
+      expect(recorder.passed, isZero);
+      expect(recorder.skipped, isZero);
+      expect(recorder.durationMs, isZero);
+      expect(recorder.failingTests, isEmpty);
       expect(recorder.testsFailed, isFalse);
+      expect(recorder.hasResults, isFalse);
       expect(recorder.coverageNotMet, isNull);
+    });
+
+    test('has results once a test passed', () {
+      expect((TestRunRecorder()..passed = 1).hasResults, isTrue);
+    });
+
+    test('has results once a test was skipped', () {
+      expect((TestRunRecorder()..skipped = 1).hasResults, isTrue);
+    });
+
+    test('has failing tests once one was recorded', () {
+      final recorder = TestRunRecorder()
+        ..failingTests.add((file: 'a_test.dart', name: 'a', error: 'boom'));
+
+      expect(recorder.testsFailed, isTrue);
+      expect(recorder.hasResults, isTrue);
     });
   });
 }

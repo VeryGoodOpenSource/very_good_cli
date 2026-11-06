@@ -203,9 +203,11 @@ void main() {
         MinCoverageNotMet? coverageNotMet,
       }) async {
         await run.capture((_) async {
-          TestRunRecorder.current!
-            ..testsFailed = testsFailed
+          final recorder = TestRunRecorder.current!
             ..coverageNotMet = coverageNotMet;
+          if (testsFailed) {
+            recorder.failingTests.add((file: 'a', name: 'a', error: 'a'));
+          }
           return ExitCode.software.code;
         });
         return withStderr<String>(
@@ -250,6 +252,42 @@ void main() {
           reasonForTestRun(testsFailed: true),
           completion(equals('test_failure')),
         );
+      });
+
+      test('comes with the results of the test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!.passed = 2;
+          return ExitCode.software.code;
+        });
+
+        final result = withStderr(() => run.resultFor(ExitCode.software.code));
+
+        expect(
+          jsonOf(result)['test'],
+          equals({
+            'results': {
+              'passed': 2,
+              'failed': 0,
+              'skipped': 0,
+              'durationMs': 0,
+              'failingTests': <Object?>[],
+              'failingTestsTruncated': false,
+            },
+          }),
+        );
+      });
+
+      test('comes with the partial results of a timed out test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!.passed = 2;
+          return ExitCode.success.code;
+        });
+
+        final result = withStderr(
+          () => run.resultForTimeout(const Duration(seconds: 1)),
+        );
+
+        expect(jsonOf(result), contains('test'));
       });
 
       test('is coverage_below_threshold when the coverage was not met', () {
