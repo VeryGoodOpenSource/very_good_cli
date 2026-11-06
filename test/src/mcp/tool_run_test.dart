@@ -194,6 +194,118 @@ void main() {
       });
     });
 
+    group('failureReason', () {
+      String reasonOf(CallToolResult result) =>
+          jsonOf(result)['failureReason']! as String;
+
+      Future<String> reasonForTestRun({
+        bool testsFailed = false,
+        MinCoverageNotMet? coverageNotMet,
+      }) async {
+        await run.capture((_) async {
+          TestRunRecorder.current!
+            ..testsFailed = testsFailed
+            ..coverageNotMet = coverageNotMet;
+          return ExitCode.software.code;
+        });
+        return withStderr<String>(
+          () => reasonOf(run.resultFor(ExitCode.software.code)),
+        );
+      }
+
+      const coverageNotMet = MinCoverageNotMet(50, minCoverage: 80);
+
+      test('follows the exit code of the command', () {
+        final reasons = withStderr(
+          () => {
+            for (final exitCode in [
+              ExitCode.usage,
+              ExitCode.data,
+              ExitCode.noInput,
+              ExitCode.config,
+              ExitCode.noPerm,
+              ExitCode.unavailable,
+              ExitCode.software,
+            ])
+              exitCode.code: reasonOf(run.resultFor(exitCode.code)),
+          },
+        );
+
+        expect(
+          reasons,
+          equals({
+            ExitCode.usage.code: 'usage_error',
+            ExitCode.data.code: 'invalid_input',
+            ExitCode.noInput.code: 'invalid_input',
+            ExitCode.config.code: 'invalid_input',
+            ExitCode.noPerm.code: 'permission_denied',
+            ExitCode.unavailable.code: 'tool_crash',
+            ExitCode.software.code: 'tool_crash',
+          }),
+        );
+      });
+
+      test('is test_failure when the test run recorded failing tests', () {
+        expect(
+          reasonForTestRun(testsFailed: true),
+          completion(equals('test_failure')),
+        );
+      });
+
+      test('is coverage_below_threshold when the coverage was not met', () {
+        expect(
+          reasonForTestRun(coverageNotMet: coverageNotMet),
+          completion(equals('coverage_below_threshold')),
+        );
+      });
+
+      test('prefers test_failure over coverage_below_threshold', () {
+        expect(
+          reasonForTestRun(testsFailed: true, coverageNotMet: coverageNotMet),
+          completion(equals('test_failure')),
+        );
+      });
+
+      test('follows the exception the command threw', () {
+        final reasons = withStderr(
+          () => [
+            for (final exception in <Exception>[
+              UsageException('bad flag', 'usage'),
+              const FormatException('bad yaml'),
+              const FileSystemException(
+                'Cannot open file',
+                '/locked',
+                OSError('Permission denied', 13),
+              ),
+              const SocketException('connection refused'),
+              Exception('Invalid SDK hash'),
+            ])
+              reasonOf(run.resultForException(exception, StackTrace.empty)),
+          ],
+        );
+
+        expect(
+          reasons,
+          equals([
+            'usage_error',
+            'invalid_input',
+            'permission_denied',
+            'tool_crash',
+            'tool_crash',
+          ]),
+        );
+      });
+
+      test('is timeout for a run that exceeded its budget', () {
+        expect(
+          withStderr(
+            () => reasonOf(run.resultForTimeout(const Duration(seconds: 1))),
+          ),
+          equals('timeout'),
+        );
+      });
+    });
+
     group('resultForTimeout', () {
       test('builds a timeout failure that names the budget', () {
         final result = withStderr(

@@ -158,29 +158,47 @@ void main() {
     });
   });
 
+  group(ToolFailureReason, () {
+    test('names every reason in snake case', () {
+      expect(
+        {
+          for (final reason in ToolFailureReason.values)
+            reason: reason.jsonName,
+        },
+        equals({
+          ToolFailureReason.testFailure: 'test_failure',
+          ToolFailureReason.coverageBelowThreshold: 'coverage_below_threshold',
+          ToolFailureReason.toolCrash: 'tool_crash',
+          ToolFailureReason.invalidInput: 'invalid_input',
+          ToolFailureReason.usageError: 'usage_error',
+          ToolFailureReason.timeout: 'timeout',
+          ToolFailureReason.permissionDenied: 'permission_denied',
+        }),
+      );
+    });
+  });
+
   group('alternativeApproachesFor', () {
-    test('returns non-empty suggestions for every known failureType', () {
-      for (final type in ToolFailureType.values) {
+    test('returns non-empty suggestions for every failureReason', () {
+      for (final reason in ToolFailureReason.values) {
         expect(
-          alternativeApproachesFor(type),
+          alternativeApproachesFor(reason),
           isNotEmpty,
-          reason: '$type must offer at least one alternative approach',
+          reason: '$reason must offer at least one alternative approach',
         );
       }
     });
 
-    test('does not advise a retry for a deterministic failure', () {
-      expect(
-        alternativeApproachesFor(ToolFailureType.business),
-        everyElement(isNot(contains('Retry the command'))),
-      );
-    });
-
-    test('does not advise a retry for a timeout', () {
-      expect(
-        alternativeApproachesFor(ToolFailureType.timeout),
-        everyElement(isNot(contains('Retry the command'))),
-      );
+    test('advises a retry only for a crashed tool', () {
+      for (final reason in ToolFailureReason.values) {
+        expect(
+          alternativeApproachesFor(reason),
+          reason == ToolFailureReason.toolCrash
+              ? contains(startsWith('Retry the command'))
+              : everyElement(isNot(startsWith('Retry the command'))),
+          reason: '$reason',
+        );
+      }
     });
   });
 
@@ -190,12 +208,23 @@ void main() {
         toolName: 'test',
         reason: 'boom',
         failureType: ToolFailureType.business,
+        failureReason: ToolFailureReason.testFailure,
       ).toCallToolResult();
       expect(result.isError, isTrue);
       final payload = jsonDecode(
         (result.content.first as TextContent).text,
       ) as Map<String, Object?>;
       expect(payload['status'], equals('failure'));
+      expect(
+        payload.keys.take(3),
+        equals(['status', 'failureType', 'failureReason']),
+      );
+      expect(payload['failureType'], equals('business'));
+      expect(payload['failureReason'], equals('test_failure'));
+      expect(
+        payload['alternativeApproaches'],
+        equals(alternativeApproachesFor(ToolFailureReason.testFailure)),
+      );
       expect(payload['reason'], equals('boom'));
       expect(payload['partialResults'], isNull);
       final action = payload['attemptedAction']! as Map<String, Object?>;
@@ -207,6 +236,7 @@ void main() {
         toolName: 'create',
         reason: 'crashed',
         failureType: ToolFailureType.transient,
+        failureReason: ToolFailureReason.toolCrash,
         commandString: 'very_good create flutter_app my_app',
         directory: '/tmp/x',
         attemptedArguments: {'name': 'my_app'},
@@ -228,6 +258,7 @@ void main() {
         toolName: 'test',
         reason: 'oops',
         failureType: ToolFailureType.business,
+        failureReason: ToolFailureReason.toolCrash,
         attemptedArguments: {},
       ).toCallToolResult();
       final payload = jsonDecode(
