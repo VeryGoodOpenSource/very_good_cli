@@ -15,6 +15,13 @@ class _TestEventReporter({
 
   var _successCount = 0;
   var _skipCount = 0;
+  var _exited = false;
+
+  /// Whether the test process exited without reporting a failing test or a
+  /// test file that failed to load.
+  ///
+  /// A run that was interrupted before the test process exited is not.
+  bool get exitedWithoutFailures => _exited && _failedTestErrorMessages.isEmpty;
 
   void report(TestEvent event) {
     switch (event) {
@@ -32,6 +39,8 @@ class _TestEventReporter({
         _reportTestDone(event);
       case DoneTestEvent():
         _reportDone(event);
+      case ExitTestEvent():
+        _exited = true;
     }
   }
 
