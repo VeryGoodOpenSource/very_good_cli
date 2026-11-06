@@ -358,26 +358,43 @@ void main() {
                   equals({
                     'lib/a.dart': [2],
                   }),
+                )
+                .having((error) => error.showUncovered, 'showUncovered', isTrue)
+                .having(
+                  (error) => error.packageRoot,
+                  'packageRoot',
+                  equals(packageRoot.path),
                 ),
           ),
         );
         expect(stdoutLogs, isEmpty);
       });
 
-      test('leaves the uncovered lines out unless asked to', () async {
-        writeLcov(coveredLcov);
+      test(
+        'carries the uncovered lines even when not asked to list them',
+        () async {
+          writeLcov(coveredLcov);
 
-        await expectLater(
-          flutterReport(const CoverageOptions(minCoverage: 100)).finalize(),
-          throwsA(
-            isA<MinCoverageNotMet>().having(
-              (error) => error.uncoveredLines,
-              'uncoveredLines',
-              isNull,
+          await expectLater(
+            flutterReport(const CoverageOptions(minCoverage: 100)).finalize(),
+            throwsA(
+              isA<MinCoverageNotMet>()
+                  .having(
+                    (error) => error.uncoveredLines,
+                    'uncoveredLines',
+                    equals({
+                      'lib/a.dart': [2],
+                    }),
+                  )
+                  .having(
+                    (error) => error.showUncovered,
+                    'showUncovered',
+                    isFalse,
+                  ),
             ),
-          ),
-        );
-      });
+          );
+        },
+      );
 
       test('lists the uncovered lines when the threshold is met', () async {
         writeLcov(coveredLcov);

@@ -6,6 +6,7 @@ import 'package:args/command_runner.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
@@ -355,6 +356,106 @@ void main() {
             },
           }),
         );
+      });
+
+      Map<String, Object?>? coverageOf(
+        MinCoverageNotMet coverageNotMet, {
+        ToolFailureReason failureReason =
+            ToolFailureReason.coverageBelowThreshold,
+      }) {
+        final payload = jsonDecode(
+          (StructuredToolError(
+                    toolName: 'test',
+                    reason: 'failed with exit code 70.',
+                    failureType: ToolFailureType.business,
+                    failureReason: failureReason,
+                    testRun: TestRunRecorder()
+                      ..passed = 1
+                      ..coverageNotMet = coverageNotMet,
+                  ).toCallToolResult().content.first
+                  as TextContent)
+              .text,
+        ) as Map<String, Object?>;
+        return (payload['test']! as Map<String, Object?>)['coverage']
+            as Map<String, Object?>?;
+      }
+
+      test('reports an unmet coverage threshold', () {
+        expect(
+          coverageOf(
+            MinCoverageNotMet(
+              97.42,
+              minCoverage: 100,
+              uncoveredLines: const {
+                'lib/src/foo.dart': [12, 13, 40],
+              },
+              packageRoot: p.join('packages', 'foo'),
+            ),
+          ),
+          equals({
+            'actual': 97.42,
+            'required': 100,
+            'uncoveredLines': [
+              {
+                'file': p.join('packages', 'foo', 'lib', 'src', 'foo.dart'),
+                'lines': [12, 13, 40],
+              },
+            ],
+            'uncoveredLinesTruncated': false,
+          }),
+        );
+      });
+
+      test('omits the coverage of a run whose tests failed', () {
+        expect(
+          coverageOf(
+            const MinCoverageNotMet(50, minCoverage: 100),
+            failureReason: ToolFailureReason.testFailure,
+          ),
+          isNull,
+        );
+      });
+
+      test('keeps the first 20 lines of the first 20 files', () {
+        List<int> lines(int count) => [for (var i = 1; i <= count; i++) i];
+
+        final manyFiles = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {
+              for (var i = 0; i < 21; i++) 'lib/$i.dart': [1],
+            },
+          ),
+        )!;
+        final manyLines = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {'lib/a.dart': lines(21)},
+          ),
+        )!;
+        final atTheCaps = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {
+              for (var i = 0; i < 20; i++) 'lib/$i.dart': lines(20),
+            },
+          ),
+        )!;
+
+        expect(manyFiles['uncoveredLines'], hasLength(20));
+        expect(manyFiles['uncoveredLinesTruncated'], isTrue);
+        expect(
+          manyLines['uncoveredLines'],
+          equals([
+            {'file': p.join('lib', 'a.dart'), 'lines': lines(20)},
+          ]),
+        );
+        expect(manyLines['uncoveredLinesTruncated'], isTrue);
+        expect(atTheCaps['uncoveredLines'], hasLength(20));
+        expect(atTheCaps['uncoveredLinesTruncated'], isFalse);
       });
 
       test('keeps the first 20 failing tests', () {

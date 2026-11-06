@@ -192,6 +192,25 @@ void main() {
         ).called(1);
       });
 
+      test('lists the uncovered lines only when asked to', () async {
+        for (final showUncovered in [false, true]) {
+          await TestCLIRunner.exitCodeOf(
+            () => throw MinCoverageNotMet(
+              50,
+              minCoverage: 80,
+              uncoveredLines: const {
+                'lib/a.dart': [2],
+              },
+              showUncovered: showUncovered,
+            ),
+            logger: logger,
+          );
+        }
+
+        verify(() => logger.err('Lines not covered:\n\t- lib/a.dart: 2'))
+            .called(1);
+      });
+
       test('records an unmet coverage threshold', () async {
         const exception = MinCoverageNotMet(50, minCoverage: 80);
         final recorder = TestRunRecorder();

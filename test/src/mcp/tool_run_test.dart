@@ -277,6 +277,22 @@ void main() {
         );
       });
 
+      test('comes with the unmet coverage of the test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!
+            ..passed = 2
+            ..coverageNotMet = coverageNotMet;
+          return ExitCode.software.code;
+        });
+
+        final result = withStderr(() => run.resultFor(ExitCode.software.code));
+
+        expect(
+          jsonOf(result)['test'],
+          containsPair('coverage', containsPair('required', 80)),
+        );
+      });
+
       test('comes with the partial results of a timed out test run', () async {
         await run.capture((_) async {
           TestRunRecorder.current!.passed = 2;
