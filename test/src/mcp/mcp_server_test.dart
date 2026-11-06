@@ -1039,7 +1039,7 @@ void main() {
 
         expect(result.isError, isTrue);
         final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('transient'));
+        expect(payload['failureType'], equals('business'));
         expect(payload['reason'], contains('threw an exception'));
         expect(payload['reason'], contains('big bad'));
         final action = payload['attemptedAction']! as Map<String, Object?>;
@@ -1296,6 +1296,7 @@ void main() {
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
+        expect(_errorPayload(result)['failureType'], equals('validation'));
         verifyNever(() => mockCommandRunner.run(any()));
         expect(Directory.current.path, equals(before));
       });
