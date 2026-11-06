@@ -1124,7 +1124,11 @@ void main() {
 
       test('reports the failing tests the test run recorded', () async {
         when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          TestRunRecorder.current?.testsFailed = true;
+          TestRunRecorder.current?.failingTests.add((
+            file: 'a_test.dart',
+            name: 'a',
+            error: 'boom',
+          ));
           return ExitCode.software.code;
         });
 

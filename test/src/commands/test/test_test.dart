@@ -825,6 +825,7 @@ void main() {
           uncoveredLines: {
             'lib/src/foo.dart': [10, 20, 30],
           },
+          showUncovered: true,
         );
         when(
           () => flutterTest(

@@ -7,6 +7,8 @@ import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as p;
+import 'package:very_good_cli/src/cli/cli.dart';
 
 /// Classifies a tool failure into a bucket an agent loop can act on without
 /// parsing free-form text.
@@ -178,6 +180,15 @@ List<String> alternativeApproachesFor(ToolFailureReason failureReason) =>
       ],
     };
 
+/// The most failing tests a [StructuredToolError] lists.
+const maxFailingTests = 20;
+
+/// The most files a [StructuredToolError] lists the uncovered lines of.
+const maxUncoveredFiles = 20;
+
+/// The most uncovered lines a [StructuredToolError] lists per file.
+const maxUncoveredLinesPerFile = 20;
+
 /// {@template structured_tool_error}
 /// A structured description of a tool failure, renderable as a
 /// [CallToolResult].
@@ -193,6 +204,12 @@ List<String> alternativeApproachesFor(ToolFailureReason failureReason) =>
 ///   invoked (when known), the working directory (when set), and the raw
 ///   caller-supplied arguments.
 /// * `reason` — the human-readable failure cause.
+/// * `test` — what the [testRun] recorded, when it recorded any test result:
+///   `results` holds the test counts, the run's duration and the first
+///   [maxFailingTests] failing tests. For a `coverage_below_threshold`
+///   failure, `coverage` holds the actual and required coverage and the
+///   uncovered lines of the first [maxUncoveredFiles] files, at most
+///   [maxUncoveredLinesPerFile] each, relative to the current directory.
 /// * `partialResults` — the sanitized captured command output, when any.
 /// * `alternativeApproaches` — recovery suggestions for the `failureReason`,
 ///   from [alternativeApproachesFor].
@@ -221,6 +238,9 @@ class const StructuredToolError({
 
   /// The raw caller-supplied arguments.
   final Map<String, Object?>? attemptedArguments,
+
+  /// What the test run of the tool recorded, if it ran tests.
+  final TestRunRecorder? testRun,
 }) {
   /// {@macro structured_tool_error}
   this;
@@ -244,8 +264,59 @@ class const StructuredToolError({
       'failureReason': failureReason.jsonName,
       'attemptedAction': attemptedAction,
       'reason': reason,
+      'test': ?_testJson,
       if (_hasPartialResults) 'partialResults': capturedOutput,
       'alternativeApproaches': alternativeApproachesFor(failureReason),
+    };
+  }
+
+  Map<String, Object?>? get _testJson {
+    final testRun = this.testRun;
+    if (testRun == null) return null;
+
+    final coverageNotMet =
+        failureReason == ToolFailureReason.coverageBelowThreshold
+        ? testRun.coverageNotMet
+        : null;
+    if (!testRun.hasResults && coverageNotMet == null) return null;
+
+    final failingTests = testRun.failingTests;
+    return {
+      if (testRun.hasResults)
+        'results': {
+          'passed': testRun.passed,
+          'failed': failingTests.length,
+          'skipped': testRun.skipped,
+          'durationMs': testRun.durationMs,
+          'failingTests': [
+            for (final (:file, :name, :error) in failingTests.take(
+              maxFailingTests,
+            ))
+              {'file': file, 'name': name, 'error': error},
+          ],
+          'failingTestsTruncated': failingTests.length > maxFailingTests,
+        },
+      if (coverageNotMet != null) 'coverage': _coverageJson(coverageNotMet),
+    };
+  }
+
+  static Map<String, Object?> _coverageJson(MinCoverageNotMet coverageNotMet) {
+    final MinCoverageNotMet(:uncoveredLines, :packageRoot) = coverageNotMet;
+    final files = uncoveredLines.entries.take(maxUncoveredFiles).toList();
+
+    return {
+      'actual': coverageNotMet.coverage,
+      'required': coverageNotMet.minCoverage,
+      'uncoveredLines': [
+        for (final MapEntry(key: file, value: lines) in files)
+          {
+            'file': p.relative(p.join(packageRoot, file)),
+            'lines': lines.take(maxUncoveredLinesPerFile).toList(),
+          },
+      ],
+      'uncoveredLinesTruncated':
+          uncoveredLines.length > maxUncoveredFiles ||
+          files.any((file) => file.value.length > maxUncoveredLinesPerFile),
     };
   }
 

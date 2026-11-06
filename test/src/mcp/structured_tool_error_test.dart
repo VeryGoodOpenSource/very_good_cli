@@ -6,7 +6,9 @@ import 'package:args/command_runner.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart';
+import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 import 'package:yaml/yaml.dart';
 
@@ -251,6 +253,209 @@ void main() {
       expect(action['command'], equals('very_good create flutter_app my_app'));
       expect(action['directory'], equals('/tmp/x'));
       expect(action['arguments'], equals({'name': 'my_app'}));
+    });
+
+    group('test', () {
+      Map<String, Object?> payloadOf(TestRunRecorder testRun) => jsonDecode(
+        (StructuredToolError(
+                  toolName: 'test',
+                  reason: 'failed with exit code 70.',
+                  failureType: ToolFailureType.business,
+                  failureReason: ToolFailureReason.testFailure,
+                  capturedOutput: 'output',
+                  testRun: testRun,
+                ).toCallToolResult().content.first
+                as TextContent)
+            .text,
+      ) as Map<String, Object?>;
+
+      test('is omitted without a test run', () {
+        final payload = jsonDecode(
+          (const StructuredToolError(
+                    toolName: 'create',
+                    reason: 'boom',
+                    failureType: ToolFailureType.business,
+                    failureReason: ToolFailureReason.toolCrash,
+                  ).toCallToolResult().content.first
+                  as TextContent)
+              .text,
+        ) as Map<String, Object?>;
+
+        expect(payload.containsKey('test'), isFalse);
+      });
+
+      test('is omitted when the test run has no results', () {
+        expect(payloadOf(TestRunRecorder()).containsKey('test'), isFalse);
+      });
+
+      test('reports the results of the test run', () {
+        final payload = payloadOf(
+          TestRunRecorder()
+            ..passed = 3
+            ..skipped = 1
+            ..durationMs = 1500
+            ..failingTests.add((
+              file: 'test/a_test.dart',
+              name: 'a fails',
+              error: 'boom',
+            )),
+        );
+
+        expect(
+          payload.keys,
+          equals([
+            'status',
+            'failureType',
+            'failureReason',
+            'attemptedAction',
+            'reason',
+            'test',
+            'partialResults',
+            'alternativeApproaches',
+          ]),
+        );
+        expect(
+          payload['test'],
+          equals({
+            'results': {
+              'passed': 3,
+              'failed': 1,
+              'skipped': 1,
+              'durationMs': 1500,
+              'failingTests': [
+                {
+                  'file': 'test/a_test.dart',
+                  'name': 'a fails',
+                  'error': 'boom',
+                },
+              ],
+              'failingTestsTruncated': false,
+            },
+          }),
+        );
+      });
+
+      Map<String, Object?>? coverageOf(
+        MinCoverageNotMet coverageNotMet, {
+        ToolFailureReason failureReason =
+            ToolFailureReason.coverageBelowThreshold,
+      }) {
+        final payload = jsonDecode(
+          (StructuredToolError(
+                    toolName: 'test',
+                    reason: 'failed with exit code 70.',
+                    failureType: ToolFailureType.business,
+                    failureReason: failureReason,
+                    testRun: TestRunRecorder()
+                      ..passed = 1
+                      ..coverageNotMet = coverageNotMet,
+                  ).toCallToolResult().content.first
+                  as TextContent)
+              .text,
+        ) as Map<String, Object?>;
+        return (payload['test']! as Map<String, Object?>)['coverage']
+            as Map<String, Object?>?;
+      }
+
+      test('reports an unmet coverage threshold', () {
+        expect(
+          coverageOf(
+            MinCoverageNotMet(
+              97.42,
+              minCoverage: 100,
+              uncoveredLines: const {
+                'lib/src/foo.dart': [12, 13, 40],
+              },
+              packageRoot: p.join('packages', 'foo'),
+            ),
+          ),
+          equals({
+            'actual': 97.42,
+            'required': 100,
+            'uncoveredLines': [
+              {
+                'file': p.join('packages', 'foo', 'lib', 'src', 'foo.dart'),
+                'lines': [12, 13, 40],
+              },
+            ],
+            'uncoveredLinesTruncated': false,
+          }),
+        );
+      });
+
+      test('omits the coverage of a run whose tests failed', () {
+        expect(
+          coverageOf(
+            const MinCoverageNotMet(50, minCoverage: 100),
+            failureReason: ToolFailureReason.testFailure,
+          ),
+          isNull,
+        );
+      });
+
+      test('keeps the first 20 lines of the first 20 files', () {
+        List<int> lines(int count) => [for (var i = 1; i <= count; i++) i];
+
+        final manyFiles = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {
+              for (var i = 0; i < 21; i++) 'lib/$i.dart': [1],
+            },
+          ),
+        )!;
+        final manyLines = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {'lib/a.dart': lines(21)},
+          ),
+        )!;
+        final atTheCaps = coverageOf(
+          MinCoverageNotMet(
+            50,
+            minCoverage: 100,
+            uncoveredLines: {
+              for (var i = 0; i < 20; i++) 'lib/$i.dart': lines(20),
+            },
+          ),
+        )!;
+
+        expect(manyFiles['uncoveredLines'], hasLength(20));
+        expect(manyFiles['uncoveredLinesTruncated'], isTrue);
+        expect(
+          manyLines['uncoveredLines'],
+          equals([
+            {'file': p.join('lib', 'a.dart'), 'lines': lines(20)},
+          ]),
+        );
+        expect(manyLines['uncoveredLinesTruncated'], isTrue);
+        expect(atTheCaps['uncoveredLines'], hasLength(20));
+        expect(atTheCaps['uncoveredLinesTruncated'], isFalse);
+      });
+
+      test('keeps the first 20 failing tests', () {
+        final testRun = TestRunRecorder();
+        for (var i = 0; i < 21; i++) {
+          testRun.failingTests.add((
+            file: 'test/a_test.dart',
+            name: '$i',
+            error: '',
+          ));
+        }
+
+        final results =
+            (payloadOf(testRun)['test']! as Map<String, Object?>)['results']!
+                as Map<String, Object?>;
+
+        expect(results['failed'], equals(21));
+        expect([
+          for (final test in results['failingTests']! as List<Object?>)
+            (test! as Map<String, Object?>)['name'],
+        ], equals([for (var i = 0; i < 20; i++) '$i']));
+        expect(results['failingTestsTruncated'], isTrue);
+      });
     });
 
     test('omits arguments key when attemptedArguments is empty', () {
