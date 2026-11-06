@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
-import 'package:mason/mason.dart' show ExitCode;
+import 'package:mason/mason.dart' show ExitCode, Logger;
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/tool_run.dart';
 
 void main() {
@@ -46,6 +47,27 @@ void main() {
 
         final result = run.resultFor(ExitCode.success.code);
         expect(textOf(result, 1), equals('from stdout\nfrom logger'));
+      });
+
+      test('records the test run of each run apart', () async {
+        final recorders = <TestRunRecorder?>[];
+        Future<int> command(Logger _) async {
+          recorders.add(TestRunRecorder.current);
+          return ExitCode.success.code;
+        }
+
+        await run.capture(command);
+        await run.capture(command);
+        await ToolRun(
+          toolName: 'test',
+          commandString: 'very_good test',
+          directory: null,
+          requestArguments: null,
+        ).capture(command);
+
+        expect(recorders, everyElement(isNotNull));
+        expect(recorders[0], same(recorders[1]));
+        expect(recorders[0], isNot(same(recorders[2])));
       });
     });
 

@@ -338,6 +338,7 @@ This command should be run from the root of your ${testType.projectKind} project
           ? ExitCode.success.code
           : ExitCode.software.code;
     } on MinCoverageNotMet catch (error) {
+      TestRunRecorder.current?.coverageNotMet = error;
       return _handleMinCoverageNotMet(error, logger: logger);
     } on InvalidOptimizationGlob catch (error) {
       logger.err('$error');

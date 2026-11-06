@@ -6,6 +6,7 @@ import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 
 /// {@template tool_run}
@@ -32,20 +33,28 @@ class ToolRun({
 
   final StringBuffer _output = StringBuffer();
 
+  final TestRunRecorder _recorder = TestRunRecorder();
+
   String get _capturedOutput =>
       sanitizeCommandOutput(_output.toString()).trim();
 
   /// Runs [command] with `stdout`/`stderr` redirected into this run's buffer
   /// and returns its exit code.
   ///
+  /// What a test run reports beyond its exit code is recorded through this
+  /// run's [TestRunRecorder].
+  ///
   /// The [Logger] is built inside the zone because mason captures
   /// `IOOverrides.current` at construction time.
   Future<int> capture(Future<int> Function(Logger logger) command) {
     final sink = CapturingStdout(_output);
-    return IOOverrides.runZoned(
-      () => command(Logger()),
-      stdout: () => sink,
-      stderr: () => sink,
+    return TestRunRecorder.runZoned(
+      () => IOOverrides.runZoned(
+        () => command(Logger()),
+        stdout: () => sink,
+        stderr: () => sink,
+      ),
+      recorder: _recorder,
     );
   }
 

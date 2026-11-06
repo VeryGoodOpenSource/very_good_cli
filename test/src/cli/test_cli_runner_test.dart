@@ -155,6 +155,19 @@ void main() {
         ).called(1);
       });
 
+      test('records an unmet coverage threshold', () async {
+        const exception = MinCoverageNotMet(50, minCoverage: 80);
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.exitCodeOf(() => throw exception, logger: logger),
+          recorder: recorder,
+        );
+
+        expect(recorder.coverageNotMet, same(exception));
+        expect(recorder.testsFailed, isFalse);
+      });
+
       test('reports an invalid optimization glob as a config error', () async {
         const exception = InvalidOptimizationGlob('bad glob');
 
@@ -698,6 +711,101 @@ void main() {
                 '\x1B[2K\r \t- [FAILED] CounterCubit initial state is 0\n',
           ]),
         );
+      });
+
+      test('records the failing tests of a run', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...failingJsonOutput(tempDirectory.path)
+                    .map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        expect(recorder.testsFailed, isTrue);
+      });
+
+      test(
+        'records failing tests followed by an unmet coverage threshold',
+        () async {
+          final tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+          final recorder = TestRunRecorder();
+
+          final exitCode = await TestRunRecorder.runZoned(
+            () => TestCLIRunner.exitCodeOf(
+              () => TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                collectCoverage: true,
+                minCoverage: 100,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable([
+                    ...failingJsonOutput(tempDirectory.path)
+                        .map(TestEvent.fromJson),
+                    const ExitTestEvent(exitCode: 1, time: 0),
+                  ]),
+                  onStart: () {
+                    File(p.join(tempDirectory.path, 'coverage', 'lcov.info'))
+                      ..createSync(recursive: true)
+                      ..writeAsStringSync(lcov95);
+                  },
+                ),
+                logger: logger,
+              ),
+              logger: logger,
+            ),
+            recorder: recorder,
+          );
+
+          expect(exitCode, equals(ExitCode.software.code));
+          expect(recorder.testsFailed, isTrue);
+          expect(recorder.coverageNotMet?.coverage, equals(95));
+        },
+      );
+
+      test('records nothing for a passing run', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        expect(recorder.testsFailed, isFalse);
       });
 
       test('runs tests (noisy)', () async {
