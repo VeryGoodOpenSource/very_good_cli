@@ -626,6 +626,7 @@ void main() {
             expect(result.isError, isTrue);
             final payload = _errorPayload(result);
             expect(payload['failureType'], equals('validation'));
+            expect(payload['failureReason'], equals('invalid_input'));
             expect(payload['reason'], contains('check_ignore'));
             expect(payload['reason'], contains('dart'));
             verifyNever(() => mockCommandRunner.run(any()));
@@ -982,6 +983,7 @@ void main() {
         final payload = _errorPayload(result);
         expect(payload['status'], equals('failure'));
         expect(payload['failureType'], equals('validation'));
+        expect(payload['failureReason'], equals('invalid_input'));
         expect(payload['reason'], contains('No check specified'));
         final action = payload['attemptedAction']! as Map<String, Object?>;
         expect(action['tool'], equals('packages check licenses'));
@@ -1118,6 +1120,27 @@ void main() {
         final partial = payload['partialResults']! as String;
         expect(partial, contains('compile error: boom'));
         expect(partial, contains('stderr detail'));
+      });
+
+      test('reports the failing tests the test run recorded', () async {
+        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
+          TestRunRecorder.current?.testsFailed = true;
+          return ExitCode.software.code;
+        });
+
+        final response = await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 60}),
+          ),
+        );
+
+        final result = CallToolResult.fromMap(
+          response['result'] as Map<String, Object?>,
+        );
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('business'));
+        expect(payload['failureReason'], equals('test_failure'));
       });
 
       test('includes captured output in a success result', () async {

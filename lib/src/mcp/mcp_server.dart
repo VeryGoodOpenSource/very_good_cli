@@ -495,6 +495,7 @@ Only one value can be selected.
               '--check-ignore; omit the argument or set "check_ignore": false '
               'for Flutter runs.',
           failureType: ToolFailureType.validation,
+          failureReason: ToolFailureReason.invalidInput,
           attemptedArguments: args,
         ).toCallToolResult(),
       );
@@ -537,6 +538,7 @@ Only one value can be selected.
             'No check specified. Currently only "licenses" check is '
             'supported. Set licenses=true to run license checks.',
         failureType: ToolFailureType.validation,
+        failureReason: ToolFailureReason.invalidInput,
         attemptedArguments: args,
       ).toCallToolResult();
     }
