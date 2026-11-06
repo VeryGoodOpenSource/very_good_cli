@@ -172,6 +172,7 @@ class ToolRun({
       directory: directory,
       attemptedArguments: requestArguments,
       capturedOutput: captured,
+      testRun: _recorder,
     ).toCallToolResult();
   }
 }

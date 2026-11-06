@@ -69,7 +69,11 @@ class _TestEventReporter({
     final report = _resolveReport(event.testID);
     final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
 
-    TestRunRecorder.current?.testsFailed = true;
+    TestRunRecorder.current?.failingTests.add((
+      file: p.relative(report.path),
+      name: report.name,
+      error: _summarize(event.error),
+    ));
     final relativeTestPath = p.relative(report.path, from: cwd);
     _failedTestErrorMessages[relativeTestPath] = [
       ...?_failedTestErrorMessages[relativeTestPath],
@@ -101,14 +105,17 @@ class _TestEventReporter({
         '''$_clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
       );
       _skipCount++;
+      TestRunRecorder.current?.skipped++;
     } else if (event.result == TestResult.success) {
       _successCount++;
+      TestRunRecorder.current?.passed++;
     } else {
       stderr('$_clearLine$testName $testPath (FAILED)');
     }
   }
 
   void _reportDone(DoneTestEvent event) {
+    TestRunRecorder.current?.durationMs += event.time;
     final timeElapsed = Duration(milliseconds: event.time).formatted();
     final stats = _stats();
     final success = event.success ?? false;
@@ -168,6 +175,22 @@ class _TestEventReporter({
       ..removeWhere((element) => element.isEmpty);
     return result.join(' ');
   }
+}
+
+/// The longest [_summarize] keeps an error to.
+const _maxErrorSummaryLength = 200;
+
+/// Collapses [error] into a single line of at most [_maxErrorSummaryLength]
+/// characters.
+String _summarize(String error) {
+  final summary = error
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty)
+      .join(' ');
+  return summary.length <= _maxErrorSummaryLength
+      ? summary
+      : '${summary.substring(0, _maxErrorSummaryLength - 1)}…';
 }
 
 /// The name of the outermost non-empty group [test] belongs to.
