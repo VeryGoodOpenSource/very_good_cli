@@ -111,7 +111,7 @@ void main() {
         expect(stderrBuffer.toString(), isNot(contains('Stack trace')));
       });
 
-      test('maps any other exception to a transient failure', () {
+      test('maps an unknown exception to a business failure', () {
         final stackTrace = StackTrace.current;
         final result = withStderr(
           () => run.resultForException(Exception('boom'), stackTrace),
@@ -120,10 +120,51 @@ void main() {
         expect(
           jsonOf(result),
           allOf(
-            containsPair('failureType', 'transient'),
+            containsPair('failureType', 'business'),
             containsPair('reason', 'threw an exception: Exception: boom'),
           ),
         );
+        expect(
+          stderrBuffer.toString(),
+          contains('[very_good_mcp] Stack trace: $stackTrace'),
+        );
+      });
+
+      test('maps a bad input exception to a validation failure', () {
+        final stackTrace = StackTrace.current;
+        final result = withStderr(
+          () => run.resultForException(
+            const FormatException('bad yaml'),
+            stackTrace,
+          ),
+        );
+
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('failureType', 'validation'),
+            containsPair(
+              'reason',
+              'threw an exception: FormatException: bad yaml',
+            ),
+          ),
+        );
+        expect(
+          stderrBuffer.toString(),
+          contains('[very_good_mcp] Stack trace: $stackTrace'),
+        );
+      });
+
+      test('maps a network exception to a transient failure', () {
+        final stackTrace = StackTrace.current;
+        final result = withStderr(
+          () => run.resultForException(
+            const SocketException('connection refused'),
+            stackTrace,
+          ),
+        );
+
+        expect(jsonOf(result), containsPair('failureType', 'transient'));
         expect(
           stderrBuffer.toString(),
           contains('[very_good_mcp] Stack trace: $stackTrace'),
