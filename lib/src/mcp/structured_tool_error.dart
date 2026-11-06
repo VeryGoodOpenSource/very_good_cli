@@ -103,43 +103,80 @@ enum ToolFailureType {
 /// `EACCES` (13) on POSIX systems, `ERROR_ACCESS_DENIED` (5) on Windows.
 const _permissionDeniedErrorCodes = {1, 5, 13};
 
-/// Suggests alternative approaches keyed on [failureType].
+/// The specific cause of a tool failure, more precise than its
+/// [ToolFailureType], so an agent can pick a recovery strategy.
+///
+/// Serialized as its [jsonName].
+enum ToolFailureReason(
+  /// The name of the reason in the JSON payload.
+  final String jsonName,
+) {
+  /// A test failed, or a test file failed to load.
+  testFailure('test_failure'),
+
+  /// The tests passed, but their coverage is below the required threshold.
+  coverageBelowThreshold('coverage_below_threshold'),
+
+  /// The tool exited unexpectedly or threw, without reporting a more specific
+  /// cause.
+  toolCrash('tool_crash'),
+
+  /// A caller-supplied argument, or the project it points to, was invalid.
+  invalidInput('invalid_input'),
+
+  /// The command line built from the tool arguments was rejected.
+  usageError('usage_error'),
+
+  /// The run exceeded its wall-clock budget.
+  timeout('timeout'),
+
+  /// The process lacked permission to complete the action.
+  permissionDenied('permission_denied')
+}
+
+/// Suggests alternative approaches keyed on [failureReason].
 ///
 /// These are surfaced verbatim in the structured error payload so an agent
 /// coordinator has recovery options attached to every failure without having
-/// to reason about the failure type itself.
+/// to reason about the failure itself.
 @visibleForTesting
-List<String> alternativeApproachesFor(ToolFailureType failureType) {
-  const alternativeApproachesByFailureType = {
-    ToolFailureType.transient: [
-      'Retry the command; the failure may resolve on its own.',
-      'Check network and remote service availability, then retry.',
-      'If retries keep failing with the same error, switch approach.',
-    ],
-    ToolFailureType.validation: [
-      'Correct any invalid tool arguments before retrying.',
-      'Consult the tool schema for accepted parameters and values.',
-      'Inspect the captured output for the field the CLI rejected.',
-    ],
-    ToolFailureType.permission: [
-      'Ensure the process can read and write the target directory.',
-      'Retry after adjusting filesystem permissions or credentials.',
-      'Cannot be retried as-is without an authorization change.',
-    ],
-    ToolFailureType.business: [
-      'Read the captured output for the check that failed.',
-      'Fix the reported problem; an unchanged re-run fails the same way.',
-      'Escalate to the user if the constraint cannot be satisfied.',
-    ],
-    ToolFailureType.timeout: [
-      '''Inspect the captured output for the test that was running when the timeout fired; a deterministic hang will reproduce on a retry.''',
-      '''Investigate hangs in tester.pumpAndSettle and tester.runAsync, which bypass the per-test timeout when they await a future that never completes.''',
-      '''Raise the "timeout_seconds" budget only after confirming the hang is not deterministic.''',
-    ],
-  };
-
-  return alternativeApproachesByFailureType[failureType]!;
-}
+List<String> alternativeApproachesFor(ToolFailureReason failureReason) =>
+    switch (failureReason) {
+      ToolFailureReason.testFailure => const [
+        'Read the failing tests and their errors in the captured output.',
+        '''Fix the code under test or the failing tests; an unchanged re-run fails the same way.''',
+        '''Run only the failing test files while iterating, then the whole suite.''',
+      ],
+      ToolFailureReason.coverageBelowThreshold => const [
+        '''Run with "show_uncovered": true to list the lines left uncovered.''',
+        '''Add tests that cover those lines; an unchanged re-run fails the same way.''',
+        '''Lower "min_coverage" or exclude files from coverage only with the user's agreement.''',
+      ],
+      ToolFailureReason.toolCrash => const [
+        'Retry the command once; a crash or network hiccup may not recur.',
+        '''If it fails the same way again, read the captured output for the cause and fix it before retrying.''',
+        '''Escalate to the user if the cause is outside the project, such as a broken SDK install.''',
+      ],
+      ToolFailureReason.invalidInput => const [
+        'Correct any invalid tool arguments before retrying.',
+        'Check that the target directory holds the expected project.',
+        'Inspect the captured output for the input the CLI rejected.',
+      ],
+      ToolFailureReason.usageError => const [
+        'Consult the tool schema for accepted parameters and values.',
+        'Correct the argument named in the reason before retrying.',
+      ],
+      ToolFailureReason.timeout => const [
+        '''Inspect the captured output for the test that was running when the timeout fired; a deterministic hang will reproduce on a retry.''',
+        '''Investigate hangs in tester.pumpAndSettle and tester.runAsync, which bypass the per-test timeout when they await a future that never completes.''',
+        '''Raise the "timeout_seconds" budget only after confirming the hang is not deterministic.''',
+      ],
+      ToolFailureReason.permissionDenied => const [
+        'Ensure the process can read and write the target directory.',
+        'Adjust filesystem permissions or credentials, then run again.',
+        'Cannot succeed as-is without an authorization change.',
+      ],
+    };
 
 /// {@template structured_tool_error}
 /// A structured description of a tool failure, renderable as a
@@ -151,13 +188,14 @@ List<String> alternativeApproachesFor(ToolFailureType failureType) {
 /// * `status` — `partial_failure` if [capturedOutput] is non-empty, else
 ///   `failure`.
 /// * `failureType` — the [ToolFailureType] name.
+/// * `failureReason` — the [ToolFailureReason.jsonName].
 /// * `attemptedAction` — the tool name, the concrete CLI command that was
 ///   invoked (when known), the working directory (when set), and the raw
 ///   caller-supplied arguments.
 /// * `reason` — the human-readable failure cause.
 /// * `partialResults` — the sanitized captured command output, when any.
-/// * `alternativeApproaches` — recovery suggestions from
-///   [alternativeApproachesFor].
+/// * `alternativeApproaches` — recovery suggestions for the `failureReason`,
+///   from [alternativeApproachesFor].
 /// {@endtemplate}
 class const StructuredToolError({
   /// The name of the tool that failed.
@@ -168,6 +206,9 @@ class const StructuredToolError({
 
   /// The bucket this failure falls into.
   required final ToolFailureType failureType,
+
+  /// The specific cause of this failure.
+  required final ToolFailureReason failureReason,
 
   /// The concrete CLI command that was invoked, when known.
   final String? commandString,
@@ -200,10 +241,11 @@ class const StructuredToolError({
     return {
       'status': _hasPartialResults ? 'partial_failure' : 'failure',
       'failureType': failureType.name,
+      'failureReason': failureReason.jsonName,
       'attemptedAction': attemptedAction,
       'reason': reason,
       if (_hasPartialResults) 'partialResults': capturedOutput,
-      'alternativeApproaches': alternativeApproachesFor(failureType),
+      'alternativeApproaches': alternativeApproachesFor(failureReason),
     };
   }
 

@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
-import 'package:mason/mason.dart' show ExitCode;
+import 'package:mason/mason.dart' show ExitCode, Logger;
 import 'package:test/test.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/tool_run.dart';
 
 void main() {
@@ -46,6 +47,27 @@ void main() {
 
         final result = run.resultFor(ExitCode.success.code);
         expect(textOf(result, 1), equals('from stdout\nfrom logger'));
+      });
+
+      test('records the test run of each run apart', () async {
+        final recorders = <TestRunRecorder?>[];
+        Future<int> command(Logger _) async {
+          recorders.add(TestRunRecorder.current);
+          return ExitCode.success.code;
+        }
+
+        await run.capture(command);
+        await run.capture(command);
+        await ToolRun(
+          toolName: 'test',
+          commandString: 'very_good test',
+          directory: null,
+          requestArguments: null,
+        ).capture(command);
+
+        expect(recorders, everyElement(isNotNull));
+        expect(recorders[0], same(recorders[1]));
+        expect(recorders[0], isNot(same(recorders[2])));
       });
     });
 
@@ -168,6 +190,118 @@ void main() {
         expect(
           stderrBuffer.toString(),
           contains('[very_good_mcp] Stack trace: $stackTrace'),
+        );
+      });
+    });
+
+    group('failureReason', () {
+      String reasonOf(CallToolResult result) =>
+          jsonOf(result)['failureReason']! as String;
+
+      Future<String> reasonForTestRun({
+        bool testsFailed = false,
+        MinCoverageNotMet? coverageNotMet,
+      }) async {
+        await run.capture((_) async {
+          TestRunRecorder.current!
+            ..testsFailed = testsFailed
+            ..coverageNotMet = coverageNotMet;
+          return ExitCode.software.code;
+        });
+        return withStderr<String>(
+          () => reasonOf(run.resultFor(ExitCode.software.code)),
+        );
+      }
+
+      const coverageNotMet = MinCoverageNotMet(50, minCoverage: 80);
+
+      test('follows the exit code of the command', () {
+        final reasons = withStderr(
+          () => {
+            for (final exitCode in [
+              ExitCode.usage,
+              ExitCode.data,
+              ExitCode.noInput,
+              ExitCode.config,
+              ExitCode.noPerm,
+              ExitCode.unavailable,
+              ExitCode.software,
+            ])
+              exitCode.code: reasonOf(run.resultFor(exitCode.code)),
+          },
+        );
+
+        expect(
+          reasons,
+          equals({
+            ExitCode.usage.code: 'usage_error',
+            ExitCode.data.code: 'invalid_input',
+            ExitCode.noInput.code: 'invalid_input',
+            ExitCode.config.code: 'invalid_input',
+            ExitCode.noPerm.code: 'permission_denied',
+            ExitCode.unavailable.code: 'tool_crash',
+            ExitCode.software.code: 'tool_crash',
+          }),
+        );
+      });
+
+      test('is test_failure when the test run recorded failing tests', () {
+        expect(
+          reasonForTestRun(testsFailed: true),
+          completion(equals('test_failure')),
+        );
+      });
+
+      test('is coverage_below_threshold when the coverage was not met', () {
+        expect(
+          reasonForTestRun(coverageNotMet: coverageNotMet),
+          completion(equals('coverage_below_threshold')),
+        );
+      });
+
+      test('prefers test_failure over coverage_below_threshold', () {
+        expect(
+          reasonForTestRun(testsFailed: true, coverageNotMet: coverageNotMet),
+          completion(equals('test_failure')),
+        );
+      });
+
+      test('follows the exception the command threw', () {
+        final reasons = withStderr(
+          () => [
+            for (final exception in <Exception>[
+              UsageException('bad flag', 'usage'),
+              const FormatException('bad yaml'),
+              const FileSystemException(
+                'Cannot open file',
+                '/locked',
+                OSError('Permission denied', 13),
+              ),
+              const SocketException('connection refused'),
+              Exception('Invalid SDK hash'),
+            ])
+              reasonOf(run.resultForException(exception, StackTrace.empty)),
+          ],
+        );
+
+        expect(
+          reasons,
+          equals([
+            'usage_error',
+            'invalid_input',
+            'permission_denied',
+            'tool_crash',
+            'tool_crash',
+          ]),
+        );
+      });
+
+      test('is timeout for a run that exceeded its budget', () {
+        expect(
+          withStderr(
+            () => reasonOf(run.resultForTimeout(const Duration(seconds: 1))),
+          ),
+          equals('timeout'),
         );
       });
     });

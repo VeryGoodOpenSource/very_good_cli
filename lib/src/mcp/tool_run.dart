@@ -6,6 +6,7 @@ import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 
 /// {@template tool_run}
@@ -32,30 +33,47 @@ class ToolRun({
 
   final StringBuffer _output = StringBuffer();
 
+  final TestRunRecorder _recorder = TestRunRecorder();
+
   String get _capturedOutput =>
       sanitizeCommandOutput(_output.toString()).trim();
 
   /// Runs [command] with `stdout`/`stderr` redirected into this run's buffer
   /// and returns its exit code.
   ///
+  /// What a test run reports beyond its exit code is recorded through this
+  /// run's [TestRunRecorder].
+  ///
   /// The [Logger] is built inside the zone because mason captures
   /// `IOOverrides.current` at construction time.
   Future<int> capture(Future<int> Function(Logger logger) command) {
     final sink = CapturingStdout(_output);
-    return IOOverrides.runZoned(
-      () => command(Logger()),
-      stdout: () => sink,
-      stderr: () => sink,
+    return TestRunRecorder.runZoned(
+      () => IOOverrides.runZoned(
+        () => command(Logger()),
+        stdout: () => sink,
+        stderr: () => sink,
+      ),
+      recorder: _recorder,
     );
   }
 
   /// Maps the command's [exitCode] to a success or failure result.
-  CallToolResult resultFor(int exitCode) => exitCode == ExitCode.success.code
-      ? _success()
-      : _failure(
-          'failed with exit code $exitCode.',
-          failureType: ToolFailureType.fromExitCode(exitCode),
-        );
+  ///
+  /// The failure reason is told apart from the exit code, then from what the
+  /// test run recorded, as described by [_failureReasonFor].
+  CallToolResult resultFor(int exitCode) {
+    if (exitCode == ExitCode.success.code) return _success();
+
+    final failureType = ToolFailureType.fromExitCode(exitCode);
+    return _failure(
+      'failed with exit code $exitCode.',
+      failureType: failureType,
+      failureReason: exitCode == ExitCode.usage.code
+          ? ToolFailureReason.usageError
+          : _failureReasonFor(failureType),
+    );
+  }
 
   /// Maps an [exception] thrown by the command to a failure result.
   ///
@@ -70,10 +88,12 @@ class ToolRun({
       UsageException(:final message) => _failure(
         'usage error: $message',
         failureType: failureType,
+        failureReason: ToolFailureReason.usageError,
       ),
       _ => _failure(
         'threw an exception: $exception',
         failureType: failureType,
+        failureReason: _failureReasonFor(failureType),
         stackTrace: stackTrace,
       ),
     };
@@ -89,7 +109,28 @@ class ToolRun({
   CallToolResult resultForTimeout(Duration timeout) => _failure(
     'timed out after ${timeout.inSeconds} seconds.',
     failureType: ToolFailureType.timeout,
+    failureReason: ToolFailureReason.timeout,
   );
+
+  /// The [ToolFailureReason] of a failure of [failureType], other than a
+  /// usage error.
+  ///
+  /// A deterministic failure is told apart by what the test run recorded:
+  /// failing tests take precedence over an unmet coverage threshold, since
+  /// they are the actionable cause. Any other failure, and any transient one,
+  /// is a crashed tool.
+  ToolFailureReason _failureReasonFor(ToolFailureType failureType) =>
+      switch (failureType) {
+        ToolFailureType.validation => ToolFailureReason.invalidInput,
+        ToolFailureType.permission => ToolFailureReason.permissionDenied,
+        ToolFailureType.timeout => ToolFailureReason.timeout,
+        ToolFailureType.transient => ToolFailureReason.toolCrash,
+        ToolFailureType.business when _recorder.testsFailed =>
+          ToolFailureReason.testFailure,
+        ToolFailureType.business when _recorder.coverageNotMet != null =>
+          ToolFailureReason.coverageBelowThreshold,
+        ToolFailureType.business => ToolFailureReason.toolCrash,
+      };
 
   CallToolResult _success() {
     final captured = _capturedOutput;
@@ -102,7 +143,8 @@ class ToolRun({
     );
   }
 
-  /// Builds a structured JSON failure result from [reason] and [failureType].
+  /// Builds a structured JSON failure result from [reason], [failureType]
+  /// and [failureReason].
   ///
   /// The captured command output is surfaced as `partialResults` so any
   /// diagnostics emitted before a failure or throw are preserved. A short
@@ -111,6 +153,7 @@ class ToolRun({
   CallToolResult _failure(
     String reason, {
     required ToolFailureType failureType,
+    required ToolFailureReason failureReason,
     StackTrace? stackTrace,
   }) {
     final captured = _capturedOutput;
@@ -125,6 +168,7 @@ class ToolRun({
       toolName: toolName,
       reason: reason,
       failureType: failureType,
+      failureReason: failureReason,
       commandString: commandString,
       directory: directory,
       attemptedArguments: requestArguments,
