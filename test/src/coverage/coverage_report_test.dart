@@ -126,6 +126,78 @@ void main() {
         expect(stdoutLogs, isEmpty);
       });
 
+      group('when the test runner left no coverage behind', () {
+        DartCoverageReport dartReport(CoverageOptions options) =>
+            DartCoverageReport(packageRoot: packageRoot.path, options: options);
+
+        final reports = {'flutter': flutterReport, 'dart': dartReport};
+
+        for (final MapEntry(key: runner, value: report) in reports.entries) {
+          test('throws $CoverageReportMissing for $runner test', () async {
+            for (final options in const [
+              CoverageOptions(collect: true),
+              CoverageOptions(collect: true, minCoverage: 100),
+            ]) {
+              await expectLater(
+                report(options).finalize(),
+                throwsA(
+                  isA<CoverageReportMissing>().having(
+                    (e) => e.packageRoot,
+                    'packageRoot',
+                    packageRoot.path,
+                  ),
+                ),
+              );
+            }
+          });
+
+          test('skips the coverage of a $runner test run whose report was '
+              'not expected', () async {
+            await report(const CoverageOptions(collect: true, minCoverage: 100))
+                .finalize(reportExpected: false, stdout: stdoutLogs.add);
+
+            expect(lcovFile.existsSync(), isFalse);
+            expect(stdoutLogs, isEmpty);
+          });
+        }
+
+        test('throws $CoverageReportMissing for a coverage folder without '
+            'dart test json coverage', () async {
+          Directory(p.join(packageRoot.path, 'coverage')).createSync();
+
+          await expectLater(
+            dartReport(const CoverageOptions(collect: true)).finalize(),
+            throwsA(isA<CoverageReportMissing>()),
+          );
+        });
+
+        test('explains that a retry may succeed', () {
+          expect(
+            const CoverageReportMissing('/package').toString(),
+            equals(
+              'The test runner exited without writing the coverage of '
+              '/package. It may have crashed; a retry may succeed.',
+            ),
+          );
+        });
+
+        test('writes nothing when coverage is not collected', () async {
+          await flutterReport(const CoverageOptions()).finalize();
+
+          expect(lcovFile.existsSync(), isFalse);
+        });
+      });
+
+      test('checks a report that exists even when it was not expected', () {
+        writeLcov(coveredLcov);
+
+        expect(
+          flutterReport(const CoverageOptions(collect: true, minCoverage: 100))
+              .finalize(reportExpected: false),
+          throwsA(isA<MinCoverageNotMet>()),
+        );
+      });
+
       test('adds the untested files when collecting from all files', () async {
         writeLcov(coveredLcov);
         writeSource('lib/a.dart', 'void a() {}\n');
