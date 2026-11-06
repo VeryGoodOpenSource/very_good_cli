@@ -59,22 +59,25 @@ class ToolRun({
 
   /// Maps an [exception] thrown by the command to a failure result.
   ///
-  /// A [UsageException] is a validation failure; anything else is transient
-  /// and logs its [stackTrace].
+  /// The failure is classified by [ToolFailureType.fromException]. Any
+  /// exception other than a [UsageException] also logs its [stackTrace].
   CallToolResult resultForException(
     Exception exception,
     StackTrace stackTrace,
-  ) => switch (exception) {
-    UsageException(:final message) => _failure(
-      'usage error: $message',
-      failureType: ToolFailureType.validation,
-    ),
-    _ => _failure(
-      'threw an exception: $exception',
-      failureType: ToolFailureType.transient,
-      stackTrace: stackTrace,
-    ),
-  };
+  ) {
+    final failureType = ToolFailureType.fromException(exception);
+    return switch (exception) {
+      UsageException(:final message) => _failure(
+        'usage error: $message',
+        failureType: failureType,
+      ),
+      _ => _failure(
+        'threw an exception: $exception',
+        failureType: failureType,
+        stackTrace: stackTrace,
+      ),
+    };
+  }
 
   /// Builds a timeout failure result for a run that exceeded its wall-clock
   /// budget.

@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:args/command_runner.dart';
+import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
@@ -16,8 +20,12 @@ import 'package:meta/meta.dart';
 ///   deterministic.
 /// * `business` — a deterministic check reported a failure: a failing test
 ///   suite, an unmet coverage threshold, a violated project rule. Also the
-///   safest default for an outcome that can't be attributed to the other
-///   three.
+///   safest default for an outcome or exception that can't be attributed to
+///   the other buckets.
+///
+/// A failure is classified from the command's exit code with
+/// [ToolFailureType.fromExitCode], or from the exception it threw with
+/// [ToolFailureType.fromException].
 enum ToolFailureType {
   /// A caller-supplied argument was invalid.
   validation,
@@ -66,7 +74,34 @@ enum ToolFailureType {
 
     return ToolFailureType.business;
   }
+
+  /// Classifies an [exception] thrown by a command into a [ToolFailureType].
+  ///
+  /// Only network and timeout exceptions are [ToolFailureType.transient], so
+  /// a deterministic exception is never reported as worth a retry. Exceptions
+  /// caused by bad input (an invalid argument, malformed YAML, a missing path)
+  /// are [ToolFailureType.validation], and a file system operation denied by
+  /// the OS is [ToolFailureType.permission]. Anything else falls back to
+  /// [ToolFailureType.business].
+  factory fromException(Exception exception) => switch (exception) {
+    SocketException() ||
+    HttpException() ||
+    TlsException() ||
+    TimeoutException() => ToolFailureType.transient,
+    UsageException() ||
+    FormatException() ||
+    ParsedYamlException() ||
+    PathNotFoundException() => ToolFailureType.validation,
+    FileSystemException(:final osError?)
+        when _permissionDeniedErrorCodes.contains(osError.errorCode) =>
+      ToolFailureType.permission,
+    _ => ToolFailureType.business,
+  };
 }
+
+/// The OS error codes of a denied file system operation: `EPERM` (1) and
+/// `EACCES` (13) on POSIX systems, `ERROR_ACCESS_DENIED` (5) on Windows.
+const _permissionDeniedErrorCodes = {1, 5, 13};
 
 /// Suggests alternative approaches keyed on [failureType].
 ///

@@ -277,12 +277,20 @@ This command should be run from the root of your ${testType.projectKind} project
       return ExitCode.success.code;
     }
 
+    final reporter = _TestEventReporter(
+      stdout: stdout ?? noop,
+      stderr: stderr ?? noop,
+      optimization: optimization,
+      cwd: cwd,
+    );
+
     return await _overrideAnsiOutput(
       forceAnsi,
       () =>
           _testCommand(
             cwd: cwd,
             testRunner: testRunner,
+            reporter: reporter,
             optimization: optimization,
             arguments: [
               ...coverageReport.collectArguments,
@@ -297,7 +305,12 @@ This command should be run from the root of your ${testType.projectKind} project
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             await optimization.cleanUp();
-            await coverageReport.finalize(stdout: stdout);
+            // A run that was interrupted, or whose test files failed to
+            // load, can leave no coverage behind.
+            await coverageReport.finalize(
+              reportExpected: reporter.exitedWithoutFailures,
+              stdout: stdout,
+            );
           }),
     );
   }
@@ -378,17 +391,12 @@ Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
+  required _TestEventReporter reporter,
   required TestOptimization optimization,
   String cwd = '.',
   List<String>? arguments,
 }) {
   final completer = Completer<int>();
-  final reporter = _TestEventReporter(
-    stdout: stdout,
-    stderr: stderr,
-    optimization: optimization,
-    cwd: cwd,
-  );
   final sigintWatch =
       ProcessSignalOverrides.current?.sigintWatch ??
       ProcessSignal.sigint.watch();
