@@ -91,6 +91,52 @@ void main() {
 
         expect(lcovFile.existsSync(), isTrue);
       });
+
+      group('for a dart test run', () {
+        File jsonCoverageFile(String relativePath) =>
+            File(p.join(packageRoot.path, 'coverage', relativePath))
+              ..createSync(recursive: true)
+              ..writeAsStringSync('{}');
+
+        test('deletes the json coverage of a previous run', () async {
+          writeLcov('SF:lib/a.dart\nend_of_record\n');
+          final staleJson = jsonCoverageFile(p.join('test', 'a_test.json'));
+
+          await DartCoverageReport(
+            packageRoot: packageRoot.path,
+            options: const CoverageOptions(collect: true),
+          ).clean();
+
+          expect(lcovFile.existsSync(), isFalse);
+          expect(staleJson.existsSync(), isFalse);
+        });
+
+        test(
+          'keeps the json coverage when coverage is not collected',
+          () async {
+            final staleJson = jsonCoverageFile(p.join('test', 'a_test.json'));
+
+            await DartCoverageReport(
+              packageRoot: packageRoot.path,
+              options: const CoverageOptions(),
+            ).clean();
+
+            expect(staleJson.existsSync(), isTrue);
+          },
+        );
+
+        test('completes when there is no coverage directory', () async {
+          await DartCoverageReport(
+            packageRoot: packageRoot.path,
+            options: const CoverageOptions(collect: true),
+          ).clean();
+
+          expect(
+            Directory(p.join(packageRoot.path, 'coverage')).existsSync(),
+            isFalse,
+          );
+        });
+      });
     });
 
     group('writeEmpty', () {

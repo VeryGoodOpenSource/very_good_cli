@@ -202,6 +202,15 @@ final class const DartCoverageReport({
       _coverageDirectory.existsSync() && _jsonFiles.isNotEmpty;
 
   @override
+  Future<void> clean() async {
+    await super.clean();
+    if (!options.collect || !_coverageDirectory.existsSync()) return;
+    for (final file in _jsonFiles) {
+      await file.delete();
+    }
+  }
+
+  @override
   Future<void> _writeLcov() async {
     final files = _jsonFiles;
 

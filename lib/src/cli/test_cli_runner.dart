@@ -305,6 +305,15 @@ This command should be run from the root of your ${testType.projectKind} project
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             await optimization.cleanUp();
+            // A sharded run with every test filtered out collects no
+            // coverage, but the merge step downstream still expects a
+            // report from every shard. Leave an empty one behind and
+            // skip finalize, like [isEmptyShard] does.
+            if (reporter.exitedWithoutRunningAnyTest &&
+                optimization.shardIndex != null) {
+              await coverageReport.writeEmpty();
+              return;
+            }
             // A run that was interrupted, or whose test files failed to
             // load, can leave no coverage behind.
             await coverageReport.finalize(

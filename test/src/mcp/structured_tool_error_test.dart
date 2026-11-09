@@ -114,20 +114,17 @@ void main() {
         }
       });
 
-      test('classifies permission denied file system errors as permission', () {
-        for (final errorCode in [1, 5, 13]) {
-          expect(
-            ToolFailureType.fromException(
-              FileSystemException(
-                'Cannot open file',
-                '/locked',
-                OSError('Permission denied', errorCode),
-              ),
+      test('classifies PathAccessException as permission', () {
+        expect(
+          ToolFailureType.fromException(
+            const PathAccessException(
+              '/locked',
+              OSError('Permission denied', 13),
+              'Cannot open file',
             ),
-            equals(ToolFailureType.permission),
-            reason: 'error code $errorCode',
-          );
-        }
+          ),
+          equals(ToolFailureType.permission),
+        );
       });
 
       test('classifies other file system errors as business', () {
@@ -137,6 +134,16 @@ void main() {
               'Cannot open file',
               '/disk',
               OSError('No space left on device', 28),
+            ),
+          ),
+          equals(ToolFailureType.business),
+        );
+        expect(
+          ToolFailureType.fromException(
+            const FileSystemException(
+              'Input/output error',
+              '/disk',
+              OSError('I/O error', 5),
             ),
           ),
           equals(ToolFailureType.business),
