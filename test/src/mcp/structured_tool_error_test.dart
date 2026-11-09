@@ -168,6 +168,7 @@ void main() {
         equals({
           ToolFailureReason.testFailure: 'test_failure',
           ToolFailureReason.coverageBelowThreshold: 'coverage_below_threshold',
+          ToolFailureReason.checkFailed: 'check_failed',
           ToolFailureReason.toolCrash: 'tool_crash',
           ToolFailureReason.invalidInput: 'invalid_input',
           ToolFailureReason.usageError: 'usage_error',
@@ -211,7 +212,7 @@ void main() {
           ToolFailureType.permission: ToolFailureReason.permissionDenied,
           ToolFailureType.transient: ToolFailureReason.toolCrash,
           ToolFailureType.timeout: ToolFailureReason.timeout,
-          ToolFailureType.business: ToolFailureReason.toolCrash,
+          ToolFailureType.business: ToolFailureReason.checkFailed,
         }),
       );
     });

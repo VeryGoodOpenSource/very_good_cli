@@ -110,7 +110,7 @@ enum ToolFailureType {
     ToolFailureType.permission => ToolFailureReason.permissionDenied,
     ToolFailureType.transient => ToolFailureReason.toolCrash,
     ToolFailureType.timeout => ToolFailureReason.timeout,
-    ToolFailureType.business => ToolFailureReason.toolCrash,
+    ToolFailureType.business => ToolFailureReason.checkFailed,
   };
 }
 
@@ -132,8 +132,12 @@ enum ToolFailureReason(
   /// The tests passed, but their coverage is below the required threshold.
   coverageBelowThreshold('coverage_below_threshold'),
 
-  /// The tool exited unexpectedly or threw, without reporting a more specific
-  /// cause.
+  /// A deterministic check reported a failure without naming a more specific
+  /// cause. Re-running the same command reproduces the same outcome.
+  checkFailed('check_failed'),
+
+  /// The tool exited unexpectedly or threw a transient error; a retry may
+  /// succeed.
   toolCrash('tool_crash'),
 
   /// A caller-supplied argument, or the project it points to, was invalid.
@@ -163,6 +167,11 @@ enum ToolFailureReason(
       '''Run with "show_uncovered": true to list the lines left uncovered.''',
       '''Add tests that cover those lines; an unchanged re-run fails the same way.''',
       '''Lower "min_coverage" or exclude files from coverage only with the user's agreement.''',
+    ],
+    ToolFailureReason.checkFailed => const [
+      'Read the captured output for the specific check that failed.',
+      '''Fix the underlying cause; an unchanged re-run fails the same way.''',
+      '''Escalate to the user if the cause is outside the project, such as a broken SDK install.''',
     ],
     ToolFailureReason.toolCrash => const [
       'Retry the command once; a crash or network hiccup may not recur.',

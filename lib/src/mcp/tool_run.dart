@@ -60,20 +60,16 @@ class ToolRun({
 
   /// Maps the command's [exitCode] to a success or failure result.
   ///
-  /// The failure reason follows the exit code, with [ExitCode.usage] mapped
-  /// to [ToolFailureReason.usageError] rather than the generic
-  /// [ToolFailureReason.invalidInput]. For a business failure it is refined
-  /// with [_recordedReason].
+  /// The failure reason follows the exit code: [ExitCode.usage] is flagged as
+  /// a usage error, and every other code is refined through
+  /// [_recordedReason].
   CallToolResult resultFor(int exitCode) {
     if (exitCode == ExitCode.success.code) return _success();
 
-    final failureType = ToolFailureType.fromExitCode(exitCode);
     return _failure(
       'failed with exit code $exitCode.',
-      failureType: failureType,
-      failureReason: exitCode == ExitCode.usage.code
-          ? ToolFailureReason.usageError
-          : _recordedReason(failureType),
+      failureType: ToolFailureType.fromExitCode(exitCode),
+      isUsageError: exitCode == ExitCode.usage.code,
     );
   }
 
@@ -90,12 +86,11 @@ class ToolRun({
       UsageException(:final message) => _failure(
         'usage error: $message',
         failureType: failureType,
-        failureReason: ToolFailureReason.usageError,
+        isUsageError: true,
       ),
       _ => _failure(
         'threw an exception: $exception',
         failureType: failureType,
-        failureReason: _recordedReason(failureType),
         stackTrace: stackTrace,
       ),
     };
@@ -111,7 +106,6 @@ class ToolRun({
   CallToolResult resultForTimeout(Duration timeout) => _failure(
     'timed out after ${timeout.inSeconds} seconds.',
     failureType: ToolFailureType.timeout,
-    failureReason: ToolFailureReason.timeout,
   );
 
   /// Refines [failureType]'s default [ToolFailureType.failureReason] with
@@ -141,8 +135,13 @@ class ToolRun({
     );
   }
 
-  /// Builds a structured JSON failure result from [reason], [failureType]
-  /// and [failureReason].
+  /// Builds a structured JSON failure result from [reason] and [failureType].
+  ///
+  /// The failure reason is picked from [isUsageError] (which upgrades a
+  /// [ToolFailureType.validation] failure to [ToolFailureReason.usageError])
+  /// and otherwise refined with [_recordedReason] from the test run side
+  /// channel, so every caller passes the context they have and the single
+  /// decision lives here.
   ///
   /// The captured command output is surfaced as `partialResults` so any
   /// diagnostics emitted before a failure or throw are preserved. A short
@@ -151,7 +150,7 @@ class ToolRun({
   CallToolResult _failure(
     String reason, {
     required ToolFailureType failureType,
-    required ToolFailureReason failureReason,
+    bool isUsageError = false,
     StackTrace? stackTrace,
   }) {
     final captured = _capturedOutput;
@@ -166,7 +165,9 @@ class ToolRun({
       toolName: toolName,
       reason: reason,
       failureType: failureType,
-      failureReason: failureReason,
+      failureReason: isUsageError
+          ? ToolFailureReason.usageError
+          : _recordedReason(failureType),
       commandString: commandString,
       directory: directory,
       attemptedArguments: requestArguments,

@@ -240,7 +240,7 @@ void main() {
             ExitCode.config.code: 'invalid_input',
             ExitCode.noPerm.code: 'permission_denied',
             ExitCode.unavailable.code: 'tool_crash',
-            ExitCode.software.code: 'tool_crash',
+            ExitCode.software.code: 'check_failed',
           }),
         );
       });
@@ -291,7 +291,7 @@ void main() {
             'invalid_input',
             'permission_denied',
             'tool_crash',
-            'tool_crash',
+            'check_failed',
           ]),
         );
       });
