@@ -60,8 +60,10 @@ class ToolRun({
 
   /// Maps the command's [exitCode] to a success or failure result.
   ///
-  /// The failure reason is told apart from the exit code, then from what the
-  /// test run recorded, as described by [_failureReasonFor].
+  /// The failure reason follows the exit code, with [ExitCode.usage] mapped
+  /// to [ToolFailureReason.usageError] rather than the generic
+  /// [ToolFailureReason.invalidInput]. For a business failure it is refined
+  /// with [_recordedReason].
   CallToolResult resultFor(int exitCode) {
     if (exitCode == ExitCode.success.code) return _success();
 
@@ -71,7 +73,7 @@ class ToolRun({
       failureType: failureType,
       failureReason: exitCode == ExitCode.usage.code
           ? ToolFailureReason.usageError
-          : _failureReasonFor(failureType),
+          : _recordedReason(failureType),
     );
   }
 
@@ -93,7 +95,7 @@ class ToolRun({
       _ => _failure(
         'threw an exception: $exception',
         failureType: failureType,
-        failureReason: _failureReasonFor(failureType),
+        failureReason: _recordedReason(failureType),
         stackTrace: stackTrace,
       ),
     };
@@ -112,25 +114,21 @@ class ToolRun({
     failureReason: ToolFailureReason.timeout,
   );
 
-  /// The [ToolFailureReason] of a failure of [failureType], other than a
-  /// usage error.
+  /// Refines [failureType]'s default [ToolFailureType.failureReason] with
+  /// what the test run recorded.
   ///
-  /// A deterministic failure is told apart by what the test run recorded:
-  /// failing tests take precedence over an unmet coverage threshold, since
-  /// they are the actionable cause. Any other failure, and any transient one,
-  /// is a crashed tool.
-  ToolFailureReason _failureReasonFor(ToolFailureType failureType) =>
-      switch (failureType) {
-        ToolFailureType.validation => ToolFailureReason.invalidInput,
-        ToolFailureType.permission => ToolFailureReason.permissionDenied,
-        ToolFailureType.timeout => ToolFailureReason.timeout,
-        ToolFailureType.transient => ToolFailureReason.toolCrash,
-        ToolFailureType.business when _recorder.testsFailed =>
-          ToolFailureReason.testFailure,
-        ToolFailureType.business when _recorder.coverageNotMet != null =>
-          ToolFailureReason.coverageBelowThreshold,
-        ToolFailureType.business => ToolFailureReason.toolCrash,
-      };
+  /// For a [ToolFailureType.business] failure, failing tests take precedence
+  /// over an unmet coverage threshold, since they are the actionable cause.
+  /// Any other type uses its default reason.
+  ToolFailureReason _recordedReason(ToolFailureType failureType) {
+    if (failureType == ToolFailureType.business) {
+      if (_recorder.testsFailed) return ToolFailureReason.testFailure;
+      if (_recorder.coverageNotMet != null) {
+        return ToolFailureReason.coverageBelowThreshold;
+      }
+    }
+    return failureType.failureReason;
+  }
 
   CallToolResult _success() {
     final captured = _capturedOutput;

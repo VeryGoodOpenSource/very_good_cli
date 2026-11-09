@@ -178,11 +178,11 @@ void main() {
     });
   });
 
-  group('alternativeApproachesFor', () {
+  group('ToolFailureReason.alternativeApproaches', () {
     test('returns non-empty suggestions for every failureReason', () {
       for (final reason in ToolFailureReason.values) {
         expect(
-          alternativeApproachesFor(reason),
+          reason.alternativeApproaches,
           isNotEmpty,
           reason: '$reason must offer at least one alternative approach',
         );
@@ -192,13 +192,28 @@ void main() {
     test('advises a retry only for a crashed tool', () {
       for (final reason in ToolFailureReason.values) {
         expect(
-          alternativeApproachesFor(reason),
+          reason.alternativeApproaches,
           reason == ToolFailureReason.toolCrash
               ? contains(startsWith('Retry the command'))
               : everyElement(isNot(startsWith('Retry the command'))),
           reason: '$reason',
         );
       }
+    });
+  });
+
+  group('ToolFailureType.failureReason', () {
+    test('returns the default reason for each failure type', () {
+      expect(
+        {for (final type in ToolFailureType.values) type: type.failureReason},
+        equals({
+          ToolFailureType.validation: ToolFailureReason.invalidInput,
+          ToolFailureType.permission: ToolFailureReason.permissionDenied,
+          ToolFailureType.transient: ToolFailureReason.toolCrash,
+          ToolFailureType.timeout: ToolFailureReason.timeout,
+          ToolFailureType.business: ToolFailureReason.toolCrash,
+        }),
+      );
     });
   });
 
@@ -223,7 +238,7 @@ void main() {
       expect(payload['failureReason'], equals('test_failure'));
       expect(
         payload['alternativeApproaches'],
-        equals(alternativeApproachesFor(ToolFailureReason.testFailure)),
+        equals(ToolFailureReason.testFailure.alternativeApproaches),
       );
       expect(payload['reason'], equals('boom'));
       expect(payload['partialResults'], isNull);

@@ -6,7 +6,6 @@ import 'package:args/command_runner.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
-import 'package:meta/meta.dart';
 
 /// Classifies a tool failure into a bucket an agent loop can act on without
 /// parsing free-form text.
@@ -97,6 +96,22 @@ enum ToolFailureType {
       ToolFailureType.permission,
     _ => ToolFailureType.business,
   };
+
+  /// The default [ToolFailureReason] for a failure of this type, when no more
+  /// specific cause has been told apart.
+  ///
+  /// A caller with extra context may override this — for example, exit code
+  /// 64 ([ExitCode.usage]) is a [validation] failure with a
+  /// [ToolFailureReason.usageError] reason, and a test runner distinguishes
+  /// failing tests from an unmet coverage threshold, both of which exit with
+  /// [ExitCode.software].
+  ToolFailureReason get failureReason => switch (this) {
+    ToolFailureType.validation => ToolFailureReason.invalidInput,
+    ToolFailureType.permission => ToolFailureReason.permissionDenied,
+    ToolFailureType.transient => ToolFailureReason.toolCrash,
+    ToolFailureType.timeout => ToolFailureReason.timeout,
+    ToolFailureType.business => ToolFailureReason.toolCrash,
+  };
 }
 
 /// The OS error codes of a denied file system operation: `EPERM` (1) and
@@ -131,52 +146,50 @@ enum ToolFailureReason(
   timeout('timeout'),
 
   /// The process lacked permission to complete the action.
-  permissionDenied('permission_denied')
-}
+  permissionDenied('permission_denied');
 
-/// Suggests alternative approaches keyed on [failureReason].
-///
-/// These are surfaced verbatim in the structured error payload so an agent
-/// coordinator has recovery options attached to every failure without having
-/// to reason about the failure itself.
-@visibleForTesting
-List<String> alternativeApproachesFor(ToolFailureReason failureReason) =>
-    switch (failureReason) {
-      ToolFailureReason.testFailure => const [
-        'Read the failing tests and their errors in the captured output.',
-        '''Fix the code under test or the failing tests; an unchanged re-run fails the same way.''',
-        '''Run only the failing test files while iterating, then the whole suite.''',
-      ],
-      ToolFailureReason.coverageBelowThreshold => const [
-        '''Run with "show_uncovered": true to list the lines left uncovered.''',
-        '''Add tests that cover those lines; an unchanged re-run fails the same way.''',
-        '''Lower "min_coverage" or exclude files from coverage only with the user's agreement.''',
-      ],
-      ToolFailureReason.toolCrash => const [
-        'Retry the command once; a crash or network hiccup may not recur.',
-        '''If it fails the same way again, read the captured output for the cause and fix it before retrying.''',
-        '''Escalate to the user if the cause is outside the project, such as a broken SDK install.''',
-      ],
-      ToolFailureReason.invalidInput => const [
-        'Correct any invalid tool arguments before retrying.',
-        'Check that the target directory holds the expected project.',
-        'Inspect the captured output for the input the CLI rejected.',
-      ],
-      ToolFailureReason.usageError => const [
-        'Consult the tool schema for accepted parameters and values.',
-        'Correct the argument named in the reason before retrying.',
-      ],
-      ToolFailureReason.timeout => const [
-        '''Inspect the captured output for the test that was running when the timeout fired; a deterministic hang will reproduce on a retry.''',
-        '''Investigate hangs in tester.pumpAndSettle and tester.runAsync, which bypass the per-test timeout when they await a future that never completes.''',
-        '''Raise the "timeout_seconds" budget only after confirming the hang is not deterministic.''',
-      ],
-      ToolFailureReason.permissionDenied => const [
-        'Ensure the process can read and write the target directory.',
-        'Adjust filesystem permissions or credentials, then run again.',
-        'Cannot succeed as-is without an authorization change.',
-      ],
-    };
+  /// Suggests alternative approaches to try after a failure of this reason.
+  ///
+  /// These are surfaced verbatim in the structured error payload so an agent
+  /// coordinator has recovery options attached to every failure without
+  /// having to reason about the failure itself.
+  List<String> get alternativeApproaches => switch (this) {
+    ToolFailureReason.testFailure => const [
+      'Read the failing tests and their errors in the captured output.',
+      '''Fix the code under test or the failing tests; an unchanged re-run fails the same way.''',
+      '''Run only the failing test files while iterating, then the whole suite.''',
+    ],
+    ToolFailureReason.coverageBelowThreshold => const [
+      '''Run with "show_uncovered": true to list the lines left uncovered.''',
+      '''Add tests that cover those lines; an unchanged re-run fails the same way.''',
+      '''Lower "min_coverage" or exclude files from coverage only with the user's agreement.''',
+    ],
+    ToolFailureReason.toolCrash => const [
+      'Retry the command once; a crash or network hiccup may not recur.',
+      '''If it fails the same way again, read the captured output for the cause and fix it before retrying.''',
+      '''Escalate to the user if the cause is outside the project, such as a broken SDK install.''',
+    ],
+    ToolFailureReason.invalidInput => const [
+      'Correct any invalid tool arguments before retrying.',
+      'Check that the target directory holds the expected project.',
+      'Inspect the captured output for the input the CLI rejected.',
+    ],
+    ToolFailureReason.usageError => const [
+      'Consult the tool schema for accepted parameters and values.',
+      'Correct the argument named in the reason before retrying.',
+    ],
+    ToolFailureReason.timeout => const [
+      '''Inspect the captured output for the test that was running when the timeout fired; a deterministic hang will reproduce on a retry.''',
+      '''Investigate hangs in tester.pumpAndSettle and tester.runAsync, which bypass the per-test timeout when they await a future that never completes.''',
+      '''Raise the "timeout_seconds" budget only after confirming the hang is not deterministic.''',
+    ],
+    ToolFailureReason.permissionDenied => const [
+      'Ensure the process can read and write the target directory.',
+      'Adjust filesystem permissions or credentials, then run again.',
+      'Cannot succeed as-is without an authorization change.',
+    ],
+  };
+}
 
 /// {@template structured_tool_error}
 /// A structured description of a tool failure, renderable as a
@@ -195,7 +208,7 @@ List<String> alternativeApproachesFor(ToolFailureReason failureReason) =>
 /// * `reason` — the human-readable failure cause.
 /// * `partialResults` — the sanitized captured command output, when any.
 /// * `alternativeApproaches` — recovery suggestions for the `failureReason`,
-///   from [alternativeApproachesFor].
+///   from [ToolFailureReason.alternativeApproaches].
 /// {@endtemplate}
 class const StructuredToolError({
   /// The name of the tool that failed.
@@ -245,7 +258,7 @@ class const StructuredToolError({
       'attemptedAction': attemptedAction,
       'reason': reason,
       if (_hasPartialResults) 'partialResults': capturedOutput,
-      'alternativeApproaches': alternativeApproachesFor(failureReason),
+      'alternativeApproaches': failureReason.alternativeApproaches,
     };
   }
 
