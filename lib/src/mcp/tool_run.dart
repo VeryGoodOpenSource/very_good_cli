@@ -172,7 +172,10 @@ class ToolRun({
       directory: directory,
       attemptedArguments: requestArguments,
       capturedOutput: captured,
-      testRun: _recorder,
+      testResults: _recorder.results,
+      coverage: failureReason == ToolFailureReason.coverageBelowThreshold
+          ? _recorder.coverageNotMet
+          : null,
     ).toCallToolResult();
   }
 }

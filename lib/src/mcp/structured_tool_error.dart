@@ -7,7 +7,6 @@ import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mason/mason.dart' hide packageVersion;
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:very_good_cli/src/cli/cli.dart';
 
@@ -200,14 +199,9 @@ enum ToolFailureReason(
   };
 }
 
-/// The most failing tests a [StructuredToolError] lists.
-const maxFailingTests = 20;
-
-/// The most files a [StructuredToolError] lists the uncovered lines of.
-const maxUncoveredFiles = 20;
-
-/// The most uncovered lines a [StructuredToolError] lists per file.
-const maxUncoveredLinesPerFile = 20;
+/// The most items (failing tests, uncovered files, uncovered lines per file)
+/// a [StructuredToolError] lists before truncating.
+const maxPayloadItems = 20;
 
 /// {@template structured_tool_error}
 /// A structured description of a tool failure, renderable as a
@@ -224,12 +218,11 @@ const maxUncoveredLinesPerFile = 20;
 ///   invoked (when known), the working directory (when set), and the raw
 ///   caller-supplied arguments.
 /// * `reason` — the human-readable failure cause.
-/// * `test` — what the [testRun] recorded, when it recorded any test result:
-///   `results` holds the test counts, the run's duration and the first
-///   [maxFailingTests] failing tests. For a `coverage_below_threshold`
-///   failure, `coverage` holds the actual and required coverage and the
-///   uncovered lines of the first [maxUncoveredFiles] files, at most
-///   [maxUncoveredLinesPerFile] each, relative to the current directory.
+/// * `test` — what the test run recorded, when any: `results` holds the test
+///   counts, the run's duration and the first [maxPayloadItems] failing
+///   tests. `coverage` holds the actual and required coverage and the
+///   uncovered lines of the first [maxPayloadItems] files, at most
+///   [maxPayloadItems] each, relative to the current directory.
 /// * `partialResults` — the sanitized captured command output, when any.
 /// * `alternativeApproaches` — recovery suggestions for the `failureReason`,
 ///   from [ToolFailureReason.alternativeApproaches].
@@ -259,8 +252,12 @@ class const StructuredToolError({
   /// The raw caller-supplied arguments.
   final Map<String, Object?>? attemptedArguments,
 
-  /// What the test run of the tool recorded, if it ran tests.
-  final TestRunRecorder? testRun,
+  /// What the test run recorded, when any.
+  final TestRunResults? testResults,
+
+  /// The unmet coverage threshold of the test run, when the failure reason
+  /// is [ToolFailureReason.coverageBelowThreshold].
+  final MinCoverageNotMet? coverage,
 }) {
   /// {@macro structured_tool_error}
   this;
@@ -291,20 +288,14 @@ class const StructuredToolError({
   }
 
   _TestPayload? get _testPayload {
-    final testRun = this.testRun;
-    if (testRun == null) return null;
-
-    final coverageNotMet =
-        failureReason == ToolFailureReason.coverageBelowThreshold
-        ? testRun.coverageNotMet
-        : null;
-    if (!testRun.hasResults && coverageNotMet == null) return null;
+    final results = testResults;
+    final coverage = this.coverage;
+    final hasResults = results != null && results.hasResults;
+    if (!hasResults && coverage == null) return null;
 
     return _TestPayload(
-      results: testRun.hasResults ? _TestResultsPayload.of(testRun) : null,
-      coverage: coverageNotMet == null
-          ? null
-          : _CoveragePayload.of(coverageNotMet),
+      results: hasResults ? _TestResultsPayload.of(results) : null,
+      coverage: coverage == null ? null : _CoveragePayload.of(coverage),
     );
   }
 
@@ -332,8 +323,8 @@ class const _TestPayload({
 /// The structured results of a test run attached to a failure payload.
 ///
 /// [failed] is the total number of failing tests, [failingTests] is capped at
-/// [maxFailingTests] entries with [failingTestsTruncated] flagging that the
-/// cap was hit.
+/// [maxPayloadItems] entries. A reader can tell the list was truncated by
+/// comparing its length against [failed].
 @JsonSerializable(createFactory: false)
 class const _TestResultsPayload({
   required final int passed,
@@ -341,20 +332,18 @@ class const _TestResultsPayload({
   required final int skipped,
   required final int durationMs,
   required final List<_FailingTestPayload> failingTests,
-  required final bool failingTestsTruncated,
 }) {
-  factory of(TestRunRecorder testRun) {
-    final failingTests = testRun.failingTests;
+  factory of(TestRunResults results) {
+    final failingTests = results.failingTests;
     return _TestResultsPayload(
-      passed: testRun.passed,
+      passed: results.passed,
       failed: failingTests.length,
-      skipped: testRun.skipped,
-      durationMs: testRun.durationMs,
+      skipped: results.skipped,
+      durationMs: results.durationMs,
       failingTests: [
-        for (final (:file, :name, :error) in failingTests.take(maxFailingTests))
+        for (final (:file, :name, :error) in failingTests.take(maxPayloadItems))
           _FailingTestPayload(file: file, name: name, error: error),
       ],
-      failingTestsTruncated: failingTests.length > maxFailingTests,
     );
   }
 
@@ -373,9 +362,9 @@ class const _FailingTestPayload({
 
 /// The structured coverage breakdown of a `coverage_below_threshold` failure.
 ///
-/// [uncoveredLines] is capped at [maxUncoveredFiles] files, each with at most
-/// [maxUncoveredLinesPerFile] line numbers, with [uncoveredLinesTruncated]
-/// flagging that either cap was hit.
+/// [uncoveredLines] is capped at [maxPayloadItems] files, each with at most
+/// [maxPayloadItems] line numbers, with [uncoveredLinesTruncated] flagging
+/// that either cap was hit.
 @JsonSerializable(createFactory: false)
 class const _CoveragePayload({
   required final double actual,
@@ -385,7 +374,7 @@ class const _CoveragePayload({
 }) {
   factory of(MinCoverageNotMet coverageNotMet) {
     final MinCoverageNotMet(:uncoveredLines, :packageRoot) = coverageNotMet;
-    final files = uncoveredLines.entries.take(maxUncoveredFiles).toList();
+    final files = uncoveredLines.entries.take(maxPayloadItems).toList();
 
     return _CoveragePayload(
       actual: coverageNotMet.coverage,
@@ -394,12 +383,12 @@ class const _CoveragePayload({
         for (final MapEntry(key: file, value: lines) in files)
           _UncoveredFilePayload(
             file: p.relative(p.join(packageRoot, file)),
-            lines: lines.take(maxUncoveredLinesPerFile).toList(),
+            lines: lines.take(maxPayloadItems).toList(),
           ),
       ],
       uncoveredLinesTruncated:
-          uncoveredLines.length > maxUncoveredFiles ||
-          files.any((file) => file.value.length > maxUncoveredLinesPerFile),
+          uncoveredLines.length > maxPayloadItems ||
+          files.any((file) => file.value.length > maxPayloadItems),
     );
   }
 

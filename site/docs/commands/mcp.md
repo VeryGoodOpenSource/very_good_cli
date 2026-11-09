@@ -186,7 +186,7 @@ A tool call that fails returns `isError: true` with a single text content holdin
 
 A `test` failure carries a `test` object whenever the run recorded a result:
 
-- `results`: the `passed`, `failed` and `skipped` test counts, the `durationMs` the tests ran for, and the `failingTests` with their `file`, `name` and a single-line `error`. A test file that failed to load is listed as `loading <file>`. Only the first 20 failing tests are listed; `failingTestsTruncated` is `true` when more failed.
+- `results`: the `passed`, `failed` and `skipped` test counts, the `durationMs` the tests ran for, and the `failingTests` with their `file`, `name` and a single-line `error`. A test file that failed to load is listed as `loading <file>`. Only the first 20 failing tests are listed; a reader can tell the list was capped by comparing its length against `failed`.
 - `coverage`: for a `coverage_below_threshold` failure only, the `actual` and `required` coverage percentages and the `uncoveredLines` grouped per `file`. Only the first 20 lines of the first 20 files are listed; `uncoveredLinesTruncated` is `true` when lines were left out.
 
 In a `recursive` run, counts and durations add up across packages, and file paths are relative to `directory`. A run stopped by `timeout_seconds` reports the tests that finished, with a `durationMs` of `0`.
@@ -212,8 +212,7 @@ A failing test:
           "name": "counter increments",
           "error": "Expected: <2> Actual: <1>"
         }
-      ],
-      "failingTestsTruncated": false
+      ]
     }
   },
   "partialResults": "…",
@@ -240,8 +239,7 @@ Unmet coverage:
       "failed": 0,
       "skipped": 0,
       "durationMs": 1508,
-      "failingTests": [],
-      "failingTestsTruncated": false
+      "failingTests": []
     },
     "coverage": {
       "actual": 33.33333333333333,
@@ -292,8 +290,7 @@ A timeout, which carries the results recorded before the run was stopped:
       "failed": 0,
       "skipped": 0,
       "durationMs": 0,
-      "failingTests": [],
-      "failingTestsTruncated": false
+      "failingTests": []
     }
   },
   "partialResults": "…",

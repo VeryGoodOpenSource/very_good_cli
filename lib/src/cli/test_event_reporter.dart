@@ -1,5 +1,9 @@
 part of 'cli.dart';
 
+/// The file name of the test optimizer's generated bundle, as the test runner
+/// reports it in a load failure.
+const _optimizerBundleName = '.test_optimizer.dart';
+
 /// Prints the progress of a test run as its [TestEvent]s arrive, and keeps
 /// the tally of passing, skipped and failing tests the summary is made of.
 class _TestEventReporter({
@@ -13,9 +17,22 @@ class _TestEventReporter({
   final _tests = <int, Test>{};
   final _failedTestErrorMessages = <String, List<String>>{};
 
+  /// Failing tests, keyed by the runner's `testID` so a test that emits more
+  /// than one error is counted and listed once with its first error.
+  final _failingTestsById = <int, FailingTest>{};
+
   var _successCount = 0;
   var _skipCount = 0;
+  var _durationMs = 0;
   int? _exitCode;
+
+  /// An immutable snapshot of what this reporter recorded during the run.
+  TestRunResults get results => TestRunResults(
+    passed: _successCount,
+    skipped: _skipCount,
+    durationMs: _durationMs,
+    failingTests: List.unmodifiable(_failingTestsById.values),
+  );
 
   /// Whether the test process exited successfully.
   ///
@@ -69,16 +86,35 @@ class _TestEventReporter({
     final report = _resolveReport(event.testID);
     final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
 
-    TestRunRecorder.current?.failingTests.add((
-      file: p.relative(report.path),
-      name: report.name,
-      error: _summarize(event.error),
-    ));
+    _failingTestsById.putIfAbsent(
+      event.testID,
+      () => (
+        file: _relativizeReportPath(report.path),
+        name: report.name,
+        error: _summarize(event.error),
+      ),
+    );
     final relativeTestPath = p.relative(report.path, from: cwd);
     _failedTestErrorMessages[relativeTestPath] = [
       ...?_failedTestErrorMessages[relativeTestPath],
       '$prefix ${report.name}',
     ];
+  }
+
+  /// The path reported by the runner, resolved against the package [cwd] and
+  /// expressed relative to the current working directory so paths in a
+  /// recursive run keep their package prefix.
+  ///
+  /// A load failure in an optimized run points at the generated optimizer
+  /// bundle, which is deleted once the run ends. The bundle's own `test`
+  /// directory is reported instead so the path still names a file that exists.
+  String _relativizeReportPath(String path) {
+    final resolved = p.relative(p.join(cwd, path));
+    final basename = p.basename(resolved);
+    if (basename == _optimizerBundleName) {
+      return p.dirname(resolved);
+    }
+    return resolved;
   }
 
   void _reportTestDone(TestDoneEvent event) {
@@ -105,17 +141,15 @@ class _TestEventReporter({
         '''$_clearLine${lightYellow.wrap('$testName $testPath (SKIPPED)')}\n''',
       );
       _skipCount++;
-      TestRunRecorder.current?.skipped++;
     } else if (event.result == TestResult.success) {
       _successCount++;
-      TestRunRecorder.current?.passed++;
     } else {
       stderr('$_clearLine$testName $testPath (FAILED)');
     }
   }
 
   void _reportDone(DoneTestEvent event) {
-    TestRunRecorder.current?.durationMs += event.time;
+    _durationMs += event.time;
     final timeElapsed = Duration(milliseconds: event.time).formatted();
     final stats = _stats();
     final success = event.success ?? false;

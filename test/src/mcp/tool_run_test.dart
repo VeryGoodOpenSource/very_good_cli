@@ -206,7 +206,11 @@ void main() {
           final recorder = TestRunRecorder.current!
             ..coverageNotMet = coverageNotMet;
           if (testsFailed) {
-            recorder.failingTests.add((file: 'a', name: 'a', error: 'a'));
+            recorder.recordPackage(
+              const TestRunResults(
+                failingTests: [(file: 'a', name: 'a', error: 'a')],
+              ),
+            );
           }
           return ExitCode.software.code;
         });
@@ -256,7 +260,9 @@ void main() {
 
       test('comes with the results of the test run', () async {
         await run.capture((_) async {
-          TestRunRecorder.current!.passed = 2;
+          TestRunRecorder.current!.recordPackage(
+            const TestRunResults(passed: 2),
+          );
           return ExitCode.software.code;
         });
 
@@ -271,7 +277,6 @@ void main() {
               'skipped': 0,
               'durationMs': 0,
               'failingTests': <Object?>[],
-              'failingTestsTruncated': false,
             },
           }),
         );
@@ -280,7 +285,7 @@ void main() {
       test('comes with the unmet coverage of the test run', () async {
         await run.capture((_) async {
           TestRunRecorder.current!
-            ..passed = 2
+            ..recordPackage(const TestRunResults(passed: 2))
             ..coverageNotMet = coverageNotMet;
           return ExitCode.software.code;
         });
@@ -295,7 +300,9 @@ void main() {
 
       test('comes with the partial results of a timed out test run', () async {
         await run.capture((_) async {
-          TestRunRecorder.current!.passed = 2;
+          TestRunRecorder.current!.recordPackage(
+            const TestRunResults(passed: 2),
+          );
           return ExitCode.success.code;
         });
 

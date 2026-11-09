@@ -318,6 +318,7 @@ This command should be run from the root of your ${testType.projectKind} project
             stdout: stdout ?? noop,
             stderr: stderr ?? noop,
           ).whenComplete(() async {
+            TestRunRecorder.current?.recordPackage(reporter.results);
             await optimization.cleanUp();
             // A sharded run with every test filtered out collects no
             // coverage, but the merge step downstream still expects a

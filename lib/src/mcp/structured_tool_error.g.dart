@@ -19,7 +19,6 @@ Map<String, dynamic> _$TestResultsPayloadToJson(_TestResultsPayload instance) =>
       'skipped': instance.skipped,
       'durationMs': instance.durationMs,
       'failingTests': instance.failingTests,
-      'failingTestsTruncated': instance.failingTestsTruncated,
     };
 
 Map<String, dynamic> _$FailingTestPayloadToJson(_FailingTestPayload instance) =>

@@ -914,11 +914,11 @@ void main() {
           recorder: recorder,
         );
 
-        expect(recorder.passed, equals(7));
-        expect(recorder.skipped, isZero);
-        expect(recorder.durationMs, equals(12745));
+        expect(recorder.results.passed, equals(7));
+        expect(recorder.results.skipped, isZero);
+        expect(recorder.results.durationMs, equals(12745));
         expect(
-          recorder.failingTests,
+          recorder.results.failingTests,
           equals([
             (
               file: p.relative(
@@ -935,6 +935,74 @@ void main() {
             ),
           ]),
         );
+      });
+
+      test('records a failing test only once when it reports more than one '
+          'error', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 0,
+                    platform: 'vm',
+                    path: p.join(tempDirectory.path, 'test', 'a_test.dart'),
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 1,
+                    name: 'a fails twice',
+                    suiteID: 0,
+                    groupIDs: const [],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
+                const ErrorTestEvent(
+                  testID: 1,
+                  error: 'first error',
+                  stackTrace: '',
+                  isFailure: true,
+                  time: 0,
+                ),
+                const ErrorTestEvent(
+                  testID: 1,
+                  error: 'second error',
+                  stackTrace: '',
+                  isFailure: true,
+                  time: 0,
+                ),
+                const TestDoneEvent(
+                  testID: 1,
+                  result: TestResult.failure,
+                  skipped: false,
+                  hidden: false,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        final failingTest = recorder.results.failingTests.single;
+        expect(failingTest.name, equals('a fails twice'));
+        expect(failingTest.error, equals('first error'));
       });
 
       test('records a test file that failed to load', () async {
@@ -961,8 +1029,16 @@ void main() {
           recorder: recorder,
         );
 
-        final failingTest = recorder.failingTests.single;
+        final failingTest = recorder.results.failingTests.single;
         expect(failingTest.name, equals('loading test/.test_optimizer.dart'));
+        expect(
+          failingTest.file,
+          equals(p.relative(p.join(tempDirectory.path, 'test'))),
+          reason:
+              'A load failure in an optimized run points at the generated '
+              "bundle, which is deleted once the run ends; the bundle's own "
+              'test directory is reported instead.',
+        );
         expect(
           failingTest.error,
           allOf(
@@ -1010,9 +1086,9 @@ void main() {
               event['hidden'] == false &&
               event['result'] == 'success',
         );
-        expect(recorder.passed, equals(2 * passingTests.length));
-        expect(recorder.durationMs, equals(2 * 4015));
-        expect(recorder.failingTests, isEmpty);
+        expect(recorder.results.passed, equals(2 * passingTests.length));
+        expect(recorder.results.durationMs, equals(2 * 4015));
+        expect(recorder.results.failingTests, isEmpty);
       });
 
       test(
@@ -1114,7 +1190,7 @@ void main() {
               event['skipped'] == true,
         );
         expect(skippedTests, isNotEmpty);
-        expect(recorder.skipped, equals(skippedTests.length));
+        expect(recorder.results.skipped, equals(skippedTests.length));
       });
 
       test('runs tests (noisy)', () async {
