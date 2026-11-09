@@ -5,10 +5,13 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:very_good_cli/src/cli/cli.dart';
+
+part 'structured_tool_error.g.dart';
 
 /// Classifies a tool failure into a bucket an agent loop can act on without
 /// parsing free-form text.
@@ -281,13 +284,13 @@ class const StructuredToolError({
       'failureReason': failureReason.jsonName,
       'attemptedAction': attemptedAction,
       'reason': reason,
-      'test': ?_testJson,
+      'test': ?_testPayload?.toJson(),
       if (_hasPartialResults) 'partialResults': capturedOutput,
       'alternativeApproaches': failureReason.alternativeApproaches,
     };
   }
 
-  Map<String, Object?>? get _testJson {
+  _TestPayload? get _testPayload {
     final testRun = this.testRun;
     if (testRun == null) return null;
 
@@ -297,44 +300,12 @@ class const StructuredToolError({
         : null;
     if (!testRun.hasResults && coverageNotMet == null) return null;
 
-    final failingTests = testRun.failingTests;
-    return {
-      if (testRun.hasResults)
-        'results': {
-          'passed': testRun.passed,
-          'failed': failingTests.length,
-          'skipped': testRun.skipped,
-          'durationMs': testRun.durationMs,
-          'failingTests': [
-            for (final (:file, :name, :error) in failingTests.take(
-              maxFailingTests,
-            ))
-              {'file': file, 'name': name, 'error': error},
-          ],
-          'failingTestsTruncated': failingTests.length > maxFailingTests,
-        },
-      if (coverageNotMet != null) 'coverage': _coverageJson(coverageNotMet),
-    };
-  }
-
-  static Map<String, Object?> _coverageJson(MinCoverageNotMet coverageNotMet) {
-    final MinCoverageNotMet(:uncoveredLines, :packageRoot) = coverageNotMet;
-    final files = uncoveredLines.entries.take(maxUncoveredFiles).toList();
-
-    return {
-      'actual': coverageNotMet.coverage,
-      'required': coverageNotMet.minCoverage,
-      'uncoveredLines': [
-        for (final MapEntry(key: file, value: lines) in files)
-          {
-            'file': p.relative(p.join(packageRoot, file)),
-            'lines': lines.take(maxUncoveredLinesPerFile).toList(),
-          },
-      ],
-      'uncoveredLinesTruncated':
-          uncoveredLines.length > maxUncoveredFiles ||
-          files.any((file) => file.value.length > maxUncoveredLinesPerFile),
-    };
+    return _TestPayload(
+      results: testRun.hasResults ? _TestResultsPayload.of(testRun) : null,
+      coverage: coverageNotMet == null
+          ? null
+          : _CoveragePayload.of(coverageNotMet),
+    );
   }
 
   /// Renders this failure as a [CallToolResult] whose single text content is
@@ -344,4 +315,102 @@ class const StructuredToolError({
 
     return CallToolResult(content: [TextContent(text: text)], isError: true);
   }
+}
+
+/// The structured `test` block of a failure payload.
+///
+/// Either or both of [results] and [coverage] may be null; a null field is
+/// omitted from the serialized JSON.
+@JsonSerializable(createFactory: false, includeIfNull: false)
+class const _TestPayload({
+  final _TestResultsPayload? results,
+  final _CoveragePayload? coverage,
+}) {
+  Map<String, Object?> toJson() => _$TestPayloadToJson(this);
+}
+
+/// The structured results of a test run attached to a failure payload.
+///
+/// [failed] is the total number of failing tests, [failingTests] is capped at
+/// [maxFailingTests] entries with [failingTestsTruncated] flagging that the
+/// cap was hit.
+@JsonSerializable(createFactory: false)
+class const _TestResultsPayload({
+  required final int passed,
+  required final int failed,
+  required final int skipped,
+  required final int durationMs,
+  required final List<_FailingTestPayload> failingTests,
+  required final bool failingTestsTruncated,
+}) {
+  factory of(TestRunRecorder testRun) {
+    final failingTests = testRun.failingTests;
+    return _TestResultsPayload(
+      passed: testRun.passed,
+      failed: failingTests.length,
+      skipped: testRun.skipped,
+      durationMs: testRun.durationMs,
+      failingTests: [
+        for (final (:file, :name, :error) in failingTests.take(maxFailingTests))
+          _FailingTestPayload(file: file, name: name, error: error),
+      ],
+      failingTestsTruncated: failingTests.length > maxFailingTests,
+    );
+  }
+
+  Map<String, Object?> toJson() => _$TestResultsPayloadToJson(this);
+}
+
+/// One failing test or test file load failure in a [_TestResultsPayload].
+@JsonSerializable(createFactory: false)
+class const _FailingTestPayload({
+  required final String file,
+  required final String name,
+  required final String error,
+}) {
+  Map<String, Object?> toJson() => _$FailingTestPayloadToJson(this);
+}
+
+/// The structured coverage breakdown of a `coverage_below_threshold` failure.
+///
+/// [uncoveredLines] is capped at [maxUncoveredFiles] files, each with at most
+/// [maxUncoveredLinesPerFile] line numbers, with [uncoveredLinesTruncated]
+/// flagging that either cap was hit.
+@JsonSerializable(createFactory: false)
+class const _CoveragePayload({
+  required final double actual,
+  @JsonKey(name: 'required') required final double requiredCoverage,
+  required final List<_UncoveredFilePayload> uncoveredLines,
+  required final bool uncoveredLinesTruncated,
+}) {
+  factory of(MinCoverageNotMet coverageNotMet) {
+    final MinCoverageNotMet(:uncoveredLines, :packageRoot) = coverageNotMet;
+    final files = uncoveredLines.entries.take(maxUncoveredFiles).toList();
+
+    return _CoveragePayload(
+      actual: coverageNotMet.coverage,
+      requiredCoverage: coverageNotMet.minCoverage,
+      uncoveredLines: [
+        for (final MapEntry(key: file, value: lines) in files)
+          _UncoveredFilePayload(
+            file: p.relative(p.join(packageRoot, file)),
+            lines: lines.take(maxUncoveredLinesPerFile).toList(),
+          ),
+      ],
+      uncoveredLinesTruncated:
+          uncoveredLines.length > maxUncoveredFiles ||
+          files.any((file) => file.value.length > maxUncoveredLinesPerFile),
+    );
+  }
+
+  Map<String, Object?> toJson() => _$CoveragePayloadToJson(this);
+}
+
+/// The uncovered lines of one file in a [_CoveragePayload].
+@JsonSerializable(createFactory: false)
+class const _UncoveredFilePayload({
+  required final String file,
+  required final List<int> lines,
+}) {
+  Map<String, Object?> toJson() => _$UncoveredFilePayloadToJson(this);
 }
