@@ -92,16 +92,10 @@ enum ToolFailureType {
     FormatException() ||
     ParsedYamlException() ||
     PathNotFoundException() => ToolFailureType.validation,
-    FileSystemException(:final osError?)
-        when _permissionDeniedErrorCodes.contains(osError.errorCode) =>
-      ToolFailureType.permission,
+    PathAccessException() => ToolFailureType.permission,
     _ => ToolFailureType.business,
   };
 }
-
-/// The OS error codes of a denied file system operation: `EPERM` (1) and
-/// `EACCES` (13) on POSIX systems, `ERROR_ACCESS_DENIED` (5) on Windows.
-const _permissionDeniedErrorCodes = {1, 5, 13};
 
 /// Suggests alternative approaches keyed on [failureType].
 ///

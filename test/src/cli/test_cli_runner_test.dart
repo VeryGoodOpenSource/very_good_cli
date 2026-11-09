@@ -1121,12 +1121,6 @@ void main() {
               ']}',
             );
 
-          File(p.join(member.path, 'coverage', 'coverage.json'))
-            ..createSync(recursive: true)
-            ..writeAsStringSync(
-              '{"coverage":[{"source":"package:foo/foo.dart","hits":[1,1]}]}',
-            );
-
           final lcovFile = File(p.join(member.path, 'coverage', 'lcov.info'));
 
           final originalCwd = Directory.current;
@@ -1145,6 +1139,15 @@ void main() {
                   const DoneTestEvent(success: true, time: 0),
                   const ExitTestEvent(exitCode: 0, time: 0),
                 ]),
+                onStart: () {
+                  File(p.join(member.path, 'coverage', 'coverage.json'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(
+                      '{"coverage":['
+                      '{"source":"package:foo/foo.dart","hits":[1,1]}'
+                      ']}',
+                    );
+                },
               ),
               logger: logger,
             ),
@@ -1813,6 +1816,38 @@ void main() {
             ),
             completion(equals([ExitCode.success.code])),
           );
+        });
+
+        test('writes an empty lcov file when sharding with coverage', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              optimizer: TestOptimizer(
+                enabled: true,
+                buildGenerator: generatorBuilder(),
+                shardIndex: 2,
+                totalShards: 3,
+              ),
+              collectCoverage: true,
+              arguments: ['--exclude-tags', 'golden'],
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.success.code])),
+          );
+
+          final lcov = File(
+            p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+          );
+          expect(lcov.existsSync(), isTrue);
+          expect(lcov.lengthSync(), 0);
         });
 
         test('fails when not sharding', () async {

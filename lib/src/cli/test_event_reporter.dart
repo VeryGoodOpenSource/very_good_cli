@@ -16,12 +16,18 @@ class _TestEventReporter({
   var _successCount = 0;
   var _skipCount = 0;
   var _exited = false;
+  int? _exitCode;
 
   /// Whether the test process exited without reporting a failing test or a
   /// test file that failed to load.
   ///
   /// A run that was interrupted before the test process exited is not.
   bool get exitedWithoutFailures => _exited && _failedTestErrorMessages.isEmpty;
+
+  /// Whether the test process exited with the "no tests ran" exit code,
+  /// which happens when every test was filtered out, for example by
+  /// `--exclude-tags`. A run that did not reach the test process is not.
+  bool get exitedWithoutRunningAnyTest => _exitCode == _noTestsRanExitCode;
 
   void report(TestEvent event) {
     switch (event) {
@@ -41,6 +47,7 @@ class _TestEventReporter({
         _reportDone(event);
       case ExitTestEvent():
         _exited = true;
+        _exitCode = event.exitCode;
     }
   }
 
