@@ -165,6 +165,16 @@ void main() {
         verify(() => logger.err('$exception')).called(1);
       });
 
+      test('reports a missing coverage report as unavailable', () async {
+        const exception = CoverageReportMissing('/package');
+
+        await expectLater(
+          TestCLIRunner.exitCodeOf(() => throw exception, logger: logger),
+          completion(equals(ExitCode.unavailable.code)),
+        );
+        verify(() => logger.err('$exception')).called(1);
+      });
+
       test('reports any other exception as unavailable', () async {
         await expectLater(
           TestCLIRunner.exitCodeOf(
@@ -201,6 +211,12 @@ void main() {
           return stream;
         };
       }
+
+      /// Leaves behind the json coverage `dart test --coverage` writes.
+      void writeDartCoverage(String packageRoot) =>
+          File(p.join(packageRoot, 'coverage', 'test', 'a_test.dart.vm.json'))
+            ..createSync(recursive: true)
+            ..writeAsStringSync('{"coverage":[]}');
 
       GeneratorBuilder generatorBuilder() {
         return (bundle) async => generator;
@@ -1065,7 +1081,7 @@ void main() {
               ]),
               onStart: () {
                 expect(lcovFile.existsSync(), isFalse);
-                lcovFile.createSync(recursive: true);
+                writeDartCoverage(tempDirectory.path);
               },
             ),
             logger: logger,
@@ -1105,12 +1121,6 @@ void main() {
               ']}',
             );
 
-          File(p.join(member.path, 'coverage', 'coverage.json'))
-            ..createSync(recursive: true)
-            ..writeAsStringSync(
-              '{"coverage":[{"source":"package:foo/foo.dart","hits":[1,1]}]}',
-            );
-
           final lcovFile = File(p.join(member.path, 'coverage', 'lcov.info'));
 
           final originalCwd = Directory.current;
@@ -1129,6 +1139,15 @@ void main() {
                   const DoneTestEvent(success: true, time: 0),
                   const ExitTestEvent(exitCode: 0, time: 0),
                 ]),
+                onStart: () {
+                  File(p.join(member.path, 'coverage', 'coverage.json'))
+                    ..createSync(recursive: true)
+                    ..writeAsStringSync(
+                      '{"coverage":['
+                      '{"source":"package:foo/foo.dart","hits":[1,1]}'
+                      ']}',
+                    );
+                },
               ),
               logger: logger,
             ),
@@ -1174,7 +1193,7 @@ void main() {
               ]),
               onStart: () {
                 expect(lcovFile.existsSync(), isFalse);
-                lcovFile.createSync(recursive: true);
+                writeDartCoverage(tempDirectory.path);
               },
             ),
           ),
@@ -1268,6 +1287,116 @@ void main() {
         );
         expect(stderrLogs, isEmpty);
         expect(testRunnerArgs, equals(['--coverage']));
+      });
+
+      group('when the test runner left no coverage behind', () {
+        late Directory tempDirectory;
+
+        setUp(() {
+          tempDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => tempDirectory.deleteSync(recursive: true));
+          File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(tempDirectory.path, 'test')).createSync();
+        });
+
+        for (final testType in TestRunType.values) {
+          test('throws $CoverageReportMissing after a ${testType.name} test '
+              'run that succeeded', () async {
+            await expectLater(
+              TestCLIRunner.test(
+                testType: testType,
+                cwd: tempDirectory.path,
+                logger: logger,
+                collectCoverage: true,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable([
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
+                  ]),
+                ),
+              ),
+              throwsA(
+                isA<CoverageReportMissing>().having(
+                  (e) => e.packageRoot,
+                  'packageRoot',
+                  tempDirectory.path,
+                ),
+              ),
+            );
+          });
+        }
+
+        test('fails a run that failed before running any test', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              collectCoverage: true,
+              minCoverage: 100,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const ExitTestEvent(exitCode: 1, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+        });
+
+        test('reports the failing tests of a run that reported them', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              collectCoverage: true,
+              minCoverage: 100,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  ...compilationErrorJsonOutput(tempDirectory.path)
+                      .map(TestEvent.fromJson),
+                  const ExitTestEvent(exitCode: 1, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+        });
+
+        test('succeeds when the run was interrupted', () async {
+          await ProcessSignalOverrides.runZoned(() async {
+            Stream<TestEvent> runner({
+              List<String>? arguments,
+              String? workingDirectory,
+              Map<String, String>? environment,
+              bool runInShell = false,
+            }) {
+              Timer.run(() => ProcessSignalOverrides.current?.addSIGINT());
+              return StreamController<TestEvent>().stream;
+            }
+
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                logger: logger,
+                collectCoverage: true,
+                minCoverage: 100,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                overrideTestRunner: runner,
+              ),
+              completion(equals([ExitCode.success.code])),
+            );
+          }, sigintStream: StreamController<ProcessSignal>().stream);
+        });
       });
 
       test(
@@ -1710,7 +1839,7 @@ void main() {
           );
         });
 
-        test('fails when not sharding', () async {
+        test('writes an empty lcov file when sharding with coverage', () async {
           await expectLater(
             TestCLIRunner.test(
               testType: TestRunType.flutter,
@@ -1721,7 +1850,10 @@ void main() {
               optimizer: TestOptimizer(
                 enabled: true,
                 buildGenerator: generatorBuilder(),
+                shardIndex: 2,
+                totalShards: 3,
               ),
+              collectCoverage: true,
               arguments: ['--exclude-tags', 'golden'],
               overrideTestRunner: testRunner(
                 Stream.fromIterable([
@@ -1729,9 +1861,42 @@ void main() {
                 ]),
               ),
             ),
-            completion(equals([ExitCode.unavailable.code])),
+            completion(equals([ExitCode.success.code])),
           );
+
+          final lcov = File(
+            p.join(tempDirectory.path, 'coverage', 'lcov.info'),
+          );
+          expect(lcov.existsSync(), isTrue);
+          expect(lcov.lengthSync(), 0);
         });
+
+        for (final collectCoverage in [false, true]) {
+          test('fails when not sharding '
+              '${collectCoverage ? 'with' : 'without'} coverage', () async {
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                logger: logger,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                optimizer: TestOptimizer(
+                  enabled: true,
+                  buildGenerator: generatorBuilder(),
+                ),
+                collectCoverage: collectCoverage,
+                arguments: ['--exclude-tags', 'golden'],
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable([
+                    const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
+                  ]),
+                ),
+              ),
+              completion(equals([ExitCode.unavailable.code])),
+            );
+          });
+        }
       });
 
       test('runs tests w/optimizations (passing)', () async {
@@ -2199,13 +2364,7 @@ void main() {
                     const DoneTestEvent(success: true, time: 0),
                     const ExitTestEvent(exitCode: 0, time: 0),
                   ]),
-                  onStart: () {
-                    final lcovDir = Directory(
-                      p.join(tempDirectory.path, 'coverage'),
-                    )..createSync(recursive: true);
-                    File(p.join(lcovDir.path, 'lcov.info'))
-                        .writeAsStringSync('end_of_record\n');
-                  },
+                  onStart: () => writeDartCoverage(tempDirectory.path),
                 ),
               ),
               completion(equals([ExitCode.success.code])),

@@ -277,12 +277,20 @@ This command should be run from the root of your ${testType.projectKind} project
       return ExitCode.success.code;
     }
 
+    final reporter = _TestEventReporter(
+      stdout: stdout ?? noop,
+      stderr: stderr ?? noop,
+      optimization: optimization,
+      cwd: cwd,
+    );
+
     return await _overrideAnsiOutput(
       forceAnsi,
       () =>
           _testCommand(
             cwd: cwd,
             testRunner: testRunner,
+            reporter: reporter,
             optimization: optimization,
             arguments: [
               ...coverageReport.collectArguments,
@@ -297,7 +305,22 @@ This command should be run from the root of your ${testType.projectKind} project
             stderr: stderr ?? noop,
           ).whenComplete(() async {
             await optimization.cleanUp();
-            await coverageReport.finalize(stdout: stdout);
+            // A sharded run with every test filtered out collects no
+            // coverage, but the merge step downstream still expects a
+            // report from every shard. Leave an empty one behind and
+            // skip finalize, like [isEmptyShard] does.
+            if (reporter.exitedWithoutRunningAnyTest &&
+                optimization.shardIndex != null) {
+              await coverageReport.writeEmpty();
+              return;
+            }
+            // Only a successful run is bound to leave coverage behind. One
+            // that was interrupted, or that failed, may not have run any
+            // test.
+            await coverageReport.finalize(
+              reportExpected: reporter.exitedSuccessfully,
+              stdout: stdout,
+            );
           }),
     );
   }
@@ -378,17 +401,12 @@ Future<int> _testCommand({
   required void Function(String) stdout,
   required void Function(String) stderr,
   required VeryGoodTestRunner testRunner,
+  required _TestEventReporter reporter,
   required TestOptimization optimization,
   String cwd = '.',
   List<String>? arguments,
 }) {
   final completer = Completer<int>();
-  final reporter = _TestEventReporter(
-    stdout: stdout,
-    stderr: stderr,
-    optimization: optimization,
-    cwd: cwd,
-  );
   final sigintWatch =
       ProcessSignalOverrides.current?.sigintWatch ??
       ProcessSignal.sigint.watch();

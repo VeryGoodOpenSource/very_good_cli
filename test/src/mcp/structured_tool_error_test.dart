@@ -1,9 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:args/command_runner.dart';
+import 'package:checked_yaml/checked_yaml.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
+import 'package:yaml/yaml.dart';
 
 void main() {
   group(ToolFailureType, () {
@@ -70,6 +75,93 @@ void main() {
         ToolFailureType.fromExitCode(255),
         equals(ToolFailureType.business),
       );
+    });
+
+    group('fromException', () {
+      test('classifies network and timeout exceptions as transient', () {
+        for (final exception in <Exception>[
+          const SocketException('connection refused'),
+          const HttpException('bad gateway'),
+          const TlsException('handshake failed'),
+          TimeoutException('too slow'),
+        ]) {
+          expect(
+            ToolFailureType.fromException(exception),
+            equals(ToolFailureType.transient),
+            reason: '$exception',
+          );
+        }
+      });
+
+      test('classifies bad input exceptions as validation', () {
+        for (final exception in <Exception>[
+          UsageException('bad flag', 'usage'),
+          const FormatException('bad format'),
+          YamlException('bad yaml', null),
+          ParsedYamlException.fromYamlException(
+            YamlException('bad yaml', null),
+          ),
+          const PathNotFoundException(
+            '/missing',
+            OSError('No such file or directory', 2),
+          ),
+        ]) {
+          expect(
+            ToolFailureType.fromException(exception),
+            equals(ToolFailureType.validation),
+            reason: '$exception',
+          );
+        }
+      });
+
+      test('classifies PathAccessException as permission', () {
+        expect(
+          ToolFailureType.fromException(
+            const PathAccessException(
+              '/locked',
+              OSError('Permission denied', 13),
+              'Cannot open file',
+            ),
+          ),
+          equals(ToolFailureType.permission),
+        );
+      });
+
+      test('classifies other file system errors as business', () {
+        expect(
+          ToolFailureType.fromException(
+            const FileSystemException(
+              'Cannot open file',
+              '/disk',
+              OSError('No space left on device', 28),
+            ),
+          ),
+          equals(ToolFailureType.business),
+        );
+        expect(
+          ToolFailureType.fromException(
+            const FileSystemException(
+              'Input/output error',
+              '/disk',
+              OSError('I/O error', 5),
+            ),
+          ),
+          equals(ToolFailureType.business),
+        );
+        expect(
+          ToolFailureType.fromException(
+            const FileSystemException('Cannot open file', '/disk'),
+          ),
+          equals(ToolFailureType.business),
+        );
+      });
+
+      test('classifies unknown exceptions as business', () {
+        expect(
+          ToolFailureType.fromException(Exception('Invalid SDK hash')),
+          equals(ToolFailureType.business),
+        );
+      });
     });
   });
 

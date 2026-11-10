@@ -20,6 +20,26 @@ class const MinCoverageNotMet(
   this;
 }
 
+/// {@template coverage_report_missing}
+/// Thrown when a test run that collects coverage left no coverage behind,
+/// although it ran to completion and reported no failing test.
+///
+/// The test runner most likely crashed before writing the report, so a retry
+/// may succeed.
+/// {@endtemplate}
+class const CoverageReportMissing(
+  /// The root of the package whose coverage is missing.
+  final String packageRoot,
+) implements Exception {
+  /// {@macro coverage_report_missing}
+  this;
+
+  @override
+  String toString() =>
+      'The test runner exited without writing the coverage of $packageRoot. '
+      'It may have crashed; a retry may succeed.';
+}
+
 /// {@template coverage_report}
 /// The coverage of the tests of the package at [packageRoot], kept in
 /// `coverage/lcov.info` and checked against the [options].
@@ -61,9 +81,24 @@ sealed class const CoverageReport({
   /// then checks it against [CoverageOptions.minCoverage] and lists the
   /// uncovered lines to [stdout] when [CoverageOptions.showUncovered] is set.
   ///
-  /// Throws [MinCoverageNotMet] when the coverage is below the threshold.
-  Future<void> finalize({void Function(String)? stdout}) async {
-    if (options.collect) await _write();
+  /// A test runner can leave no coverage behind when it is interrupted, or
+  /// when it fails, for example before running any test. Pass `false` for
+  /// [reportExpected] in those cases to skip the coverage of the run instead.
+  ///
+  /// Throws [MinCoverageNotMet] when the coverage is below the threshold, and
+  /// [CoverageReportMissing] when the test runner left no coverage behind
+  /// although [reportExpected].
+  Future<void> finalize({
+    bool reportExpected = true,
+    void Function(String)? stdout,
+  }) async {
+    if (options.collect) {
+      if (!_collected) {
+        if (reportExpected) throw CoverageReportMissing(packageRoot);
+        return;
+      }
+      await _write();
+    }
 
     if (options.minCoverage != null || options.showUncovered) {
       await _check(stdout: stdout);
@@ -72,8 +107,6 @@ sealed class const CoverageReport({
 
   Future<void> _write() async {
     await _writeLcov();
-
-    assert(lcovFile.existsSync(), 'coverage/lcov.info must exist');
 
     if (options.collectFrom == CoverageCollectionMode.all) {
       await _addUntestedFiles(
@@ -84,6 +117,9 @@ sealed class const CoverageReport({
       );
     }
   }
+
+  /// Whether the test runner left the coverage it collected behind.
+  bool get _collected;
 
   /// Leaves the coverage the test runner collected in [lcovFile].
   Future<void> _writeLcov();
@@ -132,6 +168,9 @@ final class const FlutterCoverageReport({
   String get _collectArgument => '--coverage';
 
   @override
+  bool get _collected => lcovFile.existsSync();
+
+  @override
   Future<void> _writeLcov() async {}
 }
 
@@ -149,13 +188,31 @@ final class const DartCoverageReport({
   @override
   String get _collectArgument => '--coverage=coverage';
 
+  Directory get _coverageDirectory =>
+      Directory(p.join(packageRoot, 'coverage'));
+
+  List<File> get _jsonFiles => _coverageDirectory
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.json'))
+      .toList();
+
+  @override
+  bool get _collected =>
+      _coverageDirectory.existsSync() && _jsonFiles.isNotEmpty;
+
+  @override
+  Future<void> clean() async {
+    await super.clean();
+    if (!options.collect || !_coverageDirectory.existsSync()) return;
+    for (final file in _jsonFiles) {
+      await file.delete();
+    }
+  }
+
   @override
   Future<void> _writeLcov() async {
-    final files = Directory(p.join(packageRoot, 'coverage'))
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((file) => file.path.endsWith('.json'))
-        .toList();
+    final files = _jsonFiles;
 
     final resolvedRoot = Directory(packageRoot).resolveSymbolicLinksSync();
     final resolvedReportOn = [
