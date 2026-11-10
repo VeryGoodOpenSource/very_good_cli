@@ -272,10 +272,10 @@ void main() {
             for (final exception in <Exception>[
               UsageException('bad flag', 'usage'),
               const FormatException('bad yaml'),
-              const FileSystemException(
-                'Cannot open file',
+              const PathAccessException(
                 '/locked',
                 OSError('Permission denied', 13),
+                'Cannot open file',
               ),
               const SocketException('connection refused'),
               Exception('Invalid SDK hash'),
