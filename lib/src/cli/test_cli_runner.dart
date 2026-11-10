@@ -314,10 +314,11 @@ This command should be run from the root of your ${testType.projectKind} project
               await coverageReport.writeEmpty();
               return;
             }
-            // A run that was interrupted, or whose test files failed to
-            // load, can leave no coverage behind.
+            // Only a successful run is bound to leave coverage behind. One
+            // that was interrupted, or that failed, may not have run any
+            // test.
             await coverageReport.finalize(
-              reportExpected: reporter.exitedWithoutFailures,
+              reportExpected: reporter.exitedSuccessfully,
               stdout: stdout,
             );
           }),

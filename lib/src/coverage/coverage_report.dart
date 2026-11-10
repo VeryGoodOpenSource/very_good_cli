@@ -81,9 +81,9 @@ sealed class const CoverageReport({
   /// then checks it against [CoverageOptions.minCoverage] and lists the
   /// uncovered lines to [stdout] when [CoverageOptions.showUncovered] is set.
   ///
-  /// A test runner leaves no coverage behind when it is interrupted, or when
-  /// every test file fails to load. Pass `false` for [reportExpected] in those
-  /// cases to skip the coverage of the run instead.
+  /// A test runner can leave no coverage behind when it is interrupted, or
+  /// when it fails, for example before running any test. Pass `false` for
+  /// [reportExpected] in those cases to skip the coverage of the run instead.
   ///
   /// Throws [MinCoverageNotMet] when the coverage is below the threshold, and
   /// [CoverageReportMissing] when the test runner left no coverage behind

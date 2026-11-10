@@ -1409,7 +1409,7 @@ void main() {
 
         for (final testType in TestRunType.values) {
           test('throws $CoverageReportMissing after a ${testType.name} test '
-              'run without failures', () async {
+              'run that succeeded', () async {
             await expectLater(
               TestCLIRunner.test(
                 testType: testType,
@@ -1420,7 +1420,8 @@ void main() {
                 stderr: stderrLogs.add,
                 overrideTestRunner: testRunner(
                   Stream.fromIterable([
-                    const ExitTestEvent(exitCode: 1, time: 0),
+                    const DoneTestEvent(success: true, time: 0),
+                    const ExitTestEvent(exitCode: 0, time: 0),
                   ]),
                 ),
               ),
@@ -1434,6 +1435,26 @@ void main() {
             );
           });
         }
+
+        test('fails a run that failed before running any test', () async {
+          await expectLater(
+            TestCLIRunner.test(
+              testType: TestRunType.flutter,
+              cwd: tempDirectory.path,
+              logger: logger,
+              collectCoverage: true,
+              minCoverage: 100,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+              overrideTestRunner: testRunner(
+                Stream.fromIterable([
+                  const ExitTestEvent(exitCode: 1, time: 0),
+                ]),
+              ),
+            ),
+            completion(equals([ExitCode.unavailable.code])),
+          );
+        });
 
         test('reports the failing tests of a run that reported them', () async {
           await expectLater(
@@ -1958,28 +1979,32 @@ void main() {
           expect(lcov.lengthSync(), 0);
         });
 
-        test('fails when not sharding', () async {
-          await expectLater(
-            TestCLIRunner.test(
-              testType: TestRunType.flutter,
-              cwd: tempDirectory.path,
-              logger: logger,
-              stdout: stdoutLogs.add,
-              stderr: stderrLogs.add,
-              optimizer: TestOptimizer(
-                enabled: true,
-                buildGenerator: generatorBuilder(),
+        for (final collectCoverage in [false, true]) {
+          test('fails when not sharding '
+              '${collectCoverage ? 'with' : 'without'} coverage', () async {
+            await expectLater(
+              TestCLIRunner.test(
+                testType: TestRunType.flutter,
+                cwd: tempDirectory.path,
+                logger: logger,
+                stdout: stdoutLogs.add,
+                stderr: stderrLogs.add,
+                optimizer: TestOptimizer(
+                  enabled: true,
+                  buildGenerator: generatorBuilder(),
+                ),
+                collectCoverage: collectCoverage,
+                arguments: ['--exclude-tags', 'golden'],
+                overrideTestRunner: testRunner(
+                  Stream.fromIterable([
+                    const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
+                  ]),
+                ),
               ),
-              arguments: ['--exclude-tags', 'golden'],
-              overrideTestRunner: testRunner(
-                Stream.fromIterable([
-                  const ExitTestEvent(exitCode: noTestsRanExitCode, time: 0),
-                ]),
-              ),
-            ),
-            completion(equals([ExitCode.unavailable.code])),
-          );
-        });
+              completion(equals([ExitCode.unavailable.code])),
+            );
+          });
+        }
       });
 
       test('runs tests w/optimizations (passing)', () async {
