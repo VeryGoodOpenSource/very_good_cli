@@ -813,6 +813,30 @@ workspace:
     });
   });
 
+  group('parseWorkspacePackagePaths', () {
+    test('returns the path of every package, the root included', () {
+      const output = '''
+{
+  "packages": [
+    {"name": "_", "path": "/workspace"},
+    {"name": "a", "path": "/workspace/packages/a"}
+  ]
+}''';
+
+      expect(
+        parseWorkspacePackagePaths(output),
+        equals(['/workspace', '/workspace/packages/a']),
+      );
+    });
+
+    test('throws a FormatException when the output is not JSON', () {
+      expect(
+        () => parseWorkspacePackagePaths('Found no `pubspec.yaml` file'),
+        throwsFormatException,
+      );
+    });
+  });
+
   group('declaresWorkspaceResolution', () {
     late Directory tempDirectory;
 

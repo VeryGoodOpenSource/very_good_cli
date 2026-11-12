@@ -102,6 +102,57 @@ void main() {
       });
     });
 
+    group('.workspacePackages', () {
+      test('lists the paths of the workspace packages', () async {
+        when(
+          () => process.run(
+            'dart',
+            ['pub', 'workspace', 'list', '--json'],
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: '/workspace/packages/a',
+          ),
+        ).thenAnswer(
+          (_) async => ProcessResult(42, ExitCode.success.code, '''
+{
+  "packages": [
+    {"name": "_", "path": "/workspace"},
+    {"name": "a", "path": "/workspace/packages/a"}
+  ]
+}''', ''),
+        );
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.workspacePackages(
+              cwd: '/workspace/packages/a',
+              logger: logger,
+            ),
+            completion(equals(['/workspace', '/workspace/packages/a'])),
+          ),
+          runProcess: process.run,
+        );
+      });
+
+      test('throws when process fails', () async {
+        when(
+          () => process.run(
+            'dart',
+            any(),
+            runInShell: any(named: 'runInShell'),
+            workingDirectory: any(named: 'workingDirectory'),
+          ),
+        ).thenAnswer((_) async => softwareErrorProcessResult);
+
+        await ProcessOverrides.runZoned(
+          () => expectLater(
+            Dart.workspacePackages(logger: logger),
+            throwsA(isA<ProcessException>()),
+          ),
+          runProcess: process.run,
+        );
+      });
+    });
+
     group('.pubGet', () {
       test('throws when there is no pubspec.yaml', () async {
         await ProcessOverrides.runZoned(

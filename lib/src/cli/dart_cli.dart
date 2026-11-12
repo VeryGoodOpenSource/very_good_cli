@@ -18,6 +18,21 @@ class Dart {
     }
   }
 
+  /// Lists the directories of the packages in the Pub workspace that contains
+  /// [cwd] (`dart pub workspace list --json`), the workspace root included.
+  static Future<List<String>> workspacePackages({
+    required Logger logger,
+    String cwd = '.',
+  }) async {
+    final result = await _Cmd.run(
+      'dart',
+      ['pub', 'workspace', 'list', '--json'],
+      workingDirectory: cwd,
+      logger: logger,
+    );
+    return parseWorkspacePackagePaths(result.stdout as String);
+  }
+
   /// Install dart dependencies (`dart pub get`).
   static Future<bool> pubGet({
     required Logger logger,
@@ -121,6 +136,7 @@ class Dart {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    bool workspace = false,
     bool checkIgnore = true,
     bool showUncovered = false,
     bool collectCoverage = false,
@@ -145,6 +161,7 @@ class Dart {
       testType: TestRunType.dart,
       cwd: cwd,
       recursive: recursive,
+      workspace: workspace,
       checkIgnore: checkIgnore,
       showUncovered: showUncovered,
       collectCoverage: collectCoverage,

@@ -15,6 +15,7 @@ very_good test [arguments]
 -h, --help                            Print this usage information.
     --coverage                        Whether to collect coverage information.
 -r, --recursive                       Run tests recursively for all nested packages.
+    --workspace                       Run tests for every package of the Pub workspace.
     --[no-]optimization               Whether to apply optimizations for test performance.
                                       Automatically disabled when --platform is specified.
                                       Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.
@@ -63,6 +64,17 @@ very_good test [arguments]
 
 Run "very_good help" to see global options.
 ```
+
+### Pub workspaces
+
+In a [Pub workspace](https://dart.dev/tools/pub/workspaces), `--workspace` runs the tests of the workspace root and of every member package, as listed by `dart pub workspace list`. It can be run from the root or from any member of the workspace, and it also works with `very_good dart test`.
+
+```sh
+# Run the tests of every package in the Pub workspace
+very_good test --workspace
+```
+
+`--workspace` cannot be combined with `--recursive`, and cannot target specific test files.
 
 ### Machine-readable test reports
 

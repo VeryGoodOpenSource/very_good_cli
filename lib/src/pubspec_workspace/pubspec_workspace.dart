@@ -1,11 +1,12 @@
-/// A tolerant resolver for Pub workspace dependency classification.
+/// Helpers for working with Pub workspaces: the packages that belong to one,
+/// and a tolerant resolver for the classification of their dependencies.
 ///
-/// This is used by the `packages check licenses` command. In a Pub workspace,
-/// member packages share a single `pubspec.lock` at the workspace root, and
-/// that lock classifies every member's direct dependency as `transitive` (only
-/// the root package's own dependencies are classified relative to it). As a
-/// result, running the command at the workspace root reports no direct
-/// dependencies.
+/// The resolver is used by the `packages check licenses` command. In a Pub
+/// workspace, member packages share a single `pubspec.lock` at the workspace
+/// root, and that lock classifies every member's direct dependency as
+/// `transitive` (only the root package's own dependencies are classified
+/// relative to it). As a result, running the command at the workspace root
+/// reports no direct dependencies.
 ///
 /// This resolver rebuilds the correct classification by unioning the
 /// directly-declared dependencies across the root and every member
@@ -14,6 +15,7 @@
 /// model.
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:glob/glob.dart';
@@ -98,6 +100,18 @@ Map<String, PubspecDependencyType>? resolveWorkspaceDependencies(
       (collector ?? WorkspaceDependencyCollector(logger: logger))
         ..visit(rootDirectory, rootPubspec);
   return workspaceCollector.classify();
+}
+
+/// Parses the [output] of `dart pub workspace list --json` into the paths of
+/// the packages of the workspace, the workspace root included.
+///
+/// Throws a [FormatException] when [output] is not the JSON Pub prints.
+List<String> parseWorkspacePackagePaths(String output) {
+  final workspace = jsonDecode(output) as Map<String, dynamic>;
+  return [
+    for (final package in workspace['packages'] as List<dynamic>)
+      (package as Map<String, dynamic>)['path'] as String,
+  ];
 }
 
 /// Whether the package rooted at [directory] declares `resolution: workspace`,

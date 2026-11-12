@@ -2,6 +2,7 @@
 // ignore_for_file: no_adjacent_strings_in_list
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:mason/mason.dart';
@@ -65,10 +66,12 @@ void main() {
 
       int? validateTarget({
         bool recursive = false,
+        bool workspace = false,
         List<String> rest = const [],
       }) => TestCLIRunner.validateTarget(
         targetPath: targetDirectory.path,
         recursive: recursive,
+        workspace: workspace,
         rest: rest,
         testType: TestRunType.dart,
         logger: logger,
@@ -100,6 +103,40 @@ void main() {
             ),
           ),
         ).called(1);
+      });
+
+      test('rejects test targets together with --workspace', () {
+        File(p.join(targetDirectory.path, 'pubspec.yaml')).createSync();
+
+        expect(
+          validateTarget(workspace: true, rest: ['test/a_test.dart']),
+          equals(ExitCode.usage.code),
+        );
+        verify(
+          () => logger.err(
+            any(
+              that: contains(
+                'Cannot target specific test files together with --workspace.',
+              ),
+            ),
+          ),
+        ).called(1);
+      });
+
+      test('lets a workspace run go with option arguments', () {
+        File(p.join(targetDirectory.path, 'pubspec.yaml')).createSync();
+
+        expect(validateTarget(workspace: true, rest: ['--fail-fast']), isNull);
+        verifyNever(() => logger.err(any()));
+      });
+
+      test('rejects --recursive together with --workspace', () {
+        expect(
+          validateTarget(recursive: true, workspace: true),
+          equals(ExitCode.usage.code),
+        );
+        verify(() => logger.err('Cannot combine --recursive with --workspace.'))
+            .called(1);
       });
 
       test('rejects a directory without a pubspec', () {
@@ -351,6 +388,127 @@ void main() {
           });
         });
       }
+
+      group('workspace', () {
+        late Directory rootDirectory;
+        late List<String> startedPackages;
+
+        Directory createPackage(String name) {
+          final directory = Directory(p.join(rootDirectory.path, name))
+            ..createSync(recursive: true);
+          File(p.join(directory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(directory.path, 'test')).createSync();
+          return directory;
+        }
+
+        Stream<TestEvent> runner({
+          List<String>? arguments,
+          String? workingDirectory,
+          Map<String, String>? environment,
+          bool runInShell = false,
+        }) {
+          if (workingDirectory != null) startedPackages.add(workingDirectory);
+          return Stream.fromIterable([
+            const DoneTestEvent(success: true, time: 0),
+            const ExitTestEvent(exitCode: 0, time: 0),
+          ]);
+        }
+
+        setUp(() {
+          rootDirectory = Directory.systemTemp.createTempSync();
+          addTearDown(() => rootDirectory.deleteSync(recursive: true));
+          startedPackages = [];
+        });
+
+        test('runs the tests of the workspace packages only', () async {
+          final workspaceRoot = createPackage('app');
+          final member = createPackage(p.join('app', 'packages', 'member'));
+          // A nested copy of the project, such as a git worktree: it has a
+          // pubspec.yaml but it is not a member of the workspace.
+          createPackage(p.join('app', '.worktrees', 'feature'));
+
+          final commands = <List<String>>[];
+          final directories = <String?>[];
+          final results = await ProcessOverrides.runZoned(
+            () => TestCLIRunner.test(
+              cwd: workspaceRoot.path,
+              workspace: true,
+              logger: logger,
+              testType: TestRunType.dart,
+              overrideTestRunner: runner,
+              stdout: stdoutLogs.add,
+              stderr: stderrLogs.add,
+            ),
+            runProcess:
+                (
+                  executable,
+                  arguments, {
+                  workingDirectory,
+                  runInShell = false,
+                }) async {
+                  commands.add([executable, ...arguments]);
+                  directories.add(workingDirectory);
+                  return ProcessResult(
+                    42,
+                    ExitCode.success.code,
+                    jsonEncode({
+                      'packages': [
+                        {'name': 'app', 'path': workspaceRoot.path},
+                        {'name': 'member', 'path': member.path},
+                      ],
+                    }),
+                    '',
+                  );
+                },
+          );
+
+          expect(
+            results,
+            equals([ExitCode.success.code, ExitCode.success.code]),
+          );
+          expect(
+            commands,
+            equals([
+              ['dart', 'pub', 'workspace', 'list', '--json'],
+            ]),
+          );
+          expect(directories, equals([workspaceRoot.path]));
+          expect(
+            startedPackages.map(p.normalize),
+            equals([p.normalize(workspaceRoot.path), p.normalize(member.path)]),
+          );
+        });
+
+        test('fails when the workspace packages cannot be listed', () async {
+          final workspaceRoot = createPackage('app');
+
+          await expectLater(
+            ProcessOverrides.runZoned(
+              () => TestCLIRunner.test(
+                cwd: workspaceRoot.path,
+                workspace: true,
+                logger: logger,
+                testType: TestRunType.dart,
+                overrideTestRunner: runner,
+              ),
+              runProcess:
+                  (
+                    executable,
+                    arguments, {
+                    workingDirectory,
+                    runInShell = false,
+                  }) async => ProcessResult(
+                    42,
+                    ExitCode.usage.code,
+                    '',
+                    'Could not find a subcommand named "workspace".',
+                  ),
+            ),
+            throwsA(isA<ProcessException>()),
+          );
+          expect(startedPackages, isEmpty);
+        });
+      });
 
       group('recursive with SIGINT', () {
         test('short-circuits the remaining packages when SIGINT is emitted '

@@ -143,6 +143,7 @@ class Flutter {
     required Logger logger,
     String cwd = '.',
     bool recursive = false,
+    bool workspace = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     List<String>? excludeOptimization,
@@ -166,6 +167,7 @@ class Flutter {
       testType: TestRunType.flutter,
       cwd: cwd,
       recursive: recursive,
+      workspace: workspace,
       collectCoverage: collectCoverage,
       optimizer: TestOptimizer(
         enabled: optimizePerformance,
@@ -244,14 +246,25 @@ Future<List<T>> _runCommand<T>({
 
   if (pubspecs.isEmpty) throw PubspecNotFound();
 
+  return await _runSequentially(
+    pubspecs.map((pubspec) => pubspec.parent.path),
+    cmd: cmd,
+  );
+}
+
+/// Runs [cmd] on each of the package [directories], one after the other.
+Future<List<T>> _runSequentially<T>(
+  Iterable<String> directories, {
+  required Future<T> Function(String cwd) cmd,
+}) async {
   final results = <T>[];
-  for (final pubspec in pubspecs) {
+  for (final directory in directories) {
     // If a signal (such as the MCP server's wall-clock budget) tore down a
     // prior package's test subprocess, don't start another one — the signal
     // is sticky, so a late listener on the broadcast stream would never see
     // the event anyway.
     if (ProcessSignalOverrides.current?.isSigintEmitted ?? false) break;
-    results.add(await cmd(pubspec.parent.path));
+    results.add(await cmd(directory));
   }
   return results;
 }
