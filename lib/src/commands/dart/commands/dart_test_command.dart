@@ -230,6 +230,7 @@ typedef DartTestCommandCall = Future<List<int>> Function({
   required Logger logger,
   String cwd,
   bool recursive,
+  bool workspace,
   bool collectCoverage,
   bool optimizePerformance,
   List<String>? excludeOptimization,
@@ -268,6 +269,11 @@ class DartTestCommand({
         'recursive',
         abbr: 'r',
         help: 'Run tests recursively for all nested packages.',
+        negatable: false,
+      )
+      ..addFlag(
+        'workspace',
+        help: 'Run tests for every package of the Pub workspace.',
         negatable: false,
       )
       ..addFlag(
@@ -421,10 +427,12 @@ class DartTestCommand({
   Future<int> run() async {
     final targetPath = path.normalize(Directory.current.absolute.path);
     final recursive = _argResults['recursive'] as bool;
+    final workspace = _argResults['workspace'] as bool;
 
     final targetError = TestCLIRunner.validateTarget(
       targetPath: targetPath,
       recursive: recursive,
+      workspace: workspace,
       rest: _argResults.rest,
       testType: TestRunType.dart,
       logger: _logger,
@@ -451,16 +459,21 @@ class DartTestCommand({
       return ExitCode.usage.code;
     }
 
-    return await _runTests(options, recursive: recursive);
+    return await _runTests(options, recursive: recursive, workspace: workspace);
   }
 
   /// Runs `dart test` with [options] and maps its outcome to an exit code.
-  Future<int> _runTests(DartTestOptions options, {required bool recursive}) {
+  Future<int> _runTests(
+    DartTestOptions options, {
+    required bool recursive,
+    required bool workspace,
+  }) {
     return TestCLIRunner.exitCodeOf(
       () => _dartTest(
         optimizePerformance: options.shouldOptimize,
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
+        workspace: workspace,
         logger: _logger,
         stdout: _logger.write,
         stderr: _logger.err,

@@ -143,6 +143,9 @@ very_good test --recursive
 # Run tests recursively (shorthand)
 very_good test -r
 
+# Run tests for every package of the Pub workspace
+very_good test --workspace
+
 # Run tests and stop after the first failure
 very_good test --fail-fast
 

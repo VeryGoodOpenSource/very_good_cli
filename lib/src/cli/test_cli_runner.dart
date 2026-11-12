@@ -141,15 +141,22 @@ class TestCLIRunner {
   static int? validateTarget({
     required String targetPath,
     required bool recursive,
+    required bool workspace,
     required List<String> rest,
     required TestRunType testType,
     required Logger logger,
   }) {
-    if (recursive && isTargettingTestFiles(rest)) {
+    if (recursive && workspace) {
+      logger.err('Cannot combine --recursive with --workspace.');
+      return ExitCode.usage.code;
+    }
+
+    final multiPackageFlag = recursive ? '--recursive' : '--workspace';
+    if ((recursive || workspace) && isTargettingTestFiles(rest)) {
       logger.err('''
-Cannot target specific test files together with --recursive.
+Cannot target specific test files together with $multiPackageFlag.
 Test targets are resolved against a single package root, so the same path
-cannot apply to every package. Drop --recursive and run from the package
+cannot apply to every package. Drop $multiPackageFlag and run from the package
 that contains them.''');
       return ExitCode.usage.code;
     }
@@ -174,6 +181,7 @@ This command should be run from the root of your ${testType.projectKind} project
     required TestRunType testType,
     String cwd = '.',
     bool recursive = false,
+    bool workspace = false,
     bool collectCoverage = false,
     TestOptimizer optimizer = const TestOptimizer.disabled(),
     Set<String> ignore = const {},
@@ -189,7 +197,7 @@ This command should be run from the root of your ${testType.projectKind} project
     List<String>? reportOn,
     bool checkIgnore = false,
     @visibleForTesting VeryGoodTestRunner? overrideTestRunner,
-  }) {
+  }) async {
     final initialCwd = cwd;
 
     final testRunner = overrideTestRunner ?? testType.runner;
@@ -204,24 +212,30 @@ This command should be run from the root of your ${testType.projectKind} project
       checkIgnore: checkIgnore,
     );
 
-    return _runCommand<int>(
-      cmd: (cwd) => _testPackage(
-        cwd: cwd,
-        initialCwd: initialCwd,
-        logger: logger,
-        testType: testType,
-        testRunner: testRunner,
-        optimizer: optimizer,
-        coverageReport: testType.coverageReportOf(
-          cwd,
-          options: coverageOptions,
-        ),
-        randomSeed: randomSeed,
-        forceAnsi: forceAnsi,
-        arguments: arguments,
-        stdout: stdout,
-        stderr: stderr,
-      ),
+    Future<int> testPackage(String cwd) => _testPackage(
+      cwd: cwd,
+      initialCwd: initialCwd,
+      logger: logger,
+      testType: testType,
+      testRunner: testRunner,
+      optimizer: optimizer,
+      coverageReport: testType.coverageReportOf(cwd, options: coverageOptions),
+      randomSeed: randomSeed,
+      forceAnsi: forceAnsi,
+      arguments: arguments,
+      stdout: stdout,
+      stderr: stderr,
+    );
+
+    if (workspace) {
+      return await _runSequentially(
+        await Dart.workspacePackages(logger: logger, cwd: cwd),
+        cmd: testPackage,
+      );
+    }
+
+    return await _runCommand<int>(
+      cmd: testPackage,
       cwd: cwd,
       ignore: ignore,
       recursive: recursive,

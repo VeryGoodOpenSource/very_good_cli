@@ -28,6 +28,7 @@ const expectedTestUsage = [
       '-h, --help                                                   Print this usage information.\n'
       '    --coverage                                               Whether to collect coverage information.\n'
       '-r, --recursive                                              Run tests recursively for all nested packages.\n'
+      '    --workspace                                              Run tests for every package of the Pub workspace.\n'
       '    --[no-]optimization                                      Whether to apply optimizations for test performance.\n'
       '                                                             Automatically disabled when --platform is specified.\n'
       '                                                             Add the `skip_very_good_optimization` tag to specific test files to disable them individually, or use --exclude-optimization to exclude them by path.\n'
@@ -66,6 +67,7 @@ abstract class FlutterTestCommand {
   Future<List<int>> call({
     String cwd = '.',
     bool recursive = false,
+    bool workspace = false,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     List<String>? excludeOptimization,
@@ -115,6 +117,7 @@ void main() {
         () => flutterTest(
           cwd: any(named: 'cwd'),
           recursive: any(named: 'recursive'),
+          workspace: any(named: 'workspace'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           excludeOptimization: any(named: 'excludeOptimization'),
@@ -135,6 +138,7 @@ void main() {
       ).thenAnswer((_) async => [0]);
       when<dynamic>(() => argResults['concurrency']).thenReturn(concurrency);
       when<dynamic>(() => argResults['recursive']).thenReturn(false);
+      when<dynamic>(() => argResults['workspace']).thenReturn(false);
       when<dynamic>(() => argResults['coverage']).thenReturn(false);
       when<dynamic>(() => argResults['show-uncovered']).thenReturn(false);
       when<dynamic>(() => argResults['update-goldens']).thenReturn(false);
@@ -234,6 +238,7 @@ void main() {
         () => flutterTest(
           cwd: any(named: 'cwd'),
           recursive: any(named: 'recursive'),
+          workspace: any(named: 'workspace'),
           collectCoverage: any(named: 'collectCoverage'),
           optimizePerformance: any(named: 'optimizePerformance'),
           minCoverage: any(named: 'minCoverage'),
@@ -257,6 +262,7 @@ void main() {
           () => flutterTest(
             cwd: any(named: 'cwd'),
             recursive: any(named: 'recursive'),
+            workspace: any(named: 'workspace'),
             collectCoverage: any(named: 'collectCoverage'),
             optimizePerformance: any(named: 'optimizePerformance'),
             minCoverage: any(named: 'minCoverage'),
@@ -280,6 +286,7 @@ void main() {
           () => flutterTest(
             cwd: any(named: 'cwd'),
             recursive: any(named: 'recursive'),
+            workspace: any(named: 'workspace'),
             collectCoverage: any(named: 'collectCoverage'),
             optimizePerformance: any(named: 'optimizePerformance'),
             minCoverage: any(named: 'minCoverage'),
@@ -313,6 +320,7 @@ void main() {
             () => flutterTest(
               cwd: any(named: 'cwd'),
               recursive: any(named: 'recursive'),
+              workspace: any(named: 'workspace'),
               collectCoverage: any(named: 'collectCoverage'),
               optimizePerformance: any(named: 'optimizePerformance'),
               minCoverage: any(named: 'minCoverage'),
@@ -334,6 +342,51 @@ void main() {
     });
 
     group('arguments', () {
+      test('completes normally --workspace', () async {
+        when<dynamic>(() => argResults['workspace']).thenReturn(true);
+        final result = await testCommand.run();
+        expect(result, equals(ExitCode.success.code));
+        verify(
+          () => flutterTest(
+            workspace: true,
+            optimizePerformance: true,
+            arguments: defaultArguments,
+            logger: logger,
+            stdout: logger.write,
+            stderr: logger.err,
+          ),
+        ).called(1);
+      });
+
+      test(
+        'exits with usage code when targeting test files with --workspace',
+        () async {
+          when<dynamic>(() => argResults['workspace']).thenReturn(true);
+          when(() => argResults.rest).thenReturn(['test/my_test.dart']);
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.usage.code));
+          verify(() => logger.err(any(that: contains('--workspace'))))
+              .called(1);
+        },
+      );
+
+      test(
+        'exits with usage code when combining --recursive and --workspace',
+        () async {
+          when<dynamic>(() => argResults['recursive']).thenReturn(true);
+          when<dynamic>(() => argResults['workspace']).thenReturn(true);
+
+          final result = await testCommand.run();
+
+          expect(result, equals(ExitCode.usage.code));
+          verify(
+            () => logger.err('Cannot combine --recursive with --workspace.'),
+          ).called(1);
+        },
+      );
+
       test('completes normally --recursive', () async {
         when<dynamic>(() => argResults['recursive']).thenReturn(true);
         final result = await testCommand.run();
@@ -786,6 +839,7 @@ void main() {
           () => flutterTest(
             cwd: any(named: 'cwd'),
             recursive: any(named: 'recursive'),
+            workspace: any(named: 'workspace'),
             collectCoverage: any(named: 'collectCoverage'),
             optimizePerformance: any(named: 'optimizePerformance'),
             minCoverage: any(named: 'minCoverage'),
@@ -830,6 +884,7 @@ void main() {
           () => flutterTest(
             cwd: any(named: 'cwd'),
             recursive: any(named: 'recursive'),
+            workspace: any(named: 'workspace'),
             collectCoverage: any(named: 'collectCoverage'),
             optimizePerformance: any(named: 'optimizePerformance'),
             minCoverage: any(named: 'minCoverage'),
@@ -864,6 +919,7 @@ void main() {
             () => flutterTest(
               cwd: any(named: 'cwd'),
               recursive: any(named: 'recursive'),
+              workspace: any(named: 'workspace'),
               collectCoverage: any(named: 'collectCoverage'),
               optimizePerformance: any(named: 'optimizePerformance'),
               minCoverage: any(named: 'minCoverage'),
