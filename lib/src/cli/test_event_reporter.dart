@@ -69,6 +69,7 @@ class _TestEventReporter({
     final report = _resolveReport(event.testID);
     final prefix = event.isFailure ? '[FAILED]' : '[ERROR]';
 
+    TestRunRecorder.current?.testsFailed = true;
     final relativeTestPath = p.relative(report.path, from: cwd);
     _failedTestErrorMessages[relativeTestPath] = [
       ...?_failedTestErrorMessages[relativeTestPath],

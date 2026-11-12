@@ -20,6 +20,7 @@ part 'flutter_cli.dart';
 part 'git_cli.dart';
 part 'test_cli_runner.dart';
 part 'test_event_reporter.dart';
+part 'test_run_recorder.dart';
 
 const R Function<R>(
   R Function(), {

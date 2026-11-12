@@ -6,6 +6,7 @@ import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
+import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
 
 /// {@template tool_run}
@@ -32,30 +33,45 @@ class ToolRun({
 
   final StringBuffer _output = StringBuffer();
 
+  final TestRunRecorder _recorder = TestRunRecorder();
+
   String get _capturedOutput =>
       sanitizeCommandOutput(_output.toString()).trim();
 
   /// Runs [command] with `stdout`/`stderr` redirected into this run's buffer
   /// and returns its exit code.
   ///
+  /// What a test run reports beyond its exit code is recorded through this
+  /// run's [TestRunRecorder].
+  ///
   /// The [Logger] is built inside the zone because mason captures
   /// `IOOverrides.current` at construction time.
   Future<int> capture(Future<int> Function(Logger logger) command) {
     final sink = CapturingStdout(_output);
-    return IOOverrides.runZoned(
-      () => command(Logger()),
-      stdout: () => sink,
-      stderr: () => sink,
+    return TestRunRecorder.runZoned(
+      () => IOOverrides.runZoned(
+        () => command(Logger()),
+        stdout: () => sink,
+        stderr: () => sink,
+      ),
+      recorder: _recorder,
     );
   }
 
   /// Maps the command's [exitCode] to a success or failure result.
-  CallToolResult resultFor(int exitCode) => exitCode == ExitCode.success.code
-      ? _success()
-      : _failure(
-          'failed with exit code $exitCode.',
-          failureType: ToolFailureType.fromExitCode(exitCode),
-        );
+  ///
+  /// The failure reason follows the exit code: [ExitCode.usage] is flagged as
+  /// a usage error, and every other code is refined through
+  /// [_recordedReason].
+  CallToolResult resultFor(int exitCode) {
+    if (exitCode == ExitCode.success.code) return _success();
+
+    return _failure(
+      'failed with exit code $exitCode.',
+      failureType: ToolFailureType.fromExitCode(exitCode),
+      isUsageError: exitCode == ExitCode.usage.code,
+    );
+  }
 
   /// Maps an [exception] thrown by the command to a failure result.
   ///
@@ -70,6 +86,7 @@ class ToolRun({
       UsageException(:final message) => _failure(
         'usage error: $message',
         failureType: failureType,
+        isUsageError: true,
       ),
       _ => _failure(
         'threw an exception: $exception',
@@ -91,6 +108,22 @@ class ToolRun({
     failureType: ToolFailureType.timeout,
   );
 
+  /// Refines [failureType]'s default [ToolFailureType.failureReason] with
+  /// what the test run recorded.
+  ///
+  /// For a [ToolFailureType.business] failure, failing tests take precedence
+  /// over an unmet coverage threshold, since they are the actionable cause.
+  /// Any other type uses its default reason.
+  ToolFailureReason _recordedReason(ToolFailureType failureType) {
+    if (failureType == ToolFailureType.business) {
+      if (_recorder.testsFailed) return ToolFailureReason.testFailure;
+      if (_recorder.coverageNotMet != null) {
+        return ToolFailureReason.coverageBelowThreshold;
+      }
+    }
+    return failureType.failureReason;
+  }
+
   CallToolResult _success() {
     final captured = _capturedOutput;
     return CallToolResult(
@@ -104,6 +137,12 @@ class ToolRun({
 
   /// Builds a structured JSON failure result from [reason] and [failureType].
   ///
+  /// The failure reason is picked from [isUsageError] (which upgrades a
+  /// [ToolFailureType.validation] failure to [ToolFailureReason.usageError])
+  /// and otherwise refined with [_recordedReason] from the test run side
+  /// channel, so every caller passes the context they have and the single
+  /// decision lives here.
+  ///
   /// The captured command output is surfaced as `partialResults` so any
   /// diagnostics emitted before a failure or throw are preserved. A short
   /// human-readable summary is also logged to the real stderr (the stdio
@@ -111,6 +150,7 @@ class ToolRun({
   CallToolResult _failure(
     String reason, {
     required ToolFailureType failureType,
+    bool isUsageError = false,
     StackTrace? stackTrace,
   }) {
     final captured = _capturedOutput;
@@ -125,6 +165,9 @@ class ToolRun({
       toolName: toolName,
       reason: reason,
       failureType: failureType,
+      failureReason: isUsageError
+          ? ToolFailureReason.usageError
+          : _recordedReason(failureType),
       commandString: commandString,
       directory: directory,
       attemptedArguments: requestArguments,
