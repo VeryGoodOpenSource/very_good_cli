@@ -161,13 +161,14 @@ class ToolRun({
     if (stackTrace != null) {
       stderr.writeln('[very_good_mcp] Stack trace: $stackTrace');
     }
+    final failureReason = isUsageError
+        ? ToolFailureReason.usageError
+        : _recordedReason(failureType);
     return StructuredToolError(
       toolName: toolName,
       reason: reason,
       failureType: failureType,
-      failureReason: isUsageError
-          ? ToolFailureReason.usageError
-          : _recordedReason(failureType),
+      failureReason: failureReason,
       commandString: commandString,
       directory: directory,
       attemptedArguments: requestArguments,
