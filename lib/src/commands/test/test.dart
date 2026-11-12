@@ -536,10 +536,6 @@ class TestCommand({
     final config = VeryGoodConfig.load(Directory(targetPath), logger: _logger);
     if (config == null) return ExitCode.config.code;
 
-    if (!await _flutterInstalled(logger: _logger)) {
-      return ExitCode.success.code;
-    }
-
     final options = FlutterTestOptions.parse(_argResults, config: config);
 
     final shardingError = TestCLIRunner.validateSharding(
