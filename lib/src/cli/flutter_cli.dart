@@ -144,6 +144,7 @@ class Flutter {
     String cwd = '.',
     bool recursive = false,
     bool workspace = false,
+    int workspaceConcurrency = 1,
     bool collectCoverage = false,
     bool optimizePerformance = false,
     List<String>? excludeOptimization,
@@ -168,6 +169,7 @@ class Flutter {
       cwd: cwd,
       recursive: recursive,
       workspace: workspace,
+      workspaceConcurrency: workspaceConcurrency,
       collectCoverage: collectCoverage,
       optimizer: TestOptimizer(
         enabled: optimizePerformance,
@@ -267,4 +269,46 @@ Future<List<T>> _runSequentially<T>(
     results.add(await cmd(directory));
   }
   return results;
+}
+
+/// Runs [cmd] on the package [directories], at most [limit] at a time.
+///
+/// The output of each package is buffered and replayed once it finishes, so
+/// that packages running side by side do not interleave their output.
+Future<List<T>> _runConcurrently<T>(
+  Iterable<String> directories, {
+  required int limit,
+  required void Function(String)? stdout,
+  required void Function(String)? stderr,
+  required Future<T> Function(
+    String cwd,
+    void Function(String) out,
+    void Function(String) err,
+  )
+  cmd,
+}) async {
+  final queue = directories.toList();
+  final results = List<T?>.filled(queue.length, null);
+  var next = 0;
+
+  Future<void> worker() async {
+    while (next < queue.length) {
+      if (ProcessSignalOverrides.current?.isSigintEmitted ?? false) return;
+      final index = next++;
+      final buffered = <(bool, String)>[];
+      results[index] = await cmd(
+        queue[index],
+        (chunk) => buffered.add((false, chunk)),
+        (chunk) => buffered.add((true, chunk)),
+      );
+      for (final (isErr, chunk) in buffered) {
+        // Drop the elapsed-time ticks, which only make sense live.
+        if (chunk.endsWith(' ...') && chunk.startsWith(_clearLine)) continue;
+        (isErr ? stderr : stdout)?.call(chunk);
+      }
+    }
+  }
+
+  await Future.wait([for (var i = 0; i < limit; i++) worker()]);
+  return results.whereType<T>().toList();
 }

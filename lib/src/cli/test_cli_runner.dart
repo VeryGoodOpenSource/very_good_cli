@@ -182,6 +182,7 @@ This command should be run from the root of your ${testType.projectKind} project
     String cwd = '.',
     bool recursive = false,
     bool workspace = false,
+    int workspaceConcurrency = 1,
     bool collectCoverage = false,
     TestOptimizer optimizer = const TestOptimizer.disabled(),
     Set<String> ignore = const {},
@@ -212,7 +213,11 @@ This command should be run from the root of your ${testType.projectKind} project
       checkIgnore: checkIgnore,
     );
 
-    Future<int> testPackage(String cwd) => _testPackage(
+    Future<int> testPackage(
+      String cwd, {
+      void Function(String)? out,
+      void Function(String)? err,
+    }) => _testPackage(
       cwd: cwd,
       initialCwd: initialCwd,
       logger: logger,
@@ -223,14 +228,21 @@ This command should be run from the root of your ${testType.projectKind} project
       randomSeed: randomSeed,
       forceAnsi: forceAnsi,
       arguments: arguments,
-      stdout: stdout,
-      stderr: stderr,
+      stdout: out ?? stdout,
+      stderr: err ?? stderr,
     );
 
     if (workspace) {
-      return await _runSequentially(
-        await Dart.workspacePackages(logger: logger, cwd: cwd),
-        cmd: testPackage,
+      final packages = await Dart.workspacePackages(logger: logger, cwd: cwd);
+      if (workspaceConcurrency <= 1) {
+        return await _runSequentially(packages, cmd: testPackage);
+      }
+      return await _runConcurrently(
+        packages,
+        limit: workspaceConcurrency,
+        stdout: stdout,
+        stderr: stderr,
+        cmd: (cwd, out, err) => testPackage(cwd, out: out, err: err),
       );
     }
 

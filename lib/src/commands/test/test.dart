@@ -281,6 +281,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   String cwd,
   bool recursive,
   bool workspace,
+  int workspaceConcurrency,
   bool collectCoverage,
   bool optimizePerformance,
   List<String>? excludeOptimization,
@@ -319,6 +320,11 @@ class TestCommand({
         abbr: 'r',
         help: 'Run tests recursively for all nested packages.',
         negatable: false,
+      )
+      ..addOption(
+        'workspace-concurrency',
+        help: 'The number of workspace packages tested at the same time.',
+        defaultsTo: '1',
       )
       ..addFlag(
         'workspace',
@@ -562,6 +568,8 @@ class TestCommand({
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         workspace: workspace,
+        workspaceConcurrency:
+            int.tryParse(_argResults['workspace-concurrency'] as String) ?? 1,
         logger: _logger,
         stdout: _logger.write,
         stderr: _logger.err,
