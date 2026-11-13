@@ -30,14 +30,14 @@
     "@docusaurus/eslint-plugin": "^3.10.2",
     "@docusaurus/module-type-aliases": "^3.10.2",
     "@docusaurus/tsconfig": "3.10.2",
-    "@docusaurus/types": "^3.7.0",
+    "@docusaurus/types": "^3.10.2",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.3.0",
     "eslint": "^10.14.0",
     "eslint-plugin-jest": "^29.17.0",
     "globals": "^17.14.0",
     "jest": "^30.5.2",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "typescript": "^7.0.2"
   },
   "browserslist": {
