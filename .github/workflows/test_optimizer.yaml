@@ -24,7 +24,7 @@ jobs:
   build_hooks:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/dart_package.yml@v2
     with:
-      dart_sdk: "3.13.0"
+      dart_sdk: "3.14.0"
       working_directory: bricks/test_optimizer/hooks
 
   verify_bundle:
@@ -34,7 +34,7 @@ jobs:
 
       - uses: dart-lang/setup-dart@v1.8.1
         with:
-          sdk: "3.13.0"
+          sdk: "3.14.0"
 
       - name: Install mason
         run: dart pub global activate mason_cli
