@@ -22,12 +22,24 @@ class const CoverageMetrics({
   /// Generate coverage metrics from a list of lcov records.
   factory fromLcovRecords(List<Record> records, {String? excludeFromCoverage}) {
     final excludedGlobs = _parseExcludeGlobs(excludeFromCoverage);
-    return records
-        .whereNot((record) => _isExcluded(record.file, excludedGlobs))
-        .fold(
-          const CoverageMetrics(),
-          (metrics, record) => metrics._add(record),
-        );
+    var totalHits = 0;
+    var totalFound = 0;
+    final uncoveredLines = <String, List<int>>{};
+    for (final record in records) {
+      if (_isExcluded(record.file, excludedGlobs)) continue;
+      final lines = record.lines;
+      totalHits += lines?.hit ?? 0;
+      totalFound += lines?.found ?? 0;
+      final file = record.file;
+      if (file == null) continue;
+      final missed = _uncoveredLineNumbersOf(record);
+      if (missed.isNotEmpty) (uncoveredLines[file] ??= []).addAll(missed);
+    }
+    return CoverageMetrics(
+      totalHits: totalHits,
+      totalFound: totalFound,
+      uncoveredLines: uncoveredLines,
+    );
   }
 
   static bool _isExcluded(String? file, List<Glob> excludedGlobs) =>
@@ -38,27 +50,6 @@ class const CoverageMetrics({
     for (final detail in record.lines?.details ?? const <Never>[])
       if (detail.line case final line? when (detail.hit ?? 1) == 0) line,
   ];
-
-  /// Returns new metrics with the counts and uncovered lines of [record].
-  CoverageMetrics _add(Record record) {
-    final lines = record.lines;
-    return CoverageMetrics(
-      totalFound: totalFound + (lines?.found ?? 0),
-      totalHits: totalHits + (lines?.hit ?? 0),
-      uncoveredLines: _uncoveredLinesWith(record),
-    );
-  }
-
-  Map<String, List<int>> _uncoveredLinesWith(Record record) {
-    final file = record.file;
-    if (file == null) return uncoveredLines;
-
-    final newLines = _uncoveredLineNumbersOf(record);
-    return {
-      ...uncoveredLines,
-      if (newLines.isNotEmpty) file: [...?uncoveredLines[file], ...newLines],
-    };
-  }
 
   /// Coverage percentage: [totalHits] / [totalFound] * 100.
   ///
