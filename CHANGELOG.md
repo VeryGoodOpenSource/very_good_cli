@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.6.0...v1.7.0) (2026-11-13)
+
+
+### Features
+
+* add failureReason to MCP failure payloads ([#1798](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1798)) ([b7d92d4](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b7d92d4d93d5802f00ca9aee4138fe370e9b96df))
+* add structured test results to MCP test failures ([#1799](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1799)) ([84e2fc5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/84e2fc5b1488d0b4062a15dbe18cfa14cf94629d))
+* bump template bundles ([#1801](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1801)) ([b4d70a2](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b4d70a2bd56b9c176334c0f72e72120dfe2cdbb6))
+* **test:** add --workspace flag to test the packages of a Pub workspace ([#1807](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1807)) ([65250ad](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65250ade1ea509422326a263565f7ec036210e86))
+
+
+### Bug Fixes
+
+* classify MCP exceptions and detect a crashed test tool ([#1797](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1797)) ([0ff0d6e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0ff0d6e7702e5c3cf748ddf4f3ece03d14d4f887))
+* isolate site and CLI releases ([#1792](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1792)) ([294f36a](https://github.com/VeryGoodOpenSource/very_good_cli/commit/294f36a8d71776c07dc5201dbb929b77ecc47d4a))
+
+
+### Miscellaneous Chores
+
+* **site:** 1.2.0 ([#1794](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1794)) ([0402470](https://github.com/VeryGoodOpenSource/very_good_cli/commit/0402470aacf2b872d87aa1be4a9d40b94912f2d0))
+
 ## [1.6.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.5.0...v1.6.0) (2026-11-03)
 
 
