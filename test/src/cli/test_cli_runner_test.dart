@@ -192,6 +192,25 @@ void main() {
         ).called(1);
       });
 
+      test('lists the uncovered lines only when asked to', () async {
+        for (final showUncovered in [false, true]) {
+          await TestCLIRunner.exitCodeOf(
+            () => throw MinCoverageNotMet(
+              50,
+              minCoverage: 80,
+              uncoveredLines: const {
+                'lib/a.dart': [2],
+              },
+              showUncovered: showUncovered,
+            ),
+            logger: logger,
+          );
+        }
+
+        verify(() => logger.err('Lines not covered:\n\t- lib/a.dart: 2'))
+            .called(1);
+      });
+
       test('records an unmet coverage threshold', () async {
         const exception = MinCoverageNotMet(50, minCoverage: 80);
         final recorder = TestRunRecorder();
@@ -895,7 +914,181 @@ void main() {
           recorder: recorder,
         );
 
-        expect(recorder.testsFailed, isTrue);
+        expect(recorder.results.passed, equals(7));
+        expect(recorder.results.skipped, isZero);
+        expect(recorder.results.durationMs, equals(12745));
+        expect(
+          recorder.results.failingTests,
+          equals([
+            (
+              file: p.relative(
+                p.join(
+                  tempDirectory.path,
+                  'test',
+                  'counter',
+                  'cubit',
+                  'counter_cubit_test.dart',
+                ),
+              ),
+              name: 'CounterCubit initial state is 0',
+              error: 'Expected: <1> Actual: <0>',
+            ),
+          ]),
+        );
+      });
+
+      test('records a failing test only once when it reports more than one '
+          'error', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                SuiteTestEvent(
+                  suite: TestSuite(
+                    id: 0,
+                    platform: 'vm',
+                    path: p.join(tempDirectory.path, 'test', 'a_test.dart'),
+                  ),
+                  time: 0,
+                ),
+                TestStartEvent(
+                  test: Test(
+                    id: 1,
+                    name: 'a fails twice',
+                    suiteID: 0,
+                    groupIDs: const [],
+                    metadata: TestMetadata(skip: false),
+                  ),
+                  time: 0,
+                ),
+                const ErrorTestEvent(
+                  testID: 1,
+                  error: 'first error',
+                  stackTrace: '',
+                  isFailure: true,
+                  time: 0,
+                ),
+                const ErrorTestEvent(
+                  testID: 1,
+                  error: 'second error',
+                  stackTrace: '',
+                  isFailure: true,
+                  time: 0,
+                ),
+                const TestDoneEvent(
+                  testID: 1,
+                  result: TestResult.failure,
+                  skipped: false,
+                  hidden: false,
+                  time: 0,
+                ),
+                const DoneTestEvent(success: false, time: 0),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        final failingTest = recorder.results.failingTests.single;
+        expect(failingTest.name, equals('a fails twice'));
+        expect(failingTest.error, equals('first error'));
+      });
+
+      test('records a test file that failed to load', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...compilationErrorJsonOutput(tempDirectory.path)
+                    .map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 1, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        final failingTest = recorder.results.failingTests.single;
+        expect(failingTest.name, equals('loading test/.test_optimizer.dart'));
+        expect(
+          failingTest.file,
+          equals(p.relative(p.join(tempDirectory.path, 'test'))),
+          reason:
+              'A load failure in an optimized run points at the generated '
+              "bundle, which is deleted once the run ends; the bundle's own "
+              'test directory is reported instead.',
+        );
+        expect(
+          failingTest.error,
+          allOf(
+            hasLength(200),
+            startsWith(
+              'Failed to load "test/.test_optimizer.dart": '
+              'test/src/my_package_test.dart:8:18: Error: No named parameter',
+            ),
+            endsWith('…'),
+          ),
+        );
+      });
+
+      test('adds up the results of every package of a recursive run', () async {
+        final rootDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => rootDirectory.deleteSync(recursive: true));
+
+        for (final name in ['package_a', 'package_b']) {
+          final packageDirectory = Directory(p.join(rootDirectory.path, name))
+            ..createSync();
+          File(p.join(packageDirectory.path, 'pubspec.yaml')).createSync();
+          Directory(p.join(packageDirectory.path, 'test')).createSync();
+        }
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: rootDirectory.path,
+            recursive: true,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...passingJsonOutput.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        final passingTests = passingJsonOutput.where(
+          (event) =>
+              event['type'] == 'testDone' &&
+              event['hidden'] == false &&
+              event['result'] == 'success',
+        );
+        expect(recorder.results.passed, equals(2 * passingTests.length));
+        expect(recorder.results.durationMs, equals(2 * 4015));
+        expect(recorder.results.failingTests, isEmpty);
       });
 
       test(
@@ -964,6 +1157,40 @@ void main() {
         );
 
         expect(recorder.testsFailed, isFalse);
+      });
+
+      test('records the skipped tests of a run', () async {
+        final tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+
+        File(p.join(tempDirectory.path, 'pubspec.yaml')).createSync();
+        Directory(p.join(tempDirectory.path, 'test')).createSync();
+        final events = skipExceptionMessageJsonOutput(tempDirectory.path);
+        final recorder = TestRunRecorder();
+
+        await TestRunRecorder.runZoned(
+          () => TestCLIRunner.test(
+            testType: TestRunType.flutter,
+            cwd: tempDirectory.path,
+            overrideTestRunner: testRunner(
+              Stream.fromIterable([
+                ...events.map(TestEvent.fromJson),
+                const ExitTestEvent(exitCode: 0, time: 0),
+              ]),
+            ),
+            logger: logger,
+          ),
+          recorder: recorder,
+        );
+
+        final skippedTests = events.where(
+          (event) =>
+              event['type'] == 'testDone' &&
+              event['hidden'] == false &&
+              event['skipped'] == true,
+        );
+        expect(skippedTests, isNotEmpty);
+        expect(recorder.results.skipped, equals(skippedTests.length));
       });
 
       test('runs tests (noisy)', () async {

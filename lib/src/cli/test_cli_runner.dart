@@ -318,6 +318,7 @@ This command should be run from the root of your ${testType.projectKind} project
             stdout: stdout ?? noop,
             stderr: stderr ?? noop,
           ).whenComplete(() async {
+            TestRunRecorder.current?.recordPackage(reporter.results);
             await optimization.cleanUp();
             // A sharded run with every test filtered out collects no
             // coverage, but the merge step downstream still expects a
@@ -373,7 +374,8 @@ This command should be run from the root of your ${testType.projectKind} project
     }
   }
 
-  /// Logs [error], along with its uncovered lines when it carries any, and
+  /// Logs [error], along with its uncovered lines when it is asked to list
+  /// them and carries any, and
   /// returns the exit code an unmet coverage threshold reports.
   static int _handleMinCoverageNotMet(
     MinCoverageNotMet error, {
@@ -400,7 +402,7 @@ This command should be run from the root of your ${testType.projectKind} project
     );
 
     final uncoveredLines = error.uncoveredLines;
-    if (uncoveredLines != null && uncoveredLines.isNotEmpty) {
+    if (error.showUncovered && uncoveredLines.isNotEmpty) {
       logger.err(formatUncoveredLines(uncoveredLines));
     }
 
