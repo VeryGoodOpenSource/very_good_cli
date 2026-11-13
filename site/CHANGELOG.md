@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.2.0...site-v1.3.0) (2026-11-13)
+
+
+### Features
+
+* add structured test results to MCP test failures ([#1799](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1799)) ([84e2fc5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/84e2fc5b1488d0b4062a15dbe18cfa14cf94629d))
+* **test:** add --workspace flag to test the packages of a Pub workspace ([#1807](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1807)) ([65250ad](https://github.com/VeryGoodOpenSource/very_good_cli/commit/65250ade1ea509422326a263565f7ec036210e86))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.13.0 to 10.14.0 in /site ([#1804](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1804)) ([c9b724c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/c9b724cbae9f6bd9de5580f7500ca1dc5ca00f38))
+* **deps-dev:** bump globals from 17.13.0 to 17.14.0 in /site ([#1803](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1803)) ([64463cb](https://github.com/VeryGoodOpenSource/very_good_cli/commit/64463cb5482e33c38421dfd04d0cb6a8fe05602a))
+* **site:** regenerate the lockfile to pick up newer transitive dependencies ([#1811](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1811)) ([f5e38dd](https://github.com/VeryGoodOpenSource/very_good_cli/commit/f5e38dd3afbaa1e5da4c646f720192708b70fbec))
+
 ## [1.2.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.1.1...site-v1.2.0) (2026-11-05)
 
 
