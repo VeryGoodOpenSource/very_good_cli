@@ -203,9 +203,15 @@ void main() {
         MinCoverageNotMet? coverageNotMet,
       }) async {
         await run.capture((_) async {
-          TestRunRecorder.current!
-            ..testsFailed = testsFailed
+          final recorder = TestRunRecorder.current!
             ..coverageNotMet = coverageNotMet;
+          if (testsFailed) {
+            recorder.recordPackage(
+              const TestRunResults(
+                failingTests: [(file: 'a', name: 'a', error: 'a')],
+              ),
+            );
+          }
           return ExitCode.software.code;
         });
         return withStderr<String>(
@@ -250,6 +256,61 @@ void main() {
           reasonForTestRun(testsFailed: true),
           completion(equals('test_failure')),
         );
+      });
+
+      test('comes with the results of the test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!.recordPackage(
+            const TestRunResults(passed: 2),
+          );
+          return ExitCode.software.code;
+        });
+
+        final result = withStderr(() => run.resultFor(ExitCode.software.code));
+
+        expect(
+          jsonOf(result)['test'],
+          equals({
+            'results': {
+              'passed': 2,
+              'failed': 0,
+              'skipped': 0,
+              'durationMs': 0,
+              'failingTests': <Object?>[],
+            },
+          }),
+        );
+      });
+
+      test('comes with the unmet coverage of the test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!
+            ..recordPackage(const TestRunResults(passed: 2))
+            ..coverageNotMet = coverageNotMet;
+          return ExitCode.software.code;
+        });
+
+        final result = withStderr(() => run.resultFor(ExitCode.software.code));
+
+        expect(
+          jsonOf(result)['test'],
+          containsPair('coverage', containsPair('required', 80)),
+        );
+      });
+
+      test('comes with the partial results of a timed out test run', () async {
+        await run.capture((_) async {
+          TestRunRecorder.current!.recordPackage(
+            const TestRunResults(passed: 2),
+          );
+          return ExitCode.success.code;
+        });
+
+        final result = withStderr(
+          () => run.resultForTimeout(const Duration(seconds: 1)),
+        );
+
+        expect(jsonOf(result), contains('test'));
       });
 
       test('is coverage_below_threshold when the coverage was not met', () {

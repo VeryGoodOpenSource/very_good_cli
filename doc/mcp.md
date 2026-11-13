@@ -181,4 +181,8 @@ Verifies package licenses for compliance.
 
 All parameters are optional. `licenses` defaults to `true`.
 
+## Failure Payloads
+
+A tool call that fails returns `isError: true` with a single text content holding a JSON payload, so an agent can pick a recovery strategy without parsing the command output. See [the hosted docs](https://cli.vgv.dev/docs/commands/mcp#failure-payloads) for the payload fields, every `failureType`/`failureReason` pair with whether a retry can help, and example payloads.
+
 [mcp_link]: https://modelcontextprotocol.io
