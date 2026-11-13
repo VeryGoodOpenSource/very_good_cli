@@ -237,8 +237,17 @@ This command should be run from the root of your ${testType.projectKind} project
       if (workspaceConcurrency <= 1) {
         return await _runSequentially(packages, cmd: testPackage);
       }
+      int testFiles(String dir) => Directory(p.join(dir, 'test'))
+          .existsSync()
+          ? Directory(p.join(dir, 'test'))
+                .listSync(recursive: true)
+                .where((e) => e is File && e.path.endsWith('_test.dart'))
+                .length
+          : 0;
+      final sorted = [...packages]
+        ..sort((a, b) => testFiles(b).compareTo(testFiles(a)));
       return await _runConcurrently(
-        packages,
+        sorted,
         limit: workspaceConcurrency,
         stdout: stdout,
         stderr: stderr,
