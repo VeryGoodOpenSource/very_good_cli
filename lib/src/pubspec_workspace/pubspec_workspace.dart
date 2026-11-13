@@ -106,11 +106,22 @@ Map<String, PubspecDependencyType>? resolveWorkspaceDependencies(
 /// the packages of the workspace, the workspace root included.
 ///
 /// Throws a [FormatException] when [output] is not the JSON Pub prints.
-List<String> parseWorkspacePackagePaths(String output) {
+List<String> parseWorkspacePackagePaths(String output) => [
+  for (final package in parseWorkspacePackages(output)) package.path,
+];
+
+/// Parses the JSON printed by `dart pub workspace list --json` into the name
+/// and path of every package of the workspace, the workspace root included.
+///
+/// Throws a [FormatException] when [output] is not the JSON Pub prints.
+List<({String name, String path})> parseWorkspacePackages(String output) {
   final workspace = jsonDecode(output) as Map<String, dynamic>;
   return [
     for (final package in workspace['packages'] as List<dynamic>)
-      (package as Map<String, dynamic>)['path'] as String,
+      (
+        name: (package as Map<String, dynamic>)['name'] as String? ?? '',
+        path: package['path'] as String,
+      ),
   ];
 }
 

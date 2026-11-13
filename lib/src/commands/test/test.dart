@@ -282,6 +282,7 @@ typedef FlutterTestCommand = Future<List<int>> Function({
   bool recursive,
   bool workspace,
   int workspaceConcurrency,
+  Set<String> ignore,
   bool collectCoverage,
   bool optimizePerformance,
   List<String>? excludeOptimization,
@@ -320,6 +321,15 @@ class TestCommand({
         abbr: 'r',
         help: 'Run tests recursively for all nested packages.',
         negatable: false,
+      )
+      ..addMultiOption(
+        'ignore',
+        help:
+            'A glob matched against the name, the path or any path segment '
+            'of a package, to leave it out of a --workspace or --recursive '
+            'run. Can be passed multiple times.',
+        valueHelp: 'glob',
+        splitCommas: false,
       )
       ..addOption(
         'workspace-concurrency',
@@ -564,6 +574,7 @@ class TestCommand({
         excludeOptimization: options.excludeOptimization,
         recursive: recursive,
         workspace: workspace,
+        ignore: (_argResults['ignore'] as List<String>).toSet(),
         workspaceConcurrency:
             int.tryParse(_argResults['workspace-concurrency'] as String) ?? 1,
         logger: _logger,

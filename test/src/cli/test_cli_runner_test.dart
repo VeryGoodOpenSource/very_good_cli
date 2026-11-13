@@ -479,6 +479,101 @@ void main() {
           );
         });
 
+        group('ignore', () {
+          Future<void> runWorkspace(
+            Set<String> ignore, {
+            required Directory root,
+            required List<({String name, String path})> packages,
+          }) => ProcessOverrides.runZoned(
+            () => TestCLIRunner.test(
+              cwd: root.path,
+              workspace: true,
+              ignore: ignore,
+              logger: logger,
+              testType: TestRunType.dart,
+              overrideTestRunner: runner,
+            ),
+            runProcess:
+                (
+                  executable,
+                  arguments, {
+                  workingDirectory,
+                  runInShell = false,
+                }) async => ProcessResult(
+                  42,
+                  ExitCode.success.code,
+                  jsonEncode({
+                    'packages': [
+                      for (final package in packages)
+                        {'name': package.name, 'path': package.path},
+                    ],
+                  }),
+                  '',
+                ),
+          );
+
+          late Directory root;
+          late List<({String name, String path})> packages;
+
+          setUp(() {
+            root = createPackage('app');
+            packages = [
+              (name: 'app', path: root.path),
+              (
+                name: 'checkout_web',
+                path: createPackage(p.join('app', 'packages', 'checkout_web'))
+                    .path,
+              ),
+              (
+                name: 'auth',
+                path: createPackage(
+                  p.join('app', 'packages', 'services', 'auth'),
+                ).path,
+              ),
+              (
+                name: 'core',
+                path: createPackage(p.join('app', 'packages', 'core')).path,
+              ),
+            ];
+          });
+
+          List<String> started() =>
+              startedPackages.map((d) => p.basename(d)).toList();
+
+          test('runs every package when nothing is ignored', () async {
+            await runWorkspace({}, root: root, packages: packages);
+            expect(started(), equals(['app', 'checkout_web', 'auth', 'core']));
+          });
+
+          test('leaves out the packages whose name matches a glob', () async {
+            await runWorkspace({'*web*'}, root: root, packages: packages);
+            expect(started(), equals(['app', 'auth', 'core']));
+          });
+
+          test('leaves out the packages under an ignored directory', () async {
+            await runWorkspace({'services'}, root: root, packages: packages);
+            expect(started(), equals(['app', 'checkout_web', 'core']));
+          });
+
+          test('leaves out the packages whose path matches a glob', () async {
+            await runWorkspace(
+              {'packages/services/**'},
+              root: root,
+              packages: packages,
+            );
+            expect(started(), equals(['app', 'checkout_web', 'core']));
+          });
+
+          test('combines several patterns', () async {
+            await runWorkspace(
+              {'*web*', 'core'},
+              root: root,
+              packages: packages,
+            );
+            expect(started(), equals(['app', 'auth']));
+          });
+        });
+
         test('fails when the workspace packages cannot be listed', () async {
           final workspaceRoot = createPackage('app');
 

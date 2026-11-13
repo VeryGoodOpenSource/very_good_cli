@@ -23,6 +23,7 @@ class Dart {
   static Future<List<String>> workspacePackages({
     required Logger logger,
     String cwd = '.',
+    Set<String> ignore = const {},
   }) async {
     final result = await _Cmd.run(
       'dart',
@@ -30,7 +31,10 @@ class Dart {
       workingDirectory: cwd,
       logger: logger,
     );
-    return parseWorkspacePackagePaths(result.stdout as String);
+    return [
+      for (final package in parseWorkspacePackages(result.stdout as String))
+        if (!_isIgnoredPackage(package, ignore: ignore, cwd: cwd)) package.path,
+    ];
   }
 
   /// Install dart dependencies (`dart pub get`).
@@ -184,4 +188,26 @@ class Dart {
       reportOn: reportOn,
     );
   }
+}
+
+/// Whether [package] matches any of the [ignore] patterns.
+///
+/// A pattern is a glob matched against the package name, the path of the
+/// package relative to [cwd], or any single segment of that path.
+bool _isIgnoredPackage(
+  ({String name, String path}) package, {
+  required Set<String> ignore,
+  required String cwd,
+}) {
+  if (ignore.isEmpty) return false;
+  final relative = p.posix.joinAll(
+    p.split(p.relative(package.path, from: cwd)),
+  );
+  final segments = p.posix.split(relative);
+  return ignore.where((pattern) => pattern.isNotEmpty).any((pattern) {
+    final glob = Glob(pattern, context: p.posix, recursive: true);
+    return glob.matches(package.name) ||
+        glob.matches(relative) ||
+        segments.any(glob.matches);
+  });
 }

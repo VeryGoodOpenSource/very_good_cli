@@ -233,7 +233,11 @@ This command should be run from the root of your ${testType.projectKind} project
     );
 
     if (workspace) {
-      final packages = await Dart.workspacePackages(logger: logger, cwd: cwd);
+      final packages = await Dart.workspacePackages(
+        logger: logger,
+        cwd: cwd,
+        ignore: ignore,
+      );
       if (workspaceConcurrency <= 1) {
         return await _runSequentially(packages, cmd: testPackage);
       }
