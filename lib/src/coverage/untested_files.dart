@@ -40,14 +40,24 @@ Future<void> _addUntestedFiles({
 
   // Parse existing lcov to find covered files
   final existingRecords = await Parser.parse(lcovPath);
-  final coveredFiles = existingRecords.map((r) => r.file).nonNulls.toSet();
+  // Every suffix of a covered path that starts at a separator, so a candidate
+  // file is matched with a single lookup.
+  final coveredSuffixes = <String>{};
+  for (final record in existingRecords) {
+    final covered = record.file;
+    if (covered == null) continue;
+    final normalized = p.normalize(covered);
+    coveredSuffixes.add(normalized);
+    for (var i = 0; i < normalized.length; i++) {
+      if (normalized[i] == p.separator) {
+        coveredSuffixes.add(normalized.substring(i + 1));
+      }
+    }
+  }
 
-  final uncoveredFiles = allDartFiles.where((file) {
-    final normalizedFile = p.normalize(file);
-    return !coveredFiles.any(
-      (covered) => p.normalize(covered).endsWith(normalizedFile),
-    );
-  }).toList();
+  final uncoveredFiles = allDartFiles
+      .where((file) => !coveredSuffixes.contains(p.normalize(file)))
+      .toList();
 
   if (uncoveredFiles.isEmpty) return;
 
