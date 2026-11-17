@@ -13,9 +13,16 @@ typedef FailingTest = ({String file, String name, String error});
 /// failing tests themselves.
 /// {@endtemplate}
 class const TestRunResults({
+  /// The number of tests that passed.
   final int passed = 0,
+
+  /// The number of tests that were skipped.
   final int skipped = 0,
+
+  /// The time the test run took, in milliseconds.
   final int durationMs = 0,
+
+  /// The tests that failed, and the test files that failed to load.
   final List<FailingTest> failingTests = const [],
 }) {
   /// {@macro test_run_results}
