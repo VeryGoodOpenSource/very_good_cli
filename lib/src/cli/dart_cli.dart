@@ -30,7 +30,7 @@ class Dart {
       workingDirectory: cwd,
       logger: logger,
     );
-    return parseWorkspacePackagePaths(result.stdout as String);
+    return PubspecWorkspace.parsePackagePaths(result.stdout as String);
   }
 
   /// Install dart dependencies (`dart pub get`).
