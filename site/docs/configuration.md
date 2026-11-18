@@ -156,13 +156,18 @@ create:
   workspace: true
 ```
 
-| Field         | Type     | Notes                                                              |
-| ------------- | -------- | ------------------------------------------------------------------ |
-| `description` | `string` | The description for the generated project.                         |
-| `org_name`    | `string` | The organization for the generated project.                        |
-| `publishable` | `bool`   | Whether the generated project is intended to be published.         |
-| `template`    | `string` | The template used to generate the project.                         |
-| `workspace`   | `bool`   | Whether the project resolves dependencies from a parent workspace. |
+| Field         | Type     | Notes                                                                                               |
+| ------------- | -------- | --------------------------------------------------------------------------------------------------- |
+| `description` | `string` | The description for the generated project.                                                          |
+| `org_name`    | `string` | The organization for the generated project.                                                         |
+| `publishable` | `bool`   | Whether the generated project is intended to be published.                                          |
+| `template`    | `string` | The template used to generate the project.                                                          |
+| `workspace`   | `bool`   | Whether the project is added to the closest parent Pub workspace and resolves dependencies from it. |
+
+When `workspace` is `true`, `very_good create` edits the `workspace` list of the
+closest parent `pubspec.yaml` (or `pubspec_overrides.yaml`, when that file
+declares the list) to add the generated packages. If no parent pubspec declares
+a `workspace` list, the command exits with code 78 before generating any files.
 
 ### `dart.test`
 
