@@ -39,7 +39,7 @@ final expectedUsage = [
       '    --org-name                   The organization for this new project.\n'
       '                                 (defaults to "com.example.verygoodcore")\n'
       '    --publishable                Whether the generated project is intended to be published.\n'
-      '    --[no-]workspace             Whether the generated project should resolve its dependencies from a parent Pub workspace.\n'
+      '    --[no-]workspace             Whether the generated project should be added to the closest parent Pub workspace and resolve its dependencies from it.\n'
       '    --platforms                  The platforms supported by the game. By default, all platforms are enabled. Example: --platforms=android,ios\n'
       '\n'
       '          [android] (default)    The game supports the Android platform.\n'

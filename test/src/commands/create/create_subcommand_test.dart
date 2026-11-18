@@ -1592,8 +1592,24 @@ Run "runner help" to see global options.''';
       late GeneratorHooks hooks;
       late MasonGenerator generator;
       late _TestCommandRunner runner;
+      late Directory workspaceRoot;
+      late File workspacePubspec;
+      late String packagesPath;
 
       setUp(() {
+        workspaceRoot = Directory.systemTemp.createTempSync();
+        addTearDown(() => workspaceRoot.deleteSync(recursive: true));
+        workspacePubspec = File(path.join(workspaceRoot.path, 'pubspec.yaml'))
+          ..writeAsStringSync('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+# The members of the workspace.
+workspace:
+  - packages/existing
+''');
+        packagesPath = path.join(workspaceRoot.path, 'packages');
+
         hooks = _MockGeneratorHooks();
         generator = _MockMasonGenerator();
 
@@ -1633,6 +1649,8 @@ Run "runner help" to see global options.''';
           'create_subcommand',
           'test_project',
           '--workspace',
+          '-o',
+          packagesPath,
         ]);
 
         expect(result, equals(ExitCode.success.code));
@@ -1672,6 +1690,8 @@ Run "runner help" to see global options.''';
           'create_subcommand',
           'test_project',
           '--ws',
+          '-o',
+          packagesPath,
         ]);
 
         expect(result, equals(ExitCode.success.code));
@@ -1778,6 +1798,203 @@ Run "runner help" to see global options.''';
             logger: logger,
           ),
         ).called(1);
+      });
+
+      group('with --workspace', () {
+        /// Writes a `pubspec.yaml` that resolves from a workspace (unless
+        /// [resolution] says otherwise) in [directory].
+        void writeMemberPubspec(
+          String directory, {
+          String resolution = 'resolution: workspace',
+        }) {
+          Directory(directory).createSync(recursive: true);
+          File(path.join(directory, 'pubspec.yaml')).writeAsStringSync('''
+name: ${path.basename(directory)}
+environment:
+  sdk: ^3.11.0
+$resolution
+''');
+        }
+
+        /// Makes the generator write the packages at [directories] when it
+        /// generates.
+        void whenGenerates(List<String> directories) {
+          when(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          ).thenAnswer((_) async {
+            directories.forEach(writeMemberPubspec);
+            return generatedFiles;
+          });
+        }
+
+        List<String> run() => [
+          'create_subcommand',
+          'test_project',
+          '--workspace',
+          '-o',
+          packagesPath,
+        ];
+
+        test('adds the generated package to the workspace root '
+            'before the template completes', () async {
+          whenGenerates([path.join(packagesPath, 'test_project')]);
+
+          late String pubspecOnComplete;
+          when(() => template.onGenerateComplete(any(), any()))
+              .thenAnswer((_) async {
+                pubspecOnComplete = workspacePubspec.readAsStringSync();
+              });
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.success.code));
+          expect(
+            pubspecOnComplete,
+            equals('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+# The members of the workspace.
+workspace:
+  - packages/existing
+  - packages/test_project
+'''),
+          );
+          verify(
+            () => logger.info(
+              'Added "packages/test_project" to the workspace_root workspace',
+            ),
+          ).called(1);
+        });
+
+        test('adds every generated package that resolves from the workspace '
+            'when the template generates several', () async {
+          final outputPath = path.join(packagesPath, 'test_project');
+          whenGenerates([
+            path.join(outputPath, 'test_project_platform_interface'),
+            path.join(outputPath, 'test_project'),
+          ]);
+          writeMemberPubspec(
+            path.join(outputPath, 'not_a_member'),
+            resolution: '',
+          );
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.success.code));
+          expect(
+            workspacePubspec.readAsStringSync(),
+            equals('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+# The members of the workspace.
+workspace:
+  - packages/existing
+  - packages/test_project/test_project
+  - packages/test_project/test_project_platform_interface
+'''),
+          );
+        });
+
+        test('leaves the workspace root untouched '
+            'when it already includes the generated package', () async {
+          const pubspec = '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/*
+''';
+          workspacePubspec.writeAsStringSync(pubspec);
+          whenGenerates([path.join(packagesPath, 'test_project')]);
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.success.code));
+          expect(workspacePubspec.readAsStringSync(), equals(pubspec));
+          verifyNever(() => logger.info(any(that: contains('Added'))));
+        });
+
+        test('fails without generating '
+            'when the parent pubspec does not declare a workspace', () async {
+          workspacePubspec.writeAsStringSync('''
+name: not_a_workspace
+environment:
+  sdk: ^3.11.0
+''');
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(
+                that: allOf(
+                  contains('does not declare a workspace'),
+                  contains(path.relative(workspacePubspec.path)),
+                  contains('workspace:\n  - packages/test_project'),
+                ),
+              ),
+            ),
+          ).called(1);
+          verifyNever(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          );
+          verifyNever(() => template.onGenerateComplete(any(), any()));
+        });
+
+        test('fails without generating '
+            'when no parent directory has a pubspec', () async {
+          workspacePubspec.deleteSync();
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(
+                that: contains('none of its parent directories has a pubspec'),
+              ),
+            ),
+          ).called(1);
+          verifyNever(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          );
+        });
+
+        test('fails without generating '
+            'when the parent pubspec cannot be parsed', () async {
+          workspacePubspec.writeAsStringSync('{{{ not valid yaml');
+
+          final result = await runner.run(run());
+
+          expect(result, equals(ExitCode.config.code));
+          verify(
+            () => logger.err(
+              any(that: contains('Could not parse ${workspacePubspec.path}')),
+            ),
+          ).called(1);
+          verifyNever(
+            () => generator.generate(
+              any(),
+              vars: any(named: 'vars'),
+              logger: any(named: 'logger'),
+            ),
+          );
+        });
       });
     });
   });

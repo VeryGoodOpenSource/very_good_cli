@@ -149,6 +149,383 @@ workspace:
       });
     });
 
+    group('enclosing', () {
+      late Directory tempDirectory;
+
+      setUp(() {
+        tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+      });
+
+      test('finds the workspace root in the parent directory', () {
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace: []
+''');
+
+        final workspace = PubspecWorkspace.enclosing(
+          Directory(path.join(tempDirectory.path, 'pkg')),
+        );
+
+        expect(workspace.root.path, equals(tempDirectory.path));
+      });
+
+      test('finds the closest workspace root above a directory '
+          'that does not exist yet', () {
+        writePubspec(tempDirectory, '.', '''
+name: outer_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - inner
+''');
+        final inner = writePubspec(tempDirectory, 'inner', '''
+name: inner_root
+environment:
+  sdk: ^3.11.0
+resolution: workspace
+workspace:
+  - packages/a
+''');
+
+        final workspace = PubspecWorkspace.enclosing(
+          Directory(path.join(inner.path, 'packages', 'b')),
+        );
+
+        expect(workspace.root.path, equals(inner.path));
+        expect(workspace.entries, equals(['packages/a']));
+      });
+
+      test('skips ancestors whose pubspec does not declare a workspace', () {
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/*
+''');
+        final nested = writePubspec(tempDirectory, 'packages/a', '''
+name: a
+environment:
+  sdk: ^3.11.0
+resolution: workspace
+''');
+
+        final workspace = PubspecWorkspace.enclosing(
+          Directory(path.join(nested.path, 'example')),
+        );
+
+        expect(workspace.root.path, equals(tempDirectory.path));
+      });
+
+      test('does not consider the directory itself', () {
+        final directory = writePubspec(tempDirectory, 'root', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace: []
+''');
+
+        expect(
+          () => PubspecWorkspace.enclosing(directory),
+          throwsA(isA<PubspecWorkspaceNotFoundException>()),
+        );
+      });
+
+      test('throws a $PubspecWorkspaceNotFoundException with the closest '
+          'pubspec when no ancestor declares a workspace', () {
+        writePubspec(tempDirectory, '.', '''
+name: outer
+environment:
+  sdk: ^3.11.0
+''');
+        final closest = writePubspec(tempDirectory, 'closest', '''
+name: closest
+environment:
+  sdk: ^3.11.0
+''');
+        final directory = Directory(path.join(closest.path, 'packages', 'a'));
+
+        expect(
+          () => PubspecWorkspace.enclosing(directory),
+          throwsA(
+            isA<PubspecWorkspaceNotFoundException>()
+                .having((e) => e.directory.path, 'directory', directory.path)
+                .having(
+                  (e) => e.pubspecFile?.path,
+                  'pubspecFile',
+                  path.join(closest.path, 'pubspec.yaml'),
+                ),
+          ),
+        );
+      });
+
+      test('throws a $PubspecWorkspaceNotFoundException without a pubspec '
+          'when no ancestor has one', () {
+        expect(
+          () => PubspecWorkspace.enclosing(
+            Directory(path.join(tempDirectory.path, 'pkg')),
+          ),
+          throwsA(
+            isA<PubspecWorkspaceNotFoundException>().having(
+              (e) => e.pubspecFile,
+              'pubspecFile',
+              isNull,
+            ),
+          ),
+        );
+      });
+
+      test('throws a $PubspecWorkspaceParseException '
+          'when an ancestor pubspec is unparseable', () {
+        File(path.join(tempDirectory.path, 'pubspec.yaml'))
+            .writeAsStringSync('{{{ not valid yaml');
+
+        expect(
+          () => PubspecWorkspace.enclosing(
+            Directory(path.join(tempDirectory.path, 'pkg')),
+          ),
+          throwsA(isA<PubspecWorkspaceParseException>()),
+        );
+      });
+    });
+
+    group('members', () {
+      late Directory tempDirectory;
+      late File pubspecFile;
+
+      setUp(() {
+        tempDirectory = Directory.systemTemp.createTempSync();
+        addTearDown(() => tempDirectory.deleteSync(recursive: true));
+        pubspecFile = File(path.join(tempDirectory.path, 'pubspec.yaml'));
+      });
+
+      Directory member(String name) =>
+          Directory(path.joinAll([tempDirectory.path, ...name.split('/')]));
+
+      PubspecWorkspace workspaceWith(String workspace) {
+        pubspecFile.writeAsStringSync('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+$workspace''');
+        return PubspecWorkspace.fromDirectory(tempDirectory);
+      }
+
+      group('entryFor', () {
+        test('returns the path relative to the root with / separators', () {
+          final workspace = workspaceWith('workspace: []\n');
+
+          expect(
+            workspace.entryFor(member('packages/a')),
+            equals('packages/a'),
+          );
+        });
+      });
+
+      group('includes', () {
+        test('returns true for a literal entry', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/a
+''');
+
+          expect(workspace.includes(member('packages/a')), isTrue);
+        });
+
+        test('returns true for a literal entry that is not normalized', () {
+          final workspace = workspaceWith('''
+workspace:
+  - ./packages/a/
+''');
+
+          expect(workspace.includes(member('packages/a')), isTrue);
+        });
+
+        test('returns true for a matching glob entry', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/*
+''');
+
+          expect(workspace.includes(member('packages/a')), isTrue);
+        });
+
+        test('returns false when no entry covers the member', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/a
+  - plugins/*
+''');
+
+          expect(workspace.includes(member('packages/b')), isFalse);
+          expect(workspace.includes(member('packages/a/example')), isFalse);
+        });
+      });
+
+      group('addMembers', () {
+        test('appends the members, preserving comments and formatting', () {
+          final workspace = workspaceWith('''
+# The members of the workspace.
+workspace:
+  - packages/a # The first one.
+
+dependencies:
+  path: ^1.9.0
+''');
+
+          final added = workspace.addMembers([
+            member('packages/b'),
+            member('packages/c'),
+          ]);
+
+          expect(added, equals(['packages/b', 'packages/c']));
+          expect(
+            pubspecFile.readAsStringSync(),
+            equals('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+# The members of the workspace.
+workspace:
+  - packages/a # The first one.
+  - packages/b
+  - packages/c
+
+dependencies:
+  path: ^1.9.0
+'''),
+          );
+          expect(
+            PubspecWorkspace.fromDirectory(tempDirectory).entries,
+            equals(['packages/a', 'packages/b', 'packages/c']),
+          );
+        });
+
+        test('appends to an empty workspace list as a block list', () {
+          final workspace = workspaceWith('workspace: []\n');
+
+          final added = workspace.addMembers([
+            member('packages/a'),
+            member('packages/b'),
+          ]);
+
+          expect(added, equals(['packages/a', 'packages/b']));
+          expect(
+            pubspecFile.readAsStringSync(),
+            equals('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - packages/a
+  - packages/b
+'''),
+          );
+        });
+
+        test('skips members that are already included or repeated', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/a
+  - plugins/*
+''');
+
+          final added = workspace.addMembers([
+            member('packages/a'),
+            member('plugins/b'),
+            member('packages/c'),
+            member('packages/c'),
+          ]);
+
+          expect(added, equals(['packages/c']));
+          expect(
+            PubspecWorkspace.fromDirectory(tempDirectory).entries,
+            equals(['packages/a', 'plugins/*', 'packages/c']),
+          );
+        });
+
+        test('does not write the pubspec when there is nothing to add', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/*
+''');
+          final content = pubspecFile.readAsStringSync();
+          final modified = pubspecFile.lastModifiedSync();
+
+          final added = workspace.addMembers([member('packages/a')]);
+
+          expect(added, isEmpty);
+          expect(pubspecFile.readAsStringSync(), equals(content));
+          expect(pubspecFile.lastModifiedSync(), equals(modified));
+        });
+
+        test('edits pubspec_overrides.yaml when it declares the workspace', () {
+          final overridesFile =
+              File(path.join(tempDirectory.path, 'pubspec_overrides.yaml'))
+                ..writeAsStringSync('''
+workspace:
+  - packages/a
+''');
+          final workspace = workspaceWith('');
+          final content = pubspecFile.readAsStringSync();
+
+          final added = workspace.addMembers([member('packages/b')]);
+
+          expect(added, equals(['packages/b']));
+          expect(pubspecFile.readAsStringSync(), equals(content));
+          expect(
+            overridesFile.readAsStringSync(),
+            equals('''
+workspace:
+  - packages/a
+  - packages/b
+'''),
+          );
+        });
+
+        test('edits pubspec.yaml when pubspec_overrides.yaml does not declare '
+            'the workspace', () {
+          final overridesFile =
+              File(path.join(tempDirectory.path, 'pubspec_overrides.yaml'))
+                ..writeAsStringSync('''
+dependency_overrides:
+  path: ^1.9.0
+''');
+          final overrides = overridesFile.readAsStringSync();
+          workspaceWith('''
+workspace:
+  - packages/a
+''').addMembers([member('packages/b')]);
+
+          expect(overridesFile.readAsStringSync(), equals(overrides));
+          expect(
+            PubspecWorkspace.fromDirectory(tempDirectory).entries,
+            equals(['packages/a', 'packages/b']),
+          );
+        });
+
+        test(
+          'edits pubspec.yaml when pubspec_overrides.yaml is unparseable',
+          () {
+            File(path.join(tempDirectory.path, 'pubspec_overrides.yaml'))
+                .writeAsStringSync('{{{ not valid yaml');
+            workspaceWith('''
+workspace:
+  - packages/a
+''').addMembers([member('packages/b')]);
+
+            expect(
+              pubspecFile.readAsStringSync(),
+              contains('  - packages/b\n'),
+            );
+          },
+        );
+      });
+    });
+
     group('resolveDependencies', () {
       late Directory tempDirectory;
       late Logger logger;

@@ -25,6 +25,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:yaml/yaml.dart';
+import 'package:yaml_edit/yaml_edit.dart';
 
 part 'workspace_dependency_collector.dart';
 
@@ -139,6 +140,110 @@ class const PubspecWorkspace._({
       pubspec: pubspec,
       entries: List.unmodifiable(entries),
     );
+  }
+
+  /// Finds the closest [PubspecWorkspace] that encloses [directory]: the
+  /// nearest ancestor of [directory] whose pubspec declares a `workspace:`
+  /// list.
+  ///
+  /// The [directory] itself is never the root of the workspace that encloses
+  /// it, and it does not need to exist yet.
+  ///
+  /// It throws a [PubspecWorkspaceNotFoundException] if no ancestor is a
+  /// workspace root. Its `pubspecFile` is the closest ancestor `pubspec.yaml`
+  /// that does not declare a `workspace:` list, if any.
+  ///
+  /// It throws a [PubspecWorkspaceParseException] if a `pubspec.yaml` found on
+  /// the way up cannot be parsed.
+  factory enclosing(Directory directory) {
+    File? closestPubspecFile;
+    var current = Directory(path.normalize(path.absolute(directory.path)));
+
+    while (current.parent.path != current.path) {
+      current = current.parent;
+      try {
+        return PubspecWorkspace.fromDirectory(current);
+      } on PubspecWorkspaceNotFoundException catch (exception) {
+        closestPubspecFile ??= exception.pubspecFile;
+      }
+    }
+
+    throw PubspecWorkspaceNotFoundException(
+      directory: directory,
+      pubspecFile: closestPubspecFile,
+    );
+  }
+
+  /// The `workspace:` entry that lists the package at [member]: its path
+  /// relative to [root], with `/` separators.
+  String entryFor(Directory member) {
+    final relative = path.relative(
+      path.absolute(member.path),
+      from: path.absolute(root.path),
+    );
+    return path.posix.joinAll(path.split(relative));
+  }
+
+  /// Whether the package at [member] is already covered by one of the
+  /// [entries], either as a literal path or through a glob.
+  bool includes(Directory member) {
+    final memberEntry = entryFor(member);
+    return entries.any(
+      (entry) => _globCharacters.hasMatch(entry)
+          ? Glob(entry, context: path.posix).matches(memberEntry)
+          : path.posix.normalize(entry) == memberEntry,
+    );
+  }
+
+  /// Adds the packages at [members] to the `workspace:` list of the root
+  /// pubspec, skipping those the workspace already [includes].
+  ///
+  /// The list is edited in the file that declares it: the root's
+  /// `pubspec_overrides.yaml` when it sets `workspace:`, its `pubspec.yaml`
+  /// otherwise. Comments and formatting of that file are preserved.
+  ///
+  /// Returns the entries that were added. This instance is a snapshot and is
+  /// not updated; read the workspace again to observe the new [entries].
+  List<String> addMembers(Iterable<Directory> members) {
+    final added = <String>[];
+    for (final member in members) {
+      final entry = entryFor(member);
+      if (!includes(member) && !added.contains(entry)) added.add(entry);
+    }
+    if (added.isEmpty) return added;
+
+    final file = _workspaceFile;
+    final editor = YamlEditor(file.readAsStringSync());
+    if (entries.isEmpty) {
+      // An empty list is written inline (`workspace: []`); appending to it
+      // would keep every entry on that single line.
+      editor.update([
+        'workspace',
+      ], wrapAsYamlNode(added, collectionStyle: CollectionStyle.BLOCK));
+    } else {
+      for (final entry in added) {
+        editor.appendToList(['workspace'], entry);
+      }
+    }
+    file.writeAsStringSync(editor.toString());
+
+    return added;
+  }
+
+  /// The file that declares the `workspace:` list of the [root].
+  File get _workspaceFile {
+    final overridesFile = File(path.join(root.path, _pubspecOverridesBasename));
+    if (overridesFile.existsSync()) {
+      try {
+        final overrides = loadYaml(overridesFile.readAsStringSync());
+        if (overrides is Map && overrides.containsKey('workspace')) {
+          return overridesFile;
+        }
+        // An unparseable overrides file is ignored when reading the workspace,
+        // so the list comes from the pubspec.yaml.
+      } on YamlException catch (_) {}
+    }
+    return File(path.join(root.path, _pubspecBasename));
   }
 
   /// Resolves the directly-declared dependencies across this workspace,

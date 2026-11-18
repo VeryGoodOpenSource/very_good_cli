@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/pubspec_workspace/pubspec_workspace.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
@@ -110,8 +111,8 @@ abstract class CreateSubCommand({
         'workspace',
         aliases: ['ws'],
         help:
-            'Whether the generated project should resolve its dependencies '
-            'from a parent Pub workspace.',
+            'Whether the generated project should be added to the closest '
+            'parent Pub workspace and resolve its dependencies from it.',
       );
     }
   }
@@ -236,6 +237,25 @@ abstract class CreateSubCommand({
   Future<int> runCreate(MasonGenerator generator, Template template) async {
     var vars = getTemplateVars();
 
+    // Resolved before anything is generated, so that a project that cannot
+    // join a workspace fails without leaving files behind.
+    PubspecWorkspace? pubspecWorkspace;
+    if (this case final Workspace command when command.workspace) {
+      try {
+        pubspecWorkspace = PubspecWorkspace.enclosing(outputDirectory);
+      } on PubspecWorkspaceNotFoundException catch (exception) {
+        logger.err(_workspaceNotFoundMessage(exception));
+        return ExitCode.config.code;
+      } on PubspecWorkspaceParseException catch (exception) {
+        logger.err(
+          'Could not parse ${exception.pubspecFile.path}.\n'
+          'Fix it before creating a project that resolves from a Pub '
+          'workspace.',
+        );
+        return ExitCode.config.code;
+      }
+    }
+
     final generateProgress = logger.progress('Bootstrapping');
     final target = DirectoryGeneratorTarget(outputDirectory);
 
@@ -254,9 +274,68 @@ abstract class CreateSubCommand({
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
+    // The generated packages have to be members of the workspace before
+    // their dependencies are installed.
+    if (pubspecWorkspace != null) _addToWorkspace(pubspecWorkspace);
+
     await template.onGenerateComplete(logger, outputDirectory);
 
     return ExitCode.success.code;
+  }
+
+  /// Adds the packages generated in the [outputDirectory] that resolve from a
+  /// workspace to the `workspace` list of [pubspecWorkspace].
+  ///
+  /// A template generates either a single package at the [outputDirectory] or
+  /// several packages directly under it, as the Flutter plugin template does.
+  void _addToWorkspace(PubspecWorkspace pubspecWorkspace) {
+    final outputDirectory = this.outputDirectory;
+    if (!outputDirectory.existsSync()) return;
+
+    final members = PubspecWorkspace.declaresResolution(outputDirectory)
+        ? [outputDirectory]
+        : (outputDirectory
+              .listSync()
+              .whereType<Directory>()
+              .where(PubspecWorkspace.declaresResolution)
+              .toList()
+            ..sort((a, b) => a.path.compareTo(b.path)));
+
+    final workspaceName = pubspecWorkspace.pubspec.name;
+    for (final entry in pubspecWorkspace.addMembers(members)) {
+      logger.info('Added "$entry" to the $workspaceName workspace');
+    }
+  }
+
+  /// The error reported when the [outputDirectory] has no parent Pub workspace
+  /// to join, naming the pubspec to edit and the entry to add to it.
+  String _workspaceNotFoundMessage(
+    PubspecWorkspaceNotFoundException exception,
+  ) {
+    final outputPath = outputDirectory.path;
+    final pubspecFile = exception.pubspecFile;
+
+    if (pubspecFile == null) {
+      return 'Could not find a Pub workspace for $outputPath: none of its '
+          'parent directories has a pubspec.yaml.\n'
+          'Create the project inside a Pub workspace, or without '
+          '--workspace.';
+    }
+
+    final entry = path.posix.joinAll(
+      path.split(
+        path.relative(
+          path.absolute(outputPath),
+          from: pubspecFile.absolute.parent.path,
+        ),
+      ),
+    );
+    return 'Could not find a Pub workspace for $outputPath: '
+        '${path.relative(pubspecFile.path)} does not declare a workspace.\n'
+        'Add a "workspace" list to it and try again:\n'
+        '\n'
+        'workspace:\n'
+        '  - $entry';
   }
 
   /// Responsible for returns the template parameters to be passed to the
