@@ -1,18 +1,23 @@
-/// A small model of a Pub workspace: its root, the members it lists, and a
-/// tolerant resolver for the classification of their dependencies.
+/// A small model of a Pub workspace: its root, the members it lists, the
+/// edit that adds members to that list, and a tolerant resolver for the
+/// classification of their dependencies.
 ///
-/// The resolver is used by the `packages check licenses` command. In a Pub
-/// workspace, member packages share a single `pubspec.lock` at the workspace
-/// root, and that lock classifies every member's direct dependency as
-/// `transitive` (only the root package's own dependencies are classified
-/// relative to it). As a result, running the command at the workspace root
-/// reports no direct dependencies.
+/// It serves two commands and models only what they need.
 ///
-/// This resolver rebuilds the correct classification by unioning the
+/// `create --workspace` finds the workspace that encloses the project it
+/// generates and adds the generated packages to its `workspace:` list.
+///
+/// `packages check licenses` uses the resolver. In a Pub workspace, member
+/// packages share a single `pubspec.lock` at the workspace root, and that lock
+/// classifies every member's direct dependency as `transitive` (only the root
+/// package's own dependencies are classified relative to it). As a result,
+/// running the command at the workspace root reports no direct dependencies.
+/// The resolver rebuilds the correct classification by unioning the
 /// directly-declared dependencies across the root and every member
-/// `pubspec.yaml`. It mirrors the shape and philosophy of `pubspec_lock.dart`:
-/// a small, tolerant, purpose-built parser. It is not a general workspace
-/// model.
+/// `pubspec.yaml`.
+///
+/// It mirrors the shape and philosophy of `pubspec_lock.dart`: a small,
+/// tolerant, purpose-built parser.
 library;
 
 import 'dart:convert';
@@ -68,8 +73,9 @@ class const PubspecWorkspaceParseException({
 }
 
 /// {@template PubspecWorkspaceNotFoundException}
-/// Thrown when a directory is not the root of a [PubspecWorkspace]: it has no
-/// `pubspec.yaml`, or its `pubspec.yaml` does not declare a `workspace:` list.
+/// Thrown when a directory is not the root of a [PubspecWorkspace] (it has no
+/// `pubspec.yaml`, or its `pubspec.yaml` does not declare a `workspace:`
+/// list), or when no [PubspecWorkspace] encloses it.
 /// {@endtemplate}
 class const PubspecWorkspaceNotFoundException({
   /// The directory in which a workspace root was looked for.
@@ -117,27 +123,22 @@ class const PubspecWorkspace._({
   /// It throws a [PubspecWorkspaceParseException] if the `pubspec.yaml` exists
   /// but cannot be parsed.
   factory fromDirectory(Directory directory) {
-    final pubspecFile = File(path.join(directory.path, _pubspecBasename));
-    if (!pubspecFile.existsSync()) {
+    final read = _readPubspec(directory);
+    if (read == null) {
       throw PubspecWorkspaceNotFoundException(directory: directory);
     }
 
-    final pubspec = _tryParsePubspecWithOverrides(directory);
-    if (pubspec == null) {
-      throw PubspecWorkspaceParseException(pubspecFile: pubspecFile);
-    }
-
-    final entries = pubspec.workspace;
+    final entries = read.pubspec.workspace;
     if (entries == null) {
       throw PubspecWorkspaceNotFoundException(
         directory: directory,
-        pubspecFile: pubspecFile,
+        pubspecFile: read.file,
       );
     }
 
     return PubspecWorkspace._(
       root: directory,
-      pubspec: pubspec,
+      pubspec: read.pubspec,
       entries: List.unmodifiable(entries),
     );
   }
@@ -149,9 +150,14 @@ class const PubspecWorkspace._({
   /// The [directory] itself is never the root of the workspace that encloses
   /// it, and it does not need to exist yet.
   ///
-  /// It throws a [PubspecWorkspaceNotFoundException] if no ancestor is a
-  /// workspace root. Its `pubspecFile` is the closest ancestor `pubspec.yaml`
-  /// that does not declare a `workspace:` list, if any.
+  /// The search climbs past ancestor packages that are themselves workspace
+  /// members (`resolution: workspace`) and stops at the first ancestor
+  /// package that is neither a member nor a root: Pub rejects a member that
+  /// is nested in a package outside of its workspace.
+  ///
+  /// It throws a [PubspecWorkspaceNotFoundException] if no workspace root is
+  /// found. Its `pubspecFile` is the closest ancestor `pubspec.yaml` that
+  /// does not declare a `workspace:` list, if any.
   ///
   /// It throws a [PubspecWorkspaceParseException] if a `pubspec.yaml` found on
   /// the way up cannot be parsed.
@@ -161,11 +167,20 @@ class const PubspecWorkspace._({
 
     while (current.parent.path != current.path) {
       current = current.parent;
-      try {
-        return PubspecWorkspace.fromDirectory(current);
-      } on PubspecWorkspaceNotFoundException catch (exception) {
-        closestPubspecFile ??= exception.pubspecFile;
+      final read = _readPubspec(current);
+      if (read == null) continue;
+
+      final entries = read.pubspec.workspace;
+      if (entries != null) {
+        return PubspecWorkspace._(
+          root: current,
+          pubspec: read.pubspec,
+          entries: List.unmodifiable(entries),
+        );
       }
+
+      closestPubspecFile ??= read.file;
+      if (read.pubspec.resolution != 'workspace') break;
     }
 
     throw PubspecWorkspaceNotFoundException(
@@ -174,9 +189,10 @@ class const PubspecWorkspace._({
     );
   }
 
-  /// The `workspace:` entry that lists the package at [member]: its path
-  /// relative to [root], with `/` separators.
-  String entryFor(Directory member) {
+  /// The `workspace:` entry that lists the package at [member] in the pubspec
+  /// of the package at [root]: the path of [member] relative to [root], with
+  /// `/` separators.
+  static String entryBetween(Directory root, Directory member) {
     final relative = path.relative(
       path.absolute(member.path),
       from: path.absolute(root.path),
@@ -184,14 +200,21 @@ class const PubspecWorkspace._({
     return path.posix.joinAll(path.split(relative));
   }
 
+  /// The `workspace:` entry that lists the package at [member]: its path
+  /// relative to [root], with `/` separators.
+  String entryFor(Directory member) => entryBetween(root, member);
+
   /// Whether the package at [member] is already covered by one of the
   /// [entries], either as a literal path or through a glob.
   bool includes(Directory member) {
     final memberEntry = entryFor(member);
+    // A literal path is the no-wildcard case of a glob. Entries are
+    // normalized first, because Pub accepts `./packages/*` and `packages/a/`.
     return entries.any(
-      (entry) => _globCharacters.hasMatch(entry)
-          ? Glob(entry, context: path.posix).matches(memberEntry)
-          : path.posix.normalize(entry) == memberEntry,
+      (entry) => Glob(
+        path.posix.normalize(entry),
+        context: path.posix,
+      ).matches(memberEntry),
     );
   }
 
@@ -202,15 +225,15 @@ class const PubspecWorkspace._({
   /// `pubspec_overrides.yaml` when it sets `workspace:`, its `pubspec.yaml`
   /// otherwise. Comments and formatting of that file are preserved.
   ///
-  /// Returns the entries that were added. This instance is a snapshot and is
-  /// not updated; read the workspace again to observe the new [entries].
-  List<String> addMembers(Iterable<Directory> members) {
-    final added = <String>[];
-    for (final member in members) {
-      final entry = entryFor(member);
-      if (!includes(member) && !added.contains(entry)) added.add(entry);
-    }
-    if (added.isEmpty) return added;
+  /// Returns the workspace as it is after the edit: the new entries follow
+  /// the existing [entries], in alphabetical order. This instance is a
+  /// snapshot and is not updated.
+  PubspecWorkspace addMembers(Iterable<Directory> members) {
+    final added = {
+      for (final member in members)
+        if (!includes(member)) entryFor(member),
+    }.toList()..sort();
+    if (added.isEmpty) return this;
 
     final file = _workspaceFile;
     final editor = YamlEditor(file.readAsStringSync());
@@ -227,7 +250,7 @@ class const PubspecWorkspace._({
     }
     file.writeAsStringSync(editor.toString());
 
-    return added;
+    return PubspecWorkspace.fromDirectory(root);
   }
 
   /// The file that declares the `workspace:` list of the [root].
@@ -280,22 +303,37 @@ class const PubspecWorkspace._({
   ///
   /// Honors a sibling `pubspec_overrides.yaml`, since Pub allows the
   /// `resolution` key to be set there instead of in `pubspec.yaml`.
-  static bool declaresResolution(Directory directory) {
+  static bool declaresWorkspaceResolution(Directory directory) {
     final pubspec = _tryParsePubspecWithOverrides(directory);
     return pubspec?.resolution == 'workspace';
   }
+}
 
-  /// Parses the [output] of `dart pub workspace list --json` into the paths of
-  /// the packages of the workspace, the workspace root included.
-  ///
-  /// Throws a [FormatException] when [output] is not the JSON Pub prints.
-  static List<String> parsePackagePaths(String output) {
-    final workspace = jsonDecode(output) as Map<String, dynamic>;
-    return [
-      for (final package in workspace['packages'] as List<dynamic>)
-        (package as Map<String, dynamic>)['path'] as String,
-    ];
-  }
+/// Parses the [output] of `dart pub workspace list --json` into the paths of
+/// the packages of the workspace, the workspace root included.
+///
+/// Throws a [FormatException] when [output] is not the JSON Pub prints.
+List<String> parseWorkspacePackagePaths(String output) {
+  final workspace = jsonDecode(output) as Map<String, dynamic>;
+  return [
+    for (final package in workspace['packages'] as List<dynamic>)
+      (package as Map<String, dynamic>)['path'] as String,
+  ];
+}
+
+/// Reads the `pubspec.yaml` of [directory], overlaying any sibling
+/// `pubspec_overrides.yaml`.
+///
+/// Returns `null` when [directory] has no `pubspec.yaml`, and throws a
+/// [PubspecWorkspaceParseException] when it has one that cannot be parsed.
+({File file, Pubspec pubspec})? _readPubspec(Directory directory) {
+  final file = File(path.join(directory.path, _pubspecBasename));
+  if (!file.existsSync()) return null;
+
+  final pubspec = _tryParsePubspecWithOverrides(directory);
+  if (pubspec == null) throw PubspecWorkspaceParseException(pubspecFile: file);
+
+  return (file: file, pubspec: pubspec);
 }
 
 /// Tolerantly parses the pubspec at [directory], overlaying any sibling

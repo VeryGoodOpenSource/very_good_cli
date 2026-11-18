@@ -1852,6 +1852,40 @@ and limitations under the License.''');
       );
 
       test(
+        '''uses the lock file classification when the workspace list is empty''',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, 'pubspec.yaml'))
+              .writeAsStringSync('''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace: []
+''');
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          final result = await commandRunner.run([
+            ...commandArguments,
+            tempDirectory.path,
+          ]);
+
+          verifyNever(() => logger.warn(any()));
+          verify(
+            () => progress.complete(
+              '''Retrieved 1 license from 1 package of type: MIT (1).''',
+            ),
+          ).called(1);
+
+          expect(result, equals(ExitCode.success.code));
+        }),
+      );
+
+      test(
         '''uses the injected resolver override to reclassify dependencies''',
         withRunner((commandRunner, logger, pubUpdater, printLogs) async {
           File(path.join(tempDirectory.path, pubspecLockBasename))

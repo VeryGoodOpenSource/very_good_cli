@@ -459,7 +459,7 @@ Future<Set<String>> _retrieveLicenses(
 /// [targetDirectory].
 String _missingPubspecLockMessage(Directory targetDirectory) {
   final targetPath = targetDirectory.path;
-  return PubspecWorkspace.declaresResolution(targetDirectory)
+  return PubspecWorkspace.declaresWorkspaceResolution(targetDirectory)
       ? 'Could not find a $pubspecLockBasename in $targetPath.\n'
             'This package resolves as part of a Pub workspace. '
             'Run the command from the workspace root instead.'

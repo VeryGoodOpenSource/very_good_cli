@@ -198,7 +198,7 @@ workspace:
         expect(workspace.entries, equals(['packages/a']));
       });
 
-      test('skips ancestors whose pubspec does not declare a workspace', () {
+      test('climbs past ancestors that are members of the workspace', () {
         writePubspec(tempDirectory, '.', '''
 name: workspace_root
 environment:
@@ -262,6 +262,37 @@ environment:
         );
       });
 
+      test('throws a $PubspecWorkspaceNotFoundException with the pubspec of '
+          'a package that is not a member of the workspace above it', () {
+        writePubspec(tempDirectory, '.', '''
+name: workspace_root
+environment:
+  sdk: ^3.11.0
+workspace:
+  - standalone/packages/a
+''');
+        final standalone = writePubspec(tempDirectory, 'standalone', '''
+name: standalone
+environment:
+  sdk: ^3.11.0
+''');
+
+        expect(
+          () => PubspecWorkspace.enclosing(
+            Directory(path.join(standalone.path, 'packages', 'a')),
+          ),
+          throwsA(
+            isA<PubspecWorkspaceNotFoundException>().having(
+              (e) => e.pubspecFile?.path,
+              'pubspecFile',
+              path.join(standalone.path, 'pubspec.yaml'),
+            ),
+          ),
+        );
+      });
+
+      // The search climbs to the filesystem root, so this test assumes that
+      // no ancestor of the system temporary directory has a pubspec.yaml.
       test('throws a $PubspecWorkspaceNotFoundException without a pubspec '
           'when no ancestor has one', () {
         expect(
@@ -305,14 +336,26 @@ environment:
       Directory member(String name) =>
           Directory(path.joinAll([tempDirectory.path, ...name.split('/')]));
 
-      PubspecWorkspace workspaceWith(String workspace) {
-        pubspecFile.writeAsStringSync('''
+      /// The root pubspec whose content ends with [workspace].
+      String pubspecWith(String workspace) => '''
 name: workspace_root
 environment:
   sdk: ^3.11.0
-$workspace''');
+$workspace''';
+
+      PubspecWorkspace workspaceWith(String workspace) {
+        pubspecFile.writeAsStringSync(pubspecWith(workspace));
         return PubspecWorkspace.fromDirectory(tempDirectory);
       }
+
+      group('entryBetween', () {
+        test('returns the path of the member relative to the root', () {
+          expect(
+            PubspecWorkspace.entryBetween(tempDirectory, member('packages/a')),
+            equals('packages/a'),
+          );
+        });
+      });
 
       group('entryFor', () {
         test('returns the path relative to the root with / separators', () {
@@ -323,6 +366,27 @@ $workspace''');
             equals('packages/a'),
           );
         });
+
+        test(
+          'returns a path starting with .. for a member outside the root',
+          () {
+            final workspace = workspaceWith('workspace: []\n');
+            final outside = Directory(
+              path.join(tempDirectory.parent.path, 'outside'),
+            );
+
+            expect(workspace.entryFor(outside), equals('../outside'));
+          },
+        );
+
+        test('returns / separators for a path written with backslashes', () {
+          final workspace = workspaceWith('workspace: []\n');
+
+          expect(
+            workspace.entryFor(Directory('${tempDirectory.path}\\packages\\a')),
+            equals('packages/a'),
+          );
+        }, testOn: 'windows');
       });
 
       group('includes', () {
@@ -353,6 +417,26 @@ workspace:
           expect(workspace.includes(member('packages/a')), isTrue);
         });
 
+        test('returns true for a glob entry that is not normalized', () {
+          final workspace = workspaceWith('''
+workspace:
+  - ./packages/*
+  - plugins/*/
+''');
+
+          expect(workspace.includes(member('packages/a')), isTrue);
+          expect(workspace.includes(member('plugins/a')), isTrue);
+        });
+
+        test('returns false for a member nested deeper than a glob entry', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/*
+''');
+
+          expect(workspace.includes(member('packages/a/b')), isFalse);
+        });
+
         test('returns false when no entry covers the member', () {
           final workspace = workspaceWith('''
 workspace:
@@ -376,18 +460,20 @@ dependencies:
   path: ^1.9.0
 ''');
 
-          final added = workspace.addMembers([
-            member('packages/b'),
+          final updated = workspace.addMembers([
             member('packages/c'),
+            member('packages/b'),
           ]);
 
-          expect(added, equals(['packages/b', 'packages/c']));
+          expect(
+            updated.entries,
+            equals(['packages/a', 'packages/b', 'packages/c']),
+          );
+          expect(workspace.entries, equals(['packages/a']));
           expect(
             pubspecFile.readAsStringSync(),
-            equals('''
-name: workspace_root
-environment:
-  sdk: ^3.11.0
+            equals(
+              pubspecWith('''
 # The members of the workspace.
 workspace:
   - packages/a # The first one.
@@ -397,32 +483,53 @@ workspace:
 dependencies:
   path: ^1.9.0
 '''),
+            ),
           );
+        });
+
+        test('does not add a member twice when called on the result', () {
+          final workspace = workspaceWith('''
+workspace:
+  - packages/a
+''');
+
+          final updated = workspace
+              .addMembers([member('packages/b')])
+              .addMembers([member('packages/b')]);
+
+          expect(updated.entries, equals(['packages/a', 'packages/b']));
+        });
+
+        test('appends to a flow-style workspace list', () {
+          final workspace = workspaceWith('workspace: [packages/a]\n');
+
+          final updated = workspace.addMembers([member('packages/b')]);
+
+          expect(updated.entries, equals(['packages/a', 'packages/b']));
           expect(
-            PubspecWorkspace.fromDirectory(tempDirectory).entries,
-            equals(['packages/a', 'packages/b', 'packages/c']),
+            pubspecFile.readAsStringSync(),
+            equals(pubspecWith('workspace: [packages/a, packages/b]\n')),
           );
         });
 
         test('appends to an empty workspace list as a block list', () {
           final workspace = workspaceWith('workspace: []\n');
 
-          final added = workspace.addMembers([
+          final updated = workspace.addMembers([
             member('packages/a'),
             member('packages/b'),
           ]);
 
-          expect(added, equals(['packages/a', 'packages/b']));
+          expect(updated.entries, equals(['packages/a', 'packages/b']));
           expect(
             pubspecFile.readAsStringSync(),
-            equals('''
-name: workspace_root
-environment:
-  sdk: ^3.11.0
+            equals(
+              pubspecWith('''
 workspace:
   - packages/a
   - packages/b
 '''),
+            ),
           );
         });
 
@@ -433,16 +540,15 @@ workspace:
   - plugins/*
 ''');
 
-          final added = workspace.addMembers([
+          final updated = workspace.addMembers([
             member('packages/a'),
             member('plugins/b'),
             member('packages/c'),
             member('packages/c'),
           ]);
 
-          expect(added, equals(['packages/c']));
           expect(
-            PubspecWorkspace.fromDirectory(tempDirectory).entries,
+            updated.entries,
             equals(['packages/a', 'plugins/*', 'packages/c']),
           );
         });
@@ -455,9 +561,9 @@ workspace:
           final content = pubspecFile.readAsStringSync();
           final modified = pubspecFile.lastModifiedSync();
 
-          final added = workspace.addMembers([member('packages/a')]);
+          final updated = workspace.addMembers([member('packages/a')]);
 
-          expect(added, isEmpty);
+          expect(updated, same(workspace));
           expect(pubspecFile.readAsStringSync(), equals(content));
           expect(pubspecFile.lastModifiedSync(), equals(modified));
         });
@@ -472,9 +578,9 @@ workspace:
           final workspace = workspaceWith('');
           final content = pubspecFile.readAsStringSync();
 
-          final added = workspace.addMembers([member('packages/b')]);
+          final updated = workspace.addMembers([member('packages/b')]);
 
-          expect(added, equals(['packages/b']));
+          expect(updated.entries, equals(['packages/a', 'packages/b']));
           expect(pubspecFile.readAsStringSync(), equals(content));
           expect(
             overridesFile.readAsStringSync(),
@@ -482,6 +588,27 @@ workspace:
 workspace:
   - packages/a
   - packages/b
+'''),
+          );
+        });
+
+        test('writes a block list in pubspec_overrides.yaml '
+            'when it declares an empty workspace', () {
+          final overridesFile = File(
+            path.join(tempDirectory.path, 'pubspec_overrides.yaml'),
+          )..writeAsStringSync('workspace: []\n');
+          final workspace = workspaceWith('');
+          final content = pubspecFile.readAsStringSync();
+
+          final updated = workspace.addMembers([member('packages/a')]);
+
+          expect(updated.entries, equals(['packages/a']));
+          expect(pubspecFile.readAsStringSync(), equals(content));
+          expect(
+            overridesFile.readAsStringSync(),
+            equals('''
+workspace:
+  - packages/a
 '''),
           );
         });
@@ -495,16 +622,13 @@ dependency_overrides:
   path: ^1.9.0
 ''');
           final overrides = overridesFile.readAsStringSync();
-          workspaceWith('''
+          final updated = workspaceWith('''
 workspace:
   - packages/a
 ''').addMembers([member('packages/b')]);
 
           expect(overridesFile.readAsStringSync(), equals(overrides));
-          expect(
-            PubspecWorkspace.fromDirectory(tempDirectory).entries,
-            equals(['packages/a', 'packages/b']),
-          );
+          expect(updated.entries, equals(['packages/a', 'packages/b']));
         });
 
         test(
@@ -1156,33 +1280,7 @@ workspace:
       });
     });
 
-    group('parsePackagePaths', () {
-      test('returns the path of every package, the root included', () {
-        const output = '''
-{
-  "packages": [
-    {"name": "_", "path": "/workspace"},
-    {"name": "a", "path": "/workspace/packages/a"}
-  ]
-}''';
-
-        expect(
-          PubspecWorkspace.parsePackagePaths(output),
-          equals(['/workspace', '/workspace/packages/a']),
-        );
-      });
-
-      test('throws a FormatException when the output is not JSON', () {
-        expect(
-          () => PubspecWorkspace.parsePackagePaths(
-            'Found no `pubspec.yaml` file',
-          ),
-          throwsFormatException,
-        );
-      });
-    });
-
-    group('declaresResolution', () {
+    group('declaresWorkspaceResolution', () {
       late Directory tempDirectory;
 
       setUp(() {
@@ -1198,7 +1296,10 @@ environment:
   sdk: ^3.11.0
 ''');
 
-        expect(PubspecWorkspace.declaresResolution(tempDirectory), isTrue);
+        expect(
+          PubspecWorkspace.declaresWorkspaceResolution(tempDirectory),
+          isTrue,
+        );
       });
 
       test('returns false when pubspec does not declare a resolution', () {
@@ -1208,11 +1309,17 @@ environment:
   sdk: ^3.11.0
 ''');
 
-        expect(PubspecWorkspace.declaresResolution(tempDirectory), isFalse);
+        expect(
+          PubspecWorkspace.declaresWorkspaceResolution(tempDirectory),
+          isFalse,
+        );
       });
 
       test('returns false when there is no pubspec', () {
-        expect(PubspecWorkspace.declaresResolution(tempDirectory), isFalse);
+        expect(
+          PubspecWorkspace.declaresWorkspaceResolution(tempDirectory),
+          isFalse,
+        );
       });
 
       test(
@@ -1228,7 +1335,10 @@ environment:
 resolution: workspace
 ''');
 
-          expect(PubspecWorkspace.declaresResolution(tempDirectory), isTrue);
+          expect(
+            PubspecWorkspace.declaresWorkspaceResolution(tempDirectory),
+            isTrue,
+          );
         },
       );
 
@@ -1249,8 +1359,35 @@ environment:
 resolution: none
 ''');
 
-          expect(PubspecWorkspace.declaresResolution(tempDirectory), isFalse);
+          expect(
+            PubspecWorkspace.declaresWorkspaceResolution(tempDirectory),
+            isFalse,
+          );
         },
+      );
+    });
+  });
+
+  group('parseWorkspacePackagePaths', () {
+    test('returns the path of every package, the root included', () {
+      const output = '''
+{
+"packages": [
+  {"name": "_", "path": "/workspace"},
+  {"name": "a", "path": "/workspace/packages/a"}
+]
+}''';
+
+      expect(
+        parseWorkspacePackagePaths(output),
+        equals(['/workspace', '/workspace/packages/a']),
+      );
+    });
+
+    test('throws a FormatException when the output is not JSON', () {
+      expect(
+        () => parseWorkspacePackagePaths('Found no `pubspec.yaml` file'),
+        throwsFormatException,
       );
     });
   });
