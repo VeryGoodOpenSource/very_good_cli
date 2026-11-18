@@ -216,7 +216,9 @@ class DartTestOptions._({
     if (failFast) '--fail-fast',
     if (runSkipped) '--run-skipped',
     if (platform != null) ...['--platform', platform!],
-    if (platform == null) ...['-j', concurrency],
+    // `dart test` defaults to half the available cores, so the documented
+    // concurrency of 1 for --platform runs has to be passed explicitly.
+    ...['-j', if (platform != null) '1' else concurrency],
     if (fileReporter != null) '--file-reporter=$fileReporter',
     ...rest,
   ];
