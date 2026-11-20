@@ -7,7 +7,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
+import 'package:very_good_cli/src/mcp/runner/models/models.dart';
 
 /// {@template tool_run}
 /// A single in-process tool invocation run by the MCP server.
@@ -124,16 +124,14 @@ class ToolRun({
     return failureType.failureReason;
   }
 
-  CallToolResult _success() {
-    final captured = _capturedOutput;
-    return CallToolResult(
-      content: [
-        TextContent(text: '"$toolName" completed successfully.'),
-        if (captured.isNotEmpty) TextContent(text: captured),
-      ],
-      isError: false,
-    );
-  }
+  CallToolResult _success() => StructuredToolSuccess(
+    toolName: toolName,
+    commandString: commandString,
+    directory: directory,
+    capturedOutput: _capturedOutput,
+    attemptedArguments: requestArguments,
+    testResults: _recorder.results,
+  ).toCallToolResult();
 
   /// Builds a structured JSON failure result from [reason] and [failureType].
   ///

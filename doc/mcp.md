@@ -83,9 +83,11 @@ very_good mcp
 
 ## Available Tools 🛠️
 
+A tool rejects arguments it does not define.
+
 ### `create`
 
-Creates a new Dart or Flutter project from a template.
+Creates a new Dart or Flutter project from a template, in `<output_directory>/<name>`.
 
 ```json
 {
@@ -97,10 +99,10 @@ Creates a new Dart or Flutter project from a template.
     "org_name": "com.example.verygoodcore",
     "output_directory": "./",
     "application_id": "com.example.my_app",
-    "platforms": "android,ios,web,macos,linux,windows",
+    "platforms": ["android", "ios", "web", "macos", "linux", "windows"],
     "publishable": true,
-    "executable-name": "my_cli",
-    "template": "core | wear"
+    "workspace": false,
+    "executable_name": "my_cli"
   }
 }
 ```
@@ -109,14 +111,15 @@ Creates a new Dart or Flutter project from a template.
 
 | Parameter | Applicable subcommands |
 | --- | --- |
-| `platforms` | `flutter_plugin` (all platforms), `flame_game` (android, ios only) |
-| `publishable` | `flutter_package`, `dart_package` |
-| `executable-name` | `dart_cli` |
-| `template` | `flutter_app` (`core` or `wear`) |
+| `org_name` | `flutter_app`, `flutter_plugin`, `flame_game`, `docs_site` |
+| `application_id` | `flutter_app` |
+| `platforms` | `flutter_app`, `flame_game` (every platform but `linux`), `flutter_plugin` (every platform) |
+| `workspace` | Every subcommand but `docs_site` |
+| `executable_name` | `dart_cli` |
 
 ### `test`
 
-Runs tests in a Dart or Flutter project.
+Runs the tests of a Dart or Flutter package, optionally collecting coverage and enforcing a minimum.
 
 ```json
 {
@@ -128,29 +131,33 @@ Runs tests in a Dart or Flutter project.
     "coverage": true,
     "recursive": false,
     "optimization": true,
-    "concurrency": "4",
-    "min_coverage": "100",
+    "concurrency": 4,
+    "min_coverage": 100,
+    "show_uncovered": true,
+    "check_ignore": true,
     "tags": "unit",
     "exclude_tags": "integration",
     "exclude_coverage": "**/*.g.dart",
     "update_goldens": false,
-    "force_ansi": false,
+    "run_skipped": false,
     "platform": "chrome | vm | android | ios",
-    "dart-define": "foo=bar",
-    "dart-define-from-file": "config.json",
+    "dart_define": ["foo=bar"],
+    "dart_define_from_file": ["config.json"],
     "test_randomize_ordering_seed": "random",
     "timeout_seconds": 120
   }
 }
 ```
 
-All parameters are optional. When `optimization` is not specified, `--no-optimization` is applied by default. When `timeout_seconds` is not specified, no timeout is applied.
+All parameters are optional. The tool runs `flutter test` unless `dart` is `true`. When `timeout_seconds` is not specified, no timeout is applied.
 
 `directory` selects the package to test; `paths` selects test files or directories *within* that package. To run another package's tests, point `directory` at it — putting a package path in `paths` runs the wrong thing, or nothing at all. Passing `paths` disables the test optimization step, and it cannot be combined with `recursive`, since each package in a recursive run gets the same relative path and only one of them can resolve it.
 
+`check_ignore` only applies to Dart tests: `true` requires `"dart": true`. `dart_define`, `dart_define_from_file` and the `android` and `ios` platforms only apply to Flutter tests.
+
 ### `packages_get`
 
-Installs or updates Dart/Flutter package dependencies.
+Installs the dependencies of a Dart or Flutter package.
 
 ```json
 {
@@ -158,7 +165,7 @@ Installs or updates Dart/Flutter package dependencies.
   "arguments": {
     "directory": "./my_app",
     "recursive": true,
-    "ignore": "package1,package2"
+    "ignore": ["package1", "package2"]
   }
 }
 ```
@@ -167,22 +174,27 @@ All parameters are optional.
 
 ### `packages_check_licenses`
 
-Verifies package licenses for compliance.
+Lists the licenses of the dependencies of a Dart or Flutter package, and fails when one is not allowed.
 
 ```json
 {
   "tool": "packages_check_licenses",
   "arguments": {
     "directory": "./my_app",
-    "licenses": true
+    "dependency_type": ["direct-main", "direct-dev", "transitive", "direct-overridden"],
+    "allowed": ["MIT", "BSD-3-Clause"],
+    "skip_packages": ["package1"],
+    "ignore_retrieval_failures": false
   }
 }
 ```
 
-All parameters are optional. `licenses` defaults to `true`.
+All parameters are optional. `dependency_type` defaults to `["direct-main"]`. Pass `forbidden` instead of `allowed` to reject licenses; the two cannot be combined.
 
-## Failure Payloads
+## Results
 
-A tool call that fails returns `isError: true` with a single text content holding a JSON payload, so an agent can pick a recovery strategy without parsing the command output. See [the hosted docs](https://cli.vgv.dev/docs/commands/mcp#failure-payloads) for the payload fields, every `failureType`/`failureReason` pair with whether a retry can help, and example payloads.
+Every tool returns its result both as text and as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) with a `status` of `success`, `failure` or `partial_failure`.
+
+A tool call that fails returns `isError: true` with a single text content holding the same JSON payload, so an agent can pick a recovery strategy without parsing the command output. See [the hosted docs](https://cli.vgv.dev/docs/commands/mcp#results) for the payload fields, every `failureType`/`failureReason` pair with whether a retry can help, and example payloads.
 
 [mcp_link]: https://modelcontextprotocol.io
