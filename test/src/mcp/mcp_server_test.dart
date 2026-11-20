@@ -1,171 +1,125 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:args/command_runner.dart';
 import 'package:dart_mcp/server.dart';
-import 'package:mason/mason.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:stream_channel/stream_channel.dart';
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/command_runner.dart';
 import 'package:very_good_cli/src/mcp/mcp_server.dart';
 
-/// Decodes a MCP tool result's text content as the structured error payload.
-Map<String, Object?> _errorPayload(CallToolResult result) {
-  final text = (result.content.first as TextContent).text;
-  return jsonDecode(text) as Map<String, Object?>;
-}
-
-class _MockVeryGoodCommandRunner extends Mock implements VeryGoodCommandRunner;
-
-int _idCounter = 1;
-
-String _jsonRpcRequest(String method, Map<String, dynamic> params) {
-  final id = _idCounter++;
-  return jsonEncode({
-    'jsonrpc': '2.0',
-    'method': method,
-    'params': params,
-    'id': id,
-  });
-}
-
-// Helper function for params, as extension type is Map
-// This helper casts the dynamic (which is really an extension type)
-// to the expected Map type.
-Map<String, Object?> _params(dynamic params) => params as Map<String, Object?>;
+import '../../helpers/helpers.dart';
 
 void main() {
-  group('VeryGoodMCPServer', () {
-    late VeryGoodCommandRunner mockCommandRunner;
-    // The mason Logger the server constructs inside the IOOverrides zone and
-    // passes to the builder. Captured here so tests can drive it directly.
-    late Logger injectedLogger;
+  group(VeryGoodMCPServer, () {
+    late MockToolRunner runner;
     late StreamChannelController<String> channelController;
-    // ignore: unused_local_variable Server is not used directly, but needed to keep the channel open
-    late VeryGoodMCPServer server;
-    late Stream<Map<String, dynamic>> serverResponses;
-    // A real directory used wherever the `directory` argument is applied as the
-    // working directory (the server switches the real cwd, which must exist).
-    late Directory tempDir;
+    late Stream<Map<String, Object?>> responses;
+    var nextId = 0;
 
-    setUpAll(() {
-      _idCounter = 1;
-    });
-
-    Future<Map<String, dynamic>> sendRequest(
+    /// Sends a JSON-RPC request to the server and returns its response.
+    Future<Map<String, Object?>> send(
       String method, [
       Map<String, Object?> params = const {},
-    ]) async {
-      final completer = Completer<Map<String, dynamic>>();
-      // Get the ID that will be used for this request
-      final requestId = _idCounter;
-
-      final subscription = serverResponses.listen((response) {
-        if (response['id'] == requestId) {
-          completer.complete(response);
-        }
-      });
-
-      // Send the request (which increments the counter)
+    ]) {
+      final id = ++nextId;
+      final response = responses.firstWhere((response) => response['id'] == id);
       channelController.local.sink.add(
-        _jsonRpcRequest(method, params as Map<String, dynamic>),
+        jsonEncode({
+          'jsonrpc': '2.0',
+          'method': method,
+          'params': params,
+          'id': id,
+        }),
       );
-
-      final response = await completer.future;
-      await subscription.cancel();
       return response;
     }
 
-    setUp(() async {
-      mockCommandRunner = _MockVeryGoodCommandRunner();
-      tempDir = Directory.systemTemp.createTempSync('vgmcp_test_');
-      addTearDown(() => tempDir.deleteSync(recursive: true));
-      channelController = StreamChannelController<String>();
-      server = VeryGoodMCPServer(
-        channel: channelController.foreign,
-        commandRunnerBuilder: ({required logger}) {
-          injectedLogger = logger;
-          return mockCommandRunner;
-        },
-      );
-
-      serverResponses = channelController.local.stream
-          .map((event) => jsonDecode(event) as Map<String, dynamic>)
-          .asBroadcastStream();
-
-      registerFallbackValue(
+    Future<InitializeResult> initialize() async {
+      final response = await send(
+        InitializeRequest.methodName,
         InitializeRequest(
           protocolVersion: ProtocolVersion.latestSupported,
           capabilities: ClientCapabilities(),
-          clientInfo: Implementation(name: 'test', version: '1.0.0'),
-        ),
+          clientInfo: Implementation(name: 'test_client', version: '0.1.0'),
+        ) as Map<String, Object?>,
       );
-      registerFallbackValue(
-        CallToolRequest(name: 'dummyTool', arguments: const {}),
+      expect(response['error'], isNull, reason: 'initialization failed');
+      return InitializeResult.fromMap(
+        response['result']! as Map<String, Object?>,
       );
+    }
 
-      when(() => mockCommandRunner.run(any()))
-          .thenAnswer((_) async => ExitCode.success.code);
+    Future<List<Tool>> listTools() async {
+      final response = await send(ListToolsRequest.methodName);
+      return ListToolsResult.fromMap(
+        response['result']! as Map<String, Object?>,
+      ).tools;
+    }
 
-      // This is the handshake that
-      // MUST happen before any other requests, to fix the timeout.
-      final initResponse = await sendRequest(
-        InitializeRequest.methodName,
-        // Use the helper to cast the extension type
-        _params(
-          InitializeRequest(
-            protocolVersion: ProtocolVersion.latestSupported,
-            capabilities: ClientCapabilities(),
-            clientInfo: Implementation(name: 'test_client', version: '0.1.0'),
-          ),
-        ),
+    Future<CallToolResult> callTool(
+      String name,
+      Map<String, Object?> arguments,
+    ) async {
+      final response = await send(
+        CallToolRequest.methodName,
+        CallToolRequest(name: name, arguments: arguments)
+            as Map<String, Object?>,
       );
-
-      expect(
-        initResponse['error'],
-        isNull,
-        reason: 'Server initialization failed',
-      );
-    });
-
-    test('constructor uses default logger and runner if not provided', () {
-      final defaultFactoryChannelController = StreamChannelController<String>();
-
-      final defaultServer = VeryGoodMCPServer(
-        channel: defaultFactoryChannelController.foreign,
-      );
-      expect(defaultServer, isA<VeryGoodMCPServer>());
-    });
-
-    test('initialize (via tools/list) registers all 4 tools', () async {
-      // The server is ALREADY initialized in setUp.
-      // We can just send a 'tools/list' request directly.
-      final response = await sendRequest(ListToolsRequest.methodName);
-
       expect(response['error'], isNull);
-      expect(response['result'], isA<Map<String, dynamic>>());
-
-      final result = ListToolsResult.fromMap(
-        response['result'] as Map<String, Object?>,
+      return CallToolResult.fromMap(
+        response['result']! as Map<String, Object?>,
       );
-      expect(result.tools, hasLength(4));
+    }
+
+    setUp(() {
+      runner = MockToolRunner();
+      stubRun(runner);
+      channelController = StreamChannelController<String>();
+      responses = channelController.local.stream
+          .map((event) => jsonDecode(event) as Map<String, Object?>)
+          .asBroadcastStream();
+      VeryGoodMCPServer(channel: channelController.foreign, toolRunner: runner);
+    });
+
+    test('can be instantiated without a tool runner', () {
       expect(
-        result.tools.map((t) => t.name),
+        VeryGoodMCPServer(channel: StreamChannelController<String>().foreign),
+        isA<VeryGoodMCPServer>(),
+      );
+    });
+
+    test('introduces itself with the workflow of its tools', () async {
+      final result = await initialize();
+
+      expect(result.serverInfo.name, equals('very_good_cli'));
+      expect(
+        result.instructions,
+        allOf(
+          contains('create'),
+          contains('test'),
+          contains('packages_get'),
+          contains('packages_check_licenses'),
+          contains('failureType'),
+        ),
+      );
+    });
+
+    test('lists its four tools', () async {
+      await initialize();
+
+      final tools = await listTools();
+
+      expect(
+        tools.map((tool) => tool.name),
         equals(['create', 'test', 'packages_get', 'packages_check_licenses']),
       );
     });
 
-    test('describes every tool with annotations and schemas', () async {
-      final response = await sendRequest(ListToolsRequest.methodName);
-      final result = ListToolsResult.fromMap(
-        response['result'] as Map<String, Object?>,
-      );
+    test('describes every tool with a title, hints and schemas', () async {
+      await initialize();
 
-      for (final tool in result.tools) {
+      for (final tool in await listTools()) {
         final annotations = tool.toolAnnotations;
+        expect(tool.description, isNotEmpty, reason: tool.name);
         expect(annotations?.title, isNotEmpty, reason: tool.name);
         expect(annotations?.readOnlyHint, isNotNull, reason: tool.name);
         expect(annotations?.idempotentHint, isNotNull, reason: tool.name);
@@ -181,1252 +135,35 @@ void main() {
           reason: tool.name,
         );
       }
-
-      expect(
-        {
-          for (final tool in result.tools)
-            tool.name: tool.toolAnnotations?.readOnlyHint,
-        },
-        equals({
-          'create': false,
-          'test': false,
-          'packages_get': false,
-          'packages_check_licenses': true,
-        }),
-      );
     });
 
-    test('rejects an argument the tool does not define', () async {
-      final response = await sendRequest(
-        CallToolRequest.methodName,
-        _params(CallToolRequest(name: 'test', arguments: {'fail_fast': true})),
-      );
+    test('routes a call to its tool', () async {
+      await initialize();
 
-      final result = CallToolResult.fromMap(
-        response['result'] as Map<String, Object?>,
-      );
-      expect(result.isError, isTrue);
-      final payload = _errorPayload(result);
-      expect(payload['failureType'], equals('validation'));
-      expect(payload['failureReason'], equals('invalid_input'));
-      expect(
-        payload['reason'],
-        contains('Additional property "fail_fast" is not allowed'),
-      );
-      expect(result.structuredContent, equals(payload));
-      verifyNever(() => mockCommandRunner.run(any()));
+      final result = await callTool('packages_get', {'recursive': true});
+
+      expect(result, equals(stubbedRunResult));
+      final run = verifyRun(runner);
+      expect(run.args, equals(['packages', 'get', '--recursive']));
+      expect(run.toolName, equals('packages_get'));
     });
 
-    group('Tool: create', () {
-      test('handles basic case', () async {
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {'subcommand': 'flutter_app', 'name': 'my_app'},
-            ),
-          ),
-        );
+    test(
+      'leaves argument validation to the tool, for a structured failure',
+      () async {
+        await initialize();
 
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isFalse);
-        expect(
-          (result.content.first as TextContent).text,
-          '"create" completed successfully.',
-        );
+        final result = await callTool('create', {'subcommand': 'flutter_app'});
 
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['create', 'flutter_app', 'my_app']));
-      });
-
-      test('handles all arguments', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {
-                'subcommand': 'flutter_app',
-                'name': 'my_app',
-                'description': 'my_desc',
-                'org_name': 'com.test',
-                'output_directory': 'my_dir',
-                'application_id': 'com.test.my_app',
-                'platforms': ['ios', 'web'],
-                'publishable': true,
-                'workspace': true,
-                'executable_name': 'my_cli',
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals([
-            'create',
-            'flutter_app',
-            'my_app',
-            '--desc',
-            'my_desc',
-            '--org-name',
-            'com.test',
-            '-o',
-            'my_dir',
-            '--application-id',
-            'com.test.my_app',
-            '--platforms',
-            'ios',
-            '--platforms',
-            'web',
-            '--publishable',
-            '--workspace',
-            '--executable-name',
-            'my_cli',
-          ]),
-        );
-      });
-
-      test('handles --no-workspace', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {
-                'subcommand': 'dart_package',
-                'name': 'my_pkg',
-                'workspace': false,
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals(['create', 'dart_package', 'my_pkg', '--no-workspace']),
-        );
-      });
-
-      test('does not forward workspace args to docs_site', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {
-                'subcommand': 'docs_site',
-                'name': 'my_docs',
-                'workspace': true,
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['create', 'docs_site', 'my_docs']));
-      });
-
-      test('handles command runner failure', () async {
-        when(() => mockCommandRunner.run(any()))
-            .thenAnswer((_) async => ExitCode.software.code);
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {'subcommand': 'flutter_app', 'name': 'my_app'},
-            ),
-          ),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
         expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['status'], equals('failure'));
-        expect(payload['failureType'], equals('business'));
-        expect(payload['reason'], contains('failed with exit code 70'));
-        final action = payload['attemptedAction']! as Map<String, Object?>;
-        expect(action['tool'], equals('create'));
-        expect(action['command'], contains('very_good create flutter_app'));
-        expect(
-          action['arguments'],
-          equals({'subcommand': 'flutter_app', 'name': 'my_app'}),
-        );
-        expect(
-          payload['alternativeApproaches'],
-          isA<List<Object?>>().having(
-            (l) => l.length,
-            'length',
-            greaterThan(0),
-          ),
-        );
-      });
-
-      test('rejects arguments that do not match the schema', () async {
-        // Missing 'name' argument
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {'subcommand': 'flutter_app'},
-            ),
-          ),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('validation'));
+        final payload = result.structuredContent!;
         expect(payload['failureReason'], equals('invalid_input'));
         expect(
-          payload['reason'],
-          contains('Required property "name" is missing at path #root'),
+          jsonDecode((result.content.single as TextContent).text),
+          equals(payload),
         );
-        final action = payload['attemptedAction']! as Map<String, Object?>;
-        expect(action['tool'], equals('create'));
-        expect(action['arguments'], equals({'subcommand': 'flutter_app'}));
-        verifyNever(() => mockCommandRunner.run(any()));
-      });
-    });
-
-    group('Tool: test', () {
-      test('handles default args (no flags added)', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test']));
-      });
-
-      test('passes --no-optimization when explicitly false', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'optimization': false}),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test', '--no-optimization']));
-      });
-
-      test('handles all arguments', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {
-                'dart': true,
-                'coverage': true,
-                'recursive': true,
-                'optimization': true,
-                'concurrency': 8,
-                'tags': 'a,b',
-                'exclude_coverage': '**/*.g.dart',
-                'exclude_tags': 'c,d',
-                'min_coverage': 90,
-                'test_randomize_ordering_seed': '123',
-                'update_goldens': true,
-                'dart_define': ['foo=bar', 'baz=qux'],
-                'dart_define_from_file': ['my_file.json'],
-                'platform': 'chrome',
-                'run_skipped': true,
-                'check_ignore': true,
-                'show_uncovered': true,
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals([
-            'dart',
-            'test',
-            '--coverage',
-            '-r',
-            '--optimization',
-            '-j',
-            '8',
-            '-t',
-            'a,b',
-            '--exclude-coverage',
-            '**/*.g.dart',
-            '-x',
-            'c,d',
-            '--min-coverage',
-            '90',
-            '--test-randomize-ordering-seed',
-            '123',
-            '--update-goldens',
-            '--dart-define',
-            'foo=bar',
-            '--dart-define',
-            'baz=qux',
-            '--dart-define-from-file',
-            'my_file.json',
-            '--platform',
-            'chrome',
-            '--run-skipped',
-            '--check-ignore',
-            '--show-uncovered',
-          ]),
-        );
-      });
-
-      test('does not pass directory as a positional argument', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'directory': tempDir.path},
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test']));
-      });
-
-      test('does not pass directory as a positional with dart flag', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {'directory': tempDir.path, 'dart': true},
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['dart', 'test']));
-      });
-
-      test('handles command failure', () async {
-        when(() => mockCommandRunner.run(any()))
-            .thenAnswer((_) async => ExitCode.software.code);
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['reason'], contains('failed with exit code 70'));
-        expect(payload['failureType'], equals('business'));
-      });
-
-      test(
-        'does not forward timeout_seconds as a flag to the test subcommand',
-        () async {
-          // The wall-clock budget is enforced by the MCP server, not forwarded
-          // to `very_good test` — `dart test` would reject the flag and
-          // `flutter test`'s per-test `--timeout` does not fire for a hang in
-          // tester.runAsync.
-          await sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(
-                name: 'test',
-                arguments: {'timeout_seconds': 120},
-              ),
-            ),
-          );
-
-          final capturedArgs =
-              verify(() => mockCommandRunner.run(captureAny())).captured.first
-                  as List<String>;
-          expect(capturedArgs, equals(['test']));
-        },
-      );
-
-      test('passes paths as positional test targets behind `--`', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {
-                'paths': ['test/src/foo_test.dart', 'test/widgets'],
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals(['test', '--', 'test/src/foo_test.dart', 'test/widgets']),
-        );
-      });
-
-      test('passes paths after options so they are parsed as rest', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {
-                'dart': true,
-                'concurrency': 8,
-                'paths': ['test/src/foo_test.dart'],
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals(['dart', 'test', '-j', '8', '--', 'test/src/foo_test.dart']),
-        );
-      });
-
-      test('passes a path beginning with `-` through unparsed', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'test',
-              arguments: {
-                'paths': ['-weird_test.dart'],
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test', '--', '-weird_test.dart']));
-      });
-
-      test('adds no positional targets when paths is empty', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'paths': <String>[]}),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['test']));
-      });
-
-      group('check_ignore validation', () {
-        test(
-          'rejects check_ignore: true without dart: true (dart omitted)',
-          () async {
-            // `--check-ignore` is only registered on `very_good dart test`.
-            // Forwarding it to `very_good test` (Flutter) exits with 64; the
-            // handler must reject the combination before invoking the runner.
-            final response = await sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'check_ignore': true},
-                ),
-              ),
-            );
-
-            expect(response['error'], isNull);
-            final result = CallToolResult.fromMap(
-              response['result'] as Map<String, Object?>,
-            );
-            expect(result.isError, isTrue);
-            final payload = _errorPayload(result);
-            expect(payload['failureType'], equals('validation'));
-            expect(payload['failureReason'], equals('invalid_input'));
-            expect(payload['reason'], contains('check_ignore'));
-            expect(payload['reason'], contains('dart'));
-            verifyNever(() => mockCommandRunner.run(any()));
-          },
-        );
-
-        test('rejects check_ignore: true with dart: false', () async {
-          final response = await sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(
-                name: 'test',
-                arguments: {'check_ignore': true, 'dart': false},
-              ),
-            ),
-          );
-
-          final result = CallToolResult.fromMap(
-            response['result'] as Map<String, Object?>,
-          );
-          expect(result.isError, isTrue);
-          final payload = _errorPayload(result);
-          expect(payload['failureType'], equals('validation'));
-          verifyNever(() => mockCommandRunner.run(any()));
-        });
-
-        test(
-          'allows check_ignore: false on Flutter without validation error',
-          () async {
-            await sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'check_ignore': false},
-                ),
-              ),
-            );
-
-            final capturedArgs =
-                verify(() => mockCommandRunner.run(captureAny())).captured.first
-                    as List<String>;
-            expect(capturedArgs, equals(['test']));
-          },
-        );
-
-        test(
-          'passes --no-check-ignore for check_ignore: false on Dart',
-          () async {
-            await sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'dart': true, 'check_ignore': false},
-                ),
-              ),
-            );
-
-            final capturedArgs =
-                verify(() => mockCommandRunner.run(captureAny())).captured.first
-                    as List<String>;
-            expect(capturedArgs, equals(['dart', 'test', '--no-check-ignore']));
-          },
-        );
-      });
-
-      group('timeout_seconds (wall-clock)', () {
-        // Mimics `_testCommand`'s SIGINT path: wait on
-        // `ProcessSignalOverrides.current?.sigintWatch` and return
-        // `ExitCode.success` when it fires. Unlike the real `flutter_tester`,
-        // the mock also has to tolerate `sigintWatch` being null (the plain
-        // `test` tool without `timeout_seconds` doesn't open the override
-        // zone) and resolve as if the test suite had passed.
-        Future<int> sigintResponsive() async {
-          final sigintWatch = ProcessSignalOverrides.current?.sigintWatch;
-          if (sigintWatch != null) await sigintWatch.first;
-          return ExitCode.success.code;
-        }
-
-        test('returns a timeout failure when the budget elapses', () async {
-          when(() => mockCommandRunner.run(any()))
-              .thenAnswer((_) => sigintResponsive());
-
-          final response = await sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(name: 'test', arguments: {'timeout_seconds': 1}),
-            ),
-          );
-
-          expect(response['error'], isNull);
-          final result = CallToolResult.fromMap(
-            response['result'] as Map<String, Object?>,
-          );
-          expect(result.isError, isTrue);
-          final payload = _errorPayload(result);
-          expect(payload['failureType'], equals('timeout'));
-          expect(payload['reason'], contains('timed out after 1 seconds'));
-          final action = payload['attemptedAction']! as Map<String, Object?>;
-          expect(action['tool'], equals('test'));
-        });
-
-        test(
-          'synthesizes a SIGINT so the test runner tears down its subprocess',
-          () async {
-            // The server advertises that it kills the hung process tree on
-            // timeout. The real test runner subscribes to
-            // `ProcessSignalOverrides.current?.sigintWatch` and cancels its
-            // subprocess subscription on SIGINT; the mock proves the same
-            // signal is delivered by waiting on that stream and completing
-            // only once it fires.
-            var sigintObserved = false;
-            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-              final sigintWatch = ProcessSignalOverrides.current?.sigintWatch;
-              expect(
-                sigintWatch,
-                isNotNull,
-                reason:
-                    'the timeout flow must open a '
-                    'ProcessSignalOverrides zone so the test runner can '
-                    'kill its subprocess tree',
-              );
-              await sigintWatch!.first;
-              sigintObserved = true;
-              return ExitCode.success.code;
-            });
-
-            final response = await sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'timeout_seconds': 1},
-                ),
-              ),
-            );
-
-            expect(
-              sigintObserved,
-              isTrue,
-              reason:
-                  'the server must deliver a SIGINT to the test runner, '
-                  'not just abandon the run',
-            );
-            final result = CallToolResult.fromMap(
-              response['result'] as Map<String, Object?>,
-            );
-            expect(_errorPayload(result)['failureType'], equals('timeout'));
-          },
-        );
-
-        test(
-          'reports success when the command completes before the budget',
-          () async {
-            // A fast-finishing command inside the timeout flow must not be
-            // misclassified as a timeout. Only an actually elapsed budget
-            // flips the flag.
-            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-              await Future<void>.delayed(const Duration(milliseconds: 10));
-              return ExitCode.success.code;
-            });
-
-            final response = await sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'timeout_seconds': 30},
-                ),
-              ),
-            );
-
-            final result = CallToolResult.fromMap(
-              response['result'] as Map<String, Object?>,
-            );
-            expect(result.isError, isFalse);
-          },
-        );
-
-        test('releases the lock so a queued call runs even when the first '
-            'never completes', () async {
-          // First call responds to the server's synthetic SIGINT; second
-          // call returns normally. The lock must release when the first
-          // times out, otherwise the second would never dispatch.
-          var callNumber = 0;
-          when(() => mockCommandRunner.run(any())).thenAnswer((_) {
-            callNumber++;
-            return callNumber == 1
-                ? sigintResponsive()
-                : Future.value(ExitCode.success.code);
-          });
-
-          final first = sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(name: 'test', arguments: {'timeout_seconds': 1}),
-            ),
-          );
-          final second = sendRequest(
-            CallToolRequest.methodName,
-            _params(CallToolRequest(name: 'test', arguments: {})),
-          );
-
-          final firstResponse = await first;
-          final secondResponse = await second;
-
-          final firstResult = CallToolResult.fromMap(
-            firstResponse['result'] as Map<String, Object?>,
-          );
-          expect(firstResult.isError, isTrue);
-          expect(_errorPayload(firstResult)['failureType'], equals('timeout'));
-
-          final secondResult = CallToolResult.fromMap(
-            secondResponse['result'] as Map<String, Object?>,
-          );
-          expect(
-            secondResult.isError,
-            isFalse,
-            reason: 'queued call must run after a timeout releases the lock',
-          );
-        });
-
-        test(
-          'omits the wall-clock timeout when timeout_seconds is not set',
-          () async {
-            // The command runner only completes after a short delay. Without a
-            // timeout budget, the call must wait for it rather than giving up.
-            when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-              await Future<void>.delayed(const Duration(milliseconds: 50));
-              return ExitCode.success.code;
-            });
-
-            final response = await sendRequest(
-              CallToolRequest.methodName,
-              _params(CallToolRequest(name: 'test', arguments: {})),
-            );
-
-            final result = CallToolResult.fromMap(
-              response['result'] as Map<String, Object?>,
-            );
-            expect(result.isError, isFalse);
-          },
-        );
-      });
-    });
-
-    group('Tool: packages_get', () {
-      test('handles basic case', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'packages_get', arguments: {})),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['packages', 'get']));
-      });
-
-      test('handles all arguments', () async {
-        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'packages_get',
-              arguments: {
-                'directory': tempDir.path,
-                'recursive': true,
-                'ignore': ['pkg1', 'pkg2'],
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals([
-            'packages',
-            'get',
-            '--recursive',
-            '--ignore',
-            'pkg1',
-            '--ignore',
-            'pkg2',
-          ]),
-        );
-      });
-    });
-
-    group('Tool: packages_check_licenses', () {
-      test('handles basic case', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'packages_check_licenses',
-              arguments: {'directory': tempDir.path},
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['packages', 'check', 'licenses']));
-      });
-
-      test('handles all arguments', () async {
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'packages_check_licenses',
-              arguments: {
-                'directory': tempDir.path,
-                'ignore_retrieval_failures': true,
-                'dependency_type': ['direct-main', 'transitive'],
-                'allowed': ['MIT', 'BSD-3-Clause'],
-                'forbidden': ['GPL-3.0-only'],
-                'skip_packages': ['pkg1'],
-              },
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(
-          capturedArgs,
-          equals([
-            'packages',
-            'check',
-            'licenses',
-            '--ignore-retrieval-failures',
-            '--dependency-type',
-            'direct-main',
-            '--dependency-type',
-            'transitive',
-            '--allowed',
-            'MIT',
-            '--allowed',
-            'BSD-3-Clause',
-            '--forbidden',
-            'GPL-3.0-only',
-            '--skip-packages',
-            'pkg1',
-          ]),
-        );
-      });
-
-      test('reports its own name in a failure', () async {
-        when(() => mockCommandRunner.run(any()))
-            .thenAnswer((_) async => ExitCode.config.code);
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'packages_check_licenses',
-              arguments: {
-                'forbidden': ['MIT'],
-              },
-            ),
-          ),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        final action =
-            _errorPayload(result)['attemptedAction']! as Map<String, Object?>;
-        expect(action['tool'], equals('packages_check_licenses'));
-        expect(
-          action['command'],
-          equals('very_good packages check licenses --forbidden MIT'),
-        );
-      });
-    });
-
-    group('_runToolCommand error handling', () {
-      test('handles UsageException with descriptive message', () async {
-        final exception = UsageException('bad usage', 'usage string');
-        when(() => mockCommandRunner.run(any())).thenThrow(exception);
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {'subcommand': 'flutter_app', 'name': 'my_app'},
-            ),
-          ),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('validation'));
-        expect(payload['reason'], contains('usage error: bad usage'));
-        final action = payload['attemptedAction']! as Map<String, Object?>;
-        expect(action['command'], contains('very_good'));
-      });
-
-      test('handles general Exception with descriptive message', () async {
-        final exception = Exception('big bad');
-        when(() => mockCommandRunner.run(any())).thenThrow(exception);
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'create',
-              arguments: {'subcommand': 'flutter_app', 'name': 'my_app'},
-            ),
-          ),
-        );
-
-        expect(response['error'], isNull);
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('business'));
-        expect(payload['reason'], contains('threw an exception'));
-        expect(payload['reason'], contains('big bad'));
-        final action = payload['attemptedAction']! as Map<String, Object?>;
-        expect(action['command'], contains('very_good'));
-      });
-    });
-
-    group('directory (working directory)', () {
-      late Directory tempDir;
-      late String originalCwd;
-
-      setUp(() {
-        originalCwd = Directory.current.path;
-        tempDir = Directory.systemTemp.createTempSync('vgmcp_cwd_');
-        addTearDown(() {
-          // Always restore the cwd so a failure cannot leak into other tests.
-          Directory.current = originalCwd;
-          if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
-        });
-      });
-
-      for (final toolName in const [
-        'test',
-        'packages_get',
-        'packages_check_licenses',
-      ]) {
-        test('"$toolName" runs in the requested directory', () async {
-          String? cwdDuringRun;
-          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-            cwdDuringRun = Directory.current.resolveSymbolicLinksSync();
-            return ExitCode.success.code;
-          });
-
-          final response = await sendRequest(
-            CallToolRequest.methodName,
-            _params(
-              CallToolRequest(
-                name: toolName,
-                arguments: {'directory': tempDir.path},
-              ),
-            ),
-          );
-
-          final result = CallToolResult.fromMap(
-            response['result'] as Map<String, Object?>,
-          );
-          expect(result.isError, isFalse);
-          expect(cwdDuringRun, equals(tempDir.resolveSymbolicLinksSync()));
-          // The working directory is restored after the command completes.
-          expect(Directory.current.path, equals(originalCwd));
-        });
-      }
-    });
-
-    group('captured command output', () {
-      test('includes captured output in a failure result', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          stdout.write('compile error: boom');
-          stderr.write('stderr detail');
-          return ExitCode.software.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['status'], equals('partial_failure'));
-        expect(payload['failureType'], equals('business'));
-        expect(payload['reason'], contains('failed with exit code 70'));
-        final partial = payload['partialResults']! as String;
-        expect(partial, contains('compile error: boom'));
-        expect(partial, contains('stderr detail'));
-      });
-
-      test('reports the failing tests the test run recorded', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          TestRunRecorder.current?.recordPackage(
-            const TestRunResults(
-              failingTests: [(file: 'a_test.dart', name: 'a', error: 'boom')],
-            ),
-          );
-          return ExitCode.software.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'timeout_seconds': 60}),
-          ),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        final payload = _errorPayload(result);
-        expect(payload['failureType'], equals('business'));
-        expect(payload['failureReason'], equals('test_failure'));
-      });
-
-      test('includes captured output in a success result', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          stdout.write('All tests passed!');
-          return ExitCode.success.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isFalse);
-        expect(result.content, hasLength(2));
-        expect(
-          (result.content[0] as TextContent).text,
-          equals('"test" completed successfully.'),
-        );
-        expect(
-          (result.content[1] as TextContent).text,
-          equals('All tests passed!'),
-        );
-        expect(
-          result.structuredContent,
-          equals({
-            'status': 'success',
-            'attemptedAction': {'tool': 'test', 'command': 'very_good test'},
-            'output': 'All tests passed!',
-          }),
-        );
-      });
-
-      test('routes the injected in-zone logger through the capture', () async {
-        // The load-bearing invariant: a Logger constructed INSIDE the zone
-        // writes through the capture override. Driving the injected logger
-        // (not the dart:io globals) is what would fail if the Logger were
-        // built outside the zone.
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          injectedLogger
-            ..info('stdout via logger')
-            ..err('stderr via logger');
-          return ExitCode.unavailable.code;
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        final payload = _errorPayload(result);
-        final partial = payload['partialResults']! as String;
-        expect(partial, contains('stdout via logger'));
-        expect(partial, contains('stderr via logger'));
-      });
-
-      test('includes captured output when the run throws', () async {
-        when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-          stdout.write('partial output before crash');
-          throw Exception('boom');
-        });
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['status'], equals('partial_failure'));
-        expect(payload['reason'], contains('threw an exception'));
-        expect(
-          payload['partialResults'],
-          contains('partial output before crash'),
-        );
-      });
-
-      test('omits the output block when nothing was captured', () async {
-        when(() => mockCommandRunner.run(any()))
-            .thenAnswer((_) async => ExitCode.success.code);
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(CallToolRequest(name: 'test', arguments: {})),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.content, hasLength(1));
-        expect(
-          (result.content.first as TextContent).text,
-          equals('"test" completed successfully.'),
-        );
-      });
-    });
-
-    group('working directory', () {
-      test(
-        'serializes overlapping runs so each keeps its own directory',
-        () async {
-          final dirA = Directory.systemTemp.createTempSync('vgmcp_a_');
-          final dirB = Directory.systemTemp.createTempSync('vgmcp_b_');
-          addTearDown(() {
-            dirA.deleteSync(recursive: true);
-            dirB.deleteSync(recursive: true);
-          });
-
-          // For each run record (cwd at start, cwd after an async gap). With
-          // serialization the cwd is stable within a run; without it, a sibling
-          // run's Directory.current mutation would clobber it across the gap.
-          final pairs = <List<String>>[];
-          when(() => mockCommandRunner.run(any())).thenAnswer((_) async {
-            final before = Directory.current.path;
-            await Future<void>.delayed(const Duration(milliseconds: 20));
-            final after = Directory.current.path;
-            pairs.add([before, after]);
-            return ExitCode.success.code;
-          });
-
-          await Future.wait([
-            sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'directory': dirA.path},
-                ),
-              ),
-            ),
-            sendRequest(
-              CallToolRequest.methodName,
-              _params(
-                CallToolRequest(
-                  name: 'test',
-                  arguments: {'directory': dirB.path},
-                ),
-              ),
-            ),
-          ]);
-
-          expect(pairs, hasLength(2));
-          for (final pair in pairs) {
-            expect(
-              pair[1],
-              equals(pair[0]),
-              reason: 'cwd must stay stable for the duration of a single run',
-            );
-          }
-          expect(
-            pairs
-                .map((p) => Directory(p[0]).resolveSymbolicLinksSync())
-                .toSet(),
-            equals({
-              dirA.resolveSymbolicLinksSync(),
-              dirB.resolveSymbolicLinksSync(),
-            }),
-          );
-        },
-      );
-
-      test('errors and restores cwd for a non-existent directory', () async {
-        final before = Directory.current.path;
-        final missing =
-            '${Directory.systemTemp.path}/vgmcp_missing_dir_should_not_exist';
-
-        final response = await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(name: 'test', arguments: {'directory': missing}),
-          ),
-        );
-
-        final result = CallToolResult.fromMap(
-          response['result'] as Map<String, Object?>,
-        );
-        expect(result.isError, isTrue);
-        expect(_errorPayload(result)['failureType'], equals('validation'));
-        verifyNever(() => mockCommandRunner.run(any()));
-        expect(Directory.current.path, equals(before));
-      });
-    });
-  });
-
-  group('defaultCommandRunnerBuilder', () {
-    test('builds a VeryGoodCommandRunner', () {
-      expect(
-        defaultCommandRunnerBuilder(logger: Logger()),
-        isA<VeryGoodCommandRunner>(),
-      );
-    });
+        verifyNoRun(runner);
+      },
+    );
   });
 }
