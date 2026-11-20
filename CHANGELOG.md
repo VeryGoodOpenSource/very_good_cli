@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.1](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.7.0...v1.7.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **ci:** ignore CHANGELOG commit links in link checker ([#1827](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1827)) ([7623af6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7623af6c8c9147e75968365f69098f3e4dd2c442)), closes [#1826](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1826)
+
+
+### Miscellaneous Chores
+
+* delete CLAUDE.md ([#1816](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1816)) ([6e39665](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6e3966580a794870562a3f3bde6750d247bc8307))
+* **site:** 1.3.0 ([#1806](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1806)) ([d122f3d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d122f3df8a38f42bbf9cbe93b7cf6dda59b72f16))
+* update SPDX licenses ([#1819](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1819)) ([156c6c3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/156c6c3ff9fee828a427631cfaddda9252670344))
+
 ## [1.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.6.0...v1.7.0) (2026-11-16)
 
 
