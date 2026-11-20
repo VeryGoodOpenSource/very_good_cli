@@ -8,8 +8,8 @@ part of 'structured_tool_error.dart';
 
 Map<String, dynamic> _$TestPayloadToJson(_TestPayload instance) =>
     <String, dynamic>{
-      'results': ?instance.results,
-      'coverage': ?instance.coverage,
+      'results': ?instance.results?.toJson(),
+      'coverage': ?instance.coverage?.toJson(),
     };
 
 Map<String, dynamic> _$TestResultsPayloadToJson(_TestResultsPayload instance) =>
@@ -18,7 +18,7 @@ Map<String, dynamic> _$TestResultsPayloadToJson(_TestResultsPayload instance) =>
       'failed': instance.failed,
       'skipped': instance.skipped,
       'durationMs': instance.durationMs,
-      'failingTests': instance.failingTests,
+      'failingTests': instance.failingTests.map((e) => e.toJson()).toList(),
     };
 
 Map<String, dynamic> _$FailingTestPayloadToJson(_FailingTestPayload instance) =>
@@ -32,7 +32,7 @@ Map<String, dynamic> _$CoveragePayloadToJson(_CoveragePayload instance) =>
     <String, dynamic>{
       'actual': instance.actual,
       'required': instance.requiredCoverage,
-      'uncoveredLines': instance.uncoveredLines,
+      'uncoveredLines': instance.uncoveredLines.map((e) => e.toJson()).toList(),
       'uncoveredLinesTruncated': instance.uncoveredLinesTruncated,
     };
 

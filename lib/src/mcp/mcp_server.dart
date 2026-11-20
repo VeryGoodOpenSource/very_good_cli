@@ -54,8 +54,14 @@ final class VeryGoodMCPServer({
           version: packageVersion,
         ),
         instructions:
-            'A Very Good CLI MCP server that provides tools '
-            'for creating and managing Dart/Flutter projects.',
+            'Tools from Very Good CLI for Dart and Flutter projects: create a '
+            'project from a template, run tests with coverage, install '
+            'dependencies and check dependency licenses. Tool calls run one '
+            'at a time. A relative "directory" resolves against the '
+            'directory the server was started in. A failed call returns a '
+            'JSON payload: read its "failureType" and "failureReason" to '
+            'decide whether a retry can help, and its '
+            '"alternativeApproaches" for what to try next.',
       );
 
   /// Serializes tool runs.
@@ -75,28 +81,60 @@ final class VeryGoodMCPServer({
     return result;
   }
 
+  /// Registers [tool] so that [handler] only runs with arguments that match
+  /// the tool's input schema.
+  ///
+  /// Arguments that do not match are reported as a [StructuredToolError], like
+  /// every other failure, instead of the plain text that the built-in
+  /// validation of [registerTool] returns.
+  void _registerTool(
+    Tool tool,
+    Future<CallToolResult> Function(Map<String, Object?> args) handler,
+  ) {
+    registerTool(tool, (request) {
+      final args = request.arguments ?? const <String, Object?>{};
+      final errors = tool.inputSchema.validate(args);
+      if (errors.isEmpty) return handler(args);
+
+      final details = errors.map((error) => error.toErrorString()).join('; ');
+      return StructuredToolError(
+        toolName: tool.name,
+        reason: 'Invalid arguments: $details.',
+        failureType: ToolFailureType.validation,
+        failureReason: ToolFailureReason.invalidInput,
+        attemptedArguments: args,
+      ).toCallToolResult();
+    }, validateArguments: false);
+  }
+
   void _registerTools() {
-    // Create project tool
-    registerTool(
+    _registerTool(
       Tool(
-        name: 'create',
-        description: '''
-Create a very good Dart or Flutter project in seconds based on the provided template. Each template has a corresponding sub-command.
-        ''',
+        name: _createTool,
+        description:
+            'Create a new Dart or Flutter project from a Very Good template. '
+            'Generates the project in "<output_directory>/<name>" and, for '
+            'every template but docs_site, installs its dependencies. Fails '
+            'instead of overwriting a file that already exists there with '
+            'different content. Some arguments only apply to some '
+            'templates; passing one to a template that does not accept it '
+            'fails with a usage error.',
+        annotations: ToolAnnotations(
+          title: 'Create a Very Good project',
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: false,
+          openWorldHint: true,
+        ),
         inputSchema: ObjectSchema(
           properties: {
             'subcommand': UntitledSingleSelectEnumSchema(
-              description: '''
-The available subcommands to provide an specific template, are:
-app_ui_package - Generate a Very Good App UI package.
-dart_cli - Generate a Very Good Dart CLI application.
-dart_package - Generate a Very Good Dart package.
-docs_site - Generate a Very Good documentation site.
-flame_game - Generate a Very Good Flame game.
-flutter_app - Generate a Very Good Flutter application.
-flutter_package - Generate a Very Good Flutter package.
-flutter_plugin - Generate a Very Good Flutter plugin.
-''',
+              description:
+                  'The template to generate: flutter_app (Flutter '
+                  'application), flutter_package, flutter_plugin (federated '
+                  'plugin), flame_game, app_ui_package (Flutter UI package), '
+                  'dart_package, dart_cli (Dart command-line application) or '
+                  'docs_site (Docusaurus documentation site).',
               values: [
                 'app_ui_package',
                 'flame_game',
@@ -108,249 +146,335 @@ flutter_plugin - Generate a Very Good Flutter plugin.
                 'docs_site',
               ],
             ),
-            'name': StringSchema(description: 'Project name'),
+            'name': StringSchema(
+              description:
+                  'The project name, a valid Dart package name in snake_case '
+                  '(e.g. "my_app").',
+            ),
             'description': StringSchema(
-              description: '''
-The description for this new project.
-(defaults to "A Very Good Project created by Very Good CLI.")''',
+              description:
+                  'The project description. Defaults to "A Very Good Project '
+                  'created by Very Good CLI.".',
             ),
             'org_name': StringSchema(
-              description: '''
-The organization for this new project.
-(defaults to "com.example.verygoodcore")''',
+              description:
+                  'The organization (e.g. "com.example.app"). Only for '
+                  'flutter_app, flutter_plugin and flame_game, where it '
+                  'defaults to "com.example.verygoodcore", and docs_site, '
+                  'where it defaults to "my-org".',
             ),
             'output_directory': StringSchema(
-              description: '''The desired output directory when creating a new project.''',
+              description:
+                  'The directory to create the project folder in. Absolute, '
+                  'or relative to the directory the server was started in, '
+                  'which is the default.',
             ),
             'application_id': StringSchema(
-              description: '''The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)''',
+              description:
+                  'The bundle identifier on iOS or application id on Android '
+                  '(e.g. "com.example.my_app"). Only for flutter_app. '
+                  'Defaults to "<org_name>.<name>".',
             ),
-            'platforms': StringSchema(
-              description: '''
-Comma-separated platforms. 'Example: "android,ios,web".
-The values for platforms are: android, ios, web, macos, linux, and windows.
-If is omitted, then all platforms are enabled by default.
-Only available for subcommands: flutter_plugin with all values) and flame_game (only android and ios)
-                  ''',
+            'platforms': ListSchema(
+              description:
+                  'The platforms to support (e.g. ["android", "ios"]). Only '
+                  'for flutter_app, flame_game and flutter_plugin. "linux" '
+                  'is only accepted by flutter_plugin. Defaults to every '
+                  'platform the template supports.',
+              items: UntitledSingleSelectEnumSchema(
+                values: ['android', 'ios', 'web', 'macos', 'linux', 'windows'],
+              ),
+              uniqueItems: true,
             ),
             'publishable': BooleanSchema(
-              description: '''
-Whether package is intended for publishing (flutter_package, dart_package  only)''',
+              description:
+                  'Whether the project is intended to be published. Defaults '
+                  'to false.',
             ),
             'workspace': BooleanSchema(
-              description: '''
-Whether the generated project should resolve its dependencies from a parent Pub workspace.''',
+              description:
+                  'Whether the project resolves its dependencies from a '
+                  'parent Pub workspace. Ignored for docs_site.',
             ),
-            'executable-name': StringSchema(
-              description: '''
-CLI custom executable name (dart_cli  only)''',
-            ),
-            'template': StringSchema(
-              description: '''
-The template used to generate this new project.
-The values are:
-core - Generate a Very Good Flutter application.
-If is omitted, then core will be selected.
-''',
+            'executable_name': StringSchema(
+              description:
+                  'The CLI executable name. Only for dart_cli. Defaults to '
+                  'the project name.',
             ),
           },
           required: ['subcommand', 'name'],
+          additionalProperties: false,
         ),
+        outputSchema: toolOutputSchema,
       ),
       _handleCreate,
     );
 
-    // Test tool
-    registerTool(
+    _registerTool(
       Tool(
-        name: 'test',
-        description: 'Run tests in a Dart or Flutter project.',
+        name: _testTool,
+        description:
+            'Run the tests of a Dart or Flutter package, optionally '
+            'collecting coverage and enforcing a minimum. Runs "flutter '
+            'test" unless "dart" is true. A failure reports the failing '
+            'tests and, when coverage is below "min_coverage", the uncovered '
+            'lines. Writes "coverage/lcov.info" when coverage is collected.',
+        annotations: ToolAnnotations(
+          title: 'Run Dart or Flutter tests',
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: false,
+        ),
         inputSchema: ObjectSchema(
           properties: {
             'directory': StringSchema(
               description:
-                  'The package to test (defaults to current directory). '
-                  'Can be absolute or relative path to project root. '
-                  'A package path belongs here, not in "paths".',
+                  'The package to test. Absolute, or relative to the '
+                  'directory the server was started in, which is the '
+                  'default. A package path belongs here, not in "paths".',
             ),
             'paths': ListSchema(
               description:
                   'Test files or directories to run, relative to the package '
                   'selected by "directory" (e.g. '
-                  "['test/src/foo_test.dart', 'test/widgets']). These are "
+                  '["test/src/foo_test.dart", "test/widgets"]). These are '
                   'targets inside that one package: to test a different '
                   'package, set "directory" to it rather than putting its '
                   'path here. When omitted, the whole suite runs. Cannot be '
-                  'combined with "recursive". Note that targeting specific '
-                  'paths disables the test optimization step.',
+                  'combined with "recursive". Targeting specific paths '
+                  'disables the test optimization step.',
               items: StringSchema(),
             ),
             'dart': BooleanSchema(
-              description: '''Whether to run Dart tests. If not specified, Flutter tests will be run if a Flutter project is detected.''',
+              description:
+                  'Whether to run "dart test" instead of "flutter test". Set '
+                  'to true for a package that does not depend on Flutter. '
+                  'Defaults to false.',
             ),
             'coverage': BooleanSchema(
-              description: 'Whether to collect coverage information.',
+              description:
+                  'Whether to collect coverage into "coverage/lcov.info". '
+                  'Defaults to false.',
             ),
             'recursive': BooleanSchema(
               description:
-                  'Run tests recursively for all nested packages. '
-                  'Cannot be combined with "paths", because each package runs '
-                  'in its own working directory and a path is only meaningful '
-                  'within one of them.',
+                  'Whether to run the tests of every package nested under '
+                  '"directory". Cannot be combined with "paths", because '
+                  'each package runs in its own working directory and a path '
+                  'is only meaningful within one of them. Defaults to false.',
             ),
             'optimization': BooleanSchema(
-              description: '''
-Whether to apply optimizations for test performance.
-Automatically disabled when --platform is specified.
-Add the `skip_very_good_optimization` tag to specific test files to disable them individually.
-(defaults to on)''',
+              description:
+                  'Whether to bundle the test files into a single entry '
+                  'point so that they run faster. Disabled when "platform" '
+                  'or "paths" is set. Tag a test file with '
+                  '"skip_very_good_optimization" to leave it out. Defaults '
+                  'to true.',
             ),
-            'concurrency': StringSchema(
-              description: '''
-The number of concurrent test suites run.
-Automatically set to 1 when --platform is specified.
-(defaults to "4")''',
+            'concurrency': IntegerSchema(
+              description:
+                  'The number of test suites to run at the same time. Set to '
+                  '1 when "platform" is set. Defaults to 4.',
+              minimum: 1,
             ),
             'tags': StringSchema(
               description:
-                  '''Run only tests associated with the specified tags.''',
+                  'Run only the tests with the given tags (e.g. "unit").',
             ),
-            'exclude_coverage': StringSchema(description: excludeCoverageHelp),
             'exclude_tags': StringSchema(
               description:
-                  'Run only tests that do not have the specified tags.',
+                  'Skip the tests with the given tags (e.g. "integration").',
             ),
-            'min_coverage': StringSchema(
+            'exclude_coverage': StringSchema(description: excludeCoverageHelp),
+            'min_coverage': NumberSchema(
               description:
-                  '''Whether to enforce a minimum coverage percentage.''',
-            ),
-            'test_randomize_ordering_seed': StringSchema(
-              description: '''The seed to randomize the execution order of test cases within test files.''',
-            ),
-            'update_goldens': BooleanSchema(
-              description: '''
-Whether "matchesGoldenFile()" calls within your test methods should update the golden files.''',
-            ),
-            'force_ansi': BooleanSchema(
-              description: '''
-Whether to force ansi output. If not specified, it will maintain the default behavior based on stdout and stderr.''',
-            ),
-            'dart-define': StringSchema(
-              description: '''
-Additional key-value pairs that will be available as constants from the String.fromEnvironment, bool.fromEnvironment, int.fromEnvironment, and double.fromEnvironment constructors.
-Multiple defines can be passed by repeating "--dart-define" multiple times.
-(e.g., foo=bar)
-''',
-            ),
-            'dart-define-from-file': StringSchema(
-              description: '''
-The path of a .json or .env file containing key-value pairs that will be available as environment variables. These can be accessed using the String.fromEnvironment, bool.fromEnvironment, and int.fromEnvironment constructors.
-Multiple defines can be passed by repeating "--dart-define-from-file" multiple times. Entries from "--dart-define" with identical keys take precedence over entries from these files.''',
-            ),
-            'platform': StringSchema(
-              description: '''
-The platform to run tests on.
-The available values are: chrome, vm, android, ios.
-Only one value can be selected.
-  ''',
-            ),
-            'run_skipped': BooleanSchema(
-              description:
-                  'Run skipped tests instead of skipping them. '
-                  'Only applies to Dart tests (dart: true).',
-            ),
-            'check_ignore': BooleanSchema(
-              description:
-                  'Whether to check for and respect coverage ignore comments '
-                  '(e.g. // coverage:ignore-line). '
-                  'Only applies to Dart tests (dart: true).',
+                  'The minimum coverage percentage to require (e.g. 100). '
+                  'Enables coverage collection. A lower coverage fails with '
+                  'a "coverage_below_threshold" reason.',
+              minimum: 0,
+              maximum: 100,
             ),
             'show_uncovered': BooleanSchema(
               description:
-                  'Whether to list uncovered lines when coverage is below '
-                  '100%. Implicitly enables coverage collection when used '
-                  'alone. Useful for identifying which lines still need '
-                  'tests after a min_coverage failure.',
+                  'Whether to print the uncovered lines when coverage is '
+                  'below 100%. Enables coverage collection. Defaults to '
+                  'false.',
+            ),
+            'check_ignore': BooleanSchema(
+              description:
+                  'Whether to respect coverage ignore comments (e.g. '
+                  '"// coverage:ignore-line"). Only for Dart tests: true '
+                  'requires "dart": true, and false has no effect on Flutter '
+                  'tests. Defaults to true.',
+            ),
+            'test_randomize_ordering_seed': StringSchema(
+              description:
+                  'The seed to shuffle the order of the tests within each '
+                  'file: an integer, or "random" for a new seed on each run.',
+            ),
+            'update_goldens': BooleanSchema(
+              description:
+                  'Whether "matchesGoldenFile()" calls overwrite the golden '
+                  'files instead of comparing against them. Defaults to '
+                  'false.',
+            ),
+            'dart_define': ListSchema(
+              description:
+                  'Key-value pairs made available to '
+                  'String.fromEnvironment, bool.fromEnvironment, '
+                  'int.fromEnvironment and double.fromEnvironment (e.g. '
+                  '["foo=bar"]). Only for Flutter tests.',
+              items: StringSchema(),
+            ),
+            'dart_define_from_file': ListSchema(
+              description:
+                  'Paths of .json or .env files holding key-value pairs made '
+                  'available like "dart_define" ones, which take precedence '
+                  'for an identical key. Only for Flutter tests.',
+              items: StringSchema(),
+            ),
+            'platform': UntitledSingleSelectEnumSchema(
+              description:
+                  'The platform to run the tests on. "android" and "ios" are '
+                  'only for Flutter tests.',
+              values: ['chrome', 'vm', 'android', 'ios'],
+            ),
+            'run_skipped': BooleanSchema(
+              description:
+                  'Whether to run skipped tests instead of skipping them. '
+                  'Defaults to false.',
             ),
             'timeout_seconds': IntegerSchema(
               description:
-                  'Wall-clock budget for the whole test run, in seconds. '
-                  'When exceeded, the MCP server signals the test runner to '
-                  'tear down its flutter_tester subprocess, awaits the '
-                  'unwind, and returns a "timeout" failure so the server '
-                  'lock is released and queued calls can proceed. Use this '
-                  'to bound tests that can hang indefinitely, such as a '
-                  'tester.pumpAndSettle() call without a timeout argument '
-                  'or a tester.runAsync() that awaits a future that never '
-                  'completes — the underlying test runner cannot catch '
-                  'these hangs on its own. When omitted, no timeout is '
-                  'applied.',
+                  'The longest the whole run may take, in seconds. When '
+                  'exceeded, the run is stopped and fails with a "timeout" '
+                  'reason that reports the tests that finished. Use it to '
+                  'bound tests that can hang forever, such as a '
+                  'tester.pumpAndSettle() without a timeout or a '
+                  'tester.runAsync() awaiting a future that never '
+                  'completes. Defaults to no timeout.',
+              minimum: 1,
             ),
           },
+          additionalProperties: false,
         ),
+        outputSchema: toolOutputSchema,
       ),
       _handleTest,
     );
 
-    // Packages get tool
-    registerTool(
+    _registerTool(
       Tool(
-        name: 'packages_get',
-        description: '''
-            Install or update a Dart/Flutter package dependencies.
-            Use after creating a project or modifying pubspec.yaml.
-            Supports recursive installation and package exclusion.''',
+        name: _packagesGetTool,
+        description:
+            'Install the dependencies of a Dart or Flutter package with "pub '
+            'get". Use after creating a project or changing a pubspec.yaml.',
+        annotations: ToolAnnotations(
+          title: 'Get packages',
+          readOnlyHint: false,
+          destructiveHint: false,
+          idempotentHint: true,
+          openWorldHint: true,
+        ),
         inputSchema: ObjectSchema(
           properties: {
             'directory': StringSchema(
               description:
-                  'Target directory path (defaults to current directory). '
-                  'Can be absolute or relative path to project root.',
+                  'The package to install dependencies for. Absolute, or '
+                  'relative to the directory the server was started in, '
+                  'which is the default.',
             ),
             'recursive': BooleanSchema(
               description:
-                  'Install dependencies for all nested packages recursively. '
-                  'Useful for monorepos or projects with multiple packages.',
+                  'Whether to install the dependencies of every package '
+                  'nested under "directory", as in a monorepo. Defaults to '
+                  'false.',
             ),
-            'ignore': StringSchema(
+            'ignore': ListSchema(
               description:
-                  'Comma-separated list of package names to skip. '
-                  'Example: "package1,package2". '
-                  'Useful to avoid processing problematic packages.',
+                  'Names of the packages to skip in a recursive run (e.g. '
+                  '["package_a", "package_b"]).',
+              items: StringSchema(),
             ),
           },
+          additionalProperties: false,
         ),
+        outputSchema: toolOutputSchema,
       ),
       _handlePackagesGet,
     );
 
-    // Packages check licenses tool
-    registerTool(
+    _registerTool(
       Tool(
-        name: 'packages_check_licenses',
-        description: '''
-            Verify package licenses for compliance and validation in a Dart or Flutter project.
-            Identifies license types (MIT, BSD, Apache, etc.) for all
-            dependencies. Use to ensure license compatibility.''',
+        name: _packagesCheckLicensesTool,
+        description:
+            'List the licenses of the dependencies of a Dart or Flutter '
+            'package as SPDX identifiers (e.g. MIT, BSD-3-Clause), and fail '
+            'when one is not in "allowed" or is in "forbidden". Reads '
+            'pubspec.lock, so the dependencies must be installed first.',
+        annotations: ToolAnnotations(
+          title: 'Check package licenses',
+          readOnlyHint: true,
+          idempotentHint: true,
+          openWorldHint: false,
+        ),
         inputSchema: ObjectSchema(
           properties: {
             'directory': StringSchema(
               description:
-                  'Target directory path (defaults to current directory). '
-                  'Path to the project root containing pubspec.yaml.',
+                  'The package to check, holding a pubspec.lock. Absolute, '
+                  'or relative to the directory the server was started in, '
+                  'which is the default.',
             ),
-            'licenses': BooleanSchema(
+            'dependency_type': ListSchema(
               description:
-                  'Verify all package licenses (defaults to true). '
-                  'Currently the only supported check type. '
-                  'Reports license types for all dependencies.',
+                  'The types of dependencies to check. Defaults to '
+                  '["direct-main"].',
+              items: UntitledSingleSelectEnumSchema(
+                values: [
+                  'direct-main',
+                  'direct-dev',
+                  'transitive',
+                  'direct-overridden',
+                ],
+              ),
+              uniqueItems: true,
+            ),
+            'allowed': ListSchema(
+              description:
+                  'The only SPDX licenses to accept (e.g. ["MIT", '
+                  '"BSD-3-Clause"]). Cannot be combined with "forbidden".',
+              items: StringSchema(),
+            ),
+            'forbidden': ListSchema(
+              description:
+                  'The SPDX licenses to reject (e.g. ["GPL-3.0-only"]). '
+                  'Cannot be combined with "allowed".',
+              items: StringSchema(),
+            ),
+            'skip_packages': ListSchema(
+              description: 'Names of the packages to leave unchecked.',
+              items: StringSchema(),
+            ),
+            'ignore_retrieval_failures': BooleanSchema(
+              description:
+                  'Whether to carry on when the license of a package cannot '
+                  'be retrieved. Defaults to false.',
             ),
           },
+          additionalProperties: false,
         ),
+        outputSchema: toolOutputSchema,
       ),
-      _handlePackagesCheck,
+      _handlePackagesCheckLicenses,
     );
   }
+
+  static const _createTool = 'create';
+  static const _testTool = 'test';
+  static const _packagesGetTool = 'packages_get';
+  static const _packagesCheckLicensesTool = 'packages_check_licenses';
 
   /// The `create` subcommands that define the `--workspace` flag.
   ///
@@ -378,16 +502,11 @@ Only one value can be selected.
       ..._option(args, 'org_name', '--org-name'),
       ..._option(args, 'output_directory', '-o'),
       ..._option(args, 'application_id', '--application-id'),
-      ..._option(args, 'platforms', '--platforms'),
+      ..._multiOption(args, 'platforms', '--platforms'),
       ..._flag(args, 'publishable', '--publishable'),
       if (_workspaceSubcommands.contains(subcommand))
-        ...switch (args['workspace']) {
-          true => ['--workspace'],
-          false => ['--no-workspace'],
-          _ => const <String>[],
-        },
-      ..._option(args, 'executable-name', '--executable-name'),
-      ..._option(args, 'template', '-t'),
+        ..._negatableFlag(args, 'workspace', 'workspace'),
+      ..._option(args, 'executable_name', '--executable-name'),
     ];
   }
 
@@ -406,7 +525,7 @@ Only one value can be selected.
       'test',
       ..._flag(args, 'coverage', '--coverage'),
       ..._flag(args, 'recursive', '-r'),
-      if (args['optimization'] == false) '--no-optimization',
+      ..._negatableFlag(args, 'optimization', 'optimization'),
       ..._option(args, 'concurrency', '-j'),
       ..._option(args, 'tags', '-t'),
       ..._option(args, 'exclude_coverage', '--exclude-coverage'),
@@ -418,12 +537,13 @@ Only one value can be selected.
         '--test-randomize-ordering-seed',
       ),
       ..._flag(args, 'update_goldens', '--update-goldens'),
-      ..._flag(args, 'force_ansi', '--force-ansi'),
-      ..._option(args, 'dart-define', '--dart-define'),
-      ..._option(args, 'dart-define-from-file', '--dart-define-from-file'),
+      ..._multiOption(args, 'dart_define', '--dart-define'),
+      ..._multiOption(args, 'dart_define_from_file', '--dart-define-from-file'),
       ..._option(args, 'platform', '--platform'),
       ..._flag(args, 'run_skipped', '--run-skipped'),
-      ..._flag(args, 'check_ignore', '--check-ignore'),
+      // `--check-ignore` is only defined by `very_good dart test`.
+      if (args['dart'] == true)
+        ..._negatableFlag(args, 'check_ignore', 'check-ignore'),
       ..._flag(args, 'show_uncovered', '--show-uncovered'),
       // Positional test targets go last, after every option, so that they are
       // parsed as `rest` rather than as a value for the preceding option. The
@@ -441,54 +561,72 @@ Only one value can be selected.
     String flag,
   ) => args[key] == true ? [flag] : const [];
 
+  /// Returns `[--name]` when `args[key]` is `true`, `[--no-name]` when it is
+  /// `false`, and nothing when it is not set.
+  static List<String> _negatableFlag(
+    Map<String, Object?> args,
+    String key,
+    String name,
+  ) => switch (args[key]) {
+    true => ['--$name'],
+    false => ['--no-$name'],
+    _ => const [],
+  };
+
   /// Returns `[option, value]` when `args[key]` is set, else nothing.
   static List<String> _option(
     Map<String, Object?> args,
     String key,
     String option,
-  ) => switch (args[key] as String?) {
-    final value? => [option, value],
+  ) => switch (args[key]) {
+    final value? => [option, '$value'],
     null => const [],
   };
 
-  List<String> _parsePackagesGet(Map<String, Object?> args) {
-    // NOTE: 'directory' is applied as the working directory in
-    // [_runToolCommand], not as a positional argument.
-    final cliArgs = <String>['packages', 'get'];
+  /// Returns `[option, value]` for each value of the `args[key]` list.
+  static List<String> _multiOption(
+    Map<String, Object?> args,
+    String key,
+    String option,
+  ) => [
+    for (final value in args[key] as List<Object?>? ?? const []) ...[
+      option,
+      '$value',
+    ],
+  ];
 
-    if (args['recursive'] == true) {
-      cliArgs.add('--recursive');
-    }
-    if (args['ignore'] != null) {
-      final ignore = (args['ignore']! as String).split(',');
-      for (final pkg in ignore) {
-        cliArgs.addAll(['--ignore', pkg.trim()]);
-      }
-    }
+  // NOTE: for every tool but `create`, 'directory' is applied as the working
+  // directory in [_runToolCommand], not as a positional argument.
+  List<String> _parsePackagesGet(Map<String, Object?> args) => [
+    'packages',
+    'get',
+    ..._flag(args, 'recursive', '--recursive'),
+    ..._multiOption(args, 'ignore', '--ignore'),
+  ];
 
-    return cliArgs;
-  }
+  List<String> _parsePackagesCheckLicenses(Map<String, Object?> args) => [
+    'packages',
+    'check',
+    'licenses',
+    ..._flag(args, 'ignore_retrieval_failures', '--ignore-retrieval-failures'),
+    ..._multiOption(args, 'dependency_type', '--dependency-type'),
+    ..._multiOption(args, 'allowed', '--allowed'),
+    ..._multiOption(args, 'forbidden', '--forbidden'),
+    ..._multiOption(args, 'skip_packages', '--skip-packages'),
+  ];
 
-  List<String> _parsePackagesCheck(Map<String, Object?> args) {
-    // NOTE: 'directory' is applied as the working directory in
-    // [_runToolCommand], not as a positional argument.
-    final cliArgs = <String>['packages', 'check', 'licenses'];
+  Future<CallToolResult> _handleCreate(Map<String, Object?> args) =>
+      _runToolCommand(
+        _parseCreate(args),
+        toolName: _createTool,
+        requestArguments: args,
+      );
 
-    return cliArgs;
-  }
-
-  Future<CallToolResult> _handleCreate(CallToolRequest request) {
-    final args = request.arguments ?? {};
-    final cliArgs = _parseCreate(args);
-    return _runToolCommand(cliArgs, toolName: 'create', requestArguments: args);
-  }
-
-  Future<CallToolResult> _handleTest(CallToolRequest request) {
-    final args = request.arguments ?? {};
+  Future<CallToolResult> _handleTest(Map<String, Object?> args) {
     if (args['check_ignore'] == true && args['dart'] != true) {
       return Future.value(
         StructuredToolError(
-          toolName: 'test',
+          toolName: _testTool,
           reason:
               '"check_ignore" is only supported by the Dart test runner and '
               'requires "dart": true. Flutter\'s test command does not accept '
@@ -500,11 +638,10 @@ Only one value can be selected.
         ).toCallToolResult(),
       );
     }
-    final cliArgs = _parseTest(args);
     final timeoutSeconds = (args['timeout_seconds'] as num?)?.toInt();
     return _runToolCommand(
-      cliArgs,
-      toolName: 'test',
+      _parseTest(args),
+      toolName: _testTool,
       directory: args['directory'] as String?,
       requestArguments: args,
       timeout: timeoutSeconds != null
@@ -513,44 +650,22 @@ Only one value can be selected.
     );
   }
 
-  Future<CallToolResult> _handlePackagesGet(CallToolRequest request) {
-    final args = request.arguments ?? {};
-    final cliArgs = _parsePackagesGet(args);
-    return _runToolCommand(
-      cliArgs,
-      toolName: 'packages get',
-      directory: args['directory'] as String?,
-      requestArguments: args,
-    );
-  }
+  Future<CallToolResult> _handlePackagesGet(Map<String, Object?> args) =>
+      _runToolCommand(
+        _parsePackagesGet(args),
+        toolName: _packagesGetTool,
+        directory: args['directory'] as String?,
+        requestArguments: args,
+      );
 
-  Future<CallToolResult> _handlePackagesCheck(CallToolRequest request) async {
-    final args = request.arguments ?? {};
-
-    // Currently, 'packages check' only has 'licenses' as a subcommand
-    // Default to checking licenses if not explicitly set to false
-    final checkLicenses = args['licenses'] as bool? ?? true;
-
-    if (!checkLicenses) {
-      return StructuredToolError(
-        toolName: 'packages check licenses',
-        reason:
-            'No check specified. Currently only "licenses" check is '
-            'supported. Set licenses=true to run license checks.',
-        failureType: ToolFailureType.validation,
-        failureReason: ToolFailureReason.invalidInput,
-        attemptedArguments: args,
-      ).toCallToolResult();
-    }
-
-    final cliArgs = _parsePackagesCheck(args);
-    return await _runToolCommand(
-      cliArgs,
-      toolName: 'packages check licenses',
-      directory: args['directory'] as String?,
-      requestArguments: args,
-    );
-  }
+  Future<CallToolResult> _handlePackagesCheckLicenses(
+    Map<String, Object?> args,
+  ) => _runToolCommand(
+    _parsePackagesCheckLicenses(args),
+    toolName: _packagesCheckLicensesTool,
+    directory: args['directory'] as String?,
+    requestArguments: args,
+  );
 
   /// Runs a CLI command in-process and returns a [CallToolResult].
   ///

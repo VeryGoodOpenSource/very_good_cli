@@ -124,16 +124,14 @@ class ToolRun({
     return failureType.failureReason;
   }
 
-  CallToolResult _success() {
-    final captured = _capturedOutput;
-    return CallToolResult(
-      content: [
-        TextContent(text: '"$toolName" completed successfully.'),
-        if (captured.isNotEmpty) TextContent(text: captured),
-      ],
-      isError: false,
-    );
-  }
+  CallToolResult _success() => StructuredToolSuccess(
+    toolName: toolName,
+    commandString: commandString,
+    directory: directory,
+    capturedOutput: _capturedOutput,
+    attemptedArguments: requestArguments,
+    testResults: _recorder.results,
+  ).toCallToolResult();
 
   /// Builds a structured JSON failure result from [reason] and [failureType].
   ///

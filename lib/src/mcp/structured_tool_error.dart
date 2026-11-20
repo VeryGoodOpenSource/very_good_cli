@@ -203,6 +203,144 @@ enum ToolFailureReason(
 /// a [StructuredToolError] lists before truncating.
 const maxPayloadItems = 20;
 
+/// The schema of the structured content every tool returns, for a success
+/// ([StructuredToolSuccess]) and for a failure ([StructuredToolError]) alike.
+final ObjectSchema toolOutputSchema = ObjectSchema(
+  properties: {
+    'status': UntitledSingleSelectEnumSchema(
+      description:
+          '"success", or "partial_failure" when the command printed output '
+          'before failing, otherwise "failure".',
+      values: ['success', 'failure', 'partial_failure'],
+    ),
+    'attemptedAction': ObjectSchema(
+      description:
+          'The "tool", the "command" it ran, and the "directory" and '
+          '"arguments" of the call when given.',
+    ),
+    'output': StringSchema(
+      description: 'Success only: what the command printed.',
+    ),
+    'failureType': UntitledSingleSelectEnumSchema(
+      description:
+          'Failure only: the bucket of the failure. Only "transient" is '
+          'worth an unchanged retry.',
+      values: [for (final type in ToolFailureType.values) type.name],
+    ),
+    'failureReason': UntitledSingleSelectEnumSchema(
+      description: 'Failure only: the specific cause.',
+      values: [for (final reason in ToolFailureReason.values) reason.jsonName],
+    ),
+    'reason': StringSchema(
+      description: 'Failure only: a human-readable cause.',
+    ),
+    'test': ObjectSchema(
+      description:
+          'What a test run recorded: "results" holds the passed, failed and '
+          'skipped counts, the duration and the failing tests. "coverage" '
+          'holds the actual and required coverage and the uncovered lines '
+          'when coverage is below the threshold.',
+    ),
+    'partialResults': StringSchema(
+      description: 'Failure only: what the command printed before failing.',
+    ),
+    'alternativeApproaches': ListSchema(
+      description: 'Failure only: what to try next.',
+      items: StringSchema(),
+    ),
+  },
+  required: ['status', 'attemptedAction'],
+);
+
+/// The `attemptedAction` block shared by success and failure payloads.
+Map<String, Object?> _attemptedAction({
+  required String toolName,
+  required String? commandString,
+  required String? directory,
+  required Map<String, Object?>? arguments,
+}) => {
+  'tool': toolName,
+  'command': ?commandString,
+  'directory': ?directory,
+  if (arguments != null && arguments.isNotEmpty) 'arguments': arguments,
+};
+
+/// The `test` block shared by success and failure payloads, when the test run
+/// recorded anything.
+_TestPayload? _testPayloadOf(
+  TestRunResults? results,
+  MinCoverageNotMet? coverage,
+) {
+  final hasResults = results != null && results.hasResults;
+  if (!hasResults && coverage == null) return null;
+
+  return _TestPayload(
+    results: hasResults ? _TestResultsPayload.of(results) : null,
+    coverage: coverage == null ? null : _CoveragePayload.of(coverage),
+  );
+}
+
+/// {@template structured_tool_success}
+/// A structured description of a tool success, renderable as a
+/// [CallToolResult].
+///
+/// The JSON payload mirrors [StructuredToolError]:
+///
+/// * `status` — always `success`.
+/// * `attemptedAction` — the tool name, the CLI command that was invoked,
+///   the working directory (when set), and the raw caller-supplied arguments.
+/// * `test` — the counts and duration the test run recorded, when any.
+/// * `output` — the sanitized captured command output, when any.
+/// {@endtemplate}
+class const StructuredToolSuccess({
+  /// The name of the tool that succeeded.
+  required final String toolName,
+
+  /// The concrete CLI command that was invoked.
+  required final String commandString,
+
+  /// The working directory the command ran in, when set.
+  final String? directory,
+
+  /// The sanitized captured command output, when any.
+  final String capturedOutput = '',
+
+  /// The raw caller-supplied arguments.
+  final Map<String, Object?>? attemptedArguments,
+
+  /// What the test run recorded, when any.
+  final TestRunResults? testResults,
+}) {
+  /// {@macro structured_tool_success}
+  this;
+
+  /// The JSON payload describing this success.
+  Map<String, Object?> toJson() => {
+    'status': 'success',
+    'attemptedAction': _attemptedAction(
+      toolName: toolName,
+      commandString: commandString,
+      directory: directory,
+      arguments: attemptedArguments,
+    ),
+    'test': ?_testPayloadOf(testResults, null)?.toJson(),
+    if (capturedOutput.isNotEmpty) 'output': capturedOutput,
+  };
+
+  /// Renders this success as a [CallToolResult].
+  ///
+  /// The text content is a one-line summary followed by the captured output,
+  /// when any. The structured content is the [toJson] payload.
+  CallToolResult toCallToolResult() => CallToolResult(
+    content: [
+      TextContent(text: '"$toolName" completed successfully.'),
+      if (capturedOutput.isNotEmpty) TextContent(text: capturedOutput),
+    ],
+    structuredContent: toJson(),
+    isError: false,
+  );
+}
+
 /// {@template structured_tool_error}
 /// A structured description of a tool failure, renderable as a
 /// [CallToolResult].
@@ -266,45 +404,35 @@ class const StructuredToolError({
       capturedOutput != null && capturedOutput!.isNotEmpty;
 
   /// The JSON payload describing this failure.
-  Map<String, Object?> toJson() {
-    final attemptedAction = <String, Object?>{
-      'tool': toolName,
-      'command': ?commandString,
-      'directory': ?directory,
-      if (attemptedArguments != null && attemptedArguments!.isNotEmpty)
-        'arguments': attemptedArguments,
-    };
+  Map<String, Object?> toJson() => {
+    'status': _hasPartialResults ? 'partial_failure' : 'failure',
+    'failureType': failureType.name,
+    'failureReason': failureReason.jsonName,
+    'attemptedAction': _attemptedAction(
+      toolName: toolName,
+      commandString: commandString,
+      directory: directory,
+      arguments: attemptedArguments,
+    ),
+    'reason': reason,
+    'test': ?_testPayloadOf(testResults, coverage)?.toJson(),
+    if (_hasPartialResults) 'partialResults': capturedOutput,
+    'alternativeApproaches': failureReason.alternativeApproaches,
+  };
 
-    return {
-      'status': _hasPartialResults ? 'partial_failure' : 'failure',
-      'failureType': failureType.name,
-      'failureReason': failureReason.jsonName,
-      'attemptedAction': attemptedAction,
-      'reason': reason,
-      'test': ?_testPayload?.toJson(),
-      if (_hasPartialResults) 'partialResults': capturedOutput,
-      'alternativeApproaches': failureReason.alternativeApproaches,
-    };
-  }
-
-  _TestPayload? get _testPayload {
-    final results = testResults;
-    final coverage = this.coverage;
-    final hasResults = results != null && results.hasResults;
-    if (!hasResults && coverage == null) return null;
-
-    return _TestPayload(
-      results: hasResults ? _TestResultsPayload.of(results) : null,
-      coverage: coverage == null ? null : _CoveragePayload.of(coverage),
-    );
-  }
-
-  /// Renders this failure as a [CallToolResult] whose single text content is
-  /// the pretty-printed [toJson] payload.
+  /// Renders this failure as a [CallToolResult].
+  ///
+  /// The single text content is the pretty-printed [toJson] payload, and the
+  /// structured content is the payload itself.
   CallToolResult toCallToolResult() {
-    final text = const JsonEncoder.withIndent('  ').convert(toJson());
+    final payload = toJson();
+    final text = const JsonEncoder.withIndent('  ').convert(payload);
 
-    return CallToolResult(content: [TextContent(text: text)], isError: true);
+    return CallToolResult(
+      content: [TextContent(text: text)],
+      structuredContent: payload,
+      isError: true,
+    );
   }
 }
 
@@ -312,7 +440,11 @@ class const StructuredToolError({
 ///
 /// Either or both of [results] and [coverage] may be null; a null field is
 /// omitted from the serialized JSON.
-@JsonSerializable(createFactory: false, includeIfNull: false)
+@JsonSerializable(
+  createFactory: false,
+  includeIfNull: false,
+  explicitToJson: true,
+)
 class const _TestPayload({
   final _TestResultsPayload? results,
   final _CoveragePayload? coverage,
@@ -325,7 +457,7 @@ class const _TestPayload({
 /// [failed] is the total number of failing tests, [failingTests] is capped at
 /// [maxPayloadItems] entries. A reader can tell the list was truncated by
 /// comparing its length against [failed].
-@JsonSerializable(createFactory: false)
+@JsonSerializable(createFactory: false, explicitToJson: true)
 class const _TestResultsPayload({
   required final int passed,
   required final int failed,
@@ -365,7 +497,7 @@ class const _FailingTestPayload({
 /// [uncoveredLines] is capped at [maxPayloadItems] files, each with at most
 /// [maxPayloadItems] line numbers, with [uncoveredLinesTruncated] flagging
 /// that either cap was hit.
-@JsonSerializable(createFactory: false)
+@JsonSerializable(createFactory: false, explicitToJson: true)
 class const _CoveragePayload({
   required final double actual,
   @JsonKey(name: 'required') required final double requiredCoverage,

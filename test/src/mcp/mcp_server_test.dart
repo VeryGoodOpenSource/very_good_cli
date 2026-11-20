@@ -154,13 +154,67 @@ void main() {
       expect(result.tools, hasLength(4));
       expect(
         result.tools.map((t) => t.name),
-        containsAll([
-          'create',
-          'test',
-          'packages_get',
-          'packages_check_licenses',
-        ]),
+        equals(['create', 'test', 'packages_get', 'packages_check_licenses']),
       );
+    });
+
+    test('describes every tool with annotations and schemas', () async {
+      final response = await sendRequest(ListToolsRequest.methodName);
+      final result = ListToolsResult.fromMap(
+        response['result'] as Map<String, Object?>,
+      );
+
+      for (final tool in result.tools) {
+        final annotations = tool.toolAnnotations;
+        expect(annotations?.title, isNotEmpty, reason: tool.name);
+        expect(annotations?.readOnlyHint, isNotNull, reason: tool.name);
+        expect(annotations?.idempotentHint, isNotNull, reason: tool.name);
+        expect(annotations?.openWorldHint, isNotNull, reason: tool.name);
+        expect(
+          tool.inputSchema.additionalProperties,
+          isFalse,
+          reason: tool.name,
+        );
+        expect(
+          tool.outputSchema?.required,
+          equals(['status', 'attemptedAction']),
+          reason: tool.name,
+        );
+      }
+
+      expect(
+        {
+          for (final tool in result.tools)
+            tool.name: tool.toolAnnotations?.readOnlyHint,
+        },
+        equals({
+          'create': false,
+          'test': false,
+          'packages_get': false,
+          'packages_check_licenses': true,
+        }),
+      );
+    });
+
+    test('rejects an argument the tool does not define', () async {
+      final response = await sendRequest(
+        CallToolRequest.methodName,
+        _params(CallToolRequest(name: 'test', arguments: {'fail_fast': true})),
+      );
+
+      final result = CallToolResult.fromMap(
+        response['result'] as Map<String, Object?>,
+      );
+      expect(result.isError, isTrue);
+      final payload = _errorPayload(result);
+      expect(payload['failureType'], equals('validation'));
+      expect(payload['failureReason'], equals('invalid_input'));
+      expect(
+        payload['reason'],
+        contains('Additional property "fail_fast" is not allowed'),
+      );
+      expect(result.structuredContent, equals(payload));
+      verifyNever(() => mockCommandRunner.run(any()));
     });
 
     group('Tool: create', () {
@@ -204,11 +258,10 @@ void main() {
                 'org_name': 'com.test',
                 'output_directory': 'my_dir',
                 'application_id': 'com.test.my_app',
-                'platforms': 'ios,web',
+                'platforms': ['ios', 'web'],
                 'publishable': true,
                 'workspace': true,
-                'executable-name': 'my_cli',
-                'template': 'core',
+                'executable_name': 'my_cli',
               },
             ),
           ),
@@ -232,13 +285,13 @@ void main() {
             '--application-id',
             'com.test.my_app',
             '--platforms',
-            'ios,web',
+            'ios',
+            '--platforms',
+            'web',
             '--publishable',
             '--workspace',
             '--executable-name',
             'my_cli',
-            '-t',
-            'core',
           ]),
         );
       });
@@ -328,7 +381,7 @@ void main() {
         );
       });
 
-      test('handles argument parsing exception', () async {
+      test('rejects arguments that do not match the schema', () async {
         // Missing 'name' argument
         final response = await sendRequest(
           CallToolRequest.methodName,
@@ -340,16 +393,22 @@ void main() {
           ),
         );
 
-        // The handler's try/catch will catch this
         expect(response['error'], isNull);
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
+        final payload = _errorPayload(result);
+        expect(payload['failureType'], equals('validation'));
+        expect(payload['failureReason'], equals('invalid_input'));
         expect(
-          (result.content.first as TextContent).text,
+          payload['reason'],
           contains('Required property "name" is missing at path #root'),
         );
+        final action = payload['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('create'));
+        expect(action['arguments'], equals({'subcommand': 'flutter_app'}));
+        verifyNever(() => mockCommandRunner.run(any()));
       });
     });
 
@@ -391,16 +450,15 @@ void main() {
                 'coverage': true,
                 'recursive': true,
                 'optimization': true,
-                'concurrency': '8',
+                'concurrency': 8,
                 'tags': 'a,b',
                 'exclude_coverage': '**/*.g.dart',
                 'exclude_tags': 'c,d',
-                'min_coverage': '90',
+                'min_coverage': 90,
                 'test_randomize_ordering_seed': '123',
                 'update_goldens': true,
-                'force_ansi': true,
-                'dart-define': 'foo=bar',
-                'dart-define-from-file': 'my_file.json',
+                'dart_define': ['foo=bar', 'baz=qux'],
+                'dart_define_from_file': ['my_file.json'],
                 'platform': 'chrome',
                 'run_skipped': true,
                 'check_ignore': true,
@@ -420,6 +478,7 @@ void main() {
             'test',
             '--coverage',
             '-r',
+            '--optimization',
             '-j',
             '8',
             '-t',
@@ -433,9 +492,10 @@ void main() {
             '--test-randomize-ordering-seed',
             '123',
             '--update-goldens',
-            '--force-ansi',
             '--dart-define',
             'foo=bar',
+            '--dart-define',
+            'baz=qux',
             '--dart-define-from-file',
             'my_file.json',
             '--platform',
@@ -553,7 +613,7 @@ void main() {
               name: 'test',
               arguments: {
                 'dart': true,
-                'concurrency': '8',
+                'concurrency': 8,
                 'paths': ['test/src/foo_test.dart'],
               },
             ),
@@ -674,7 +734,7 @@ void main() {
         );
 
         test(
-          'allows check_ignore: false on Dart without validation error',
+          'passes --no-check-ignore for check_ignore: false on Dart',
           () async {
             await sendRequest(
               CallToolRequest.methodName,
@@ -689,7 +749,7 @@ void main() {
             final capturedArgs =
                 verify(() => mockCommandRunner.run(captureAny())).captured.first
                     as List<String>;
-            expect(capturedArgs, equals(['dart', 'test']));
+            expect(capturedArgs, equals(['dart', 'test', '--no-check-ignore']));
           },
         );
       });
@@ -887,7 +947,7 @@ void main() {
         expect(capturedArgs, equals(['packages', 'get']));
       });
 
-      test('handles all arguments (with split "ignore")', () async {
+      test('handles all arguments', () async {
         final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
         addTearDown(() => tempDir.deleteSync(recursive: true));
 
@@ -899,7 +959,7 @@ void main() {
               arguments: {
                 'directory': tempDir.path,
                 'recursive': true,
-                'ignore': 'pkg1, pkg2',
+                'ignore': ['pkg1', 'pkg2'],
               },
             ),
           ),
@@ -924,30 +984,7 @@ void main() {
     });
 
     group('Tool: packages_check_licenses', () {
-      test('handles basic case (licenses=true)', () async {
-        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-
-        await sendRequest(
-          CallToolRequest.methodName,
-          _params(
-            CallToolRequest(
-              name: 'packages_check_licenses',
-              arguments: {'licenses': true, 'directory': tempDir.path},
-            ),
-          ),
-        );
-
-        final capturedArgs =
-            verify(() => mockCommandRunner.run(captureAny())).captured.first
-                as List<String>;
-        expect(capturedArgs, equals(['packages', 'check', 'licenses']));
-      });
-
-      test('defaults to licenses=true if not provided', () async {
-        final tempDir = Directory.systemTemp.createTempSync('vgmcp_');
-        addTearDown(() => tempDir.deleteSync(recursive: true));
-
+      test('handles basic case', () async {
         await sendRequest(
           CallToolRequest.methodName,
           _params(
@@ -964,31 +1001,77 @@ void main() {
         expect(capturedArgs, equals(['packages', 'check', 'licenses']));
       });
 
-      test('returns error if licenses=false', () async {
+      test('handles all arguments', () async {
+        await sendRequest(
+          CallToolRequest.methodName,
+          _params(
+            CallToolRequest(
+              name: 'packages_check_licenses',
+              arguments: {
+                'directory': tempDir.path,
+                'ignore_retrieval_failures': true,
+                'dependency_type': ['direct-main', 'transitive'],
+                'allowed': ['MIT', 'BSD-3-Clause'],
+                'forbidden': ['GPL-3.0-only'],
+                'skip_packages': ['pkg1'],
+              },
+            ),
+          ),
+        );
+
+        final capturedArgs =
+            verify(() => mockCommandRunner.run(captureAny())).captured.first
+                as List<String>;
+        expect(
+          capturedArgs,
+          equals([
+            'packages',
+            'check',
+            'licenses',
+            '--ignore-retrieval-failures',
+            '--dependency-type',
+            'direct-main',
+            '--dependency-type',
+            'transitive',
+            '--allowed',
+            'MIT',
+            '--allowed',
+            'BSD-3-Clause',
+            '--forbidden',
+            'GPL-3.0-only',
+            '--skip-packages',
+            'pkg1',
+          ]),
+        );
+      });
+
+      test('reports its own name in a failure', () async {
+        when(() => mockCommandRunner.run(any()))
+            .thenAnswer((_) async => ExitCode.config.code);
+
         final response = await sendRequest(
           CallToolRequest.methodName,
           _params(
             CallToolRequest(
               name: 'packages_check_licenses',
-              arguments: {'licenses': false},
+              arguments: {
+                'forbidden': ['MIT'],
+              },
             ),
           ),
         );
 
-        expect(response['error'], isNull);
         final result = CallToolResult.fromMap(
           response['result'] as Map<String, Object?>,
         );
         expect(result.isError, isTrue);
-        final payload = _errorPayload(result);
-        expect(payload['status'], equals('failure'));
-        expect(payload['failureType'], equals('validation'));
-        expect(payload['failureReason'], equals('invalid_input'));
-        expect(payload['reason'], contains('No check specified'));
-        final action = payload['attemptedAction']! as Map<String, Object?>;
-        expect(action['tool'], equals('packages check licenses'));
-        expect(action['arguments'], equals({'licenses': false}));
-        verifyNever(() => mockCommandRunner.run(any()));
+        final action =
+            _errorPayload(result)['attemptedAction']! as Map<String, Object?>;
+        expect(action['tool'], equals('packages_check_licenses'));
+        expect(
+          action['command'],
+          equals('very_good packages check licenses --forbidden MIT'),
+        );
       });
     });
 
@@ -1170,6 +1253,14 @@ void main() {
         expect(
           (result.content[1] as TextContent).text,
           equals('All tests passed!'),
+        );
+        expect(
+          result.structuredContent,
+          equals({
+            'status': 'success',
+            'attemptedAction': {'tool': 'test', 'command': 'very_good test'},
+            'output': 'All tests passed!',
+          }),
         );
       });
 

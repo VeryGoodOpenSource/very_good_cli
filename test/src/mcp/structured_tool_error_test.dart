@@ -487,5 +487,112 @@ void main() {
       final action = payload['attemptedAction']! as Map<String, Object?>;
       expect(action.containsKey('arguments'), isFalse);
     });
+
+    test('returns the payload as structured content', () {
+      const error = StructuredToolError(
+        toolName: 'test',
+        reason: 'boom',
+        failureType: ToolFailureType.business,
+        failureReason: ToolFailureReason.testFailure,
+        capturedOutput: 'output',
+      );
+
+      final result = error.toCallToolResult();
+
+      expect(result.structuredContent, equals(error.toJson()));
+      expect(toolOutputSchema.validate(result.structuredContent), isEmpty);
+    });
+  });
+
+  group(StructuredToolSuccess, () {
+    test('reports only the attempted action of a silent run', () {
+      final result = const StructuredToolSuccess(
+        toolName: 'get',
+        commandString: 'very_good packages get',
+      ).toCallToolResult();
+
+      expect(result.isError, isFalse);
+      expect([
+        for (final content in result.content) (content as TextContent).text,
+      ], equals(['"get" completed successfully.']));
+      expect(
+        result.structuredContent,
+        equals({
+          'status': 'success',
+          'attemptedAction': {
+            'tool': 'get',
+            'command': 'very_good packages get',
+          },
+        }),
+      );
+    });
+
+    test('reports the output, the arguments and the test results', () {
+      final result = const StructuredToolSuccess(
+        toolName: 'test',
+        commandString: 'very_good test --coverage',
+        directory: '/tmp/project',
+        capturedOutput: 'All tests passed!',
+        attemptedArguments: {'coverage': true},
+        testResults: TestRunResults(passed: 3, skipped: 1, durationMs: 1500),
+      ).toCallToolResult();
+
+      expect([
+        for (final content in result.content) (content as TextContent).text,
+      ], equals(['"test" completed successfully.', 'All tests passed!']));
+      expect(
+        result.structuredContent,
+        equals({
+          'status': 'success',
+          'attemptedAction': {
+            'tool': 'test',
+            'command': 'very_good test --coverage',
+            'directory': '/tmp/project',
+            'arguments': {'coverage': true},
+          },
+          'test': {
+            'results': {
+              'passed': 3,
+              'failed': 0,
+              'skipped': 1,
+              'durationMs': 1500,
+              'failingTests': <Object?>[],
+            },
+          },
+          'output': 'All tests passed!',
+        }),
+      );
+      expect(toolOutputSchema.validate(result.structuredContent), isEmpty);
+    });
+  });
+
+  group('toolOutputSchema', () {
+    test('lists every failure type and reason', () {
+      final properties = toolOutputSchema.properties!;
+
+      expect(
+        (properties['failureType']! as Map<String, Object?>)['enum'],
+        equals([
+          'validation',
+          'permission',
+          'transient',
+          'timeout',
+          'business',
+        ]),
+      );
+      expect(
+        (properties['failureReason']! as Map<String, Object?>)['enum'],
+        equals([
+          for (final reason in ToolFailureReason.values) reason.jsonName,
+        ]),
+      );
+    });
+
+    test('rejects a payload without a status', () {
+      expect(
+        toolOutputSchema.validate({'attemptedAction': <String, Object?>{}}),
+        isNotEmpty,
+      );
+    });
   });
 }
