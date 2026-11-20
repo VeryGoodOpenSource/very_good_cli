@@ -1,5 +1,5 @@
 import 'package:dart_mcp/server.dart';
-import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
+import 'package:very_good_cli/src/mcp/runner/runner.dart';
 import 'package:very_good_cli/src/mcp/tools/cli_arguments.dart';
 import 'package:very_good_cli/src/mcp/tools/very_good_tool.dart';
 

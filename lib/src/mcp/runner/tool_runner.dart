@@ -6,8 +6,8 @@ import 'package:mason/mason.dart';
 import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/mcp/lock.dart';
-import 'package:very_good_cli/src/mcp/tool_run.dart';
+import 'package:very_good_cli/src/mcp/runner/lock.dart';
+import 'package:very_good_cli/src/mcp/runner/tool_run.dart';
 
 /// {@template command_runner_builder}
 /// Builds a [VeryGoodCommandRunner] bound to the provided [logger].

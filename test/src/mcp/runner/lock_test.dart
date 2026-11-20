@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:test/test.dart';
-import 'package:very_good_cli/src/mcp/lock.dart';
+import 'package:very_good_cli/src/mcp/runner/lock.dart';
 
 void main() {
   group('Lock', () {

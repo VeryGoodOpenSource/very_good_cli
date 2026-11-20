@@ -1,6 +1,6 @@
 import 'package:dart_mcp/server.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:very_good_cli/src/mcp/tool_runner.dart';
+import 'package:very_good_cli/src/mcp/runner/tool_runner.dart';
 
 /// A [ToolRunner] that records the command a tool asks it to run, instead of
 /// running it.

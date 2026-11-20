@@ -1,6 +1,6 @@
 import 'package:dart_mcp/server.dart';
 import 'package:stream_channel/stream_channel.dart';
-import 'package:very_good_cli/src/mcp/tool_runner.dart';
+import 'package:very_good_cli/src/mcp/runner/tool_runner.dart';
 import 'package:very_good_cli/src/mcp/tools/tools.dart';
 import 'package:very_good_cli/src/version.dart';
 

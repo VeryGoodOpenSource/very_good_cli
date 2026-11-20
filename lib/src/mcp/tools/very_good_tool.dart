@@ -1,7 +1,6 @@
 import 'package:dart_mcp/server.dart';
 import 'package:meta/meta.dart';
-import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
-import 'package:very_good_cli/src/mcp/tool_runner.dart';
+import 'package:very_good_cli/src/mcp/runner/runner.dart';
 
 /// {@template very_good_tool}
 /// One MCP tool served by the Very Good CLI server: its [definition] (name,

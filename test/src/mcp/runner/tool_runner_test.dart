@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
 import 'package:very_good_cli/src/command_runner.dart';
-import 'package:very_good_cli/src/mcp/tool_runner.dart';
+import 'package:very_good_cli/src/mcp/runner/tool_runner.dart';
 
 class _MockVeryGoodCommandRunner extends Mock implements VeryGoodCommandRunner;
 

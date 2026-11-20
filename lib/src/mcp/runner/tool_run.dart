@@ -7,7 +7,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/mcp/structured_tool_error.dart';
+import 'package:very_good_cli/src/mcp/runner/models/models.dart';
 
 /// {@template tool_run}
 /// A single in-process tool invocation run by the MCP server.
