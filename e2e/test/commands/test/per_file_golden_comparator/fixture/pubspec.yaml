@@ -1,0 +1,14 @@
+name: per_file_golden_comparator
+description: Fixture for testing that each optimized test file resolves its own goldens.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

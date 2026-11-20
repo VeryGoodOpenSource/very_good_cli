@@ -1,47 +1,32 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // Consider adding this file to your .gitignore.
 
-{{#isFlutter}}import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:flutter_test/flutter_test.dart' hide group;
+{{#isFlutter}}import 'package:flutter_test/flutter_test.dart' hide group;
 import 'package:test_api/scaffolding.dart' show group;
 {{/isFlutter}}{{^isFlutter}}import 'package:test/test.dart';{{/isFlutter}}
 
 {{#tests}}import '{{{path}}}' as {{identifier}};
 {{/tests}}
 void main() {
-{{#isFlutter}}  goldenFileComparator = _TestOptimizationAwareGoldenFileComparator(goldenFileComparator as LocalFileComparator);{{/isFlutter}}
-{{#tests}}  group('{{{path}}}', () { {{identifier}}.main(); }{{{groupArguments}}});
+{{#isFlutter}}  final rootGoldenFileComparator = goldenFileComparator;
+{{/isFlutter}}{{#tests}}  group('{{{path}}}', () {
+{{#isFlutter}}    late final GoldenFileComparator fileGoldenFileComparator;
+    setUpAll(() => goldenFileComparator = fileGoldenFileComparator);
+    goldenFileComparator = _goldenFileComparatorFor(rootGoldenFileComparator, '{{{path}}}');
+{{/isFlutter}}    {{identifier}}.main();
+{{#isFlutter}}    fileGoldenFileComparator = goldenFileComparator;
+{{/isFlutter}}  }{{{groupArguments}}});
 {{/tests}}}
-
 {{#isFlutter}}
-class _TestOptimizationAwareGoldenFileComparator extends GoldenFileComparator {
-  final List<String> goldenFilePaths;
-  final LocalFileComparator previousGoldenFileComparator;
-
-  _TestOptimizationAwareGoldenFileComparator(this.previousGoldenFileComparator)
-      : goldenFilePaths = _goldenFilePaths;
-
-  static List<String> get _goldenFilePaths =>
-      Directory.fromUri((goldenFileComparator as LocalFileComparator).basedir)
-          .listSync(recursive: true, followLinks: true)
-          .whereType<File>()
-          .map((file) => file.path)
-          .where((path) => path.endsWith('.png'))
-          .toList();
-  @override
-  Future<bool> compare(Uint8List imageBytes, Uri golden)  => previousGoldenFileComparator.compare(imageBytes, golden);
-
-  @override
-  Uri getTestUri(Uri key, int? version) {
-    final keyString = key.toFilePath();
-    return Uri.parse(goldenFilePaths
-        .singleWhere((goldenFilePath) => goldenFilePath.endsWith(keyString)));
-  }
-
-  @override
-  Future<void> update(Uri golden, Uint8List imageBytes) => previousGoldenFileComparator.update(golden, imageBytes);
-
-}
+/// The comparator `flutter test` would give the test file at [path] if it ran
+/// on its own: a [LocalFileComparator] that resolves goldens next to that
+/// file. Any other comparator, such as one set in `flutter_test_config.dart`,
+/// is kept as it is.
+GoldenFileComparator _goldenFileComparatorFor(
+  GoldenFileComparator root,
+  String path,
+) =>
+    root is LocalFileComparator
+        ? LocalFileComparator(root.basedir.resolveUri(Uri(path: path)))
+        : root;
 {{/isFlutter}}
