@@ -255,7 +255,7 @@ abstract class CreateSubCommand({
       try {
         pubspecWorkspace = _findWorkspace(outputDirectory);
       } on PubspecWorkspaceNotFoundException catch (exception) {
-        logger.err(_workspaceNotFoundMessage(exception));
+        logger.err(exception.workspaceNotFoundMessage(outputDirectory));
         return ExitCode.config.code;
       } on PubspecWorkspaceParseException catch (exception) {
         logger.err(
@@ -329,62 +329,14 @@ abstract class CreateSubCommand({
       return true;
     } on FileSystemException catch (exception) {
       logger.err(
-        _workspaceEditFailedMessage(pubspecWorkspace, members, exception),
+        exception.workspaceEditFailedMessage(pubspecWorkspace, members),
       );
     } on FormatException catch (exception) {
       logger.err(
-        _workspaceEditFailedMessage(pubspecWorkspace, members, exception),
+        exception.workspaceEditFailedMessage(pubspecWorkspace, members),
       );
     }
     return false;
-  }
-
-  /// The error reported when the pubspec of [pubspecWorkspace] cannot be
-  /// edited, naming the entries to add by hand for the generated [members].
-  String _workspaceEditFailedMessage(
-    PubspecWorkspace pubspecWorkspace,
-    List<Directory> members,
-    Exception exception,
-  ) {
-    final entries = members
-        .where((member) => !pubspecWorkspace.includes(member))
-        .map((member) => '  - ${pubspecWorkspace.entryFor(member)}')
-        .join('\n');
-    return 'Could not add the generated project to the '
-        '${pubspecWorkspace.pubspec.name} workspace: $exception\n'
-        'Add it to the "workspace" list of the pubspec in '
-        '${pubspecWorkspace.root.path} and install its dependencies:\n'
-        '\n'
-        'workspace:\n'
-        '$entries';
-  }
-
-  /// The error reported when the [outputDirectory] has no parent Pub workspace
-  /// to join, naming the pubspec to edit and the entry to add to it.
-  String _workspaceNotFoundMessage(
-    PubspecWorkspaceNotFoundException exception,
-  ) {
-    final outputDirectory = this.outputDirectory;
-    final outputPath = outputDirectory.path;
-    final pubspecFile = exception.pubspecFile;
-
-    if (pubspecFile == null) {
-      return 'Could not find a Pub workspace for $outputPath: none of its '
-          'parent directories has a pubspec.yaml.\n'
-          'Create the project inside a Pub workspace, or pass '
-          '--no-workspace.';
-    }
-
-    final entry = PubspecWorkspace.entryBetween(
-      pubspecFile.parent,
-      outputDirectory,
-    );
-    return 'Could not find a Pub workspace for $outputPath: '
-        '${path.relative(pubspecFile.path)} does not declare a workspace.\n'
-        'Add a "workspace" list to it and try again:\n'
-        '\n'
-        'workspace:\n'
-        '  - $entry';
   }
 
   /// Responsible for returns the template parameters to be passed to the
@@ -517,4 +469,53 @@ mixin Workspace on CreateSubCommand {
     createConfig.workspace,
     fallbackValue: false,
   );
+}
+
+extension on Exception {
+  /// The error reported when this exception prevents editing the pubspec of
+  /// [pubspecWorkspace], naming the entries to add by hand for the generated
+  /// [members].
+  String workspaceEditFailedMessage(
+    PubspecWorkspace pubspecWorkspace,
+    List<Directory> members,
+  ) {
+    final entries = members
+        .where((member) => !pubspecWorkspace.includes(member))
+        .map((member) => '  - ${pubspecWorkspace.entryFor(member)}')
+        .join('\n');
+    return 'Could not add the generated project to the '
+        '${pubspecWorkspace.pubspec.name} workspace: $this\n'
+        'Add it to the "workspace" list of the pubspec in '
+        '${pubspecWorkspace.root.path} and install its dependencies:\n'
+        '\n'
+        'workspace:\n'
+        '$entries';
+  }
+}
+
+extension on PubspecWorkspaceNotFoundException {
+  /// The error reported when [outputDirectory] has no parent Pub workspace to
+  /// join, naming the pubspec to edit and the entry to add to it.
+  String workspaceNotFoundMessage(Directory outputDirectory) {
+    final outputPath = outputDirectory.path;
+    final pubspecFile = this.pubspecFile;
+
+    if (pubspecFile == null) {
+      return 'Could not find a Pub workspace for $outputPath: none of its '
+          'parent directories has a pubspec.yaml.\n'
+          'Create the project inside a Pub workspace, or pass '
+          '--no-workspace.';
+    }
+
+    final entry = PubspecWorkspace.entryBetween(
+      pubspecFile.parent,
+      outputDirectory,
+    );
+    return 'Could not find a Pub workspace for $outputPath: '
+        '${path.relative(pubspecFile.path)} does not declare a workspace.\n'
+        'Add a "workspace" list to it and try again:\n'
+        '\n'
+        'workspace:\n'
+        '  - $entry';
+  }
 }
