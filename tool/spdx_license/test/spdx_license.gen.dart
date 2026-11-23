@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 741 SPDX licenses.
+/// A list of all 744 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -114,6 +114,7 @@ enum SpdxLicense {
   $BSD_ask_to_endorse._('BSD-ask-to-endorse'),
   $BSL_1_0._('BSL-1.0'),
   $BUSL_1_1._('BUSL-1.1'),
+  $BaKoMa._('BaKoMa'),
   $Baekmuk._('Baekmuk'),
   $Bahyph._('Bahyph'),
   $Barr._('Barr'),
@@ -349,6 +350,7 @@ enum SpdxLicense {
   $HPND_SMC._('HPND-SMC'),
   $HPND_UC._('HPND-UC'),
   $HPND_UC_export_US._('HPND-UC-export-US'),
+  $HPND_X11._('HPND-X11'),
   $HPND_doc._('HPND-doc'),
   $HPND_doc_sell._('HPND-doc-sell'),
   $HPND_export_US._('HPND-export-US'),
@@ -445,6 +447,7 @@ enum SpdxLicense {
   $MIT_advertising._('MIT-advertising'),
   $MIT_enna._('MIT-enna'),
   $MIT_feh._('MIT-feh'),
+  $MIT_kdevelop_ideal._('MIT-kdevelop-ideal'),
   $MIT_open_group._('MIT-open-group'),
   $MIT_testregex._('MIT-testregex'),
   $MITNFA._('MITNFA'),
