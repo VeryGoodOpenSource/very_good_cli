@@ -100,7 +100,3 @@ class const StructuredToolError({
     );
   }
 }
-
-/// The structured `test` block of a failure payload.
-///
-/// Either or both of [results] and [coverage] may be null; a null field is
