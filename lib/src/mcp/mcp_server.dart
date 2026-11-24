@@ -139,7 +139,7 @@ Whether package is intended for publishing (flutter_package, dart_package  only)
             ),
             'workspace': BooleanSchema(
               description: '''
-Whether the generated project should resolve its dependencies from a parent Pub workspace.''',
+Whether the generated project should be added to the closest parent Pub workspace and resolve its dependencies from it.''',
             ),
             'executable-name': StringSchema(
               description: '''
