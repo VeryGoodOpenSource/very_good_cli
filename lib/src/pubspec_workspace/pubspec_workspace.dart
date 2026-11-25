@@ -1,18 +1,23 @@
-/// Helpers for working with Pub workspaces: the packages that belong to one,
-/// and a tolerant resolver for the classification of their dependencies.
+/// A small model of a Pub workspace: its root, the members it lists, the
+/// edit that adds members to that list, and a tolerant resolver for the
+/// classification of their dependencies.
 ///
-/// The resolver is used by the `packages check licenses` command. In a Pub
-/// workspace, member packages share a single `pubspec.lock` at the workspace
-/// root, and that lock classifies every member's direct dependency as
-/// `transitive` (only the root package's own dependencies are classified
-/// relative to it). As a result, running the command at the workspace root
-/// reports no direct dependencies.
+/// It serves two commands and models only what they need.
 ///
-/// This resolver rebuilds the correct classification by unioning the
+/// `create --workspace` finds the workspace that encloses the project it
+/// generates and adds the generated packages to its `workspace:` list.
+///
+/// `packages check licenses` uses the resolver. In a Pub workspace, member
+/// packages share a single `pubspec.lock` at the workspace root, and that lock
+/// classifies every member's direct dependency as `transitive` (only the root
+/// package's own dependencies are classified relative to it). As a result,
+/// running the command at the workspace root reports no direct dependencies.
+/// The resolver rebuilds the correct classification by unioning the
 /// directly-declared dependencies across the root and every member
-/// `pubspec.yaml`. It mirrors the shape and philosophy of `pubspec_lock.dart`:
-/// a small, tolerant, single-purpose parser. It is not a general workspace
-/// model.
+/// `pubspec.yaml`.
+///
+/// It mirrors the shape and philosophy of `pubspec_lock.dart`: a small,
+/// tolerant, purpose-built parser.
 library;
 
 import 'dart:convert';
@@ -25,6 +30,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:yaml/yaml.dart';
+import 'package:yaml_edit/yaml_edit.dart';
 
 part 'workspace_dependency_collector.dart';
 
@@ -50,56 +56,257 @@ const _overridableKeys = <String>{
 /// path; anything else is expanded through [Glob].
 final _globCharacters = RegExp(r'[*?\[\]{}]');
 
-/// Resolves the directly-declared dependencies across the Pub workspace rooted
-/// at [rootDirectory], mapping each dependency name to its workspace-wide
-/// [PubspecDependencyType].
+/// {@template PubspecWorkspaceParseException}
+/// Thrown when the `pubspec.yaml` of a [PubspecWorkspace] root exists but
+/// cannot be parsed.
+/// {@endtemplate}
+class const PubspecWorkspaceParseException({
+  /// The `pubspec.yaml` that could not be parsed.
+  required final File pubspecFile,
+}) implements Exception {
+  /// {@macro PubspecWorkspaceParseException}
+  this;
+
+  @override
+  String toString() =>
+      'PubspecWorkspaceParseException: Could not parse ${pubspecFile.path}.';
+}
+
+/// {@template PubspecWorkspaceNotFoundException}
+/// Thrown when a directory is not the root of a [PubspecWorkspace] (it has no
+/// `pubspec.yaml`, or its `pubspec.yaml` does not declare a `workspace:`
+/// list), or when no [PubspecWorkspace] encloses it.
+/// {@endtemplate}
+class const PubspecWorkspaceNotFoundException({
+  /// The directory in which a workspace root was looked for.
+  required final Directory directory,
+
+  /// The closest `pubspec.yaml` that was found but does not declare a
+  /// `workspace:` list, if any.
+  final File? pubspecFile,
+}) implements Exception {
+  /// {@macro PubspecWorkspaceNotFoundException}
+  this;
+
+  @override
+  String toString() =>
+      '''PubspecWorkspaceNotFoundException: No Pub workspace root found for ${directory.path}.''';
+}
+
+/// {@template PubspecWorkspace}
+/// A representation of a Pub workspace: the [root] package whose pubspec
+/// declares a `workspace:` list, and the member [entries] it lists.
 ///
-/// Walks the root and every member `pubspec.yaml` (recursively following nested
-/// `workspace:` lists and glob entries) and unions their declared dependencies.
-/// Each package's `pubspec_overrides.yaml`, if present, is overlaid on its
-/// `pubspec.yaml` before the walk, matching Pub's override semantics for
-/// `workspace`, `resolution`, and `dependency_overrides`.
-///
-/// Precedence when a name appears under multiple types across members:
-/// `directMain` > `directDev` > `directOverridden` (approximates pub's
-/// precedence). Names not directly declared by any member are absent from the
-/// map; the caller treats an absent name as
-/// [PubspecDependencyType.transitive].
-///
-/// Returns `null` when [rootDirectory] has no readable workspace-root pubspec
-/// (missing pubspec, or no non-empty `workspace:` list) — the caller then falls
-/// back to the lock's own classification (non-workspace behavior). A present
-/// but unparseable root pubspec logs a warning via [logger] before returning
-/// `null`. [logger] also receives a warning for every skipped member.
-///
-/// The workspace is walked by [collector], which defaults to a fresh
-/// [WorkspaceDependencyCollector] reporting to [logger].
-Map<String, PubspecDependencyType>? resolveWorkspaceDependencies(
-  Directory rootDirectory, {
-  required Logger logger,
-  @visibleForTesting WorkspaceDependencyCollector? collector,
+/// The root's `pubspec_overrides.yaml`, if present, is overlaid on its
+/// `pubspec.yaml`, matching Pub's override semantics for `workspace`,
+/// `resolution`, and `dependency_overrides`.
+/// {@endtemplate}
+class const PubspecWorkspace._({
+  /// The directory of the workspace root package.
+  required final Directory root,
+
+  /// The pubspec of the workspace root package, overrides included.
+  required final Pubspec pubspec,
+
+  /// The entries of the `workspace:` list, as written in the root pubspec.
+  ///
+  /// Each entry is either a literal member path or a glob, relative to
+  /// [root].
+  required final List<String> entries,
 }) {
-  final rootPubspecFile = File(path.join(rootDirectory.path, _pubspecBasename));
+  /// Reads the [PubspecWorkspace] rooted at [directory].
+  ///
+  /// It throws a [PubspecWorkspaceNotFoundException] if [directory] has no
+  /// `pubspec.yaml`, or if that pubspec does not declare a `workspace:` list
+  /// (an empty list is still a workspace).
+  ///
+  /// It throws a [PubspecWorkspaceParseException] if the `pubspec.yaml` exists
+  /// but cannot be parsed.
+  factory fromDirectory(Directory directory) {
+    final read = _readPubspec(directory);
+    if (read == null) {
+      throw PubspecWorkspaceNotFoundException(directory: directory);
+    }
 
-  // A missing pubspec is the normal non-workspace case: fall back silently to
-  // the lock's own classification.
-  if (!rootPubspecFile.existsSync()) return null;
+    final entries = read.pubspec.workspace;
+    if (entries == null) {
+      throw PubspecWorkspaceNotFoundException(
+        directory: directory,
+        pubspecFile: read.file,
+      );
+    }
 
-  final rootPubspec = _tryParsePubspecWithOverrides(rootDirectory);
-  if (rootPubspec == null) {
-    logger.warn(
-      '''Could not parse the workspace-root $_pubspecBasename in ${rootDirectory.path}. Falling back to the lock file classification.''',
+    return PubspecWorkspace._(
+      root: directory,
+      pubspec: read.pubspec,
+      entries: List.unmodifiable(entries),
     );
-    return null;
   }
 
-  final workspace = rootPubspec.workspace;
-  if (workspace == null || workspace.isEmpty) return null;
+  /// Finds the closest [PubspecWorkspace] that encloses [directory]: the
+  /// nearest ancestor of [directory] whose pubspec declares a `workspace:`
+  /// list.
+  ///
+  /// The [directory] itself is never the root of the workspace that encloses
+  /// it, and it does not need to exist yet.
+  ///
+  /// The search climbs past ancestor packages that are themselves workspace
+  /// members (`resolution: workspace`) and stops at the first ancestor
+  /// package that is neither a member nor a root: Pub rejects a member that
+  /// is nested in a package outside of its workspace.
+  ///
+  /// It throws a [PubspecWorkspaceNotFoundException] if no workspace root is
+  /// found. Its `pubspecFile` is the closest ancestor `pubspec.yaml` that
+  /// does not declare a `workspace:` list, if any.
+  ///
+  /// It throws a [PubspecWorkspaceParseException] if a `pubspec.yaml` found on
+  /// the way up cannot be parsed.
+  factory enclosing(Directory directory) {
+    File? closestPubspecFile;
+    var current = Directory(path.normalize(path.absolute(directory.path)));
 
-  final workspaceCollector =
-      (collector ?? WorkspaceDependencyCollector(logger: logger))
-        ..visit(rootDirectory, rootPubspec);
-  return workspaceCollector.classify();
+    while (current.parent.path != current.path) {
+      current = current.parent;
+      final read = _readPubspec(current);
+      if (read == null) continue;
+
+      final entries = read.pubspec.workspace;
+      if (entries != null) {
+        return PubspecWorkspace._(
+          root: current,
+          pubspec: read.pubspec,
+          entries: List.unmodifiable(entries),
+        );
+      }
+
+      closestPubspecFile ??= read.file;
+      if (read.pubspec.resolution != 'workspace') break;
+    }
+
+    throw PubspecWorkspaceNotFoundException(
+      directory: directory,
+      pubspecFile: closestPubspecFile,
+    );
+  }
+
+  /// The `workspace:` entry that lists the package at [member] in the pubspec
+  /// of the package at [root]: the path of [member] relative to [root], with
+  /// `/` separators.
+  static String entryBetween(Directory root, Directory member) {
+    final relative = path.relative(
+      path.absolute(member.path),
+      from: path.absolute(root.path),
+    );
+    return path.posix.joinAll(path.split(relative));
+  }
+
+  /// The `workspace:` entry that lists the package at [member]: its path
+  /// relative to [root], with `/` separators.
+  String entryFor(Directory member) => entryBetween(root, member);
+
+  /// Whether the package at [member] is already covered by one of the
+  /// [entries], either as a literal path or through a glob.
+  bool includes(Directory member) {
+    final memberEntry = entryFor(member);
+    // A literal path is the no-wildcard case of a glob. Entries are
+    // normalized first, because Pub accepts `./packages/*` and `packages/a/`.
+    return entries.any(
+      (entry) => Glob(
+        path.posix.normalize(entry),
+        context: path.posix,
+      ).matches(memberEntry),
+    );
+  }
+
+  /// Adds the packages at [members] to the `workspace:` list of the root
+  /// pubspec, skipping those the workspace already [includes].
+  ///
+  /// The list is edited in the file that declares it: the root's
+  /// `pubspec_overrides.yaml` when it sets `workspace:`, its `pubspec.yaml`
+  /// otherwise. Comments and formatting of that file are preserved.
+  ///
+  /// Returns the workspace as it is after the edit: the new entries follow
+  /// the existing [entries], in alphabetical order. This instance is a
+  /// snapshot and is not updated.
+  PubspecWorkspace addMembers(Iterable<Directory> members) {
+    final added = {
+      for (final member in members)
+        if (!includes(member)) entryFor(member),
+    }.toList()..sort();
+    if (added.isEmpty) return this;
+
+    final file = _workspaceFile;
+    final editor = YamlEditor(file.readAsStringSync());
+    if (entries.isEmpty) {
+      // An empty list is written inline (`workspace: []`); appending to it
+      // would keep every entry on that single line.
+      editor.update([
+        'workspace',
+      ], wrapAsYamlNode(added, collectionStyle: CollectionStyle.BLOCK));
+    } else {
+      for (final entry in added) {
+        editor.appendToList(['workspace'], entry);
+      }
+    }
+    file.writeAsStringSync(editor.toString());
+
+    return PubspecWorkspace.fromDirectory(root);
+  }
+
+  /// The file that declares the `workspace:` list of the [root].
+  File get _workspaceFile {
+    final overridesFile = File(path.join(root.path, _pubspecOverridesBasename));
+    if (overridesFile.existsSync()) {
+      try {
+        final overrides = loadYaml(overridesFile.readAsStringSync());
+        if (overrides is Map && overrides.containsKey('workspace')) {
+          return overridesFile;
+        }
+        // An unparseable overrides file is ignored when reading the workspace,
+        // so the list comes from the pubspec.yaml.
+      } on YamlException catch (_) {}
+    }
+    return File(path.join(root.path, _pubspecBasename));
+  }
+
+  /// Resolves the directly-declared dependencies across this workspace,
+  /// mapping each dependency name to its workspace-wide
+  /// [PubspecDependencyType].
+  ///
+  /// Walks the root and every member `pubspec.yaml` (recursively following
+  /// nested `workspace:` lists and glob entries) and unions their declared
+  /// dependencies. Each package's `pubspec_overrides.yaml`, if present, is
+  /// overlaid on its `pubspec.yaml` before the walk.
+  ///
+  /// Precedence when a name appears under multiple types across members:
+  /// `directMain` > `directDev` > `directOverridden` (approximates pub's
+  /// precedence). Names not directly declared by any member are absent from
+  /// the map; the caller treats an absent name as
+  /// [PubspecDependencyType.transitive].
+  ///
+  /// [logger] receives a warning for every skipped member.
+  ///
+  /// The workspace is walked by [collector], which defaults to a fresh
+  /// [WorkspaceDependencyCollector] reporting to [logger].
+  Map<String, PubspecDependencyType> resolveDependencies({
+    required Logger logger,
+    @visibleForTesting WorkspaceDependencyCollector? collector,
+  }) {
+    final workspaceCollector =
+        (collector ?? WorkspaceDependencyCollector(logger: logger))
+          ..visit(root, pubspec);
+    return workspaceCollector.classify();
+  }
+
+  /// Whether the package rooted at [directory] declares
+  /// `resolution: workspace`, indicating it is a member of a Pub workspace.
+  ///
+  /// Honors a sibling `pubspec_overrides.yaml`, since Pub allows the
+  /// `resolution` key to be set there instead of in `pubspec.yaml`.
+  static bool declaresWorkspaceResolution(Directory directory) {
+    final pubspec = _tryParsePubspecWithOverrides(directory);
+    return pubspec?.resolution == 'workspace';
+  }
 }
 
 /// Parses the [output] of `dart pub workspace list --json` into the paths of
@@ -114,15 +321,19 @@ List<String> parseWorkspacePackagePaths(String output) {
   ];
 }
 
-/// Whether the package rooted at [directory] declares `resolution: workspace`,
-/// indicating it is a member of a Pub workspace and must have its licenses
-/// checked from the workspace root instead.
+/// Reads the `pubspec.yaml` of [directory], overlaying any sibling
+/// `pubspec_overrides.yaml`.
 ///
-/// Honors a sibling `pubspec_overrides.yaml`, since Pub allows the `resolution`
-/// key to be set there instead of in `pubspec.yaml`.
-bool declaresWorkspaceResolution(Directory directory) {
+/// Returns `null` when [directory] has no `pubspec.yaml`, and throws a
+/// [PubspecWorkspaceParseException] when it has one that cannot be parsed.
+({File file, Pubspec pubspec})? _readPubspec(Directory directory) {
+  final file = File(path.join(directory.path, _pubspecBasename));
+  if (!file.existsSync()) return null;
+
   final pubspec = _tryParsePubspecWithOverrides(directory);
-  return pubspec?.resolution == 'workspace';
+  if (pubspec == null) throw PubspecWorkspaceParseException(pubspecFile: file);
+
+  return (file: file, pubspec: pubspec);
 }
 
 /// Tolerantly parses the pubspec at [directory], overlaying any sibling

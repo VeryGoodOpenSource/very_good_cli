@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
+import 'package:very_good_cli/src/pubspec_workspace/pubspec_workspace.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
@@ -21,6 +22,13 @@ const _defaultDescription = 'A Very Good Project created by Very Good CLI.';
 
 /// A method which returns a [Future<MasonGenerator>] given a [MasonBundle].
 typedef MasonGeneratorFromBundle = Future<MasonGenerator> Function(MasonBundle);
+
+/// A method which returns the [PubspecWorkspace] that encloses a [Directory].
+///
+/// It throws a [PubspecWorkspaceNotFoundException] or a
+/// [PubspecWorkspaceParseException] when there is none, as
+/// [PubspecWorkspace.enclosing] does.
+typedef PubspecWorkspaceFinder = PubspecWorkspace Function(Directory);
 
 /// {@template create_subcommand}
 /// Generic class for sub commands of [CreateCommand].
@@ -50,6 +58,7 @@ abstract class CreateSubCommand({
   /// The logger user to notify the user of the command's progress.
   required final Logger logger,
   @visibleForTesting required MasonGeneratorFromBundle? generatorFromBundle,
+  @visibleForTesting PubspecWorkspaceFinder? findWorkspace,
 }) extends Command<int> {
   /// {@macro create_subcommand}
   this {
@@ -110,14 +119,17 @@ abstract class CreateSubCommand({
         'workspace',
         aliases: ['ws'],
         help:
-            'Whether the generated project should resolve its dependencies '
-            'from a parent Pub workspace.',
+            'Whether the generated project should be added to the closest '
+            'parent Pub workspace and resolve its dependencies from it.',
       );
     }
   }
 
   final MasonGeneratorFromBundle _generatorFromBundle =
       generatorFromBundle ?? MasonGenerator.fromBundle;
+
+  final PubspecWorkspaceFinder _findWorkspace =
+      findWorkspace ?? PubspecWorkspace.enclosing;
 
   /// The resolved `very_good create` configuration read from the closest
   /// `very_good.yaml` file.
@@ -236,6 +248,25 @@ abstract class CreateSubCommand({
   Future<int> runCreate(MasonGenerator generator, Template template) async {
     var vars = getTemplateVars();
 
+    // Resolved before anything is generated, so that a project that cannot
+    // join a workspace fails without leaving files behind.
+    PubspecWorkspace? pubspecWorkspace;
+    if (this case final Workspace command when command.workspace) {
+      try {
+        pubspecWorkspace = _findWorkspace(outputDirectory);
+      } on PubspecWorkspaceNotFoundException catch (exception) {
+        logger.err(exception.workspaceNotFoundMessage(outputDirectory));
+        return ExitCode.config.code;
+      } on PubspecWorkspaceParseException catch (exception) {
+        logger.err(
+          'Could not parse ${exception.pubspecFile.path}.\n'
+          'Fix it before creating a project that resolves from a Pub '
+          'workspace.',
+        );
+        return ExitCode.config.code;
+      }
+    }
+
     final generateProgress = logger.progress('Bootstrapping');
     final target = DirectoryGeneratorTarget(outputDirectory);
 
@@ -254,9 +285,58 @@ abstract class CreateSubCommand({
     final files = await generator.generate(target, vars: vars, logger: logger);
     generateProgress.complete('Generated ${files.length} file(s)');
 
+    // The generated packages have to be members of the workspace before
+    // their dependencies are installed.
+    if (pubspecWorkspace != null && !_addToWorkspace(pubspecWorkspace, files)) {
+      return ExitCode.cantCreate.code;
+    }
+
     await template.onGenerateComplete(logger, outputDirectory);
 
     return ExitCode.success.code;
+  }
+
+  /// Adds the packages among the generated [files] that resolve from a
+  /// workspace to the `workspace` list of [pubspecWorkspace].
+  ///
+  /// Returns whether the root pubspec could be edited. When it could not, the
+  /// entries to add by hand are reported.
+  bool _addToWorkspace(
+    PubspecWorkspace pubspecWorkspace,
+    List<GeneratedFile> files,
+  ) {
+    final workspaceName = pubspecWorkspace.pubspec.name;
+    final members = files
+        .where((file) => path.basename(file.path) == 'pubspec.yaml')
+        .map((file) => Directory(path.dirname(file.path)))
+        .where(PubspecWorkspace.declaresWorkspaceResolution)
+        .toList();
+
+    if (members.isEmpty) {
+      logger.warn(
+        'None of the generated packages resolves from a workspace; nothing '
+        'was added to the $workspaceName workspace.',
+      );
+      return true;
+    }
+
+    try {
+      final updated = pubspecWorkspace.addMembers(members);
+      final added = updated.entries.skip(pubspecWorkspace.entries.length);
+      for (final entry in added) {
+        logger.info('Added "$entry" to the $workspaceName workspace');
+      }
+      return true;
+    } on FileSystemException catch (exception) {
+      logger.err(
+        exception.workspaceEditFailedMessage(pubspecWorkspace, members),
+      );
+    } on FormatException catch (exception) {
+      logger.err(
+        exception.workspaceEditFailedMessage(pubspecWorkspace, members),
+      );
+    }
+    return false;
   }
 
   /// Responsible for returns the template parameters to be passed to the
@@ -377,6 +457,11 @@ mixin Publishable on CreateSubCommand {
 ///
 /// Takes care of parsing it from [argResults] and pass it
 /// to the brick generator.
+///
+/// When the flag is set, [CreateSubCommand.runCreate] joins the closest
+/// parent Pub workspace: it finds the workspace before generating anything,
+/// failing with [ExitCode.config] if there is none, and adds the generated
+/// packages to its `workspace` list before their dependencies are installed.
 mixin Workspace on CreateSubCommand {
   /// Gets the workspace flag.
   bool get workspace => argResults.resolve<bool>(
@@ -384,4 +469,53 @@ mixin Workspace on CreateSubCommand {
     createConfig.workspace,
     fallbackValue: false,
   );
+}
+
+extension on Exception {
+  /// The error reported when this exception prevents editing the pubspec of
+  /// [pubspecWorkspace], naming the entries to add by hand for the generated
+  /// [members].
+  String workspaceEditFailedMessage(
+    PubspecWorkspace pubspecWorkspace,
+    List<Directory> members,
+  ) {
+    final entries = members
+        .where((member) => !pubspecWorkspace.includes(member))
+        .map((member) => '  - ${pubspecWorkspace.entryFor(member)}')
+        .join('\n');
+    return 'Could not add the generated project to the '
+        '${pubspecWorkspace.pubspec.name} workspace: $this\n'
+        'Add it to the "workspace" list of the pubspec in '
+        '${pubspecWorkspace.root.path} and install its dependencies:\n'
+        '\n'
+        'workspace:\n'
+        '$entries';
+  }
+}
+
+extension on PubspecWorkspaceNotFoundException {
+  /// The error reported when [outputDirectory] has no parent Pub workspace to
+  /// join, naming the pubspec to edit and the entry to add to it.
+  String workspaceNotFoundMessage(Directory outputDirectory) {
+    final outputPath = outputDirectory.path;
+    final pubspecFile = this.pubspecFile;
+
+    if (pubspecFile == null) {
+      return 'Could not find a Pub workspace for $outputPath: none of its '
+          'parent directories has a pubspec.yaml.\n'
+          'Create the project inside a Pub workspace, or pass '
+          '--no-workspace.';
+    }
+
+    final entry = PubspecWorkspace.entryBetween(
+      pubspecFile.parent,
+      outputDirectory,
+    );
+    return 'Could not find a Pub workspace for $outputPath: '
+        '${path.relative(pubspecFile.path)} does not declare a workspace.\n'
+        'Add a "workspace" list to it and try again:\n'
+        '\n'
+        'workspace:\n'
+        '  - $entry';
+  }
 }

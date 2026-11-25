@@ -34,7 +34,7 @@ Usage: very_good create flutter_package <project-name> [arguments]
     --description         The description for this new project.
                           (defaults to "A Very Good Project created by Very Good CLI.")
     --publishable         Whether the generated project is intended to be published.
-    --[no-]workspace      Whether the generated project should resolve its dependencies from a parent Pub workspace.
+    --[no-]workspace      Whether the generated project should be added to the closest parent Pub workspace and resolve its dependencies from it.
 
 Run "very_good help" to see global options.''',
 ];

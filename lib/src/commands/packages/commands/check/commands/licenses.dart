@@ -30,7 +30,8 @@ import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 Future<package_config.PackageConfig?> Function(Directory directory)?
 findPackageConfigOverride;
 
-/// Overrides the [resolveWorkspaceDependencies] function for testing.
+/// Overrides the resolution of the workspace dependencies (see
+/// [PubspecWorkspace.resolveDependencies]) for testing.
 @visibleForTesting
 Map<String, PubspecDependencyType>? Function(
   Directory directory, {
@@ -332,7 +333,7 @@ class PackagesCheckLicensesCommand({Logger? logger}) extends Command<int> {
     required PackagesCheckLicensesOptions options,
   }) {
     final resolveWorkspace =
-        resolveWorkspaceOverride ?? resolveWorkspaceDependencies;
+        resolveWorkspaceOverride ?? _tryResolveWorkspaceDependencies;
     final workspaceDeps = resolveWorkspace(targetDirectory, logger: _logger);
 
     PubspecDependencyType typeOf(PubspecLockPackage dependency) =>
@@ -458,11 +459,35 @@ Future<Set<String>> _retrieveLicenses(
 /// [targetDirectory].
 String _missingPubspecLockMessage(Directory targetDirectory) {
   final targetPath = targetDirectory.path;
-  return declaresWorkspaceResolution(targetDirectory)
+  return PubspecWorkspace.declaresWorkspaceResolution(targetDirectory)
       ? 'Could not find a $pubspecLockBasename in $targetPath.\n'
             'This package resolves as part of a Pub workspace. '
             'Run the command from the workspace root instead.'
       : 'Could not find a $pubspecLockBasename in $targetPath';
+}
+
+/// Attempts to resolve the dependency types declared across the Pub workspace
+/// rooted at [directory].
+///
+/// If [directory] is not the root of a Pub workspace with members, `null` is
+/// returned and the caller falls back to the lock file classification. A
+/// present but unparseable root pubspec logs a warning via [logger] first.
+Map<String, PubspecDependencyType>? _tryResolveWorkspaceDependencies(
+  Directory directory, {
+  required Logger logger,
+}) {
+  try {
+    final workspace = PubspecWorkspace.fromDirectory(directory);
+    if (workspace.entries.isEmpty) return null;
+    return workspace.resolveDependencies(logger: logger);
+  } on PubspecWorkspaceNotFoundException {
+    return null;
+  } on PubspecWorkspaceParseException {
+    logger.warn(
+      '''Could not parse the workspace-root pubspec.yaml in ${directory.path}. Falling back to the lock file classification.''',
+    );
+    return null;
+  }
 }
 
 /// Attempts to parse a [PubspecLock] file in the given [path].
