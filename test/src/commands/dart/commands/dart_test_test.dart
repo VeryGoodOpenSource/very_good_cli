@@ -388,7 +388,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
       verify(
         () => dartTest(
-          arguments: ['--platform', 'chrome'],
+          arguments: ['--platform', 'chrome', '-j', '1'],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
@@ -402,7 +402,7 @@ void main() {
       expect(result, equals(ExitCode.success.code));
       verify(
         () => dartTest(
-          arguments: ['--platform', 'chrome'],
+          arguments: ['--platform', 'chrome', '-j', '1'],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
@@ -410,13 +410,14 @@ void main() {
       ).called(1);
     });
 
-    test('disables concurrency when --platform is specified', () async {
+    test('sets concurrency to 1 when --platform is specified', () async {
       when<dynamic>(() => argResults['platform']).thenReturn('chrome');
+      when<dynamic>(() => argResults['concurrency']).thenReturn('8');
       final result = await testCommand.run();
       expect(result, equals(ExitCode.success.code));
       verify(
         () => dartTest(
-          arguments: ['--platform', 'chrome'],
+          arguments: ['--platform', 'chrome', '-j', '1'],
           logger: logger,
           stdout: logger.write,
           stderr: logger.err,
