@@ -38,7 +38,7 @@ Usage: very_good create flutter_app <project-name> [arguments]
     --org-name                   The organization for this new project.
                                  (defaults to "com.example.verygoodcore")
     --publishable                Whether the generated project is intended to be published.
-    --[no-]workspace             Whether the generated project should resolve its dependencies from a parent Pub workspace.
+    --[no-]workspace             Whether the generated project should be added to the closest parent Pub workspace and resolve its dependencies from it.
     --application-id             The bundle identifier on iOS or application id on Android. (defaults to <org-name>.<project-name>)
     --platforms                  The platforms supported by the app. By default, all platforms are enabled. Example: --platforms=android,ios
 

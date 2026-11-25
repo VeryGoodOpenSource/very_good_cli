@@ -113,8 +113,9 @@ class CreateTool(super.runner) extends VeryGoodTool {
         ),
         'workspace': BooleanSchema(
           description:
-              'Whether the project resolves its dependencies from a '
-              'parent Pub workspace. Ignored for docs_site.',
+              'Whether to add the project to the closest parent Pub '
+              'workspace and resolve its dependencies from it. Ignored for '
+              'docs_site.',
         ),
         'executable_name': StringSchema(
           description:

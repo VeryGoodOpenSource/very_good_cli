@@ -84,6 +84,8 @@ create:
 
 With the file above, running `very_good create flutter_app my_app` behaves the same as running `very_good create flutter_app my_app --desc 'A Very Good project.' --org-name com.very.good --publishable --template core`. You can still override any of these values on the command line, for example `very_good create flutter_app my_app --org-name com.example` to use a different org name for a single run.
 
+With `workspace: true` (or `--workspace`), the generated packages are added to the `workspace` list of the closest parent `pubspec.yaml`, or of `pubspec_overrides.yaml` when that file declares the list. Entries already covered by the list, such as `packages/*`, are left untouched. If no parent pubspec declares a `workspace` list, the command exits with code 78 before generating any files.
+
 The `very_good.yaml` file is looked up starting from the directory where the command runs and walking up through its ancestors. The closest file wins; configuration from ancestor directories is not merged. This lets a single `very_good.yaml` at the repository root apply to commands run from any nested package.
 
 ## Available templates
