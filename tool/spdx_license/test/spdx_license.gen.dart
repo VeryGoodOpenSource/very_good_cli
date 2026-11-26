@@ -12,7 +12,7 @@
 library spdx_license;
 
 /// {@template spdx_license}
-/// A list of all 744 SPDX licenses.
+/// A list of all 746 SPDX licenses.
 ///
 /// These have been automatically generated from the SPDX License brick.
 /// {@endtemplate}
@@ -95,6 +95,7 @@ enum SpdxLicense {
   $BSD_3_Clause_Tso._('BSD-3-Clause-Tso'),
   $BSD_3_Clause_acpica._('BSD-3-Clause-acpica'),
   $BSD_3_Clause_flex._('BSD-3-Clause-flex'),
+  $BSD_3_Clause_pos_unchanged._('BSD-3-Clause-pos-unchanged'),
   $BSD_4_Clause._('BSD-4-Clause'),
   $BSD_4_Clause_Shortened._('BSD-4-Clause-Shortened'),
   $BSD_4_Clause_UC._('BSD-4-Clause-UC'),
@@ -562,6 +563,7 @@ enum SpdxLicense {
   $OpenVision._('OpenVision'),
   $PADL._('PADL'),
   $PDDL_1_0._('PDDL-1.0'),
+  $PDL_Japan_1_0._('PDL-Japan-1.0'),
   $PHP_3_0._('PHP-3.0'),
   $PHP_3_01._('PHP-3.01'),
   $PPL._('PPL'),
