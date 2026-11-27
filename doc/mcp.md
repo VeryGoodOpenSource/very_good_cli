@@ -130,19 +130,28 @@ Runs the tests of a Dart or Flutter package, optionally collecting coverage and 
     "dart": false,
     "coverage": true,
     "recursive": false,
+    "workspace": false,
     "optimization": true,
+    "exclude_optimization": ["test/integration/**"],
     "concurrency": 4,
     "min_coverage": 100,
     "show_uncovered": true,
     "check_ignore": true,
+    "collect_coverage_from": "imports | all",
+    "report_on": ["lib/src"],
     "tags": "unit",
     "exclude_tags": "integration",
     "exclude_coverage": "**/*.g.dart",
     "update_goldens": false,
+    "fail_fast": false,
     "run_skipped": false,
     "platform": "chrome | vm | android | ios",
+    "flavor": "development",
     "dart_define": ["foo=bar"],
     "dart_define_from_file": ["config.json"],
+    "file_reporter": "json:reports/tests.json",
+    "shard_index": 1,
+    "total_shards": 3,
     "test_randomize_ordering_seed": "random",
     "timeout_seconds": 120
   }
@@ -151,9 +160,13 @@ Runs the tests of a Dart or Flutter package, optionally collecting coverage and 
 
 All parameters are optional. The tool runs `flutter test` unless `dart` is `true`. When `timeout_seconds` is not specified, no timeout is applied.
 
-`directory` selects the package to test; `paths` selects test files or directories *within* that package. To run another package's tests, point `directory` at it — putting a package path in `paths` runs the wrong thing, or nothing at all. Passing `paths` disables the test optimization step, and it cannot be combined with `recursive`, since each package in a recursive run gets the same relative path and only one of them can resolve it.
+`directory` selects the package to test; `paths` selects test files or directories *within* that package. To run another package's tests, point `directory` at it — putting a package path in `paths` runs the wrong thing, or nothing at all. Passing `paths` disables the test optimization step, and it cannot be combined with `recursive` or `workspace`, since each package in a multi-package run gets the same relative path and only one of them can resolve it. `recursive` runs every package nested under `directory`, while `workspace` runs every package of the Pub workspace rooted there; the two cannot be combined.
 
-`check_ignore` only applies to Dart tests: `true` requires `"dart": true`. `dart_define`, `dart_define_from_file` and the `android` and `ios` platforms only apply to Flutter tests.
+`fail_fast` stops the run at the first failing test, which shortens the loop while fixing a failing suite. `collect_coverage_from` defaults to `imports`, which only counts the files the tests import; `all` also counts the files no test imports, so they weigh against `min_coverage`. `report_on` restricts the coverage report to the given paths, and `exclude_optimization` keeps the matching test files out of the optimized bundle while still running them. `file_reporter` writes the test results to a file, as `<name>:<path>`.
+
+`shard_index` and `total_shards` split the suite across runners and must be set together. Sharding requires the optimization, so it cannot be combined with `paths`, `platform`, `update_goldens` or `"optimization": false`, nor with `min_coverage`, since one shard covers a fraction of the code.
+
+`check_ignore` only applies to Dart tests: `true` requires `"dart": true`. `dart_define`, `dart_define_from_file`, `flavor`, `update_goldens` and the `android` and `ios` platforms only apply to Flutter tests. Every other parameter applies to both runners.
 
 ### `packages_get`
 
@@ -184,12 +197,13 @@ Lists the licenses of the dependencies of a Dart or Flutter package, and fails w
     "dependency_type": ["direct-main", "direct-dev", "transitive", "direct-overridden"],
     "allowed": ["MIT", "BSD-3-Clause"],
     "skip_packages": ["package1"],
-    "ignore_retrieval_failures": false
+    "ignore_retrieval_failures": false,
+    "reporter": "text | csv"
   }
 }
 ```
 
-All parameters are optional. `dependency_type` defaults to `["direct-main"]`. Pass `forbidden` instead of `allowed` to reject licenses; the two cannot be combined.
+All parameters are optional. `dependency_type` defaults to `["direct-main"]`. Pass `forbidden` instead of `allowed` to reject licenses; the two cannot be combined. `reporter` defaults to `text`; `csv` lists one package per row.
 
 ## Results
 
