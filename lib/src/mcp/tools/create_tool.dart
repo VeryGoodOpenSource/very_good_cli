@@ -1,4 +1,7 @@
+import 'dart:io' show Directory;
+
 import 'package:dart_mcp/server.dart';
+import 'package:path/path.dart' as path;
 import 'package:very_good_cli/src/mcp/runner/runner.dart';
 import 'package:very_good_cli/src/mcp/tools/cli_arguments.dart';
 import 'package:very_good_cli/src/mcp/tools/very_good_tool.dart';
@@ -35,8 +38,9 @@ class CreateTool(super.runner) extends VeryGoodTool {
         'Create a new Dart or Flutter project from a Very Good template. '
         'Generates the project in "<output_directory>/<name>" and, for '
         'every template but docs_site, installs its dependencies. Fails '
-        'instead of overwriting a file that already exists there with '
-        'different content. Some arguments only apply to some '
+        'without generating anything when that folder already exists and '
+        'is not empty, so an existing project is never overwritten. Some '
+        'arguments only apply to some '
         'templates; passing one to a template that does not accept it '
         'fails with a usage error.',
     annotations: ToolAnnotations(
@@ -130,11 +134,29 @@ class CreateTool(super.runner) extends VeryGoodTool {
   );
 
   @override
-  Future<CallToolResult> run(Map<String, Object?> arguments) {
+  Future<CallToolResult> run(Map<String, Object?> arguments) async {
     final subcommand = arguments['subcommand']! as String;
     final projectName = arguments['name']! as String;
+    final outputDirectory = arguments['output_directory'] as String?;
 
-    return runner.run(
+    // Refused up front rather than left to mason: on a file that already
+    // exists with different content mason prompts whether to overwrite it,
+    // and the server has no terminal to answer from. A relative
+    // `output_directory` resolves against the directory the server was
+    // started in, like the `-o` option of the command it becomes.
+    final projectDirectory = Directory(
+      path.join(runner.startDirectory, outputDirectory ?? '', projectName),
+    );
+    if (_isNotEmpty(projectDirectory)) {
+      return invalidInput(
+        'Project directory "${projectDirectory.path}" already exists and is '
+        'not empty. Pick another "output_directory" or "name", or remove '
+        'the existing project before retrying.',
+        arguments,
+      );
+    }
+
+    return await runner.run(
       [
         'create',
         subcommand,
@@ -153,4 +175,8 @@ class CreateTool(super.runner) extends VeryGoodTool {
       requestArguments: arguments,
     );
   }
+
+  /// Whether [directory] exists and holds at least one entry.
+  static bool _isNotEmpty(Directory directory) =>
+      directory.existsSync() && directory.listSync().isNotEmpty;
 }

@@ -22,7 +22,7 @@ import 'package:mason/mason.dart' show ExitCode;
 ///
 /// A failure is classified from the command's exit code with
 /// [ToolFailureType.fromExitCode], or from the exception it threw with
-/// [ToolFailureType.fromException].
+/// [ToolFailureType.fromError].
 enum ToolFailureType {
   /// A caller-supplied argument was invalid.
   validation,
@@ -72,15 +72,16 @@ enum ToolFailureType {
     return ToolFailureType.business;
   }
 
-  /// Classifies an [exception] thrown by a command into a [ToolFailureType].
+  /// Classifies an [error] thrown by a command into a [ToolFailureType].
   ///
   /// Only network and timeout exceptions are [ToolFailureType.transient], so
   /// a deterministic exception is never reported as worth a retry. Exceptions
   /// caused by bad input (an invalid argument, malformed YAML, a missing path)
   /// are [ToolFailureType.validation], and a file system operation denied by
-  /// the OS is [ToolFailureType.permission]. Anything else falls back to
-  /// [ToolFailureType.business].
-  factory fromException(Exception exception) => switch (exception) {
+  /// the OS is [ToolFailureType.permission]. Anything else, including an
+  /// [Error] (such as the [StateError] mason throws when a command prompts
+  /// without a terminal attached), falls back to [ToolFailureType.business].
+  factory fromError(Object error) => switch (error) {
     SocketException() ||
     HttpException() ||
     TlsException() ||

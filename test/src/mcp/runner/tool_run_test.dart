@@ -114,10 +114,10 @@ void main() {
       });
     });
 
-    group('resultForException', () {
+    group('resultForError', () {
       test('maps a UsageException to a validation failure', () {
         final result = withStderr(
-          () => run.resultForException(
+          () => run.resultForError(
             UsageException('bad flag', 'usage'),
             StackTrace.empty,
           ),
@@ -136,14 +136,14 @@ void main() {
       test('maps an unknown exception to a business failure', () {
         final stackTrace = StackTrace.current;
         final result = withStderr(
-          () => run.resultForException(Exception('boom'), stackTrace),
+          () => run.resultForError(Exception('boom'), stackTrace),
         );
 
         expect(
           jsonOf(result),
           allOf(
             containsPair('failureType', 'business'),
-            containsPair('reason', 'threw an exception: Exception: boom'),
+            containsPair('reason', 'threw an error: Exception: boom'),
           ),
         );
         expect(
@@ -155,19 +155,43 @@ void main() {
       test('maps a bad input exception to a validation failure', () {
         final stackTrace = StackTrace.current;
         final result = withStderr(
-          () => run.resultForException(
-            const FormatException('bad yaml'),
-            stackTrace,
-          ),
+          () =>
+              run.resultForError(const FormatException('bad yaml'), stackTrace),
         );
 
         expect(
           jsonOf(result),
           allOf(
             containsPair('failureType', 'validation'),
+            containsPair('reason', 'threw an error: FormatException: bad yaml'),
+          ),
+        );
+        expect(
+          stderrBuffer.toString(),
+          contains('[very_good_mcp] Stack trace: $stackTrace'),
+        );
+      });
+
+      test('maps an error that is not an exception to a business failure', () {
+        // mason throws a StateError when a command prompts without a terminal
+        // attached; it must come back as a structured failure, not escape.
+        final stackTrace = StackTrace.current;
+        final result = withStderr(
+          () => run.resultForError(
+            StateError('No terminal attached to stdout.'),
+            stackTrace,
+          ),
+        );
+
+        expect(result.isError, isTrue);
+        expect(
+          jsonOf(result),
+          allOf(
+            containsPair('failureType', 'business'),
+            containsPair('failureReason', 'check_failed'),
             containsPair(
               'reason',
-              'threw an exception: FormatException: bad yaml',
+              'threw an error: Bad state: No terminal attached to stdout.',
             ),
           ),
         );
@@ -180,7 +204,7 @@ void main() {
       test('maps a network exception to a transient failure', () {
         final stackTrace = StackTrace.current;
         final result = withStderr(
-          () => run.resultForException(
+          () => run.resultForError(
             const SocketException('connection refused'),
             stackTrace,
           ),
@@ -330,7 +354,7 @@ void main() {
       test('follows the exception the command threw', () {
         final reasons = withStderr(
           () => [
-            for (final exception in <Exception>[
+            for (final error in <Object>[
               UsageException('bad flag', 'usage'),
               const FormatException('bad yaml'),
               const PathAccessException(
@@ -340,8 +364,9 @@ void main() {
               ),
               const SocketException('connection refused'),
               Exception('Invalid SDK hash'),
+              StateError('No terminal attached'),
             ])
-              reasonOf(run.resultForException(exception, StackTrace.empty)),
+              reasonOf(run.resultForError(error, StackTrace.empty)),
           ],
         );
 
@@ -352,6 +377,7 @@ void main() {
             'invalid_input',
             'permission_denied',
             'tool_crash',
+            'check_failed',
             'check_failed',
           ]),
         );

@@ -75,7 +75,7 @@ void main() {
       );
     });
 
-    group('fromException', () {
+    group('fromError', () {
       test('classifies network and timeout exceptions as transient', () {
         for (final exception in <Exception>[
           const SocketException('connection refused'),
@@ -84,7 +84,7 @@ void main() {
           TimeoutException('too slow'),
         ]) {
           expect(
-            ToolFailureType.fromException(exception),
+            ToolFailureType.fromError(exception),
             equals(ToolFailureType.transient),
             reason: '$exception',
           );
@@ -105,7 +105,7 @@ void main() {
           ),
         ]) {
           expect(
-            ToolFailureType.fromException(exception),
+            ToolFailureType.fromError(exception),
             equals(ToolFailureType.validation),
             reason: '$exception',
           );
@@ -114,7 +114,7 @@ void main() {
 
       test('classifies PathAccessException as permission', () {
         expect(
-          ToolFailureType.fromException(
+          ToolFailureType.fromError(
             const PathAccessException(
               '/locked',
               OSError('Permission denied', 13),
@@ -127,7 +127,7 @@ void main() {
 
       test('classifies other file system errors as business', () {
         expect(
-          ToolFailureType.fromException(
+          ToolFailureType.fromError(
             const FileSystemException(
               'Cannot open file',
               '/disk',
@@ -137,7 +137,7 @@ void main() {
           equals(ToolFailureType.business),
         );
         expect(
-          ToolFailureType.fromException(
+          ToolFailureType.fromError(
             const FileSystemException(
               'Input/output error',
               '/disk',
@@ -147,7 +147,7 @@ void main() {
           equals(ToolFailureType.business),
         );
         expect(
-          ToolFailureType.fromException(
+          ToolFailureType.fromError(
             const FileSystemException('Cannot open file', '/disk'),
           ),
           equals(ToolFailureType.business),
@@ -156,7 +156,18 @@ void main() {
 
       test('classifies unknown exceptions as business', () {
         expect(
-          ToolFailureType.fromException(Exception('Invalid SDK hash')),
+          ToolFailureType.fromError(Exception('Invalid SDK hash')),
+          equals(ToolFailureType.business),
+        );
+      });
+
+      test('classifies an error that is not an exception as business', () {
+        expect(
+          ToolFailureType.fromError(StateError('No terminal attached')),
+          equals(ToolFailureType.business),
+        );
+        expect(
+          ToolFailureType.fromError(ArgumentError('bad argument')),
           equals(ToolFailureType.business),
         );
       });
