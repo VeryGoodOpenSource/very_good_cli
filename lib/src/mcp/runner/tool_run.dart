@@ -7,6 +7,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' hide packageVersion;
 import 'package:meta/meta.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
 import 'package:very_good_cli/src/mcp/runner/models/models.dart';
 
 /// {@template tool_run}
@@ -35,26 +36,31 @@ class ToolRun({
 
   final TestRunRecorder _recorder = TestRunRecorder();
 
+  final LicenseCheckRecorder _licenseRecorder = LicenseCheckRecorder();
+
   String get _capturedOutput =>
       sanitizeCommandOutput(_output.toString()).trim();
 
   /// Runs [command] with `stdout`/`stderr` redirected into this run's buffer
   /// and returns its exit code.
   ///
-  /// What a test run reports beyond its exit code is recorded through this
-  /// run's [TestRunRecorder].
+  /// What a test run or a license check reports beyond its exit code is
+  /// recorded through this run's [TestRunRecorder] and [LicenseCheckRecorder].
   ///
   /// The [Logger] is built inside the zone because mason captures
   /// `IOOverrides.current` at construction time.
   Future<int> capture(Future<int> Function(Logger logger) command) {
     final sink = CapturingStdout(_output);
-    return TestRunRecorder.runZoned(
-      () => IOOverrides.runZoned(
-        () => command(Logger()),
-        stdout: () => sink,
-        stderr: () => sink,
+    return LicenseCheckRecorder.runZoned(
+      () => TestRunRecorder.runZoned(
+        () => IOOverrides.runZoned(
+          () => command(Logger()),
+          stdout: () => sink,
+          stderr: () => sink,
+        ),
+        recorder: _recorder,
       ),
-      recorder: _recorder,
+      recorder: _licenseRecorder,
     );
   }
 
@@ -68,10 +74,21 @@ class ToolRun({
 
     return _failure(
       'failed with exit code $exitCode.',
-      failureType: ToolFailureType.fromExitCode(exitCode),
+      failureType: _recordedFailureType(exitCode),
       isUsageError: exitCode == ExitCode.usage.code,
     );
   }
+
+  /// Classifies [exitCode] with [ToolFailureType.fromExitCode], unless the
+  /// license check recorded banned dependencies.
+  ///
+  /// A banned license exits with [ExitCode.config], like an invalid
+  /// configuration does, but the arguments were valid and the check did its
+  /// job: it is a [ToolFailureType.business] failure, not a validation one.
+  ToolFailureType _recordedFailureType(int exitCode) =>
+      _licenseRecorder.bannedDependencies != null
+      ? ToolFailureType.business
+      : ToolFailureType.fromExitCode(exitCode);
 
   /// Maps an [exception] thrown by the command to a failure result.
   ///
@@ -109,13 +126,17 @@ class ToolRun({
   );
 
   /// Refines [failureType]'s default [ToolFailureType.failureReason] with
-  /// what the test run recorded.
+  /// what the test run or the license check recorded.
   ///
-  /// For a [ToolFailureType.business] failure, failing tests take precedence
-  /// over an unmet coverage threshold, since they are the actionable cause.
-  /// Any other type uses its default reason.
+  /// For a [ToolFailureType.business] failure, banned dependencies name a
+  /// banned license, and failing tests take precedence over an unmet coverage
+  /// threshold, since they are the actionable cause. Any other type uses its
+  /// default reason.
   ToolFailureReason _recordedReason(ToolFailureType failureType) {
     if (failureType == ToolFailureType.business) {
+      if (_licenseRecorder.bannedDependencies != null) {
+        return ToolFailureReason.licenseBanned;
+      }
       if (_recorder.testsFailed) return ToolFailureReason.testFailure;
       if (_recorder.coverageNotMet != null) {
         return ToolFailureReason.coverageBelowThreshold;
@@ -137,9 +158,9 @@ class ToolRun({
   ///
   /// The failure reason is picked from [isUsageError] (which upgrades a
   /// [ToolFailureType.validation] failure to [ToolFailureReason.usageError])
-  /// and otherwise refined with [_recordedReason] from the test run side
-  /// channel, so every caller passes the context they have and the single
-  /// decision lives here.
+  /// and otherwise refined with [_recordedReason] from the test run and
+  /// license check side channels, so every caller passes the context they
+  /// have and the single decision lives here.
   ///
   /// The captured command output is surfaced as `partialResults` so any
   /// diagnostics emitted before a failure or throw are preserved. A short
@@ -174,6 +195,9 @@ class ToolRun({
       testResults: _recorder.results,
       coverage: failureReason == ToolFailureReason.coverageBelowThreshold
           ? _recorder.coverageNotMet
+          : null,
+      bannedDependencies: failureReason == ToolFailureReason.licenseBanned
+          ? _licenseRecorder.bannedDependencies
           : null,
     ).toCallToolResult();
   }

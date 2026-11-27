@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:dart_mcp/server.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
 import 'package:very_good_cli/src/mcp/runner/models/attempted_action.dart';
+import 'package:very_good_cli/src/mcp/runner/models/license_payload.dart';
 import 'package:very_good_cli/src/mcp/runner/models/test_payload.dart';
 import 'package:very_good_cli/src/mcp/runner/models/tool_failure.dart';
 
@@ -26,6 +28,10 @@ import 'package:very_good_cli/src/mcp/runner/models/tool_failure.dart';
 ///   tests. `coverage` holds the actual and required coverage and the
 ///   uncovered lines of the first [maxPayloadItems] files, at most
 ///   [maxPayloadItems] each, relative to the current directory.
+/// * `licenses` — what the license check recorded, when it banned any
+///   dependency: the number of `banned` dependencies and the first
+///   [maxPayloadItems] `bannedDependencies`, each with its `package` and the
+///   `licenses` that banned it.
 /// * `partialResults` — the sanitized captured command output, when any.
 /// * `alternativeApproaches` — recovery suggestions for the `failureReason`,
 ///   from [ToolFailureReason.alternativeApproaches].
@@ -61,6 +67,10 @@ class const StructuredToolError({
   /// The unmet coverage threshold of the test run, when the failure reason
   /// is [ToolFailureReason.coverageBelowThreshold].
   final MinCoverageNotMet? coverage,
+
+  /// The dependencies the license check banned, when the failure reason is
+  /// [ToolFailureReason.licenseBanned].
+  final BannedDependencies? bannedDependencies,
 }) {
   /// {@macro structured_tool_error}
   this;
@@ -81,6 +91,7 @@ class const StructuredToolError({
     ),
     'reason': reason,
     'test': ?TestPayload.maybeOf(testResults, coverage: coverage)?.toJson(),
+    'licenses': ?LicensePayload.maybeOf(bannedDependencies)?.toJson(),
     if (_hasPartialResults) 'partialResults': capturedOutput,
     'alternativeApproaches': failureReason.alternativeApproaches,
   };
