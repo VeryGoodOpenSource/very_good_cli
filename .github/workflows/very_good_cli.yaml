@@ -34,7 +34,7 @@ jobs:
     uses: VeryGoodOpenSource/very_good_workflows/.github/workflows/flutter_package.yml@v2
     with:
       runs_on: ${{ matrix.os }}
-      flutter_version: "3.47.x"
+      flutter_version: "3.50.x"
       coverage_excludes: "**/*.{gen,g}.dart"
       concurrency: 1
       run_skipped: true
