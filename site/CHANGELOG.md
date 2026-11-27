@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.3.0...site-v2.0.0) (2026-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mcp:** MCP tool arguments changed. "executable-name", "dart-define" and "dart-define-from-file" are now "executable_name", "dart_define" and "dart_define_from_file". "concurrency" is an integer and "min_coverage" a number. "platforms", "ignore", "dart_define" and "dart_define_from_file" are arrays. "template", "force_ansi" and "licenses" are removed. Unknown arguments are rejected.
+
+### Bug Fixes
+
+* **create:** register the new package in the workspace root ([#1821](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1821)) ([5ae47f7](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5ae47f730ab06d8d76c165c9d8bb4502c99169a4))
+
+
+### Refactors
+
+* **mcp:** tighten the tool schemas and structure every result ([#1825](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1825)) ([b89a9f3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b89a9f3f11f178ffb0f47fbf36ca6fb295bf6b1b))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump eslint from 10.14.0 to 10.15.0 in /site ([#1831](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1831)) ([fd59d32](https://github.com/VeryGoodOpenSource/very_good_cli/commit/fd59d324d7810f49b1ff127e5964f766f2742ffe))
+* **deps-dev:** bump eslint-plugin-jest in /site ([#1832](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1832)) ([ce5c43c](https://github.com/VeryGoodOpenSource/very_good_cli/commit/ce5c43c429f40ee49efcd8caf5c5a43d851b595d))
+
 ## [1.3.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/site-v1.2.0...site-v1.3.0) (2026-11-16)
 
 
