@@ -1,2 +1,2 @@
 // Generated code. Do not modify.
-const packageVersion = '1.7.0'; // x-release-please-version
+const packageVersion = '2.0.0'; // x-release-please-version
