@@ -46,6 +46,15 @@ class _TestCreateSubCommand({
   final String description = 'Create command';
 }
 
+class _TestCreateSubCommandWithoutPubspec({
+  required super.template,
+  required super.logger,
+  required super.generatorFromBundle,
+}) extends _TestCreateSubCommand {
+  @override
+  bool get isDescriptionWrittenToPubspec => false;
+}
+
 class _TestCreateSubCommandWithOrgName({
   required super.template,
   required super.logger,
@@ -481,6 +490,96 @@ See https://dart.dev/tools/pub/pubspec#name for more information.'''),
               );
             },
           );
+        });
+
+        group('validates description', () {
+          for (final description in [
+            'Sign-in client: Google Identity wrapper',
+            '[unclosed',
+          ]) {
+            test(
+              'throws UsageException before generating anything when the '
+              'description is not a valid YAML string: "$description"',
+              () async {
+                await expectLater(
+                  () async {
+                    await runner.run([
+                      'create_subcommand',
+                      'name',
+                      '--description',
+                      description,
+                    ]);
+                  },
+                  throwsA(
+                    isA<UsageException>()
+                        .having((e) => e.usage, 'usage', expectedUsage)
+                        .having(
+                          (e) => e.message,
+                          'message',
+                          '''
+"$description" is not a valid project description.
+
+It is written to pubspec.yaml without quotes, so it must be a valid YAML string. For example, it cannot contain a colon followed by a space (": ").''',
+                        ),
+                  ),
+                );
+
+                verifyNever(() => logger.progress('Bootstrapping'));
+                verifyNever(
+                  () => generator.generate(
+                    any(),
+                    vars: any(named: 'vars'),
+                    logger: any(named: 'logger'),
+                  ),
+                );
+              },
+            );
+          }
+
+          for (final description in [
+            'Sign-in client - Google Identity wrapper',
+            'A ratio of 1:2',
+            'Uses "quotes" and a #hash',
+          ]) {
+            test('accepts a description that is a valid YAML string: '
+                '"$description"', () async {
+              final result = await runner.run([
+                'create_subcommand',
+                'name',
+                '--description',
+                description,
+              ]);
+
+              expect(result, equals(ExitCode.success.code));
+              verify(
+                () => hooks.preGen(
+                  vars: <String, dynamic>{
+                    'project_name': 'name',
+                    'description': description,
+                  },
+                  onVarsChanged: any(named: 'onVarsChanged'),
+                ),
+              );
+            });
+          }
+
+          test('does not validate a description that is not written to a '
+              'pubspec.yaml', () async {
+            final command = _TestCreateSubCommandWithoutPubspec(
+              template: template,
+              logger: logger,
+              generatorFromBundle: (_) async => generator,
+            );
+
+            final result = await _TestCommandRunner(command: command).run([
+              'create_subcommand',
+              'name',
+              '--description',
+              'Sign-in client: Google Identity wrapper',
+            ]);
+
+            expect(result, equals(ExitCode.success.code));
+          });
         });
       });
 

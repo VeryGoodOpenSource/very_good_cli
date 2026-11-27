@@ -27,6 +27,10 @@ class CreateDocsSite({
   @override
   String get description => 'Generate a Very Good documentation site.';
 
+  // The docs site template does not write a pubspec.yaml.
+  @override
+  bool get isDescriptionWrittenToPubspec => false;
+
   @override
   Map<String, dynamic> getTemplateVars() {
     return <String, dynamic>{

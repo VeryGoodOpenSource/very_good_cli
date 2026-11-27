@@ -10,6 +10,7 @@ import 'package:very_good_cli/src/commands/commands.dart';
 import 'package:very_good_cli/src/commands/create/templates/templates.dart';
 import 'package:very_good_cli/src/pubspec_workspace/pubspec_workspace.dart';
 import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
+import 'package:yaml/yaml.dart';
 
 // A valid Dart identifier that can be used for a package, i.e. no
 // capital letters.
@@ -194,12 +195,36 @@ abstract class CreateSubCommand({
     return name;
   }
 
+  /// Whether the project description is written, without quotes, to the
+  /// `pubspec.yaml` of the generated project.
+  ///
+  /// When it is, a description that is not a valid YAML string is rejected
+  /// before anything is generated, instead of leaving behind a project whose
+  /// `pubspec.yaml` cannot be parsed. Defaults to `true`. Override it for a
+  /// template that does not write the description to a `pubspec.yaml`.
+  @visibleForOverriding
+  bool get isDescriptionWrittenToPubspec => true;
+
   /// Gets the description for the project.
-  String get projectDescription => argResults.resolve<String>(
-    'description',
-    createConfig.description,
-    fallbackValue: '',
-  );
+  String get projectDescription {
+    final description = argResults.resolve<String>(
+      'description',
+      createConfig.description,
+      fallbackValue: '',
+    );
+
+    if (isDescriptionWrittenToPubspec &&
+        !_isValidPubspecDescription(description)) {
+      usageException(
+        '"$description" is not a valid project description.\n\n'
+        'It is written to pubspec.yaml without quotes, so it must be a valid '
+        'YAML string. For example, it cannot contain a colon followed by a '
+        'space (": ").',
+      );
+    }
+
+    return description;
+  }
 
   /// Should return the desired template to be created during a command run.
   ///
@@ -215,6 +240,15 @@ abstract class CreateSubCommand({
   bool _isValidPackageName(String name) {
     final match = _identifierRegExp.matchAsPrefix(name);
     return match != null && match.end == name.length;
+  }
+
+  bool _isValidPubspecDescription(String description) {
+    try {
+      loadYaml('description: $description');
+      return true;
+    } on YamlException {
+      return false;
+    }
   }
 
   @override
