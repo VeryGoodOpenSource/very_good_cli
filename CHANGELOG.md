@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.0.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.7.0...v2.0.0) (2026-11-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mcp:** MCP tool arguments changed. "executable-name", "dart-define" and "dart-define-from-file" are now "executable_name", "dart_define" and "dart_define_from_file". "concurrency" is an integer and "min_coverage" a number. "platforms", "ignore", "dart_define" and "dart_define_from_file" are arrays. "template", "force_ansi" and "licenses" are removed. Unknown arguments are rejected.
+
+### Features
+
+* **mcp:** expose the remaining test and license options ([#1837](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1837)) ([4c5a1d5](https://github.com/VeryGoodOpenSource/very_good_cli/commit/4c5a1d54b2450fc7430a0ece697495c612293143)), closes [#1824](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1824)
+
+
+### Bug Fixes
+
+* **ci:** ignore CHANGELOG commit links in link checker ([#1827](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1827)) ([7623af6](https://github.com/VeryGoodOpenSource/very_good_cli/commit/7623af6c8c9147e75968365f69098f3e4dd2c442)), closes [#1826](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1826)
+* **create:** register the new package in the workspace root ([#1821](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1821)) ([5ae47f7](https://github.com/VeryGoodOpenSource/very_good_cli/commit/5ae47f730ab06d8d76c165c9d8bb4502c99169a4))
+* **dart test:** pass -j 1 when --platform is specified ([#1820](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1820)) ([798f059](https://github.com/VeryGoodOpenSource/very_good_cli/commit/798f059483714d46ecbb14da1f8a7d158ae69179))
+
+
+### Refactors
+
+* **mcp:** tighten the tool schemas and structure every result ([#1825](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1825)) ([b89a9f3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/b89a9f3f11f178ffb0f47fbf36ca6fb295bf6b1b))
+
+
+### Miscellaneous Chores
+
+* delete CLAUDE.md ([#1816](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1816)) ([6e39665](https://github.com/VeryGoodOpenSource/very_good_cli/commit/6e3966580a794870562a3f3bde6750d247bc8307))
+* **site:** 1.3.0 ([#1806](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1806)) ([d122f3d](https://github.com/VeryGoodOpenSource/very_good_cli/commit/d122f3df8a38f42bbf9cbe93b7cf6dda59b72f16))
+* update SPDX licenses ([#1819](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1819)) ([156c6c3](https://github.com/VeryGoodOpenSource/very_good_cli/commit/156c6c3ff9fee828a427631cfaddda9252670344))
+* update SPDX licenses ([#1835](https://github.com/VeryGoodOpenSource/very_good_cli/issues/1835)) ([eaa738e](https://github.com/VeryGoodOpenSource/very_good_cli/commit/eaa738e2d7b2e70d5b654a89d27432a4791eeacd))
+
 ## [1.7.0](https://github.com/VeryGoodOpenSource/very_good_cli/compare/v1.6.0...v1.7.0) (2026-11-16)
 
 
