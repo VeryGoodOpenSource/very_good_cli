@@ -54,14 +54,23 @@ void main() {
         'dart': true,
         'coverage': true,
         'recursive': true,
+        'workspace': true,
         'optimization': true,
+        'exclude_optimization': ['test/integration/**', 'test/e2e/**'],
         'concurrency': 8,
         'tags': 'a,b',
         'exclude_coverage': '**/*.g.dart',
+        'collect_coverage_from': 'all',
+        'report_on': ['lib/src', 'lib/other'],
         'exclude_tags': 'c,d',
         'min_coverage': 90,
         'test_randomize_ordering_seed': '123',
         'update_goldens': true,
+        'fail_fast': true,
+        'flavor': 'development',
+        'file_reporter': 'json:reports/tests.json',
+        'shard_index': 1,
+        'total_shards': 3,
         'dart_define': ['foo=bar', 'baz=qux'],
         'dart_define_from_file': ['my_file.json'],
         'platform': 'chrome',
@@ -77,13 +86,24 @@ void main() {
           'test',
           '--coverage',
           '-r',
+          '--workspace',
           '--optimization',
+          '--exclude-optimization',
+          'test/integration/**',
+          '--exclude-optimization',
+          'test/e2e/**',
           '-j',
           '8',
           '-t',
           'a,b',
           '--exclude-coverage',
           '**/*.g.dart',
+          '--collect-coverage-from',
+          'all',
+          '--report-on',
+          'lib/src',
+          '--report-on',
+          'lib/other',
           '-x',
           'c,d',
           '--min-coverage',
@@ -91,6 +111,15 @@ void main() {
           '--test-randomize-ordering-seed',
           '123',
           '--update-goldens',
+          '--fail-fast',
+          '--flavor',
+          'development',
+          '--file-reporter',
+          'json:reports/tests.json',
+          '--shard-index',
+          '1',
+          '--total-shards',
+          '3',
           '--dart-define',
           'foo=bar',
           '--dart-define',
@@ -239,9 +268,72 @@ void main() {
       });
     });
 
+    group('sharding', () {
+      test('forwards the shard as integers', () async {
+        await call({'shard_index': 2, 'total_shards': 4});
+
+        expect(
+          verifyRun(runner).args,
+          equals(['test', '--shard-index', '2', '--total-shards', '4']),
+        );
+      });
+
+      test('rejects a shard index below one', () async {
+        final result = await call({'shard_index': 0, 'total_shards': 4});
+
+        expect(result.isError, isTrue);
+        expect(result.structuredContent!['reason'], contains('shard_index'));
+        verifyNoRun(runner);
+      });
+
+      test('rejects a shard count below one', () async {
+        final result = await call({'shard_index': 1, 'total_shards': 0});
+
+        expect(result.isError, isTrue);
+        expect(result.structuredContent!['reason'], contains('total_shards'));
+        verifyNoRun(runner);
+      });
+    });
+
+    group('collect_coverage_from', () {
+      test('forwards imports', () async {
+        await call({'collect_coverage_from': 'imports'});
+
+        expect(
+          verifyRun(runner).args,
+          equals(['test', '--collect-coverage-from', 'imports']),
+        );
+      });
+
+      test('rejects a mode it does not know', () async {
+        final result = await call({'collect_coverage_from': 'none'});
+
+        expect(result.isError, isTrue);
+        expect(
+          result.structuredContent!['reason'],
+          contains('"none" is not one of the allowed values'),
+        );
+        verifyNoRun(runner);
+      });
+    });
+
+    test('forwards fail_fast to both runners', () async {
+      await call({'fail_fast': true});
+      expect(verifyRun(runner).args, equals(['test', '--fail-fast']));
+
+      await call({'dart': true, 'fail_fast': true});
+      expect(verifyRun(runner).args, equals(['dart', 'test', '--fail-fast']));
+    });
+
+    test('adds no option for an empty list argument', () async {
+      await call({'exclude_optimization': <String>[], 'report_on': <String>[]});
+
+      expect(verifyRun(runner).args, equals(['test']));
+    });
+
     test('rejects arguments that do not match the schema', () async {
       final result = await call({
-        'fail_fast': true,
+        'force_ansi': true,
         'concurrency': '4',
         'platform': 'firefox',
       });
@@ -254,7 +346,7 @@ void main() {
         payload['reason'],
         allOf(
           startsWith('Invalid arguments: '),
-          contains('Additional property "fail_fast" is not allowed'),
+          contains('Additional property "force_ansi" is not allowed'),
           contains('#root["concurrency"]'),
           contains('"firefox" is not one of the allowed values'),
         ),

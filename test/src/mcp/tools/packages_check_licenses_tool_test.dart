@@ -55,6 +55,7 @@ void main() {
         'allowed': ['MIT', 'BSD-3-Clause'],
         'forbidden': ['GPL-3.0-only'],
         'skip_packages': ['pkg1'],
+        'reporter': 'csv',
       };
 
       await call(arguments);
@@ -79,10 +80,23 @@ void main() {
           'GPL-3.0-only',
           '--skip-packages',
           'pkg1',
+          '--reporter',
+          'csv',
         ]),
       );
       expect(run.directory, equals('packages/my_app'));
       expect(run.requestArguments, equals(arguments));
+    });
+
+    test('rejects a reporter it does not know', () async {
+      final result = await call({'reporter': 'json'});
+
+      expect(result.isError, isTrue);
+      expect(
+        result.structuredContent!['reason'],
+        contains('"json" is not one of the allowed values'),
+      );
+      verifyNoRun(runner);
     });
 
     test('rejects a dependency type it does not know', () async {

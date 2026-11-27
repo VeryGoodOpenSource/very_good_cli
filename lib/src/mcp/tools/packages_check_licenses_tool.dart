@@ -2,6 +2,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:very_good_cli/src/mcp/runner/runner.dart';
 import 'package:very_good_cli/src/mcp/tools/cli_arguments.dart';
 import 'package:very_good_cli/src/mcp/tools/very_good_tool.dart';
+import 'package:very_good_cli/src/very_good_config/very_good_config.dart';
 
 /// {@template packages_check_licenses_tool}
 /// `packages_check_licenses`: lists and checks the licenses of the
@@ -71,6 +72,13 @@ class PackagesCheckLicensesTool(super.runner) extends VeryGoodTool {
               'Whether to carry on when the license of a package cannot '
               'be retrieved. Defaults to false.',
         ),
+        'reporter': UntitledSingleSelectEnumSchema(
+          description:
+              'How to list the licenses in the output: "text" for a '
+              'plain listing, or "csv" for one row per package. Defaults '
+              'to "text".',
+          values: reporterAllowedValues,
+        ),
       },
       additionalProperties: false,
     ),
@@ -91,6 +99,7 @@ class PackagesCheckLicensesTool(super.runner) extends VeryGoodTool {
       ...arguments.multiOption('allowed', '--allowed'),
       ...arguments.multiOption('forbidden', '--forbidden'),
       ...arguments.multiOption('skip_packages', '--skip-packages'),
+      ...arguments.option('reporter', '--reporter'),
     ],
     toolName: name,
     directory: arguments['directory'] as String?,
