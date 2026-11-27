@@ -73,9 +73,9 @@ class TestTool(super.runner) extends VeryGoodTool {
           description:
               'Whether to bundle the test files into a single entry '
               'point so that they run faster. Disabled when "platform" '
-              'or "paths" is set. Tag a test file with '
-              '"skip_very_good_optimization" to leave it out. Defaults '
-              'to true.',
+              'or "paths" is set, or "update_goldens" is true. Tag a test '
+              'file with "skip_very_good_optimization" to leave it out. '
+              'Defaults to true.',
         ),
         'concurrency': IntegerSchema(
           description:
