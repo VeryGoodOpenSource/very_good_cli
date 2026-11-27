@@ -150,7 +150,7 @@ See the [get packages command](./get_pkgs.md) for more details.
 
 ### `packages_check_licenses`
 
-List the licenses of a package's dependencies, and fail when one is not in `allowed` or is in `forbidden`.
+List the licenses of a package's dependencies, and fail with a `license_banned` reason when one is not in `allowed` or is in `forbidden`. See [License results](#license-results) for the banned dependencies the failure lists.
 
 See the [check licenses command](./check_licenses.md) for more details.
 
@@ -200,6 +200,7 @@ A tool call that fails returns `isError: true` with a single text content holdin
 | `attemptedAction`       | The `tool`, the `command` it ran, and the `directory` and `arguments` of the call when given. |
 | `reason`                | A human-readable failure cause, such as `failed with exit code 70.`                           |
 | `test`                  | `test` only: what the test run recorded. See [Test results](#test-results).                   |
+| `licenses`              | `packages_check_licenses` only: the dependencies it banned. See [License results](#license-results). |
 | `partialResults`        | The output the command printed before failing, when any.                                      |
 | `alternativeApproaches` | Recovery suggestions for the `failureReason`.                                                 |
 
@@ -211,6 +212,7 @@ Arguments that do not match a tool's input schema fail the same way, with a `val
 | ------------- | -------------------------- | ----------------------------------------------------------------------------------------------- | -------------- |
 | `business`    | `test_failure`             | A test failed, or a test file failed to load. Takes precedence over `coverage_below_threshold`. | No             |
 | `business`    | `coverage_below_threshold` | The tests passed, but their coverage is below `min_coverage`.                                   | No             |
+| `business`    | `license_banned`           | A dependency has a license that is in `forbidden` or not in `allowed`.                          | No             |
 | `business`    | `check_failed`             | The command failed or threw without reporting a more specific cause.                            | No             |
 | `transient`   | `tool_crash`               | The tool exited unexpectedly, left no coverage report behind, or hit a network error.           | Yes            |
 | `validation`  | `invalid_input`            | An argument did not match the input schema, or it or the project it points to was invalid.      | No             |
@@ -328,6 +330,37 @@ A timeout, which carries the results recorded before the run was stopped:
       "durationMs": 0,
       "failingTests": []
     }
+  },
+  "partialResults": "…",
+  "alternativeApproaches": ["…"]
+}
+```
+
+### License results
+
+A `packages_check_licenses` failure carries a `licenses` object when the check banned a dependency:
+
+- `banned`: the number of banned dependencies.
+- `bannedDependencies`: the banned dependencies with their `package` name and the `licenses` that banned them, those in `forbidden` or not in `allowed`. Only the first 20 are listed; a reader can tell the list was capped by comparing its length against `banned`.
+
+The arguments were valid and the check did its job, so the failure is a `business` one with a `license_banned` reason: replace the dependency, or ask the user about the license policy, rather than correcting the arguments.
+
+A banned license:
+
+```json
+{
+  "status": "partial_failure",
+  "failureType": "business",
+  "failureReason": "license_banned",
+  "attemptedAction": {
+    "tool": "packages_check_licenses",
+    "command": "very_good packages check licenses --forbidden MIT",
+    "arguments": { "forbidden": ["MIT"] }
+  },
+  "reason": "failed with exit code 78.",
+  "licenses": {
+    "banned": 1,
+    "bannedDependencies": [{ "package": "very_good_test_runner", "licenses": ["MIT"] }]
   },
   "partialResults": "…",
   "alternativeApproaches": ["…"]

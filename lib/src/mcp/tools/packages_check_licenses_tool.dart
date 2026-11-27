@@ -21,8 +21,9 @@ class PackagesCheckLicensesTool(super.runner) extends VeryGoodTool {
     description:
         'List the licenses of the dependencies of a Dart or Flutter '
         'package as SPDX identifiers (e.g. MIT, BSD-3-Clause), and fail '
-        'when one is not in "allowed" or is in "forbidden". Reads '
-        'pubspec.lock, so the dependencies must be installed first.',
+        'with a "license_banned" reason, listing the banned packages under '
+        '"licenses", when one is not in "allowed" or is in "forbidden". '
+        'Reads pubspec.lock, so the dependencies must be installed first.',
     annotations: ToolAnnotations(
       title: 'Check package licenses',
       readOnlyHint: true,

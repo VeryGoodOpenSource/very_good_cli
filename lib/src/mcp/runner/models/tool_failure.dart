@@ -124,6 +124,9 @@ enum ToolFailureReason(
   /// The tests passed, but their coverage is below the required threshold.
   coverageBelowThreshold('coverage_below_threshold'),
 
+  /// A dependency has a license that is forbidden, or that is not allowed.
+  licenseBanned('license_banned'),
+
   /// A deterministic check reported a failure without naming a more specific
   /// cause. Re-running the same command reproduces the same outcome.
   checkFailed('check_failed'),
@@ -159,6 +162,11 @@ enum ToolFailureReason(
       '''Run with "show_uncovered": true to list the lines left uncovered.''',
       '''Add tests that cover those lines; an unchanged re-run fails the same way.''',
       '''Lower "min_coverage" or exclude files from coverage only with the user's agreement.''',
+    ],
+    ToolFailureReason.licenseBanned => const [
+      '''Read "licenses.bannedDependencies" for the packages and the licenses that banned them.''',
+      '''Replace each banned dependency with one under an accepted license; an unchanged re-run fails the same way.''',
+      '''Change "allowed" or "forbidden", or skip a package with "skip_packages", only with the user's agreement on the license policy.''',
     ],
     ToolFailureReason.checkFailed => const [
       'Read the captured output for the specific check that failed.',

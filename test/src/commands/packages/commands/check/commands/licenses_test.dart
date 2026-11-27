@@ -1002,6 +1002,67 @@ and limitations under the License.''');
         }),
       );
 
+      test(
+        'records the banned dependencies into the current recorder',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          final recorder = LicenseCheckRecorder();
+          final result = await LicenseCheckRecorder.runZoned(
+            () => commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              'BSD',
+              tempDirectory.path,
+            ]),
+            recorder: recorder,
+          );
+
+          expect(result, ExitCode.config.code);
+          expect(
+            recorder.bannedDependencies,
+            equals({
+              'very_good_test_runner': {'MIT'},
+            }),
+          );
+        }),
+      );
+
+      test(
+        'records nothing when every license is allowed',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([mitLicenseMatch]);
+
+          final recorder = LicenseCheckRecorder();
+          final result = await LicenseCheckRecorder.runZoned(
+            () => commandRunner.run([
+              ...commandArguments,
+              allowedArgument,
+              'MIT',
+              tempDirectory.path,
+            ]),
+            recorder: recorder,
+          );
+
+          expect(result, ExitCode.success.code);
+          expect(recorder.bannedDependencies, isNull);
+        }),
+      );
+
       group('reports', () {
         test(
           'when a single license is not allowed',
@@ -1190,6 +1251,39 @@ and limitations under the License.''');
           ]);
 
           expect(result, ExitCode.config.code);
+        }),
+      );
+
+      test(
+        'records the banned dependencies into the current recorder',
+        withRunner((commandRunner, logger, pubUpdater, printLogs) async {
+          File(path.join(tempDirectory.path, pubspecLockBasename))
+              .writeAsStringSync(_validPubspecLockContent);
+
+          when(() => logger.progress(any())).thenReturn(progress);
+
+          when(() => packageConfig.packages)
+              .thenReturn({veryGoodTestRunnerConfigPackage});
+          when(() => detectorResult.matches).thenReturn([bsdLicenseMatch]);
+
+          final recorder = LicenseCheckRecorder();
+          final result = await LicenseCheckRecorder.runZoned(
+            () => commandRunner.run([
+              ...commandArguments,
+              forbiddenArgument,
+              'BSD',
+              tempDirectory.path,
+            ]),
+            recorder: recorder,
+          );
+
+          expect(result, ExitCode.config.code);
+          expect(
+            recorder.bannedDependencies,
+            equals({
+              'very_good_test_runner': {'BSD'},
+            }),
+          );
         }),
       );
 

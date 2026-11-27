@@ -6,6 +6,8 @@ import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' show ExitCode, Logger;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
+import 'package:very_good_cli/src/mcp/runner/models/models.dart';
 import 'package:very_good_cli/src/mcp/runner/tool_run.dart';
 
 void main() {
@@ -325,6 +327,101 @@ void main() {
           reasonForTestRun(testsFailed: true, coverageNotMet: coverageNotMet),
           completion(equals('test_failure')),
         );
+      });
+
+      group('license check', () {
+        const bannedDependencies = {
+          'foo': {'MIT'},
+        };
+
+        Future<CallToolResult> resultForLicenseCheck({
+          bool banned = true,
+        }) async {
+          await run.capture((_) async {
+            if (banned) {
+              LicenseCheckRecorder.current!.recordBannedDependencies(
+                bannedDependencies,
+              );
+            }
+            return ExitCode.config.code;
+          });
+          return withStderr<CallToolResult>(
+            () => run.resultFor(ExitCode.config.code),
+          );
+        }
+
+        test('records the license check of each run apart', () async {
+          final recorders = <LicenseCheckRecorder?>[];
+          Future<int> command(Logger _) async {
+            recorders.add(LicenseCheckRecorder.current);
+            return ExitCode.success.code;
+          }
+
+          await run.capture(command);
+          await run.capture(command);
+          await ToolRun(
+            toolName: 'packages_check_licenses',
+            commandString: 'very_good packages check licenses',
+            directory: null,
+            requestArguments: null,
+          ).capture(command);
+
+          expect(recorders, everyElement(isNotNull));
+          expect(recorders[0], same(recorders[1]));
+          expect(recorders[0], isNot(same(recorders[2])));
+        });
+
+        test('is a business failure with a license_banned reason when the '
+            'license check recorded banned dependencies', () async {
+          final result = await resultForLicenseCheck();
+
+          expect(
+            jsonOf(result),
+            allOf(
+              containsPair('failureType', 'business'),
+              containsPair('failureReason', 'license_banned'),
+              containsPair('reason', 'failed with exit code 78.'),
+              containsPair(
+                'alternativeApproaches',
+                ToolFailureReason.licenseBanned.alternativeApproaches,
+              ),
+            ),
+          );
+          expect(
+            stderrBuffer.toString(),
+            contains('[very_good_mcp] "test" business error:'),
+          );
+        });
+
+        test('comes with the banned dependencies of the license check', () {
+          expect(
+            resultForLicenseCheck().then(jsonOf),
+            completion(
+              containsPair('licenses', {
+                'banned': 1,
+                'bannedDependencies': [
+                  {
+                    'package': 'foo',
+                    'licenses': ['MIT'],
+                  },
+                ],
+              }),
+            ),
+          );
+        });
+
+        test('is invalid_input when the license check recorded nothing', () {
+          expect(
+            resultForLicenseCheck(banned: false).then(jsonOf),
+            completion(
+              allOf(
+                containsPair('failureType', 'validation'),
+                containsPair('failureReason', 'invalid_input'),
+                isNot(contains('licenses')),
+              ),
+            ),
+          );
+        });
       });
 
       test('follows the exception the command threw', () {

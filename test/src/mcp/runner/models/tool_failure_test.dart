@@ -173,6 +173,7 @@ void main() {
         equals({
           ToolFailureReason.testFailure: 'test_failure',
           ToolFailureReason.coverageBelowThreshold: 'coverage_below_threshold',
+          ToolFailureReason.licenseBanned: 'license_banned',
           ToolFailureReason.checkFailed: 'check_failed',
           ToolFailureReason.toolCrash: 'tool_crash',
           ToolFailureReason.invalidInput: 'invalid_input',

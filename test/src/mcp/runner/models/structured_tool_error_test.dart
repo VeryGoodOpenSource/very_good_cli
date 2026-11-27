@@ -4,6 +4,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
+import 'package:very_good_cli/src/commands/packages/commands/check/commands/commands.dart';
 import 'package:very_good_cli/src/mcp/runner/runner.dart';
 
 void main() {
@@ -250,6 +251,90 @@ void main() {
           for (final test in results['failingTests']! as List<Object?>)
             (test! as Map<String, Object?>)['name'],
         ], equals([for (var i = 0; i < 20; i++) '$i']));
+      });
+    });
+
+    group('licenses', () {
+      Map<String, Object?> payloadOf({
+        BannedDependencies? bannedDependencies,
+        ToolFailureReason failureReason = ToolFailureReason.licenseBanned,
+      }) => jsonDecode(
+        (StructuredToolError(
+                  toolName: 'packages_check_licenses',
+                  reason: 'failed with exit code 78.',
+                  failureType: ToolFailureType.business,
+                  failureReason: failureReason,
+                  capturedOutput: 'output',
+                  bannedDependencies: bannedDependencies,
+                ).toCallToolResult().content.first
+                as TextContent)
+            .text,
+      ) as Map<String, Object?>;
+
+      test('is omitted without banned dependencies', () {
+        expect(
+          payloadOf(failureReason: ToolFailureReason.invalidInput)
+              .containsKey('licenses'),
+          isFalse,
+        );
+      });
+
+      test('reports the banned dependencies and their licenses', () {
+        final payload = payloadOf(
+          bannedDependencies: {
+            'foo': {'GPL-3.0-only'},
+            'bar': {'MIT', 'BSD-3-Clause'},
+          },
+        );
+
+        expect(
+          payload.keys,
+          equals([
+            'status',
+            'failureType',
+            'failureReason',
+            'attemptedAction',
+            'reason',
+            'licenses',
+            'partialResults',
+            'alternativeApproaches',
+          ]),
+        );
+        expect(
+          payload['licenses'],
+          equals({
+            'banned': 2,
+            'bannedDependencies': [
+              {
+                'package': 'foo',
+                'licenses': ['GPL-3.0-only'],
+              },
+              {
+                'package': 'bar',
+                'licenses': ['MIT', 'BSD-3-Clause'],
+              },
+            ],
+          }),
+        );
+      });
+
+      test('keeps the first 20 banned dependencies', () {
+        final payload = payloadOf(
+          bannedDependencies: {
+            for (var i = 0; i < 21; i++) 'package_$i': {'MIT'},
+          },
+        );
+
+        final licenses = payload['licenses']! as Map<String, Object?>;
+        expect(licenses['banned'], equals(21));
+        expect(licenses['bannedDependencies'], hasLength(20));
+        expect(
+          (licenses['bannedDependencies']! as List<Object?>).last,
+          equals({
+            'package': 'package_19',
+            'licenses': ['MIT'],
+          }),
+        );
       });
     });
 

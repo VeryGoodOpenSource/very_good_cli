@@ -41,6 +41,13 @@ final ObjectSchema toolOutputSchema = ObjectSchema(
           'holds the actual and required coverage and the uncovered lines '
           'when coverage is below the threshold.',
     ),
+    'licenses': ObjectSchema(
+      description:
+          'Failure only: what a license check recorded when it banned a '
+          'dependency: the number of "banned" dependencies and the '
+          '"bannedDependencies", each with its "package" and the "licenses" '
+          'that banned it.',
+    ),
     'partialResults': StringSchema(
       description: 'Failure only: what the command printed before failing.',
     ),

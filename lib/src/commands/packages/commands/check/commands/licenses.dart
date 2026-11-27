@@ -19,6 +19,7 @@ import 'package:package_config/package_config.dart' as package_config;
 // ignore: implementation_imports
 import 'package:pana/src/license_detection/license_detector.dart' as detector;
 import 'package:path/path.dart' as path;
+import 'package:very_good_cli/src/commands/packages/commands/check/commands/license_check_recorder.dart';
 import 'package:very_good_cli/src/pub_license/spdx_license.gen.dart';
 import 'package:very_good_cli/src/pubspec/pubspec.dart';
 import 'package:very_good_cli/src/pubspec_lock/pubspec_lock.dart';
@@ -288,6 +289,9 @@ class PackagesCheckLicensesCommand({Logger? logger}) extends Command<int> {
     );
 
     if (bannedDependencies != null) {
+      LicenseCheckRecorder.current?.recordBannedDependencies(
+        bannedDependencies,
+      );
       _logger.err(_composeBannedReport(bannedDependencies));
       return ExitCode.config.code;
     }
