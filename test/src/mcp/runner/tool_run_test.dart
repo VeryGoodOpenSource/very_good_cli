@@ -6,7 +6,7 @@ import 'package:dart_mcp/server.dart';
 import 'package:mason/mason.dart' show ExitCode, Logger;
 import 'package:test/test.dart';
 import 'package:very_good_cli/src/cli/cli.dart';
-import 'package:very_good_cli/src/mcp/tool_run.dart';
+import 'package:very_good_cli/src/mcp/runner/tool_run.dart';
 
 void main() {
   group(ToolRun, () {

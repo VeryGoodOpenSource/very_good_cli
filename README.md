@@ -198,9 +198,9 @@ The MCP server exposes Very Good CLI functionality through the Model Context Pro
 **Available MCP Tools:**
 
 - `create`: Create new Dart/Flutter projects (https://cli.vgv.dev/docs/category/templates)
-- `tests`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
-- `packages_check_licenses`: Check packages for issues and licenses (https://cli.vgv.dev/docs/commands/check_licenses)
-- `packages_get`: Get package information and dependencies (https://cli.vgv.dev/docs/commands/get_pkgs)
+- `test`: Run tests with optional coverage and optimization (https://cli.vgv.dev/docs/commands/test)
+- `packages_check_licenses`: Check the licenses of a package's dependencies (https://cli.vgv.dev/docs/commands/check_licenses)
+- `packages_get`: Install the dependencies of a package (https://cli.vgv.dev/docs/commands/get_pkgs)
 
 ### [`very_good --help`](https://cli.vgv.dev/docs/overview)
 

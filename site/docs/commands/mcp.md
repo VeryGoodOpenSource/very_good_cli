@@ -128,7 +128,7 @@ Add to `~/.gemini/antigravity/mcp_config.json`:
 
 ## Available Tools
 
-The MCP server exposes the following tools to AI assistants:
+The MCP server exposes the following tools to AI assistants. A tool rejects arguments it does not define.
 
 ### `create`
 
@@ -144,19 +144,53 @@ See the [test command](./test.md) for more details.
 
 ### `packages_get`
 
-Install or update Dart/Flutter package dependencies.
+Install the dependencies of a Dart or Flutter package.
 
 See the [get packages command](./get_pkgs.md) for more details.
 
 ### `packages_check_licenses`
 
-Check packages for license compliance.
+List the licenses of a package's dependencies, and fail when one is not in `allowed` or is in `forbidden`.
 
 See the [check licenses command](./check_licenses.md) for more details.
 
-## Failure Payloads
+## Results
 
-A tool call that fails returns `isError: true` with a single text content holding a JSON payload, so an agent can pick a recovery strategy without parsing the command output:
+Every tool returns its result both as text and as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content), a JSON payload that each tool describes with an output schema.
+
+A tool call that succeeds returns a one-line summary and the command output as text. Its payload holds:
+
+| Field             | Description                                                                                   |
+| ----------------- | --------------------------------------------------------------------------------------------- |
+| `status`          | `success`.                                                                                    |
+| `attemptedAction` | The `tool`, the `command` it ran, and the `directory` and `arguments` of the call when given. |
+| `test`            | `test` only: the `results` of the test run. See [Test results](#test-results).                |
+| `output`          | The output the command printed, when any.                                                     |
+
+```json
+{
+  "status": "success",
+  "attemptedAction": {
+    "tool": "test",
+    "command": "very_good test --coverage",
+    "arguments": { "coverage": true }
+  },
+  "test": {
+    "results": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 1508,
+      "failingTests": []
+    }
+  },
+  "output": "…"
+}
+```
+
+### Failure payloads
+
+A tool call that fails returns `isError: true` with a single text content holding its JSON payload, so an agent can pick a recovery strategy without parsing the command output:
 
 | Field                   | Description                                                                                   |
 | ----------------------- | --------------------------------------------------------------------------------------------- |
@@ -165,9 +199,11 @@ A tool call that fails returns `isError: true` with a single text content holdin
 | `failureReason`         | The specific cause of the failure.                                                            |
 | `attemptedAction`       | The `tool`, the `command` it ran, and the `directory` and `arguments` of the call when given. |
 | `reason`                | A human-readable failure cause, such as `failed with exit code 70.`                           |
-| `test`                  | `test` failures only: what the test run recorded. See [Test results](#test-results).          |
+| `test`                  | `test` only: what the test run recorded. See [Test results](#test-results).                   |
 | `partialResults`        | The output the command printed before failing, when any.                                      |
 | `alternativeApproaches` | Recovery suggestions for the `failureReason`.                                                 |
+
+Arguments that do not match a tool's input schema fail the same way, with a `validation` type and an `invalid_input` reason, before any command runs.
 
 ### Failure types and reasons
 
@@ -175,16 +211,16 @@ A tool call that fails returns `isError: true` with a single text content holdin
 | ------------- | -------------------------- | ----------------------------------------------------------------------------------------------- | -------------- |
 | `business`    | `test_failure`             | A test failed, or a test file failed to load. Takes precedence over `coverage_below_threshold`. | No             |
 | `business`    | `coverage_below_threshold` | The tests passed, but their coverage is below `min_coverage`.                                   | No             |
-| `business`    | `tool_crash`               | The command failed or threw without reporting a more specific cause.                            | Unlikely       |
+| `business`    | `check_failed`             | The command failed or threw without reporting a more specific cause.                            | No             |
 | `transient`   | `tool_crash`               | The tool exited unexpectedly, left no coverage report behind, or hit a network error.           | Yes            |
-| `validation`  | `invalid_input`            | An argument, or the project it points to, was invalid.                                          | No             |
+| `validation`  | `invalid_input`            | An argument did not match the input schema, or it or the project it points to was invalid.      | No             |
 | `validation`  | `usage_error`              | The command line built from the arguments was rejected.                                         | No             |
 | `permission`  | `permission_denied`        | The process could not read or write a file it needed.                                           | No             |
 | `timeout`     | `timeout`                  | The run exceeded `timeout_seconds` and was stopped.                                             | No             |
 
 ### Test results
 
-A `test` failure carries a `test` object whenever the run recorded a result:
+A `test` result carries a `test` object whenever the run recorded a result:
 
 - `results`: the `passed`, `failed` and `skipped` test counts, the `durationMs` the tests ran for, and the `failingTests` with their `file`, `name` and a single-line `error`. A test file that failed to load is listed as `loading <file>`. Only the first 20 failing tests are listed; a reader can tell the list was capped by comparing its length against `failed`.
 - `coverage`: for a `coverage_below_threshold` failure only, the `actual` and `required` coverage percentages and the `uncoveredLines` grouped per `file`. Only the first 20 lines of the first 20 files are listed; `uncoveredLinesTruncated` is `true` when lines were left out.
@@ -230,7 +266,7 @@ Unmet coverage:
   "attemptedAction": {
     "tool": "test",
     "command": "very_good test --coverage --min-coverage 100",
-    "arguments": { "coverage": true, "min_coverage": "100" }
+    "arguments": { "coverage": true, "min_coverage": 100 }
   },
   "reason": "failed with exit code 70.",
   "test": {
