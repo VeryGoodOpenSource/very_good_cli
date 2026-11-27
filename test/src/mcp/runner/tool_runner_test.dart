@@ -139,12 +139,66 @@ void main() {
         expect(result.isError, isTrue);
         final payload = payloadOf(result);
         expect(payload['failureType'], equals('business'));
-        expect(payload['reason'], contains('threw an exception'));
+        expect(payload['reason'], contains('threw an error'));
         expect(payload['reason'], contains('big bad'));
       });
+
+      test(
+        'reports an error that is not an exception as a structured failure',
+        () async {
+          // mason throws a StateError when a command prompts without a terminal
+          // attached (for instance to overwrite an existing file). It must be
+          // turned into the same JSON payload as any other failure instead of
+          // escaping to the MCP transport, which would answer with a raw stack
+          // trace.
+          when(() => commandRunner.run(any()))
+              .thenThrow(StateError('No terminal attached to stdout.'));
+
+          final result = await run(requestArguments: {'name': 'my_app'});
+
+          expect(result.isError, isTrue);
+          expect(result.structuredContent, isNotNull);
+          final payload = payloadOf(result);
+          expect(payload['status'], equals('failure'));
+          expect(payload['failureType'], equals('business'));
+          expect(payload['failureReason'], equals('check_failed'));
+          expect(
+            payload['reason'],
+            equals(
+              'threw an error: Bad state: No terminal attached to stdout.',
+            ),
+          );
+          expect(
+            payload['attemptedAction'],
+            equals({
+              'tool': 'test',
+              'command': 'very_good test',
+              'arguments': {'name': 'my_app'},
+            }),
+          );
+          expect(payload['alternativeApproaches'], isNotEmpty);
+          expect(Directory.current.path, equals(originalCwd));
+        },
+      );
     });
 
     group('directory', () {
+      test('the server was started in is recorded at construction', () {
+        expect(runner.startDirectory, equals(originalCwd));
+
+        Directory.current = tempDir;
+        expect(
+          runner.startDirectory,
+          equals(originalCwd),
+          reason: 'a later working directory switch must not move it',
+        );
+        expect(
+          ToolRunner().startDirectory,
+          equals(Directory.current.path),
+          reason: 'a runner records the working directory it was built in',
+        );
+      });
+
       test('is the working directory of the run, then restored', () async {
         String? cwdDuringRun;
         when(() => commandRunner.run(any())).thenAnswer((_) async {
@@ -281,7 +335,7 @@ void main() {
         expect(result.isError, isTrue);
         final payload = payloadOf(result);
         expect(payload['status'], equals('partial_failure'));
-        expect(payload['reason'], contains('threw an exception'));
+        expect(payload['reason'], contains('threw an error'));
         expect(
           payload['partialResults'],
           contains('partial output before crash'),

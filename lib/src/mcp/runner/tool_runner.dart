@@ -48,6 +48,15 @@ class ToolRunner({
   /// other's working directory. The [Lock] keeps at most one run in flight.
   final _lock = Lock();
 
+  /// The directory the server was started in, which relative paths in tool
+  /// arguments resolve against.
+  ///
+  /// [run] switches the process working directory for the duration of a run
+  /// with a `directory` and restores it afterwards, so a tool inspecting the
+  /// file system before its run (while another run may be in flight) must
+  /// resolve relative paths against this directory, not `Directory.current`.
+  final String startDirectory = Directory.current.path;
+
   /// Runs a CLI command in-process and returns a [CallToolResult].
   ///
   /// The command is executed inside an [IOOverrides] zone that:
@@ -100,8 +109,12 @@ class ToolRunner({
       try {
         if (directory != null) Directory.current = directory;
         return await _runWithOptionalTimeout(run, args, timeout);
-      } on Exception catch (e, stackTrace) {
-        return run.resultForException(e, stackTrace);
+      } on Object catch (error, stackTrace) {
+        // Every thrown object is caught, not only an [Exception]: an [Error]
+        // escaping here would reach the MCP transport, which answers with an
+        // unstructured text result (a raw stack trace) instead of the JSON
+        // payload clients rely on to decide what to do next.
+        return run.resultForError(error, stackTrace);
       } finally {
         if (directory != null) Directory.current = previousDirectory;
       }

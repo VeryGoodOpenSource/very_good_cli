@@ -73,23 +73,26 @@ class ToolRun({
     );
   }
 
-  /// Maps an [exception] thrown by the command to a failure result.
+  /// Maps an [error] thrown by the command to a failure result.
   ///
-  /// The failure is classified by [ToolFailureType.fromException]. Any
-  /// exception other than a [UsageException] also logs its [stackTrace].
-  CallToolResult resultForException(
-    Exception exception,
-    StackTrace stackTrace,
-  ) {
-    final failureType = ToolFailureType.fromException(exception);
-    return switch (exception) {
+  /// Accepts any thrown object, not only an [Exception], so that an [Error]
+  /// escaping a command (such as the [StateError] mason throws when it prompts
+  /// without a terminal attached) is reported with the same structured
+  /// payload as every other failure instead of leaking a raw stack trace to
+  /// the client.
+  ///
+  /// The failure is classified by [ToolFailureType.fromError]. Any error
+  /// other than a [UsageException] also logs its [stackTrace].
+  CallToolResult resultForError(Object error, StackTrace stackTrace) {
+    final failureType = ToolFailureType.fromError(error);
+    return switch (error) {
       UsageException(:final message) => _failure(
         'usage error: $message',
         failureType: failureType,
         isUsageError: true,
       ),
       _ => _failure(
-        'threw an exception: $exception',
+        'threw an error: $error',
         failureType: failureType,
         stackTrace: stackTrace,
       ),
